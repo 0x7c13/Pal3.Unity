@@ -448,6 +448,7 @@ namespace Pal3.Actor
         public void Execute(ActorStopActionAndStandCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
+            _movementWaiter?.CancelWait();
             _currentPath?.Clear();
         }
 
