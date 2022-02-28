@@ -31,7 +31,7 @@
 ## 如何运行
 使用Unity2021.2.X打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge。为什么要选择Unity2021？主要还是因为目前Unity官方只提供了2021的Apple Silicon版本。再一个是2021开始Unity可以选择.NET Standard 2.1作为API接口。另外Unity2021LTS版本今年很快也会公布，届时我会把项目锁在2021LTS上。
 
-因为项目本身不含仙剑三的游戏数据，所以你需要持有一份仙剑三游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。打开Unity项目之后，找到GameResourceInitializer.cs文件，修改以下代码：
+因为项目本身不含仙剑三的游戏数据，所以你需要持有一份仙剑三游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。第一次打开Unity项目之后，先选择Scenes\Game作为当前Scene，然后找到GameResourceInitializer.cs文件，修改以下代码：
 ```c#
 string gameRootPath = Application.platform switch
 {
