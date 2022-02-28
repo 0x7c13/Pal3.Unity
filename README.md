@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/github/release/jasonstein/pal3.unity?label=latest%20version&style=flat-square" alt="Releases" />
   </a>
   <a style="text-decoration:none" href="">
-    <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity-green?style=flat-square" alt="Size" />
+    <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
   </a>
 </p>
 
