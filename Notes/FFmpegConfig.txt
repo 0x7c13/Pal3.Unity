@@ -1,0 +1,76 @@
+Example:
+
+./ffmpeg -v 9 -loglevel 99 -i END.bik -b:v 2M END.mp4
+./ffmpeg -i END.bik -b:v 2M END.mp4
+
+Build config:
+
+// For Intel Mac
+./configure \
+--arch=x86_64 \
+--disable-everything \
+--disable-ffplay \
+--disable-ffprobe \
+--disable-network \
+--disable-autodetect \
+--enable-small \
+--enable-protocol=file \
+--enable-filter=aresample \
+--enable-decoder=bink,binkaudio_dct,binkaudio_rdft \
+--enable-demuxer=bink \
+--enable-encoder=mpeg4,aac \
+--enable-muxer=mp4
+
+// For Apple Silicon Mac
+./configure \
+--arch=arm64 \
+--disable-everything \
+--disable-ffplay \
+--disable-ffprobe \
+--disable-network \
+--disable-autodetect \
+--enable-small \
+--enable-protocol=file \
+--enable-filter=aresample \
+--enable-decoder=bink,binkaudio_dct,binkaudio_rdft \
+--enable-demuxer=bink \
+--enable-encoder=mpeg4,aac \
+--enable-muxer=mp4
+
+// For x86 PC
+./configure \
+--target-os=mingw32 \
+--arch=x86_64 \
+--disable-everything \
+--disable-ffplay \
+--disable-ffprobe \
+--disable-network \
+--disable-autodetect \
+--enable-small \
+--enable-protocol=file \
+--enable-filter=aresample \
+--enable-decoder=bink,binkaudio_dct,binkaudio_rdft \
+--enable-demuxer=bink \
+--enable-encoder=mpeg4,aac \
+--enable-muxer=mp4
+
+// For arm64 PC
+docker run -it mstorsjo/llvm-mingw:latest
+git clone https://github.com/FFmpeg/FFmpeg.git
+pushd FFmpeg/
+./configure \
+--cross-prefix=aarch64-w64-mingw32- \
+--target-os=mingw32 \
+--arch=arm64 \
+--disable-everything \
+--disable-ffplay \
+--disable-ffprobe \
+--disable-network \
+--disable-autodetect \
+--enable-small \
+--enable-protocol=file \
+--enable-filter=aresample \
+--enable-decoder=bink,binkaudio_dct,binkaudio_rdft \
+--enable-demuxer=bink \
+--enable-encoder=mpeg4,aac \
+--enable-muxer=mp4

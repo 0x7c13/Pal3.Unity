@@ -1,0 +1,12 @@
+﻿// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2022, Jiaqi Liu. All rights reserved.
+//  See LICENSE.txt in the project root for license information.
+// ---------------------------------------------------------------------------------------------
+
+namespace Core.DataReader.Cpk
+{
+    public static class CpkConstants
+    {
+        public const char CpkDirectorySeparatorChar = '\\';
+    }
+}

@@ -1,0 +1,188 @@
+﻿// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2022, Jiaqi Liu. All rights reserved.
+//  See LICENSE.txt in the project root for license information.
+// ---------------------------------------------------------------------------------------------
+
+namespace Core.Utils
+{
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Text;
+    using UnityEngine;
+
+    public static class Utility
+    {
+        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
+
+        public static string ConvertToGbkString(byte[] charArray)
+        {
+            var str = new List<byte>();
+            var i = 0;
+            while (i < charArray.Length && charArray[i] != 0) str.Add(charArray[i++]);
+            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(str.ToArray());
+        }
+
+        public static Color32 ToColor32(byte[] rgba)
+        {
+            return new Color32(rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+
+        public static Color ToColor(float[] rgba)
+        {
+            return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+
+        public static void ApplyTransparency(Texture2D texture, float alpha)
+        {
+            for (var i = 0; i < texture.width; i++)
+            {
+                for (var j = 0; j < texture.height; j++)
+                {
+                    var pixel = texture.GetPixel(i, j);
+                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, alpha));
+                }
+            }
+            texture.Apply();
+        }
+
+        public static void ApplyTransparencyBasedOnColorIntensity(Texture2D texture)
+        {
+            for (var i = 0; i < texture.width; i++)
+            {
+                for (var j = 0; j < texture.height; j++)
+                {
+                    var pixel = texture.GetPixel(i, j);
+                    var intensity = pixel.r + pixel.g + pixel.b;
+                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
+                }
+            }
+            texture.Apply();
+        }
+
+        public static void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
+        {
+            for (var i = 0; i < texture.width; i++)
+            {
+                for (var j = 0; j < texture.height; j++)
+                {
+                    var pixel = texture.GetPixel(i, j);
+                    var intensity = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;
+                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
+                }
+            }
+            texture.Apply();
+        }
+
+        public static T ReadStruct<T>(FileStream stream) where T : struct
+        {
+            var structSize = Marshal.SizeOf(typeof(T));
+            byte[] buffer = new byte[structSize];
+            stream.Read(buffer);
+            return ReadStructInternal<T>(buffer);
+        }
+
+        public static T ReadStruct<T>(byte[] bytes) where T : struct
+        {
+            return ReadStructInternal<T>(bytes[..Marshal.SizeOf(typeof(T))]);
+        }
+
+        public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
+        {
+            return a1.SequenceEqual(a2);
+        }
+
+        private static unsafe T ReadStructInternal<T>(byte[] bytes) where T : struct
+        {
+            fixed (byte* ptr = &bytes[0])
+            {
+                return (T) (Marshal.PtrToStructure((IntPtr) ptr, typeof(T)) ?? default(T));
+            }
+        }
+
+        private static int GetPatternIndex(ReadOnlySpan<byte> src, ReadOnlySpan<byte> pattern, int startIndex = 0)
+        {
+            var maxFirstCharSlot = src.Length - pattern.Length + 1;
+            for (var i = startIndex; i < maxFirstCharSlot; i++)
+            {
+                if (src[i] != pattern[0])
+                    continue;
+
+                for (var j = pattern.Length - 1; j >= 1; j--)
+                {
+                    if (src[i + j] != pattern[j]) break;
+                    if (j == 1) return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public static byte[] TrimEnd(byte[] buffer, ReadOnlySpan<byte> pattern)
+        {
+            var length = GetPatternIndex(buffer, pattern);
+            return length == -1 ? buffer : buffer[..length];
+        }
+
+        public static void Rgb565ToRgb888(ushort rgb565Color, out byte r, out byte g, out byte b)
+        {
+            var temp = (rgb565Color >> 11) * 255 + 16;
+            r = (byte) ((temp / 32 + temp) / 32);
+            temp = ((rgb565Color & 0x07E0) >> 5) * 255 + 32;
+            g = (byte) ((temp / 64 + temp) / 64);
+            temp = (rgb565Color & 0x001F) * 255 + 16;
+            b = (byte) ((temp / 32 + temp) / 32);
+        }
+
+        public static string GetDirectoryName(string path, char directoryPathSeparator)
+        {
+            return !path.Contains(directoryPathSeparator) ?
+                string.Empty :
+                path[..path.LastIndexOf(directoryPathSeparator)];
+        }
+
+        public static string GetFileName(string path, char directoryPathSeparator)
+        {
+            return !path.Contains(directoryPathSeparator) ?
+                string.Empty :
+                path[(path.LastIndexOf(directoryPathSeparator)+1)..];
+        }
+
+        public static bool IsHandheldDevice()
+        {
+            // return Application.platform == RuntimePlatform.Android ||
+            //        Application.platform == RuntimePlatform.IPhonePlayer;
+            return SystemInfo.deviceType == DeviceType.Handheld;
+        }
+
+        public static void DrawBounds(Bounds b, float duration = 1000)
+        {
+            var p1 = new Vector3(b.min.x, b.min.y, b.min.z);
+            var p2 = new Vector3(b.max.x, b.min.y, b.min.z);
+            var p3 = new Vector3(b.max.x, b.min.y, b.max.z);
+            var p4 = new Vector3(b.min.x, b.min.y, b.max.z);
+
+            Debug.DrawLine(p1, p2, Color.blue, duration);
+            Debug.DrawLine(p2, p3, Color.red, duration);
+            Debug.DrawLine(p3, p4, Color.yellow, duration);
+            Debug.DrawLine(p4, p1, Color.magenta, duration);
+
+            var p5 = new Vector3(b.min.x, b.max.y, b.min.z);
+            var p6 = new Vector3(b.max.x, b.max.y, b.min.z);
+            var p7 = new Vector3(b.max.x, b.max.y, b.max.z);
+            var p8 = new Vector3(b.min.x, b.max.y, b.max.z);
+
+            Debug.DrawLine(p5, p6, Color.blue, duration);
+            Debug.DrawLine(p6, p7, Color.red, duration);
+            Debug.DrawLine(p7, p8, Color.yellow, duration);
+            Debug.DrawLine(p8, p5, Color.magenta, duration);
+
+            Debug.DrawLine(p1, p5, Color.white, duration);
+            Debug.DrawLine(p2, p6, Color.gray, duration);
+            Debug.DrawLine(p3, p7, Color.green, duration);
+            Debug.DrawLine(p4, p8, Color.cyan, duration);
+        }
+    }
+}
