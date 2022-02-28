@@ -48,6 +48,8 @@ string gameRootPath = Application.platform switch
 注意：当前仙剑三外传的完成度还处于非常早期，游戏剧情只能推进一小段。仙剑三的完成度很高，主线剧情已经全部完成。
 
 ## 截图
+![PAL3 Mac](ScreenShots/PAL3_Mac.png?raw=true)
+![PAL3 iOS](ScreenShots/PAL3_iOS.png?raw=true)
 
 ## 按键以及操作
 - 鼠标键盘：鼠标左键点击操作人物行走方向（键盘方向键也可以），AD控制镜头旋转，空格与周边附近的物品或者NPC交互。M键打开大地图，U键打开剧情选择菜单。
