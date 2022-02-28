@@ -8,16 +8,16 @@
   仙剑奇侠传三（以及外传）C#/Unity实现.
 </p>
 <p align="center">
-  <a style="text-decoration:none" href="https://www.microsoft.com/store/apps/9nhl4nsc67wm">
+  <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/unity-2021.2.13f1-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-yellow?style=flat-square" alt="Platform" />
+    <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
   </a>
-  <a style="text-decoration:none" href="https://github.com/JasonStein/Notepads/releases">
-    <img src="https://img.shields.io/github/release/jasonstein/pal3.unity?label=latest%20version&style=flat-square" alt="Releases" />
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/license-GPL--3.0-green?style=flat-square" alt="License" />
   </a>
-  <a style="text-decoration:none" href="">
+  <a style="text-decoration:none">
     <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
   </a>
 </p>
