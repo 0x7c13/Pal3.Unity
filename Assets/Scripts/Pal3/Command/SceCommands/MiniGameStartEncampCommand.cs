@@ -8,6 +8,11 @@ namespace Pal3.Command.SceCommands
     [SceCommand(106, "进入宿营游戏")]
     public class MiniGameStartEncampCommand : ICommand
     {
-        public MiniGameStartEncampCommand() {}
+        public MiniGameStartEncampCommand(int flag)
+        {
+            Flag = flag;
+        }
+
+        public int Flag { get; }
     }
 }

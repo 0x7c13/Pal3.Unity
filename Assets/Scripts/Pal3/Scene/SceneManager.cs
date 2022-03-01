@@ -21,7 +21,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneLoadCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private Camera _mainCamera;
+        private readonly Camera _mainCamera;
         private readonly GameResourceProvider _resourceProvider;
         private readonly ScriptManager _scriptManager;
 

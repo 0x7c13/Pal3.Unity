@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.UI
+namespace Pal3.Feature
 {
     using System.Collections.Generic;
     using System.Linq;

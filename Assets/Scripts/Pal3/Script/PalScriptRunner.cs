@@ -17,6 +17,7 @@ namespace Pal3.Script
     using MiniGame;
     using Player;
     using UI;
+    using Feature;
     using UnityEngine;
     using Waiter;
     using Random = UnityEngine.Random;
@@ -49,8 +50,7 @@ namespace Pal3.Script
         ICommandExecutor<ScriptVarSetMostFavorableActorIdCommand>,
         ICommandExecutor<ScriptVarSetLeastFavorableActorIdCommand>,
         ICommandExecutor<ScriptVarGetCombatResultCommand>,
-        ICommandExecutor<MiniGameGetAppraisalsResultCommand>,
-        ICommandExecutor<ResetGameStateCommand>
+        ICommandExecutor<MiniGameGetAppraisalsResultCommand>
     {
         public event EventHandler<ICommand> OnCommandExecutionRequested;
 
@@ -397,11 +397,6 @@ namespace Pal3.Script
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("你输给了重楼"));
             }
             SetVariableValue(command.Variable, won);
-        }
-
-        public void Execute(ResetGameStateCommand command)
-        {
-            _waiters.Clear();
         }
     }
 }

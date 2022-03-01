@@ -5,7 +5,7 @@
   Pal3.Unity
 </h1>
 <p align="center">
-  仙剑奇侠传三（以及外传）C#/Unity实现.
+  仙剑奇侠传三（以及外传）C#/Unity实现
 </p>
 <p align="center">
   <a style="text-decoration:none">
@@ -65,7 +65,7 @@ https://www.bilibili.com/video/BV1Fu411R7jM
 ## 如何贡献？
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
 
-另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF/
+另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
 
 ## 技术交流以及测试
 请加入QQ群：252315306
