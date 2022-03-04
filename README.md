@@ -36,7 +36,7 @@
 - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
 
 ## 如何在手持设备上运行
-- 在打包后的运行时，所有手持设备平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请阅读Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html)
+- 在打包后的运行时，所有平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请阅读Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html)
 - 第一次安装游戏到手持设备后，请先运行一次，然后将手持设备连接电脑，拷贝整个仙剑奇侠三（或者外传）原游戏目录到游戏App目录下即可，如果是仙剑三，文件夹的名必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。
 - iOS设备请使用iTunes将文件夹共享给游戏应用。
 

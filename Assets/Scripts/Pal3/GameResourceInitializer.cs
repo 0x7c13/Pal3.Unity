@@ -57,7 +57,11 @@ namespace Pal3
             {
                 gameFolderRootPath = File.Exists(GetCustomGameFolderPathFilePath()) ?
                     File.ReadAllText(GetCustomGameFolderPathFilePath()).Trim() :
+                    #if UNITY_EDITOR
                     PickGameRootPath();
+                    #else
+                    GetDefaultGameFolderPath();
+                    #endif
             }
             else
             {
@@ -76,11 +80,13 @@ namespace Pal3
             return gameFolderRootPath;
         }
 
+        #if UNITY_EDITOR
         private string PickGameRootPath()
         {
             return EditorUtility.OpenFolderPanel($"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
                 "", GameConstants.AppName);
         }
+        #endif
 
         private IEnumerator Start()
         {
@@ -196,6 +202,7 @@ namespace Pal3
             {
                 loadingText.text = $"{ex.Message}";
 
+                #if UNITY_EDITOR
                 if (Utility.IsDesktopDevice())
                 {
                     gameRootPath = PickGameRootPath();
@@ -205,6 +212,7 @@ namespace Pal3
                         StartCoroutine(InitResource(gameRootPath));
                     }
                 }
+                #endif
             }
 
             return (false, null);
