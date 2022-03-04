@@ -28,20 +28,17 @@
 ## 为什么要做这个？
 学了几周Unity，想找项目练手，一开始自己尝试做了一下新仙剑的第一关，大概了解了RPG游戏的制作流程，后因机缘巧合发现了zby大佬的[PAL3patch](https://github.com/zhangboyang/PAL3patch)项目以及dontpanic92大佬的[OpenPAL3](https://github.com/dontpanic92/OpenPAL3)项目，所以给技术上实现仙三复刻带来了可能。至于为什么选择C#/Unity？选择Unity的原因有两点，第一是Unity对全平台全端的打包做的很好很方便，第二个是Unity提供Mac上arm64原生IDE支持（2021.2.X），我大概有一半时间是在Mac上的，所以比较在意这点。其实本项目的实现几乎没有用到Unity引擎的大部分功能，特别是编辑器功能，因为几乎是100%纯代码实现的，所以其实理论上不需要花太大的代价就可以把本项目移植到其他支持C#脚本的引擎中。
 
-## 如何运行
-使用Unity2021.2.X打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge。为什么要选择Unity2021？主要还是因为目前Unity官方只提供了2021的Apple Silicon版本。再一个是2021开始Unity可以选择.NET Standard 2.1作为API接口。另外Unity2021LTS版本今年很快也会公布，届时我会把项目锁在2021LTS上。
+## 如何运行项目
+使用Unity2021.2.X打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge。为什么要选择Unity2021？主要是因为目前Unity官方只提供了2021的Apple Silicon版本，再一个是2021开始Unity可以选择.NET Standard 2.1作为API接口。另外Unity2021LTS版本今年很快也会公布，届时我会把项目锁在2021LTS上。
 
-因为项目本身不含仙剑三的游戏数据，所以你需要持有一份仙剑三游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。第一次打开Unity项目之后，先选择Scenes\Game作为当前Scene，然后找到GameResourceInitializer.cs文件，修改以下代码：
-```c#
-string gameRootPath = Application.platform switch
-{
-    RuntimePlatform.WindowsEditor => $"F:\\{GameConstants.AppName}\\",
-    RuntimePlatform.OSXEditor => $"/Users/{Environment.UserName}/Workspace/{GameConstants.AppName}/",
-    _ => Application.persistentDataPath + Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar,
-};
-```
-- 在编辑器中运行时，如果是Windows下就修改WindowsEditor对应的目录名，如果是Mac下就修改OSXEditor对应的目录名，指向你当前电脑上仙剑三的安装目录(PAL3)即可。
-- 在打包后的运行时，所有平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请参见Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html)
+因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。
+- 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
+- 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
+
+## 如何在手持设备上运行
+- 在打包后的运行时，所有手持设备平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请阅读Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html)
+- 第一次安装游戏到手持设备后，请先运行一次，然后将手持设备连接电脑，拷贝整个仙剑奇侠三（或者外传）原游戏目录到游戏App目录下即可，如果是仙剑三，文件夹的名必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。
+- iOS设备请使用iTunes将文件夹共享给游戏应用。
 
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
 版本的切换是靠Define symbol实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。
@@ -51,7 +48,7 @@ string gameRootPath = Application.platform switch
 ![PAL3 Mac](Screenshots/PAL3_Mac.png?raw=true)
 ![PAL3 iOS](Screenshots/PAL3_iOS.png?raw=true)
 
-## 手机演示视频
+## iOS演示视频
 https://www.bilibili.com/video/BV1Fu411R7jM
 
 ## 按键以及操作

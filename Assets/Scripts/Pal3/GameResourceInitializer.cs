@@ -12,9 +12,11 @@ namespace Pal3
     using Core.Animation;
     using Core.FileSystem;
     using Core.Services;
+    using Core.Utils;
     using Data;
     using MetaData;
     using TMPro;
+    using UnityEditor;
     using UnityEngine;
     using UnityEngine.UI;
     using Debug = UnityEngine.Debug;
@@ -30,32 +32,63 @@ namespace Pal3
         [SerializeField] private Image backgroundImage;
         [SerializeField] private TextMeshProUGUI loadingText;
 
+        private const string CUSTOM_GAME_FOLDER_PATH_FILE_NAME = "CustomGameFolderPath.txt";
+
+        private string GetCustomGameFolderPathFilePath()
+        {
+            return Application.persistentDataPath +
+                   Path.DirectorySeparatorChar +
+                   CUSTOM_GAME_FOLDER_PATH_FILE_NAME;
+        }
+
+        private string GetDefaultGameFolderPath()
+        {
+            return Application.persistentDataPath +
+                   Path.DirectorySeparatorChar +
+                   GameConstants.AppName +
+                   Path.DirectorySeparatorChar;
+        }
+
         private string GetGameFolderPath()
         {
-            string gameRootPath = Application.platform switch
-            {
-                RuntimePlatform.WindowsEditor => $"F:\\{GameConstants.AppName}\\",
-                RuntimePlatform.OSXEditor => $"/Users/{Environment.UserName}/Workspace/{GameConstants.AppName}/",
-                _ => Application.persistentDataPath + Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar,
-            };
+            string gameFolderRootPath;
 
-            if (Application.platform == RuntimePlatform.Android ||
-                Application.platform == RuntimePlatform.IPhonePlayer)
+            if (Utility.IsDesktopDevice())
+            {
+                gameFolderRootPath = File.Exists(GetCustomGameFolderPathFilePath()) ?
+                    File.ReadAllText(GetCustomGameFolderPathFilePath()).Trim() :
+                    PickGameRootPath();
+            }
+            else
+            {
+                gameFolderRootPath = GetDefaultGameFolderPath();
+            }
+
+            if (Utility.IsHandheldDevice())
             {
                 string fileName = Application.persistentDataPath + Path.DirectorySeparatorChar +
-                                  $"把仙三文件夹{GameConstants.AppName}拖到这里";
+                                  $"把{GameConstants.AppNameCNShort}文件夹{GameConstants.AppName}拖到这里";
                 StreamWriter fileWriter = File.CreateText(fileName);
-                fileWriter.WriteLine($"把仙三文件夹{GameConstants.AppName}拖到这里");
+                fileWriter.WriteLine($"把{GameConstants.AppNameCNShort}文件夹{GameConstants.AppName}拖到这里");
                 fileWriter.Close();
             }
 
-            return gameRootPath;
+            return gameFolderRootPath;
+        }
+
+        private string PickGameRootPath()
+        {
+            return EditorUtility.OpenFolderPanel($"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
+                "", GameConstants.AppName);
         }
 
         private IEnumerator Start()
         {
-            var gameRootPath = GetGameFolderPath();
+            yield return InitResource(GetGameFolderPath());
+        }
 
+        private IEnumerator InitResource(string gameRootPath)
+        {
             loadingText.text = "Loading game assets...";
             yield return new WaitForSeconds(0.2f); // Give some time for UI to render
 
@@ -72,6 +105,11 @@ namespace Pal3
             startingGameObject.name = startingComponent.name;
 
             yield return FadeTextAndBackgroundImage();
+
+            if (Utility.IsDesktopDevice())
+            {
+                File.WriteAllText(GetCustomGameFolderPathFilePath(), gameRootPath);
+            }
 
             Dispose();
         }
@@ -157,6 +195,16 @@ namespace Pal3
             catch (Exception ex)
             {
                 loadingText.text = $"{ex.Message}";
+
+                if (Utility.IsDesktopDevice())
+                {
+                    gameRootPath = PickGameRootPath();
+
+                    if (!string.IsNullOrEmpty(gameRootPath))
+                    {
+                        StartCoroutine(InitResource(gameRootPath));
+                    }
+                }
             }
 
             return (false, null);

@@ -152,9 +152,12 @@ namespace Core.Utils
 
         public static bool IsHandheldDevice()
         {
-            // return Application.platform == RuntimePlatform.Android ||
-            //        Application.platform == RuntimePlatform.IPhonePlayer;
             return SystemInfo.deviceType == DeviceType.Handheld;
+        }
+
+        public static bool IsDesktopDevice()
+        {
+            return SystemInfo.deviceType == DeviceType.Desktop;
         }
 
         public static void DrawBounds(Bounds b, float duration = 1000)
