@@ -10,7 +10,6 @@ namespace Pal3.Command
     using System.Linq;
     using System.Reflection;
     using SceCommands;
-    using UnityEditor;
 
     public static class SceCommandTypeResolver
     {
@@ -24,8 +23,7 @@ namespace Pal3.Command
         /// </summary>
         /// <param name="commandId">SceCommand Id</param>
         /// <param name="parameterFlag">Parameter flag</param>
-        /// <returns>Type of the command</returns>
-        /// <exception cref="ArgumentException">Throw if no type found for the given id</exception>
+        /// <returns>Type of the command, null if not found</returns>
         public static Type GetType(int commandId, ushort parameterFlag)
         {
             var hashKey = $"{commandId}_{parameterFlag}";
@@ -49,10 +47,7 @@ namespace Pal3.Command
                 }
             }
 
-            #if UNITY_EDITOR
-            EditorApplication.isPaused = true;
-            #endif
-            throw new Exception($"No command type found for id: {commandId}");
+            return null;
         }
     }
 }

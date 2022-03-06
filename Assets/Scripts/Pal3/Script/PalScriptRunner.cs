@@ -13,6 +13,7 @@ namespace Pal3.Script
     using Command.SceCommands;
     using Core.DataReader.Sce;
     using Core.Services;
+    using Dev;
     using MetaData;
     using MiniGame;
     using Player;
@@ -157,7 +158,15 @@ namespace Pal3.Script
             }
 
             var command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag);
-            OnCommandExecutionRequested?.Invoke(this, command);
+
+            if (command == null)
+            {
+                UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag);
+            }
+            else
+            {
+                OnCommandExecutionRequested?.Invoke(this, command);
+            }
         }
 
         private void SetVarValueBasedOnOperationResult(bool boolValue)

@@ -153,7 +153,7 @@ namespace Pal3.Actor
                 Quaternion.Euler(90f, 0, 0));
 
             var projector = _shadowProjector.GetComponent<Projector>();
-            projector.nearClipPlane = bounds.size.y - 0.213f;
+            projector.nearClipPlane = bounds.size.y - 0.3f;
             projector.farClipPlane = bounds.size.y + 5f;
 
             _shadowProjector.transform.parent = gameObject.transform;

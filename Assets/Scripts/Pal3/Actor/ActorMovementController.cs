@@ -146,8 +146,9 @@ namespace Pal3.Actor
                 SetNavLayer(layerIndex);
                 transform.position = new Vector3(position.x, yPosition, position.z);
 
-                Debug.Log($"Portal to tile position: " +
-                          $"{_tilemap.GetTilePosition(position, layerIndex)}");
+                Debug.Log($"Portal to: " +
+                          $"Layer: {GetCurrentLayerIndex()} " +
+                          $"Tile position: {_tilemap.GetTilePosition(position, layerIndex)}");
             }
         }
 

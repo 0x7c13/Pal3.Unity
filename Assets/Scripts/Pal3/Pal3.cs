@@ -264,7 +264,8 @@ namespace Pal3
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
 
             DebugLogConsole.AddCommand("vars", "List current global variables.", ListCurrentGlobalVariables);
-            DebugLogConsole.AddCommand("save", "Save game state into executable commands.", Save);
+            DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommands);
+            DebugLogConsole.AddCommand("info", "Get current game info.", GetCurrentGameInfo);
 
             ApplyRenderingSettings();
             ApplyPlatformSpecificSettings();
@@ -366,7 +367,7 @@ namespace Pal3
             }
         }
 
-        private string Save()
+        private string ConvertCurrentGameStateToCommands()
         {
             var playerActorMovementController = _sceneManager.GetCurrentScene()
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
@@ -397,6 +398,23 @@ namespace Pal3
             commands.Add(new CameraFadeInCommand());
 
             return string.Join('\n', CommandsToString(commands));
+        }
+
+        private string GetCurrentGameInfo()
+        {
+            var info = new StringBuilder();
+
+            var currentSceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
+
+            info.Append($"Current scene: {currentSceneInfo.CityName} {currentSceneInfo.Name}\n");
+
+            var playerActorMovementController = _sceneManager.GetCurrentScene()
+                .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+
+            info.Append($"Player actor current nav layer: {playerActorMovementController.GetCurrentLayerIndex()} " +
+                        $"tile position: {playerActorMovementController.GetTilePosition()}\n");
+
+            return info.ToString();
         }
 
         private IList<string> CommandsToString(IList<ICommand> commands)

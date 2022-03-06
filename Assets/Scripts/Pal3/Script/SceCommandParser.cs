@@ -10,6 +10,7 @@ namespace Pal3.Script
     using System.IO;
     using Command;
     using Core.Extensions;
+    using Dev;
 
     /// <summary>
     /// Parser logic for parsing SceCommand in .sce script data block.
@@ -19,6 +20,8 @@ namespace Pal3.Script
         public static ICommand ParseSceCommand(BinaryReader reader, int commandId, ushort parameterFlag)
         {
             var commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
+
+            if (commandType == null) return null;
 
             var args = new List<object>();
             var properties = commandType.GetProperties();

@@ -22,6 +22,8 @@ namespace Pal3.Effect
 
         public static GraphicsEffect GetEffectByName(string name)
         {
+            if (name == "+") return GraphicsEffect.None;
+
             if (!string.IsNullOrEmpty(name) && name.StartsWith('+'))
             {
                 var hexName = '0' + name[^1..];
