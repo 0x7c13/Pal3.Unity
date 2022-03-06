@@ -204,5 +204,13 @@ namespace Pal3.MetaData
             { ActorActionType.NpcMagic3,        "x3"},    // 仙术3
             { ActorActionType.NpcRun,           "z3"},    // 跑,用走代替
         };
+
+        public static readonly HashSet<ActorActionType> ActionWithoutShadow = new()
+        {
+            ActorActionType.Sleep,
+            ActorActionType.SeatUp,
+            ActorActionType.SeatDown,
+            ActorActionType.Dead,
+        };
     }
 }

@@ -133,9 +133,7 @@ namespace Pal3.Actor
         private void SetupShadowProjector(ActorActionType actorAction)
         {
             // Disable shadow for some actions
-            if (actorAction == ActorActionType.Sleep ||
-                actorAction == ActorActionType.SeatUp ||
-                actorAction == ActorActionType.Dead)
+            if (ActorConstants.ActionWithoutShadow.Contains(actorAction))
             {
                 if (_shadowProjector != null) Destroy(_shadowProjector);
             }
@@ -148,9 +146,15 @@ namespace Pal3.Actor
         private void CreateShadowProjector()
         {
             var position = transform.position;
+            var bounds = GetBounds();
+
             _shadowProjector = Instantiate(Resources.Load<GameObject>("Prefabs/BlobShadowProjector"),
-                new Vector3(position.x, GetBounds().max.y + 1f, position.z),
+                new Vector3(position.x, bounds.max.y, position.z),
                 Quaternion.Euler(90f, 0, 0));
+
+            var projector = _shadowProjector.GetComponent<Projector>();
+            projector.nearClipPlane = bounds.size.y - 0.213f;
+            projector.farClipPlane = bounds.size.y + 5f;
 
             _shadowProjector.transform.parent = gameObject.transform;
         }
