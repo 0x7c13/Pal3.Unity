@@ -7,7 +7,6 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using Command;
     using Command.InternalCommands;
@@ -133,6 +132,7 @@ namespace Pal3.Actor
 
         private void DeActivate()
         {
+            _actionController.DisposeBoxCollider();
             _actionController.DisposeShadow();
             _actionController.DisposeCurrentAction();
         }

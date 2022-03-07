@@ -370,7 +370,6 @@ namespace Pal3.MetaData
         {
             ActorActionType.Sleep,
             ActorActionType.SeatUp,
-            ActorActionType.SeatDown,
             ActorActionType.Dead,
         };
         #elif PAL3A

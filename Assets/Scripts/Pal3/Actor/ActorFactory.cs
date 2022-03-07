@@ -19,7 +19,10 @@ namespace Pal3.Actor
             Tilemap tilemap,
             Color tintColor)
         {
-            var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}");
+            var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}")
+            {
+                layer = LayerMask.NameToLayer("Ignore Raycast")
+            };
 
             // Attach ScnNpcInfo to the GameObject for better debuggability
             #if UNITY_EDITOR

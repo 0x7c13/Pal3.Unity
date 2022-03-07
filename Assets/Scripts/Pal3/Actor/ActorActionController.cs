@@ -13,6 +13,7 @@ namespace Pal3.Actor
     using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Mv3;
+    using Core.Extensions;
     using MetaData;
     using Renderer;
     using Script.Waiter;
@@ -26,7 +27,8 @@ namespace Pal3.Actor
         #if PAL3
         ICommandExecutor<LongKuiSwitchModeCommand>,
         #endif
-        ICommandExecutor<ActorChangeTextureCommand>
+        ICommandExecutor<ActorChangeTextureCommand>,
+        ICommandExecutor<ActorEnablePlayerControlCommand>
     {
         private Actor _actor;
         private Color _tintColor;
@@ -39,6 +41,9 @@ namespace Pal3.Actor
 
         private Bounds _worldBounds;
         private Bounds _localBounds;
+
+        private Rigidbody _rigidbody;
+        private BoxCollider _boxCollider;
 
         public void Init(Actor actor, Color tintColor)
         {
@@ -128,6 +133,7 @@ namespace Pal3.Actor
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
             SetupShadowProjector(action);
+            SetupBoxCollider();
         }
 
         private void SetupShadowProjector(ActorActionType actorAction)
@@ -141,6 +147,23 @@ namespace Pal3.Actor
             {
                 if (_shadowProjector == null) CreateShadowProjector();
             }
+        }
+
+        private void SetupBoxCollider()
+        {
+            var bounds = GetLocalBounds();
+            _boxCollider = gameObject.GetOrAddComponent<BoxCollider>();
+            _boxCollider.center = bounds.center;
+            _boxCollider.size = bounds.size * 0.8f;
+        }
+
+        private void SetupRigidBody()
+        {
+            _rigidbody = gameObject.GetOrAddComponent<Rigidbody>();
+            _rigidbody.useGravity = false;
+            _rigidbody.isKinematic = false;
+            _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
+                                     RigidbodyConstraints.FreezeRotation;
         }
 
         private void CreateShadowProjector()
@@ -197,6 +220,8 @@ namespace Pal3.Actor
             }
             _mv3AnimationRenderers.Clear();
             _currentAction = string.Empty;
+
+            if (_rigidbody != null) _rigidbody.velocity = Vector3.zero;
         }
 
         public void DisposeShadow()
@@ -204,6 +229,14 @@ namespace Pal3.Actor
             if (_shadowProjector != null)
             {
                 Destroy(_shadowProjector);
+            }
+        }
+
+        public void DisposeBoxCollider()
+        {
+            if (_boxCollider != null)
+            {
+                Destroy(_boxCollider);
             }
         }
 
@@ -275,6 +308,14 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             _mv3AnimationRenderers.First().ChangeTexture(command.TextureName);
+        }
+
+        public void Execute(ActorEnablePlayerControlCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
+            var enableRigidBody = _actor.Info.Id == command.ActorId;
+            if (enableRigidBody && _rigidbody == null) SetupRigidBody();
+            if (!enableRigidBody && _rigidbody != null) Destroy(_rigidbody);
         }
 
         #if PAL3

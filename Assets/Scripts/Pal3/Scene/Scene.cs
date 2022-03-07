@@ -169,7 +169,10 @@ namespace Pal3.Scene
 
             for (var i = 0; i < NavFile.FaceLayers.Length; i++)
             {
-                var navMesh = new GameObject($"Nav Mesh Layer {i}");
+                var navMesh = new GameObject($"Nav Mesh Layer {i}")
+                {
+                    layer = LayerMask.NameToLayer("RaycastOnly")
+                };
 
                 /*
                  * There are some cases where the nav mesh is pointing downwards instead

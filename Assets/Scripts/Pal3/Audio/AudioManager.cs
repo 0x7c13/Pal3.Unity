@@ -258,6 +258,8 @@ namespace Pal3.Audio
         public void Execute(ResetGameStateCommand command)
         {
             _currentScriptMusic = string.Empty;
+            _musicPlayer.Stop();
+            _sfxPlayer.Stop();
         }
     }
 }
