@@ -132,7 +132,8 @@ namespace Pal3.Actor
 
         private void DeActivate()
         {
-            _actionController.DisposeBoxCollider();
+            _actionController.DisposeCollider();
+            _actionController.DisposeRigidBody();
             _actionController.DisposeShadow();
             _actionController.DisposeCurrentAction();
         }

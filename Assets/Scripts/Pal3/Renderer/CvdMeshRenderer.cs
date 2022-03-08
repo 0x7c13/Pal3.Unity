@@ -241,7 +241,14 @@ namespace Pal3.Renderer
                 case CvdAnimationKeyType.Tcb:
                 {
                     var rotationKey = Utility.ReadStruct<CvdTcbRotationKey>(nodeRotationInfo.Data);
-                    // TODO: calculate TCB rotation based on Vector3 and Angle
+                    var rot = Quaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
+                    rotation = new GameBoxQuaternion()
+                    {
+                        X = rot.x,
+                        Y = rot.y,
+                        Z = rot.z,
+                        W = rot.w,
+                    };
                     break;
                 }
                 case CvdAnimationKeyType.Bezier:

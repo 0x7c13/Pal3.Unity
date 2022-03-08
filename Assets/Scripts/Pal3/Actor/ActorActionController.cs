@@ -17,6 +17,7 @@ namespace Pal3.Actor
     using MetaData;
     using Renderer;
     using Script.Waiter;
+    using State;
     using UnityEngine;
 
     public class ActorActionController : MonoBehaviour,
@@ -28,7 +29,8 @@ namespace Pal3.Actor
         ICommandExecutor<LongKuiSwitchModeCommand>,
         #endif
         ICommandExecutor<ActorChangeTextureCommand>,
-        ICommandExecutor<ActorEnablePlayerControlCommand>
+        ICommandExecutor<ActorEnablePlayerControlCommand>,
+        ICommandExecutor<GameStateChangedNotification>
     {
         private Actor _actor;
         private Color _tintColor;
@@ -43,7 +45,7 @@ namespace Pal3.Actor
         private Bounds _localBounds;
 
         private Rigidbody _rigidbody;
-        private BoxCollider _boxCollider;
+        private CapsuleCollider _collider;
 
         public void Init(Actor actor, Color tintColor)
         {
@@ -152,9 +154,10 @@ namespace Pal3.Actor
         private void SetupBoxCollider()
         {
             var bounds = GetLocalBounds();
-            _boxCollider = gameObject.GetOrAddComponent<BoxCollider>();
-            _boxCollider.center = bounds.center;
-            _boxCollider.size = bounds.size * 0.8f;
+            _collider = gameObject.GetOrAddComponent<CapsuleCollider>();
+            _collider.center = bounds.center;
+            _collider.height = bounds.size.y;
+            _collider.radius = bounds.size.x * 0.5f;
         }
 
         private void SetupRigidBody()
@@ -164,6 +167,11 @@ namespace Pal3.Actor
             _rigidbody.isKinematic = false;
             _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
                                      RigidbodyConstraints.FreezeRotation;
+        }
+
+        private void OnCollisionExit(Collision _)
+        {
+            if (_rigidbody != null) _rigidbody.velocity = Vector3.zero;
         }
 
         private void CreateShadowProjector()
@@ -220,8 +228,6 @@ namespace Pal3.Actor
             }
             _mv3AnimationRenderers.Clear();
             _currentAction = string.Empty;
-
-            if (_rigidbody != null) _rigidbody.velocity = Vector3.zero;
         }
 
         public void DisposeShadow()
@@ -232,11 +238,19 @@ namespace Pal3.Actor
             }
         }
 
-        public void DisposeBoxCollider()
+        public void DisposeCollider()
         {
-            if (_boxCollider != null)
+            if (_collider != null)
             {
-                Destroy(_boxCollider);
+                Destroy(_collider);
+            }
+        }
+
+        public void DisposeRigidBody()
+        {
+            if (_rigidbody != null)
+            {
+                Destroy(_rigidbody);
             }
         }
 
@@ -316,6 +330,19 @@ namespace Pal3.Actor
             var enableRigidBody = _actor.Info.Id == command.ActorId;
             if (enableRigidBody && _rigidbody == null) SetupRigidBody();
             if (!enableRigidBody && _rigidbody != null) Destroy(_rigidbody);
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (_rigidbody == null) return;
+
+            // TODO: Temporarily disable collision detection during cutscene since
+            // the current path finding solution is not ideal and might cause issues
+            _rigidbody.detectCollisions = command.NewState switch
+            {
+                GameState.Cutscene => false,
+                _ => true
+            };
         }
 
         #if PAL3

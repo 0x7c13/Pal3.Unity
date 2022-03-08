@@ -40,7 +40,7 @@ namespace Core.DataReader.Cvd
     public struct CvdTcbRotationKey
     {
         public CvdTcbKey TcbKey;
-        public Vector3 Value;
+        public Vector3 Axis;
         public float Angle;
     }
 

@@ -14,6 +14,7 @@ namespace Pal3.Renderer
     using Core.DataReader.Mv3;
     using Core.GameBox;
     using Core.Renderer;
+    using Core.Utils;
     using UnityEngine;
 
     public class VertexAnimationKeyFrame
@@ -246,27 +247,6 @@ namespace Pal3.Renderer
             }
         }
 
-        private static int GetFrameIndex(uint[] frameTicks, uint tick)
-        {
-            /*
-             * The index of the specified value in the specified array, if value is found;
-             * otherwise, a negative number. If value is not found and value is less than
-             * one or more elements in array, the negative number returned is the bitwise
-             * complement of the index of the first element that is larger than value.
-             * If value is not found and value is greater than all elements in array,
-             * the negative number returned is the bitwise complement of
-             * (the index of the last element plus 1).
-             */
-            var index = Array.BinarySearch(frameTicks, tick);
-
-            if (index < 0)
-            {
-                return -index - 2;
-            }
-
-            return index;
-        }
-
         private IEnumerator PlayOneTimeAnimationInternal(uint startTick,
             uint endTick,
             float fps,
@@ -285,7 +265,7 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                var currentFrameIndex = GetFrameIndex(frameTicks, tick);
+                var currentFrameIndex = Utility.GetFrameIndex(frameTicks, tick);
 
                 var influence = (float)(tick - frameTicks[currentFrameIndex]) /
                                 (frameTicks[currentFrameIndex + 1] - frameTicks[currentFrameIndex]);

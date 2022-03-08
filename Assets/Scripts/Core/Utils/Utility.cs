@@ -120,6 +120,27 @@ namespace Core.Utils
             return -1;
         }
 
+        public static int GetFrameIndex(uint[] frameTicks, uint tick)
+        {
+            /*
+             * The index of the specified value in the specified array, if value is found;
+             * otherwise, a negative number. If value is not found and value is less than
+             * one or more elements in array, the negative number returned is the bitwise
+             * complement of the index of the first element that is larger than value.
+             * If value is not found and value is greater than all elements in array,
+             * the negative number returned is the bitwise complement of
+             * (the index of the last element plus 1).
+             */
+            var index = Array.BinarySearch(frameTicks, tick);
+
+            if (index < 0)
+            {
+                return -index - 2;
+            }
+
+            return index;
+        }
+
         public static byte[] TrimEnd(byte[] buffer, ReadOnlySpan<byte> pattern)
         {
             var length = GetPatternIndex(buffer, pattern);
