@@ -984,8 +984,6 @@ namespace Pal3.Dev
             #endif
         };
 
-        private double _showTime;
-
         public void Init(InputManager inputManager,
             EventSystem eventSystem,
             SceneManager sceneManager,
@@ -1038,8 +1036,6 @@ namespace Pal3.Dev
 
         public void Show()
         {
-            _showTime = Time.realtimeSinceStartupAsDouble;
-            
             _gameStateManager.GoToState(GameState.Cutscene);
             foreach (var story in _storySelections)
             {
@@ -1091,8 +1087,6 @@ namespace Pal3.Dev
 
         private void StorySelectionButtonClicked(string story)
         {
-            if (Time.realtimeSinceStartupAsDouble - _showTime < 1f) return;
-
             switch (story)
             {
                 case "退出":

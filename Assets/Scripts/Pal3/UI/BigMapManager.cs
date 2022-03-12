@@ -40,8 +40,6 @@ namespace Pal3.UI
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
 
-        private double _showTime;
-
         public void Init(EventSystem eventSystem,
             GameStateManager gameStateManager,
             SceneManager sceneManager,
@@ -115,7 +113,6 @@ namespace Pal3.UI
                 return;
             }
 
-            _showTime = Time.realtimeSinceStartupAsDouble;
             _gameStateManager.GoToState(GameState.Cutscene);
 
             var exitButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
@@ -179,7 +176,6 @@ namespace Pal3.UI
 
         private void BigMapButtonClicked(int buttonIndex)
         {
-            if (Time.realtimeSinceStartupAsDouble - _showTime < 1f) return;
             if (buttonIndex != -1)
             {
                 _scriptManager.AddScript((uint)(100 + buttonIndex), true);

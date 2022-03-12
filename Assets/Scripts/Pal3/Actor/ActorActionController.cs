@@ -70,6 +70,11 @@ namespace Pal3.Actor
             return _currentAction;
         }
 
+        public Rigidbody GetRigidBody()
+        {
+            return _rigidbody;
+        }
+
         public void PerformAction(ActorActionType actorActionType, bool overwrite = false, int loopCount = -1)
         {
             PerformAction(ActorConstants.ActionNames[actorActionType]);
@@ -167,11 +172,6 @@ namespace Pal3.Actor
             _rigidbody.isKinematic = false;
             _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
                                      RigidbodyConstraints.FreezeRotation;
-        }
-
-        private void OnCollisionExit(Collision _)
-        {
-            if (_rigidbody != null) _rigidbody.velocity = Vector3.zero;
         }
 
         private void CreateShadowProjector()

@@ -48,6 +48,9 @@ namespace Pal3.Actor
         private Path _currentPath;
         private WaitUntilCanceled _movementWaiter;
 
+        private bool _isDuringCollision;
+        private Vector3 _lastKnownValidPositionDuringCollision;
+
         public void Init(Actor actor, Tilemap tilemap, ActorActionController actionController)
         {
             _actor = actor;
@@ -120,6 +123,51 @@ namespace Pal3.Actor
                     ReachingToEndOfPath(path);
                 }
             }
+        }
+
+        private void FixedUpdate()
+        {
+            // To prevent actor from bouncing into un-walkable tile position,
+            // we need to reset its position during the collision.
+            // Also we need to adjust Y position based on tile information
+            // during the collision since we are locking Y movement for the
+            // player actor's rigidbody.
+            if (_isDuringCollision && _actionController.GetRigidBody() is {} _)
+            {
+                var currentPosition = transform.position;
+                var tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);
+                if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
+                {
+                    transform.position = _lastKnownValidPositionDuringCollision;
+                }
+                else
+                {
+                    var currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
+                    if (currentTile.Distance == 0)
+                    {
+                        transform.position = _lastKnownValidPositionDuringCollision;
+                    }
+                    else
+                    {
+                        var adjustedPosition = new Vector3(currentPosition.x,
+                            currentTile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                            currentPosition.z);
+                        transform.position = adjustedPosition;
+                        _lastKnownValidPositionDuringCollision = adjustedPosition;
+                    }
+                }
+            }
+        }
+
+        private void OnCollisionEnter(Collision _)
+        {
+            _isDuringCollision = true;
+            _lastKnownValidPositionDuringCollision = transform.position;
+        }
+
+        private void OnCollisionExit(Collision _)
+        {
+            _isDuringCollision = false;
         }
 
         public int GetCurrentLayerIndex()
