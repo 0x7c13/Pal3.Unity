@@ -185,7 +185,9 @@ namespace ResourceViewer
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
                 var meshRenderer = mesh.AddComponent<CvdMeshRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
-                meshRenderer.Render(cvdFile, textureProvider, Color.white);
+
+                meshRenderer.Init(cvdFile, textureProvider, Color.white);
+                meshRenderer.PlayAnimation();
 
                 consoleTextUI.text = $"{filePath}";
 

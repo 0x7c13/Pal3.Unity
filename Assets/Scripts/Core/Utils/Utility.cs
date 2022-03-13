@@ -120,7 +120,7 @@ namespace Core.Utils
             return -1;
         }
 
-        public static int GetFrameIndex(uint[] frameTicks, uint tick)
+        public static int GetFloorIndex<T>(T[] valuesInIncreasingOrder, T lookUpValue)
         {
             /*
              * The index of the specified value in the specified array, if value is found;
@@ -131,7 +131,7 @@ namespace Core.Utils
              * the negative number returned is the bitwise complement of
              * (the index of the last element plus 1).
              */
-            var index = Array.BinarySearch(frameTicks, tick);
+            var index = Array.BinarySearch(valuesInIncreasingOrder, lookUpValue);
 
             if (index < 0)
             {
@@ -139,6 +139,20 @@ namespace Core.Utils
             }
 
             return index;
+        }
+
+        public static Vector3[] Lerp(ReadOnlySpan<Vector3> fromVectors,
+            ReadOnlySpan<Vector3> toVectors,
+            double influence)
+        {
+            var vertices = new Vector3[fromVectors.Length];
+
+            for (var i = 0; i < fromVectors.Length; i++)
+            {
+                vertices[i] = Vector3.Lerp(fromVectors[i], toVectors[i], (float)influence);
+            }
+
+            return vertices;
         }
 
         public static byte[] TrimEnd(byte[] buffer, ReadOnlySpan<byte> pattern)

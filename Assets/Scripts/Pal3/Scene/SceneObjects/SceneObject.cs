@@ -79,7 +79,7 @@ namespace Pal3.Scene.SceneObjects
                 {
                     var cvd = resourceProvider.GetCvd(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<CvdMeshRenderer>();
-                    sceneObjectRenderer.Render(cvd.CvdFile, cvd.TextureProvider, tintColor);
+                    sceneObjectRenderer.Init(cvd.CvdFile, cvd.TextureProvider, tintColor);
                 }
             }
 

@@ -252,12 +252,12 @@ namespace Pal3.Renderer
             float fps,
             CancellationToken cancellationToken)
         {
-            var startTime = Time.timeSinceLevelLoadAsDouble;
+            var startTime = Time.timeSinceLevelLoad;
             var frameTicks = _keyFrames.Select(f => f.Tick).ToArray();
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var tick = (uint)((Time.timeSinceLevelLoadAsDouble - startTime) * TIME_TO_TICK_SCALE
+                var tick = ((Time.timeSinceLevelLoad - startTime) * TIME_TO_TICK_SCALE
                                   + startTick);
 
                 if (tick >= endTick)
@@ -265,12 +265,12 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                var currentFrameIndex = Utility.GetFrameIndex(frameTicks, tick);
+                var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint)tick);
 
-                var influence = (float)(tick - frameTicks[currentFrameIndex]) /
+                var influence = (tick - frameTicks[currentFrameIndex]) /
                                 (frameTicks[currentFrameIndex + 1] - frameTicks[currentFrameIndex]);
 
-                var inBetweenKeyFrameVertices = GetInterpolatedVertices(
+                var inBetweenKeyFrameVertices = Utility.Lerp(
                     _keyFrames[currentFrameIndex].Vertices,
                     _keyFrames[currentFrameIndex + 1].Vertices,
                     influence);
@@ -289,20 +289,6 @@ namespace Pal3.Renderer
                     yield return new WaitForSeconds(1 / fps);
                 }
             }
-        }
-
-        private Vector3[] GetInterpolatedVertices(ReadOnlySpan<Vector3> fromVertices,
-            ReadOnlySpan<Vector3> toVertices,
-            double influence)
-        {
-            var vertices = new Vector3[fromVertices.Length];
-
-            for (var i = 0; i < fromVertices.Length; i++)
-            {
-                vertices[i] = Vector3.Lerp(fromVertices[i], toVertices[i], (float)influence);
-            }
-
-            return vertices;
         }
 
         private void OnDisable()

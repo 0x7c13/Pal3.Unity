@@ -109,18 +109,17 @@ namespace Core.Renderer
             mesh.uv = uv;
         }
 
-        public void ApplyMatrix(Matrix4x4 matrix)
+        public Mesh GetMesh()
         {
+            if (_meshFilter == null) return null;
+            return _meshFilter.sharedMesh;
+        }
+
+        public void RecalculateBoundsNormalsAndTangents()
+        {
+            if (_meshFilter == null) return;
+
             var mesh = _meshFilter.sharedMesh;
-
-            var newVerts = new Vector3[mesh.vertices.Length];
-
-            for (var j = 0; j < mesh.vertices.Length; j++)
-            {
-                newVerts[j] = matrix.MultiplyPoint3x4(mesh.vertices[j]);
-            }
-
-            mesh.vertices = newVerts;
 
             // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
             // After modifying vertices you should call this function to ensure the

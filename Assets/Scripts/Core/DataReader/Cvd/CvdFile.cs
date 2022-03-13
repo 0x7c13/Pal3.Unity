@@ -125,9 +125,9 @@ namespace Core.DataReader.Cvd
 
     public struct CvdGeometryNode
     {
-        public (CvdAnimationKeyType KeyType, byte[] Data)[] PositionKeyInfos;
-        public (CvdAnimationKeyType KeyType, byte[] Data)[] RotationKeyInfos;
-        public (CvdAnimationKeyType KeyType, byte[] Data)[] ScaleKeyInfos;
+        public CvdAnimationPositionKeyFrame[] PositionKeyInfos;
+        public CvdAnimationRotationKeyFrame[] RotationKeyInfos;
+        public CvdAnimationScaleKeyFrame[] ScaleKeyInfos;
         public float Scale;
         public GameBoxMatrix4X4 TransformMatrix;
         public CvdGeometryNode[] Children;
@@ -143,27 +143,51 @@ namespace Core.DataReader.Cvd
 
     public struct CvdMesh
     {
-        public CvdVertex[][] Frames;
         public float[] AnimationTimeKeys;
         public CvdMeshSection[] MeshSections;
     }
 
     public struct CvdMeshSection
     {
+        public CvdVertex[][] FrameVertices;
+        public int[] Triangles;
         public byte BlendFlag;
         public GameBoxMaterial Material;
         public string TextureName;
-        public (short x, short y, short z)[] Triangles;
         public float[] AnimationTimeKeys;
         public GameBoxMaterial[] AnimationMaterials;
     }
 
+    public abstract class CvdAnimationKeyFrame
+    {
+        public CvdAnimationKeyType KeyType { get; set; }
+        public float Time { get; set; }
+    }
+
+    public class CvdAnimationPositionKeyFrame : CvdAnimationKeyFrame
+    {
+        public Vector3 Position { get; set; }
+    }
+
+    public class CvdAnimationScaleKeyFrame : CvdAnimationKeyFrame
+    {
+        public Vector3 Scale { get; set; }
+        public GameBoxQuaternion Rotation { get; set; }
+    }
+
+    public class CvdAnimationRotationKeyFrame : CvdAnimationKeyFrame
+    {
+        public GameBoxQuaternion Rotation { get; set; }
+    }
+
     public class CvdFile
     {
+        public float AnimationDuration { get; }
         public CvdGeometryNode[] RootNodes { get; }
 
-        public CvdFile(CvdGeometryNode[] rootNodes)
+        public CvdFile(float animationDuration, CvdGeometryNode[] rootNodes)
         {
+            AnimationDuration = animationDuration;
             RootNodes = rootNodes;
         }
     }
