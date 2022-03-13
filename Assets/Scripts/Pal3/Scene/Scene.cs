@@ -311,9 +311,13 @@ namespace Pal3.Scene
 
         public void Execute(PlayerInteractWithObjectCommand command)
         {
-            if (SceneObjects.ContainsKey((byte) command.SceneObjectId))
+            if (_activatedSceneObjects.ContainsKey((byte) command.SceneObjectId))
             {
-                var sceneObject = SceneObjects[(byte) command.SceneObjectId];
+                var sceneObject = _activatedSceneObjects[(byte) command.SceneObjectId];
+                if (sceneObject.GetComponent<CvdMeshRenderer>() is { } cvdMeshRenderer)
+                {
+                    cvdMeshRenderer.PlayAnimation(1);
+                }
             }
             else
             {

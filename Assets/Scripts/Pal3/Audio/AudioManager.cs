@@ -7,7 +7,6 @@ namespace Pal3.Audio
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Threading;
     using Command;
     using Command.InternalCommands;
@@ -104,11 +103,16 @@ namespace Pal3.Audio
         {
             if (loopCount <= 0)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                if (audioSource.clip != null)
                 {
-                    audioSource.PlayOneShot(audioClip, volume);
-                    yield return new WaitForSeconds(audioClip.length);
+                    audioSource.Stop();
+                    Destroy(audioSource.clip);
                 }
+
+                audioSource.clip = audioClip;
+                audioSource.volume = volume;
+                audioSource.loop = true;
+                audioSource.Play();
             }
             else
             {
