@@ -96,7 +96,7 @@ namespace Pal3
         private IEnumerator InitResource(string gameRootPath)
         {
             loadingText.text = "Loading game assets...";
-            yield return new WaitForSeconds(0.2f); // Give some time for UI to render
+            yield return new WaitForSeconds(0.1f); // Give some time for UI to render
 
             // Init file system
             var fileSystem = InitFileSystem(gameRootPath);

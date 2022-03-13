@@ -101,9 +101,10 @@ namespace Pal3.Scene.SceneObjects
 
             // TODO: This is to prevent player from entering back to previous
             // scene when holding the stick while transferring between scenes.
-            // We simply disable the auto trigger for the first 1 second after
+            // We simply disable the auto trigger for a short time window after
             // a fresh scene load.
-            if (Time.realtimeSinceStartupAsDouble - _awakeTime < 1f) return;
+            var disableTime = _autoTrigger.Info.Type == ScnSceneObjectType.Door ? 1f : 0.5f;
+            if (Time.realtimeSinceStartupAsDouble - _awakeTime < disableTime) return;
 
             if (!_wasTriggered)
             {

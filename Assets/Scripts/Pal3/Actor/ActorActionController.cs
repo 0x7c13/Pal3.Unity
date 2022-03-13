@@ -14,6 +14,7 @@ namespace Pal3.Actor
     using Core.DataLoader;
     using Core.DataReader.Mv3;
     using Core.Extensions;
+    using Core.Services;
     using MetaData;
     using Renderer;
     using Script.Waiter;
@@ -46,8 +47,6 @@ namespace Pal3.Actor
 
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
-
-        private GameState _currentState = GameState.Cutscene;
 
         public void Init(Actor actor, Color tintColor)
         {
@@ -166,7 +165,8 @@ namespace Pal3.Actor
             _collider.height = bounds.size.y;
             _collider.radius = bounds.size.x * 0.5f;
 
-            ToggleCollisionDetectionBasedOnGameState(_currentState);
+            var currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
+            ToggleCollisionDetectionBasedOnGameState(currentGameState);
         }
 
         private void SetupRigidBody()
@@ -177,7 +177,8 @@ namespace Pal3.Actor
             _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
                                      RigidbodyConstraints.FreezeRotation;
 
-            ToggleCollisionDetectionBasedOnGameState(_currentState);
+            var currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
+            ToggleCollisionDetectionBasedOnGameState(currentGameState);
         }
 
         private void CreateShadowProjector()
@@ -340,7 +341,6 @@ namespace Pal3.Actor
 
         public void Execute(GameStateChangedNotification command)
         {
-            _currentState = command.NewState;
             ToggleCollisionDetectionBasedOnGameState(command.NewState);
         }
 
