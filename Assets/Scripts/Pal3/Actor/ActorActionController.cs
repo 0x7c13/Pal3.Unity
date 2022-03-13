@@ -47,6 +47,8 @@ namespace Pal3.Actor
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
 
+        private GameState _currentState = GameState.Cutscene;
+
         public void Init(Actor actor, Color tintColor)
         {
             _actor = actor;
@@ -140,7 +142,7 @@ namespace Pal3.Actor
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
             SetupShadowProjector(action);
-            SetupBoxCollider();
+            SetupCollider();
         }
 
         private void SetupShadowProjector(ActorActionType actorAction)
@@ -156,13 +158,15 @@ namespace Pal3.Actor
             }
         }
 
-        private void SetupBoxCollider()
+        private void SetupCollider()
         {
             var bounds = GetLocalBounds();
             _collider = gameObject.GetOrAddComponent<CapsuleCollider>();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
             _collider.radius = bounds.size.x * 0.5f;
+
+            ToggleCollisionDetectionBasedOnGameState(_currentState);
         }
 
         private void SetupRigidBody()
@@ -172,6 +176,8 @@ namespace Pal3.Actor
             _rigidbody.isKinematic = false;
             _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
                                      RigidbodyConstraints.FreezeRotation;
+
+            ToggleCollisionDetectionBasedOnGameState(_currentState);
         }
 
         private void CreateShadowProjector()
@@ -334,15 +340,31 @@ namespace Pal3.Actor
 
         public void Execute(GameStateChangedNotification command)
         {
-            if (_rigidbody == null) return;
+            _currentState = command.NewState;
+            ToggleCollisionDetectionBasedOnGameState(command.NewState);
+        }
 
-            // TODO: Temporarily disable collision detection during cutscene since
-            // the current path finding solution is not ideal and might cause issues
-            _rigidbody.detectCollisions = command.NewState switch
+        // TODO: Temporarily disable collision detection during cutscene since
+        // the current path finding solution is not ideal and might cause issues
+        public void ToggleCollisionDetectionBasedOnGameState(GameState state)
+        {
+            if (_collider != null)
             {
-                GameState.Cutscene => false,
-                _ => true
-            };
+                _collider.enabled = state switch
+                {
+                    GameState.Gameplay => true,
+                    _ => false
+                };
+            }
+
+            if (_rigidbody != null)
+            {
+                _rigidbody.detectCollisions = state switch
+                {
+                    GameState.Gameplay => true,
+                    _ => false
+                };
+            }
         }
 
         #if PAL3
