@@ -209,7 +209,8 @@ namespace Pal3.Renderer
                     var lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
                     vertices.Add(matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition)));
                     // Ignoring the normals here since Unity can help us do the calculation.
-                    uv.Add(frameVertices[i].Uv);
+                    var lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
+                    uv.Add(lerpUv);
                 }
             }
 
