@@ -80,6 +80,10 @@ namespace Pal3.Scene.SceneObjects
                     var cvd = resourceProvider.GetCvd(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<CvdMeshRenderer>();
                     sceneObjectRenderer.Init(cvd.CvdFile, cvd.TextureProvider, tintColor);
+                    if (Info.Type == ScnSceneObjectType.General)
+                    {
+                        sceneObjectRenderer.PlayAnimation();
+                    }
                 }
             }
 

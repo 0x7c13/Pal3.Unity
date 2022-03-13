@@ -257,7 +257,7 @@ namespace Pal3.Renderer
             }
         }
 
-        public void PlayAnimation(int loopCount = -1, float fps = -1f)
+        public void PlayAnimation(float timeScale = 1f, int loopCount = -1, float fps = -1f)
         {
             if (_animationDuration < Mathf.Epsilon) return;
 
@@ -271,12 +271,14 @@ namespace Pal3.Renderer
             if (_animation != null) StopCoroutine(_animation);
 
             _animationCts = new CancellationTokenSource();
-            _animation = StartCoroutine(PlayAnimationInternal(loopCount,
+            _animation = StartCoroutine(PlayAnimationInternal(timeScale,
+                loopCount,
                 fps,
                 _animationCts.Token));
         }
 
-        private IEnumerator PlayAnimationInternal(int loopCount,
+        private IEnumerator PlayAnimationInternal(float timeScale,
+            int loopCount,
             float fps,
             CancellationToken cancellationToken)
         {
@@ -284,25 +286,26 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, fps, cancellationToken);
                 }
             }
             else if (loopCount > 0)
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, fps, cancellationToken);
                 }
             }
         }
 
-        private IEnumerator PlayOneTimeAnimationInternal(float fps, CancellationToken cancellationToken)
+        private IEnumerator PlayOneTimeAnimationInternal(float timeScale, float fps,
+            CancellationToken cancellationToken)
         {
             var startTime = Time.timeSinceLevelLoad;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var currentTime = Time.timeSinceLevelLoad - startTime;
+                var currentTime = (Time.timeSinceLevelLoad - startTime) * timeScale;
 
                 if (currentTime >= _animationDuration)
                 {

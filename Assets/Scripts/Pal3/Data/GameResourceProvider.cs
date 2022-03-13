@@ -43,6 +43,11 @@ namespace Pal3.Data
             _textureCache = textureCache;
         }
 
+        public bool FileExists(string path)
+        {
+            return _fileSystem.FileExists(path);
+        }
+
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?

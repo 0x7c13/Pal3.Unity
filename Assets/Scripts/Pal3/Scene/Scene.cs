@@ -27,6 +27,8 @@ namespace Pal3.Scene
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorLookAtActorCommand>
     {
+        private const float SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE = .2f;
+
         private Camera _mainCamera;
         private SkyBoxRenderer _skyBoxRenderer;
 
@@ -146,9 +148,17 @@ namespace Pal3.Scene
         {
             // Render mesh
             _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.Name}");
-            var meshRenderer = _mesh.AddComponent<PolyStaticMeshRenderer>();
+            var polyMeshRenderer = _mesh.AddComponent<PolyStaticMeshRenderer>();
             _mesh.transform.SetParent(_parent.transform);
-            meshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider);
+            polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider);
+
+            if (SceneCvdMesh != null)
+            {
+                var cvdMeshRenderer = _mesh.AddComponent<CvdMeshRenderer>();
+                _mesh.transform.SetParent(_parent.transform);
+                cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile, SceneCvdMesh.Value.TextureProvider, Color.white);
+                cvdMeshRenderer.PlayAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
+            }
         }
 
         private void RenderSkyBox()
@@ -316,7 +326,7 @@ namespace Pal3.Scene
                 var sceneObject = _activatedSceneObjects[(byte) command.SceneObjectId];
                 if (sceneObject.GetComponent<CvdMeshRenderer>() is { } cvdMeshRenderer)
                 {
-                    cvdMeshRenderer.PlayAnimation(1);
+                    cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
                 }
             }
             else

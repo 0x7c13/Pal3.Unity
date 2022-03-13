@@ -9,6 +9,7 @@ namespace Pal3.Scene
     using Actor;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
@@ -27,6 +28,7 @@ namespace Pal3.Scene
         protected NavFile NavFile;
 
         protected (PolFile PolFile, ITextureResourceProvider TextureProvider) ScenePolyMesh;
+        protected (CvdFile CvdFile, ITextureResourceProvider TextureProvider)? SceneCvdMesh;
 
         protected readonly Dictionary<byte, SceneObject> SceneObjects = new ();
         protected readonly Dictionary<byte, Actor> Actors = new ();
@@ -41,7 +43,6 @@ namespace Pal3.Scene
 
             InitMeshData();
             InitNavData();
-            InitCvdData();
             InitLgtData();
             InitSceneObjectData();
             InitActorData();
@@ -51,30 +52,28 @@ namespace Pal3.Scene
         {
             var separator = CpkConstants.CpkDirectorySeparatorChar;
 
-            var polFilePath = $"{ScnFile.SceneInfo.CityName}.cpk{separator}" +
+            var meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}.cpk{separator}" +
                                    $"{ScnFile.SceneInfo.Model}{separator}";
 
             // Switch to night version of the mesh model when LightMap flag is set to 1
             if (ScnFile.SceneInfo.LightMap == 1)
             {
-                polFilePath += $"1{separator}{ScnFile.SceneInfo.Model}.pol";
-            }
-            else
-            {
-                polFilePath += $"{ScnFile.SceneInfo.Model}.pol";
+                meshFileRelativePath += $"1{separator}";
             }
 
-            ScenePolyMesh = _resourceProvider.GetPol(polFilePath);
+            ScenePolyMesh = _resourceProvider.GetPol(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.pol");
+
+            // Only few of the scenes use CVD models, so we need to check first
+            if (_resourceProvider.FileExists(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.cvd"))
+            {
+                SceneCvdMesh = _resourceProvider.GetCvd(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.cvd");
+            }
         }
 
         private void InitNavData()
         {
             NavFile = _resourceProvider.GetNav(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
             Tilemap = new Tilemap(NavFile);
-        }
-
-        private void InitCvdData()
-        {
         }
 
         private void InitLgtData()
