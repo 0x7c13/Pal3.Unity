@@ -30,7 +30,7 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
-        public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor)
+        public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
@@ -46,7 +46,7 @@ namespace Pal3.Renderer
             {
                 var hashKey = $"{i}";
                 RenderMeshInternal(
-                    0f,
+                    time,
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,

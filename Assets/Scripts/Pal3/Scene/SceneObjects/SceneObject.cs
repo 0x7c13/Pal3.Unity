@@ -79,7 +79,17 @@ namespace Pal3.Scene.SceneObjects
                 {
                     var cvd = resourceProvider.GetCvd(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<CvdMeshRenderer>();
-                    sceneObjectRenderer.Init(cvd.CvdFile, cvd.TextureProvider, tintColor);
+
+                    var initTime = 0f;
+                    // if (Info.Type == ScnSceneObjectType.Switch &&
+                    //     Info.Parameters[0] == 1 &&
+                    //     Info.Parameters[1] == 1)
+                    // {
+                    //     initTime = cvd.CvdFile.AnimationDuration;
+                    // }
+
+                    sceneObjectRenderer.Init(cvd.CvdFile, cvd.TextureProvider, tintColor, initTime);
+
                     if (Info.Type == ScnSceneObjectType.General)
                     {
                         sceneObjectRenderer.PlayAnimation();

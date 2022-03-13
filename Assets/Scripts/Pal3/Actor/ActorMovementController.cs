@@ -168,6 +168,11 @@ namespace Pal3.Actor
         private void OnCollisionExit(Collision _)
         {
             _isDuringCollision = false;
+
+            if (_actionController.GetRigidBody() is { } actorRigidbody)
+            {
+                actorRigidbody.velocity = Vector3.zero;
+            }
         }
 
         public int GetCurrentLayerIndex()

@@ -156,7 +156,7 @@ namespace Pal3.Scene
             {
                 var cvdMeshRenderer = _mesh.AddComponent<CvdMeshRenderer>();
                 _mesh.transform.SetParent(_parent.transform);
-                cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile, SceneCvdMesh.Value.TextureProvider, Color.white);
+                cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile, SceneCvdMesh.Value.TextureProvider, Color.white, 0f);
                 cvdMeshRenderer.PlayAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
         }

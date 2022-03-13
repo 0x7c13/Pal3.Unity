@@ -186,7 +186,7 @@ namespace ResourceViewer
                 var meshRenderer = mesh.AddComponent<CvdMeshRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
 
-                meshRenderer.Init(cvdFile, textureProvider, Color.white);
+                meshRenderer.Init(cvdFile, textureProvider, Color.white, 0f);
                 meshRenderer.PlayAnimation();
 
                 consoleTextUI.text = $"{filePath}";

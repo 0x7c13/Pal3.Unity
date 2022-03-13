@@ -24,6 +24,7 @@ namespace Pal3.Audio
         ICommandExecutor<PlayMusicCommand>,
         ICommandExecutor<PlaySfxAtGameObjectRequest>,
         ICommandExecutor<PlayVideoCommand>,
+        ICommandExecutor<VideoEndedNotification>,
         ICommandExecutor<StopMusicCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
@@ -241,6 +242,15 @@ namespace Pal3.Audio
             {
                 _musicPlayer.Stop();
             }
+
+            _musicPlayer.mute = true;
+            _sfxPlayer.mute = true;
+        }
+
+        public void Execute(VideoEndedNotification command)
+        {
+            _musicPlayer.mute = false;
+            _sfxPlayer.mute = false;
         }
 
         public void Execute(ScenePreLoadingNotification command)
@@ -251,6 +261,9 @@ namespace Pal3.Audio
                 _sfxPlayer.Stop();
                 Destroy(_sfxPlayer.clip);
             }
+
+            _sceneAudioCts.Cancel();
+            _sceneAudioCts = new CancellationTokenSource();
         }
 
         public void Execute(ScenePostLoadingNotification command)
@@ -259,9 +272,6 @@ namespace Pal3.Audio
             {
                 PlaySceneMusic(command.SceneInfo.CityName, command.SceneInfo.Name);
             }
-
-            _sceneAudioCts.Cancel();
-            _sceneAudioCts = new CancellationTokenSource();
         }
 
         public void Execute(ResetGameStateCommand command)

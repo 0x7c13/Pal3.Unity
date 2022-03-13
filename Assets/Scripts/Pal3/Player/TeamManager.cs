@@ -21,7 +21,7 @@ namespace Pal3.Player
         ICommandExecutor<TeamAddOrRemoveActorCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 1.75f;
+        private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 2.5f;
 
         private readonly PlayerManager _playerManager;
         private readonly SceneManager _sceneManager;
@@ -30,9 +30,9 @@ namespace Pal3.Player
 
         private static readonly float[] ActorSpawnPositionDirectionInDegrees =
         {
-            0f,
-            -40f,
             40f,
+            -40f,
+            0f,
             -80f,
             80f,
         };
