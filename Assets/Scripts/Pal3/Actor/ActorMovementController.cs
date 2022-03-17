@@ -62,14 +62,16 @@ namespace Pal3.Actor
                 actor.Info.PositionY, actor.Info.PositionZ));
 
             var tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
-            if (_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
+            if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
+                _tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
             {
-                var yPosition = _tilemap.GetTile(tilePosition,
-                    _currentLayerIndex).Y / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var tile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
 
-                transform.position = (actor.Info.PositionY == 0 || actor.Info.PositionY < yPosition) ?
-                    new Vector3(initPosition.x, yPosition, initPosition.z) :
-                    initPosition;
+                var yPosition = tile.IsWalkable() ?
+                    tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit :
+                    actor.Info.PositionY;
+
+                transform.position = new Vector3(initPosition.x, yPosition, initPosition.z);
             }
             else
             {
@@ -143,7 +145,7 @@ namespace Pal3.Actor
                 else
                 {
                     var currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
-                    if (currentTile.Distance == 0)
+                    if (!currentTile.IsWalkable())
                     {
                         transform.position = _lastKnownValidPositionDuringCollision;
                     }
@@ -255,7 +257,7 @@ namespace Pal3.Actor
             var tilePosition = _tilemap.GetTilePosition(position, layerIndex);
             if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) return false;
             var tile = _tilemap.GetTile(tilePosition, layerIndex);
-            if (tile.Distance == 0) return false;
+            if (!tile.IsWalkable()) return false;
             y = tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit;
             return true;
         }
