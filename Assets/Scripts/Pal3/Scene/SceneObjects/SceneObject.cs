@@ -64,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
             // Attach SceneObjectInfo to the GameObject for better debuggability
             #if UNITY_EDITOR
             var infoPresenter = sceneGameObject.AddComponent<SceneObjectInfoPresenter>();
-            infoPresenter.SceneObjectInfo = Info;
+            infoPresenter.sceneObjectInfo = Info;
             #endif
 
             if (!string.IsNullOrEmpty(_modelFilePath))

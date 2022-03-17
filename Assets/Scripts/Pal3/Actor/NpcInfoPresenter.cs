@@ -13,6 +13,6 @@ namespace Pal3.Actor
     /// </summary>
     public class NpcInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public ScnNpcInfo NpcInfo;
+        [SerializeField] public ScnNpcInfo npcInfo;
     }
 }

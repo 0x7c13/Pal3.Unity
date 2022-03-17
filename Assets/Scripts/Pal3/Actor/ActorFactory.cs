@@ -27,7 +27,7 @@ namespace Pal3.Actor
             // Attach ScnNpcInfo to the GameObject for better debuggability
             #if UNITY_EDITOR
             var npcInfoPresent = actorGameObject.AddComponent<NpcInfoPresenter>();
-            npcInfoPresent.NpcInfo = actor.Info;
+            npcInfoPresent.npcInfo = actor.Info;
             #endif
 
             var actionController = actorGameObject.AddComponent<ActorActionController>();

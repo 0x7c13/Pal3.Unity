@@ -11,13 +11,15 @@ Shader "Pal3/Standard"
         _ShadowTex ("Shadow map (RGB)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
+        _Transparency("Transparency Amount", Range(0.1,1.0)) = 1.0
     }
     SubShader
     {
-        Tags { "Queue"="AlphaTest" "IgnoreProjector"="False" "RenderType"="TransparentCutout" }
+        Tags { "Queue"="Geometry" "IgnoreProjector"="False" "RenderType"="Transparent" }
         LOD 100
 
         Lighting Off
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -52,6 +54,7 @@ Shader "Pal3/Standard"
             float4 _ShadowTex_ST;
             fixed _Cutoff;
             float _Exposure;
+            float _Transparency;
 
             v2f vert(appdata_t v)
             {
@@ -69,11 +72,12 @@ Shader "Pal3/Standard"
             {
                 fixed4 color = tex2D(_MainTex, i.texcoord);
 
-                // Cutoff
+                // Cutout
                 clip(color.a - _Cutoff);
-
                 // Shadow
                 color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
+                // Transparency
+                color.a = _Transparency;
 
                 UNITY_APPLY_FOG(i.fogCoord, color);
                 return color;

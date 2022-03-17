@@ -13,6 +13,6 @@ namespace Pal3.Scene.SceneObjects
     /// </summary>
     public class SceneObjectInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public ScnObjectInfo SceneObjectInfo;
+        [SerializeField] public ScnObjectInfo sceneObjectInfo;
     }
 }

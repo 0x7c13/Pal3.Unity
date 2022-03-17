@@ -10,13 +10,15 @@ Shader "Pal3/StandardNoShadow"
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _Transparency("Transparency Amount", Range(0.1,1.0)) = 1.0
     }
     SubShader
     {
-        Tags { "Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
+        Tags { "Queue"="Geometry" "IgnoreProjector"="True" "RenderType"="Transparent" }
         LOD 100
 
         Lighting Off
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -47,6 +49,7 @@ Shader "Pal3/StandardNoShadow"
             float4 _MainTex_ST;
             fixed _Cutoff;
             fixed4 _TintColor;
+            float _Transparency;
 
             v2f vert(appdata_t v)
             {
@@ -62,8 +65,14 @@ Shader "Pal3/StandardNoShadow"
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 color = tex2D(_MainTex, i.texcoord);
+
+                // Cutout
                 clip(color.a - _Cutoff);
+                // Tint color
                 color *= _TintColor;
+                // Transparency
+                color.a = _Transparency;
+
                 UNITY_APPLY_FOG(i.fogCoord, color);
                 return color;
             }

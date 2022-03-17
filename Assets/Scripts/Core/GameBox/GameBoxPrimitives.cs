@@ -7,6 +7,7 @@ namespace Core.GameBox
 {
     using UnityEngine;
 
+    [System.Serializable]
     public struct GameBoxMaterial
     {
         public Color32 Diffuse;
