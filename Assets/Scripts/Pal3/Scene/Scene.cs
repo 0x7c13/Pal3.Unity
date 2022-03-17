@@ -148,13 +148,13 @@ namespace Pal3.Scene
         {
             // Render mesh
             _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.Name}");
-            var polyMeshRenderer = _mesh.AddComponent<PolyStaticMeshRenderer>();
+            var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform);
             polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider);
 
             if (SceneCvdMesh != null)
             {
-                var cvdMeshRenderer = _mesh.AddComponent<CvdMeshRenderer>();
+                var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 _mesh.transform.SetParent(_parent.transform);
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile, SceneCvdMesh.Value.TextureProvider, Color.white, 0f);
                 cvdMeshRenderer.PlayAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
@@ -324,7 +324,7 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.ContainsKey((byte) command.SceneObjectId))
             {
                 var sceneObject = _activatedSceneObjects[(byte) command.SceneObjectId];
-                if (sceneObject.GetComponent<CvdMeshRenderer>() is { } cvdMeshRenderer)
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
                 }

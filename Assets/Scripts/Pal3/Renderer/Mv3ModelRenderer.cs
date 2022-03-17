@@ -26,7 +26,10 @@ namespace Pal3.Renderer
         public Vector2[] Uv;
     }
 
-    public class Mv3AnimationRenderer : MonoBehaviour
+    /// <summary>
+    /// MV3(.mv3) model renderer
+    /// </summary>
+    public class Mv3ModelRenderer : MonoBehaviour
     {
         public event EventHandler<int> AnimationLoopPointReached;
 

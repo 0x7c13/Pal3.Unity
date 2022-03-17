@@ -153,7 +153,7 @@ namespace ResourceViewer
                 var (polyFile, textureProvider) = _resourceProvider.GetPol(filePath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
-                var meshRenderer = mesh.AddComponent<PolyStaticMeshRenderer>();
+                var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile, textureProvider);
 
@@ -183,7 +183,7 @@ namespace ResourceViewer
                 var (cvdFile, textureProvider) = _resourceProvider.GetCvd(filePath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
-                var meshRenderer = mesh.AddComponent<CvdMeshRenderer>();
+                var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
 
                 meshRenderer.Init(cvdFile, textureProvider, Color.white, 0f);
@@ -226,7 +226,7 @@ namespace ResourceViewer
                     var mesh = mv3File.Meshes[i];
                     var material = mv3File.Materials[i];
                     var events = mv3File.AnimationEvents;
-                    var animationRenderer = animationNode.AddComponent<Mv3AnimationRenderer>();
+                    var animationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
                     animationRenderer.Init(mesh, material, events, textureProvider, Color.white);
                     animationNode.transform.SetParent(_renderingRoot.transform);
                     animationRenderer.PlayAnimation();

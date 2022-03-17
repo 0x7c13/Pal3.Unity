@@ -72,13 +72,13 @@ namespace Pal3.Scene.SceneObjects
                 if (_modelFilePath.ToLower().EndsWith(".pol"))
                 {
                     var poly = resourceProvider.GetPol(_modelFilePath);
-                    var sceneObjectRenderer = sceneGameObject.AddComponent<PolyStaticMeshRenderer>();
+                    var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
                     sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider);
                 }
                 else if (_modelFilePath.ToLower().EndsWith(".cvd"))
                 {
                     var cvd = resourceProvider.GetCvd(_modelFilePath);
-                    var sceneObjectRenderer = sceneGameObject.AddComponent<CvdMeshRenderer>();
+                    var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
 
                     var initTime = 0f;
                     // if (Info.Type == ScnSceneObjectType.Switch &&

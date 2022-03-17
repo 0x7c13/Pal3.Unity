@@ -17,7 +17,7 @@ namespace Pal3.Effect
     {
         private Texture2D[] _effectTextures = Array.Empty<Texture2D>();
         private AnimatedBillboardRenderer _billboardRenderer;
-        private PolyStaticMeshRenderer _sceneObjectRenderer;
+        private PolyModelRenderer _sceneObjectRenderer;
         private GameObject _effectGameObject;
 
         public void Init(GameResourceProvider resourceProvider, uint effectModelType)
@@ -28,7 +28,7 @@ namespace Pal3.Effect
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
                 var poly = resourceProvider.GetPol(info.ModelPath);
-                _sceneObjectRenderer = gameObject.AddComponent<PolyStaticMeshRenderer>();
+                _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider);
             }
 

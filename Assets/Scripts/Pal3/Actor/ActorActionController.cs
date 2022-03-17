@@ -39,7 +39,7 @@ namespace Pal3.Actor
 
         private bool _autoStand = true;
         private string _currentAction = string.Empty;
-        private readonly List<Mv3AnimationRenderer> _mv3AnimationRenderers = new ();
+        private readonly List<Mv3ModelRenderer> _mv3AnimationRenderers = new ();
         private WaitUntilCanceled _animationLoopPointWaiter;
 
         private Bounds _worldBounds;
@@ -126,7 +126,7 @@ namespace Pal3.Actor
                     mv3File.Materials[i];
                 var events = mv3File.AnimationEvents;
 
-                var mv3AnimationRenderer = gameObject.AddComponent<Mv3AnimationRenderer>();
+                var mv3AnimationRenderer = gameObject.AddComponent<Mv3ModelRenderer>();
                 mv3AnimationRenderer.Init(mesh, material, events, textureProvider, _tintColor);
                 mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
                 mv3AnimationRenderer.PlayAnimation(loopCount);

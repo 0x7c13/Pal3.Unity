@@ -16,9 +16,9 @@ namespace Pal3.Renderer
     using Debug = UnityEngine.Debug;
 
     /// <summary>
-    /// Poly(.pol) file renderer
+    /// Poly(.pol) model renderer
     /// </summary>
-    public class PolyStaticMeshRenderer : MonoBehaviour
+    public class PolyModelRenderer : MonoBehaviour
     {
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";

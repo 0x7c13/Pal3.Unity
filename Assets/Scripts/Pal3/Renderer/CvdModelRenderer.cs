@@ -17,9 +17,9 @@ namespace Pal3.Renderer
     using UnityEngine;
 
     /// <summary>
-    /// CVD(.cvd) file renderer
+    /// CVD(.cvd) model renderer
     /// </summary>
-    public class CvdMeshRenderer : MonoBehaviour
+    public class CvdModelRenderer : MonoBehaviour
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
         private readonly List<(CvdGeometryNode, Dictionary<int, StaticMeshRenderer>)> _renderers = new ();
