@@ -67,11 +67,21 @@ namespace Pal3.Actor
             {
                 var tile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
 
-                var yPosition = tile.IsWalkable() ?
-                    tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit :
-                    actor.Info.PositionY;
-
-                transform.position = new Vector3(initPosition.x, yPosition, initPosition.z);
+                if (tile.IsWalkable())
+                {
+                    transform.position = new Vector3(initPosition.x,
+                        tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                        initPosition.z);
+                }
+                else
+                {
+                    // Snap to the nearest adjacent tile if exists
+                    var nextToWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
+                        _currentLayerIndex, out var nearestTile);
+                    transform.position = nextToWalkableTile ?
+                        _tilemap.GetWorldPosition(nearestTile, _currentLayerIndex) :
+                        initPosition;
+                }
             }
             else
             {

@@ -95,7 +95,7 @@ namespace Pal3.Scene
             // next to the "to" tile to compensate (if there is any walkable tile right next to it)
             if (!GetTile(to, layerIndex).IsWalkable())
             {
-                if (TryGetNearestWalkableTile(to, layerIndex, out var nearestWalkableTile))
+                if (TryGetAdjacentWalkableTile(to, layerIndex, out var nearestWalkableTile))
                 {
                     to = nearestWalkableTile;
                 }
@@ -140,7 +140,7 @@ namespace Pal3.Scene
         }
 
         // Get a walkable tile right next to the tile if any
-        private bool TryGetNearestWalkableTile(Vector2Int position, int layerIndex, out Vector2Int nearestWalkableTile)
+        public bool TryGetAdjacentWalkableTile(Vector2Int position, int layerIndex, out Vector2Int nearestWalkableTile)
         {
             foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
             {

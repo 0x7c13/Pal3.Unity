@@ -15,6 +15,7 @@ namespace Pal3.Renderer
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
+    using Dev;
     using UnityEngine;
 
     public class VertexAnimationKeyFrame
@@ -41,6 +42,7 @@ namespace Pal3.Renderer
         private VertexAnimationKeyFrame[] _keyFrames;
         private Texture2D _texture;
         private Material _material;
+        private GameBoxMaterial _gbMaterial;
         private Mv3AnimationEvent[] _events;
         private bool _textureHasAlphaChannel;
         private Color _tintColor;
@@ -60,6 +62,7 @@ namespace Pal3.Renderer
             Color tintColor)
         {
             _tintColor = tintColor;
+            _gbMaterial = material.Material;
             _textureProvider = textureProvider;
             _events = events;
 
@@ -134,10 +137,19 @@ namespace Pal3.Renderer
             if (_meshRenderer == null)
             {
                 _meshObject = new GameObject(_animationName);
+
+                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+                #if UNITY_EDITOR
+                var materialInfoPresenter = _meshObject.AddComponent<MaterialInfoPresenter>();
+                materialInfoPresenter.blendFlag = (uint) (_textureHasAlphaChannel ? 1 : 0);
+                materialInfoPresenter.material = _gbMaterial;
+                #endif
+
                 _meshRenderer = _meshObject.AddComponent<StaticMeshRenderer>();
 
                 _material = new Material(Shader.Find("Pal3/StandardNoShadow"));
                 _material.SetTexture(Shader.PropertyToID("_MainTex"), _texture);
+
                 var cutoff = _textureHasAlphaChannel ? 0.3f : 0f;
                 if (cutoff > Mathf.Epsilon)
                 {

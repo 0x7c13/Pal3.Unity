@@ -3,16 +3,16 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Actor
+namespace Pal3.Dev
 {
     using Core.DataReader.Scn;
     using UnityEngine;
 
     /// <summary>
-    /// ScnNpcInfo holder component to present ScnNpcInfo in the Unity inspector
+    /// ScnObjectInfo holder component to present ScnObjectInfo in the Unity inspector
     /// </summary>
-    public class NpcInfoPresenter : MonoBehaviour
+    public class SceneObjectInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public ScnNpcInfo npcInfo;
+        [SerializeField] public ScnObjectInfo sceneObjectInfo;
     }
 }

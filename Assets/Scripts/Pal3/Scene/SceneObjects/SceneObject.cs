@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Data;
+    using Dev;
     using MetaData;
     using Renderer;
     using UnityEngine;

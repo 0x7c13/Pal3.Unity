@@ -12,17 +12,9 @@ namespace Pal3.Renderer
     using Core.DataReader.Pol;
     using Core.GameBox;
     using Core.Renderer;
+    using Dev;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
-
-    /// <summary>
-    /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector
-    /// </summary>
-    public class MaterialInfoPresenter : MonoBehaviour
-    {
-        [SerializeField] public uint blendFlag;
-        [SerializeField] public GameBoxMaterial material;
-    }
 
     /// <summary>
     /// Poly(.pol) model renderer
@@ -145,9 +137,13 @@ namespace Pal3.Renderer
                 }
 
                 var meshObject = new GameObject(meshName);
+
+                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+                #if UNITY_EDITOR
                 var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
                 materialInfoPresenter.blendFlag = mesh.Textures[i].BlendFlag;
                 materialInfoPresenter.material = mesh.Textures[i].Material;
+                #endif
 
                 var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();
 
@@ -159,7 +155,7 @@ namespace Pal3.Renderer
                     var material = new Material(Shader.Find("Pal3/StandardNoShadow"));
                     material.SetTexture(Shader.PropertyToID("_MainTex"), textures[0].texture);
 
-                    var cutoff = (mesh.Textures[i].BlendFlag == 1) ? 0.3f : 0f;
+                    var cutoff = mesh.Textures[i].BlendFlag is 1 or 2 ? 0.3f : 0f;
                     if (cutoff > Mathf.Epsilon)
                     {
                         material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
@@ -173,12 +169,12 @@ namespace Pal3.Renderer
 
                     meshRenderer.RecalculateBoundsNormalsAndTangents();
 
-                    if ((mesh.Textures[i].Material.Emissive.r != 0 ||
-                        mesh.Textures[i].Material.Emissive.g != 0 ||
-                        mesh.Textures[i].Material.Emissive.b != 0)
+                    if ((mesh.Textures[i].Material.Emissive.r is > 0 and < 255 ||
+                         mesh.Textures[i].Material.Emissive.g is > 0 and < 255 ||
+                         mesh.Textures[i].Material.Emissive.b is > 0 and < 255)
                         || isWaterSurface)
                     {
-                        var transparency = mesh.Textures[i].BlendFlag == 1 ? 0.5f : 0f;
+                        var transparency = mesh.Textures[i].BlendFlag is 1 or 2 ? 0.5f : 0f;
                         if (transparency > Mathf.Epsilon)
                         {
                             material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
@@ -200,7 +196,7 @@ namespace Pal3.Renderer
                     material.SetTexture(Shader.PropertyToID("_MainTex"), textures[1].texture);
                     material.SetTexture(Shader.PropertyToID("_ShadowTex"), textures[0].texture);
 
-                    var cutoff = (mesh.Textures[i].BlendFlag == 1) ? 0.3f : 0f;
+                    var cutoff = mesh.Textures[i].BlendFlag is 1 or 2 ? 0.3f : 0f;
                     if (cutoff > Mathf.Epsilon)
                     {
                         material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
@@ -215,12 +211,12 @@ namespace Pal3.Renderer
 
                     meshRenderer.RecalculateBoundsNormalsAndTangents();
 
-                    if ((mesh.Textures[i].Material.Emissive.r != 0 ||
-                         mesh.Textures[i].Material.Emissive.g != 0 ||
-                         mesh.Textures[i].Material.Emissive.b != 0)
+                    if ((mesh.Textures[i].Material.Emissive.r is > 0 and < 255 ||
+                         mesh.Textures[i].Material.Emissive.g is > 0 and < 255 ||
+                         mesh.Textures[i].Material.Emissive.b is > 0 and < 255)
                         || isWaterSurface)
                     {
-                        var transparency = mesh.Textures[i].BlendFlag == 1 ? 0.6f : 0f;
+                        var transparency = mesh.Textures[i].BlendFlag is 1 or 2  ? 0.5f : 0f;
                         if (transparency > Mathf.Epsilon)
                         {
                             material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;

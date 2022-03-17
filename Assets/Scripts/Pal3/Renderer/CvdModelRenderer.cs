@@ -14,6 +14,7 @@ namespace Pal3.Renderer
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
+    using Dev;
     using UnityEngine;
 
     /// <summary>
@@ -129,8 +130,8 @@ namespace Pal3.Renderer
 
             }
 
-            var meshGameObject = new GameObject(meshName);
-            meshGameObject.transform.SetParent(parent.transform, false);
+            var meshObject = new GameObject(meshName);
+            meshObject.transform.SetParent(parent.transform, false);
 
             for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
             {
@@ -145,8 +146,16 @@ namespace Pal3.Renderer
                 if (string.IsNullOrEmpty(meshSection.TextureName) ||
                     !textureCache.ContainsKey(meshSection.TextureName)) continue;
 
-                var meshSectionGameObject = new GameObject($"{sectionHashKey}");
-                var meshRenderer = meshSectionGameObject.AddComponent<StaticMeshRenderer>();
+                var meshSectionObject = new GameObject($"{sectionHashKey}");
+
+                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+                #if UNITY_EDITOR
+                var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
+                materialInfoPresenter.blendFlag = meshSection.BlendFlag;
+                materialInfoPresenter.material = meshSection.Material;
+                #endif
+
+                var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                 nodeRenderers.Item2[i] = meshRenderer;
 
                 var material = new Material(Shader.Find("Pal3/StandardNoShadow"));
@@ -167,7 +176,7 @@ namespace Pal3.Renderer
 
                 meshRenderer.RecalculateBoundsNormalsAndTangents();
 
-                meshSectionGameObject.transform.SetParent(meshGameObject.transform, false);
+                meshSectionObject.transform.SetParent(meshObject.transform, false);
             }
 
             _renderers.Add(nodeRenderers);
@@ -175,7 +184,7 @@ namespace Pal3.Renderer
             for (var i = 0; i < node.Children.Length; i++)
             {
                 var childMeshName = $"{meshName}-{i}";
-                RenderMeshInternal(time, childMeshName, node.Children[i], textureCache, meshGameObject);
+                RenderMeshInternal(time, childMeshName, node.Children[i], textureCache, meshObject);
             }
         }
 
