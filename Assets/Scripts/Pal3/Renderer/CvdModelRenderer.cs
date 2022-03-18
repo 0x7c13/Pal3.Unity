@@ -17,13 +17,20 @@ namespace Pal3.Renderer
     using Dev;
     using UnityEngine;
 
+    public struct MeshDataBuffer
+    {
+        public Vector3[] VertexBuffer;
+        public Vector3[] NormalBuffer;
+        public Vector2[] UvBuffer;
+    }
+
     /// <summary>
     /// CVD(.cvd) model renderer
     /// </summary>
     public class CvdModelRenderer : MonoBehaviour
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
-        private readonly List<(CvdGeometryNode, Dictionary<int, StaticMeshRenderer>)> _renderers = new ();
+        private readonly List<(CvdGeometryNode, Dictionary<int, (Mesh mesh, MeshDataBuffer buffer)>)> _renderMeshes = new ();
 
         private Color _tintColor;
 
@@ -116,7 +123,7 @@ namespace Pal3.Renderer
             Dictionary<string, Texture2D> textureCache,
             GameObject parent)
         {
-            var nodeRenderers = (node, new Dictionary<int, StaticMeshRenderer>());
+            var nodeMeshes = (node, new Dictionary<int, (Mesh mesh, MeshDataBuffer buffer)>());
 
             var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
             var frameMatrix = GetFrameMatrix(time, node);
@@ -127,7 +134,6 @@ namespace Pal3.Renderer
                 influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
                                 (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
-
             }
 
             var meshObject = new GameObject(meshName);
@@ -138,7 +144,16 @@ namespace Pal3.Renderer
                 var meshSection = node.Mesh.MeshSections[i];
 
                 var sectionHashKey = $"{meshName}_{i}";
-                var meshInfo = CalculateMeshInfo(meshSection,
+
+                var meshDataBuffer = new MeshDataBuffer
+                {
+                    VertexBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
+                    NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
+                    UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
+                };
+
+                UpdateMeshDataBuffer(ref meshDataBuffer,
+                    meshSection,
                     frameIndex,
                     influence,
                     frameMatrix);
@@ -156,7 +171,6 @@ namespace Pal3.Renderer
                 #endif
 
                 var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
-                nodeRenderers.Item2[i] = meshRenderer;
 
                 var material = new Material(Shader.Find("Pal3/StandardNoShadow"));
                 material.SetTexture(Shader.PropertyToID("_MainTex"), textureCache[meshSection.TextureName]);
@@ -168,18 +182,20 @@ namespace Pal3.Renderer
 
                 material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
 
-                meshRenderer.Render(meshInfo.vertices,
-                    meshInfo.triangles,
-                    meshInfo.normals,
-                    meshInfo.uv,
-                    material);
+                var renderMesh = meshRenderer.Render(meshDataBuffer.VertexBuffer,
+                    GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles),
+                    meshDataBuffer.NormalBuffer,
+                    meshDataBuffer.UvBuffer,
+                    material,
+                    true);
 
                 meshRenderer.RecalculateBoundsNormalsAndTangents();
 
+                nodeMeshes.Item2[i] = (renderMesh, meshDataBuffer);
                 meshSectionObject.transform.SetParent(meshObject.transform, false);
             }
 
-            _renderers.Add(nodeRenderers);
+            _renderMeshes.Add(nodeMeshes);
 
             for (var i = 0; i < node.Children.Length; i++)
             {
@@ -188,26 +204,22 @@ namespace Pal3.Renderer
             }
         }
 
-        private (Vector3[] vertices, int[] triangles, Vector3[] normals, Vector2[] uv) CalculateMeshInfo(
+        private void UpdateMeshDataBuffer(ref MeshDataBuffer meshDataBuffer,
             CvdMeshSection meshSection,
             int frameIndex,
             float influence,
             Matrix4x4 matrix)
         {
-            List<Vector3> vertices = new ();
-            List<Vector3> normals = new ();
-            List<Vector2> uv = new ();
-
             var frameVertices = meshSection.FrameVertices[frameIndex];
 
             if (influence < Mathf.Epsilon)
             {
                 for (var i = 0; i < frameVertices.Length; i++)
                 {
-                    vertices.Add(matrix.MultiplyPoint3x4(
-                        GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Position)));
-                    normals.Add(GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Normal));
-                    uv.Add(frameVertices[i].Uv);
+                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
+                        GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Position));
+                    meshDataBuffer.NormalBuffer[i] = GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Normal);
+                    meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv;
                 }
             }
             else
@@ -216,22 +228,17 @@ namespace Pal3.Renderer
                 {
                     var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                     var lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
-                    vertices.Add(matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition)));
-                    // Ignoring the normals here since Unity can help us do the calculation.
+                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition));
+                    // Ignoring normals here since Unity can help us do the calculation.
                     var lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
-                    uv.Add(lerpUv);
+                    meshDataBuffer.UvBuffer[i] = lerpUv;
                 }
             }
-
-            return (vertices.ToArray(),
-                GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles),
-                normals.ToArray(),
-                uv.ToArray());
         }
 
         private void UpdateMesh(float time)
         {
-            foreach (var (node, renderers) in _renderers)
+            foreach (var (node, meshInfo) in _renderMeshes)
             {
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
                 var frameMatrix = GetFrameMatrix(time, node);
@@ -246,23 +253,22 @@ namespace Pal3.Renderer
 
                 for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
-                    if (!renderers.ContainsKey(i)) continue;
+                    if (!meshInfo.ContainsKey(i)) continue;
 
                     var meshSection = node.Mesh.MeshSections[i];
 
-                    var meshInfo = CalculateMeshInfo(meshSection,
+                    var meshData = meshInfo[i];
+                    UpdateMeshDataBuffer(ref meshData.buffer,
+                        meshSection,
                         frameIndex,
                         influence,
                         frameMatrix);
 
-                    var meshRenderer = renderers[i];
-
-                    meshRenderer.UpdateMesh(meshInfo.vertices,
-                        meshInfo.triangles,
-                        meshInfo.normals,
-                        meshInfo.uv);
-
-                    meshRenderer.RecalculateBoundsNormalsAndTangents();
+                    meshData.mesh.vertices = meshData.buffer.VertexBuffer;
+                    meshData.mesh.uv = meshData.buffer.UvBuffer;
+                    meshData.mesh.RecalculateBounds();
+                    meshData.mesh.RecalculateNormals();
+                    meshData.mesh.RecalculateTangents();
                 }
             }
         }
@@ -271,7 +277,7 @@ namespace Pal3.Renderer
         {
             if (_animationDuration < Mathf.Epsilon) return;
 
-            if (_renderers.Count == 0)
+            if (_renderMeshes.Count == 0)
             {
                 throw new Exception("Animation not initialized.");
             }

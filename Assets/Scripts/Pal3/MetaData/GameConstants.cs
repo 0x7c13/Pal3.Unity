@@ -17,7 +17,7 @@ namespace Pal3.MetaData
         public const string AppNameCNFull = "仙剑奇侠传三外传";
         #endif
 
-        public const string Version = "0.10";
+        public const string Version = "0.11";
 
         public const string CompanyName = "OSS";
 
@@ -25,6 +25,6 @@ namespace Pal3.MetaData
 
         public const string AppIdentifier = AppIdentifierPrefix + "." + AppName;
 
-        public const string ContactInfo = "仙三复刻版开发测试群：252315306 B站@柒才";
+        public const string ContactInfo = "仙剑三复刻版讨论群：252315306 B站@柒才";
     }
 }

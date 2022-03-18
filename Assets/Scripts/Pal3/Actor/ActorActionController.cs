@@ -125,9 +125,10 @@ namespace Pal3.Actor
                     mv3File.Materials[0] :
                     mv3File.Materials[i];
                 var events = mv3File.AnimationEvents;
+                var keyFrames = mv3File.MeshKeyFrames[i];
 
                 var mv3AnimationRenderer = gameObject.AddComponent<Mv3ModelRenderer>();
-                mv3AnimationRenderer.Init(mesh, material, events, textureProvider, _tintColor);
+                mv3AnimationRenderer.Init(mesh, material, events, keyFrames, textureProvider, _tintColor);
                 mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
                 mv3AnimationRenderer.PlayAnimation(loopCount);
 

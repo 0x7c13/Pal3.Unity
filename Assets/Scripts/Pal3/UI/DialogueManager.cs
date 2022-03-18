@@ -294,6 +294,15 @@ namespace Pal3.UI
 
         private string GetDisplayText(string text)
         {
+            // Easter egg + dev notes
+            if (text.Equals("韩用：\\n知道吗？\\i使用鼠标滚轮可以旋转镜头\\r，这样就不怕人物被挡住了。"))
+            {
+                text = "韩用：\\n知道吗？您现在玩的仙剑三是由\\i柒才\\r使用C#/Unity开发的复刻版，免费而且开源。" +
+                       "如果您是花钱得到的，那么恭喜您成为盗版游戏的受害者。" +
+                       "当前游戏还在开发中，包括战斗在内的很多功能尚未实现，请耐心等待，也欢迎加入仙剑三讨论QQ群与作者联系：\\i252315306\\r，" +
+                       "或者您也可以在B站关注Up主\\i@柒才\\r~！";
+            }
+
             var formattedText = text.Replace("\\n", "\n");
             
             return ReplaceStringWithPatternForEachChar(formattedText,

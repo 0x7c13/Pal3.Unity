@@ -7,7 +7,6 @@ namespace Pal3.Renderer
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Core.DataLoader;
@@ -17,15 +16,6 @@ namespace Pal3.Renderer
     using Core.Utils;
     using Dev;
     using UnityEngine;
-
-    public class VertexAnimationKeyFrame
-    {
-        public uint Tick;
-        public Vector3[] Vertices;
-        public Vector3[] Normals;
-        public int[] Triangles;
-        public Vector2[] Uv;
-    }
 
     /// <summary>
     /// MV3(.mv3) model renderer
@@ -55,9 +45,14 @@ namespace Pal3.Renderer
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
 
+        private Mesh _renderMesh;
+        private Vector3[] _vertexBuffer;
+        private int[] _triangleBuffer;
+
         public void Init(Mv3Mesh mv3Mesh,
             Mv3Material material,
             Mv3AnimationEvent[] events,
+            VertexAnimationKeyFrame[] keyFrames,
             ITextureResourceProvider textureProvider,
             Color tintColor)
         {
@@ -65,62 +60,8 @@ namespace Pal3.Renderer
             _gbMaterial = material.Material;
             _textureProvider = textureProvider;
             _events = events;
-
-            var triangles = new List<int>();
-            var texCoords = mv3Mesh.TexCoords;
-            var indexMap = new Dictionary<int, int>();
-            var keyFrameInfo = new List<(Vector3 vertex, Vector2 uv)>[mv3Mesh.Frames.Length]
-                .Select(item=>new List<(Vector3 vertex, Vector2 uv)>()).ToArray();
-
-            for (var i = 0; i < mv3Mesh.Attributes[0].IndexBuffers.Length; i++)
-            {
-                var indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
-                for (var j = 0; j < 3; j++)
-                {
-                    var hash = indexBuffer.TriangleIndex[j] * texCoords.Length + indexBuffer.TexCoordIndex[j];
-                    if (indexMap.ContainsKey(hash))
-                    {
-                        triangles.Add(indexMap[hash]);
-                    }
-                    else
-                    {
-                        var index = indexMap.Keys.Count;
-
-                        for (var k = 0; k < mv3Mesh.Frames.Length; k++)
-                        {
-                            var frame = mv3Mesh.Frames[k];
-                            var vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
-
-                            keyFrameInfo[k].Add((GameBoxInterpreter
-                                .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
-                                    GameBoxInterpreter.GameBoxMv3UnitToUnityUnit),
-                                texCoords[indexBuffer.TexCoordIndex[j]]));
-                        }
-
-                        indexMap[hash] = index;
-                        triangles.Add(index);
-                    }
-                }
-            }
-
-            GameBoxInterpreter.ToUnityTriangles(triangles);
-
-            var animationKeyFrames = new VertexAnimationKeyFrame[mv3Mesh.Frames.Length];
-            for (var i = 0; i < animationKeyFrames.Length; i++)
-            {
-                animationKeyFrames[i] = new VertexAnimationKeyFrame()
-                {
-                    Tick = mv3Mesh.Frames[i].Tick,
-                    Vertices = keyFrameInfo[i].Select(f => f.vertex).ToArray(),
-                    Triangles = triangles.ToArray(),
-                    Uv = keyFrameInfo[i].Select(f => f.uv).ToArray(),
-                };
-            }
-
-            var texture = textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
-
-            _keyFrames = animationKeyFrames;
-            _texture = texture;
+            _keyFrames = keyFrames;
+            _texture = textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
             _textureHasAlphaChannel = hasAlphaChannel;
             _animationName = mv3Mesh.Name;
         }
@@ -157,11 +98,18 @@ namespace Pal3.Renderer
                 }
 
                 _material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
-                _meshRenderer.Render(_keyFrames[0].Vertices,
-                    _keyFrames[0].Triangles,
+
+                _vertexBuffer = _keyFrames[0].Vertices;
+                _triangleBuffer = _keyFrames[0].Triangles;
+
+                _renderMesh = _meshRenderer.Render(_vertexBuffer,
+                    _triangleBuffer,
                     Array.Empty<Vector3>(),
                     _keyFrames[0].Uv,
-                    _material);
+                    _material,
+                    true);
+
+                _meshRenderer.RecalculateBoundsNormalsAndTangents();
 
                 _meshObject.transform.SetParent(transform, false);
             }
@@ -285,15 +233,14 @@ namespace Pal3.Renderer
                 var influence = (tick - frameTicks[currentFrameIndex]) /
                                 (frameTicks[currentFrameIndex + 1] - frameTicks[currentFrameIndex]);
 
-                var inBetweenKeyFrameVertices = Utility.Lerp(
-                    _keyFrames[currentFrameIndex].Vertices,
-                    _keyFrames[currentFrameIndex + 1].Vertices,
-                    influence);
+                for (var i = 0; i < _vertexBuffer.Length; i++)
+                {
+                    _vertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
+                        _keyFrames[currentFrameIndex + 1].Vertices[i], influence);
+                }
 
-                _meshRenderer.UpdateMesh(inBetweenKeyFrameVertices,
-                    _keyFrames[currentFrameIndex].Triangles,
-                    Array.Empty<Vector3>(),
-                    _keyFrames[currentFrameIndex].Uv);
+                _renderMesh.vertices = _vertexBuffer;
+                //_meshRenderer.RecalculateBoundsNormalsAndTangents();
 
                 if (fps <= 0)
                 {
@@ -314,6 +261,11 @@ namespace Pal3.Renderer
         private void Dispose()
         {
             StopAnimation();
+
+            if (_renderMesh != null)
+            {
+                Destroy(_renderMesh);
+            }
 
             if (_meshRenderer != null)
             {

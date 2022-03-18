@@ -34,11 +34,12 @@ namespace Core.Renderer
             _meshFilter.sharedMesh = mesh;
         }
 
-        public void Render(Vector3[] vertices,
+        public Mesh Render(Vector3[] vertices,
             int[] triangles,
             Vector3[] normals,
             Vector2[] uv,
-            Material material)
+            Material material,
+            bool isDynamic)
         {
             Dispose();
 
@@ -46,73 +47,50 @@ namespace Core.Renderer
             _meshRenderer.sharedMaterial = material;
             _meshFilter = gameObject.AddComponent<MeshFilter>();
 
-            var mesh = new Mesh
-            {
-                vertices = vertices,
-                triangles = triangles,
-                normals = normals,
-                uv = uv
-            };
+            var mesh = new Mesh();
+            if (isDynamic) mesh.MarkDynamic();
 
-            _meshFilter.sharedMesh = mesh;
-
-            if (normals.Length == 0)
-            {
-                // _meshFilter.sharedMesh.RecalculateNormals();
-                // _meshFilter.sharedMesh.RecalculateTangents();
-            }
-        }
-
-        public void Render(Vector3[] vertices,
-            int[] triangles,
-            Vector3[] normals,
-            Vector2[] mainTextureUv,
-            Vector2[] secondaryTextureUv,
-            Material material)
-        {
-            Dispose();
-
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshRenderer.sharedMaterial = material;
-
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
-            var mesh = new Mesh
-            {
-                vertices = vertices,
-                triangles = triangles,
-                normals = normals,
-                uv = mainTextureUv,
-                uv2 = secondaryTextureUv,
-            };
-
-            _meshFilter.sharedMesh = mesh;
-
-            if (normals.Length == 0)
-            {
-                // _meshFilter.sharedMesh.RecalculateNormals();
-                // _meshFilter.sharedMesh.RecalculateTangents();
-            }
-        }
-
-        public void UpdateMesh(
-            Vector3[] vertices,
-            int[] triangles,
-            Vector3[] normals,
-            Vector2[] uv)
-        {
-            if (_meshFilter == null) return;
-
-            var mesh = _meshFilter.sharedMesh;
             mesh.vertices = vertices;
             mesh.triangles = triangles;
             mesh.normals = normals;
             mesh.uv = uv;
+
+            _meshFilter.sharedMesh = mesh;
+
+            return mesh;
+        }
+
+        public Mesh Render(Vector3[] vertices,
+            int[] triangles,
+            Vector3[] normals,
+            Vector2[] mainTextureUv,
+            Vector2[] secondaryTextureUv,
+            Material material,
+            bool isDynamic)
+        {
+            Dispose();
+
+            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer.sharedMaterial = material;
+
+            _meshFilter = gameObject.AddComponent<MeshFilter>();
+            var mesh = new Mesh();
+            if (isDynamic) mesh.MarkDynamic();
+
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.normals = normals;
+            mesh.uv = mainTextureUv;
+            mesh.uv2 = secondaryTextureUv;
+
+            _meshFilter.sharedMesh = mesh;
+
+            return mesh;
         }
 
         public Mesh GetMesh()
         {
-            if (_meshFilter == null) return null;
-            return _meshFilter.sharedMesh;
+            return _meshFilter == null ? null : _meshFilter.sharedMesh;
         }
 
         public void RecalculateBoundsNormalsAndTangents()

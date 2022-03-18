@@ -7,6 +7,7 @@ namespace Core.DataReader.Mv3
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Extensions;
     using GameBox;
     using UnityEngine;
@@ -65,9 +66,12 @@ namespace Core.DataReader.Mv3
             }
 
             var meshes = new List<Mv3Mesh>();
+            var meshKeyFrames = new List<VertexAnimationKeyFrame[]>();
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                meshes.Add(ReadMesh(reader));
+                var mesh = ReadMesh(reader);
+                meshes.Add(mesh);
+                meshKeyFrames.Add(CalculateKeyFrameVertices(mesh));
             }
 
             return new Mv3File(version,
@@ -75,7 +79,8 @@ namespace Core.DataReader.Mv3
                 animationEvents.ToArray(),
                 tagNodes.ToArray(),
                 materials.ToArray(),
-                meshes.ToArray());
+                meshes.ToArray(),
+                meshKeyFrames.ToArray());
         }
 
         private static Mv3Mesh ReadMesh(BinaryReader reader)
@@ -165,6 +170,62 @@ namespace Core.DataReader.Mv3
                 Frames = frames.ToArray(),
                 TexCoords = texCoords.ToArray(),
             };
+        }
+
+        private static VertexAnimationKeyFrame[] CalculateKeyFrameVertices(Mv3Mesh mv3Mesh)
+        {
+            var triangles = new List<int>();
+            var texCoords = mv3Mesh.TexCoords;
+            var indexMap = new Dictionary<int, int>();
+            var keyFrameInfo = new List<(Vector3 vertex, Vector2 uv)>[mv3Mesh.Frames.Length]
+                .Select(item=>new List<(Vector3 vertex, Vector2 uv)>()).ToArray();
+
+            for (var i = 0; i < mv3Mesh.Attributes[0].IndexBuffers.Length; i++)
+            {
+                var indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
+                for (var j = 0; j < 3; j++)
+                {
+                    var hash = indexBuffer.TriangleIndex[j] * texCoords.Length + indexBuffer.TexCoordIndex[j];
+                    if (indexMap.ContainsKey(hash))
+                    {
+                        triangles.Add(indexMap[hash]);
+                    }
+                    else
+                    {
+                        var index = indexMap.Keys.Count;
+
+                        for (var k = 0; k < mv3Mesh.Frames.Length; k++)
+                        {
+                            var frame = mv3Mesh.Frames[k];
+                            var vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
+
+                            keyFrameInfo[k].Add((GameBoxInterpreter
+                                .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
+                                    GameBoxInterpreter.GameBoxMv3UnitToUnityUnit),
+                                texCoords[indexBuffer.TexCoordIndex[j]]));
+                        }
+
+                        indexMap[hash] = index;
+                        triangles.Add(index);
+                    }
+                }
+            }
+
+            GameBoxInterpreter.ToUnityTriangles(triangles);
+
+            var animationKeyFrames = new VertexAnimationKeyFrame[mv3Mesh.Frames.Length];
+            for (var i = 0; i < animationKeyFrames.Length; i++)
+            {
+                animationKeyFrames[i] = new VertexAnimationKeyFrame()
+                {
+                    Tick = mv3Mesh.Frames[i].Tick,
+                    Vertices = keyFrameInfo[i].Select(f => f.vertex).ToArray(),
+                    Triangles = triangles.ToArray(),
+                    Uv = keyFrameInfo[i].Select(f => f.uv).ToArray(),
+                };
+            }
+
+            return animationKeyFrames;
         }
 
         private static Mv3TagNode ReadTagNode(BinaryReader reader)

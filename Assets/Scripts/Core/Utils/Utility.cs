@@ -141,20 +141,6 @@ namespace Core.Utils
             return index;
         }
 
-        public static Vector3[] Lerp(ReadOnlySpan<Vector3> fromVectors,
-            ReadOnlySpan<Vector3> toVectors,
-            double influence)
-        {
-            var vertices = new Vector3[fromVectors.Length];
-
-            for (var i = 0; i < fromVectors.Length; i++)
-            {
-                vertices[i] = Vector3.Lerp(fromVectors[i], toVectors[i], (float)influence);
-            }
-
-            return vertices;
-        }
-
         public static byte[] TrimEnd(byte[] buffer, ReadOnlySpan<byte> pattern)
         {
             var length = GetPatternIndex(buffer, pattern);

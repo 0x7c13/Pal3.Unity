@@ -226,8 +226,9 @@ namespace ResourceViewer
                     var mesh = mv3File.Meshes[i];
                     var material = mv3File.Materials[i];
                     var events = mv3File.AnimationEvents;
+                    var keyFrames = mv3File.MeshKeyFrames[i];
                     var animationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
-                    animationRenderer.Init(mesh, material, events, textureProvider, Color.white);
+                    animationRenderer.Init(mesh, material, events, keyFrames, textureProvider, Color.white);
                     animationNode.transform.SetParent(_renderingRoot.transform);
                     animationRenderer.PlayAnimation();
                 }

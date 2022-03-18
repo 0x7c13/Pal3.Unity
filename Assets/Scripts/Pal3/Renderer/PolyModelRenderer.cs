@@ -161,11 +161,12 @@ namespace Pal3.Renderer
                         material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
                     }
 
-                    meshRenderer.Render(vertices.ToArray(),
+                    _ = meshRenderer.Render(vertices.ToArray(),
                         triangles.ToArray(),
                         normals.ToArray(),
                         uv1.ToArray(),
-                        material);
+                        material,
+                        false);
 
                     meshRenderer.RecalculateBoundsNormalsAndTangents();
 
@@ -202,12 +203,13 @@ namespace Pal3.Renderer
                         material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
                     }
 
-                    meshRenderer.Render(vertices.ToArray(),
+                    _ = meshRenderer.Render(vertices.ToArray(),
                         triangles.ToArray(),
                         normals.ToArray(),
                         uv2.ToArray(),
                         uv1.ToArray(),
-                        material);
+                        material,
+                        false);
 
                     meshRenderer.RecalculateBoundsNormalsAndTangents();
 
