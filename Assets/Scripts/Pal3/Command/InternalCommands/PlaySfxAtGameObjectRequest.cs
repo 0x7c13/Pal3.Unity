@@ -10,15 +10,17 @@ namespace Pal3.Command.InternalCommands
 
     public class PlaySfxAtGameObjectRequest : ICommand
     {
-        public PlaySfxAtGameObjectRequest(string sfxName, int loopCount, GameObject parent)
+        public PlaySfxAtGameObjectRequest(string sfxName, int loopCount, float startDelayInSeconds, GameObject parent)
         {
             SfxName = sfxName;
             LoopCount = loopCount;
+            StartDelayInSeconds = startDelayInSeconds;
             Parent = parent;
         }
 
         public string SfxName { get; }
         public int LoopCount { get; }
+        public float StartDelayInSeconds { get; }
 
         [JsonIgnore]
         public GameObject Parent { get; }

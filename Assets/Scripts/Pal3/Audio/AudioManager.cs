@@ -169,6 +169,26 @@ namespace Pal3.Audio
             });
         }
 
+        private IEnumerator PlaySfxAfterDelay(string sfxFilePath,
+            float startDelayInSeconds,
+            int loopCount,
+            GameObject parent,
+            CancellationToken cancellationToken)
+        {
+            if (startDelayInSeconds > 0)
+            {
+                yield return new WaitForSeconds(startDelayInSeconds);
+            }
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                yield return PlaySfx(sfxFilePath,
+                    loopCount,
+                    parent,
+                    cancellationToken);
+            }
+        }
+
         public void Execute(PlaySfxCommand command)
         {
             var sfxName = command.SfxName;
@@ -204,7 +224,11 @@ namespace Pal3.Audio
         {
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             var cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(PlaySfx(sfxFilePath, request.LoopCount, request.Parent, cancellationToken));
+            StartCoroutine(PlaySfxAfterDelay(sfxFilePath,
+                request.StartDelayInSeconds,
+                request.LoopCount,
+                request.Parent,
+                cancellationToken));
         }
 
         public void Execute(PlayMusicCommand command)
