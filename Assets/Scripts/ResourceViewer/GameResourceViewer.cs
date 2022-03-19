@@ -221,14 +221,16 @@ namespace ResourceViewer
 
                 var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
 
+                var events = mv3File.AnimationEvents;
+                var duration = mv3File.Duration;
+
                 for (var i = 0; i < mv3File.Meshes.Length; i++)
                 {
                     var mesh = mv3File.Meshes[i];
                     var material = mv3File.Materials[i];
-                    var events = mv3File.AnimationEvents;
                     var keyFrames = mv3File.MeshKeyFrames[i];
                     var animationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
-                    animationRenderer.Init(mesh, material, events, keyFrames, textureProvider, Color.white);
+                    animationRenderer.Init(mesh, material, events, keyFrames, duration, textureProvider, Color.white);
                     animationNode.transform.SetParent(_renderingRoot.transform);
                     animationRenderer.PlayAnimation();
                 }

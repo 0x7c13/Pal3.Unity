@@ -30,6 +30,7 @@ namespace Pal3.Script
         private SceFile _sceFile;
         private readonly Queue<PalScriptRunner> _pendingScripts = new ();
         private readonly List<PalScriptRunner> _runningScripts = new ();
+        private readonly List<PalScriptRunner> _finishedScripts = new ();
 
         public ScriptManager(GameResourceProvider resourceProvider)
         {
@@ -117,21 +118,26 @@ namespace Pal3.Script
 
             if (_runningScripts.Count == 0) return;
 
-            var finishedScripts = _runningScripts.Where(script => !script.Update(deltaTime)).ToList();
+            foreach (var script in _runningScripts)
+            {
+                if (!script.Update(deltaTime))
+                {
+                    _finishedScripts.Add(script);
+                }
+            }
 
-            foreach (var finishedScript in finishedScripts)
+            foreach (var finishedScript in _finishedScripts)
             {
                 _runningScripts.Remove(finishedScript);
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 finishedScript.Dispose();
-            }
 
-            foreach (var finishedScript in finishedScripts)
-            {
                 Debug.Log($"Script {finishedScript.ScriptId} finished running.");
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptFinishedRunningNotification(finishedScript.ScriptId));
             }
+
+            _finishedScripts.Clear();
         }
 
         public void SetSceneScript(SceFile sceFile, string sceneScriptDescription)

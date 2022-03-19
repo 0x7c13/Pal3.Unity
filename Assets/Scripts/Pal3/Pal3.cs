@@ -211,7 +211,7 @@ namespace Pal3
 
             _cameraManager = gameObject.AddComponent<CameraManager>();
             _cameraManager.Init(_inputActions,
-                _playerManager,
+                _playerGamePlayController,
                 _sceneManager,
                 mainCamera,
                 touchControlUI,
@@ -270,16 +270,6 @@ namespace Pal3
             ApplyRenderingSettings();
             ApplyPlatformSpecificSettings();
 
-            // if (Application.platform == RuntimePlatform.WindowsEditor ||
-            //     Application.platform == RuntimePlatform.OSXEditor ||
-            //     Application.platform == RuntimePlatform.LinuxEditor)
-            // {
-            //     _gameStateManager.GoToState(GameState.Cutscene);
-            // }
-            // else
-            // {
-            //     StartNewGame();
-            // }
             _storySelector.Show();
         }
 
@@ -293,6 +283,9 @@ namespace Pal3
 
         private void ApplyRenderingSettings()
         {
+            //var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
+            //QualitySettings.vSyncCount = vSyncCount;
+
             Application.targetFrameRate = Application.platform switch
             {
                 RuntimePlatform.WindowsEditor => 120,
@@ -305,6 +298,7 @@ namespace Pal3
                 RuntimePlatform.Android => 120,
                 _ => -1,
             };
+
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
         }
 
@@ -360,8 +354,8 @@ namespace Pal3
 
         private void Update()
         {
-            if (_gameStateManager.GetCurrentState() == GameState.Cutscene ||
-                _gameStateManager.GetCurrentState() == GameState.Gameplay)
+            var currentState = _gameStateManager.GetCurrentState();
+            if (currentState is GameState.Cutscene or GameState.Gameplay)
             {
                 _scriptManager.Update(Time.deltaTime);
             }

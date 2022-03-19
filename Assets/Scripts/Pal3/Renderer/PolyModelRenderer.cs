@@ -249,12 +249,15 @@ namespace Pal3.Renderer
                 waterTextures.Add(texture);
             }
 
+            var waterAnimationDelay = new WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
+            var mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+
             while (isActiveAndEnabled)
             {
                 for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
-                    material.SetTexture(Shader.PropertyToID("_MainTex"), waterTextures[i]);
-                    yield return new WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
+                    material.SetTexture(mainTexturePropertyId, waterTextures[i]);
+                    yield return waterAnimationDelay;
                 }
             }
         }

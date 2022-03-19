@@ -97,23 +97,26 @@ namespace Pal3.Player
 
             var position = _playerActor.transform.position;
             var layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-            var tilePosition = _playerActorMovementController.GetTilePosition();
 
             if (!(position == _lastKnownPosition && layerIndex == _lastKnownLayerIndex))
             {
                 _lastKnownPosition = position;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorPositionUpdatedNotification(position, layerIndex, !isPlayerInControl));
-            }
 
-            if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
-            {
-                _lastKnownTilePosition = tilePosition;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, !isPlayerInControl));
+                var tilePosition = _playerActorMovementController.GetTilePosition();
+                if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
+                {
+                    _lastKnownTilePosition = tilePosition;
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, !isPlayerInControl));
+                }
             }
 
             _lastKnownLayerIndex = layerIndex;
+        }
+
+        public Vector3 GetPlayerActorLastKnownPosition()
+        {
+            return _lastKnownPosition;
         }
 
         private void ReadInputAndMovePlayerIfNeeded()

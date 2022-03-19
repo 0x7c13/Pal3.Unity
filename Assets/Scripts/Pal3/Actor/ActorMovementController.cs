@@ -35,8 +35,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorMoveOutOfScreenCommand>,
         ICommandExecutor<ActorActivateCommand>,
-        ICommandExecutor<ActorSetNavLayerCommand>,
-        ICommandExecutor<PlayerActorPositionUpdatedNotification>
+        ICommandExecutor<ActorSetNavLayerCommand>
     {
         private const float MAX_CROSS_LAYER_Y_DIFFERENTIAL = 2f;
 
@@ -45,7 +44,7 @@ namespace Pal3.Actor
         private ActorActionController _actionController;
         private int _currentLayerIndex = 0;
 
-        private Path _currentPath;
+        private readonly Path _currentPath = new ();
         private WaitUntilCanceled _movementWaiter;
 
         private bool _isDuringCollision;
@@ -96,7 +95,7 @@ namespace Pal3.Actor
 
         private void OnDisable()
         {
-            _currentPath?.Clear();
+            _currentPath.Clear();
             _movementWaiter?.CancelWait();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
@@ -108,31 +107,30 @@ namespace Pal3.Actor
 
         public bool MovementInProgress()
         {
-            return _currentPath != null && !_currentPath.IsEndOfPath();
+            return !_currentPath.IsEndOfPath();
         }
 
         public void CancelCurrentMovement()
         {
-            _currentPath?.Clear();
+            _currentPath.Clear();
         }
 
         private void Update()
         {
-            var path = _currentPath;
-            if (path == null || path.IsEndOfPath()) return;
+            if (_currentPath.IsEndOfPath()) return;
 
-            var ignoreBlock = path.EndOfPathAction == EndOfPathActionType.Reverse;
-            var result = MoveTowards(path.GetCurrentWayPoint(), path.MovementMode, ignoreBlock);
+            var ignoreBlock = _currentPath.EndOfPathAction == EndOfPathActionType.Reverse;
+            var result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, ignoreBlock);
 
             if (result == MovementResult.Blocked)
             {
-                ReachingToEndOfPath(path);
+                ReachingToEndOfPath();
             }
             else if (result == MovementResult.Completed)
             {
-                if (!path.MoveToNextWayPoint())
+                if (!_currentPath.MoveToNextWayPoint())
                 {
-                    ReachingToEndOfPath(path);
+                    ReachingToEndOfPath();
                 }
             }
         }
@@ -367,14 +365,14 @@ namespace Pal3.Actor
 
         public void SetupPath(Vector3[] wayPoints, int mode, EndOfPathActionType endOfPathAction)
         {
-            _currentPath = new Path(wayPoints, mode, endOfPathAction);
+            _currentPath.SetPath(wayPoints, mode, endOfPathAction);
             _actionController.PerformAction(_actor.GetMovementAction(mode));
         }
 
-        private void ReachingToEndOfPath(Path path)
+        private void ReachingToEndOfPath()
         {
             _movementWaiter?.CancelWait();
-            switch (path.EndOfPathAction)
+            switch (_currentPath.EndOfPathAction)
             {
                 case EndOfPathActionType.DisposeSelf:
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_actor.Info.Id, 0));
@@ -385,20 +383,21 @@ namespace Pal3.Actor
                 case EndOfPathActionType.Reverse:
                 {
                     _actionController.PerformAction(_actor.GetIdleAction());
-                    var waypoints = path.GetAllWayPoints().ToList();
+                    var waypoints = _currentPath.GetAllWayPoints().ToList();
                     waypoints.Reverse();
-                    StartCoroutine(WaitForSomeTimeAndFollowPath(waypoints.ToArray(), path.MovementMode));
+                    StartCoroutine(WaitForSomeTimeAndFollowPath(waypoints.ToArray(), _currentPath.MovementMode));
                     break;
                 }
             }
 
             // Special handling for final rotation after moving backwards
-            if (path.MovementMode == 2)
+            if (_currentPath.MovementMode == 2)
             {
-                transform.forward = -transform.forward;
+                var actorTransform = transform;
+                actorTransform.forward = -actorTransform.forward;
             }
 
-            path.Clear();
+            _currentPath.Clear();
         }
 
         private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode)
@@ -416,7 +415,7 @@ namespace Pal3.Actor
 
         public IEnumerator MoveDirectlyTo(Vector3 position, int mode)
         {
-            _currentPath?.Clear();
+            _currentPath.Clear();
             MovementResult result;
             _actionController.PerformAction(_actor.GetMovementAction(mode));
             do
@@ -515,7 +514,7 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
-            _currentPath?.Clear();
+            _currentPath.Clear();
         }
 
         public void Execute(ActorSetNavLayerCommand command)
@@ -527,22 +526,7 @@ namespace Pal3.Actor
         public void Execute(ActorActivateCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            if (command.IsActive == 0) _currentPath?.Clear();
-        }
-
-        // TODO: Remove this
-        public void Execute(PlayerActorPositionUpdatedNotification command)
-        {
-            if (_actor.Info.Kind == ScnActorKind.CombatNpc)
-            {
-                if (Vector3.Distance(command.Position, transform.position) < 10f)
-                {
-                    var currentPosition = transform.position;
-                    var direction = currentPosition - command.Position;
-                    MoveTowards(currentPosition + direction.normalized, 1);
-                    transform.rotation = Quaternion.LookRotation(direction, transform.up);
-                }
-            }
+            if (command.IsActive == 0) _currentPath.Clear();
         }
     }
 }

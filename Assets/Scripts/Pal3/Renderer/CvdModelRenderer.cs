@@ -17,13 +17,6 @@ namespace Pal3.Renderer
     using Dev;
     using UnityEngine;
 
-    public struct MeshDataBuffer
-    {
-        public Vector3[] VertexBuffer;
-        public Vector3[] NormalBuffer;
-        public Vector2[] UvBuffer;
-    }
-
     /// <summary>
     /// CVD(.cvd) model renderer
     /// </summary>
@@ -287,34 +280,36 @@ namespace Pal3.Renderer
             if (_animation != null) StopCoroutine(_animation);
 
             _animationCts = new CancellationTokenSource();
+            var animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
             _animation = StartCoroutine(PlayAnimationInternal(timeScale,
                 loopCount,
-                fps,
+                animationDelay,
                 _animationCts.Token));
         }
 
         private IEnumerator PlayAnimationInternal(float timeScale,
             int loopCount,
-            float fps,
+            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             if (loopCount == -1)
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, animationDelay, cancellationToken);
                 }
             }
             else if (loopCount > 0)
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, animationDelay, cancellationToken);
                 }
             }
         }
 
-        private IEnumerator PlayOneTimeAnimationInternal(float timeScale, float fps,
+        private IEnumerator PlayOneTimeAnimationInternal(float timeScale,
+            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             var startTime = Time.timeSinceLevelLoad;
@@ -330,14 +325,7 @@ namespace Pal3.Renderer
 
                 UpdateMesh(currentTime);
 
-                if (fps <= 0)
-                {
-                    yield return null;
-                }
-                else
-                {
-                    yield return new WaitForSeconds(1 / fps);
-                }
+                yield return animationDelay;
             }
         }
 

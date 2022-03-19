@@ -136,9 +136,11 @@ namespace Pal3.UI
 
         IEnumerator TypeSentence(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
         {
+            var charTypingAnimationDelay = new WaitForSeconds(waitSecondsBeforeRenderingChar);
+
             textUI.text = string.Empty;
 
-            yield return new WaitForSeconds(waitSecondsBeforeRenderingChar);
+            yield return charTypingAnimationDelay;
 
             var richText = string.Empty;
             foreach (var letter in sentence.ToCharArray())
@@ -149,7 +151,7 @@ namespace Pal3.UI
                     {
                         textUI.text += richText + letter;
                         richText = string.Empty;
-                        yield return new WaitForSeconds(waitSecondsBeforeRenderingChar);
+                        yield return charTypingAnimationDelay;
                         continue;
                     }
 
@@ -164,7 +166,7 @@ namespace Pal3.UI
 
                 if (_isRenderingDialogue == false) yield break;
                 textUI.text += letter;
-                yield return new WaitForSeconds(waitSecondsBeforeRenderingChar);
+                yield return charTypingAnimationDelay;
             }
         }
 

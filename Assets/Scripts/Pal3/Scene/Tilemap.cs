@@ -145,6 +145,7 @@ namespace Pal3.Scene
             foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
             {
                 var tile = position + DirectionUtils.ToVector2Int(direction);
+                if (!IsTilePositionInsideTileMap(tile, layerIndex)) continue;
                 if (GetTile(tile, layerIndex).IsWalkable())
                 {
                     nearestWalkableTile = tile;

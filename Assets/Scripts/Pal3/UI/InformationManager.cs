@@ -28,7 +28,7 @@ namespace Pal3.UI
         private TextMeshProUGUI _debugInfo;
 
         private FpsCounter _fpsCounter;
-        private string _deviceInfo;
+        private string _debugInfoStringFormat;
 
         private double _heapSizeLastQueryTime;
         private float _heapSize;
@@ -46,13 +46,17 @@ namespace Pal3.UI
 
         private void OnEnable()
         {
-            _deviceInfo = $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
-                          $"CPU: {SystemInfo.processorType.Trim()} GPU: {SystemInfo.graphicsDeviceName.Trim()}\n" +
-                          $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
-                          $"{GameConstants.ContactInfo}\n" +
-                          $"Version: Alpha v{GameConstants.Version}";
+            var deviceInfo =
+                $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
+                $"CPU: {SystemInfo.processorType.Trim()} GPU: {SystemInfo.graphicsDeviceName.Trim()}\n" +
+                $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
+                $"{GameConstants.ContactInfo}\n" +
+                $"Version: Alpha v{GameConstants.Version}\n";
 
-                          _fpsCounter = GetComponent<FpsCounter>();
+            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{1:0.} fps";
+
+            _fpsCounter = GetComponent<FpsCounter>();
+
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -70,9 +74,7 @@ namespace Pal3.UI
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
                 _heapSizeLastQueryTime = currentTime;
             }
-            _debugInfo.text = $"{_deviceInfo}\n" +
-                              $"Heap size: {_heapSize:0.00} MB" +
-                              $"\n{_fpsCounter.GetFps():0.} fps";
+            _debugInfo.SetText(_debugInfoStringFormat, _heapSize, _fpsCounter.GetFps());
         }
 
         private IEnumerator AnimateNoteUI()

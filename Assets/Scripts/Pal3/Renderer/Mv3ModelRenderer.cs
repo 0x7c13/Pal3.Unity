@@ -45,14 +45,17 @@ namespace Pal3.Renderer
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
 
+        private uint[] _frameTicks;
+        private uint _duration;
         private Mesh _renderMesh;
-        private Vector3[] _vertexBuffer;
-        private int[] _triangleBuffer;
+        private MeshDataBuffer _meshDataBuffer;
+        private WaitForSeconds _animationDelay;
 
         public void Init(Mv3Mesh mv3Mesh,
             Mv3Material material,
             Mv3AnimationEvent[] events,
             VertexAnimationKeyFrame[] keyFrames,
+            uint duration,
             ITextureResourceProvider textureProvider,
             Color tintColor)
         {
@@ -61,6 +64,7 @@ namespace Pal3.Renderer
             _textureProvider = textureProvider;
             _events = events;
             _keyFrames = keyFrames;
+            _duration = duration;
             _texture = textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
             _textureHasAlphaChannel = hasAlphaChannel;
             _animationName = mv3Mesh.Name;
@@ -77,6 +81,7 @@ namespace Pal3.Renderer
 
             if (_meshRenderer == null)
             {
+                _frameTicks = _keyFrames.Select(f => f.Tick).ToArray();
                 _meshObject = new GameObject(_animationName);
 
                 // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
@@ -99,11 +104,13 @@ namespace Pal3.Renderer
 
                 _material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
 
-                _vertexBuffer = _keyFrames[0].Vertices;
-                _triangleBuffer = _keyFrames[0].Triangles;
+                _meshDataBuffer = new MeshDataBuffer
+                {
+                    VertexBuffer = new Vector3[_keyFrames[0].Vertices.Length]
+                };
 
-                _renderMesh = _meshRenderer.Render(_vertexBuffer,
-                    _triangleBuffer,
+                _renderMesh = _meshRenderer.Render( _keyFrames[0].Vertices,
+                    _keyFrames[0].Triangles,
                     Array.Empty<Vector3>(),
                     _keyFrames[0].Uv,
                     _material,
@@ -117,8 +124,9 @@ namespace Pal3.Renderer
             if (_animation != null) StopCoroutine(_animation);
 
             _animationCts = new CancellationTokenSource();
+            _animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
             _animation = StartCoroutine(PlayAnimationInternal(loopCount,
-                fps,
+                _animationDelay,
                 _animationCts.Token));
         }
 
@@ -156,32 +164,30 @@ namespace Pal3.Renderer
 
         public void ResumeAction()
         {
-            StartCoroutine(ResumeActionInternal());
+            StartCoroutine(ResumeActionInternal(_animationDelay));
         }
 
-        private IEnumerator ResumeActionInternal(float fps = -1f)
+        private IEnumerator ResumeActionInternal(WaitForSeconds animationDelay)
         {
             if (!_isActionInHoldState) yield break;
-            var endTick = _keyFrames.Last().Tick;
             _animationCts = new CancellationTokenSource();
-            yield return PlayOneTimeAnimationInternal(_actionHoldingTick, endTick, fps, _animationCts.Token);
+            yield return PlayOneTimeAnimationInternal(_actionHoldingTick, _duration, animationDelay, _animationCts.Token);
             _isActionInHoldState = false;
             _actionHoldingTick = 0;
             AnimationLoopPointReached?.Invoke(this, -2);
         }
 
         private IEnumerator PlayAnimationInternal(int loopCount,
-            float fps,
+            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             uint startTick = 0;
-            uint endTick = _keyFrames.Last().Tick;
 
             if (loopCount == -1)
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, endTick, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -189,7 +195,7 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, endTick, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -199,12 +205,12 @@ namespace Pal3.Renderer
                     e.Name.Equals(MV3_ANIMATION_HOLD_EVENT_NAME, StringComparison.OrdinalIgnoreCase)).Tick;
                 if (_actionHoldingTick != 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, _actionHoldingTick, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(startTick, _actionHoldingTick, animationDelay, cancellationToken);
                     _isActionInHoldState = true;
                 }
                 else
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, endTick, fps, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
                 }
                 AnimationLoopPointReached?.Invoke(this, loopCount);
             }
@@ -212,11 +218,11 @@ namespace Pal3.Renderer
 
         private IEnumerator PlayOneTimeAnimationInternal(uint startTick,
             uint endTick,
-            float fps,
+            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             var startTime = Time.timeSinceLevelLoad;
-            var frameTicks = _keyFrames.Select(f => f.Tick).ToArray();
+            var numOfFrames = _frameTicks.Length;
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -228,28 +234,23 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint)tick);
+                var currentFrameIndex = Utility.GetFloorIndex(_frameTicks, (uint)tick);
+                var currentFrameTick = _frameTicks[currentFrameIndex];
+                var nextFrameIndex = currentFrameIndex < numOfFrames - 1 ? currentFrameIndex + 1 : 0;
+                var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[nextFrameIndex];
 
-                var influence = (tick - frameTicks[currentFrameIndex]) /
-                                (frameTicks[currentFrameIndex + 1] - frameTicks[currentFrameIndex]);
+                var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                for (var i = 0; i < _vertexBuffer.Length; i++)
+                for (var i = 0; i < _meshDataBuffer.VertexBuffer.Length; i++)
                 {
-                    _vertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
-                        _keyFrames[currentFrameIndex + 1].Vertices[i], influence);
+                    _meshDataBuffer.VertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
+                        _keyFrames[nextFrameIndex].Vertices[i], influence);
                 }
 
-                _renderMesh.vertices = _vertexBuffer;
+                _renderMesh.vertices = _meshDataBuffer.VertexBuffer;
                 //_meshRenderer.RecalculateBoundsNormalsAndTangents();
 
-                if (fps <= 0)
-                {
-                    yield return null;
-                }
-                else
-                {
-                    yield return new WaitForSeconds(1 / fps);
-                }
+                yield return animationDelay;
             }
         }
 

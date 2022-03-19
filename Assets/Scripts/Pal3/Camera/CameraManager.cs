@@ -40,8 +40,7 @@ namespace Pal3.Camera
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<CameraFocusOnSceneObjectCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,
-        ICommandExecutor<ScenePreLoadingNotification>,
-        ICommandExecutor<PlayerActorPositionUpdatedNotification>
+        ICommandExecutor<ScenePreLoadingNotification>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
         private const float SCENE_STORY_B_ROOM_HEIGHT = 32f;
@@ -68,7 +67,7 @@ namespace Pal3.Camera
         private bool _playerInputEnabled;
 
         private PlayerInputActions _inputActions;
-        private PlayerManager _playerManager;
+        private PlayerGamePlayController _gamePlayController;
         private SceneManager _sceneManager;
         private bool _freeToRotate;
 
@@ -81,14 +80,14 @@ namespace Pal3.Camera
         private bool _cameraAnimationInProgress;
 
         public void Init(PlayerInputActions inputActions,
-            PlayerManager playerManager,
+            PlayerGamePlayController gamePlayController,
             SceneManager sceneManager,
             Camera mainCamera,
             Canvas touchControlUI,
             Image curtainImage)
         {
             _inputActions = inputActions;
-            _playerManager = playerManager;
+            _gamePlayController = gamePlayController;
             _sceneManager = sceneManager;
 
             _camera = mainCamera;
@@ -134,6 +133,8 @@ namespace Pal3.Camera
                 _cameraOffset =  cameraTransform.position - lookAtPosition;
                 return;
             }
+
+            _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
 
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             var targetPosition = _lastLookAtPoint + _cameraOffset;
@@ -389,11 +390,6 @@ namespace Pal3.Camera
             cameraTransform.position = cameraPosition;
 
             _cameraOffset = cameraTransform.position - _lastLookAtPoint;
-        }
-
-        public void Execute(PlayerActorPositionUpdatedNotification notification)
-        {
-            _lastLookAtPoint = notification.Position;
         }
 
         public void Execute(CameraSetDefaultTransformCommand command)

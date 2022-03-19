@@ -12,7 +12,7 @@ namespace Core.Utils
         private int _frameCount = 0;
         private float _deltaTime = 0f;
         private float _fps = 0f;
-        private float _updateRate = 15f;  // 15 updates per sec.
+        private float _updateRate = 5f;  // update count per sec.
 
         private void Update()
         {
