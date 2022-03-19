@@ -39,9 +39,6 @@ namespace Pal3.Data
 
                     // Unloads assets that are not used (textures etc.)
                     Resources.UnloadUnusedAssets();
-
-                    // Also a good time to collect garbage
-                    GC.Collect();
                 }
                 _currentSceneCityName = newSceneCityName;
             }

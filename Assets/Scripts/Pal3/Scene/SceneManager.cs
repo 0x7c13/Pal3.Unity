@@ -70,6 +70,9 @@ namespace Pal3.Scene
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePostLoadingNotification(scnFile.SceneInfo));
             Debug.Log($"Scene loaded in {timer.Elapsed.TotalSeconds} seconds.");
+
+            // Also a good time to collect garbage
+            System.GC.Collect();
         }
 
         private void DisposeCurrentScene()

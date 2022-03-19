@@ -13,27 +13,6 @@ namespace Core.Renderer
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
-        public void Render(Vector3[] vertices, int[] triangles, string shaderName)
-        {
-            Dispose();
-
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
-
-            var shader = GetShader(shaderName);
-
-            var material = new Material(shader);
-            _meshRenderer.sharedMaterial = material;
-
-            var mesh = new Mesh
-            {
-                vertices = vertices,
-                triangles = triangles,
-            };
-
-            _meshFilter.sharedMesh = mesh;
-        }
-
         public Mesh Render(Vector3[] vertices,
             int[] triangles,
             Vector3[] normals,
@@ -55,6 +34,7 @@ namespace Core.Renderer
             mesh.normals = normals;
             mesh.uv = uv;
 
+            if (!isDynamic) mesh.Optimize();
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
@@ -83,6 +63,7 @@ namespace Core.Renderer
             mesh.uv = mainTextureUv;
             mesh.uv2 = secondaryTextureUv;
 
+            if (!isDynamic) mesh.Optimize();
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
@@ -91,6 +72,11 @@ namespace Core.Renderer
         public Mesh GetMesh()
         {
             return _meshFilter == null ? null : _meshFilter.sharedMesh;
+        }
+
+        public bool IsVisible()
+        {
+            return _meshRenderer != null && _meshRenderer.isVisible;
         }
 
         public void RecalculateBoundsNormalsAndTangents()

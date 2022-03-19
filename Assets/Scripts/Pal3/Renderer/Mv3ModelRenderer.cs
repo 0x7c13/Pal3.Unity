@@ -37,7 +37,6 @@ namespace Pal3.Renderer
         private bool _textureHasAlphaChannel;
         private Color _tintColor;
         private GameObject _meshObject;
-        private StaticMeshRenderer _meshRenderer;
         private Coroutine _animation;
         private string _animationName;
         private CancellationTokenSource _animationCts;
@@ -47,8 +46,7 @@ namespace Pal3.Renderer
 
         private uint[] _frameTicks;
         private uint _duration;
-        private Mesh _renderMesh;
-        private MeshDataBuffer _meshDataBuffer;
+        private RenderMeshComponent _renderMeshComponent;
         private WaitForSeconds _animationDelay;
 
         public void Init(Mv3Mesh mv3Mesh,
@@ -79,7 +77,7 @@ namespace Pal3.Renderer
 
             StopAnimation();
 
-            if (_meshRenderer == null)
+            if (_renderMeshComponent == null)
             {
                 _frameTicks = _keyFrames.Select(f => f.Tick).ToArray();
                 _meshObject = new GameObject(_animationName);
@@ -91,7 +89,7 @@ namespace Pal3.Renderer
                 materialInfoPresenter.material = _gbMaterial;
                 #endif
 
-                _meshRenderer = _meshObject.AddComponent<StaticMeshRenderer>();
+                var meshRenderer = _meshObject.AddComponent<StaticMeshRenderer>();
 
                 _material = new Material(Shader.Find("Pal3/StandardNoShadow"));
                 _material.SetTexture(Shader.PropertyToID("_MainTex"), _texture);
@@ -104,19 +102,26 @@ namespace Pal3.Renderer
 
                 _material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
 
-                _meshDataBuffer = new MeshDataBuffer
+                var meshDataBuffer = new MeshDataBuffer
                 {
                     VertexBuffer = new Vector3[_keyFrames[0].Vertices.Length]
                 };
 
-                _renderMesh = _meshRenderer.Render( _keyFrames[0].Vertices,
+                var renderMesh = meshRenderer.Render( _keyFrames[0].Vertices,
                     _keyFrames[0].Triangles,
                     Array.Empty<Vector3>(),
                     _keyFrames[0].Uv,
                     _material,
                     true);
 
-                _meshRenderer.RecalculateBoundsNormalsAndTangents();
+                meshRenderer.RecalculateBoundsNormalsAndTangents();
+
+                _renderMeshComponent = new RenderMeshComponent
+                {
+                    Mesh = renderMesh,
+                    MeshRenderer = meshRenderer,
+                    MeshDataBuffer = meshDataBuffer
+                };
 
                 _meshObject.transform.SetParent(transform, false);
             }
@@ -149,12 +154,12 @@ namespace Pal3.Renderer
 
         public Bounds GetBounds()
         {
-            return _meshRenderer.GetRendererBounds();
+            return _renderMeshComponent.MeshRenderer.GetRendererBounds();
         }
 
         public Bounds GetLocalBounds()
         {
-            return _meshRenderer.GetMeshBounds();
+            return _renderMeshComponent.MeshRenderer.GetMeshBounds();
         }
 
         public bool IsActionInHoldState()
@@ -234,21 +239,25 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                var currentFrameIndex = Utility.GetFloorIndex(_frameTicks, (uint)tick);
-                var currentFrameTick = _frameTicks[currentFrameIndex];
-                var nextFrameIndex = currentFrameIndex < numOfFrames - 1 ? currentFrameIndex + 1 : 0;
-                var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[nextFrameIndex];
-
-                var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
-
-                for (var i = 0; i < _meshDataBuffer.VertexBuffer.Length; i++)
+                if (_renderMeshComponent.MeshRenderer.IsVisible())
                 {
-                    _meshDataBuffer.VertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
-                        _keyFrames[nextFrameIndex].Vertices[i], influence);
-                }
+                    var currentFrameIndex = Utility.GetFloorIndex(_frameTicks, (uint)tick);
+                    var currentFrameTick = _frameTicks[currentFrameIndex];
+                    var nextFrameIndex = currentFrameIndex < numOfFrames - 1 ? currentFrameIndex + 1 : 0;
+                    var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[nextFrameIndex];
 
-                _renderMesh.vertices = _meshDataBuffer.VertexBuffer;
-                //_meshRenderer.RecalculateBoundsNormalsAndTangents();
+                    var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+
+                    var meshDataBuffer = _renderMeshComponent.MeshDataBuffer;
+                    for (var i = 0; i < meshDataBuffer.VertexBuffer.Length; i++)
+                    {
+                        meshDataBuffer.VertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
+                            _keyFrames[nextFrameIndex].Vertices[i], influence);
+                    }
+
+                    _renderMeshComponent.Mesh.vertices = meshDataBuffer.VertexBuffer;
+                    //_meshRenderer.RecalculateBoundsNormalsAndTangents();
+                }
 
                 yield return animationDelay;
             }
@@ -263,14 +272,10 @@ namespace Pal3.Renderer
         {
             StopAnimation();
 
-            if (_renderMesh != null)
+            if (_renderMeshComponent != null)
             {
-                Destroy(_renderMesh);
-            }
-
-            if (_meshRenderer != null)
-            {
-                Destroy(_meshRenderer);
+                Destroy(_renderMeshComponent.Mesh);
+                Destroy(_renderMeshComponent.MeshRenderer);
             }
 
             if (_meshObject != null)

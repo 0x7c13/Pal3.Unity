@@ -15,7 +15,7 @@ Shader "Pal3/Standard"
     }
     SubShader
     {
-        Tags { "Queue"="Geometry" "IgnoreProjector"="False" "RenderType"="Transparent" }
+        Tags { "Queue"="Geometry" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
         LOD 100
 
         Lighting Off

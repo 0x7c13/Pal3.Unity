@@ -23,7 +23,7 @@ namespace Pal3.Renderer
     public class CvdModelRenderer : MonoBehaviour
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
-        private readonly List<(CvdGeometryNode, Dictionary<int, (Mesh mesh, MeshDataBuffer buffer)>)> _renderMeshes = new ();
+        private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
 
         private Color _tintColor;
 
@@ -116,7 +116,7 @@ namespace Pal3.Renderer
             Dictionary<string, Texture2D> textureCache,
             GameObject parent)
         {
-            var nodeMeshes = (node, new Dictionary<int, (Mesh mesh, MeshDataBuffer buffer)>());
+            var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
 
             var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
             var frameMatrix = GetFrameMatrix(time, node);
@@ -184,11 +184,17 @@ namespace Pal3.Renderer
 
                 meshRenderer.RecalculateBoundsNormalsAndTangents();
 
-                nodeMeshes.Item2[i] = (renderMesh, meshDataBuffer);
+                nodeMeshes.Item2[i] = new RenderMeshComponent
+                {
+                    Mesh = renderMesh,
+                    MeshRenderer = meshRenderer,
+                    MeshDataBuffer = meshDataBuffer
+                };
+
                 meshSectionObject.transform.SetParent(meshObject.transform, false);
             }
 
-            _renderMeshes.Add(nodeMeshes);
+            _renderers.Add(nodeMeshes);
 
             for (var i = 0; i < node.Children.Length; i++)
             {
@@ -231,7 +237,7 @@ namespace Pal3.Renderer
 
         private void UpdateMesh(float time)
         {
-            foreach (var (node, meshInfo) in _renderMeshes)
+            foreach (var (node, renderMeshComponents) in _renderers)
             {
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
                 var frameMatrix = GetFrameMatrix(time, node);
@@ -246,22 +252,25 @@ namespace Pal3.Renderer
 
                 for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
-                    if (!meshInfo.ContainsKey(i)) continue;
+                    if (!renderMeshComponents.ContainsKey(i)) continue;
+
+                    var renderMeshComponent = renderMeshComponents[i];
+                    if (!renderMeshComponent.MeshRenderer.IsVisible()) continue;
 
                     var meshSection = node.Mesh.MeshSections[i];
 
-                    var meshData = meshInfo[i];
-                    UpdateMeshDataBuffer(ref meshData.buffer,
+                    var meshDataBuffer = renderMeshComponent.MeshDataBuffer;
+                    UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,
                         frameIndex,
                         influence,
                         frameMatrix);
 
-                    meshData.mesh.vertices = meshData.buffer.VertexBuffer;
-                    meshData.mesh.uv = meshData.buffer.UvBuffer;
-                    meshData.mesh.RecalculateBounds();
-                    meshData.mesh.RecalculateNormals();
-                    meshData.mesh.RecalculateTangents();
+                    renderMeshComponent.Mesh.vertices = meshDataBuffer.VertexBuffer;
+                    renderMeshComponent.Mesh.uv = meshDataBuffer.UvBuffer;
+                    renderMeshComponent.Mesh.RecalculateBounds();
+                    renderMeshComponent.Mesh.RecalculateNormals();
+                    renderMeshComponent.Mesh.RecalculateTangents();
                 }
             }
         }
@@ -270,7 +279,7 @@ namespace Pal3.Renderer
         {
             if (_animationDuration < Mathf.Epsilon) return;
 
-            if (_renderMeshes.Count == 0)
+            if (_renderers.Count == 0)
             {
                 throw new Exception("Animation not initialized.");
             }
@@ -333,7 +342,7 @@ namespace Pal3.Renderer
         {
             if (nodePositionInfo.Length == 1) return nodePositionInfo[0].Position;
 
-            // TODO: Use binary search and interpolated value based on curve type
+            // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodePositionInfo.Length - 1; i++)
             {
                 var toKeyFrame = nodePositionInfo[i + 1];
@@ -358,7 +367,7 @@ namespace Pal3.Renderer
                 return (scaleKeyFrame.Scale, scaleKeyFrame.Rotation);
             }
 
-            // TODO: Use binary search and interpolated value based on curve type
+            // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodeScaleInfo.Length - 1; i++)
             {
                 var toKeyFrame = nodeScaleInfo[i + 1];
@@ -397,7 +406,7 @@ namespace Pal3.Renderer
         {
             if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].Rotation;
 
-            // TODO: Use binary search and interpolated value based on curve type
+            // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodeRotationInfo.Length - 1; i++)
             {
                 var toKeyFrame = nodeRotationInfo[i + 1];
