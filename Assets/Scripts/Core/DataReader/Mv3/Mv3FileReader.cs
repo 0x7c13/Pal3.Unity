@@ -313,7 +313,7 @@ namespace Core.DataReader.Mv3
                 if (length == 0)
                 {
                     if (i > 0) continue;
-                    textureName = "GB_DEFAULT_WHITE_TEXTURE"; // Use default white texture
+                    textureName = string.Empty; // Use default white texture?
                 }
                 else
                 {

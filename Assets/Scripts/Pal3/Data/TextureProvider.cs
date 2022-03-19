@@ -50,6 +50,12 @@ namespace Pal3.Data
 
         public Texture2D GetTexture(string name, out bool hasAlphaChannel)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                hasAlphaChannel = false;
+                return Texture2D.whiteTexture;
+            }
+
             var texturePath = _relativePath + name;
 
             if (_textureCache != null &&
