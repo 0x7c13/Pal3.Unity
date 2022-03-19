@@ -15,6 +15,7 @@ namespace Pal3.Actor
     using Core.DataReader.Mv3;
     using Core.Extensions;
     using Core.Services;
+    using Data;
     using MetaData;
     using Renderer;
     using Script.Waiter;
@@ -33,9 +34,11 @@ namespace Pal3.Actor
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<GameStateChangedNotification>
     {
+        private GameResourceProvider _resourceProvider;
         private Actor _actor;
         private Color _tintColor;
-        private GameObject _shadowProjector;
+        private GameObject _shadow;
+        private SpriteRenderer _shadowSpriteRenderer;
 
         private bool _autoStand = true;
         private string _currentAction = string.Empty;
@@ -48,8 +51,9 @@ namespace Pal3.Actor
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
 
-        public void Init(Actor actor, Color tintColor)
+        public void Init(GameResourceProvider resourceProvider, Actor actor, Color tintColor)
         {
+            _resourceProvider = resourceProvider;
             _actor = actor;
             _tintColor = tintColor;
         }
@@ -62,7 +66,7 @@ namespace Pal3.Actor
         private void OnDisable()
         {
             DisposeCurrentAction();
-            Destroy(_shadowProjector);
+            Destroy(_shadow);
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -152,11 +156,12 @@ namespace Pal3.Actor
             // Disable shadow for some actions
             if (ActorConstants.ActionWithoutShadow.Contains(actorAction))
             {
-                if (_shadowProjector != null) Destroy(_shadowProjector);
+                if (_shadow != null) _shadowSpriteRenderer.enabled = false;
             }
             else
             {
-                if (_shadowProjector == null) CreateShadowProjector();
+                if (_shadow == null) RenderShadow();
+                else _shadowSpriteRenderer.enabled = true;
             }
         }
 
@@ -184,20 +189,20 @@ namespace Pal3.Actor
             ToggleCollisionDetectionBasedOnGameState(currentGameState);
         }
 
-        private void CreateShadowProjector()
+        private void RenderShadow()
         {
-            var position = transform.position;
-            var bounds = GetBounds();
-
-            _shadowProjector = Instantiate(Resources.Load<GameObject>("Prefabs/BlobShadowProjector"),
-                new Vector3(position.x, bounds.max.y, position.z),
-                Quaternion.Euler(90f, 0, 0));
-
-            var projector = _shadowProjector.GetComponent<Projector>();
-            projector.nearClipPlane = bounds.size.y - 0.3f;
-            projector.farClipPlane = bounds.size.y + 5f;
-
-            _shadowProjector.transform.parent = gameObject.transform;
+            _shadow = new GameObject("Shadow");
+            var shadowTexture = _resourceProvider.GetShadowTexture();
+            _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
+            _shadowSpriteRenderer.sprite = Sprite.Create(shadowTexture,
+                new Rect(0, 0, shadowTexture.width, shadowTexture.height),
+                new Vector2(0.5f, 0.5f));
+            _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.7f);
+            var shadowTransform = _shadow.transform;
+            shadowTransform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
+            shadowTransform.localPosition = new Vector3(0f, 0.05f, 0f);
+            _shadow.transform.SetParent(transform, false);
         }
 
         public Bounds GetBounds()
@@ -242,9 +247,14 @@ namespace Pal3.Actor
 
         public void DisposeShadow()
         {
-            if (_shadowProjector != null)
+            if (_shadowSpriteRenderer != null)
             {
-                Destroy(_shadowProjector);
+                Destroy(_shadowSpriteRenderer);
+            }
+
+            if (_shadow != null)
+            {
+                Destroy(_shadow);
             }
         }
 

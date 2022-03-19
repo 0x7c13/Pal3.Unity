@@ -32,7 +32,7 @@ namespace Pal3.Actor
             #endif
 
             var actionController = actorGameObject.AddComponent<ActorActionController>();
-            actionController.Init(actor, tintColor);
+            actionController.Init(resourceProvider, actor, tintColor);
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();
             movementController.Init(actor, tilemap, actionController);

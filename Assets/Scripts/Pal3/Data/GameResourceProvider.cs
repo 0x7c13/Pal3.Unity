@@ -33,6 +33,9 @@ namespace Pal3.Data
         private TextureCache _textureCache;
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
 
+        // No need to deallocate the shadow texture since it is been used almost every where
+        private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
+
         public GameResourceProvider(ICpkFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
@@ -46,6 +49,11 @@ namespace Pal3.Data
         public bool FileExists(string path)
         {
             return _fileSystem.FileExists(path);
+        }
+
+        public Texture2D GetShadowTexture()
+        {
+            return ShadowTexture;
         }
 
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
@@ -374,14 +382,6 @@ namespace Pal3.Data
             }
 
             return Array.Empty<Texture2D>();
-        }
-
-        public Texture2D GetShadowTexture()
-        {
-            var textureProvider = GetTextureResourceProvider(
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{CpkConstants.CpkDirectorySeparatorChar}");
-
-            return textureProvider.GetTexture("shadow.tga");
         }
     }
 }
