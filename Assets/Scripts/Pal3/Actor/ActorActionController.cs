@@ -147,12 +147,19 @@ namespace Pal3.Actor
             var action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
-            SetupShadowProjector(action);
+            SetupShadow(action);
             SetupCollider();
         }
 
-        private void SetupShadowProjector(ActorActionType actorAction)
+        private void SetupShadow(ActorActionType actorAction)
         {
+            // Disable shadow for HuaYing and TaoZi
+            #if PAL3
+            if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;
+            #elif PAL3A
+            if (_actor.Info.Id == (byte) PlayerActorId.TaoZi) return;
+            #endif
+
             // Disable shadow for some actions
             if (ActorConstants.ActionWithoutShadow.Contains(actorAction))
             {
