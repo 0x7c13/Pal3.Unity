@@ -14,6 +14,8 @@ namespace Core.DataLoader
     {
         public static IEnumerator LoadAudioClip(string filePath, AudioType audioType, Action<AudioClip> callback)
         {
+            if (filePath.StartsWith("/")) filePath = filePath[1..];
+
             string url = "file:///" + filePath;
 
             using UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(url, audioType);

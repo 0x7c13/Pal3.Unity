@@ -9,7 +9,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2021.2.13f1-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2021.2.16f1-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
@@ -29,7 +29,7 @@
 学了几周Unity，想找项目练手，一开始自己尝试做了一下新仙剑的第一关，大概了解了RPG游戏的制作流程，后因机缘巧合发现了zby大佬的[PAL3patch](https://github.com/zhangboyang/PAL3patch)项目以及dontpanic92大佬的[OpenPAL3](https://github.com/dontpanic92/OpenPAL3)项目，所以给技术上实现仙三复刻带来了可能。至于为什么选择C#/Unity？选择Unity的原因有两点，第一是Unity对全平台全端的打包做的很好很方便，第二个是Unity提供Mac上arm64原生IDE支持（2021.2.X），我大概有一半时间是在Mac上的，所以比较在意这点。其实本项目的实现几乎没有用到Unity引擎的大部分功能，特别是编辑器功能，因为几乎是100%纯代码实现的，所以其实理论上不需要花太大的代价就可以把本项目移植到其他支持C#脚本的引擎中。
 
 ## 如何运行项目
-使用Unity2021.2.X打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge。为什么要选择Unity2021？主要是因为目前Unity官方只提供了2021的Apple Silicon版本，再一个是2021开始Unity可以选择.NET Standard 2.1作为API接口。另外Unity2021LTS版本今年很快也会公布，届时我会把项目锁在2021LTS上。
+使用Unity2021.2.X打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge显示的版本。为什么要选择Unity2021？主要是因为目前Unity官方只提供了2021的Apple Silicon版本，再一个是2021开始Unity可以选择.NET Standard 2.1作为API接口。另外Unity2021LTS版本今年很快也会公布，届时我会把项目锁在2021LTS上。
 
 因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。
 - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
@@ -65,4 +65,5 @@ https://www.bilibili.com/video/BV1Fu411R7jM
 另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
 
 ## 技术交流以及测试
-请加入QQ群：252315306
+仙剑三复刻版讨论群：252315306
+仙剑三复刻版开发群：330680869
