@@ -115,9 +115,11 @@ namespace Core.DataReader.Cpk
             {
                 buffer = new byte[table.OriginSize];
 
-                using var memStream = new MemoryStream(_archiveData[start..end]);
-                using var lzo = new LzoStream(memStream, CompressionMode.Decompress, false);
-                lzo.Read(buffer, 0, (int) table.OriginSize);
+                // using var memStream = new MemoryStream(_archiveData[start..end]);
+                // using var lzo = new LzoStream(memStream, CompressionMode.Decompress, false);
+                // lzo.Read(buffer, 0, (int) table.OriginSize);
+
+                MiniLzo.Decompress(_archiveData[start..end], buffer);
             }
             else
             {
@@ -162,7 +164,15 @@ namespace Core.DataReader.Cpk
             {
                 size = table.OriginSize;
                 isCompressed = true;
-                return new LzoStream(stream, CompressionMode.Decompress);
+
+                //return new LzoStream(stream, CompressionMode.Decompress);
+
+                var src = new byte[table.PackedSize];
+                stream.Read(src, 0, (int)table.PackedSize);
+                stream.Dispose();
+                var buffer = new byte[table.OriginSize];
+                MiniLzo.Decompress(src, buffer);
+                return new MemoryStream(buffer);
             }
             else
             {

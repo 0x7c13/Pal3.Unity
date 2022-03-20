@@ -17,7 +17,7 @@ namespace Pal3.MetaData
         public const string AppNameCNFull = "仙剑奇侠传三外传";
         #endif
 
-        public const string Version = "0.13";
+        public const string Version = "0.14";
 
         public const string CompanyName = "OSS";
 

@@ -106,7 +106,7 @@ namespace Core.DataReader.Cpk.Lzo
 
         private void Copy(byte[] buffer, int offset, int count)
         {
-            Debug.Assert(count > 0);
+            //Debug.Assert(count > 0);
             do
             {
                 var read = Source.Read(buffer, offset, count);
@@ -120,8 +120,8 @@ namespace Core.DataReader.Cpk.Lzo
 
         private int Decode(byte[] buffer, int offset, int count)
         {
-            Debug.Assert(count > 0);
-            Debug.Assert(DecodedBuffer == null);
+            //Debug.Assert(count > 0);
+            //Debug.Assert(DecodedBuffer == null);
             int read;
             var i = Instruction >> 4;
             switch (i)
@@ -357,7 +357,7 @@ namespace Core.DataReader.Cpk.Lzo
 
         private int CopyFromRingBuffer(byte[] buffer, int offset, int count, int distance, int copy, int state)
         {
-            Debug.Assert(copy >= 0);
+            //Debug.Assert(copy >= 0);
             var result = copy + state;
             State = (LzoState)state;
             if (count >= result)
@@ -413,7 +413,7 @@ namespace Core.DataReader.Cpk.Lzo
 
         private int ReadInternal(byte[] buffer, int offset, int count)
         {
-            Debug.Assert(count > 0);
+            //Debug.Assert(count > 0);
             if (_length.HasValue && OutputPosition >= _length)
                 return -1;
             int read;
