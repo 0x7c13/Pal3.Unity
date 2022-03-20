@@ -32,6 +32,8 @@ namespace Pal3.Script
         private readonly List<PalScriptRunner> _runningScripts = new ();
         private readonly List<PalScriptRunner> _finishedScripts = new ();
 
+        private bool _pendingSceneScriptExecution = false;
+
         public ScriptManager(GameResourceProvider resourceProvider)
         {
             _systemSceFile = resourceProvider.GetSystemSce();
@@ -138,9 +140,17 @@ namespace Pal3.Script
             }
 
             _finishedScripts.Clear();
+
+            // Scene script can be added during above script execution.
+            // Call update again to trigger the execution of the scene script.
+            if (_pendingSceneScriptExecution)
+            {
+                _pendingSceneScriptExecution = false;
+                Update(0);
+            }
         }
 
-        public void SetSceneScript(SceFile sceFile, string sceneScriptDescription)
+        public void AddSceneScript(SceFile sceFile, string sceneScriptDescription)
         {
             _sceFile = sceFile;
 
@@ -151,6 +161,7 @@ namespace Pal3.Script
                                  StringComparison.OrdinalIgnoreCase)))
             {
                 AddScript(scriptBlock.Key);
+                _pendingSceneScriptExecution = true;
                 break;
             }
         }

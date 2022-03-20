@@ -208,7 +208,7 @@ namespace Pal3.Actor
             var shadowTransform = _shadow.transform;
             shadowTransform.rotation = Quaternion.Euler(90f, 0f, 0f);
             shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
-            shadowTransform.localPosition = new Vector3(0f, 0.05f, 0f);
+            shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
             _shadow.transform.SetParent(transform, false);
         }
 
