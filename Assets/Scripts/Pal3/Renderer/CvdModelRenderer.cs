@@ -31,10 +31,14 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
+        private Shader _standardNoShadowShader;
+
         public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
+
+            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
 
             foreach (var node in cvdFile.RootNodes)
             {
@@ -165,7 +169,7 @@ namespace Pal3.Renderer
 
                 var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
 
-                var material = new Material(Shader.Find("Pal3/StandardNoShadow"));
+                var material = new Material(_standardNoShadowShader);
                 material.SetTexture(Shader.PropertyToID("_MainTex"), textureCache[meshSection.TextureName]);
                 var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
                 if (cutoff > Mathf.Epsilon)

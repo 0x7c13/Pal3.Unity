@@ -27,14 +27,20 @@ namespace Core.Renderer
             _meshFilter = gameObject.AddComponent<MeshFilter>();
 
             var mesh = new Mesh();
-            if (isDynamic) mesh.MarkDynamic();
+            if (isDynamic)
+            {
+                mesh.MarkDynamic();
+            }
 
             mesh.vertices = vertices;
             mesh.triangles = triangles;
             mesh.normals = normals;
             mesh.uv = uv;
 
-            if (!isDynamic) mesh.Optimize();
+            if (!isDynamic)
+            {
+                mesh.Optimize();
+            }
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
@@ -55,7 +61,10 @@ namespace Core.Renderer
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             var mesh = new Mesh();
-            if (isDynamic) mesh.MarkDynamic();
+            if (isDynamic)
+            {
+                mesh.MarkDynamic();
+            }
 
             mesh.vertices = vertices;
             mesh.triangles = triangles;
@@ -63,7 +72,10 @@ namespace Core.Renderer
             mesh.uv = mainTextureUv;
             mesh.uv2 = secondaryTextureUv;
 
-            if (!isDynamic) mesh.Optimize();
+            if (!isDynamic)
+            {
+                mesh.Optimize();
+            }
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
