@@ -10,7 +10,6 @@ namespace Pal3.Script
     using System.IO;
     using Command;
     using Core.Extensions;
-    using Dev;
 
     /// <summary>
     /// Parser logic for parsing SceCommand in .sce script data block.
@@ -23,15 +22,15 @@ namespace Pal3.Script
 
             if (commandType == null) return null;
 
-            var args = new List<object>();
             var properties = commandType.GetProperties();
+            var args = new object[properties.Length];
             for (var i = properties.Length - 1; i >= 0; i--)
             {
                 var property = properties[i];
-                args.Insert(0, ReadPropertyValue(reader, property.PropertyType, i, parameterFlag));
+                args[i] = ReadPropertyValue(reader, property.PropertyType, i, parameterFlag);
             }
 
-            return Activator.CreateInstance(commandType, args.ToArray()) as ICommand;
+            return Activator.CreateInstance(commandType, args) as ICommand;
         }
 
         // Read property value by type, property index and parameter flag using reflection

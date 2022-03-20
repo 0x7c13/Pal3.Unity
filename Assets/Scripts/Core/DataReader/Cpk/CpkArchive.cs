@@ -8,7 +8,6 @@ namespace Core.DataReader.Cpk
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.IO.Compression;
     using System.Linq;
     using System.Text;
     using Lzo;
@@ -23,11 +22,10 @@ namespace Core.DataReader.Cpk
     {
         private const uint SUPPORTED_CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
-        private const uint CPK_DEFAULT_MAX_NUM_OF_FILE = 32768;	// Max number of files per archive
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private readonly string _filePath;
-        private readonly CpkTable[] _tables = new CpkTable[CPK_DEFAULT_MAX_NUM_OF_FILE];
+        private Dictionary<uint, CpkTable> _tables;
 
         private readonly Dictionary<uint, byte[]> _fileNameMap = new ();
         private readonly Dictionary<uint, uint> _crcToTableIndexMap = new ();
@@ -38,15 +36,16 @@ namespace Core.DataReader.Cpk
         private bool _archiveInMemory;
         private byte[] _archiveData;
 
-        public CpkArchive(string cpkFilePath)
+        public CpkArchive(string cpkFilePath, CrcHash crcHash)
         {
             if (!File.Exists(cpkFilePath))
             {
                 throw new ArgumentException($"File does not exists: {cpkFilePath}");
             }
 
-            _crcHash = new CrcHash();
             _filePath = cpkFilePath;
+            _crcHash = crcHash;
+
             Init();
         }
 
@@ -64,9 +63,18 @@ namespace Core.DataReader.Cpk
                 throw new InvalidDataException($"File: {_filePath} is not a valid CPK file.");
             }
 
-            for (var i = 0; i < header.MaxFileNum; i++)
+            _tables = new Dictionary<uint, CpkTable>((int)header.FileNum);
+
+            var numOfFiles = header.FileNum;
+            var filesFound = 0;
+            for (uint i = 0; i < header.MaxFileNum; i++)
             {
-                _tables[i] = Utility.ReadStruct<CpkTable>(stream);
+                var table = Utility.ReadStruct<CpkTable>(stream);
+                if (table.IsEmpty() || table.IsDeleted()) continue;
+
+                _tables[i] = table;
+                filesFound++;
+                if (numOfFiles == filesFound) break;
             }
 
             BuildCrcIndexMap();
@@ -232,12 +240,11 @@ namespace Core.DataReader.Cpk
 
         private void BuildCrcIndexMap()
         {
-            for (uint i = 0; i < _tables.Length; i++)
+            foreach (var tableKv in _tables)
             {
-                var table = _tables[i];
-                if (table.IsEmpty() || !table.IsValid() || table.IsDeleted()) continue;
+                var table = tableKv.Value;
 
-                _crcToTableIndexMap[table.CRC] = i;
+                _crcToTableIndexMap[table.CRC] = tableKv.Key;
 
                 if (_fatherCrcToChildCrcTableIndexMap.ContainsKey(table.FatherCRC))
                 {
@@ -273,10 +280,8 @@ namespace Core.DataReader.Cpk
                 stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
             }
 
-            foreach (var table in _tables)
+            foreach (var table in _tables.Values)
             {
-                if (table.IsEmpty() || !table.IsValid() || table.IsDeleted()) continue;
-
                 long extraInfoOffset = table.StartPos + table.PackedSize;
                 var extraInfo = new byte[table.ExtraInfoSize];
                 stream.Seek(extraInfoOffset, SeekOrigin.Begin);

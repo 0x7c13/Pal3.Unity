@@ -248,10 +248,10 @@ namespace Pal3.Data
 
             var relativePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
-            var textures = new List<Texture2D>();
             var textureProvider = GetTextureResourceProvider(
                 Utility.GetDirectoryName(relativePath, separator));
 
+            var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < SceneConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = Utility.GetFileName(
@@ -259,10 +259,10 @@ namespace Pal3.Data
                 var texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
-                textures.Add(texture);
+                textures[i] = texture;
             }
 
-            return textures.ToArray();
+            return textures;
         }
 
         public Texture2D GetEffectTexture(string name)
@@ -364,21 +364,21 @@ namespace Pal3.Data
         public Texture2D[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var textureProvider = GetTextureResourceProvider(
+                Utility.GetDirectoryName(texturePathFormat, separator));
 
             if (effect == GraphicsEffect.Fire)
             {
-                var textures = new List<Texture2D>();
-                var textureProvider = GetTextureResourceProvider(
-                    Utility.GetDirectoryName(texturePathFormat, separator));
-
-                for (var i = 1; i <= EffectConstants.EffectAnimationInfo[effect].NumberOfFrames; i++)
+                var numberOfFrames = EffectConstants.EffectAnimationInfo[effect].NumberOfFrames;
+                var textures = new Texture2D[numberOfFrames];
+                for (var i = 0; i < numberOfFrames; i++)
                 {
                     var textureNameFormat = Utility.GetFileName(texturePathFormat, separator);
-                    var texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
-                    textures.Add(texture);
+                    var texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1));
+                    textures[i] = texture;
                 }
 
-                return textures.ToArray();
+                return textures;
             }
 
             return Array.Empty<Texture2D>();

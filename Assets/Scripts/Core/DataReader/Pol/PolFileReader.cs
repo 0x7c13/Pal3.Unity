@@ -6,7 +6,6 @@
 namespace Core.DataReader.Pol
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using Extensions;
     using GameBox;
@@ -30,16 +29,16 @@ namespace Core.DataReader.Pol
             var version = reader.ReadInt32();
             var numberOfNodes = reader.ReadInt32();
 
-            var nodeInfos = new List<PolGeometryNode>();
+            var nodeInfos = new PolGeometryNode[numberOfNodes];
             for (var i = 0; i < numberOfNodes; i++)
             {
-                nodeInfos.Add(new PolGeometryNode
+                nodeInfos[i] = new PolGeometryNode
                 {
                     Name     = reader.ReadGbkString(32),
                     Position = reader.ReadVector3(),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
-                });
+                };
             }
 
             if (version > 100)
@@ -48,13 +47,13 @@ namespace Core.DataReader.Pol
                 //Debug.Log($"nTag == {nTag}");
             }
 
-            List<PolMesh> meshInfos = new List<PolMesh>();
+            var meshInfos = new PolMesh[numberOfNodes];
             for (var i = 0; i < numberOfNodes; i++)
             {
-                meshInfos.Add(ReadMeshData(reader, version));
+                meshInfos[i] = ReadMeshData(reader, version);
             }
 
-            return new PolFile(version, nodeInfos.ToArray(), meshInfos.ToArray());
+            return new PolFile(version, nodeInfos, meshInfos);
         }
 
         private static PolMesh ReadMeshData(BinaryReader reader, int version)
@@ -72,7 +71,7 @@ namespace Core.DataReader.Pol
                 throw new InvalidDataException($"Invalid POLY(.pol) file: vertices == 0");
             }
 
-            var vertexInfos = new List<PolVertex>();
+            var vertexInfos = new PolVertex[numberOfVertices];
 
             for (var i = 0; i < numberOfVertices; i++)
             {
@@ -127,24 +126,24 @@ namespace Core.DataReader.Pol
                     vertexInfo.Uv[3] = new Vector2(x, y);
                 }
 
-                vertexInfos.Add(vertexInfo);
+                vertexInfos[i]= vertexInfo;
             }
 
             var numberOfTextures = reader.ReadInt32();
 
-            var textureInfos = new List<PolTexture>();
+            var textureInfos = new PolTexture[numberOfTextures];
 
             for (var i = 0; i < numberOfTextures; i++)
             {
-                textureInfos.Add(ReadTextureInfo(reader, version));
+                textureInfos[i] = ReadTextureInfo(reader, version);
             }
 
-            return new PolMesh()
+            return new PolMesh
             {
                 BoundBox = boundBox,
                 VertexFvfFlag = vertexTypeFlag,
-                Vertices = vertexInfos.ToArray(),
-                Textures = textureInfos.ToArray()
+                Vertices = vertexInfos,
+                Textures = textureInfos
             };
         }
 
@@ -166,12 +165,12 @@ namespace Core.DataReader.Pol
             else if (material.Power > 128) material.Power = 128;
 
             var numberOfTextures = reader.ReadInt32();
-            var textureNames = new List<string>();
+            var textureNames = new string[numberOfTextures];
 
             for (var i = 0; i < numberOfTextures; i++)
             {
                 var textureName = reader.ReadGbkString(64);
-                textureNames.Add(textureName);
+                textureNames[i] = textureName;
             }
 
             var indexBits = reader.ReadInt32();
@@ -181,23 +180,23 @@ namespace Core.DataReader.Pol
             var vertEnd = reader.ReadInt32();
             var numberOfTriangles = reader.ReadInt32();
 
-            var triangles = new List<(short x, short y, short z)>();
+            var triangles = new (short x, short y, short z)[numberOfTriangles];
             for (var i = 0; i < numberOfTriangles; i++)
             {
                 var x = reader.ReadInt16();
                 var y = reader.ReadInt16();
                 var z = reader.ReadInt16();
-                triangles.Add(new (x, y, z));
+                triangles[i] = (x, y, z);
             }
 
             return new PolTexture()
             {
                 BlendFlag = blendFlag,
                 Material = material,
-                TextureNames = textureNames.ToArray(),
+                TextureNames = textureNames,
                 VertStart = vertStart,
                 VertEnd = vertEnd,
-                Triangles = triangles.ToArray()
+                Triangles = triangles
             };
         }
     }

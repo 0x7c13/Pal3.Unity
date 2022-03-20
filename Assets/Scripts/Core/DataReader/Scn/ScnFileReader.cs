@@ -5,7 +5,6 @@
 
 namespace Core.DataReader.Scn
 {
-    using System.Collections.Generic;
     using System.IO;
     using Extensions;
     using GameBox;
@@ -43,7 +42,7 @@ namespace Core.DataReader.Scn
             };
 
             reader.BaseStream.Seek(npcDataOffset, SeekOrigin.Begin);
-            var npcInfos = new List<ScnNpcInfo>();
+            var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
                 var npcInfo = ReadNpcInfo(reader);
@@ -55,18 +54,18 @@ namespace Core.DataReader.Scn
                 {
                     Debug.LogError($"Unknown byte has value for ActorId: {npcInfo.Id} Name: {npcInfo.Name}");
                 }
-                npcInfos.Add(npcInfo);
+                npcInfos[i] = npcInfo;
             }
 
             reader.BaseStream.Seek(objectDataOffset, SeekOrigin.Begin);
-            var objInfos = new List<ScnObjectInfo>();
+            var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
                 var sceneObject = ReadObjectInfo(reader);
-                objInfos.Add(sceneObject);
+                objInfos[i] = sceneObject;
             }
 
-            return new ScnFile(sceneInfo, npcInfos.ToArray(), objInfos.ToArray());
+            return new ScnFile(sceneInfo, npcInfos, objInfos);
         }
 
         private static ScnNpcInfo ReadNpcInfo(BinaryReader reader)

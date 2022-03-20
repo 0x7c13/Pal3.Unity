@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Cvd
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -128,7 +129,7 @@ namespace Core.DataReader.Cvd
         private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(BinaryReader reader, int size)
         {
             var numberOfKeys = reader.ReadInt32();
-            var keyInfos = new List<(CvdAnimationKeyType, byte[])>();
+            var keyInfos = new (CvdAnimationKeyType, byte[])[numberOfKeys];
 
             var keyType = (CvdAnimationKeyType)reader.ReadByte();
 
@@ -141,10 +142,10 @@ namespace Core.DataReader.Cvd
 
             for (var i = 0; i < numberOfKeys; i++)
             {
-                keyInfos.Add((keyType, reader.ReadBytes(size)));
+                keyInfos[i] = (keyType, reader.ReadBytes(size));
             }
 
-            return keyInfos.ToArray();
+            return keyInfos;
         }
 
         private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(BinaryReader reader, int size)
@@ -315,24 +316,24 @@ namespace Core.DataReader.Cvd
             //var vertexType = GameBoxVertexType.XYZ | GameBoxVertexType.Normal | GameBoxVertexType.UV0;
             //var vertexSize = GameBoxVertex.GetSize((uint)vertexType);
 
-            var frameVertices = new List<CvdVertex[]>();
+            var frameVertices = new CvdVertex[numberOfFrames][];
             for (var i = 0; i < numberOfFrames; i++)
             {
-                var vertices = new List<CvdVertex>();
+                var vertices = new CvdVertex[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
                     var uv = reader.ReadVector2();
                     var normal = reader.ReadVector3();
                     var position = reader.ReadVector3();
 
-                    vertices.Add(new CvdVertex()
+                    vertices[j] = new CvdVertex()
                     {
                         Normal = normal,
                         Position = position,
                         Uv = uv
-                    });
+                    };
                 }
-                frameVertices.Add(vertices.ToArray());
+                frameVertices[i] = vertices;
             }
 
             var animationTimeKeys = reader.ReadSingleArray(numberOfFrames);
@@ -342,22 +343,22 @@ namespace Core.DataReader.Cvd
             }
 
             var numberOfMeshes = reader.ReadInt32();
-            var meshSections = new List<CvdMeshSection>();
+            var meshSections = new CvdMeshSection[numberOfMeshes];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                meshSections.Add(ReadMeshSection(reader, version, frameVertices));
+                meshSections[i] = ReadMeshSection(reader, version, frameVertices);
             }
 
             return new CvdMesh()
             {
                 AnimationTimeKeys = animationTimeKeys,
-                MeshSections = meshSections.ToArray()
+                MeshSections = meshSections
             };
         }
 
         private static CvdMeshSection ReadMeshSection(BinaryReader reader,
             float version,
-            List<CvdVertex[]> allFrameVertices)
+            CvdVertex[][] allFrameVertices)
         {
             var blendFlag = reader.ReadByte();
 
@@ -374,17 +375,17 @@ namespace Core.DataReader.Cvd
 
             var numberOfIndices = reader.ReadInt32();
 
-            var indices = new List<(short x, short y, short z)>();
+            var indices = new (short x, short y, short z)[numberOfIndices];
             for (var i = 0; i < numberOfIndices; i++)
             {
                 var x = reader.ReadInt16();
                 var y = reader.ReadInt16();
                 var z = reader.ReadInt16();
-                indices.Add(new (x, y, z));
+                indices[i] = (x, y, z);
             }
 
             var animationTimeKeys = new float[] {};
-            var animationMaterials = new List<GameBoxMaterial>();
+            var animationMaterials = Array.Empty<GameBoxMaterial>();
             if (version >= 0.5)
             {
                 var numberOfFrames = reader.ReadInt32();
@@ -395,36 +396,37 @@ namespace Core.DataReader.Cvd
                     animationTimeKeys[i] -= animationTimeKeys[0];
                 }
 
+                animationMaterials = new GameBoxMaterial[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
-                    animationMaterials.Add(new GameBoxMaterial()
+                    animationMaterials[i] = new GameBoxMaterial()
                     {
                         Diffuse = Utility.ToColor(reader.ReadSingleArray(4)),
                         Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
                         Specular = Utility.ToColor(reader.ReadSingleArray(4)),
                         Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
                         Power = reader.ReadSingle()
-                    });
+                    };
                 }
             }
 
-            List<CvdVertex[]> frameVertices = new List<CvdVertex[]>();
+            var frameVertices = new CvdVertex[allFrameVertices.Length][];
             List<int> triangles;
             List<int> indexBuffer;
 
             (triangles, indexBuffer) = CalculateTriangles(indices);
 
-            for (var i = 0; i < allFrameVertices.Count; i++)
+            for (var i = 0; i < allFrameVertices.Length; i++)
             {
-                var verts = new List<CvdVertex>();
+                var verts = new CvdVertex[indexBuffer.Count];
                 var allVertices = allFrameVertices[i];
 
                 for (var j = 0; j < indexBuffer.Count; j++)
                 {
-                    verts.Add(allVertices[indexBuffer[j]]);
+                    verts[j] = allVertices[indexBuffer[j]];
                 }
 
-                frameVertices.Add(verts.ToArray());
+                frameVertices[i] = verts;
             }
 
             return new CvdMeshSection()
@@ -432,21 +434,21 @@ namespace Core.DataReader.Cvd
                 BlendFlag = blendFlag,
                 Material = material,
                 TextureName = textureName,
-                FrameVertices = frameVertices.ToArray(),
+                FrameVertices = frameVertices,
                 Triangles = triangles.ToArray(),
                 AnimationTimeKeys = animationTimeKeys,
-                AnimationMaterials = animationMaterials.ToArray()
+                AnimationMaterials = animationMaterials
             };
         }
 
         private static (List<int> triangles, List<int> indexBuffer) CalculateTriangles(
-            List<(short x, short y, short z)> allIndices)
+            (short x, short y, short z)[] allIndices)
         {
             var indexBuffer = new List<int>();
             var triangles = new List<int>();
             var indexMap = new Dictionary<int, int>();
 
-            for (var j = 0; j < allIndices.Count; j++)
+            for (var j = 0; j < allIndices.Length; j++)
             {
                 var indices = new[]
                 {

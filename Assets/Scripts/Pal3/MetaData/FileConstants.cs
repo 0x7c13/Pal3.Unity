@@ -6,7 +6,6 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
-    using UnityEngine;
 
     public static class FileConstants
     {

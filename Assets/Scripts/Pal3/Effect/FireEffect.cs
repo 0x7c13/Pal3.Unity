@@ -6,7 +6,6 @@
 namespace Pal3.Effect
 {
     using System;
-    using System.Collections.Generic;
     using Core.Renderer;
     using Data;
     using MetaData;
@@ -37,13 +36,14 @@ namespace Pal3.Effect
                 _effectTextures = resourceProvider.GetEffectTextures(
                     GraphicsEffect.Fire,info.TexturePathFormat);
 
-                var sprites = new List<Sprite>();
-                foreach (var texture in _effectTextures)
+                var sprites = new Sprite[_effectTextures.Length];
+                for (var i = 0; i < _effectTextures.Length; i++)
                 {
+                    var texture = _effectTextures[i];
                     var sprite = Sprite.Create(texture,
                         new Rect(0f, 0f, texture.width, texture.height),
                         new Vector2(0.5f, 0f));
-                    sprites.Add(sprite);
+                    sprites[i] = sprite;
                 }
 
                 var fps = EffectConstants.EffectAnimationInfo[GraphicsEffect.Fire].Fps;
@@ -64,7 +64,7 @@ namespace Pal3.Effect
                     yPosition,
                     parentPosition.z);
                 _billboardRenderer = _effectGameObject.AddComponent<AnimatedBillboardRenderer>();
-                StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites.ToArray(), fps, -1));
+                StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites, fps, -1));
             }
         }
 

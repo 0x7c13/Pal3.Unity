@@ -6,7 +6,6 @@
 namespace Core.DataReader.Nav
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using Extensions;
     using GameBox;
@@ -32,36 +31,37 @@ namespace Core.DataReader.Nav
             var faceOffset = reader.ReadUInt32();
 
             reader.BaseStream.Seek(tileOffset, SeekOrigin.Begin);
-            var tileLayers = new List<NavTileLayer>();
+            var tileLayers = new NavTileLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
-                tileLayers.Add(ReadTileLayer(reader, version));
+                tileLayers[i] = ReadTileLayer(reader, version);
             }
 
             reader.BaseStream.Seek(faceOffset, SeekOrigin.Begin);
-            var faceLayers = new List<NavFaceLayer>();
+            var faceLayers = new NavFaceLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
-                faceLayers.Add(ReadFaceLayer(reader, version));
+                faceLayers[i] = ReadFaceLayer(reader, version);
             }
 
-            return new NavFile(tileLayers.ToArray(), faceLayers.ToArray());
+            return new NavFile(tileLayers, faceLayers);
         }
 
         private static NavTileLayer ReadTileLayer(BinaryReader reader, byte version)
         {
-            var portals = new List<GameBoxRect>();
+            var portals = Array.Empty<GameBoxRect>();
             if (version == 2)
             {
+                portals = new GameBoxRect[8];
                 for (var i = 0; i < 8; i++)
                 {
-                    portals.Add(new GameBoxRect()
+                    portals[i] = new GameBoxRect()
                     {
                         Left = reader.ReadInt32(),
                         Top = reader.ReadInt32(),
                         Right = reader.ReadInt32(),
                         Bottom = reader.ReadInt32(),
-                    });
+                    };
                 }
             }
 
@@ -77,25 +77,25 @@ namespace Core.DataReader.Nav
                 throw new Exception($"Invalid NAV(.nav) file: Map size is in valid: {navMapSize}");
             }
 
-            var tiles = new List<NavTile>();
+            var tiles = new NavTile[navMapSize];
             for (var i = 0; i < navMapSize; i++)
             {
-                tiles.Add(new NavTile()
+                tiles[i] = new NavTile
                 {
                     Y = reader.ReadSingle(),
                     Distance = reader.ReadUInt16(),
                     FloorKind = (NavFloorKind) reader.ReadUInt16()
-                });
+                };
             }
 
             return new NavTileLayer()
             {
-                Portals = portals.ToArray(),
+                Portals = portals,
                 Max = max,
                 Min = min,
                 Width = width,
                 Height = height,
-                Tiles = tiles.ToArray()
+                Tiles = tiles
             };
         }
 
@@ -103,24 +103,25 @@ namespace Core.DataReader.Nav
         {
             var numberOfVertices = reader.ReadUInt16();
             var numberOfFaces = reader.ReadUInt16();
-            var vertices = new List<Vector3>();
+            var vertices = new Vector3[numberOfVertices];
             for (var i = 0; i < numberOfVertices; i++)
             {
-                vertices.Add(reader.ReadVector3());
+                vertices[i] = reader.ReadVector3();
             }
 
-            var triangles = new List<int>();
+            var triangles = new int[numberOfFaces * 3];
             for (var i = 0; i < numberOfFaces; i++)
             {
-                triangles.Add(reader.ReadUInt16());
-                triangles.Add(reader.ReadUInt16());
-                triangles.Add(reader.ReadUInt16());
+                var index = i * 3;
+                triangles[index]     = reader.ReadUInt16();
+                triangles[index + 1] = reader.ReadUInt16();
+                triangles[index + 2] = reader.ReadUInt16();
             }
 
             return new NavFaceLayer()
             {
-                Vertices = vertices.ToArray(),
-                Triangles = triangles.ToArray(),
+                Vertices = vertices,
+                Triangles = triangles,
             };
         }
     }

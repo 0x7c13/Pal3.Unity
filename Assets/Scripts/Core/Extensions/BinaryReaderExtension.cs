@@ -5,7 +5,6 @@
 
 namespace Core.Extensions
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Text;
     using UnityEngine;
@@ -27,13 +26,12 @@ namespace Core.Extensions
 
         public static Vector3[] ReadVector3Array(this BinaryReader binaryReader, int count)
         {
-            var v3List = new List<Vector3>();
+            var v3List = new Vector3[count];
             for (var i = 0; i < count; i++)
             {
-                v3List.Add(binaryReader.ReadVector3());
+                v3List[i] = binaryReader.ReadVector3();
             }
-
-            return v3List.ToArray();
+            return v3List;
         }
 
         public static Vector2 ReadVector2(this BinaryReader binaryReader)
@@ -45,32 +43,32 @@ namespace Core.Extensions
 
         public static float[] ReadSingleArray(this BinaryReader binaryReader, int count)
         {
-            var singles = new List<float>();
+            var singles = new float[count];
             for (var i = 0; i < count; i++)
             {
-                singles.Add(binaryReader.ReadSingle());
+                singles[i] = binaryReader.ReadSingle();
             }
-            return singles.ToArray();
+            return singles;
         }
 
         public static int[] ReadInt32Array(this BinaryReader binaryReader, int count)
         {
-            var integers = new List<int>();
+            var integers = new int[count];
             for (var i = 0; i < count; i++)
             {
-                integers.Add(binaryReader.ReadInt32());
+                integers[i] = binaryReader.ReadInt32();
             }
-            return integers.ToArray();
+            return integers;
         }
 
         public static uint[] ReadUInt32Array(this BinaryReader binaryReader, int count)
         {
-            var integers = new List<uint>();
+            var integers = new uint[count];
             for (var i = 0; i < count; i++)
             {
-                integers.Add(binaryReader.ReadUInt32());
+                integers[i] = binaryReader.ReadUInt32();
             }
-            return integers.ToArray();
+            return integers;
         }
 
         public static string ReadAsciiString(this BinaryReader binaryReader, int count)
@@ -81,10 +79,9 @@ namespace Core.Extensions
         public static string ReadGbkString(this BinaryReader binaryReader, int count)
         {
             var strBytes = binaryReader.ReadBytes(count);
-            var str = new List<byte>();
             var i = 0;
-            while (i < strBytes.Length && strBytes[i] != 0) str.Add(strBytes[i++]);
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(str.ToArray());
+            while (i < strBytes.Length && strBytes[i] != 0) i++;
+            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(strBytes[..i]);
         }
     }
 }

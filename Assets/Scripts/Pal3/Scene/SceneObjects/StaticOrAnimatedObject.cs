@@ -5,15 +5,10 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography;
     using Core.DataReader.Scn;
-    using Core.Renderer;
     using Data;
     using Effect;
     using MetaData;
-    using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.StaticOrAnimated)]

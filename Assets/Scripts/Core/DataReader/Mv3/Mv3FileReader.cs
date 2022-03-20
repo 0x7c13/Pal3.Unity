@@ -47,40 +47,40 @@ namespace Core.DataReader.Mv3
                 throw new InvalidDataException("Invalid MV3(.mv3) file: missing mesh or material info");
             }
 
-            var animationEvents = new List<Mv3AnimationEvent>();
+            var animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
             for (var i = 0; i < numberOfAnimationEvents; i++)
             {
-                animationEvents.Add(ReadAnimationEvent(reader));
+                animationEvents[i] = ReadAnimationEvent(reader);
             }
 
-            var tagNodes = new List<Mv3TagNode>();
+            var tagNodes = new Mv3TagNode[numberOfTagNodes];
             for (var i = 0; i < numberOfTagNodes; i++)
             {
-                tagNodes.Add(ReadTagNode(reader));
+                tagNodes[i] = ReadTagNode(reader);
             }
 
-            var materials = new List<Mv3Material>();
+            var materials = new Mv3Material[numberOfMaterials];
             for (var i = 0; i < numberOfMaterials; i++)
             {
-                materials.Add(ReadMaterial(reader));
+                materials[i] = ReadMaterial(reader);
             }
 
-            var meshes = new List<Mv3Mesh>();
-            var meshKeyFrames = new List<VertexAnimationKeyFrame[]>();
+            var meshes = new Mv3Mesh[numberOfMeshes];
+            var meshKeyFrames = new VertexAnimationKeyFrame[numberOfMeshes][];
             for (var i = 0; i < numberOfMeshes; i++)
             {
                 var mesh = ReadMesh(reader);
-                meshes.Add(mesh);
-                meshKeyFrames.Add(CalculateKeyFrameVertices(mesh));
+                meshes[i] = mesh;
+                meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
             }
 
             return new Mv3File(version,
                 duration,
-                animationEvents.ToArray(),
-                tagNodes.ToArray(),
-                materials.ToArray(),
-                meshes.ToArray(),
-                meshKeyFrames.ToArray());
+                animationEvents,
+                tagNodes,
+                materials,
+                meshes,
+                meshKeyFrames);
         }
 
         private static Mv3Mesh ReadMesh(BinaryReader reader)
@@ -93,82 +93,83 @@ namespace Core.DataReader.Mv3
                 Max = reader.ReadVector3()
             };
             var numberOfFrames = reader.ReadInt32();
-            var frames = new List<Mv3VertFrame>();
+            var frames = new Mv3VertFrame[numberOfFrames];
             for (var i = 0; i < numberOfFrames; i++)
             {
                 var tick = reader.ReadUInt32();
-                var vertices = new List<Mv3Vert>();
+                var vertices = new Mv3Vert[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
-                    vertices.Add(new Mv3Vert()
+                    vertices[j] = new Mv3Vert()
                     {
                         X = reader.ReadInt16(),
                         Y = reader.ReadInt16(),
                         Z = reader.ReadInt16(),
                         N = reader.ReadUInt16()
-                    });
+                    };
                 }
-                frames.Add(new Mv3VertFrame()
+                frames[i] = new Mv3VertFrame()
                 {
                     Tick = tick,
-                    Vertices = vertices.ToArray()
-                });
+                    Vertices = vertices
+                };
             }
 
             var numberOfTexCoords = reader.ReadInt32();
-            var texCoords = new List<Vector2>();
+            Vector2[] texCoords;
             if (numberOfTexCoords == 0)
             {
-                texCoords.Add(new Vector2(0f, 0f));
+                texCoords = new Vector2[] {new (0f, 0f)};
                 Debug.LogWarning("numberOfTexCoords == 0");
             }
             else
             {
+                texCoords = new Vector2[numberOfTexCoords];
                 for (var i = 0; i < numberOfTexCoords; i++)
                 {
-                    texCoords.Add(reader.ReadVector2());
+                    texCoords[i] = reader.ReadVector2();
                 }
             }
 
             var numberOfAttributes = reader.ReadInt32();
-            var attributes = new List<Mv3Attribute>();
+            var attributes = new Mv3Attribute[numberOfAttributes];
             for (var i = 0; i < numberOfAttributes; i++)
             {
                 var materialId = reader.ReadInt32();
                 var numberOfTriangles = reader.ReadInt32();
 
-                var triangles = new List<Mv3IndexBuffer>();
+                var triangles = new Mv3IndexBuffer[numberOfTriangles];
                 for (int j = 0; j < numberOfTriangles; j++)
                 {
-                    triangles.Add(new Mv3IndexBuffer()
+                    triangles[j] = new Mv3IndexBuffer()
                     {
                         TriangleIndex = new []{ reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()},
                         TexCoordIndex = new []{ reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()}
-                    });
+                    };
                 }
 
                 var numberOfCommands = reader.ReadInt32();
-                var commands = new List<int>();
+                var commands = new int[numberOfCommands];
                 for (int j = 0; j < numberOfCommands; j++)
                 {
-                    commands.Add(reader.ReadInt32());
+                    commands[j] = reader.ReadInt32();
                 }
 
-                attributes.Add(new Mv3Attribute()
+                attributes[i] = new Mv3Attribute()
                 {
                     MaterialId = materialId,
-                    IndexBuffers = triangles.ToArray(),
-                    Commands = commands.ToArray(),
-                });
+                    IndexBuffers = triangles,
+                    Commands = commands,
+                };
             }
 
             return new Mv3Mesh()
             {
                 Name = name,
                 BoundBox = boundBox,
-                Attributes = attributes.ToArray(),
-                Frames = frames.ToArray(),
-                TexCoords = texCoords.ToArray(),
+                Attributes = attributes,
+                Frames = frames,
+                TexCoords = texCoords,
             };
         }
 
@@ -234,16 +235,16 @@ namespace Core.DataReader.Mv3
             var flipScale = reader.ReadSingle();
             var numberOfFrames = reader.ReadInt32();
 
-            var tagFrames = new List<Mv3TagFrame>();
-            for (var j = 0; j < numberOfFrames; j++)
+            var tagFrames = new Mv3TagFrame[numberOfFrames];
+            for (var i = 0; i < numberOfFrames; i++)
             {
-                tagFrames.Add(ReadTagFrame(reader));
+                tagFrames[i] = ReadTagFrame(reader);
             }
 
             return new Mv3TagNode()
             {
                 Name = nodeName,
-                TagFrames = tagFrames.ToArray(),
+                TagFrames = tagFrames,
                 FlipScale = flipScale
             };
         }

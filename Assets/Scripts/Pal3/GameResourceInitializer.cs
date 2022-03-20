@@ -10,6 +10,7 @@ namespace Pal3
     using System.Diagnostics;
     using System.IO;
     using Core.Animation;
+    using Core.DataReader.Cpk;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -98,8 +99,12 @@ namespace Pal3
             loadingText.text = "Loading game assets...";
             yield return new WaitForSeconds(0.1f); // Give some time for UI to render
 
+            // Init CRC hash
+            var crcHash = new CrcHash();
+            ServiceLocator.Instance.Register<CrcHash>(crcHash);
+
             // Init file system
-            var fileSystem = InitFileSystem(gameRootPath);
+            var fileSystem = InitFileSystem(gameRootPath, crcHash);
             ServiceLocator.Instance.Register<ICpkFileSystem>(fileSystem);
 
             // Init Game resource provider
@@ -131,9 +136,9 @@ namespace Pal3
             Destroy(this);
         }
 
-        private ICpkFileSystem InitFileSystem(string gameRootPath)
+        private ICpkFileSystem InitFileSystem(string gameRootPath, CrcHash crcHash)
         {
-            var result = InitializeCpkFileSystem(gameRootPath);
+            var result = InitializeCpkFileSystem(gameRootPath, crcHash);
 
             if (result.Success)
             {
@@ -161,16 +166,16 @@ namespace Pal3
             backgroundImage.enabled = false;
         }
 
-        private (bool Success, ICpkFileSystem FileSystem) InitializeCpkFileSystem(string gameRootPath)
+        private (bool Success, ICpkFileSystem FileSystem) InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
             try
             {
-                var cpkFileSystem = new CpkFileSystem(gameRootPath);
+                var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
-                var baseDataCpk  = FileConstants.BaseDataCpkPathInfo.relativePath +
+                var baseDataCpk = FileConstants.BaseDataCpkPathInfo.relativePath +
                                   Path.DirectorySeparatorChar + FileConstants.BaseDataCpkPathInfo.cpkName;
                 var musicCpk = FileConstants.MusicCpkPathInfo.relativePath +
                                Path.DirectorySeparatorChar + FileConstants.MusicCpkPathInfo.cpkName;
@@ -180,12 +185,13 @@ namespace Pal3
 
                 foreach (var sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
                 {
-                    var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar + sceneCpkPathInfo.cpkName;
+                    var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
+                                       sceneCpkPathInfo.cpkName;
                     cpkFileSystem.Mount(sceneCpkPath);
                 }
 
                 #if PAL3A
-                var scnCpk  = FileConstants.ScnCpkPathInfo.relativePath +
+                var scnCpk = FileConstants.ScnCpkPathInfo.relativePath +
                               Path.DirectorySeparatorChar + FileConstants.ScnCpkPathInfo.cpkName;
                 var sceCpk = FileConstants.SceCpkPathInfo.relativePath +
                               Path.DirectorySeparatorChar + FileConstants.SceCpkPathInfo.cpkName;
@@ -213,6 +219,10 @@ namespace Pal3
                     }
                 }
                 #endif
+            }
+            finally
+            {
+                System.GC.Collect();
             }
 
             return (false, null);

@@ -5,14 +5,8 @@
 
 namespace Pal3.Effect
 {
-    using System;
     using System.Collections;
-    using System.Collections.Generic;
-    using Core.Renderer;
     using Data;
-    using MetaData;
-    using Renderer;
-    using UnityEditor;
     using UnityEngine;
 
     public class PortalEffect : MonoBehaviour, IEffect

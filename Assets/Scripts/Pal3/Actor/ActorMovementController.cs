@@ -383,7 +383,7 @@ namespace Pal3.Actor
                 case EndOfPathActionType.Reverse:
                 {
                     _actionController.PerformAction(_actor.GetIdleAction());
-                    var waypoints = _currentPath.GetAllWayPoints().ToList();
+                    var waypoints = _currentPath.GetAllWayPoints();
                     waypoints.Reverse();
                     StartCoroutine(WaitForSomeTimeAndFollowPath(waypoints.ToArray(), _currentPath.MovementMode));
                     break;
@@ -403,7 +403,7 @@ namespace Pal3.Actor
         private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
-            SetupPath(waypoints.ToArray(), mode, EndOfPathActionType.Reverse);
+            SetupPath(waypoints, mode, EndOfPathActionType.Reverse);
         }
 
         private Vector2Int[] FindPathTo(Vector3 to, int layerIndex)

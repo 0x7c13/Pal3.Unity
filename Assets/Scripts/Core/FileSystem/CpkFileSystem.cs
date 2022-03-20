@@ -20,10 +20,11 @@ namespace Core.FileSystem
     {
         private readonly string _rootPath;
         private readonly ConcurrentDictionary<string, CpkArchive> _cpkArchives = new();
+        private readonly CrcHash _crcHash;
 
         private CpkFileSystem() {} // Hide default constructor
 
-        public CpkFileSystem(string rootPath)
+        public CpkFileSystem(string rootPath, CrcHash crcHash)
         {
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {
@@ -39,6 +40,7 @@ namespace Core.FileSystem
             }
 
             _rootPath = rootPath;
+            _crcHash = crcHash;
         }
 
         public string GetRootPath()
@@ -61,7 +63,7 @@ namespace Core.FileSystem
             }
 
             Debug.Log($"CpkFileSystem mounting: {_rootPath + cpkFileRelativePath}");
-            var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath);
+            var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash);
             _cpkArchives[cpkFileName] = cpkArchive;
         }
 

@@ -5,7 +5,6 @@
 
 namespace Core.DataReader.Sce
 {
-    using System.Collections.Generic;
     using System.IO;
     using Extensions;
 
@@ -32,19 +31,19 @@ namespace Core.DataReader.Sce
 
             var numberOfBlocks = reader.ReadUInt16();
 
-            var indexes = new List<SceIndex>();
+            var indexes = new SceIndex[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                indexes.Add(ReadSceIndex(reader));
+                indexes[i] = ReadSceIndex(reader);
             }
 
-            var scriptBlocks = new List<SceScriptBlock>();
+            var scriptBlocks = new SceScriptBlock[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                scriptBlocks.Add(ReadScriptBlock(reader, indexes[i]));
+                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i]);
             }
 
-            return new SceFile(indexes.ToArray(), scriptBlocks.ToArray());
+            return new SceFile(indexes, scriptBlocks);
         }
 
         private static SceScriptBlock ReadScriptBlock(BinaryReader reader, SceIndex sceIndex)
@@ -56,10 +55,10 @@ namespace Core.DataReader.Sce
             var description = reader.ReadGbkString(descriptionLength);
             var numberOfUserVars = reader.ReadUInt16();
 
-            var userVarInfos = new List<SceUserVarInfo>();
+            var userVarInfos = new SceUserVarInfo[numberOfUserVars];
             for (var i = 0; i < numberOfUserVars; i++)
             {
-                userVarInfos.Add(ReadUserVarInfo(reader));
+                userVarInfos[i] = ReadUserVarInfo(reader);
             }
 
             var scriptSize = reader.ReadUInt32();
@@ -70,7 +69,7 @@ namespace Core.DataReader.Sce
                 Id = id,
                 Description = description,
                 ScriptData = scriptData,
-                UserVariables = userVarInfos.ToArray()
+                UserVariables = userVarInfos
             };
         }
 

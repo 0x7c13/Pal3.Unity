@@ -5,7 +5,6 @@
 
 namespace Pal3.Camera
 {
-    using System;
     using System.Collections;
     using Command;
     using Command.InternalCommands;

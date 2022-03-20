@@ -6,8 +6,6 @@
 namespace Core.Utils
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -19,10 +17,9 @@ namespace Core.Utils
 
         public static string ConvertToGbkString(byte[] charArray)
         {
-            var str = new List<byte>();
             var i = 0;
-            while (i < charArray.Length && charArray[i] != 0) str.Add(charArray[i++]);
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(str.ToArray());
+            while (i < charArray.Length && charArray[i] != 0) i++;
+            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(charArray[..i]);
         }
 
         public static Color32 ToColor32(byte[] rgba)
@@ -35,32 +32,32 @@ namespace Core.Utils
             return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
 
-        public static void ApplyTransparency(Texture2D texture, float alpha)
-        {
-            for (var i = 0; i < texture.width; i++)
-            {
-                for (var j = 0; j < texture.height; j++)
-                {
-                    var pixel = texture.GetPixel(i, j);
-                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, alpha));
-                }
-            }
-            texture.Apply();
-        }
-
-        public static void ApplyTransparencyBasedOnColorIntensity(Texture2D texture)
-        {
-            for (var i = 0; i < texture.width; i++)
-            {
-                for (var j = 0; j < texture.height; j++)
-                {
-                    var pixel = texture.GetPixel(i, j);
-                    var intensity = pixel.r + pixel.g + pixel.b;
-                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
-                }
-            }
-            texture.Apply();
-        }
+        // public static void ApplyTransparency(Texture2D texture, float alpha)
+        // {
+        //     for (var i = 0; i < texture.width; i++)
+        //     {
+        //         for (var j = 0; j < texture.height; j++)
+        //         {
+        //             var pixel = texture.GetPixel(i, j);
+        //             texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, alpha));
+        //         }
+        //     }
+        //     texture.Apply();
+        // }
+        //
+        // public static void ApplyTransparencyBasedOnColorIntensity(Texture2D texture)
+        // {
+        //     for (var i = 0; i < texture.width; i++)
+        //     {
+        //         for (var j = 0; j < texture.height; j++)
+        //         {
+        //             var pixel = texture.GetPixel(i, j);
+        //             var intensity = pixel.r + pixel.g + pixel.b;
+        //             texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
+        //         }
+        //     }
+        //     texture.Apply();
+        // }
 
         public static void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
         {

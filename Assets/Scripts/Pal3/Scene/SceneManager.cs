@@ -9,9 +9,7 @@ namespace Pal3.Scene
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Cpk;
     using Data;
-    using MetaData;
     using Newtonsoft.Json;
     using Script;
     using UnityEngine;

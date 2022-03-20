@@ -90,40 +90,37 @@ namespace Pal3.Renderer
         {
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
-                var vertices = new List<Vector3>();
-                for (var j = 0; j < mesh.Vertices.Length; j++)
+                var numOfVertices = mesh.Vertices.Length;
+                var vertices = new Vector3[numOfVertices];
+                for (var j = 0; j < numOfVertices; j++)
                 {
-                    var position = mesh.Vertices[j].Position;
-                    vertices.Add(GameBoxInterpreter
-                        .ToUnityVertex(position, GameBoxInterpreter.GameBoxUnitToUnityUnit));
+                    vertices[j] = GameBoxInterpreter
+                        .ToUnityVertex(mesh.Vertices[j].Position, GameBoxInterpreter.GameBoxUnitToUnityUnit);
                 }
 
-                var triangles = new List<int>();
-                for (var j = 0; j < mesh.Textures[i].Triangles.Length; j++)
+                var numOfTriangles = mesh.Textures[i].Triangles.Length;
+                var triangles = new int[numOfTriangles * 3];
+                for (var j = 0; j < numOfTriangles; j++)
                 {
-                    var triangle = GameBoxInterpreter.ToUnityTriangle(mesh.Textures[i].Triangles[j]);
-                    triangles.Add(triangle.x);
-                    triangles.Add(triangle.y);
-                    triangles.Add(triangle.z);
+                    var index = j * 3;
+                    var (x, y, z) = GameBoxInterpreter.ToUnityTriangle(mesh.Textures[i].Triangles[j]);
+                    triangles[index]     = x;
+                    triangles[index + 1] = y;
+                    triangles[index + 2] = z;
                 }
 
-                var normals = new List<Vector3>();
-                for (var j = 0; j < mesh.Vertices.Length; j++)
+                var normals = new Vector3[numOfVertices];
+                for (var j = 0; j < numOfVertices; j++)
                 {
-                    var normal = mesh.Vertices[j].Normal;
-                    normals.Add(normal);
+                    normals[j] = mesh.Vertices[j].Normal;
                 }
 
-                var uv1 = new List<Vector2>();
-                var uv2 = new List<Vector2>();
-                //var uv3 = new List<Vector2>();
-                //var uv4 = new List<Vector2>();
-                for (var j = 0; j < mesh.Vertices.Length; j++)
+                var uv1 = new Vector2[numOfVertices];
+                var uv2 = new Vector2[numOfVertices];
+                for (var j = 0; j < numOfVertices; j++)
                 {
-                    uv1.Add(mesh.Vertices[j].Uv[0]);
-                    uv2.Add(mesh.Vertices[j].Uv[1]);
-                    //uv3.Add(mesh.Vertices[j].Uv[2]);
-                    //uv4.Add(mesh.Vertices[j].Uv[3]);
+                    uv1[j] = mesh.Vertices[j].Uv[0];
+                    uv2[j] = mesh.Vertices[j].Uv[1];
                 }
 
                 var textures = new List<(string name, Texture2D texture)>();
@@ -200,10 +197,10 @@ namespace Pal3.Renderer
                         _materials[materialHashKey] = material;
                     }
 
-                    _ = meshRenderer.Render(vertices.ToArray(),
-                        triangles.ToArray(),
-                        normals.ToArray(),
-                        uv1.ToArray(),
+                    _ = meshRenderer.Render(vertices,
+                        triangles,
+                        normals,
+                        uv1,
                         material,
                         false);
 
@@ -258,11 +255,11 @@ namespace Pal3.Renderer
                         }
                     }
 
-                    _ = meshRenderer.Render(vertices.ToArray(),
-                        triangles.ToArray(),
-                        normals.ToArray(),
-                        uv2.ToArray(),
-                        uv1.ToArray(),
+                    _ = meshRenderer.Render(vertices,
+                        triangles,
+                        normals,
+                        uv2,
+                        uv1,
                         material,
                         false);
 
