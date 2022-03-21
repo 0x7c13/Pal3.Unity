@@ -167,22 +167,22 @@ namespace Core.DataReader.Bmp
 
         public BMPImage LoadBmp(string aFileName)
         {
-            using (var file = File.OpenRead(aFileName))
-                return LoadBmp(file);
+            using var file = File.OpenRead(aFileName);
+            return LoadBmp(file);
         }
 
         public BMPImage LoadBmp(byte[] aData)
         {
-            using (var stream = new MemoryStream(aData))
-                return LoadBmp(stream);
+            using var stream = new MemoryStream(aData);
+            return LoadBmp(stream);
         }
 
         public BMPImage LoadBmp(Stream aData)
         {
-            using (var reader = new BinaryReader(aData))
-                return LoadBmp(reader);
-
+            using var reader = new BinaryReader(aData);
+            return LoadBmp(reader);
         }
+
         public BMPImage LoadBmp(BinaryReader aReader)
         {
             BMPImage bmp = new BMPImage();

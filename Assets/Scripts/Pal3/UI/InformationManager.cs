@@ -66,6 +66,7 @@ namespace Pal3.UI
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
+        #if !UNITY_EDITOR
         private void Update()
         {
             var currentTime = Time.realtimeSinceStartupAsDouble;
@@ -76,6 +77,7 @@ namespace Pal3.UI
             }
             _debugInfo.SetText(_debugInfoStringFormat, _heapSize, _fpsCounter.GetFps());
         }
+        #endif
 
         private IEnumerator AnimateNoteUI()
         {

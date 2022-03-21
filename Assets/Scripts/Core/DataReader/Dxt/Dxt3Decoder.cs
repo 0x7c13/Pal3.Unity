@@ -21,10 +21,13 @@ namespace Core.DataReader.Dxt
 
 		public static byte[] ToRgba32(Stream stream, int width, int height)
 		{
-			var data = new byte[width * height * 4];
-
 			using var reader = new BinaryReader(stream);
+			return ToRgba32(reader, width, height);
+		}
 
+		public static byte[] ToRgba32(BinaryReader reader, int width, int height)
+		{
+			var data = new byte[width * height * 4];
 			for (var j = 0; j < (height + 3) / 4; j++)
 			{
 				for (var i = 0; i < (width + 3) / 4; i++)
@@ -32,7 +35,6 @@ namespace Core.DataReader.Dxt
 					DecodeDxt3Block(reader, i, j, width, height, data);
 				}
 			}
-
 			return data;
 		}
 

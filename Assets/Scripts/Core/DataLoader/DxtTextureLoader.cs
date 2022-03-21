@@ -32,8 +32,8 @@ namespace Core.DataLoader
 			hasAlphaChannel = format == "DXT1";
 			return format switch
 			{
-				"DXT1" => LoadDxt1Texture(data[DDS_FILE_HEADER_SIZE..], header.Width, header.Height),
-				"DXT3" => LoadDxt3Texture(data[DDS_FILE_HEADER_SIZE..], header.Width, header.Height),
+				"DXT1" => LoadDxt1Texture(reader, header.Width, header.Height),
+				"DXT3" => LoadDxt3Texture(reader, header.Width, header.Height),
 				_ => throw new Exception($"Texture format: {format} not supported.")
 			};
 		}
@@ -46,19 +46,19 @@ namespace Core.DataLoader
 			return false;
 		}
 
-		private Texture2D LoadDxt1Texture(byte[] data, int width, int height)
+		private Texture2D LoadDxt1Texture(BinaryReader reader, int width, int height)
 		{
 			// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android
 			// devices so we need to first decode it to RGBA32(RGB888) format
-			var decompressedData = Dxt1Decoder.ToRgba32(data, width, height);
+			var decompressedData = Dxt1Decoder.ToRgba32(reader, width, height);
 			return LoadRawTextureData(decompressedData, width, height, TextureFormat.RGBA32);
 		}
 
-		private Texture2D LoadDxt3Texture(byte[] data, int width, int height)
+		private Texture2D LoadDxt3Texture(BinaryReader reader, int width, int height)
 		{
 			// Texture2D.LoadRawTextureData does not support DXT3 format
 			// We need to first decode it to RGBA32(RGB888) format
-			var decompressedData = Dxt3Decoder.ToRgba32(data, width, height);
+			var decompressedData = Dxt3Decoder.ToRgba32(reader, width, height);
 			return LoadRawTextureData(decompressedData, width, height, TextureFormat.RGBA32);
 		}
 

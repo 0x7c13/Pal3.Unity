@@ -243,10 +243,7 @@ namespace Pal3.Player
                 }
             }
 
-            if (interactionAction != null)
-            {
-                interactionAction.Invoke();
-            }
+            interactionAction?.Invoke();
         }
 
         private void PortalToTapPosition()
@@ -345,7 +342,7 @@ namespace Pal3.Player
                 climbAnimationOnly, climbableHeight, lowerPosition, lowerStandingPosition,
                 upperPosition, upperStandingPosition, currentPlayerLayer, currentPlayerLayer, () =>
                 {
-                    waiter?.CancelWait();
+                    waiter.CancelWait();
                 }));
         }
 

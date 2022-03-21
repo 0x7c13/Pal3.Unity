@@ -41,6 +41,7 @@ namespace Pal3.Scene
         private readonly Dictionary<byte, GameObject> _actorObjects = new ();
 
         private GameResourceProvider _resourceProvider;
+        private Tilemap _tilemap;
 
         public void Init(GameResourceProvider resourceProvider, Camera mainCamera)
         {
@@ -92,10 +93,17 @@ namespace Pal3.Scene
 
             base.Init(_resourceProvider, scnFile);
 
+            _tilemap = new Tilemap(NavFile);
+            var actorTintColor = Color.white;
+            if (ScnFile.SceneInfo.LightMap == 1)
+            {
+                actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+            }
+
             RenderMesh();
             RenderSkyBox();
             SetupNavMesh();
-            CreateActorObjects();
+            CreateActorObjects(actorTintColor, _tilemap);
             ActivateSceneObjects();
         }
 
@@ -227,13 +235,13 @@ namespace Pal3.Scene
             }
         }
 
-        private void CreateActorObjects()
+        private void CreateActorObjects(Color tintColor, Tilemap tilemap)
         {
             foreach (var actorObject in Actors.Values)
             {
                 if (actorObject.AnimationFileType == ActorAnimationFileType.Mv3)
                 {
-                    CreateActorObject(actorObject);
+                    CreateActorObject(actorObject, tintColor, tilemap);
                 }
             }
         }
@@ -258,18 +266,11 @@ namespace Pal3.Scene
             Destroy(sceneObject);
         }
 
-        private void CreateActorObject(Actor actor)
+        private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
             if (_actorObjects.ContainsKey(actor.Info.Id)) return;
-
-            var tintColor = Color.white;
-            if (ScnFile.SceneInfo.LightMap == 1)
-            {
-                tintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-            }
-
             _actorObjects[actor.Info.Id] = ActorFactory.CreateActorGameObject(_resourceProvider, actor,
-                _parent, new Tilemap(NavFile), tintColor);
+                _parent, tileMap, tintColor);
         }
 
         private void ActivateActorObject(byte id, bool isActive)
