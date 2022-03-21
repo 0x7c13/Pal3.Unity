@@ -5,6 +5,7 @@
 
 namespace Pal3
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -281,6 +282,7 @@ namespace Pal3
             }
         }
 
+        // TODO: Move to SettingsManager
         private void ApplyRenderingSettings()
         {
             //var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
@@ -300,6 +302,31 @@ namespace Pal3
             };
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+            // Downscaling resolution for old Android devices
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                try
+                {
+                    int GetAndroidSdkLevel()
+                    {
+                        var clazz = AndroidJNI.FindClass("android.os.Build$VERSION");
+                        var fieldID = AndroidJNI.GetStaticFieldID(clazz, "SDK_INT", "I");
+                        var sdkLevel = AndroidJNI.GetStaticIntField(clazz, fieldID);
+                        return sdkLevel;
+                    }
+
+                    // Android 6 Marshmallow <=> API Version 23
+                    if (GetAndroidSdkLevel() <= 23)
+                    {
+                        Screen.SetResolution((int) (Screen.width * 0.75f), (int) (Screen.height * 0.75f), true);
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
         }
 
         private void OnDisable()
