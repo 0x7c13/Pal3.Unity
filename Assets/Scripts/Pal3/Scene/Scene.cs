@@ -191,38 +191,45 @@ namespace Pal3.Scene
                 {
                     layer = LayerMask.NameToLayer("RaycastOnly")
                 };
-
-                /*
-                 * There are some cases where the nav mesh is pointing downwards instead
-                 * of upwards. I am not sure why is that but for now, let's generate
-                 * two nav meshes just to be safe (one face up, one face down).
-                 * TODO: Calculate the normal to see if mesh is facing downwards?
-                 */
+                navMesh.transform.SetParent(_parent.transform);
 
                 var vertices = NavFile.FaceLayers[i].Vertices
                     .Select(v => GameBoxInterpreter.ToUnityVertex(new Vector3(v.x, v.y, v.z),
                         GameBoxInterpreter.GameBoxUnitToUnityUnit)).ToArray();
 
-                var meshColliderFaceUp = navMesh.AddComponent<MeshCollider>();
-                navMesh.transform.SetParent(_parent.transform);
-
-                meshColliderFaceUp.convex = false;
-                meshColliderFaceUp.sharedMesh = new Mesh()
+                var meshCollider = navMesh.AddComponent<MeshCollider>();
+                meshCollider.convex = false;
+                meshCollider.sharedMesh = new Mesh()
                 {
                     vertices = vertices,
                     triangles = GameBoxInterpreter.ToUnityTriangles(NavFile.FaceLayers[i].Triangles)
                 };
 
-                var meshColliderFaceDown = navMesh.AddComponent<MeshCollider>();
-
-                meshColliderFaceDown.convex = false;
-                meshColliderFaceDown.sharedMesh = new Mesh()
+                /*
+                 * There are some cases where the nav mesh is pointing downwards instead
+                 * of upwards. I am not sure why is that but for now, let's generate
+                 * two nav meshes just to be safe (one facing up, one facing down).
+                 * I only found one case where the scene type is StoryB, so let's just
+                 * do it when scene type is StoryB.
+                 * TODO: Calculate the normal to see if mesh is facing downwards? Or a blacklist?
+                 */
+                if (GetSceneInfo().SceneType == ScnSceneType.StoryB)
                 {
-                    vertices = vertices,
-                    triangles = NavFile.FaceLayers[i].Triangles
-                };
+                    var meshColliderInverse = navMesh.AddComponent<MeshCollider>();
+                    meshColliderInverse.convex = false;
+                    meshColliderInverse.sharedMesh = new Mesh()
+                    {
+                        vertices = vertices,
+                        triangles = NavFile.FaceLayers[i].Triangles
+                    };
 
-                _meshColliders[i] = new []{ meshColliderFaceUp, meshColliderFaceDown};
+                    _meshColliders[i] = new [] { meshCollider, meshColliderInverse };
+                }
+                else
+                {
+                    _meshColliders[i] = new [] { meshCollider };
+                }
+
                 _navMeshLayers.Add(navMesh);
             }
         }
