@@ -337,14 +337,14 @@ namespace Pal3.Camera
                 case ScnSceneType.StoryA:
                     _freeToRotate = true;
                     _lookAtPointYOffset = 0;
-                    _camera.nearClipPlane = 3f;
+                    _camera.nearClipPlane = 5f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(0);
                     break;
                 case ScnSceneType.Maze:
                     _freeToRotate = true;
                     _lookAtPointYOffset = 0;
-                    _camera.nearClipPlane = 3f;
+                    _camera.nearClipPlane = 5f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(0);
                     break;
