@@ -73,7 +73,7 @@ namespace Core.Utils
             texture.Apply();
         }
 
-        public static T ReadStruct<T>(FileStream stream) where T : struct
+        public static T ReadStruct<T>(Stream stream) where T : struct
         {
             var structSize = Marshal.SizeOf(typeof(T));
             byte[] buffer = new byte[structSize];
