@@ -32,44 +32,20 @@ namespace Core.Utils
             return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
 
-        // public static void ApplyTransparency(Texture2D texture, float alpha)
-        // {
-        //     for (var i = 0; i < texture.width; i++)
-        //     {
-        //         for (var j = 0; j < texture.height; j++)
-        //         {
-        //             var pixel = texture.GetPixel(i, j);
-        //             texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, alpha));
-        //         }
-        //     }
-        //     texture.Apply();
-        // }
-        //
-        // public static void ApplyTransparencyBasedOnColorIntensity(Texture2D texture)
-        // {
-        //     for (var i = 0; i < texture.width; i++)
-        //     {
-        //         for (var j = 0; j < texture.height; j++)
-        //         {
-        //             var pixel = texture.GetPixel(i, j);
-        //             var intensity = pixel.r + pixel.g + pixel.b;
-        //             texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
-        //         }
-        //     }
-        //     texture.Apply();
-        // }
-
-        public static void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
+        public static unsafe void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
         {
-            for (var i = 0; i < texture.width; i++)
+            var pixels = texture.GetPixels();
+
+            fixed (float* src = &pixels[0].r)
             {
-                for (var j = 0; j < texture.height; j++)
+                var p = src;
+                for (var i = 0; i < texture.width * texture.height; i++, p += 4)
                 {
-                    var pixel = texture.GetPixel(i, j);
-                    var intensity = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;
-                    texture.SetPixel(i, j, new Color(pixel.r, pixel.g, pixel.b, intensity));
+                    *(p + 3) = 0.299f * *p + 0.587f * *(p + 1) + 0.114f * *(p + 2);
                 }
             }
+
+            texture.SetPixels(pixels);
             texture.Apply();
         }
 

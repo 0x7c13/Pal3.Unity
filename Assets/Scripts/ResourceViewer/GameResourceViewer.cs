@@ -220,6 +220,7 @@ namespace ResourceViewer
                 }
 
                 var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
+                animationNode.transform.SetParent(_renderingRoot.transform);
 
                 var events = mv3File.AnimationEvents;
                 var duration = mv3File.Duration;
@@ -227,12 +228,14 @@ namespace ResourceViewer
                 for (var i = 0; i < mv3File.Meshes.Length; i++)
                 {
                     var mesh = mv3File.Meshes[i];
-                    var material = mv3File.Materials[i];
+                    var material = mv3File.Meshes.Length != mv3File.Materials.Length ?
+                        mv3File.Materials[0] :
+                        mv3File.Materials[i];
                     var keyFrames = mv3File.MeshKeyFrames[i];
-                    var animationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
-                    animationRenderer.Init(mesh, material, events, keyFrames, duration, textureProvider, Color.white);
-                    animationNode.transform.SetParent(_renderingRoot.transform);
-                    animationRenderer.PlayAnimation();
+
+                    var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
+                    mv3AnimationRenderer.Init(mesh, material, events, keyFrames, duration, textureProvider, Color.white);
+                    mv3AnimationRenderer.PlayAnimation();
                 }
 
                 consoleTextUI.text = $"{filePath}";
