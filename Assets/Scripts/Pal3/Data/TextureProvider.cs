@@ -62,39 +62,39 @@ namespace Pal3.Data
 
             var texturePath = _relativePath + name;
 
-            if (_textureCache != null &&
-                GetTextureInCache(texturePath, out hasAlphaChannel) is { } textureInCache)
-            {
-                return textureInCache;
-            }
+            // Note: Most texture files used in (.pol, .cvd) files are stored inside Pal3's CPack
+            // archives and they are pre-compressed to DXT format (DXT1 & DXT3). So we need to
+            // swap the file extension from original texture format (.bmp, .tga etc.) to dds format.
+            var ddsTexturePath = Path.ChangeExtension(texturePath, ".dds");
 
-            Texture2D texture;
-
-            // In case we do we have the texture
-            if (_fileSystem.FileExists(texturePath))
+            if (_textureCache != null)
             {
-                var textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
-                texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
-            }
-            else
-            {
-                // Note: Most texture files used in (.pol, .cvd) files are stored inside Pal3's CPack
-                // archives and they are pre-compressed to DXT format (DXT1 & DXT3). So we need to
-                // swap the file extension from original texture format (.bmp, .tga etc.) to dds format.
-                texturePath = Path.ChangeExtension(texturePath, ".dds");
-
-                if (_textureCache != null &&
-                    GetTextureInCache(texturePath, out hasAlphaChannel) is { } ddsTextureInCache)
+                // Check if dds texture exists in cache
+                if (GetTextureInCache(ddsTexturePath, out hasAlphaChannel) is { } ddsTextureInCache)
                 {
                     return ddsTextureInCache;
                 }
 
-                texture = base.GetTexture(_fileSystem, texturePath, new DxtTextureLoader(), out hasAlphaChannel);
+                // Check if texture exists in cache
+                if ( GetTextureInCache(texturePath, out hasAlphaChannel) is { } textureInCache)
+                {
+                    return textureInCache;
+                }
             }
 
-            if (_textureCache != null)
+            // Get dds texture
+            var textureLoader = _textureLoaderFactory.GetTextureLoader(".dds");
+            var texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
+            if (texture != null)
             {
-                _textureCache.AddTextureToCache(texturePath, texture, hasAlphaChannel);
+                _textureCache?.AddTextureToCache(ddsTexturePath, texture, hasAlphaChannel);
+            }
+            else // If dds texture does not exist, try original extension
+            {
+                textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
+                texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
+                if (texture == null) Debug.LogWarning($"Texture not found: {texturePath}");
+                else _textureCache?.AddTextureToCache(texturePath, texture, hasAlphaChannel);
             }
 
             return texture;

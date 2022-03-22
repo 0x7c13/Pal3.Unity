@@ -21,7 +21,7 @@ namespace Core.DataReader.Dxt
 
         public static DxtPixelFormat ReadFormat(BinaryReader reader)
         {
-            return new DxtPixelFormat()
+            return new DxtPixelFormat
             {
                 Size = reader.ReadInt32(),
                 Flags = reader.ReadInt32(),
@@ -51,7 +51,6 @@ namespace Core.DataReader.Dxt
         public int Caps3;
         public int Caps4;
         public int Reserved;
-
 
         public static DxtHeader ReadHeader(BinaryReader reader)
         {

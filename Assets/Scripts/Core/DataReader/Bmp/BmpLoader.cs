@@ -576,6 +576,7 @@ namespace Core.DataReader.Bmp
         {
             m_Reader = aReader;
         }
+
         public BitStreamReader(Stream aStream) : this(new BinaryReader(aStream)) { }
 
         public byte ReadBit()
@@ -597,6 +598,7 @@ namespace Core.DataReader.Bmp
                 val |= ((ulong)ReadBit() << i);
             return val;
         }
+
         public void Flush()
         {
             m_Data = 0;

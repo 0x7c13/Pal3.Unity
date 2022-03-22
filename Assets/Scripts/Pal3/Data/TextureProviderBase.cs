@@ -19,7 +19,6 @@ namespace Pal3.Data
             // Just to make sure we have the texture
             if (!fileSystem.FileExists(texturePath))
             {
-                Debug.LogWarning($"Texture not found: {texturePath}");
                 hasAlphaChannel = false;
                 return null;
             }

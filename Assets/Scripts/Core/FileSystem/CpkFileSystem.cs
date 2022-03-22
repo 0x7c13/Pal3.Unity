@@ -90,11 +90,6 @@ namespace Core.FileSystem
         /// <returns>Stream to consume</returns>
         public Stream Open(string fileVirtualPath, out uint size, out bool compressed)
         {
-            if (!FileExists(fileVirtualPath))
-            {
-                throw new ArgumentException($"File: {fileVirtualPath} does not exists.");
-            }
-
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
             return _cpkArchives[cpkFileName].Open(relativeVirtualPath, out size, out compressed);
         }
@@ -106,11 +101,6 @@ namespace Core.FileSystem
         /// <returns>Decompressed, ready-to-go file content in byte array</returns>
         public byte[] ReadAllBytes(string fileVirtualPath)
         {
-            if (!FileExists(fileVirtualPath))
-            {
-                throw new ArgumentException($"File: {fileVirtualPath} does not exists.");
-            }
-
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
             return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);
         }

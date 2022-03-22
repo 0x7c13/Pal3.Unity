@@ -192,12 +192,12 @@ namespace Core.DataReader.Cpk
 
         private CpkTable ValidateAndGetTable(string fileVirtualPath)
         {
-            if (!FileExists(fileVirtualPath))
+            var crc = _crcHash.ToCrc32Hash(fileVirtualPath.ToLower());
+            if (!_crcToTableIndexMap.ContainsKey(crc))
             {
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
             }
 
-            var crc = _crcHash.ToCrc32Hash(fileVirtualPath.ToLower());
             var table = _tables[_crcToTableIndexMap[crc]];
 
             if (table.IsDirectory())

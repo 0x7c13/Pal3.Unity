@@ -14,7 +14,6 @@ namespace Pal3.Renderer
     using Core.Renderer;
     using Dev;
     using UnityEngine;
-    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Poly(.pol) model renderer

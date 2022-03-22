@@ -1,16 +1,15 @@
-#define TGA_TEXTURE_LOADER_USE_UNSAFE
+// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2022, Jiaqi Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ---------------------------------------------------------------------------------------------
 
 namespace Core.DataLoader
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Runtime.InteropServices;
     using UnityEngine;
 
     public class TgaTextureLoader : ITextureLoader
     {
-        #if TGA_TEXTURE_LOADER_USE_UNSAFE
         public unsafe Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel)
         {
             short width;
@@ -71,74 +70,5 @@ namespace Core.DataLoader
             texture.Apply();
             return texture;
         }
-        #else
-        public Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel)
-        {
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-
-            // Skip header
-            reader.BaseStream.Seek(12, SeekOrigin.Begin);
-
-            var width = reader.ReadInt16();
-            var height = reader.ReadInt16();
-            var bitDepth = reader.ReadByte();
-
-            // Skip a byte of header information we don't care about.
-            reader.BaseStream.Seek(1, SeekOrigin.Current);
-
-            var colors = new Color32[width * height];
-
-            hasAlphaChannel = false;
-
-            if (bitDepth == 32)
-            {
-                var blue = reader.ReadByte();
-                var green = reader.ReadByte();
-                var red = reader.ReadByte();
-                var alpha = reader.ReadByte();
-                colors[0].r = red;
-                colors[0].g = green;
-                colors[0].b = blue;
-                colors[0].a = alpha;
-                var firstAlpha = alpha;
-
-                for (var i = 1; i < width * height; i++)
-                {
-                    blue = reader.ReadByte();
-                    green = reader.ReadByte();
-                    red = reader.ReadByte();
-                    alpha = reader.ReadByte();
-                    colors[i].r = red;
-                    colors[i].g = green;
-                    colors[i].b = blue;
-                    colors[i].a = alpha;
-                    if (alpha != firstAlpha) hasAlphaChannel = true;
-                }
-            }
-            else if (bitDepth == 24)
-            {
-                for (var i = 0; i < width * height; i++)
-                {
-                    var blue = reader.ReadByte();
-                    var green = reader.ReadByte();
-                    var red = reader.ReadByte();
-                    colors[i].r = red;
-                    colors[i].g = green;
-                    colors[i].b = blue;
-                    colors[i].a = 0;
-                }
-            }
-            else
-            {
-                throw new Exception("TGA texture had non 32/24 bit depth.");
-            }
-
-            var texture = new Texture2D(width, height);
-            texture.SetPixels32(colors);
-            texture.Apply();
-            return texture;
-        }
-        #endif
     }
 }

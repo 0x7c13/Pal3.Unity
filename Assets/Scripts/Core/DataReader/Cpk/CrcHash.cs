@@ -44,39 +44,40 @@ namespace Core.DataReader.Cpk
             return ToCrc32Hash(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
         }
 
-        public uint ToCrc32Hash(byte[] strBytes)
+        public unsafe uint ToCrc32Hash(byte[] data)
         {
-            if (strBytes.Length == 0 || strBytes[0] == 0) return 0;
+            if (data.Length == 0 || data[0] == 0) return 0;
 
-            var data = strBytes.ToList();
-
-            // Append 0 to the end of the byte list if not
-            if (data[^1] != 0) data.Add(0);
-
+            var length = data.Length;
             var index = 0;
-            uint result  = (uint)(data[index++] << 24);
-            if (data[index] != 0)
-            {
-                result |= (uint)(data[index++] << 16);
 
-                if(data[index] != 0)
+            fixed (byte* srcStart = &data[0])
+            {
+                var p = srcStart;
+                uint result  = (uint)(*(p + index++) << 24);
+                if (*(p + index) != 0)
                 {
-                    result |= (uint)(data[index++] << 8);
-                    if (data[index] != 0)
+                    result |= (uint)(*(p + index++) << 16);
+
+                    if(*(p + index) != 0)
                     {
-                        result |= data[index++];
+                        result |= (uint)(*(p + index++) << 8);
+                        if (*(p + index) != 0)
+                        {
+                            result |= *(p + index++);
+                        }
                     }
                 }
-            }
-            result = ~result;
+                result = ~result;
 
-            while (data[index] != 0)
-            {
-                result = (result << 8 | data[index]) ^ CrcTable[result >> 24];
-                index++;
-            }
+                while (index < length && *(p + index) != 0)
+                {
+                    result = (result << 8 | *(p + index)) ^ CrcTable[result >> 24];
+                    index++;
+                }
 
-            return ~result;
+                return ~result;
+            }
         }
     }
 }

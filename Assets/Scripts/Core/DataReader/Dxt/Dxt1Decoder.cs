@@ -5,7 +5,6 @@
 
 namespace Core.DataReader.Dxt
 {
-	using System.IO;
 	using Utils;
 
 	/// <summary>
@@ -13,40 +12,41 @@ namespace Core.DataReader.Dxt
 	/// </summary>
 	public static class Dxt1Decoder
 	{
-		public static byte[] ToRgba32(byte[] data, int width, int height)
-		{
-			using var stream = new MemoryStream(data);
-			return ToRgba32(stream, width, height);
-		}
+		// 4 chars header label
+		// 30 integers + 4 chars format info
+		// Total of: 4 + 30 x 4 + 4 = 128
+		private const int DDS_FILE_HEADER_SIZE = 128;
 
-		public static byte[] ToRgba32(Stream stream, int width, int height)
+		public static unsafe byte[] ToRgba32(byte[] data, int width, int height)
 		{
-			using var reader = new BinaryReader(stream);
-			return ToRgba32(reader, width, height);
-		}
+			byte[] buffer = new byte[width * height * 4];
 
-		public static byte[] ToRgba32(BinaryReader reader, int width, int height)
-		{
-			byte[] data = new byte[width * height * 4];
-			for (var j = 0; j < (height + 3) / 4; j++)
+			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = &buffer[0])
 			{
-				for (var i = 0; i < (width + 3) / 4; i++)
+				var src = srcStart;
+				var dst = dstStart;
+
+				for (var j = 0; j < (height + 3) / 4; j++)
 				{
-					DecodeDxt1Block(reader, i, j, width, height, data);
+					for (var i = 0; i < (width + 3) / 4; i++)
+					{
+						DecodeDxt1Block(i, j, width, height, src, dst);
+						src += 8; // 2 + 2 + 4
+					}
 				}
 			}
-			return data;
+			return buffer;
 		}
 
-		private static void DecodeDxt1Block(BinaryReader imageReader, int x, int y, int width, int height, byte[] imageData)
+		private static unsafe void DecodeDxt1Block(int x, int y, int width, int height, byte* src, byte* dst)
 		{
-			ushort color0 = imageReader.ReadUInt16();
-			ushort color1 = imageReader.ReadUInt16();
+			ushort color0 = *(ushort*)src;
+			ushort color1 = *(ushort*)(src + 2);
 
 			Utility.Rgb565ToRgb888(color0, out var r0, out var g0, out var b0);
 			Utility.Rgb565ToRgb888(color1, out var r1, out var g1, out var b1);
 
-			uint lookupTable = imageReader.ReadUInt32();
+			uint lookupTable = *(uint*)(src + 4);
 
 			for (var blockY = 0; blockY < 4; blockY++)
 			{
@@ -106,10 +106,10 @@ namespace Core.DataReader.Dxt
 					if ((px < width) && (py < height))
 					{
 						int offset = ((py * width) + px) << 2;
-						imageData[offset] = r;
-						imageData[offset + 1] = g;
-						imageData[offset + 2] = b;
-						imageData[offset + 3] = a;
+						*(dst + offset) = r;
+						*(dst + offset + 1) = g;
+						*(dst + offset + 2) = b;
+						*(dst + offset + 3) = a;
 					}
 				}
 			}

@@ -91,13 +91,14 @@ namespace Pal3
 
         private IEnumerator Start()
         {
+            loadingText.text = "Loading game assets...";
+            yield return new WaitForEndOfFrame();
             yield return InitResource(GetGameFolderPath());
         }
 
         private IEnumerator InitResource(string gameRootPath)
         {
-            loadingText.text = "Loading game assets...";
-            yield return new WaitForSeconds(0.1f); // Give some time for UI to render
+            yield return new WaitForEndOfFrame(); // Give some time for UI to render
 
             // Init CRC hash
             var crcHash = new CrcHash();
