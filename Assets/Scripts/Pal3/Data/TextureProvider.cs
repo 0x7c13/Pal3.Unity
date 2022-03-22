@@ -5,7 +5,6 @@
 
 namespace Pal3.Data
 {
-    using System;
     using System.IO;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -15,10 +14,14 @@ namespace Pal3.Data
     public class TextureProvider : TextureProviderBase, ITextureResourceProvider
     {
         private readonly ICpkFileSystem _fileSystem;
+        private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly TextureCache _textureCache;
         private readonly string _relativePath;
 
-        public TextureProvider(ICpkFileSystem fileSystem, string relativePath, TextureCache textureCache = null)
+        public TextureProvider(ICpkFileSystem fileSystem,
+            ITextureLoaderFactory textureLoaderFactory,
+            string relativePath,
+            TextureCache textureCache = null)
         {
             if (!relativePath.EndsWith(CpkConstants.CpkDirectorySeparatorChar))
             {
@@ -26,6 +29,7 @@ namespace Pal3.Data
             }
 
             _fileSystem = fileSystem;
+            _textureLoaderFactory = textureLoaderFactory;
             _relativePath = relativePath;
             _textureCache = textureCache;
         }
@@ -69,13 +73,7 @@ namespace Pal3.Data
             // In case we do we have the texture
             if (_fileSystem.FileExists(texturePath))
             {
-                ITextureLoader textureLoader = Path.GetExtension(name).ToLower() switch
-                {
-                    ".dds" => new DxtTextureLoader(),
-                    ".tga" => new TgaTextureLoader(),
-                    ".bmp" => new BmpTextureLoader(),
-                    _ => throw new ArgumentException($"Texture format not supported: {name}")
-                };
+                var textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
                 texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
             }
             else

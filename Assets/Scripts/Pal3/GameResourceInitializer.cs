@@ -107,8 +107,12 @@ namespace Pal3
             var fileSystem = InitFileSystem(gameRootPath, crcHash);
             ServiceLocator.Instance.Register<ICpkFileSystem>(fileSystem);
 
+            // Init TextureLoaderFactory
+            var textureLoaderFactory = new TextureLoaderFactory();
+            ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
+
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(fileSystem);
+            var resourceProvider = new GameResourceProvider(fileSystem, new TextureLoaderFactory());
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component

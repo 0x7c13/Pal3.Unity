@@ -30,15 +30,17 @@ namespace Pal3.Data
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
 
         private readonly ICpkFileSystem _fileSystem;
+        private readonly ITextureLoaderFactory _textureLoaderFactory;
         private TextureCache _textureCache;
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
 
         // No need to deallocate the shadow texture since it is been used almost every where
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
 
-        public GameResourceProvider(ICpkFileSystem fileSystem)
+        public GameResourceProvider(ICpkFileSystem fileSystem, ITextureLoaderFactory textureLoaderFactory)
         {
             _fileSystem = fileSystem;
+            _textureLoaderFactory = textureLoaderFactory;
         }
 
         public void UseTextureCache(TextureCache textureCache)
@@ -59,8 +61,8 @@ namespace Pal3.Data
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
-                new TextureProvider(_fileSystem, relativePath, _textureCache) :
-                new TextureProvider(_fileSystem, relativePath);
+                new TextureProvider(_fileSystem, _textureLoaderFactory, relativePath, _textureCache) :
+                new TextureProvider(_fileSystem, _textureLoaderFactory, relativePath);
         }
 
         public (PolFile PolFile, ITextureResourceProvider TextureProvider) GetPol(string polFilePath)
