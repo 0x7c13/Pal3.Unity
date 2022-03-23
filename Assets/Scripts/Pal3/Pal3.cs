@@ -364,9 +364,6 @@ namespace Pal3
 
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
-
-            ServiceLocator.Instance.UnregisterAll();
-            Destroy(ServiceLocator.Instance);
         }
 
         private void OnDebugWindowShown()
