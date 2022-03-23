@@ -172,18 +172,17 @@ namespace Pal3.Data
         {
             if (File.Exists(musicFileCachePath)) yield break;
 
+            Debug.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
             var dataMovementThread = new Thread(() =>
             {
                 try
                 {
                     new DirectoryInfo(Path.GetDirectoryName(musicFileCachePath) ?? string.Empty).Create();
-                    var mp3Data = _fileSystem.ReadAllBytes(musicFileVirtualPath);
-                    Debug.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
-                    File.WriteAllBytes(musicFileCachePath, mp3Data);
+                    File.WriteAllBytes(musicFileCachePath, _fileSystem.ReadAllBytes(musicFileVirtualPath));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Debug.LogError(ex);
+                    // ignore
                 }
             })
             {

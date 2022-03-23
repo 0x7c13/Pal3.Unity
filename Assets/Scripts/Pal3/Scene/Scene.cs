@@ -209,26 +209,17 @@ namespace Pal3.Scene
                  * There are some cases where the nav mesh is pointing downwards instead
                  * of upwards. I am not sure why is that but for now, let's generate
                  * two nav meshes just to be safe (one facing up, one facing down).
-                 * I only found one case where the scene type is StoryB, so let's just
-                 * do it when scene type is StoryB.
                  * TODO: Calculate the normal to see if mesh is facing downwards? Or a blacklist?
                  */
-                if (GetSceneInfo().SceneType == ScnSceneType.StoryB)
+                var meshColliderInverse = navMesh.AddComponent<MeshCollider>();
+                meshColliderInverse.convex = false;
+                meshColliderInverse.sharedMesh = new Mesh()
                 {
-                    var meshColliderInverse = navMesh.AddComponent<MeshCollider>();
-                    meshColliderInverse.convex = false;
-                    meshColliderInverse.sharedMesh = new Mesh()
-                    {
-                        vertices = vertices,
-                        triangles = NavFile.FaceLayers[i].Triangles
-                    };
+                    vertices = vertices,
+                    triangles = NavFile.FaceLayers[i].Triangles
+                };
 
-                    _meshColliders[i] = new [] { meshCollider, meshColliderInverse };
-                }
-                else
-                {
-                    _meshColliders[i] = new [] { meshCollider };
-                }
+                _meshColliders[i] = new [] { meshCollider, meshColliderInverse };
 
                 _navMeshLayers.Add(navMesh);
             }

@@ -258,38 +258,50 @@ namespace Pal3.Player
             _playerActorMovementController.PortalToPosition(hit.point, layerIndex);
         }
 
+        private readonly RaycastHit[] _raycastHits = new RaycastHit[4];
+        private readonly Dictionary<int, Vector3> _tapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
         {
+            var currentScene = _sceneManager.GetCurrentScene();
+            var meshColliders = currentScene.GetMeshColliders();
+
             var ray = _camera.ScreenPointToRay(_lastInputTapPosition);
 
-            //RaycastHit[] raycastHits = new RaycastHit[_meshColliders.Count];
-            //var hitCount = Physics.RaycastNonAlloc(ray, raycastHits, 500f);
-            RaycastHit[] raycastHits = Physics.RaycastAll(ray);
+            var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
+            if (hitCount == 0) return;
 
-            if (raycastHits.Length == 0) return;
+            var tilemap = currentScene.GetTilemap();
 
-            var tapPoints = new Dictionary<int, Vector3>();
-            foreach (var hit in raycastHits)
+            _tapPoints.Clear();
+            for (var i = 0; i < hitCount; i++)
             {
-                var layerIndex = _sceneManager.GetCurrentScene().GetMeshColliders().FirstOrDefault(
+                var hit = _raycastHits[i];
+                var layerIndex = meshColliders.FirstOrDefault(
                     c => c.Value.Contains(hit.collider)).Key;
 
-                var distanceToCamera = Vector3.Distance(_camera.transform.position, hit.point);
-                if (tapPoints.ContainsKey(layerIndex))
+                var tilePosition = tilemap.GetTilePosition(hit.point, layerIndex);
+                if (!tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) continue;
+                //if (!tilemap.GetTile(tilePosition, layerIndex).IsWalkable()) continue;
+
+                var distanceToPlayer = Vector3.Distance(_lastKnownPosition, hit.point);
+                if (_tapPoints.ContainsKey(layerIndex))
                 {
-                    var existingDistance = Vector3.Distance(_camera.transform.position, tapPoints[layerIndex]);
-                    if (distanceToCamera < existingDistance)
+                    var existingDistance = Vector3.Distance(_lastKnownPosition, _tapPoints[layerIndex]);
+                    if (distanceToPlayer < existingDistance)
                     {
-                        tapPoints[layerIndex] = hit.point;
+                        _tapPoints[layerIndex] = hit.point;
                     }
                 }
                 else
                 {
-                    tapPoints[layerIndex] = hit.point;
+                    _tapPoints[layerIndex] = hit.point;
                 }
             }
 
-            _playerActorMovementController.MoveToTapPoint(tapPoints, isDoubleTap);
+            if (_tapPoints.Count > 0)
+            {
+                _playerActorMovementController.MoveToTapPoint(_tapPoints, isDoubleTap);
+            }
         }
 
         public void Execute(ActorPerformClimbActionCommand command)
