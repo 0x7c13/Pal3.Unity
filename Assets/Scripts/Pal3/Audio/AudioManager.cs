@@ -92,8 +92,9 @@ namespace Pal3.Audio
             }
 
             _currentMusicClipName = musicName;
-            var musicFilePath = GetMusicFilePath(musicName);
-            StartCoroutine(PlayMusic(musicFilePath, -1));
+            var musicFileVirtualPath = GetMusicFileVirtualPath(musicName);
+            var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
+            StartCoroutine(PlayMusic(musicFileVirtualPath, musicFileCachePath, -1));
         }
 
         public IEnumerator PlayAudioClip(AudioSource audioSource,
@@ -150,19 +151,17 @@ namespace Pal3.Audio
             });
         }
 
-        private string GetMusicFilePath(string musicName)
+        private string GetMusicFileVirtualPath(string musicName)
         {
             var separator = CpkConstants.CpkDirectorySeparatorChar;
-            var musicFileVirtualPath =
-                $"{FileConstants.MusicCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
-
-            return _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
+            return $"{FileConstants.MusicCpkPathInfo.cpkName}{separator}" +
+                   $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
         }
 
-        public IEnumerator PlayMusic(string musicFilePath, int loopCount)
+        public IEnumerator PlayMusic(string musicFileVirtualPath, string musicFileCachePath, int loopCount)
         {
-            yield return AudioClipLoader.LoadAudioClip(musicFilePath, AudioType.MPEG, audioClip =>
+            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
+            yield return AudioClipLoader.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
             {
                 StartCoroutine(PlayAudioClip(_musicPlayer, audioClip, loopCount, MusicVolume,
                     new CancellationToken(false))); // Should not stop music during scene switch
@@ -242,8 +241,11 @@ namespace Pal3.Audio
 
             _currentScriptMusic = command.MusicName;
             _currentMusicClipName = command.MusicName;
-            var musicFilePath = GetMusicFilePath(command.MusicName);
-            StartCoroutine(PlayMusic(musicFilePath, command.Loop == 0 ? -1 : command.Loop));
+            var musicFileVirtualPath = GetMusicFileVirtualPath(command.MusicName);
+            var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
+            StartCoroutine(PlayMusic(musicFileVirtualPath,
+                musicFileCachePath,
+                command.Loop == 0 ? -1 : command.Loop));
         }
 
         public void Execute(StopMusicCommand command)

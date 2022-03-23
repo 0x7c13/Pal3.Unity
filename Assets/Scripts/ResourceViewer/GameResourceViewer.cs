@@ -252,16 +252,18 @@ namespace ResourceViewer
             }
         }
 
-        private bool LoadMp3(string filePath)
+        private bool LoadMp3(string fileVirtualPath)
         {
-            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar);
-            StartCoroutine(LoadMp3AudioClip(_resourceProvider.GetMp3FilePathInCacheFolder(filePath)));
+            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(fileVirtualPath, CpkConstants.CpkDirectorySeparatorChar);
+            StartCoroutine(LoadMp3AudioClip(fileVirtualPath,
+                _resourceProvider.GetMp3FilePathInCacheFolder(fileVirtualPath)));
             return true;
         }
 
-        private IEnumerator LoadMp3AudioClip(string filePath)
+        private IEnumerator LoadMp3AudioClip(string fileVirtualPath, string writePath)
         {
-            yield return AudioClipLoader.LoadAudioClip(filePath, AudioType.MPEG, audioClip =>
+            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(fileVirtualPath, writePath);
+            yield return AudioClipLoader.LoadAudioClip(writePath, AudioType.MPEG, audioClip =>
             {
                 if (audioSource.isPlaying)
                 {

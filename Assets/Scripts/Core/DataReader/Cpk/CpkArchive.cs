@@ -88,7 +88,7 @@ namespace Core.DataReader.Cpk
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath)
         {
-            var crc = _crcHash.ToCrc32Hash(fileVirtualPath.ToLower());
+            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower());
             return _crcToTableIndexMap.ContainsKey(crc);
         }
 
@@ -192,7 +192,7 @@ namespace Core.DataReader.Cpk
 
         private CpkTable ValidateAndGetTable(string fileVirtualPath)
         {
-            var crc = _crcHash.ToCrc32Hash(fileVirtualPath.ToLower());
+            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower());
             if (!_crcToTableIndexMap.ContainsKey(crc))
             {
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");

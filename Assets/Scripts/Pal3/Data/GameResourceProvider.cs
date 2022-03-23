@@ -6,10 +6,12 @@
 namespace Pal3.Data
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -145,29 +147,55 @@ namespace Pal3.Data
                 _fileSystem.ReadAllBytes(ScriptConstants.BigMapSceFileVirtualPath));
             return SceFileReader.Read(sceFileStream);
         }
+
+        /// <summary>
+        /// Get music file path in cache folder
+        /// </summary>
+        /// <param name="musicFileVirtualPath">music file virtual path</param>
+        /// <returns>Mp3 file path in cache folder</returns>
+        public string GetMp3FilePathInCacheFolder(string musicFileVirtualPath)
+        {
+            return Application.persistentDataPath + Path.DirectorySeparatorChar + CACHE_FOLDER_NAME
+                            +  Path.DirectorySeparatorChar + musicFileVirtualPath.Replace(
+                                    CpkConstants.CpkDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                .Replace(".cpk", string.Empty);
+        }
+
         /// <summary>
         /// Since unity cannot directly load audio clip (mp3 in this case) from memory,
         /// we need to first extract the audio clip from cpk archive, write it to a cached folder
         /// and then use this cached mp3 file path for Unity to consume (using UnityWebRequest).
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public string GetMp3FilePathInCacheFolder(string filePath)
+        /// <param name="musicFileVirtualPath">music file virtual path</param>
+        /// <param name="musicFileCachePath">music file path in cache folder</param>
+        public IEnumerator ExtractAndMoveMp3FileToCacheFolder(string musicFileVirtualPath, string musicFileCachePath)
         {
-            var writePath = Application.persistentDataPath + Path.DirectorySeparatorChar + CACHE_FOLDER_NAME
-                            +  Path.DirectorySeparatorChar + filePath.Replace(
-                                    CpkConstants.CpkDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                .Replace(".cpk", string.Empty);
+            if (File.Exists(musicFileCachePath)) yield break;
 
-            if (!File.Exists(writePath))
+            var dataMovementThread = new Thread(() =>
             {
-                new DirectoryInfo(Path.GetDirectoryName(writePath) ?? string.Empty).Create();
-                var mp3Data = _fileSystem.ReadAllBytes(filePath);
-                Debug.Log($"Writing MP3 file to App's persistent folder: {writePath}");
-                File.WriteAllBytes(writePath, mp3Data);
-            }
+                try
+                {
+                    new DirectoryInfo(Path.GetDirectoryName(musicFileCachePath) ?? string.Empty).Create();
+                    var mp3Data = _fileSystem.ReadAllBytes(musicFileVirtualPath);
+                    Debug.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
+                    File.WriteAllBytes(musicFileCachePath, mp3Data);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError(ex);
+                }
+            })
+            {
+                IsBackground = true,
+                Priority = System.Threading.ThreadPriority.Normal
+            };
+            dataMovementThread.Start();
 
-            return writePath;
+            while (dataMovementThread.IsAlive)
+            {
+                yield return null;
+            }
         }
 
         public string GetSfxFilePath(string sfxName)

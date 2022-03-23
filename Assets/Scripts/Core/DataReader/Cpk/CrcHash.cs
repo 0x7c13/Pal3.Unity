@@ -38,31 +38,30 @@ namespace Core.DataReader.Cpk
             }
         }
 
-        public uint ToCrc32Hash(string str)
+        public uint ComputeCrc32Hash(string str)
         {
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return ToCrc32Hash(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
+            return ComputeCrc32Hash(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
         }
 
-        public unsafe uint ToCrc32Hash(byte[] data)
+        public unsafe uint ComputeCrc32Hash(byte[] data)
         {
-            if (data.Length == 0 || data[0] == 0) return 0;
-
             var length = data.Length;
-            var index = 0;
+            if (length == 0 || data[0] == 0) return 0;
 
+            var index = 0;
             fixed (byte* srcStart = &data[0])
             {
                 var p = srcStart;
                 uint result  = (uint)(*(p + index++) << 24);
-                if (*(p + index) != 0)
+                if (index < length && *(p + index) != 0)
                 {
                     result |= (uint)(*(p + index++) << 16);
 
-                    if(*(p + index) != 0)
+                    if(index < length && *(p + index) != 0)
                     {
                         result |= (uint)(*(p + index++) << 8);
-                        if (*(p + index) != 0)
+                        if (index < length && *(p + index) != 0)
                         {
                             result |= *(p + index++);
                         }
