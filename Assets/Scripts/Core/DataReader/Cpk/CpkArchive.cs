@@ -123,21 +123,16 @@ namespace Core.DataReader.Cpk
 
         private byte[] ReadAllBytesUsingInMemoryCache(string fileVirtualPath)
         {
-            var table = ValidateAndGetTableEntity(fileVirtualPath);
+            var entity = ValidateAndGetTableEntity(fileVirtualPath);
 
             byte[] buffer;
 
-            var start = (int) table.StartPos;
-            var end = (int) (table.StartPos + table.PackedSize);
+            var start = (int) entity.StartPos;
+            var end = (int) (entity.StartPos + entity.PackedSize);
 
-            if (table.IsCompressed())
+            if (entity.IsCompressed())
             {
-                buffer = new byte[table.OriginSize];
-
-                // using var memStream = new MemoryStream(_archiveData[start..end]);
-                // using var lzo = new LzoStream(memStream, CompressionMode.Decompress, false);
-                // lzo.Read(buffer, 0, (int) table.OriginSize);
-
+                buffer = new byte[entity.OriginSize];
                 MiniLzo.Decompress(_archiveData[start..end], buffer);
             }
             else
@@ -160,42 +155,40 @@ namespace Core.DataReader.Cpk
         /// <exception cref="InvalidOperationException">Throw if given file path is a directory</exception>
         public Stream Open(string fileVirtualPath, out uint size, out bool isCompressed)
         {
-            var table = ValidateAndGetTableEntity(fileVirtualPath);
-            return OpenInternal(table, out size, out isCompressed);
+            var entity = ValidateAndGetTableEntity(fileVirtualPath);
+            return OpenInternal(entity, out size, out isCompressed);
         }
 
-        private Stream OpenInternal(CpkTableEntity tableEntity, out uint size, out bool isCompressed)
+        private Stream OpenInternal(CpkTableEntity entity, out uint size, out bool isCompressed)
         {
             Stream stream;
             if (_archiveInMemory)
             {
-                var start = (int) tableEntity.StartPos;
-                var end = (int) (tableEntity.StartPos + tableEntity.PackedSize);
+                var start = (int) entity.StartPos;
+                var end = (int) (entity.StartPos + entity.PackedSize);
                 stream = new MemoryStream(_archiveData[start..end]);
             }
             else
             {
                 stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
-                stream.Seek(tableEntity.StartPos, SeekOrigin.Begin);
+                stream.Seek(entity.StartPos, SeekOrigin.Begin);
             }
 
-            if (tableEntity.IsCompressed())
+            if (entity.IsCompressed())
             {
-                size = tableEntity.OriginSize;
+                size = entity.OriginSize;
                 isCompressed = true;
 
-                //return new LzoStream(stream, CompressionMode.Decompress);
-
-                var src = new byte[tableEntity.PackedSize];
-                stream.Read(src, 0, (int)tableEntity.PackedSize);
+                var src = new byte[entity.PackedSize];
+                stream.Read(src, 0, (int)entity.PackedSize);
                 stream.Dispose();
-                var buffer = new byte[tableEntity.OriginSize];
+                var buffer = new byte[entity.OriginSize];
                 MiniLzo.Decompress(src, buffer);
                 return new MemoryStream(buffer);
             }
             else
             {
-                size = tableEntity.PackedSize;
+                size = entity.PackedSize;
                 isCompressed = false;
                 return stream;
             }
@@ -209,14 +202,14 @@ namespace Core.DataReader.Cpk
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
             }
 
-            var table = _tableEntities[_crcToTableIndexMap[crc]];
+            var entity = _tableEntities[_crcToTableIndexMap[crc]];
 
-            if (table.IsDirectory())
+            if (entity.IsDirectory())
             {
                 throw new InvalidOperationException($"Cannot open <{fileVirtualPath}> since it is a directory.");
             }
 
-            return table;
+            return entity;
         }
 
         /// <summary>
@@ -253,17 +246,17 @@ namespace Core.DataReader.Cpk
         {
             foreach (var tableKv in _tableEntities)
             {
-                var table = tableKv.Value;
+                var entity = tableKv.Value;
 
-                _crcToTableIndexMap[table.CRC] = tableKv.Key;
+                _crcToTableIndexMap[entity.CRC] = tableKv.Key;
 
-                if (_fatherCrcToChildCrcTableIndexMap.ContainsKey(table.FatherCRC))
+                if (_fatherCrcToChildCrcTableIndexMap.ContainsKey(entity.FatherCRC))
                 {
-                    _fatherCrcToChildCrcTableIndexMap[table.FatherCRC].Add(table.CRC);
+                    _fatherCrcToChildCrcTableIndexMap[entity.FatherCRC].Add(entity.CRC);
                 }
                 else
                 {
-                    _fatherCrcToChildCrcTableIndexMap[table.FatherCRC] = new HashSet<uint> {table.CRC};
+                    _fatherCrcToChildCrcTableIndexMap[entity.FatherCRC] = new HashSet<uint> {entity.CRC};
                 }
             }
         }
@@ -291,15 +284,15 @@ namespace Core.DataReader.Cpk
                 stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
             }
 
-            foreach (var table in _tableEntities.Values)
+            foreach (var entity in _tableEntities.Values)
             {
-                long extraInfoOffset = table.StartPos + table.PackedSize;
-                var extraInfo = new byte[table.ExtraInfoSize];
+                long extraInfoOffset = entity.StartPos + entity.PackedSize;
+                var extraInfo = new byte[entity.ExtraInfoSize];
                 stream.Seek(extraInfoOffset, SeekOrigin.Begin);
                 stream.Read(extraInfo);
 
                 var fileName = Utility.TrimEnd(extraInfo, new byte[] { 0x00, 0x00 });
-                _fileNameMap[table.CRC] = fileName;
+                _fileNameMap[entity.CRC] = fileName;
             }
 
             stream.Close();
