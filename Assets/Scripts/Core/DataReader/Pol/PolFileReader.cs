@@ -71,62 +71,74 @@ namespace Core.DataReader.Pol
                 throw new InvalidDataException($"Invalid POLY(.pol) file: vertices == 0");
             }
 
-            var vertexInfos = new PolVertex[numberOfVertices];
+            var vertexInfo = new PolVertexInfo()
+            {
+                Positions = new Vector3[numberOfVertices],
+                Normals = new Vector3[numberOfVertices],
+                DiffuseColors = new Color32[numberOfVertices],
+                Radii = new float[numberOfVertices],
+                SpecularColors = new Color32[numberOfVertices],
+                Uvs = new Vector2[4][],
+            };
+
+            vertexInfo.Uvs[0] = new Vector2[numberOfVertices];
+            vertexInfo.Uvs[1] = new Vector2[numberOfVertices];
+            vertexInfo.Uvs[2] = new Vector2[numberOfVertices];
+            vertexInfo.Uvs[3] = new Vector2[numberOfVertices];
 
             for (var i = 0; i < numberOfVertices; i++)
             {
-                var vertexInfo = new PolVertex
-                {
-                    Uv = new Vector2[4]
-                };
-
                 if ((vertexTypeFlag & GameBoxVertexType.XYZ) != 0)
                 {
-                    vertexInfo.Position = reader.ReadVector3();
+                    vertexInfo.Positions[i] = GameBoxInterpreter
+                        .ToUnityVertex(reader.ReadVector3(),
+                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.XYZRHW) != 0)
                 {
-                    vertexInfo.Position = reader.ReadVector3();
+                    vertexInfo.Positions[i] = GameBoxInterpreter
+                        .ToUnityVertex(reader.ReadVector3(),
+                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
                     _ = reader.ReadSingle();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    vertexInfo.Normal = reader.ReadVector3();
+                    vertexInfo.Normals[i] = GameBoxInterpreter
+                        .ToUnityVertex(reader.ReadVector3(),
+                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {
-                    vertexInfo.DiffuseColor = Utility.ToColor32(reader.ReadBytes(4));
+                    vertexInfo.DiffuseColors[i] = Utility.ToColor32(reader.ReadBytes(4));
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Specular) != 0)
                 {
-                    vertexInfo.SpecularColor = Utility.ToColor32(reader.ReadBytes(4));
+                    vertexInfo.SpecularColors[i] = Utility.ToColor32(reader.ReadBytes(4));
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV0) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    vertexInfo.Uv[0] = new Vector2(x, y);
+                    vertexInfo.Uvs[0][i] = new Vector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV1) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    vertexInfo.Uv[1] = new Vector2(x, y);
+                    vertexInfo.Uvs[1][i] = new Vector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV2) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    vertexInfo.Uv[2] = new Vector2(x, y);
+                    vertexInfo.Uvs[2][i] = new Vector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV3) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    vertexInfo.Uv[3] = new Vector2(x, y);
+                    vertexInfo.Uvs[3][i] = new Vector2(x, y);
                 }
-
-                vertexInfos[i]= vertexInfo;
             }
 
             var numberOfTextures = reader.ReadInt32();
@@ -142,7 +154,7 @@ namespace Core.DataReader.Pol
             {
                 BoundBox = boundBox,
                 VertexFvfFlag = vertexTypeFlag,
-                Vertices = vertexInfos,
+                VertexInfo = vertexInfo,
                 Textures = textureInfos
             };
         }
@@ -178,15 +190,17 @@ namespace Core.DataReader.Pol
 
             var vertStart = reader.ReadInt32();
             var vertEnd = reader.ReadInt32();
-            var numberOfTriangles = reader.ReadInt32();
+            var numberOfFaces = reader.ReadInt32();
 
-            var triangles = new (short x, short y, short z)[numberOfTriangles];
-            for (var i = 0; i < numberOfTriangles; i++)
+            var triangles = new int[numberOfFaces * 3];
+            for (var i = 0; i < numberOfFaces; i++)
             {
+                var index = i * 3;
                 var x = reader.ReadInt16();
                 var y = reader.ReadInt16();
                 var z = reader.ReadInt16();
-                triangles[i] = (x, y, z);
+                (triangles[index], triangles[index + 1], triangles[index + 2]) =
+                    GameBoxInterpreter.ToUnityTriangle((x, y, z));
             }
 
             return new PolTexture()

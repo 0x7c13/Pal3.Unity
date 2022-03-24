@@ -24,21 +24,21 @@ namespace Core.DataReader.Pol
         public int Offset;
     }
 
-    public struct PolVertex
+    public struct PolVertexInfo
     {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public float Radius;
-        public Color32 DiffuseColor;
-        public Color32 SpecularColor;
-        public Vector2[] Uv;
+        public Vector3[] Positions;
+        public Vector3[] Normals;
+        public float[] Radii;
+        public Color32[] DiffuseColors;
+        public Color32[] SpecularColors;
+        public Vector2[][] Uvs;
     }
 
     public struct PolMesh
     {
         public GameBoxAABBox BoundBox;
         public uint VertexFvfFlag;
-        public PolVertex[] Vertices;
+        public PolVertexInfo VertexInfo;
         public PolTexture[] Textures;
     }
 
@@ -49,7 +49,7 @@ namespace Core.DataReader.Pol
         public string[] TextureNames;
         public int VertStart;
         public int VertEnd;
-        public (short x, short y, short z)[] Triangles;
+        public int[] Triangles;
     }
 
     /// <summary>

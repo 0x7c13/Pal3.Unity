@@ -89,39 +89,6 @@ namespace Pal3.Renderer
         {
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
-                var numOfVertices = mesh.Vertices.Length;
-                var vertices = new Vector3[numOfVertices];
-                for (var j = 0; j < numOfVertices; j++)
-                {
-                    vertices[j] = GameBoxInterpreter
-                        .ToUnityVertex(mesh.Vertices[j].Position, GameBoxInterpreter.GameBoxUnitToUnityUnit);
-                }
-
-                var numOfTriangles = mesh.Textures[i].Triangles.Length;
-                var triangles = new int[numOfTriangles * 3];
-                for (var j = 0; j < numOfTriangles; j++)
-                {
-                    var index = j * 3;
-                    var (x, y, z) = GameBoxInterpreter.ToUnityTriangle(mesh.Textures[i].Triangles[j]);
-                    triangles[index]     = x;
-                    triangles[index + 1] = y;
-                    triangles[index + 2] = z;
-                }
-
-                var normals = new Vector3[numOfVertices];
-                for (var j = 0; j < numOfVertices; j++)
-                {
-                    normals[j] = mesh.Vertices[j].Normal;
-                }
-
-                var uv1 = new Vector2[numOfVertices];
-                var uv2 = new Vector2[numOfVertices];
-                for (var j = 0; j < numOfVertices; j++)
-                {
-                    uv1[j] = mesh.Vertices[j].Uv[0];
-                    uv2[j] = mesh.Vertices[j].Uv[1];
-                }
-
                 var textures = new List<(string name, Texture2D texture)>();
                 foreach (var textureName in mesh.Textures[i].TextureNames)
                 {
@@ -196,10 +163,10 @@ namespace Pal3.Renderer
                         _materials[materialHashKey] = material;
                     }
 
-                    _ = meshRenderer.Render(vertices,
-                        triangles,
-                        normals,
-                        uv1,
+                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
+                        mesh.Textures[i].Triangles,
+                        mesh.VertexInfo.Normals,
+                        mesh.VertexInfo.Uvs[0],
                         material,
                         false);
 
@@ -254,11 +221,11 @@ namespace Pal3.Renderer
                         }
                     }
 
-                    _ = meshRenderer.Render(vertices,
-                        triangles,
-                        normals,
-                        uv2,
-                        uv1,
+                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
+                        mesh.Textures[i].Triangles,
+                        mesh.VertexInfo.Normals,
+                        mesh.VertexInfo.Uvs[1],
+                        mesh.VertexInfo.Uvs[0],
                         material,
                         false);
 
