@@ -30,7 +30,7 @@ namespace Pal3.Data
 
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newSceneCityName = notification.SceneInfo.CityName;
+            var newSceneCityName = notification.SceneInfo.CityName.ToLower();
             if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
             {
                 if (!string.IsNullOrEmpty(_currentSceneCityName))

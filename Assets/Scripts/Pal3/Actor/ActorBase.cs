@@ -5,7 +5,6 @@
 
 namespace Pal3.Actor
 {
-    using System.Collections.Generic;
     using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -30,7 +29,6 @@ namespace Pal3.Actor
         private readonly GameResourceProvider _resourceProvider;
 
         private string _actorName;
-        private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _actionCache = new ();
 
         protected ActorBase(GameResourceProvider resourceProvider, string name)
         {
@@ -63,7 +61,6 @@ namespace Pal3.Actor
         protected void ChangeName(string name)
         {
             _actorName = name;
-            _actionCache.Clear();
             InitActorConfig(name);
         }
 
@@ -84,8 +81,6 @@ namespace Pal3.Actor
         {
             actionName = actionName.ToLower();
 
-            if (_actionCache.ContainsKey(actionName)) return _actionCache[actionName];
-
             var action = _actorConfig.ActorActions
                 .First(act => act.ActionName.ToLower().Equals(actionName));
 
@@ -95,9 +90,7 @@ namespace Pal3.Actor
                           $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
                           $"{action.ActionFileName}";
 
-            _actionCache[actionName] = _resourceProvider.GetMv3(mv3File);
-
-            return _actionCache[actionName];
+            return _resourceProvider.GetMv3(mv3File);
         }
     }
 }

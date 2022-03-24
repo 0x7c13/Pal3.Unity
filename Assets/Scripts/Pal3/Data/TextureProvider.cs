@@ -76,7 +76,7 @@ namespace Pal3.Data
                 }
 
                 // Check if texture exists in cache
-                if ( GetTextureInCache(texturePath, out hasAlphaChannel) is { } textureInCache)
+                if (GetTextureInCache(texturePath, out hasAlphaChannel) is { } textureInCache)
                 {
                     return textureInCache;
                 }

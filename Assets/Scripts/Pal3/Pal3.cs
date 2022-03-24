@@ -102,7 +102,6 @@ namespace Pal3
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
         private FileSystemCacheManager _fileSystemCacheManager;
-        private TextureCacheManager _textureCacheManager;
         private PlayerInputActions _inputActions;
         private InputManager _inputManager;
         private GameStateManager _gameStateManager;
@@ -143,8 +142,6 @@ namespace Pal3
 
             _fileSystemCacheManager = new FileSystemCacheManager(_fileSystem);
             ServiceLocator.Instance.Register(_fileSystemCacheManager);
-            _textureCacheManager = new TextureCacheManager(_textureCache);
-            ServiceLocator.Instance.Register(_textureCacheManager);
             _inputActions = new PlayerInputActions();
             ServiceLocator.Instance.Register(_inputActions);
             _inputManager= new InputManager(_inputActions);
@@ -331,8 +328,8 @@ namespace Pal3
 
         private void OnDisable()
         {
+            _gameResourceProvider.Dispose();
             _fileSystemCacheManager.Dispose();
-            _textureCacheManager.Dispose();
             _inputManager.Dispose();
             _gameStateManager.Dispose();
             _scriptManager.Dispose();

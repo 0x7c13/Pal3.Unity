@@ -323,17 +323,19 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"蜀山-从锁妖塔返回", @"
-                ScriptVarSetValue -32768 90600
-                SceneLoad q08 q08p
+            {"锁妖塔-返回蜀山", @"
+                ScriptVarSetValue -32768 90501
+                SceneLoad m17 10
                 ActorActivate -1 1
                 ActorEnablePlayerControl -1
                 PlayerEnableInput 1
-                ActorSetNavLayer -1 1
-                ActorSetTilePosition -1 82 157
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 64 9
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                SceneActivateObject 2 1
                 CameraFadeIn"},
             {"蛮州-第一次进入", @"
                 ScriptVarSetValue -32768 100400

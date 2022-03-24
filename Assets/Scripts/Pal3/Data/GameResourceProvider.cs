@@ -12,6 +12,8 @@ namespace Pal3.Data
     using System.Linq;
     using System.Text;
     using System.Threading;
+    using Command;
+    using Command.InternalCommands;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -26,7 +28,7 @@ namespace Pal3.Data
     using MetaData;
     using UnityEngine;
 
-    public class GameResourceProvider
+    public class GameResourceProvider : ICommandExecutor<ScenePreLoadingNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
@@ -35,6 +37,10 @@ namespace Pal3.Data
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private TextureCache _textureCache;
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
+        private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
+        private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
+        private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
+        private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
 
         // No need to deallocate the shadow texture since it is been used almost every where
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
@@ -43,6 +49,17 @@ namespace Pal3.Data
         {
             _fileSystem = fileSystem;
             _textureLoaderFactory = textureLoaderFactory;
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        public void Dispose()
+        {
+            _textureCache.DisposeAllCachedTextures();
+            _spriteCache.Clear();
+            _polCache.Clear();
+            _mv3Cache.Clear();
+            _actorConfigCache.Clear();
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void UseTextureCache(TextureCache textureCache)
@@ -69,28 +86,37 @@ namespace Pal3.Data
 
         public (PolFile PolFile, ITextureResourceProvider TextureProvider) GetPol(string polFilePath)
         {
+            polFilePath = polFilePath.ToLower();
+            if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
             using var polyFileStream = new MemoryStream(_fileSystem.ReadAllBytes(polFilePath));
             var polFile = PolFileReader.Read(polyFileStream);
             var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
+            _polCache[polFilePath] = (polFile, textureProvider);
             return (polFile, textureProvider);
         }
 
         public (CvdFile CvdFile, ITextureResourceProvider TextureProvider) GetCvd(string cvdFilePath)
         {
+            cvdFilePath = cvdFilePath.ToLower();
+            if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
             using var cvdFileStream = new MemoryStream(_fileSystem.ReadAllBytes(cvdFilePath));
             var cvdFile = CvdFileReader.Read(cvdFileStream);
             var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
+            _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
             return (cvdFile, textureProvider);
         }
 
         public (Mv3File Mv3File, ITextureResourceProvider TextureProvider) GetMv3(string mv3FilePath)
         {
+            mv3FilePath = mv3FilePath.ToLower();
+            if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
             using var mv3FileStream = new MemoryStream(_fileSystem.ReadAllBytes(mv3FilePath));
             var mv3File = Mv3FileReader.Read(mv3FileStream);
             var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
+            _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
         }
 
@@ -343,8 +369,13 @@ namespace Pal3.Data
 
         public ActorConfigFile GetActorConfig(string actorConfigFilePath)
         {
+            actorConfigFilePath = actorConfigFilePath.ToLower();
+
+            if (_actorConfigCache.ContainsKey(actorConfigFilePath)) return _actorConfigCache[actorConfigFilePath];
+
             if (!_fileSystem.FileExists(actorConfigFilePath))
             {
+                _actorConfigCache[actorConfigFilePath] = null;
                 return null;
             }
 
@@ -353,11 +384,13 @@ namespace Pal3.Data
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
-                return ActorConfigFileReader.Read(configData);
+                var config = ActorConfigFileReader.Read(configData);
+                _actorConfigCache[actorConfigFilePath] = config;
+                return config;
             }
             else
             {
-                Debug.LogWarning($"Unsupported actor config: {configHeaderStr} for file: {actorConfigFilePath}");
+                _actorConfigCache[actorConfigFilePath] = null;
                 return null;
             }
         }
@@ -411,6 +444,34 @@ namespace Pal3.Data
             }
 
             return Array.Empty<Texture2D>();
+        }
+
+        private string _currentSceneCityName;
+        public void Execute(ScenePreLoadingNotification notification)
+        {
+            var newSceneCityName = notification.SceneInfo.CityName.ToLower();
+
+            if (string.IsNullOrEmpty(_currentSceneCityName))
+            {
+                _currentSceneCityName = newSceneCityName;
+                return;
+            }
+
+            if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
+            {
+                // Clean up cache after exiting current scene block
+                _textureCache.DisposeAllCachedTextures();
+                _spriteCache.Clear();
+
+                // _polCache.Clear();
+                // _mv3Cache.Clear();
+                // _cvdCache.Clear();
+
+                // Unloads assets that are not used (textures etc.)
+                Resources.UnloadUnusedAssets();
+
+                _currentSceneCityName = newSceneCityName;
+            }
         }
     }
 }

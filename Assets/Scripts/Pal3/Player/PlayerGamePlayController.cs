@@ -283,11 +283,13 @@ namespace Pal3.Player
                 if (!tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) continue;
                 //if (!tilemap.GetTile(tilePosition, layerIndex).IsWalkable()) continue;
 
-                var distanceToPlayer = Vector3.Distance(_lastKnownPosition, hit.point);
+                var cameraPosition = _camera.transform.position;
+                var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
+
                 if (_tapPoints.ContainsKey(layerIndex))
                 {
-                    var existingDistance = Vector3.Distance(_lastKnownPosition, _tapPoints[layerIndex]);
-                    if (distanceToPlayer < existingDistance)
+                    var existingDistance = Vector3.Distance(cameraPosition, _tapPoints[layerIndex]);
+                    if (distanceToCamera < existingDistance)
                     {
                         _tapPoints[layerIndex] = hit.point;
                     }

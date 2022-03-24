@@ -6,6 +6,7 @@
 namespace Pal3.Scene
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Actor;
     using Command;
@@ -19,6 +20,7 @@ namespace Pal3.Scene
     using Renderer;
     using SceneObjects;
     using UnityEngine;
+    using Debug = UnityEngine.Debug;
 
     public class Scene : SceneBase,
         ICommandExecutor<SceneActivateObjectCommand>,
@@ -91,7 +93,11 @@ namespace Pal3.Scene
         {
             _parent = parent;
 
+            var timer = new Stopwatch();
+            timer.Start();
             base.Init(_resourceProvider, scnFile);
+            //Debug.LogError($"InitTotal: {timer.Elapsed.TotalSeconds:0.00}");
+            timer.Restart();
 
             _tilemap = new Tilemap(NavFile);
             var actorTintColor = Color.white;
@@ -101,10 +107,21 @@ namespace Pal3.Scene
             }
 
             RenderMesh();
+            //Debug.LogError($"RenderMesh: {timer.Elapsed.TotalSeconds:0.00}");
+            timer.Restart();
+
             RenderSkyBox();
             SetupNavMesh();
+            //Debug.LogError($"SkyBox+NavMesh: {timer.Elapsed.TotalSeconds:0.00}");
+            timer.Restart();
+
             CreateActorObjects(actorTintColor, _tilemap);
+            //Debug.LogError($"CreateActors: {timer.Elapsed.TotalSeconds:0.00}");
+            timer.Restart();
+
             ActivateSceneObjects();
+            //Debug.LogError($"ActivateSceneObjects: {timer.Elapsed.TotalSeconds:0.00}");
+            timer.Stop();
         }
 
         public ScnSceneInfo GetSceneInfo()
@@ -158,6 +175,7 @@ namespace Pal3.Scene
             _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.Name}");
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform);
+
             polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider);
 
             if (SceneCvdMesh != null)
