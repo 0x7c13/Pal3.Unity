@@ -10,7 +10,6 @@ namespace Pal3.Renderer
     using System.Collections.Generic;
     using Core.DataLoader;
     using Core.DataReader.Pol;
-    using Core.GameBox;
     using Core.Renderer;
     using Dev;
     using UnityEngine;
@@ -25,7 +24,6 @@ namespace Pal3.Renderer
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION = ".dds";
-        private const float ANIMATED_WATER_TEXTURE_ALPHA = 0.6f;
         private const int ANIMATED_WATER_ANIMATION_FRAMES = 30;
         private const float ANIMATED_WATER_ANIMATION_FPS = 20f;
 
