@@ -16,7 +16,7 @@ namespace Pal3.Actor
 
         public bool IsActive { get; set; }
 
-        public Actor(GameResourceProvider resourceProvider, ScnNpcInfo npcInfo) : base(resourceProvider,npcInfo.Name)
+        public Actor(GameResourceProvider resourceProvider, ScnNpcInfo npcInfo) : base(resourceProvider, npcInfo.Name)
         {
             Info = npcInfo;
         }

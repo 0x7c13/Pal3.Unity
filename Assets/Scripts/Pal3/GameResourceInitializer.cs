@@ -7,6 +7,7 @@ namespace Pal3
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using Core.Animation;
@@ -89,20 +90,23 @@ namespace Pal3
         }
         #endif
 
-        private IEnumerator Start()
+        private void Awake()
         {
             loadingText.text = "Loading game assets...";
-            yield return new WaitForEndOfFrame();
-            yield return InitResource(GetGameFolderPath());
         }
 
-        private IEnumerator InitResource(string gameRootPath)
+        private IEnumerator Start()
         {
-            yield return new WaitForEndOfFrame(); // Give some time for UI to render
-
             // Init CRC hash
             var crcHash = new CrcHash();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
+
+            yield return InitResource(GetGameFolderPath(), crcHash);
+        }
+
+        private IEnumerator InitResource(string gameRootPath, CrcHash crcHash)
+        {
+            yield return new WaitForEndOfFrame(); // Give some time for UI to render
 
             // Init file system
             var fileSystem = InitFileSystem(gameRootPath, crcHash);
@@ -180,32 +184,41 @@ namespace Pal3
             {
                 var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
+                var filesToMount = new List<string>();
+
                 var baseDataCpk = FileConstants.BaseDataCpkPathInfo.relativePath +
                                   Path.DirectorySeparatorChar + FileConstants.BaseDataCpkPathInfo.cpkName;
+
+                filesToMount.Add(baseDataCpk);
+
                 var musicCpk = FileConstants.MusicCpkPathInfo.relativePath +
                                Path.DirectorySeparatorChar + FileConstants.MusicCpkPathInfo.cpkName;
 
-                cpkFileSystem.Mount(baseDataCpk);
-                cpkFileSystem.Mount(musicCpk);
+                filesToMount.Add(musicCpk);
 
                 foreach (var sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
                 {
                     var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
                                        sceneCpkPathInfo.cpkName;
-                    cpkFileSystem.Mount(sceneCpkPath);
+                    filesToMount.Add(sceneCpkPath);
                 }
 
                 #if PAL3A
                 var scnCpk = FileConstants.ScnCpkPathInfo.relativePath +
                               Path.DirectorySeparatorChar + FileConstants.ScnCpkPathInfo.cpkName;
+                filesToMount.Add(scnCpk);
                 var sceCpk = FileConstants.SceCpkPathInfo.relativePath +
                               Path.DirectorySeparatorChar + FileConstants.SceCpkPathInfo.cpkName;
-                cpkFileSystem.Mount(scnCpk);
-                cpkFileSystem.Mount(sceCpk);
+                filesToMount.Add(sceCpk);
                 #endif
 
+                foreach (var cpkFilePath in filesToMount)
+                {
+                    cpkFileSystem.Mount(cpkFilePath);
+                }
+
                 stopWatch.Stop();
-                Debug.Log($"All files mounted successfully. Total time: {stopWatch.Elapsed.TotalSeconds}s");
+                Debug.Log($"All files mounted successfully. Total time: {stopWatch.Elapsed.TotalSeconds:0.000}s");
 
                 return (true, cpkFileSystem);
             }
@@ -220,7 +233,7 @@ namespace Pal3
 
                     if (!string.IsNullOrEmpty(gameRootPath))
                     {
-                        StartCoroutine(InitResource(gameRootPath));
+                        StartCoroutine(InitResource(gameRootPath, crcHash));
                     }
                 }
                 #endif

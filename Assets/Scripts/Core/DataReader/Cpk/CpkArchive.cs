@@ -27,7 +27,7 @@ namespace Core.DataReader.Cpk
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private readonly string _filePath;
-        private Dictionary<uint, CpkTable> _tables;
+        private Dictionary<uint, CpkTableEntity> _tableEntities;
 
         private readonly Dictionary<uint, byte[]> _fileNameMap = new ();
         private readonly Dictionary<uint, uint> _crcToTableIndexMap = new ();
@@ -65,25 +65,25 @@ namespace Core.DataReader.Cpk
                 throw new InvalidDataException($"File: {_filePath} is not a valid CPK file.");
             }
 
-            // Read the whole index table into memory buffer
-            // for better processing speed
-            var cpkTableSize = Marshal.SizeOf(typeof(CpkTable));
-            var indexTableSize = cpkTableSize * CPK_DEFAULT_MAX_NUM_OF_FILE;
+            var cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
+            var indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
             var indexTableBuffer = new byte[indexTableSize];
+            // Read the whole index table into memory before processing
+            // to avoid I/O overhead
             stream.Read(indexTableBuffer, 0, indexTableSize);
 
-            _tables = new Dictionary<uint, CpkTable>((int)header.FileNum);
+            _tableEntities = new Dictionary<uint, CpkTableEntity>((int)header.FileNum);
 
             var numOfFiles = header.FileNum;
             var filesFound = 0;
             var offset = 0;
             for (uint i = 0; i < header.MaxFileNum; i++)
             {
-                var table = Utility.ReadStruct<CpkTable>(indexTableBuffer, offset);
-                offset += cpkTableSize;
-                if (table.IsEmpty() || table.IsDeleted()) continue;
+                var tableEntity = Utility.ReadStruct<CpkTableEntity>(indexTableBuffer, offset);
+                offset += cpkTableEntitySize;
+                if (tableEntity.IsEmpty() || tableEntity.IsDeleted()) continue;
 
-                _tables[i] = table;
+                _tableEntities[i] = tableEntity;
                 filesFound++;
                 if (numOfFiles == filesFound) break;
             }
@@ -123,7 +123,7 @@ namespace Core.DataReader.Cpk
 
         private byte[] ReadAllBytesUsingInMemoryCache(string fileVirtualPath)
         {
-            var table = ValidateAndGetTable(fileVirtualPath);
+            var table = ValidateAndGetTableEntity(fileVirtualPath);
 
             byte[] buffer;
 
@@ -160,48 +160,48 @@ namespace Core.DataReader.Cpk
         /// <exception cref="InvalidOperationException">Throw if given file path is a directory</exception>
         public Stream Open(string fileVirtualPath, out uint size, out bool isCompressed)
         {
-            var table = ValidateAndGetTable(fileVirtualPath);
+            var table = ValidateAndGetTableEntity(fileVirtualPath);
             return OpenInternal(table, out size, out isCompressed);
         }
 
-        private Stream OpenInternal(CpkTable table, out uint size, out bool isCompressed)
+        private Stream OpenInternal(CpkTableEntity tableEntity, out uint size, out bool isCompressed)
         {
             Stream stream;
             if (_archiveInMemory)
             {
-                var start = (int) table.StartPos;
-                var end = (int) (table.StartPos + table.PackedSize);
+                var start = (int) tableEntity.StartPos;
+                var end = (int) (tableEntity.StartPos + tableEntity.PackedSize);
                 stream = new MemoryStream(_archiveData[start..end]);
             }
             else
             {
                 stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
-                stream.Seek(table.StartPos, SeekOrigin.Begin);
+                stream.Seek(tableEntity.StartPos, SeekOrigin.Begin);
             }
 
-            if (table.IsCompressed())
+            if (tableEntity.IsCompressed())
             {
-                size = table.OriginSize;
+                size = tableEntity.OriginSize;
                 isCompressed = true;
 
                 //return new LzoStream(stream, CompressionMode.Decompress);
 
-                var src = new byte[table.PackedSize];
-                stream.Read(src, 0, (int)table.PackedSize);
+                var src = new byte[tableEntity.PackedSize];
+                stream.Read(src, 0, (int)tableEntity.PackedSize);
                 stream.Dispose();
-                var buffer = new byte[table.OriginSize];
+                var buffer = new byte[tableEntity.OriginSize];
                 MiniLzo.Decompress(src, buffer);
                 return new MemoryStream(buffer);
             }
             else
             {
-                size = table.PackedSize;
+                size = tableEntity.PackedSize;
                 isCompressed = false;
                 return stream;
             }
         }
 
-        private CpkTable ValidateAndGetTable(string fileVirtualPath)
+        private CpkTableEntity ValidateAndGetTableEntity(string fileVirtualPath)
         {
             var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower());
             if (!_crcToTableIndexMap.ContainsKey(crc))
@@ -209,7 +209,7 @@ namespace Core.DataReader.Cpk
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
             }
 
-            var table = _tables[_crcToTableIndexMap[crc]];
+            var table = _tableEntities[_crcToTableIndexMap[crc]];
 
             if (table.IsDirectory())
             {
@@ -251,7 +251,7 @@ namespace Core.DataReader.Cpk
 
         private void BuildCrcIndexMap()
         {
-            foreach (var tableKv in _tables)
+            foreach (var tableKv in _tableEntities)
             {
                 var table = tableKv.Value;
 
@@ -291,7 +291,7 @@ namespace Core.DataReader.Cpk
                 stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
             }
 
-            foreach (var table in _tables.Values)
+            foreach (var table in _tableEntities.Values)
             {
                 long extraInfoOffset = table.StartPos + table.PackedSize;
                 var extraInfo = new byte[table.ExtraInfoSize];
@@ -318,7 +318,7 @@ namespace Core.DataReader.Cpk
             foreach (var childCrc in _fatherCrcToChildCrcTableIndexMap[fatherCrc])
             {
                 var index = _crcToTableIndexMap[childCrc];
-                var child = _tables[index];
+                var child = _tableEntities[index];
                 var fileName = Encoding.GetEncoding(GBK_CODE_PAGE).GetString(_fileNameMap[child.CRC]);
 
                 var virtualPath = rootPath + fileName;

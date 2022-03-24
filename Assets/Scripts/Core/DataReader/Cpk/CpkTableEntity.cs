@@ -12,7 +12,7 @@ namespace Core.DataReader.Cpk
     // 0000 0000-0000 0000-0000 0000-0000 0100 (0x0004) 大文件
     // 0000 0000-0000 0000-0000 0000-0001 0000 (0x0010) 文件已被删除
     // 0000 0000-0000 0000-1000 0000-0000 0000 (0x8000) CRC有重复
-    public enum CpkTableFlag
+    public enum CpkTableEntityFlag
     {
         None              =   0x0,
         IsValid           =   0x1,           // 是否是合法文件？
@@ -24,7 +24,7 @@ namespace Core.DataReader.Cpk
 
     // CPK 文件表结构
     [StructLayout(LayoutKind.Sequential)]
-    public struct CpkTable
+    public struct CpkTableEntity
     {
         // CRC较验
         [MarshalAs(UnmanagedType.U4)]
@@ -56,27 +56,27 @@ namespace Core.DataReader.Cpk
 
         public bool IsEmpty()
         {
-            return Flag == (uint) CpkTableFlag.None;
+            return Flag == (uint) CpkTableEntityFlag.None;
         }
 
         public bool IsCompressed()
         {
-            return (Flag & (uint)CpkTableFlag.IsNotCompressed) == 0;
+            return (Flag & (uint)CpkTableEntityFlag.IsNotCompressed) == 0;
         }
 
         public bool IsValid()
         {
-            return (Flag & (uint)CpkTableFlag.IsValid) != 0;
+            return (Flag & (uint)CpkTableEntityFlag.IsValid) != 0;
         }
 
         public bool IsDirectory()
         {
-            return (Flag & (uint)CpkTableFlag.IsDir) != 0;
+            return (Flag & (uint)CpkTableEntityFlag.IsDir) != 0;
         }
 
         public bool IsDeleted()
         {
-            return (Flag & (uint)CpkTableFlag.IsDeleted) != 0;
+            return (Flag & (uint)CpkTableEntityFlag.IsDeleted) != 0;
         }
     }
 }
