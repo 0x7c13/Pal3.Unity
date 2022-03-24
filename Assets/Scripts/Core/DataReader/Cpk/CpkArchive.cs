@@ -9,6 +9,7 @@ namespace Core.DataReader.Cpk
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Lzo;
     using Utils;
@@ -22,6 +23,7 @@ namespace Core.DataReader.Cpk
     {
         private const uint SUPPORTED_CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
+        private const int CPK_DEFAULT_MAX_NUM_OF_FILE = 32768; // Max number of files per archive
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private readonly string _filePath;
@@ -63,13 +65,22 @@ namespace Core.DataReader.Cpk
                 throw new InvalidDataException($"File: {_filePath} is not a valid CPK file.");
             }
 
+            // Read the whole index table into memory buffer
+            // for better processing speed
+            var cpkTableSize = Marshal.SizeOf(typeof(CpkTable));
+            var indexTableSize = cpkTableSize * CPK_DEFAULT_MAX_NUM_OF_FILE;
+            var indexTableBuffer = new byte[indexTableSize];
+            stream.Read(indexTableBuffer, 0, indexTableSize);
+
             _tables = new Dictionary<uint, CpkTable>((int)header.FileNum);
 
             var numOfFiles = header.FileNum;
             var filesFound = 0;
+            var offset = 0;
             for (uint i = 0; i < header.MaxFileNum; i++)
             {
-                var table = Utility.ReadStruct<CpkTable>(stream);
+                var table = Utility.ReadStruct<CpkTable>(indexTableBuffer, offset);
+                offset += cpkTableSize;
                 if (table.IsEmpty() || table.IsDeleted()) continue;
 
                 _tables[i] = table;

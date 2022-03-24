@@ -57,9 +57,9 @@ namespace Core.Utils
             return ReadStructInternal<T>(buffer);
         }
 
-        public static T ReadStruct<T>(byte[] bytes) where T : struct
+        public static T ReadStruct<T>(byte[] bytes, int offset = 0) where T : struct
         {
-            return ReadStructInternal<T>(bytes[..Marshal.SizeOf(typeof(T))]);
+            return ReadStructInternal<T>(bytes, offset);
         }
 
         public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
@@ -67,9 +67,9 @@ namespace Core.Utils
             return a1.SequenceEqual(a2);
         }
 
-        private static unsafe T ReadStructInternal<T>(byte[] bytes) where T : struct
+        private static unsafe T ReadStructInternal<T>(byte[] bytes, int offset = 0) where T : struct
         {
-            fixed (byte* ptr = &bytes[0])
+            fixed (byte* ptr = &bytes[offset])
             {
                 return (T) (Marshal.PtrToStructure((IntPtr) ptr, typeof(T)) ?? default(T));
             }
