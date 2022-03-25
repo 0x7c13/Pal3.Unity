@@ -396,16 +396,11 @@ namespace Pal3.Script
         public void Execute(ScriptVarGetCombatResultCommand command)
         {
             if (!_isExecuting) return;
-            var won = Random.Range(0, 2);
-            if (won == 1)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("你战胜了重楼"));
-            }
-            else
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("你输给了重楼"));
-            }
-            SetVariableValue(command.Variable, won);
+            var won = Random.Range(0f, 1f);
+            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.4f
+                ? new UIDisplayNoteCommand("你战胜了重楼")
+                : new UIDisplayNoteCommand("你输给了重楼"));
+            SetVariableValue(command.Variable, won > 0.4f ? 1 : 0);
         }
     }
 }

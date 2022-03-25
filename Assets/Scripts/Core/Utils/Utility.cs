@@ -18,8 +18,9 @@ namespace Core.Utils
         public static string ConvertToGbkString(byte[] charArray)
         {
             var i = 0;
-            while (i < charArray.Length && charArray[i] != 0) i++;
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(charArray[..i]);
+            var length = charArray.Length;
+            while (i < length && charArray[i] != 0) i++;
+            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(charArray, 0, i);
         }
 
         public static Color32 ToColor32(byte[] rgba)

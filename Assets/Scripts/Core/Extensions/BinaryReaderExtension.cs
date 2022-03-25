@@ -80,8 +80,9 @@ namespace Core.Extensions
         {
             var strBytes = binaryReader.ReadBytes(count);
             var i = 0;
-            while (i < strBytes.Length && strBytes[i] != 0) i++;
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(strBytes[..i]);
+            var length = strBytes.Length;
+            while (i < length && strBytes[i] != 0) i++;
+            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(strBytes, 0, i);
         }
     }
 }

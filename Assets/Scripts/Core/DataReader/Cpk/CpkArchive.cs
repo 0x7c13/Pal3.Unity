@@ -56,7 +56,12 @@ namespace Core.DataReader.Cpk
         /// </summary>
         private void Init()
         {
-            using var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
+            using var stream = new FileStream(_filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite,
+                bufferSize: 8196,
+                FileOptions.SequentialScan); // use SequentialScan option to increase reading speed
 
             var header = Utility.ReadStruct<CpkHeader>(stream);
 
@@ -281,7 +286,12 @@ namespace Core.DataReader.Cpk
             }
             else
             {
-                stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
+                stream = new FileStream(_filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite,
+                    bufferSize: 8196,
+                    FileOptions.RandomAccess);
             }
 
             foreach (var entity in _tableEntities.Values)

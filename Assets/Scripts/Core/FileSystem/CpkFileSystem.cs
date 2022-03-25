@@ -10,6 +10,7 @@ namespace Core.FileSystem
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using DataReader.Cpk;
     using UnityEngine;
 
@@ -155,10 +156,21 @@ namespace Core.FileSystem
         /// <returns>File path enumerable</returns>
         public IEnumerable<string> Search(string keyword = "")
         {
-            return from archive in _cpkArchives
-                let rootNodes = archive.Value.GetRootEntries()
-                from result in SearchInternal(rootNodes, keyword)
-                select archive.Key + CpkConstants.CpkDirectorySeparatorChar + result;
+            var results = new ConcurrentBag<IEnumerable<string>>();
+
+            Parallel.ForEach(_cpkArchives, archive =>
+            {
+                var rootNodes = archive.Value.GetRootEntries();
+                results.Add(from result in SearchInternal(rootNodes, keyword)
+                    select archive.Key + CpkConstants.CpkDirectorySeparatorChar + result);
+            });
+
+            var resultList = new List<string>();
+            foreach (var result in results)
+            {
+                resultList.AddRange(result);
+            }
+            return resultList;
         }
 
         private void ParseFileVirtualPath(string fullVirtualPath, out string cpkFileName, out string relativeVirtualPath)
