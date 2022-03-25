@@ -10,6 +10,7 @@ namespace Pal3
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Threading;
     using Core.Animation;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
@@ -90,34 +91,34 @@ namespace Pal3
         }
         #endif
 
-        private void Awake()
-        {
-            loadingText.text = "Loading game assets...";
-        }
-
         private IEnumerator Start()
         {
             // Init CRC hash
             var crcHash = new CrcHash();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
 
+            loadingText.text = "Loading game assets...";
+
             yield return InitResource(GetGameFolderPath(), crcHash);
         }
 
         private IEnumerator InitResource(string gameRootPath, CrcHash crcHash)
         {
-            yield return new WaitForEndOfFrame(); // Give some time for UI to render
-
+            ICpkFileSystem cpkFileSystem = null;
             // Init file system
-            var fileSystem = InitFileSystem(gameRootPath, crcHash);
-            ServiceLocator.Instance.Register<ICpkFileSystem>(fileSystem);
+            yield return InitFileSystem(gameRootPath, crcHash, (fileSystem) =>
+            {
+                cpkFileSystem = fileSystem;
+            });
+            if (cpkFileSystem == null) yield break;
+            ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
 
             // Init TextureLoaderFactory
             var textureLoaderFactory = new TextureLoaderFactory();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(fileSystem, new TextureLoaderFactory());
+            var resourceProvider = new GameResourceProvider(cpkFileSystem, new TextureLoaderFactory());
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component
@@ -145,17 +146,61 @@ namespace Pal3
             Destroy(this);
         }
 
-        private ICpkFileSystem InitFileSystem(string gameRootPath, CrcHash crcHash)
+        private IEnumerator InitFileSystem(string gameRootPath, CrcHash crcHash, Action<ICpkFileSystem> callback)
         {
-            var result = InitializeCpkFileSystem(gameRootPath, crcHash);
+            ICpkFileSystem cpkFileSystem = null;
+            var path = gameRootPath;
+            Exception exception = null;
 
-            if (result.Success)
+            var fileSystemInitThread = new Thread(() =>
             {
-                return result.FileSystem;
+                try
+                {
+                    var timer = new Stopwatch();
+                    timer.Start();
+                    cpkFileSystem = InitializeCpkFileSystem(path, crcHash);
+                    timer.Stop();
+                    Debug.Log($"All files mounted successfully. Total time: {timer.Elapsed.TotalSeconds:0.000}s");
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+                finally
+                {
+                    System.GC.Collect();
+                }
+            })
+            {
+                IsBackground = true,
+                Priority = System.Threading.ThreadPriority.Highest
+            };
+            fileSystemInitThread.Start();
+
+            while (fileSystemInitThread.IsAlive)
+            {
+                yield return null;
+            }
+
+            if (cpkFileSystem != null)
+            {
+                callback?.Invoke(cpkFileSystem);
             }
             else
             {
-                throw new Exception("Failed to initialize CpkFileSystem.");
+                loadingText.text = $"{exception.Message}";
+
+                #if UNITY_EDITOR
+                if (Utility.IsDesktopDevice())
+                {
+                    gameRootPath = PickGameRootPath();
+
+                    if (!string.IsNullOrEmpty(gameRootPath))
+                    {
+                        StartCoroutine(InitResource(gameRootPath, crcHash));
+                    }
+                }
+                #endif
             }
         }
 
@@ -175,75 +220,44 @@ namespace Pal3
             backgroundImage.enabled = false;
         }
 
-        private (bool Success, ICpkFileSystem FileSystem) InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash)
+        private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash)
         {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
-            try
+            var filesToMount = new List<string>();
+
+            var baseDataCpk = FileConstants.BaseDataCpkPathInfo.relativePath +
+                              Path.DirectorySeparatorChar + FileConstants.BaseDataCpkPathInfo.cpkName;
+
+            filesToMount.Add(baseDataCpk);
+
+            var musicCpk = FileConstants.MusicCpkPathInfo.relativePath +
+                           Path.DirectorySeparatorChar + FileConstants.MusicCpkPathInfo.cpkName;
+
+            filesToMount.Add(musicCpk);
+
+            foreach (var sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
             {
-                var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
-
-                var filesToMount = new List<string>();
-
-                var baseDataCpk = FileConstants.BaseDataCpkPathInfo.relativePath +
-                                  Path.DirectorySeparatorChar + FileConstants.BaseDataCpkPathInfo.cpkName;
-
-                filesToMount.Add(baseDataCpk);
-
-                var musicCpk = FileConstants.MusicCpkPathInfo.relativePath +
-                               Path.DirectorySeparatorChar + FileConstants.MusicCpkPathInfo.cpkName;
-
-                filesToMount.Add(musicCpk);
-
-                foreach (var sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
-                {
-                    var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
-                                       sceneCpkPathInfo.cpkName;
-                    filesToMount.Add(sceneCpkPath);
-                }
-
-                #if PAL3A
-                var scnCpk = FileConstants.ScnCpkPathInfo.relativePath +
-                              Path.DirectorySeparatorChar + FileConstants.ScnCpkPathInfo.cpkName;
-                filesToMount.Add(scnCpk);
-                var sceCpk = FileConstants.SceCpkPathInfo.relativePath +
-                              Path.DirectorySeparatorChar + FileConstants.SceCpkPathInfo.cpkName;
-                filesToMount.Add(sceCpk);
-                #endif
-
-                foreach (var cpkFilePath in filesToMount)
-                {
-                    cpkFileSystem.Mount(cpkFilePath);
-                }
-
-                stopWatch.Stop();
-                Debug.Log($"All files mounted successfully. Total time: {stopWatch.Elapsed.TotalSeconds:0.000}s");
-
-                return (true, cpkFileSystem);
-            }
-            catch (Exception ex)
-            {
-                loadingText.text = $"{ex.Message}";
-
-                #if UNITY_EDITOR
-                if (Utility.IsDesktopDevice())
-                {
-                    gameRootPath = PickGameRootPath();
-
-                    if (!string.IsNullOrEmpty(gameRootPath))
-                    {
-                        StartCoroutine(InitResource(gameRootPath, crcHash));
-                    }
-                }
-                #endif
-            }
-            finally
-            {
-                System.GC.Collect();
+                var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
+                                   sceneCpkPathInfo.cpkName;
+                filesToMount.Add(sceneCpkPath);
             }
 
-            return (false, null);
+            #if PAL3A
+            var scnCpk = FileConstants.ScnCpkPathInfo.relativePath +
+                          Path.DirectorySeparatorChar + FileConstants.ScnCpkPathInfo.cpkName;
+            filesToMount.Add(scnCpk);
+            var sceCpk = FileConstants.SceCpkPathInfo.relativePath +
+                          Path.DirectorySeparatorChar + FileConstants.SceCpkPathInfo.cpkName;
+            filesToMount.Add(sceCpk);
+            #endif
+
+            foreach (var cpkFilePath in filesToMount)
+            {
+                cpkFileSystem.Mount(cpkFilePath);
+            }
+
+            return cpkFileSystem;
         }
     }
 }
