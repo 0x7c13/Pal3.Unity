@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
 using UnityEngine;
 
 namespace Core.Algorithm
@@ -45,7 +44,7 @@ namespace Core.Algorithm
             Func<Vector2Int, Vector2Int, int> calculateCost)
         {
             var pathResult = new List<Vector2Int>();
-            NativeArray<Node> nodeArray = new NativeArray<Node>(gridSize.x * gridSize.y, Allocator.Temp);
+            Node[] nodeArray = new Node[gridSize.x * gridSize.y];
 
             // Init
             for (var x = 0; x < gridSize.x; x++)
@@ -78,7 +77,7 @@ namespace Core.Algorithm
             List<int> openList = new List<int>();
             List<int> closedList = new List<int>();
 
-            NativeArray<Vector2Int> neighbourOffset = new NativeArray<Vector2Int>(8, Allocator.Temp);
+            Vector2Int[] neighbourOffset = new Vector2Int[8];
             neighbourOffset[0] = new Vector2Int(+0, -1);
             neighbourOffset[1] = new Vector2Int(+0, +1);
             neighbourOffset[2] = new Vector2Int(-1, +0);
@@ -162,9 +161,6 @@ namespace Core.Algorithm
                 }
             }
 
-            nodeArray.Dispose();
-            neighbourOffset.Dispose();
-
             return pathResult;
         }
 
@@ -173,7 +169,7 @@ namespace Core.Algorithm
             return x + y * gridWidth;
         }
 
-        private static int GetLowestCostFNodeIndex(List<int> openList, NativeArray<Node> nodeArray)
+        private static int GetLowestCostFNodeIndex(List<int> openList, Node[] nodeArray)
         {
             var lowestCostNode = nodeArray[openList[0]];
             for (var i = 0; i < openList.Count; i++)
@@ -196,7 +192,7 @@ namespace Core.Algorithm
                    position.y < gridSize.y;
         }
 
-        private static List<Vector2Int> GetPath(NativeArray<Node> nodeArray, Node endNode)
+        private static List<Vector2Int> GetPath(Node[] nodeArray, Node endNode)
         {
             if (endNode.PreviousNodeIndex == -1)
             {

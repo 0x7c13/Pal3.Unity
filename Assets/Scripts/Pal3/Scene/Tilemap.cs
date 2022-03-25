@@ -77,7 +77,7 @@ namespace Pal3.Scene
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
         }
 
-        public Vector2Int[] FindPathToTilePosition(Vector2Int from, Vector2Int to, int layerIndex)
+        public Vector2Int[] FindPathToTilePositionThreadSafe(Vector2Int from, Vector2Int to, int layerIndex)
         {
             if (!IsTilePositionInsideTileMap(from, layerIndex))
             {

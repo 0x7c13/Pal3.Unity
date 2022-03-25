@@ -28,6 +28,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]
+    [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public class GeneralSceneObject : SceneObject
     {
         public GeneralSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
