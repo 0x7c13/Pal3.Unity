@@ -65,8 +65,7 @@ namespace Pal3.UI
             if (_noteAnimation != null) StopCoroutine(_noteAnimation);
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
-
-        #if !UNITY_EDITOR
+        
         private void Update()
         {
             var currentTime = Time.realtimeSinceStartupAsDouble;
@@ -75,9 +74,8 @@ namespace Pal3.UI
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
                 _heapSizeLastQueryTime = currentTime;
             }
-            _debugInfo.SetText(_debugInfoStringFormat, _heapSize, _fpsCounter.GetFps());
+            _debugInfo.SetText(_debugInfoStringFormat, _heapSize, Mathf.Ceil(_fpsCounter.GetFps()));
         }
-        #endif
 
         private IEnumerator AnimateNoteUI()
         {

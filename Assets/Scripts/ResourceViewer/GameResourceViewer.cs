@@ -91,7 +91,7 @@ namespace ResourceViewer
 
         private void Update()
         {
-            fpsTextUI.text = $"{fpsCounter.GetFps():0.} fps";
+            fpsTextUI.text = $"{Mathf.Ceil(fpsCounter.GetFps())} fps";
         }
 
         private void RandPol()

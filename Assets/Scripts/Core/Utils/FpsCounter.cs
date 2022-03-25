@@ -12,18 +12,18 @@ namespace Core.Utils
         private int _frameCount = 0;
         private float _deltaTime = 0f;
         private float _fps = 0f;
-        private float _updateRate = 5f;  // update count per sec.
+        private float _updateInterval = 0.2f;
 
         private void Update()
         {
             _frameCount++;
             _deltaTime += Time.deltaTime / Time.timeScale;
 
-            if (_deltaTime > (1.0 / _updateRate))
+            if (_deltaTime >= _updateInterval)
             {
                 _fps = _frameCount / _deltaTime;
                 _frameCount = 0;
-                _deltaTime -= 1f / _updateRate;
+                _deltaTime -= _updateInterval;
             }
         }
 
