@@ -37,10 +37,15 @@ namespace Core.Renderer
             mesh.normals = normals;
             mesh.uv = uv;
 
-            if (!isDynamic)
+            if (triangles.Length == 0)
             {
-                mesh.Optimize();
+                // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
+                // After modifying vertices you should call this function to ensure the
+                // bounding volume is correct. Assigning triangles automatically
+                // recalculates the bounding volume.
+                mesh.RecalculateBounds();
             }
+
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
@@ -72,10 +77,15 @@ namespace Core.Renderer
             mesh.uv = mainTextureUv;
             mesh.uv2 = secondaryTextureUv;
 
-            if (!isDynamic)
+            if (triangles.Length == 0)
             {
-                mesh.Optimize();
+                // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
+                // After modifying vertices you should call this function to ensure the
+                // bounding volume is correct. Assigning triangles automatically
+                // recalculates the bounding volume.
+                mesh.RecalculateBounds();
             }
+
             _meshFilter.sharedMesh = mesh;
 
             return mesh;
@@ -89,21 +99,6 @@ namespace Core.Renderer
         public bool IsVisible()
         {
             return _meshRenderer != null && _meshRenderer.isVisible;
-        }
-
-        public void RecalculateBoundsNormalsAndTangents()
-        {
-            if (_meshFilter == null) return;
-
-            var mesh = _meshFilter.sharedMesh;
-
-            // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
-            // After modifying vertices you should call this function to ensure the
-            // bounding volume is correct. Assigning triangles automatically
-            // recalculates the bounding volume.
-            mesh.RecalculateBounds();
-            mesh.RecalculateNormals();
-            mesh.RecalculateTangents();
         }
 
         public Bounds GetRendererBounds()

@@ -28,6 +28,13 @@ namespace Pal3.Renderer
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
         private const float TIME_TO_TICK_SCALE = 5000f;
 
+        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+        private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
+        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
+        private readonly int _transparencyPropertyId = Shader.PropertyToID("_Transparency");
+        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
+        private Shader _standardNoShadowShader;
+
         private ITextureResourceProvider _textureProvider;
         private VertexAnimationKeyFrame[] _keyFrames;
         private Texture2D _texture;
@@ -66,6 +73,7 @@ namespace Pal3.Renderer
             _texture = textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
             _textureHasAlphaChannel = hasAlphaChannel;
             _animationName = mv3Mesh.Name;
+            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
         }
 
         public void PlayAnimation(int loopCount = -1, float fps = -1f)
@@ -91,30 +99,31 @@ namespace Pal3.Renderer
 
                 var meshRenderer = _meshObject.AddComponent<StaticMeshRenderer>();
 
-                _material = new Material(Shader.Find("Pal3/StandardNoShadow"));
-                _material.SetTexture(Shader.PropertyToID("_MainTex"), _texture);
+                _material = new Material(_standardNoShadowShader);
+                _material.SetTexture(_mainTexturePropertyId, _texture);
 
                 var cutoff = _textureHasAlphaChannel ? 0.3f : 0f;
                 if (cutoff > Mathf.Epsilon)
                 {
-                    _material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                    _material.SetFloat(_cutoffPropertyId, cutoff);
                 }
 
-                _material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
+                _material.SetColor(_tintColorPropertyId, _tintColor);
 
                 var meshDataBuffer = new MeshDataBuffer
                 {
                     VertexBuffer = new Vector3[_keyFrames[0].Vertices.Length]
                 };
 
-                var renderMesh = meshRenderer.Render( _keyFrames[0].Vertices,
+                var renderMesh = meshRenderer.Render(_keyFrames[0].Vertices,
                     _keyFrames[0].Triangles,
                     Array.Empty<Vector3>(),
                     _keyFrames[0].Uv,
                     _material,
                     true);
 
-                meshRenderer.RecalculateBoundsNormalsAndTangents();
+                //renderMesh.RecalculateNormals();
+                //renderMesh.RecalculateTangents();
 
                 _renderMeshComponent = new RenderMeshComponent
                 {
@@ -139,7 +148,7 @@ namespace Pal3.Renderer
         {
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
             _texture = _textureProvider.GetTexture(textureName);
-            _material.SetTexture(Shader.PropertyToID("_MainTex"), _texture);
+            _material.SetTexture(_mainTexturePropertyId, _texture);
         }
 
         public void StopAnimation()
@@ -248,15 +257,15 @@ namespace Pal3.Renderer
 
                     var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                    var meshDataBuffer = _renderMeshComponent.MeshDataBuffer;
-                    for (var i = 0; i < meshDataBuffer.VertexBuffer.Length; i++)
+                    var vertices = _renderMeshComponent.MeshDataBuffer.VertexBuffer;
+                    for (var i = 0; i < vertices.Length; i++)
                     {
-                        meshDataBuffer.VertexBuffer[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
+                        vertices[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
                             _keyFrames[nextFrameIndex].Vertices[i], influence);
                     }
 
-                    _renderMeshComponent.Mesh.vertices = meshDataBuffer.VertexBuffer;
-                    //_meshRenderer.RecalculateBoundsNormalsAndTangents();
+                    _renderMeshComponent.Mesh.vertices = vertices;
+                    _renderMeshComponent.Mesh.RecalculateBounds();
                 }
 
                 yield return animationDelay;

@@ -13,6 +13,7 @@ namespace Pal3.Renderer
     using Core.Renderer;
     using Dev;
     using UnityEngine;
+    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Poly(.pol) model renderer
@@ -31,6 +32,10 @@ namespace Pal3.Renderer
         private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
+        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+        private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
+        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
+        private readonly int _transparencyPropertyId = Shader.PropertyToID("_Transparency");
         private Shader _standardShader;
         private Shader _standardNoShadowShader;
         private readonly Dictionary<string, Material> _materials = new ();
@@ -137,12 +142,13 @@ namespace Pal3.Renderer
                     else
                     {
                         material = new Material(_standardNoShadowShader);
-                        material.SetTexture(Shader.PropertyToID("_MainTex"), textures[0].texture);
+                        material.SetTexture(_mainTexturePropertyId, textures[0].texture);
+
 
                         var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
                         if (cutoff > Mathf.Epsilon)
                         {
-                            material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                            material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
                         if ((gbMaterial.Emissive.r is > 0 and < 255 ||
@@ -154,7 +160,7 @@ namespace Pal3.Renderer
                             if (transparency > Mathf.Epsilon)
                             {
                                 material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                                material.SetFloat(Shader.PropertyToID("_Transparency"), transparency);
+                                material.SetFloat(_transparencyPropertyId, transparency);
                             }
                         }
 
@@ -167,8 +173,6 @@ namespace Pal3.Renderer
                         mesh.VertexInfo.Uvs[0],
                         material,
                         false);
-
-                    meshRenderer.RecalculateBoundsNormalsAndTangents();
 
                     if (isWaterSurface)
                     {
@@ -196,13 +200,13 @@ namespace Pal3.Renderer
                     else
                     {
                         material = new Material(_standardShader);
-                        material.SetTexture(Shader.PropertyToID("_MainTex"), textures[1].texture);
-                        material.SetTexture(Shader.PropertyToID("_ShadowTex"), textures[0].texture);
+                        material.SetTexture(_mainTexturePropertyId, textures[1].texture);
+                        material.SetTexture(_shadowTexturePropertyId, textures[0].texture);
 
                         var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
                         if (cutoff > Mathf.Epsilon)
                         {
-                            material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                            material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
                         if ((gbMaterial.Emissive.r is > 0 and < 255 ||
@@ -214,7 +218,7 @@ namespace Pal3.Renderer
                             if (transparency > Mathf.Epsilon)
                             {
                                 material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                                material.SetFloat(Shader.PropertyToID("_Transparency"), transparency);
+                                material.SetFloat(_transparencyPropertyId, transparency);
                             }
                         }
                     }
@@ -226,8 +230,6 @@ namespace Pal3.Renderer
                         mesh.VertexInfo.Uvs[0],
                         material,
                         false);
-
-                    meshRenderer.RecalculateBoundsNormalsAndTangents();
 
                     if (isWaterSurface)
                     {
@@ -253,13 +255,12 @@ namespace Pal3.Renderer
             }
 
             var waterAnimationDelay = new WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
-            var mainTexturePropertyId = Shader.PropertyToID("_MainTex");
 
             while (isActiveAndEnabled)
             {
                 for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
-                    material.SetTexture(mainTexturePropertyId, waterTextures[i]);
+                    material.SetTexture(_mainTexturePropertyId, waterTextures[i]);
                     yield return waterAnimationDelay;
                 }
             }
