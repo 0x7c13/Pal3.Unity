@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
                 {
                     var poly = resourceProvider.GetPol(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
-                    sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider);
+                    sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider, disableTransparency: true);
                 }
                 else if (_modelFilePath.ToLower().EndsWith(".cvd"))
                 {

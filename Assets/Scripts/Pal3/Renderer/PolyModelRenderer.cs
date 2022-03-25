@@ -39,11 +39,13 @@ namespace Pal3.Renderer
         private Shader _standardShader;
         private Shader _standardNoShadowShader;
         private readonly Dictionary<string, Material> _materials = new ();
+        private bool _disableTransparency;
 
-        public void Render(PolFile polFile, ITextureResourceProvider textureProvider)
+        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, bool disableTransparency = false)
         {
             _textureProvider = textureProvider;
             _textureCache = BuildTextureCache(polFile, textureProvider);
+            _disableTransparency = disableTransparency;
 
             _standardShader = Shader.Find("Pal3/Standard");
             _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
@@ -105,7 +107,7 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 0)
                 {
-                    Debug.Log($"0 texture found for {meshName}");
+                    Debug.LogWarning($"0 texture found for {meshName}");
                     return;
                 }
 
@@ -151,10 +153,11 @@ namespace Pal3.Renderer
                             material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
-                        if ((gbMaterial.Emissive.r is > 0 and < 255 ||
+                        if (!_disableTransparency &&
+                            (gbMaterial.Emissive.r is > 0 and < 255 ||
                              gbMaterial.Emissive.g is > 0 and < 255 ||
-                             gbMaterial.Emissive.b is > 0 and < 255)
-                            || isWaterSurface)
+                             gbMaterial.Emissive.b is > 0 and < 255 ||
+                             isWaterSurface))
                         {
                             var transparency = blendFlag is 1 or 2 ? 0.5f : 0f;
                             if (transparency > Mathf.Epsilon)
@@ -209,10 +212,11 @@ namespace Pal3.Renderer
                             material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
-                        if ((gbMaterial.Emissive.r is > 0 and < 255 ||
+                        if (!_disableTransparency &&
+                            (gbMaterial.Emissive.r is > 0 and < 255 ||
                              gbMaterial.Emissive.g is > 0 and < 255 ||
-                             gbMaterial.Emissive.b is > 0 and < 255)
-                            || isWaterSurface)
+                             gbMaterial.Emissive.b is > 0 and < 255 ||
+                             isWaterSurface))
                         {
                             var transparency = blendFlag is 1 or 2 ? 0.5f : 0f;
                             if (transparency > Mathf.Epsilon)
