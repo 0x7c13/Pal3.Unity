@@ -9,8 +9,6 @@
 namespace Core.Utils
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -19,14 +17,9 @@ namespace Core.Utils
     public sealed unsafe class UnsafeBinaryReader : IDisposable
     {
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
-
         private readonly byte[] _data;
-
         private byte* _dataPtr;
-
         private GCHandle _handle;
-
-        private bool _disposedValue;
 
         public UnsafeBinaryReader(byte[] data)
         {
@@ -171,6 +164,7 @@ namespace Core.Utils
             Dispose(true);
         }
 
+        private bool _disposedValue;
         private void Dispose(bool disposing)
         {
             if (!_disposedValue)

@@ -86,7 +86,6 @@ namespace Core.DataReader.Pol
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             });
             var origin = GameBoxInterpreter.ToUnityPosition(transformMatrix.MultiplyPoint(Vector3.zero));
-            Debug.Log("Transform position from matrix is: " + origin);
 
             var type = reader.ReadInt32();
             var customColorStringLength = reader.ReadInt32();

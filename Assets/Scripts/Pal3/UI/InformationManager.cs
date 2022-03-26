@@ -51,7 +51,7 @@ namespace Pal3.UI
                 $"CPU: {SystemInfo.processorType.Trim()} GPU: {SystemInfo.graphicsDeviceName.Trim()}\n" +
                 $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
                 $"{GameConstants.ContactInfo}\n" +
-                $"Version: Alpha v{GameConstants.Version}\n";
+                $"Version: Alpha v{Application.version}\n";
 
             _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{1:0.} fps";
 
@@ -65,7 +65,7 @@ namespace Pal3.UI
             if (_noteAnimation != null) StopCoroutine(_noteAnimation);
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
-        
+
         private void Update()
         {
             var currentTime = Time.realtimeSinceStartupAsDouble;
