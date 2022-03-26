@@ -52,6 +52,13 @@ namespace Core.DataReader.Pol
         public int[] Triangles;
     }
 
+    public struct TagNode
+    {
+        public string Name;
+        public Vector3 Origin;
+        public uint TintColor;
+    }
+
     /// <summary>
     /// POLY (.pol) file model
     /// </summary>
@@ -60,14 +67,17 @@ namespace Core.DataReader.Pol
         public int Version { get; }
         public PolGeometryNode[] NodeDescriptions { get; }
         public PolMesh[] Meshes { get; }
+        public TagNode[] TagNodes { get; }
 
         public PolFile(int version,
             PolGeometryNode[] nodeDescriptions,
-            PolMesh[] meshes)
+            PolMesh[] meshes,
+            TagNode[] tagNodes)
         {
             Version = version;
             NodeDescriptions = nodeDescriptions;
             Meshes = meshes;
+            TagNodes = tagNodes;
         }
     }
 }

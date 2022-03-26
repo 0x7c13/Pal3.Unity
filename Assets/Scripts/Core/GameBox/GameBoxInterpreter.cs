@@ -108,5 +108,14 @@ namespace Core.GameBox
                    position.y >= rect.Top &&
                    position.y <= rect.Bottom;
         }
+
+        public static Matrix4x4 ToUnityMatrix4x4(GameBoxMatrix4X4 matrix)
+        {
+            return new Matrix4x4(
+                new Vector4(matrix.Xx, matrix.Xy, matrix.Xz, matrix.Xw),
+                new Vector4(matrix.Yx, matrix.Yy, matrix.Yz, matrix.Yw),
+                new Vector4(matrix.Zx, matrix.Zy, matrix.Zz, matrix.Zw),
+                new Vector4(matrix.Tx, matrix.Ty, matrix.Tz, matrix.Tw));
+        }
     }
 }

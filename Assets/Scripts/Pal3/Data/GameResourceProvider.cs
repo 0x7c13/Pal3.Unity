@@ -8,6 +8,7 @@ namespace Pal3.Data
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -27,6 +28,7 @@ namespace Pal3.Data
     using Core.Utils;
     using MetaData;
     using UnityEngine;
+    using Debug = UnityEngine.Debug;
 
     public class GameResourceProvider : ICommandExecutor<ScenePreLoadingNotification>
     {
@@ -88,8 +90,8 @@ namespace Pal3.Data
         {
             polFilePath = polFilePath.ToLower();
             if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
-            using var polyFileStream = new MemoryStream(_fileSystem.ReadAllBytes(polFilePath));
-            var polFile = PolFileReader.Read(polyFileStream);
+            var polData = _fileSystem.ReadAllBytes(polFilePath);
+            var polFile = PolFileReader.Read(polData);
             var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _polCache[polFilePath] = (polFile, textureProvider);
@@ -100,8 +102,8 @@ namespace Pal3.Data
         {
             cvdFilePath = cvdFilePath.ToLower();
             if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
-            using var cvdFileStream = new MemoryStream(_fileSystem.ReadAllBytes(cvdFilePath));
-            var cvdFile = CvdFileReader.Read(cvdFileStream);
+            var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
+            var cvdFile = CvdFileReader.Read(cvdData);
             var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
@@ -112,8 +114,8 @@ namespace Pal3.Data
         {
             mv3FilePath = mv3FilePath.ToLower();
             if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
-            using var mv3FileStream = new MemoryStream(_fileSystem.ReadAllBytes(mv3FilePath));
-            var mv3File = Mv3FileReader.Read(mv3FileStream);
+            var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
+            var mv3File = Mv3FileReader.Read(mv3Data);
             var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);

@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#define USE_UNSAFE_BINARY_READER
+
 namespace Core.DataReader.Cvd
 {
     using System;
@@ -17,9 +19,14 @@ namespace Core.DataReader.Cvd
 
     public static class CvdFileReader
     {
-        public static CvdFile Read(Stream stream)
+        public static CvdFile Read(byte[] data)
         {
+            #if USE_UNSAFE_BINARY_READER
+            using var reader = new UnsafeBinaryReader(data);
+            #else
+            using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
+            #endif
 
             var header = reader.ReadChars(4);
             var headerStr = new string(header);
@@ -46,10 +53,17 @@ namespace Core.DataReader.Cvd
             return new CvdFile(animationDuration, rootNodes.ToArray());
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static void ReadGeometryNodes(UnsafeBinaryReader reader,
+            float version,
+            List<CvdGeometryNode> rootNodes,
+            ref float animationDuration)
+        #else
         private static void ReadGeometryNodes(BinaryReader reader,
             float version,
             List<CvdGeometryNode> rootNodes,
             ref float animationDuration)
+        #endif
         {
             var parentNode = ReadGeometryNode(reader, version, ref animationDuration);
 
@@ -69,9 +83,15 @@ namespace Core.DataReader.Cvd
             rootNodes.Add(parentNode);
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdGeometryNode ReadGeometryNode(UnsafeBinaryReader reader,
+            float version,
+            ref float animationDuration)
+        #else
         private static CvdGeometryNode ReadGeometryNode(BinaryReader reader,
             float version,
             ref float animationDuration)
+        #endif
         {
             var positionKeySize = Mathf.Max(
                 Marshal.SizeOf(typeof(CvdTcbVector3Key)),
@@ -104,14 +124,10 @@ namespace Core.DataReader.Cvd
 
             var transformMatrix = new GameBoxMatrix4X4()
             {
-                Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(),
-                Xw = reader.ReadSingle(),
-                Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(),
-                Yw = reader.ReadSingle(),
-                Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(),
-                Zw = reader.ReadSingle(),
-                Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(),
-                Tw = reader.ReadSingle()
+                Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
+                Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
+                Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
+                Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             };
             transformMatrix.Tw = 1f;
 
@@ -126,7 +142,11 @@ namespace Core.DataReader.Cvd
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(UnsafeBinaryReader reader, int size)
+        #else
         private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(BinaryReader reader, int size)
+        #endif
         {
             var numberOfKeys = reader.ReadInt32();
             var keyInfos = new (CvdAnimationKeyType, byte[])[numberOfKeys];
@@ -148,7 +168,11 @@ namespace Core.DataReader.Cvd
             return keyInfos;
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(UnsafeBinaryReader reader, int size)
+        #else
         private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(BinaryReader reader, int size)
+        #endif
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var positionKeyFrames = new CvdAnimationPositionKeyFrame[frameInfos.Length];
@@ -198,7 +222,11 @@ namespace Core.DataReader.Cvd
             return positionKeyFrames;
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(UnsafeBinaryReader reader, int size)
+        #else
         private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(BinaryReader reader, int size)
+        #endif
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var rotationKeyFrames = new CvdAnimationRotationKeyFrame[frameInfos.Length];
@@ -255,7 +283,11 @@ namespace Core.DataReader.Cvd
             return rotationKeyFrames;
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(UnsafeBinaryReader reader, int size)
+        #else
         private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(BinaryReader reader, int size)
+        #endif
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var scaleKeyFrames = new CvdAnimationScaleKeyFrame[frameInfos.Length];
@@ -308,7 +340,11 @@ namespace Core.DataReader.Cvd
             return scaleKeyFrames;
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdMesh ReadMesh(UnsafeBinaryReader reader, float version)
+        #else
         private static CvdMesh ReadMesh(BinaryReader reader, float version)
+        #endif
         {
             var numberOfFrames = reader.ReadInt32();
             var numberOfVertices = reader.ReadInt32();
@@ -356,9 +392,15 @@ namespace Core.DataReader.Cvd
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static CvdMeshSection ReadMeshSection(UnsafeBinaryReader reader,
+            float version,
+            CvdVertex[][] allFrameVertices)
+        #else
         private static CvdMeshSection ReadMeshSection(BinaryReader reader,
             float version,
             CvdVertex[][] allFrameVertices)
+        #endif
         {
             var blendFlag = reader.ReadByte();
 

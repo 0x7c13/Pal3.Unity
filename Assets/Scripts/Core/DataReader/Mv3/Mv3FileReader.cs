@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#define USE_UNSAFE_BINARY_READER
+
 namespace Core.DataReader.Mv3
 {
     using System.Collections.Generic;
@@ -18,9 +20,14 @@ namespace Core.DataReader.Mv3
         private const int ACTOR_NODE_NAME_MAX = 64;
         private const int ACTOR_ANIMATION_EVENT_NAME_MAX = 16;
 
-        public static Mv3File Read(Stream stream)
+        public static Mv3File Read(byte[] data)
         {
+            #if USE_UNSAFE_BINARY_READER
+            using var reader = new UnsafeBinaryReader(data);
+            #else
+            using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
+            #endif
 
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -83,7 +90,11 @@ namespace Core.DataReader.Mv3
                 meshKeyFrames);
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static Mv3Mesh ReadMesh(UnsafeBinaryReader reader)
+        #else
         private static Mv3Mesh ReadMesh(BinaryReader reader)
+        #endif
         {
             var name = reader.ReadGbkString(ACTOR_NODE_NAME_MAX);
             var numberOfVertices = reader.ReadInt32();
@@ -229,7 +240,11 @@ namespace Core.DataReader.Mv3
             return animationKeyFrames;
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static Mv3TagNode ReadTagNode(UnsafeBinaryReader reader)
+        #else
         private static Mv3TagNode ReadTagNode(BinaryReader reader)
+        #endif
         {
             var nodeName = reader.ReadGbkString(ACTOR_NODE_NAME_MAX);
             var flipScale = reader.ReadSingle();
@@ -249,7 +264,11 @@ namespace Core.DataReader.Mv3
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static Mv3TagFrame ReadTagFrame(UnsafeBinaryReader reader)
+        #else
         private static Mv3TagFrame ReadTagFrame(BinaryReader reader)
+        #endif
         {
             var tick = reader.ReadUInt32();
             var position = reader.ReadVector3();
@@ -278,7 +297,11 @@ namespace Core.DataReader.Mv3
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static Mv3AnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader)
+        #else
         private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader)
+        #endif
         {
             var tick = reader.ReadUInt32();
             var name = reader.ReadBytes(ACTOR_ANIMATION_EVENT_NAME_MAX);
@@ -290,7 +313,11 @@ namespace Core.DataReader.Mv3
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static Mv3Material ReadMaterial(UnsafeBinaryReader reader)
+        #else
         private static Mv3Material ReadMaterial(BinaryReader reader)
+        #endif
         {
             var material = new GameBoxMaterial()
             {

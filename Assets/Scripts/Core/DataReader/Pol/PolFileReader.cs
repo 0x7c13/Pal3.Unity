@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#define USE_UNSAFE_BINARY_READER
+
 namespace Core.DataReader.Pol
 {
     using System;
@@ -14,9 +16,14 @@ namespace Core.DataReader.Pol
 
     public static class PolFileReader
     {
-        public static PolFile Read(Stream stream)
+        public static PolFile Read(byte[] data)
         {
+            #if USE_UNSAFE_BINARY_READER
+            using var reader = new UnsafeBinaryReader(data);
+            #else
+            using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
+            #endif
 
             var header = reader.ReadChars(4);
             var headerStr = new string(header);
@@ -41,10 +48,18 @@ namespace Core.DataReader.Pol
                 };
             }
 
+            var tagNodes = Array.Empty<TagNode>();
             if (version > 100)
             {
-                var nTag = reader.ReadInt32();
-                //Debug.Log($"nTag == {nTag}");
+                var numberOfTagNodes = reader.ReadInt32();
+                if (numberOfTagNodes > 0)
+                {
+                    tagNodes = new TagNode[numberOfTagNodes];
+                    for (var i = 0; i < numberOfTagNodes; i++)
+                    {
+                        tagNodes[i] = ReadTagNodeInfo(reader);
+                    }
+                }
             }
 
             var meshInfos = new PolMesh[numberOfNodes];
@@ -53,10 +68,59 @@ namespace Core.DataReader.Pol
                 meshInfos[i] = ReadMeshData(reader, version);
             }
 
-            return new PolFile(version, nodeInfos, meshInfos);
+            return new PolFile(version, nodeInfos, meshInfos, tagNodes);
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static TagNode ReadTagNodeInfo(UnsafeBinaryReader reader)
+        #else
+        private static TagNode ReadTagNodeInfo(BinaryReader reader)
+        #endif
+        {
+            var name = reader.ReadGbkString(32);
+            var transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
+            {
+                Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
+                Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
+                Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
+                Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
+            });
+            var origin = GameBoxInterpreter.ToUnityPosition(transformMatrix.MultiplyPoint(Vector3.zero));
+            Debug.Log("Transform position from matrix is: " + origin);
+
+            var type = reader.ReadInt32();
+            var customColorStringLength = reader.ReadInt32();
+
+            uint tintColor = 0xffffffff;
+            if (customColorStringLength > 0)
+            {
+                var parts = new string(reader.ReadChars(customColorStringLength)).Split(' ');
+                if (parts.Length == 3)
+                {
+                    tintColor = 0xff000000 |
+                                (uint.Parse(parts[0]) << 16) |
+                                (uint.Parse(parts[1]) << 8) |
+                                (uint.Parse(parts[2]));
+                }
+                else
+                {
+                    throw new Exception("Invalid TagNode color string.");
+                }
+            }
+
+            return new TagNode()
+            {
+                Name = name,
+                Origin = origin,
+                TintColor = tintColor
+            };
+        }
+
+        #if USE_UNSAFE_BINARY_READER
+        private static PolMesh ReadMeshData(UnsafeBinaryReader reader, int version)
+        #else
         private static PolMesh ReadMeshData(BinaryReader reader, int version)
+        #endif
         {
             var boundBox = new GameBoxAABBox()
             {
@@ -166,7 +230,11 @@ namespace Core.DataReader.Pol
             };
         }
 
+        #if USE_UNSAFE_BINARY_READER
+        private static PolTexture ReadTextureInfo(UnsafeBinaryReader reader, int version)
+        #else
         private static PolTexture ReadTextureInfo(BinaryReader reader, int version)
+        #endif
         {
             var blendFlag = reader.ReadUInt32();
 
