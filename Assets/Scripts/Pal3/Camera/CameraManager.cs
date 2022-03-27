@@ -44,7 +44,7 @@ namespace Pal3.Camera
         private const float FADE_ANIMATION_DURATION = 3f;
         private const float SCENE_STORY_B_ROOM_HEIGHT = 32f;
         private const float CAMERA_ROTATION_SPEED_KEY_PRESS = 120f;
-        private const float CAMERA_ROTATION_SPEED_SCROLL = 20f;
+        private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
         private const float CAMERA_SMOOTH_FOLLOW_TIME = 0.2f;
         private const float CAMERA_SMOOTH_FOLLOW_MAX_DISTANCE = 3f;
@@ -121,19 +121,9 @@ namespace Pal3.Camera
 
             if (_cameraAnimationInProgress) return;
 
-            if (_lookAtGameObject != null)
-            {
-                var lookAtTransform = _lookAtGameObject.transform;
-                var lookAtPosition = lookAtTransform.position;
-                var cameraTransform = _camera.transform;
-                cameraTransform.LookAt(lookAtTransform);
-                cameraTransform.position = _cameraOffset + lookAtPosition;
-                _lastLookAtPoint = lookAtPosition;
-                _cameraOffset =  cameraTransform.position - lookAtPosition;
-                return;
-            }
-
-            _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
+            _lastLookAtPoint = _lookAtGameObject != null ?
+                    _lookAtGameObject.transform.position :
+                    _gamePlayController.GetPlayerActorLastKnownPosition();
 
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             var targetPosition = _lastLookAtPoint + _cameraOffset;
@@ -160,6 +150,8 @@ namespace Pal3.Camera
             }
 
             _camera.transform.position = _actualPosition;
+
+            if (_lookAtGameObject != null) return;
 
             if (!_freeToRotate)
             {
