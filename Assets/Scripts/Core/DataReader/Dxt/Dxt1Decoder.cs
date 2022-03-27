@@ -8,7 +8,7 @@ namespace Core.DataReader.Dxt
 	using Utils;
 
 	/// <summary>
-	/// Decode DXT1 image data and convert it to RGBA32(RGB888)
+	/// Decode DXT1 image data and convert it to RGBA32(RGB888).
 	/// </summary>
 	public static class Dxt1Decoder
 	{

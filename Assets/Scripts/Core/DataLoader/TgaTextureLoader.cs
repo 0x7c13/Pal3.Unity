@@ -10,30 +10,32 @@ namespace Core.DataLoader
 
     public class TgaTextureLoader : ITextureLoader
     {
-        public unsafe Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel)
+        private Color32[] _pixels;
+        private short _width;
+        private short _height;
+
+        public unsafe void Load(byte[] data, out bool hasAlphaChannel)
         {
-            short width;
-            short height;
             byte bitDepth;
 
             fixed (byte* p = &data[12])
             {
-                width = *(short*)p;
-                height = *(short*)(p + 2);
+                _width = *(short*)p;
+                _height = *(short*)(p + 2);
                 bitDepth = *(p + 4);
             }
 
             var dataStartIndex = 18;
-            var colors = new Color32[width * height];
+            _pixels = new Color32[_width * _height];
 
             hasAlphaChannel = false;
             if (bitDepth == 32)
             {
-                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &colors[0].r)
+                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &_pixels[0].r)
                 {
                     var firstAlpha = *(srcStart + 3);
                     byte* src = srcStart, dst = dstStart;
-                    for (var i = 0; i < width * height; i++, src+=4, dst += 4)
+                    for (var i = 0; i < _width * _height; i++, src+=4, dst += 4)
                     {
                         *dst = *(src + 2);
                         *(dst + 1) = *(src + 1);
@@ -48,10 +50,10 @@ namespace Core.DataLoader
             }
             else if (bitDepth == 24)
             {
-                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &colors[0].r)
+                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &_pixels[0].r)
                 {
                     byte* src = srcStart, dst = dstStart;
-                    for (var i = 0; i < width * height; i++, src += 3, dst += 4)
+                    for (var i = 0; i < _width * _height; i++, src += 3, dst += 4)
                     {
                         *dst = *(src + 2);
                         *(dst + 1) = *(src + 1);
@@ -64,9 +66,13 @@ namespace Core.DataLoader
             {
                 throw new Exception("TGA texture had non 32/24 bit depth.");
             }
+        }
 
-            var texture = new Texture2D(width, height);
-            texture.SetPixels32(colors);
+        public Texture2D ToTexture2D()
+        {
+            if (_pixels == null) return null;
+            var texture = new Texture2D(_width, _height);
+            texture.SetPixels32(_pixels);
             texture.Apply();
             return texture;
         }

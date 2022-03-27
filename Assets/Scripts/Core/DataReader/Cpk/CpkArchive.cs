@@ -8,16 +8,15 @@ namespace Core.DataReader.Cpk
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
     using Lzo;
     using Utils;
 
     /// <summary>
-    /// CpkArchive
-    /// Load and create a tree structure mapping of the internal
-    /// file system model within the CPK archive.
+    /// Load and create a structural mapping of the internal
+    /// file system model within the CPK archive for accessing
+    /// the file entities stored inside the archive.
     /// </summary>
     public class CpkArchive
     {
@@ -47,21 +46,19 @@ namespace Core.DataReader.Cpk
 
             _filePath = cpkFilePath;
             _crcHash = crcHash;
-
-            Init();
         }
 
         /// <summary>
-        /// Load the CPK file from file system.
+        /// Load the CPK file from file system and read header + index table.
         /// </summary>
-        private void Init()
+        public void Init()
         {
             using var stream = new FileStream(_filePath,
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.ReadWrite,
                 bufferSize: 8196,
-                FileOptions.SequentialScan); // use SequentialScan option to increase reading speed
+                FileOptions.SequentialScan); // Use SequentialScan option to increase reading speed
 
             var header = Utility.ReadStruct<CpkHeader>(stream);
 
@@ -80,12 +77,13 @@ namespace Core.DataReader.Cpk
             _tableEntities = new Dictionary<uint, CpkTableEntity>((int)header.FileNum);
 
             var numOfFiles = header.FileNum;
+            var maxFileCount = header.MaxFileNum;
             var filesFound = 0;
-            var offset = 0;
-            for (uint i = 0; i < header.MaxFileNum; i++)
+            var indexTableOffset = 0;
+            for (uint i = 0; i < maxFileCount; i++)
             {
-                var tableEntity = Utility.ReadStruct<CpkTableEntity>(indexTableBuffer, offset);
-                offset += cpkTableEntitySize;
+                var tableEntity = Utility.ReadStruct<CpkTableEntity>(indexTableBuffer, indexTableOffset);
+                indexTableOffset += cpkTableEntitySize;
                 if (tableEntity.IsEmpty() || tableEntity.IsDeleted()) continue;
 
                 _tableEntities[i] = tableEntity;
@@ -97,8 +95,7 @@ namespace Core.DataReader.Cpk
         }
 
         /// <summary>
-        /// Check if file exists inside the archive using the
-        /// virtual path.
+        /// Check if file exists inside the archive.
         /// </summary>
         /// <param name="fileVirtualPath">Virtualized file path inside CPK archive</param>
         /// <returns>True if file exists</returns>
@@ -109,94 +106,69 @@ namespace Core.DataReader.Cpk
         }
 
         /// <summary>
-        /// Read all bytes of the give file
+        /// Read all bytes of the give file stored inside the archive.
         /// </summary>
         /// <param name="fileVirtualPath">Virtualized file path inside CPK archive</param>
         /// <returns>File content in byte array</returns>
         public byte[] ReadAllBytes(string fileVirtualPath)
         {
-            if (_archiveInMemory)
-            {
-                return ReadAllBytesUsingInMemoryCache(fileVirtualPath);
-            }
-
-            using var stream = Open(fileVirtualPath, out var size, out _);
-            var buffer = new byte[size];
-            stream.Read(buffer, 0, (int)size);
-            return buffer;
+            return _archiveInMemory ?
+                ReadAllBytesUsingInMemoryCache(fileVirtualPath) :
+                GetFileContent(fileVirtualPath);
         }
 
         private byte[] ReadAllBytesUsingInMemoryCache(string fileVirtualPath)
         {
             var entity = ValidateAndGetTableEntity(fileVirtualPath);
 
-            byte[] buffer;
+            byte[] data;
 
             var start = (int) entity.StartPos;
             var end = (int) (entity.StartPos + entity.PackedSize);
 
             if (entity.IsCompressed())
             {
-                buffer = new byte[entity.OriginSize];
-                MiniLzo.Decompress(_archiveData[start..end], buffer);
+                data = new byte[entity.OriginSize];
+                MiniLzo.Decompress(_archiveData[start..end], data);
             }
             else
             {
-                buffer = _archiveData[start..end];
+                data = _archiveData[start..end];
             }
 
-            return buffer;
+            return data;
         }
 
-        /// <summary>
-        /// Open and create a Stream pointing to the CPK's internal file location
-        /// of the given virtual file path and populate the size of the file.
-        /// </summary>
-        /// <param name="fileVirtualPath">Virtualized file path inside CPK archive</param>
-        /// <param name="size">Size of the file</param>
-        /// <param name="isCompressed">True if file is compressed</param>
-        /// <returns>A Stream used to read the content</returns>
-        /// <exception cref="ArgumentException">Throw if file does not exists</exception>
-        /// <exception cref="InvalidOperationException">Throw if given file path is a directory</exception>
-        public Stream Open(string fileVirtualPath, out uint size, out bool isCompressed)
+        private byte[] GetFileContent(string fileVirtualPath)
         {
             var entity = ValidateAndGetTableEntity(fileVirtualPath);
-            return OpenInternal(entity, out size, out isCompressed);
+            return GetFileContentInternal(entity);
         }
 
-        private Stream OpenInternal(CpkTableEntity entity, out uint size, out bool isCompressed)
+        private byte[] GetFileContentInternal(CpkTableEntity entity)
         {
-            Stream stream;
+            byte[] rawData;
+
             if (_archiveInMemory)
             {
                 var start = (int) entity.StartPos;
                 var end = (int) (entity.StartPos + entity.PackedSize);
-                stream = new MemoryStream(_archiveData[start..end]);
+                rawData = _archiveData[start..end];
             }
             else
             {
-                stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
+                using var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
                 stream.Seek(entity.StartPos, SeekOrigin.Begin);
+                var buffer = new byte[entity.PackedSize];
+                stream.Read(buffer, 0, (int)entity.PackedSize);
+                rawData = buffer;
             }
 
-            if (entity.IsCompressed())
-            {
-                size = entity.OriginSize;
-                isCompressed = true;
+            if (!entity.IsCompressed()) return rawData;
 
-                var src = new byte[entity.PackedSize];
-                stream.Read(src, 0, (int)entity.PackedSize);
-                stream.Dispose();
-                var buffer = new byte[entity.OriginSize];
-                MiniLzo.Decompress(src, buffer);
-                return new MemoryStream(buffer);
-            }
-            else
-            {
-                size = entity.PackedSize;
-                isCompressed = false;
-                return stream;
-            }
+            var decompressedData = new byte[entity.OriginSize];
+            MiniLzo.Decompress(rawData, decompressedData);
+            return decompressedData;
         }
 
         private CpkTableEntity ValidateAndGetTableEntity(string fileVirtualPath)
@@ -218,7 +190,7 @@ namespace Core.DataReader.Cpk
         }
 
         /// <summary>
-        /// Preload archive into memory for faster read performance
+        /// Preload archive into memory for faster read performance.
         /// </summary>
         public void LoadArchiveIntoMemory()
         {
@@ -227,7 +199,7 @@ namespace Core.DataReader.Cpk
         }
 
         /// <summary>
-        /// Dispose in-memory archive data
+        /// Dispose in-memory archive data.
         /// </summary>
         public void DisposeInMemoryArchive()
         {
@@ -249,11 +221,9 @@ namespace Core.DataReader.Cpk
 
         private void BuildCrcIndexMap()
         {
-            foreach (var tableKv in _tableEntities)
+            foreach (var (index, entity) in _tableEntities)
             {
-                var entity = tableKv.Value;
-
-                _crcToTableIndexMap[entity.CRC] = tableKv.Key;
+                _crcToTableIndexMap[entity.CRC] = index;
 
                 if (_fatherCrcToChildCrcTableIndexMap.ContainsKey(entity.FatherCRC))
                 {
@@ -267,14 +237,14 @@ namespace Core.DataReader.Cpk
         }
 
         /// <summary>
-        /// Build a tree structure map of the internal files
-        /// and return the root nodes in CpkEntry format
+        /// Build a tree structure map of the internal file system
+        /// and return the root nodes in CpkEntry format.
         /// </summary>
         /// <returns>Root level CpkEntry nodes</returns>
-        public IList<CpkEntry> GetRootEntries()
+        public IEnumerable<CpkEntry> GetRootEntries()
         {
             if (_fileNameMap.Count == 0) BuildFileNameMap();
-            return GetChildren(0).ToList();
+            return GetChildren(0);
         }
 
         private void BuildFileNameMap()

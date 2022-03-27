@@ -19,7 +19,7 @@ namespace Pal3.Command
             .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
 
         /// <summary>
-        /// Get SceCommand Type for the given command id
+        /// Get SceCommand Type for the given command id.
         /// </summary>
         /// <param name="commandId">SceCommand Id</param>
         /// <param name="parameterFlag">Parameter flag</param>

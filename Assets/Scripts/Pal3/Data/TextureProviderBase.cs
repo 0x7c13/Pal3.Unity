@@ -24,8 +24,8 @@ namespace Pal3.Data
             }
 
             var data = fileSystem.ReadAllBytes(texturePath);
-            var texture = textureLoader.LoadTexture(data, out hasAlphaChannel);
-            return texture;
+            textureLoader.Load(data, out hasAlphaChannel);
+            return textureLoader.ToTexture2D();
         }
     }
 }

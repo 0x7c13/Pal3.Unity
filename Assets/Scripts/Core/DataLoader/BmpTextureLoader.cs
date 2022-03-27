@@ -10,10 +10,17 @@ namespace Core.DataLoader
 
     public class BmpTextureLoader : ITextureLoader
     {
-        public Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel)
+        private BMPImage _image;
+
+        public void Load(byte[] data, out bool hasAlphaChannel)
         {
             hasAlphaChannel = false;
-            return new BmpLoader().LoadBmp(data).ToTexture2D();
+            _image = new BmpLoader().LoadBmp(data);
+        }
+
+        public Texture2D ToTexture2D()
+        {
+            return _image?.ToTexture2D();
         }
     }
 }

@@ -272,7 +272,9 @@ namespace Pal3.Scene
                 tintColor = new Color(0.3f, 0.3f, 0.3f, 1f);
             }
 
-            _activatedSceneObjects[sceneObject.Info.Id] = sceneObject.Activate(_resourceProvider, _parent, tintColor);
+            var sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
+            sceneObjectGameObject.transform.SetParent(_parent.transform);
+            _activatedSceneObjects[sceneObject.Info.Id] = sceneObjectGameObject;
         }
 
         private void DisposeSceneObject(byte id)
@@ -285,8 +287,9 @@ namespace Pal3.Scene
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
             if (_actorObjects.ContainsKey(actor.Info.Id)) return;
-            _actorObjects[actor.Info.Id] = ActorFactory.CreateActorGameObject(_resourceProvider, actor,
-                _parent, tileMap, tintColor);
+            var actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider, actor, tileMap, tintColor);
+            actorGameObject.transform.SetParent(_parent.transform, false);
+            _actorObjects[actor.Info.Id] = actorGameObject;
         }
 
         private void ActivateActorObject(byte id, bool isActive)

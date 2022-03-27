@@ -160,7 +160,7 @@ namespace Pal3.Renderer
 
                 var meshSectionObject = new GameObject($"{sectionHashKey}");
 
-                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability.
                 #if UNITY_EDITOR
                 var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
                 materialInfoPresenter.blendFlag = meshSection.BlendFlag;

@@ -57,7 +57,6 @@ namespace Pal3.Scene.SceneObjects
         }
 
         public virtual GameObject Activate(GameResourceProvider resourceProvider,
-            GameObject parent,
             Color tintColor)
         {
             var sceneGameObject = new GameObject($"Object_{Info.Id}_{Info.Type}");
@@ -98,7 +97,6 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            sceneGameObject.transform.SetParent(parent.transform);
             sceneGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.Position);
             sceneGameObject.transform.rotation =
                 Quaternion.Euler(Info.XRotation, -Info.YRotation, 0f);

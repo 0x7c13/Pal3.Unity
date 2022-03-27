@@ -9,17 +9,20 @@ namespace Pal3.Data
     using System.Collections.Generic;
     using UnityEngine;
 
+    /// <summary>
+    /// Texture2D in-memory cache.
+    /// </summary>
     public class TextureCache
     {
         private readonly Dictionary<string, (Texture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
 
-        public void AddTextureToCache(string textureFullPath, Texture2D texture, bool hasAlphaChannel)
+        public void Add(string textureFullPath, Texture2D texture, bool hasAlphaChannel)
         {
             if (texture == null) return;
 
             textureFullPath = textureFullPath.ToLower();
 
-            if (IsTextureAvailableInCache(textureFullPath))
+            if (Contains(textureFullPath))
             {
                 Debug.LogError($"Texture {textureFullPath} already existed in cache.");
             }
@@ -30,7 +33,7 @@ namespace Pal3.Data
             }
         }
 
-        public bool IsTextureAvailableInCache(string textureFullPath)
+        public bool Contains(string textureFullPath)
         {
             textureFullPath = textureFullPath.ToLower();
             return _textureCache.ContainsKey(textureFullPath);
@@ -39,7 +42,7 @@ namespace Pal3.Data
         public (Texture2D texture, bool hasAlphaChannel) GetTextureFromCache(string textureFullPath)
         {
             textureFullPath = textureFullPath.ToLower();
-            if (IsTextureAvailableInCache(textureFullPath))
+            if (Contains(textureFullPath))
             {
                 return _textureCache[textureFullPath];
             }
@@ -49,7 +52,7 @@ namespace Pal3.Data
             }
         }
 
-        public void DisposeAllCachedTextures()
+        public void DisposeAll()
         {
             Debug.Log($"Disposing all cached textures: {_textureCache.Count}");
             foreach (var textureTuple in _textureCache.Values)

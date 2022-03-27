@@ -24,7 +24,7 @@ namespace Pal3.Command
         private CommandExecutorRegistry() { }
 
         /// <summary>
-        /// Register a ICommandExecutor instance
+        /// Register a ICommandExecutor instance.
         /// </summary>
         /// <param name="executor">ICommandExecutor instance</param>
         /// <typeparam name="T">TCommand instance type</typeparam>
@@ -45,7 +45,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Automatically register all ICommandExecutor types for the given instance
+        /// Automatically register all ICommandExecutor types for the given instance.
         /// </summary>
         /// <param name="executor">ICommandExecutor instance</param>
         public void Register(object executor)
@@ -77,7 +77,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Unregister a ICommandExecutor instance
+        /// Unregister a ICommandExecutor instance.
         /// </summary>
         /// <param name="executor">ICommandExecutor instance</param>
         /// <typeparam name="T">TCommand instance type</typeparam>
@@ -96,7 +96,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Automatically unregister all ICommandExecutor types for the given instance
+        /// Automatically unregister all ICommandExecutor types for the given instance.
         /// </summary>
         /// <param name="executor">ICommandExecutor instance</param>
         public void UnRegister(object executor)
@@ -126,7 +126,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Get all registered ICommandExecutor based on ICommand instance type
+        /// Get all registered ICommandExecutor based on ICommand instance type.
         /// </summary>
         /// <typeparam name="T">TCommand instance type</typeparam>
         /// <returns>ICommandExecutors</returns>
@@ -143,7 +143,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Get all registered ICommandExecutor based on TCommand instance type
+        /// Get all registered ICommandExecutor based on TCommand instance type.
         /// using reflection
         /// </summary>
         /// <returns>ICommandExecutors</returns>

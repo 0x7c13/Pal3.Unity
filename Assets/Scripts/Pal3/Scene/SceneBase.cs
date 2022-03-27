@@ -19,7 +19,7 @@ namespace Pal3.Scene
     using UnityEngine;
 
     /// <summary>
-    /// Scene base class used to init and hold scene data models
+    /// Scene base class used to init and hold scene data models.
     /// </summary>
     public abstract class SceneBase : MonoBehaviour
     {

@@ -65,6 +65,7 @@ namespace Core.FileSystem
 
             Debug.Log($"CpkFileSystem mounting: {_rootPath + cpkFileRelativePath}");
             var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash);
+            cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }
 
@@ -82,21 +83,7 @@ namespace Core.FileSystem
         }
 
         /// <summary>
-        /// Open a stream pointing to the file position and return size
-        /// of the file for caller to consume.
-        /// </summary>
-        /// <param name="fileVirtualPath">File virtual path inside CPK archive</param>
-        /// <param name="size">Size of the file</param>
-        /// <param name="compressed">True if file is compressed</param>
-        /// <returns>Stream to consume</returns>
-        public Stream Open(string fileVirtualPath, out uint size, out bool compressed)
-        {
-            ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
-            return _cpkArchives[cpkFileName].Open(relativeVirtualPath, out size, out compressed);
-        }
-
-        /// <summary>
-        /// Read all bytes of the given file
+        /// Read all bytes of the given file.
         /// </summary>
         /// <param name="fileVirtualPath">File virtual path inside CPK archive</param>
         /// <returns>Decompressed, ready-to-go file content in byte array</returns>
@@ -107,7 +94,7 @@ namespace Core.FileSystem
         }
 
         /// <summary>
-        /// Preload archive into memory for faster read performance
+        /// Preload archive into memory for faster read performance.
         /// </summary>
         public void LoadArchiveIntoMemory(string cpkFileName)
         {
@@ -123,7 +110,7 @@ namespace Core.FileSystem
         }
 
         /// <summary>
-        /// Dispose in-memory archive data
+        /// Dispose in-memory archive data.
         /// </summary>
         public void DisposeInMemoryArchive(string cpkFileName)
         {
@@ -139,7 +126,7 @@ namespace Core.FileSystem
         }
 
         /// <summary>
-        /// Dispose all in-memory archive data
+        /// Dispose all in-memory archive data.
         /// </summary>
         public void DisposeAllInMemoryArchives()
         {
@@ -150,7 +137,7 @@ namespace Core.FileSystem
         }
 
         /// <summary>
-        /// Search files using keyword
+        /// Search files using keyword.
         /// </summary>
         /// <param name="keyword"></param>
         /// <returns>File path enumerable</returns>

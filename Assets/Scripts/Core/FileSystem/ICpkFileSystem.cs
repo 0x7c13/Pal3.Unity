@@ -14,7 +14,7 @@ namespace Core.FileSystem
     public interface ICpkFileSystem
     {
         /// <summary>
-        /// Get file system's root path
+        /// Get file system's root path.
         /// </summary>
         /// <returns>Root directory path</returns>
         public string GetRootPath();
@@ -33,39 +33,29 @@ namespace Core.FileSystem
         public bool FileExists(string fileVirtualPath);
 
         /// <summary>
-        /// Open a stream pointing to the file position and return size
-        /// of the file for caller to consume.
-        /// </summary>
-        /// <param name="fileVirtualPath">File virtual path inside CPK archive</param>
-        /// <param name="size">Size of the file</param>
-        /// <param name="compressed">True if file is compressed</param>
-        /// <returns></returns>
-        public Stream Open(string fileVirtualPath, out uint size, out bool compressed);
-
-        /// <summary>
-        /// Read all bytes of the given file
+        /// Read all bytes of the given file.
         /// </summary>
         /// <param name="fileVirtualPath">File virtual path inside CPK archive</param>
         /// <returns>Decompressed, ready-to-go file content in byte array</returns>
         public byte[] ReadAllBytes(string fileVirtualPath);
 
         /// <summary>
-        /// Preload archive into memory for faster read performance
+        /// Preload archive into memory for faster read performance.
         /// </summary>
         public void LoadArchiveIntoMemory(string cpkFileName);
 
         /// <summary>
-        /// Dispose in-memory archive data
+        /// Dispose in-memory archive data.
         /// </summary>
         public void DisposeInMemoryArchive(string cpkFileName);
 
         /// <summary>
-        /// Dispose all in-memory archive data
+        /// Dispose all in-memory archive data.
         /// </summary>
         public void DisposeAllInMemoryArchives();
 
         /// <summary>
-        /// Search files using keyword
+        /// Search files using keyword.
         /// </summary>
         /// <param name="keyword"></param>
         /// <returns>File path enumerable</returns>

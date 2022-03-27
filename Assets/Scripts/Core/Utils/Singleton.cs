@@ -8,7 +8,7 @@ namespace Core.Utils
     using UnityEngine;
 
     /// <summary>
-    /// Singleton implementation using MonoBehaviour
+    /// Singleton implementation using MonoBehaviour.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour

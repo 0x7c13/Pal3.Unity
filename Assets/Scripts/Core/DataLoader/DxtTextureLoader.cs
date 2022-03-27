@@ -12,7 +12,12 @@ namespace Core.DataLoader
 
 	public class DxtTextureLoader : ITextureLoader
 	{
-		public Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel)
+		private int _width;
+		private int _height;
+		private byte[] _rawData;
+		private TextureFormat _format;
+
+		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
 			using var stream = new MemoryStream(data);
 			using var reader = new BinaryReader(stream);
@@ -25,12 +30,23 @@ namespace Core.DataLoader
 			var header = DxtHeader.ReadHeader(reader);
 			var format = header.DxtPixelFormat.Format;
 			hasAlphaChannel = format == "DXT1";
-			return format switch
+
+			_width = header.Width;
+			_height = header.Height;
+
+			switch (format)
 			{
-				"DXT1" => LoadDxt1Texture(data, header.Width, header.Height),
-				"DXT3" => LoadDxt3Texture(data, header.Width, header.Height),
-				_ => throw new Exception($"Texture format: {format} not supported.")
-			};
+				case "DXT1":
+					LoadDxt1Texture(data);
+					break;
+				case "DXT3":
+					LoadDxt3Texture(data);
+					break;
+				case "DXT5":
+					throw new NotImplementedException("DXT5 decoder not implemented yet.");
+				default:
+					throw new Exception($"Texture format: {format} not supported.");
+			}
 		}
 
 		private bool IsValidDxtFile(BinaryReader reader)
@@ -41,26 +57,27 @@ namespace Core.DataLoader
 			return false;
 		}
 
-		private Texture2D LoadDxt1Texture(byte[] data, int width, int height)
+		private void LoadDxt1Texture(byte[] data)
 		{
 			// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android
 			// devices so we need to first decode it to RGBA32(RGB888) format
-			var decompressedData = Dxt1Decoder.ToRgba32(data, width, height);
-			return LoadRawTextureData(decompressedData, width, height, TextureFormat.RGBA32);
+			_rawData = Dxt1Decoder.ToRgba32(data, _width, _height);
+			_format = TextureFormat.RGBA32;
 		}
 
-		private Texture2D LoadDxt3Texture(byte[] data, int width, int height)
+		private void LoadDxt3Texture(byte[] data)
 		{
 			// Texture2D.LoadRawTextureData does not support DXT3 format
 			// We need to first decode it to RGBA32(RGB888) format
-			var decompressedData = Dxt3Decoder.ToRgba32(data, width, height);
-			return LoadRawTextureData(decompressedData, width, height, TextureFormat.RGBA32);
+			_rawData = Dxt3Decoder.ToRgba32(data, _width, _height);
+			_format = TextureFormat.RGBA32;
 		}
 
-		private Texture2D LoadRawTextureData(byte[] data, int width, int height, TextureFormat format)
+		public Texture2D ToTexture2D()
 		{
-			Texture2D texture = new Texture2D(width, height, format, false);
-			texture.LoadRawTextureData(data);
+			if (_rawData == null) return null;
+			Texture2D texture = new Texture2D(_width, _height, _format, false);
+			texture.LoadRawTextureData(_rawData);
 			texture.Apply();
 			return texture;
 		}

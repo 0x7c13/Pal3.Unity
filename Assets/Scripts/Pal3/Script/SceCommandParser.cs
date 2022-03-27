@@ -33,23 +33,23 @@ namespace Pal3.Script
             return Activator.CreateInstance(commandType, args) as ICommand;
         }
 
-        // Read property value by type, property index and parameter flag using reflection
+        // Read property value by type, property index and parameter flag using reflection.
         private static object ReadPropertyValue(BinaryReader reader, Type propertyType, int index, ushort parameterFlag)
         {
-            // This is for reading user var (2 bytes Int16)
+            // This is for reading user var (2 bytes Int16).
             if ((parameterFlag & (ushort) (0x0001 << index)) != 0)
             {
                 return Convert.ChangeType(reader.ReadInt16(), propertyType);
             }
 
-            // Special handling for String since we need to read the length first
+            // Special handling for String since we need to read the length first.
             if (propertyType == typeof(string))
             {
                 var length = reader.ReadUInt16();
                 return reader.ReadGbkString(length);
             }
 
-            // Special handling for List type
+            // Special handling for List type.
             if (propertyType == typeof(List<object>))
             {
                 var length = reader.ReadUInt16();
@@ -62,7 +62,7 @@ namespace Pal3.Script
                 return list;
             }
 
-            // Let's use the power of reflection to read and parser primitives
+            // Let's use the power of reflection to read and parser primitives.
             return BinaryReaderMethodResolver.GetMethodInfoForReadPropertyType(propertyType)
                 .Invoke(reader, new object[]{});
         }

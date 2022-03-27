@@ -36,7 +36,7 @@ namespace Pal3.Data
 
         private Texture2D GetTextureInCache(string textureFullPath, out bool hasAlphaChannel)
         {
-            if (_textureCache != null && _textureCache.IsTextureAvailableInCache(textureFullPath))
+            if (_textureCache != null && _textureCache.Contains(textureFullPath))
             {
                 var textureInfo = _textureCache.GetTextureFromCache(textureFullPath);
                 hasAlphaChannel = textureInfo.hasAlphaChannel;
@@ -87,14 +87,14 @@ namespace Pal3.Data
             var texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
             if (texture != null)
             {
-                _textureCache?.AddTextureToCache(ddsTexturePath, texture, hasAlphaChannel);
+                _textureCache?.Add(ddsTexturePath, texture, hasAlphaChannel);
             }
             else // If dds texture does not exist, try original extension
             {
                 textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
                 texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
                 if (texture == null) Debug.LogWarning($"Texture not found: {texturePath}");
-                else _textureCache?.AddTextureToCache(texturePath, texture, hasAlphaChannel);
+                else _textureCache?.Add(texturePath, texture, hasAlphaChannel);
             }
 
             return texture;

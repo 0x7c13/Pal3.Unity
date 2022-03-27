@@ -28,9 +28,9 @@ namespace Pal3.Scene.SceneObjects
             GraphicsEffect = EffectTypeResolver.GetEffectByName(objectInfo.Name);
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, GameObject parent, Color tintColor)
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            var sceneGameObject = base.Activate(resourceProvider, parent, tintColor);
+            var sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<AutoTriggerObjectController>().Init(resourceProvider, this);
             return sceneGameObject;
         }

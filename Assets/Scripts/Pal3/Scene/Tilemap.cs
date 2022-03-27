@@ -92,7 +92,7 @@ namespace Pal3.Scene
             }
 
             // In case "to" position is not walkable, we try to get a walkable tile right
-            // next to the "to" tile to compensate (if there is any walkable tile right next to it)
+            // next to the "to" tile to compensate (if there is any walkable tile right next to it).
             if (!GetTile(to, layerIndex).IsWalkable())
             {
                 if (TryGetAdjacentWalkableTile(to, layerIndex, out var nearestWalkableTile))
@@ -139,7 +139,7 @@ namespace Pal3.Scene
             return path.ToArray();
         }
 
-        // Get a walkable tile right next to the tile if any
+        // Get a walkable tile right next to the tile if any.
         public bool TryGetAdjacentWalkableTile(Vector2Int position, int layerIndex, out Vector2Int nearestWalkableTile)
         {
             foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
@@ -157,7 +157,7 @@ namespace Pal3.Scene
             return false;
         }
 
-        // Add some weights to the tiles near obstacle
+        // Add some weights to the tiles near obstacle.
         private int GetTileWeight(NavTile tile)
         {
             return tile.Distance switch

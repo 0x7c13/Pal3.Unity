@@ -41,7 +41,7 @@ namespace Core.Animation
             }
 
             var timePast = 0f;
-            while (timePast < duration)
+            while (timePast <= duration)
             {
                 var newValue = Mathf.Lerp(from, to,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -59,7 +59,7 @@ namespace Core.Animation
             var oldPosition = target.position;
 
             var timePast = 0f;
-            while (timePast < duration)
+            while (timePast <= duration && target != null)
             {
                 target.position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
@@ -67,7 +67,7 @@ namespace Core.Animation
                 yield return null;
             }
 
-            target.position = toPosition;
+            if (target != null) target.position = toPosition;
         }
 
         public static IEnumerator ShakeTransform(Transform target, float duration, float amplitude,
@@ -75,7 +75,7 @@ namespace Core.Animation
         {
             var originalPosition = target.localPosition;
 
-            while (duration > 0)
+            while (duration >= 0 && target != null)
             {
                 var delta = UnityEngine.Random.insideUnitSphere * amplitude;
                 target.localPosition = originalPosition + new Vector3(
@@ -86,7 +86,7 @@ namespace Core.Animation
                 yield return null;
             }
 
-            target.localPosition = originalPosition;
+            if (target != null) target.localPosition = originalPosition;
         }
 
         public static IEnumerator OrbitTransformAroundCenterPoint(Transform target,
@@ -99,7 +99,7 @@ namespace Core.Animation
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast < duration)
+            while (timePast <= duration && target != null)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -114,8 +114,11 @@ namespace Core.Animation
                 yield return null;
             }
 
-            target.rotation = toRotation;
-            target.position = centerPoint + (toRotation * Vector3.forward).normalized * -distance;
+            if (target != null)
+            {
+                target.rotation = toRotation;
+                target.position = centerPoint + (toRotation * Vector3.forward).normalized * -distance;
+            }
         }
 
         public static IEnumerator RotateTransform(Transform target,
@@ -126,7 +129,7 @@ namespace Core.Animation
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast < duration)
+            while (timePast <= duration && target != null)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -137,7 +140,7 @@ namespace Core.Animation
                 yield return null;
             }
 
-            target.rotation = toRotation;
+            if (target != null) target.rotation = toRotation;
         }
     }
 }

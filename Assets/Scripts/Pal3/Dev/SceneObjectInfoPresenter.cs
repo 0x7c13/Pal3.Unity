@@ -9,7 +9,7 @@ namespace Pal3.Dev
     using UnityEngine;
 
     /// <summary>
-    /// ScnObjectInfo holder component to present ScnObjectInfo in the Unity inspector
+    /// ScnObjectInfo holder component to present ScnObjectInfo in the Unity inspector.
     /// </summary>
     public class SceneObjectInfoPresenter : MonoBehaviour
     {

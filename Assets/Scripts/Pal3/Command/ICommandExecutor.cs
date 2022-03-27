@@ -12,7 +12,7 @@ namespace Pal3.Command
     public interface ICommandExecutor<in TCommand>
     {
         /// <summary>
-        /// Execute the command
+        /// Execute the command.
         /// </summary>
         /// <param name="command">TCommand instance</param>
         public void Execute(TCommand command);

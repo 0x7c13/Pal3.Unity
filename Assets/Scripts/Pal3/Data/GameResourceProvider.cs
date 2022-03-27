@@ -30,6 +30,10 @@ namespace Pal3.Data
     using UnityEngine;
     using Debug = UnityEngine.Debug;
 
+    /// <summary>
+    /// Single resource provider for accessing game data.
+    /// Also manages the lifecycle of the resource it provides.
+    /// </summary>
     public class GameResourceProvider : ICommandExecutor<ScenePreLoadingNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
@@ -44,7 +48,7 @@ namespace Pal3.Data
         private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
         private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
 
-        // No need to deallocate the shadow texture since it is been used almost every where
+        // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
 
         public GameResourceProvider(ICpkFileSystem fileSystem, ITextureLoaderFactory textureLoaderFactory)
@@ -56,7 +60,7 @@ namespace Pal3.Data
 
         public void Dispose()
         {
-            _textureCache.DisposeAllCachedTextures();
+            _textureCache.DisposeAll();
             _spriteCache.Clear();
             _polCache.Clear();
             _mv3Cache.Clear();
@@ -177,7 +181,7 @@ namespace Pal3.Data
         }
 
         /// <summary>
-        /// Get music file path in cache folder
+        /// Get music file path in cache folder.
         /// </summary>
         /// <param name="musicFileVirtualPath">music file virtual path</param>
         /// <returns>Mp3 file path in cache folder</returns>
@@ -462,9 +466,10 @@ namespace Pal3.Data
             if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
             {
                 // Clean up cache after exiting current scene block
-                _textureCache.DisposeAllCachedTextures();
+                _textureCache.DisposeAll();
                 _spriteCache.Clear();
 
+                // TODO: Have a better way to manage the lifecycle of pol, mv3, cvd data.
                 // _polCache.Clear();
                 // _mv3Cache.Clear();
                 // _cvdCache.Clear();

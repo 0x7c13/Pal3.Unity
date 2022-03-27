@@ -31,7 +31,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Dispatch a command to the registered executor(s) in the registry
+        /// Dispatch a command to the registered executor(s) in the registry.
         /// </summary>
         public void Dispatch<T>(T command) where T : TCommand
         {
@@ -49,7 +49,7 @@ namespace Pal3.Command
         }
 
         /// <summary>
-        /// Dispatch a command to the registered executor(s) in the registry using reflection
+        /// Dispatch a command to the registered executor(s) in the registry using reflection.
         /// </summary>
         public void Dispatch(TCommand command)
         {

@@ -111,16 +111,6 @@ namespace Core.Renderer
             return _meshFilter.sharedMesh.bounds;
         }
 
-        private Shader GetShader(string shaderName)
-        {
-            if (Shader.Find(shaderName) is {} shader)
-            {
-                return shader;
-            }
-
-            throw new ArgumentException($"Shader: {shaderName} not found.");
-        }
-
         private void OnDisable()
         {
             Dispose();

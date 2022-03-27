@@ -16,7 +16,6 @@ namespace Pal3.Actor
         public static GameObject CreateActorGameObject(
             GameResourceProvider resourceProvider,
             Actor actor,
-            GameObject parent,
             Tilemap tilemap,
             Color tintColor)
         {
@@ -46,8 +45,6 @@ namespace Pal3.Actor
                 actorGameObject.AddComponent<HuaYingController>().Init(actorController, actionController);
             }
             #endif
-
-            actorGameObject.transform.SetParent(parent.transform, false);
 
             return actorGameObject;
         }

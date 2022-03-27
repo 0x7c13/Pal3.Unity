@@ -11,17 +11,17 @@ namespace Core.Services
     using Utils;
 
     /// <summary>
-    /// ServiceLocator singleton
+    /// ServiceLocator singleton.
     /// </summary>
     public class ServiceLocator : Singleton<ServiceLocator>
     {
         /// <summary>
-        /// currently registered services
+        /// Currently registered services.
         /// </summary>
         private readonly Dictionary<Type, object> _services = new ();
 
         /// <summary>
-        /// Gets the service instance of the given type
+        /// Gets the service instance of the given type.
         /// </summary>
         /// <typeparam name="T">The type of the service to lookup</typeparam>
         /// <returns>The service instance</returns>
@@ -37,7 +37,7 @@ namespace Core.Services
         }
 
         /// <summary>
-        /// Registers the service with the current service locator
+        /// Registers the service with the current service locator.
         /// </summary>
         /// <typeparam name="T">Service typ.</typeparam>
         /// <param name="service">Service instance</param>
@@ -53,7 +53,7 @@ namespace Core.Services
         }
 
         /// <summary>
-        /// Unregisters the service from the current service locator
+        /// Unregisters the service from the current service locator.
         /// </summary>
         /// <typeparam name="T">Service type</typeparam>
         public void Unregister<T>()
@@ -68,7 +68,7 @@ namespace Core.Services
         }
 
         /// <summary>
-        /// Unregisters all services
+        /// Unregisters all services.
         /// </summary>
         public void UnregisterAll()
         {

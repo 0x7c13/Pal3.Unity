@@ -9,7 +9,7 @@ namespace Pal3.Dev
     using UnityEngine;
 
     /// <summary>
-    /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector
+    /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector.
     /// </summary>
     public class MaterialInfoPresenter : MonoBehaviour
     {

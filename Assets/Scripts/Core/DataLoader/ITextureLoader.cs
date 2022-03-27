@@ -9,6 +9,8 @@ namespace Core.DataLoader
 
     public interface ITextureLoader
     {
-        Texture2D LoadTexture(byte[] data, out bool hasAlphaChannel);
+        void Load(byte[] data, out bool hasAlphaChannel);
+
+        Texture2D ToTexture2D();
     }
 }

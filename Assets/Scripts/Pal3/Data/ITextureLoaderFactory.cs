@@ -9,6 +9,11 @@ namespace Pal3.Data
 
     public interface ITextureLoaderFactory
     {
+        /// <summary>
+        /// Get ITextureLoader instance based on image file extension.
+        /// </summary>
+        /// <param name="fileExtension"></param>
+        /// <returns></returns>
         public ITextureLoader GetTextureLoader(string fileExtension);
     }
 }

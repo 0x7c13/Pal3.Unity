@@ -13,19 +13,19 @@ namespace Core.DataReader.Cpk
     public class CpkEntry
     {
         /// <summary>
-        /// Virtualized file system path within CPK file archive
+        /// Virtualized file system path within the CPK archive.
         /// Example: music\pi10a.mp3
         /// </summary>
         public string VirtualPath { get; }
 
         /// <summary>
-        /// True if current entry is a directory
-        /// False if current entry is a file
+        /// True if current entry is a directory,
+        /// False if current entry is a file.
         /// </summary>
         public bool IsDirectory { get; }
 
         /// <summary>
-        /// Non-empty child nodes if current CpkEntry is a directory
+        /// Non-empty child nodes if current CpkEntry is a directory.
         /// </summary>
         public IEnumerable<CpkEntry> Children { get; }
 

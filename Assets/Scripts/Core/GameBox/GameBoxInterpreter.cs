@@ -10,7 +10,7 @@ namespace Core.GameBox
     using UnityEngine;
 
     /// <summary>
-    /// Used to convert GameBox specific rendering related metadata to Unity standard
+    /// Used to convert GameBox specific rendering related metadata to Unity standard.
     /// </summary>
     public static class GameBoxInterpreter
     {
@@ -18,9 +18,9 @@ namespace Core.GameBox
         public const float GameBoxCvdUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
 
-        // Since GameBox's rendering pipeline uses different internal axis system
-        // Here we are flipping the x here to minor it back to the Unity axis
-        // Also we want to scale it to proper unity unit
+        // Since GameBox's rendering pipeline uses different internal axis system.
+        // Here we are flipping the x here to minor it back to the Unity axis.
+        // Also we want to scale it to proper unity unit.
         public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
         {
             return ToUnityVector3(vertex, scale);

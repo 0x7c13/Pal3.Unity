@@ -16,7 +16,7 @@ namespace Pal3.Script
 
         public static MethodInfo GetMethodInfoForReadPropertyType(Type readPropertyType)
         {
-            // Get method info from cache to reduce reflection cost
+            // Get method info from cache to reduce reflection cost.
             if (BinaryReaderMethodInfoCache.ContainsKey(readPropertyType))
             {
                 return BinaryReaderMethodInfoCache[readPropertyType];

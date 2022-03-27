@@ -180,6 +180,9 @@ namespace Core.DataReader.Cvd
         public GameBoxQuaternion Rotation { get; set; }
     }
 
+    /// <summary>
+    /// CVD (.cvd) file model
+    /// </summary>
     public class CvdFile
     {
         public float AnimationDuration { get; }

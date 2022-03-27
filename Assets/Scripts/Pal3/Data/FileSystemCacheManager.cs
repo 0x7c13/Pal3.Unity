@@ -10,6 +10,9 @@ namespace Pal3.Data
     using Command.InternalCommands;
     using Core.FileSystem;
 
+    /// <summary>
+    /// Cache/dispose Cpk archive into memory based on scenarios.
+    /// </summary>
     public class FileSystemCacheManager :
         ICommandExecutor<ScenePreLoadingNotification>
     {

@@ -5,7 +5,6 @@
 
 namespace Core.DataReader.Cpk
 {
-    using System.Linq;
     using System.Text;
 
     public class CrcHash
@@ -41,10 +40,10 @@ namespace Core.DataReader.Cpk
         public uint ComputeCrc32Hash(string str)
         {
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return ComputeCrc32Hash(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
+            return ComputeCrc32HashInternal(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
         }
 
-        public unsafe uint ComputeCrc32Hash(byte[] data)
+        private unsafe uint ComputeCrc32HashInternal(byte[] data)
         {
             var length = data.Length;
             if (length == 0 || data[0] == 0) return 0;
