@@ -279,7 +279,7 @@ namespace Pal3.Actor
             // TODO: Use speed info from datascript\scene.txt file
             //var speed = _actor.Info.Speed == 0 ? 2f : _actor.Info.Speed;
             var moveSpeed = movementMode == 1 ? 11f : 5f;
-            var rotationSpeed = 45f;
+            var rotationSpeed = 20f;
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 

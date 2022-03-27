@@ -128,13 +128,50 @@ namespace Pal3.Player
             var movementAction = movementMode == 0 ? ActorActionType.Walk : ActorActionType.Run;
             _playerActorMovementController.CancelCurrentMovement();
             var cameraTransform = _camera.transform;
-            var targetPosition = _playerActor.transform.position +
-                                 cameraTransform.forward * movement.y +
-                                 cameraTransform.right * movement.x;
-            var result = _playerActorMovementController.MoveTowards(targetPosition, movementMode);
+            var inputDirection = cameraTransform.forward * movement.y +
+                                cameraTransform.right * movement.x;
+            var result = PlayerActorMoveTowards(inputDirection, movementMode);
             _playerActorActionController.PerformAction(result == MovementResult.Blocked
                 ? ActorActionType.Stand
                 : movementAction);
+        }
+
+        /// <summary>
+        /// Adjust some degrees to the inputDirection to prevent player actor
+        /// from hitting into the wall and gets blocked.
+        /// This process is purely for improving the user experience.
+        /// </summary>
+        /// <param name="inputDirection">Camera based user input direction</param>
+        /// <param name="movementMode">Player actor movement mode</param>
+        /// <returns>MovementResult</returns>
+        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, int movementMode)
+        {
+            var playerActorPosition = _playerActor.transform.position;
+            var result = _playerActorMovementController.MoveTowards(
+                playerActorPosition + inputDirection, movementMode);
+
+            if (result != MovementResult.Blocked) return result;
+
+            // Try change direction a little bit to see if it works
+            for (var degrees = 2; degrees <= 80; degrees+= 2)
+            {
+                // + degrees
+                {
+                    var newDirection = Quaternion.Euler(0f, degrees, 0f) * inputDirection;
+                    result = _playerActorMovementController.MoveTowards(
+                        playerActorPosition + newDirection, movementMode);
+                    if (result != MovementResult.Blocked) return result;
+                }
+                // - degrees
+                {
+                    var newDirection = Quaternion.Euler(0f, -degrees, 0f) * inputDirection;
+                    result = _playerActorMovementController.MoveTowards(
+                        playerActorPosition + newDirection, movementMode);
+                    if (result != MovementResult.Blocked) return result;
+                }
+            }
+
+            return result;
         }
 
         private void MovementCanceled(InputAction.CallbackContext ctx)
