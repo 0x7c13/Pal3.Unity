@@ -17,15 +17,13 @@ namespace Core.Utils
     public sealed unsafe class UnsafeBinaryReader : IDisposable
     {
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
-        private readonly byte[] _data;
         private byte* _dataPtr;
         private GCHandle _handle;
 
         public UnsafeBinaryReader(byte[] data)
         {
-            _data = data;
-            _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
-            fixed (byte* ptr = &_data[0])
+            _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            fixed (byte* ptr = &data[0])
             {
                 _dataPtr = ptr;
             }

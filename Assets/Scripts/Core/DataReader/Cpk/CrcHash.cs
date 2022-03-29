@@ -5,17 +5,22 @@
 
 namespace Core.DataReader.Cpk
 {
+    using System;
     using System.Text;
 
-    public class CrcHash
+    /// <summary>
+    /// Crc hash provider.
+    /// </summary>
+    public sealed class CrcHash
     {
         private const uint CRC_TABLE_MAX = 256;
         private const uint POLYNOMIAL = 0x04C11DB7; // CRC seed
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX];
+        private bool _initialized;
 
-        public CrcHash()
+        public void Init()
         {
             // generate the table of CRC remainders for all possible bytes
             for (uint i = 0; i < CRC_TABLE_MAX; i++)
@@ -35,6 +40,8 @@ namespace Core.DataReader.Cpk
                 }
                 CrcTable[i] = crcAccum;
             }
+
+            _initialized = true;
         }
 
         public uint ComputeCrc32Hash(string str)
@@ -45,6 +52,8 @@ namespace Core.DataReader.Cpk
 
         private unsafe uint ComputeCrc32HashInternal(byte[] data)
         {
+            if (!_initialized) throw new Exception("CrcHash not initialized yet.");
+
             var length = data.Length;
             if (length == 0 || data[0] == 0) return 0;
 

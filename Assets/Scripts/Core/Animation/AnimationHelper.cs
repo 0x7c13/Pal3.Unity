@@ -15,6 +15,9 @@ namespace Core.Animation
         Sine,
     }
 
+    /// <summary>
+    /// Provides helper functions to do Transform animations etc.
+    /// </summary>
     public static class AnimationHelper
     {
         // Progress -> (0,1)
@@ -41,7 +44,7 @@ namespace Core.Animation
             }
 
             var timePast = 0f;
-            while (timePast <= duration)
+            while (timePast < duration)
             {
                 var newValue = Mathf.Lerp(from, to,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -49,6 +52,9 @@ namespace Core.Animation
                 timePast += Time.deltaTime;
                 yield return null;
             }
+
+            onValueChanged?.Invoke(to);
+            yield return null;
         }
 
         public static IEnumerator MoveTransform(Transform target,
@@ -59,7 +65,7 @@ namespace Core.Animation
             var oldPosition = target.position;
 
             var timePast = 0f;
-            while (timePast <= duration && target != null)
+            while (timePast < duration && target != null)
             {
                 target.position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
@@ -68,6 +74,7 @@ namespace Core.Animation
             }
 
             if (target != null) target.position = toPosition;
+            yield return null;
         }
 
         public static IEnumerator ShakeTransform(Transform target, float duration, float amplitude,
@@ -75,7 +82,7 @@ namespace Core.Animation
         {
             var originalPosition = target.localPosition;
 
-            while (duration >= 0 && target != null)
+            while (duration > 0 && target != null)
             {
                 var delta = UnityEngine.Random.insideUnitSphere * amplitude;
                 target.localPosition = originalPosition + new Vector3(
@@ -87,6 +94,7 @@ namespace Core.Animation
             }
 
             if (target != null) target.localPosition = originalPosition;
+            yield return null;
         }
 
         public static IEnumerator OrbitTransformAroundCenterPoint(Transform target,
@@ -99,7 +107,7 @@ namespace Core.Animation
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast <= duration && target != null)
+            while (timePast < duration && target != null)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -119,6 +127,7 @@ namespace Core.Animation
                 target.rotation = toRotation;
                 target.position = centerPoint + (toRotation * Vector3.forward).normalized * -distance;
             }
+            yield return null;
         }
 
         public static IEnumerator RotateTransform(Transform target,
@@ -129,7 +138,7 @@ namespace Core.Animation
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast <= duration && target != null)
+            while (timePast < duration && target != null)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -141,6 +150,7 @@ namespace Core.Animation
             }
 
             if (target != null) target.rotation = toRotation;
+            yield return null;
         }
     }
 }

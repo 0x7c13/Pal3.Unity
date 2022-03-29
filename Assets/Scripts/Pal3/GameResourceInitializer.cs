@@ -93,8 +93,9 @@ namespace Pal3
 
         private IEnumerator Start()
         {
-            // Init CRC hash
+            // Create and init CRC hash
             var crcHash = new CrcHash();
+            crcHash.Init();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
 
             loadingText.text = "Loading game assets...";

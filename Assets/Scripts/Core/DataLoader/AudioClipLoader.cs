@@ -12,6 +12,13 @@ namespace Core.DataLoader
 
     public static class AudioClipLoader
     {
+        /// <summary>
+        /// Load Unity AudioClip from file.
+        /// </summary>
+        /// <param name="filePath">Audio file path</param>
+        /// <param name="audioType">Audio type</param>
+        /// <param name="callback">AudioClip callback invoker</param>
+        /// <returns>IEnumerator</returns>
         public static IEnumerator LoadAudioClip(string filePath, AudioType audioType, Action<AudioClip> callback)
         {
             if (filePath.StartsWith("/")) filePath = filePath[1..];

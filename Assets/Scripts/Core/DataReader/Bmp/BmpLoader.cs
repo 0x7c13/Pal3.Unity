@@ -98,7 +98,7 @@ namespace Core.DataReader.Bmp
 
     }
 
-    public class BMPImage
+    public sealed class BMPImage
     {
         public BMPFileHeader header;
         public BitmapInfoHeader info;

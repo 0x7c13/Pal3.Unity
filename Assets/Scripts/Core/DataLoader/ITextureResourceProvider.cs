@@ -7,6 +7,9 @@ namespace Core.DataLoader
 {
     using UnityEngine;
 
+    /// <summary>
+    /// Texture2D provider.
+    /// </summary>
     public interface ITextureResourceProvider
     {
         Texture2D GetTexture(string name);

@@ -10,7 +10,10 @@ namespace Core.DataLoader
 	using DataReader.Dxt;
 	using UnityEngine;
 
-	public class DxtTextureLoader : ITextureLoader
+	/// <summary>
+	/// .dds file loader and Texture2D converter.
+	/// </summary>
+	public sealed class DxtTextureLoader : ITextureLoader
 	{
 		private int _width;
 		private int _height;
@@ -57,18 +60,20 @@ namespace Core.DataLoader
 			return false;
 		}
 
+		// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android
+		// devices so we have to manually decode it to RGBA32(RGB888) format and then
+		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt1Texture(byte[] data)
 		{
-			// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android
-			// devices so we need to first decode it to RGBA32(RGB888) format
 			_rawData = Dxt1Decoder.ToRgba32(data, _width, _height);
 			_format = TextureFormat.RGBA32;
 		}
 
+		// Texture2D.LoadRawTextureData does not support DXT3 format
+		// so we have to manually decode it to RGBA32(RGB888) format and then
+		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt3Texture(byte[] data)
 		{
-			// Texture2D.LoadRawTextureData does not support DXT3 format
-			// We need to first decode it to RGBA32(RGB888) format
 			_rawData = Dxt3Decoder.ToRgba32(data, _width, _height);
 			_format = TextureFormat.RGBA32;
 		}

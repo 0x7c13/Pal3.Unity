@@ -5,15 +5,14 @@
 
 #if !USE_UNITY_ECS_PACKAGE
 
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-
 namespace Core.Algorithm
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using UnityEngine;
 
-    struct Node
+    internal struct Node
     {
         public int X;
         public int Y;
@@ -34,17 +33,20 @@ namespace Core.Algorithm
         }
     }
 
+    /// <summary>
+    /// A* Path finding algorithm implementation.
+    /// </summary>
     public static class AStarPathfinder
     {
-        public static List<Vector2Int> FindPath(
+        public static IList<Vector2Int> FindPath(
             Vector2Int from,
             Vector2Int to,
             Vector2Int gridSize,
             Dictionary<int, bool> walkableMap,
-            Func<Vector2Int, Vector2Int, int> calculateCost)
+            Func<Vector2Int, Vector2Int, int> costFunc)
         {
             var pathResult = new List<Vector2Int>();
-            Node[] nodeArray = new Node[gridSize.x * gridSize.y];
+            Span<Node> nodeArray = new Node[gridSize.x * gridSize.y];
 
             // Init
             for (var x = 0; x < gridSize.x; x++)
@@ -57,7 +59,7 @@ namespace Core.Algorithm
                         Y = y,
                         Index = GetIndex(x, y, gridSize.x),
                         GCost = int.MaxValue,
-                        HCost = calculateCost(new Vector2Int(x, y), to)
+                        HCost = costFunc(new Vector2Int(x, y), to)
                     };
                     node.CalculateFCost();
                     node.IsWalkable = walkableMap[node.Index];
@@ -135,7 +137,7 @@ namespace Core.Algorithm
 
                     var currentNodePosition = new Vector2Int(currentNode.X, currentNode.Y);
 
-                    var tentativeGCost = currentNode.GCost + calculateCost(currentNodePosition, neighbourPosition);
+                    var tentativeGCost = currentNode.GCost + costFunc(currentNodePosition, neighbourPosition);
                     if (tentativeGCost < neighbourNode.GCost)
                     {
                         neighbourNode.PreviousNodeIndex = currentNodeIndex;
@@ -169,7 +171,7 @@ namespace Core.Algorithm
             return x + y * gridWidth;
         }
 
-        private static int GetLowestCostFNodeIndex(List<int> openList, Node[] nodeArray)
+        private static int GetLowestCostFNodeIndex(IList<int> openList, ReadOnlySpan<Node> nodeArray)
         {
             var lowestCostNode = nodeArray[openList[0]];
             for (var i = 0; i < openList.Count; i++)
@@ -192,7 +194,7 @@ namespace Core.Algorithm
                    position.y < gridSize.y;
         }
 
-        private static List<Vector2Int> GetPath(Node[] nodeArray, Node endNode)
+        private static IList<Vector2Int> GetPath(ReadOnlySpan<Node> nodeArray, Node endNode)
         {
             if (endNode.PreviousNodeIndex == -1)
             {

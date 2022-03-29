@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Cpk
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -33,7 +34,7 @@ namespace Core.DataReader.Cpk
         {
             VirtualPath = virtualPath;
             IsDirectory = isDirectory;
-            Children = new List<CpkEntry>();
+            Children = Array.Empty<CpkEntry>();
         }
 
         public CpkEntry(string virtualPath, bool isDirectory, IEnumerable<CpkEntry> children)

@@ -18,7 +18,7 @@ namespace Core.DataReader.Cpk
     /// file system model within the CPK archive for accessing
     /// the file entities stored inside the archive.
     /// </summary>
-    public class CpkArchive
+    public sealed class CpkArchive
     {
         private const uint SUPPORTED_CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
@@ -69,10 +69,10 @@ namespace Core.DataReader.Cpk
 
             var cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
             var indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
-            var indexTableBuffer = new byte[indexTableSize];
+            Span<byte> indexTableBuffer = stackalloc byte[indexTableSize];
             // Read the whole index table into memory before processing
             // to avoid I/O overhead
-            stream.Read(indexTableBuffer, 0, indexTableSize);
+            stream.Read(indexTableBuffer);
 
             _tableEntities = new Dictionary<uint, CpkTableEntity>((int)header.FileNum);
 

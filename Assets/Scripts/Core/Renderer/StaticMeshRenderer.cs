@@ -8,7 +8,7 @@ namespace Core.Renderer
     using System;
     using UnityEngine;
 
-    public class StaticMeshRenderer : MonoBehaviour
+    public sealed class StaticMeshRenderer : MonoBehaviour
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;

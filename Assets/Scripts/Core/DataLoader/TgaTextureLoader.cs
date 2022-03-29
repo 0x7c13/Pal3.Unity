@@ -8,7 +8,10 @@ namespace Core.DataLoader
     using System;
     using UnityEngine;
 
-    public class TgaTextureLoader : ITextureLoader
+    /// <summary>
+    /// .tga file loader and Texture2D converter.
+    /// </summary>
+    public sealed class TgaTextureLoader : ITextureLoader
     {
         private Color32[] _pixels;
         private short _width;

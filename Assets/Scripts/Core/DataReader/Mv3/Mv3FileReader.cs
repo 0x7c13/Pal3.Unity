@@ -17,9 +17,6 @@ namespace Core.DataReader.Mv3
 
     public static class Mv3FileReader
     {
-        private const int ACTOR_NODE_NAME_MAX = 64;
-        private const int ACTOR_ANIMATION_EVENT_NAME_MAX = 16;
-
         public static Mv3File Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
@@ -96,7 +93,7 @@ namespace Core.DataReader.Mv3
         private static Mv3Mesh ReadMesh(BinaryReader reader)
         #endif
         {
-            var name = reader.ReadGbkString(ACTOR_NODE_NAME_MAX);
+            var name = reader.ReadGbkString(64);
             var numberOfVertices = reader.ReadInt32();
             var boundBox = new GameBoxAABBox()
             {
@@ -150,7 +147,7 @@ namespace Core.DataReader.Mv3
                 var numberOfTriangles = reader.ReadInt32();
 
                 var triangles = new Mv3IndexBuffer[numberOfTriangles];
-                for (int j = 0; j < numberOfTriangles; j++)
+                for (var j = 0; j < numberOfTriangles; j++)
                 {
                     triangles[j] = new Mv3IndexBuffer()
                     {
@@ -161,7 +158,7 @@ namespace Core.DataReader.Mv3
 
                 var numberOfCommands = reader.ReadInt32();
                 var commands = new int[numberOfCommands];
-                for (int j = 0; j < numberOfCommands; j++)
+                for (var j = 0; j < numberOfCommands; j++)
                 {
                     commands[j] = reader.ReadInt32();
                 }
@@ -246,7 +243,7 @@ namespace Core.DataReader.Mv3
         private static Mv3TagNode ReadTagNode(BinaryReader reader)
         #endif
         {
-            var nodeName = reader.ReadGbkString(ACTOR_NODE_NAME_MAX);
+            var nodeName = reader.ReadGbkString(64);
             var flipScale = reader.ReadSingle();
             var numberOfFrames = reader.ReadInt32();
 
@@ -304,7 +301,7 @@ namespace Core.DataReader.Mv3
         #endif
         {
             var tick = reader.ReadUInt32();
-            var name = reader.ReadBytes(ACTOR_ANIMATION_EVENT_NAME_MAX);
+            var name = reader.ReadBytes(16);
 
             return new Mv3AnimationEvent()
             {

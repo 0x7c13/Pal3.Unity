@@ -12,6 +12,9 @@ namespace Core.DataReader.Ini
     using IniParser;
     using IniParser.Model;
 
+    /// <summary>
+    /// Read and parse .ini actor config file.
+    /// </summary>
     public static class ActorConfigFileReader
     {
         private const string ACTION_SECTION_HEADER_PREFIX = "action_";

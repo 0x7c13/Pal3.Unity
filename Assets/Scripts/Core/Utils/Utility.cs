@@ -58,17 +58,17 @@ namespace Core.Utils
             return ReadStructInternal<T>(buffer);
         }
 
-        public static T ReadStruct<T>(byte[] bytes, int offset = 0) where T : struct
+        public static T ReadStruct<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct
         {
             return ReadStructInternal<T>(bytes, offset);
-        }
 
+        }
         public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
         {
             return a1.SequenceEqual(a2);
         }
 
-        private static unsafe T ReadStructInternal<T>(byte[] bytes, int offset = 0) where T : struct
+        private static unsafe T ReadStructInternal<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct
         {
             fixed (byte* ptr = &bytes[offset])
             {

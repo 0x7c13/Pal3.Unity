@@ -8,7 +8,10 @@ namespace Core.DataLoader
     using DataReader.Bmp;
     using UnityEngine;
 
-    public class BmpTextureLoader : ITextureLoader
+    /// <summary>
+    /// .bmp file loader and Texture2D converter.
+    /// </summary>
+    public sealed class BmpTextureLoader : ITextureLoader
     {
         private BMPImage _image;
 
