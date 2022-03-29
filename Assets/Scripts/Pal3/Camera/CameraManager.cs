@@ -18,6 +18,7 @@ namespace Pal3.Camera
     using Player;
     using Scene;
     using Script.Waiter;
+    using State;
     using UnityEngine;
     using UnityEngine.InputSystem.OnScreen;
     using UnityEngine.UI;
@@ -38,8 +39,8 @@ namespace Pal3.Camera
         ICommandExecutor<CameraSetYawCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<CameraFocusOnSceneObjectCommand>,
-        ICommandExecutor<PlayerEnableInputCommand>,
-        ICommandExecutor<ScenePreLoadingNotification>
+        ICommandExecutor<ScenePreLoadingNotification>,
+        ICommandExecutor<GameStateChangedNotification>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
         private const float SCENE_STORY_B_ROOM_HEIGHT = 32f;
@@ -63,7 +64,6 @@ namespace Pal3.Camera
         private float _lookAtPointYOffset;
 
         private bool _free = true;
-        private bool _playerInputEnabled;
 
         private PlayerInputActions _inputActions;
         private PlayerGamePlayController _gamePlayController;
@@ -113,7 +113,7 @@ namespace Pal3.Camera
 
         private void LateUpdate()
         {
-            if (!_playerInputEnabled && !_free)
+            if (!_free)
             {
                 _shouldResetVelocity = true;
                 return;
@@ -393,6 +393,7 @@ namespace Pal3.Camera
 
         public void Execute(CameraSetDefaultTransformCommand command)
         {
+            _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
             ApplyDefaultSettings(command.Option);
             _free = true;
         }
@@ -410,6 +411,8 @@ namespace Pal3.Camera
             _lastLookAtPoint = cameraTransform.position + cameraTransform.forward *
                 (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
+
+            _free = false;
         }
 
         public void Execute(CameraFreeCommand command)
@@ -496,11 +499,6 @@ namespace Pal3.Camera
             ApplySceneSettings(notification.SceneInfo);
         }
 
-        public void Execute(PlayerEnableInputCommand command)
-        {
-            _playerInputEnabled = (command.Enable == 1);
-        }
-
         public void Execute(CameraFocusOnActorCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
@@ -511,6 +509,11 @@ namespace Pal3.Camera
         {
             _lookAtGameObject = _sceneManager.GetCurrentScene()
                 .GetSceneObjectGameObject((byte)command.SceneObjectId);
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (command.NewState == GameState.Gameplay) _free = true;
         }
     }
 }

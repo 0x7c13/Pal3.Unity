@@ -25,6 +25,7 @@ namespace Pal3.Player
 
     public class PlayerGamePlayController : MonoBehaviour,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
+        ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<ActorPerformClimbActionCommand>,
         ICommandExecutor<PlayerActorClimbObjectCommand>,
@@ -564,6 +565,20 @@ namespace Pal3.Player
         public void Execute(PlayerInteractionRequest command)
         {
             InteractWithNearestInteractable();
+        }
+
+        public void Execute(ActorSetTilePositionCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                var currentScene = _sceneManager.GetCurrentScene();
+                var currentLayerIndex = currentScene
+                    .GetActorGameObject((byte) _playerManager.GetPlayerActor())
+                    .GetComponent<ActorMovementController>()
+                    .GetCurrentLayerIndex();
+                _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
+                    new Vector2Int(command.TileXPosition,command.TileZPosition), currentLayerIndex);
+            }
         }
     }
 }
