@@ -34,11 +34,13 @@ namespace Pal3.Player
         ICommandExecutor<ActorFadeOutCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
-        ICommandExecutor<ScenePostLoadingNotification>
+        ICommandExecutor<ScenePostLoadingNotification>,
+        ICommandExecutor<LongKuiSwitchModeCommand>
     {
         private PlayerActorId _playerActor = 0;
         private bool _playerActorControlEnabled;
         private bool _playerInputEnabled;
+        private int _longKuiLastKnownMode = 0;
 
         public PlayerManager()
         {
@@ -278,6 +280,11 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(LongKuiSwitchModeCommand command)
+        {
+            _longKuiLastKnownMode = command.Mode;
+        }
+
         public void Execute(ScenePostLoadingNotification notification)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
@@ -291,6 +298,8 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
         }
     }
 }
