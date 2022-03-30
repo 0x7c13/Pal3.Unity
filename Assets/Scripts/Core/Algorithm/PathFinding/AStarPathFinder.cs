@@ -3,9 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#if !USE_UNITY_ECS_PACKAGE
-
-namespace Core.Algorithm
+namespace Core.Algorithm.PathFinding
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +21,7 @@ namespace Core.Algorithm
         public int HCost;
         public int FCost;
 
-        public bool IsWalkable;
+        public bool IsObstacle;
 
         public int PreviousNodeIndex;
 
@@ -34,16 +32,16 @@ namespace Core.Algorithm
     }
 
     /// <summary>
-    /// A* Path finding algorithm implementation.
+    /// A* path finding algorithm.
     /// </summary>
-    public static class AStarPathfinder
+    public static class AStarPathFinder
     {
         public static IList<Vector2Int> FindPath(
             Vector2Int from,
             Vector2Int to,
             Vector2Int gridSize,
-            Dictionary<int, bool> walkableMap,
-            Func<Vector2Int, Vector2Int, int> costFunc)
+            Func<Vector2Int, bool> isObstacle,
+            Func<Vector2Int, Vector2Int, int> heuristicFunc)
         {
             var pathResult = new List<Vector2Int>();
             Span<Node> nodeArray = new Node[gridSize.x * gridSize.y];
@@ -53,16 +51,17 @@ namespace Core.Algorithm
             {
                 for (var y = 0; y < gridSize.y; y++)
                 {
+                    var position = new Vector2Int(x, y);
                     var node = new Node
                     {
                         X = x,
                         Y = y,
                         Index = GetIndex(x, y, gridSize.x),
                         GCost = int.MaxValue,
-                        HCost = costFunc(new Vector2Int(x, y), to)
+                        HCost = heuristicFunc(position, to)
                     };
                     node.CalculateFCost();
-                    node.IsWalkable = walkableMap[node.Index];
+                    node.IsObstacle = isObstacle(position);
                     node.PreviousNodeIndex = -1;
                     nodeArray[node.Index] = node;
                 }
@@ -130,14 +129,14 @@ namespace Core.Algorithm
                     }
 
                     var neighbourNode = nodeArray[neighbourNodeIndex];
-                    if (!neighbourNode.IsWalkable)
+                    if (neighbourNode.IsObstacle)
                     {
                         continue;
                     }
 
                     var currentNodePosition = new Vector2Int(currentNode.X, currentNode.Y);
 
-                    var tentativeGCost = currentNode.GCost + costFunc(currentNodePosition, neighbourPosition);
+                    var tentativeGCost = currentNode.GCost + heuristicFunc(currentNodePosition, neighbourPosition);
                     if (tentativeGCost < neighbourNode.GCost)
                     {
                         neighbourNode.PreviousNodeIndex = currentNodeIndex;
@@ -216,5 +215,3 @@ namespace Core.Algorithm
         }
     }
 }
-
-#endif

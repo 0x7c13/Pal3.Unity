@@ -8,7 +8,7 @@ namespace Pal3.Scene
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Core.Algorithm;
+    using Core.Algorithm.PathFinding;
     using Core.DataReader.Nav;
     using Core.GameBox;
     using MetaData;
@@ -77,7 +77,10 @@ namespace Pal3.Scene
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
         }
 
-        public Vector2Int[] FindPathToTilePositionThreadSafe(Vector2Int from, Vector2Int to, int layerIndex)
+        public Vector2Int[] FindPathToTilePositionThreadSafe(Vector2Int from,
+            Vector2Int to,
+            int layerIndex,
+            HashSet<Vector2Int> obstacles)
         {
             if (!IsTilePositionInsideTileMap(from, layerIndex))
             {
@@ -107,13 +110,20 @@ namespace Pal3.Scene
             }
 
             var path = new List<Vector2Int>();
-            var walkableMap = new Dictionary<int, bool>();
-
             var currentLayer = _navFile.TileLayers[layerIndex];
 
-            for (var i = 0; i < currentLayer.Tiles.Length; i++)
+            bool IsObstacle(Vector2Int position)
             {
-                walkableMap[i] = currentLayer.Tiles[i].IsWalkable();
+                // Check if position is blocked by predefined obstacles
+                // Ignore obstacles nearest to from and to positions just to be safe
+                if (Vector2Int.Distance(from, position) > 1 &&
+                    Vector2Int.Distance(to, position) > 1 &&
+                    obstacles.Contains(position)) return true;
+                var index = position.x + position.y * currentLayer.Width;
+                // Setting <=1 here to exclude tiles right next to the obstacles to give turning
+                // space for the actor to move along the path Lazy theta* produces.
+                // Also this makes the path more natural as well.
+                return currentLayer.Tiles[index].Distance <= 1;
             }
 
             int GetDistanceCost(Vector2Int fromTile, Vector2Int toTile)
@@ -121,19 +131,22 @@ namespace Pal3.Scene
                 int xDistance = Mathf.Abs(fromTile.x - toTile.x);
                 int yDistance = Mathf.Abs(fromTile.y - toTile.y);
                 int remaining = Mathf.Abs(xDistance - yDistance);
-                return MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
-                       MOVE_COST_STRAIGHT * remaining +
+                return (MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
+                       MOVE_COST_STRAIGHT * remaining) *
                        GetTileWeight(GetTile(toTile, layerIndex));
             }
 
-            foreach (var node in AStarPathfinder.FindPath(
-                         from,
-                         to,
-                         new Vector2Int(currentLayer.Width, currentLayer.Height),
-                         walkableMap,
-                         GetDistanceCost))
+            var result = LazyThetaStarPathFinder.FindPath(
+                from,
+                to,
+                new Vector2Int(currentLayer.Width, currentLayer.Height),
+                IsObstacle,
+                GetDistanceCost);
+
+            for (var i = 0; i < result.Count; i++)
             {
-                path.Add(new Vector2Int(node.x, node.y));
+                if (i == 0 && result[i].x == from.x && result[i].y == from.y) continue;
+                path.Add(new Vector2Int(result[i].x, result[i].y));
             }
 
             return path.ToArray();
@@ -162,10 +175,10 @@ namespace Pal3.Scene
         {
             return tile.Distance switch
             {
-                1 => 10,
-                2 => 5,
-                3 => 2,
-                _ => 0
+                1 => 3,
+                2 => 2,
+                3 => 1,
+                _ => 1
             };
         }
     }

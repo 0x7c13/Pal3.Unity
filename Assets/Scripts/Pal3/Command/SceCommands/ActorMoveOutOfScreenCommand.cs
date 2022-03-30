@@ -12,15 +12,15 @@ namespace Pal3.Command.SceCommands
         public ActorMoveOutOfScreenCommand(int actorId, int tileX, int tileZ, int mode)
         {
             ActorId = actorId;
-            TileXPosition = tileX;
-            TileZPosition = tileZ;
+            TileX = tileX;
+            TileZ = tileZ;
             Mode = mode;
         }
 
         // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
         public int ActorId { get; }
-        public int TileXPosition { get; }
-        public int TileZPosition { get; }
+        public int TileX { get; }
+        public int TileZ { get; }
         public int Mode { get; }
     }
 }

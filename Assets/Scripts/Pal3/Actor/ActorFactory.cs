@@ -5,6 +5,8 @@
 
 namespace Pal3.Actor
 {
+    using System;
+    using System.Collections.Generic;
     using Data;
     using Dev;
     using MetaData;
@@ -13,11 +15,11 @@ namespace Pal3.Actor
 
     public static class ActorFactory
     {
-        public static GameObject CreateActorGameObject(
-            GameResourceProvider resourceProvider,
+        public static GameObject CreateActorGameObject(GameResourceProvider resourceProvider,
             Actor actor,
             Tilemap tilemap,
-            Color tintColor)
+            Color tintColor,
+            Func<int, byte[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}")
             {
@@ -34,7 +36,7 @@ namespace Pal3.Actor
             actionController.Init(resourceProvider, actor, tintColor);
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();
-            movementController.Init(actor, tilemap, actionController);
+            movementController.Init(actor, tilemap, actionController, getAllActiveActorBlockingTilePositions);
 
             var actorController = actorGameObject.AddComponent<ActorController>();
             actorController.Init(resourceProvider, actor, actionController, movementController);

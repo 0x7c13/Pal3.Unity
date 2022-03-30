@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -17,6 +18,7 @@ namespace Pal3.Scene
     using Core.Renderer;
     using Core.Utils;
     using Data;
+    using MetaData;
     using Renderer;
     using SceneObjects;
     using UnityEngine;
@@ -287,7 +289,8 @@ namespace Pal3.Scene
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
             if (_actorObjects.ContainsKey(actor.Info.Id)) return;
-            var actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider, actor, tileMap, tintColor);
+            var actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider,
+                actor, tileMap, tintColor, GetAllActiveActorBlockingTilePositions);
             actorGameObject.transform.SetParent(_parent.transform, false);
             _actorObjects[actor.Info.Id] = actorGameObject;
         }
@@ -299,6 +302,45 @@ namespace Pal3.Scene
             var actorGameObject = _actorObjects[id];
             var actorController = actorGameObject.GetComponent<ActorController>();
             actorController.IsActive = isActive;
+        }
+
+        /// <summary>
+        /// Get all tile positions blocked by the active actors in current scene.
+        /// </summary>
+        private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, byte[] excludeActorIds)
+        {
+            var allActors = GetAllActors();
+
+            var actorTiles = new HashSet<Vector2Int>();
+            foreach (var (id, actor) in allActors)
+            {
+                if (excludeActorIds.Contains(id)) continue;
+                if (actor.GetComponent<ActorController>().IsActive)
+                {
+                    var actorMovementController = actor.GetComponent<ActorMovementController>();
+                    if (actorMovementController.GetCurrentLayerIndex() != layerIndex) continue;
+                    var tilePosition = _tilemap.GetTilePosition(actorMovementController.GetWorldPosition(), layerIndex);
+                    actorTiles.Add(tilePosition);
+                }
+            }
+
+            var obstacles = new HashSet<Vector2Int>();
+            foreach (var actorTile in actorTiles)
+            {
+                obstacles.Add(actorTile);
+
+                // Mark 8 tiles right next to the actor tile as obstacles
+                foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+                {
+                    var neighbourTile = actorTile + DirectionUtils.ToVector2Int(direction);
+                    if (_tilemap.IsTilePositionInsideTileMap(neighbourTile, layerIndex))
+                    {
+                        obstacles.Add(neighbourTile);
+                    }
+                }
+            }
+
+            return obstacles;
         }
 
         public void Execute(SceneActivateObjectCommand command)

@@ -15,6 +15,7 @@ namespace Pal3.Actor
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using MetaData;
     using Scene;
     using Script.Waiter;
@@ -51,12 +52,16 @@ namespace Pal3.Actor
         private bool _isDuringCollision;
         private Vector3 _lastKnownValidPositionDuringCollision;
 
-        public void Init(Actor actor, Tilemap tilemap, ActorActionController actionController)
+        private Func<int, byte[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
+
+        public void Init(Actor actor, Tilemap tilemap, ActorActionController actionController,
+            Func<int, byte[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             _actor = actor;
             _tilemap = tilemap;
             _actionController = actionController;
             _currentLayerIndex = actor.Info.OnLayer;
+            _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
             var initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(actor.Info.PositionX,
                 actor.Info.PositionY, actor.Info.PositionZ));
@@ -420,14 +425,20 @@ namespace Pal3.Actor
             _actionController.PerformAction(_actor.GetIdleAction());
         }
 
-        private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position, int mode)
+
+        private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position,
+            int mode,
+            EndOfPathActionType endOfPathAction,
+            bool moveTowardsPositionIfNoPathFound = false)
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
             var fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Info.Id});
+
             var pathFindingThread = new Thread(() =>
             {
                 path = _tilemap.FindPathToTilePositionThreadSafe(fromTile,
-                    new Vector2Int(position.x, position.y), _currentLayerIndex);
+                    new Vector2Int(position.x, position.y), _currentLayerIndex, obstacles);
             })
             {
                 IsBackground = true,
@@ -442,8 +453,20 @@ namespace Pal3.Actor
 
             if (path.Length <= 0)
             {
-                _movementWaiter?.CancelWait();
-                Debug.LogError($"Failed to find path to tile position: {position}");
+                if (moveTowardsPositionIfNoPathFound)
+                {
+                    var directWayPoints = new[]
+                    {
+                        _tilemap.GetWorldPosition(position, _currentLayerIndex),
+                    };
+
+                    SetupPath(directWayPoints, mode, endOfPathAction);
+                }
+                else
+                {
+                    _movementWaiter?.CancelWait();
+                    Debug.LogError($"Failed to find path to tile position: {position}");
+                }
                 yield break;
             }
 
@@ -453,7 +476,7 @@ namespace Pal3.Actor
                 wayPoints[i] = _tilemap.GetWorldPosition(new Vector2Int(path[i].x, path[i].y), _currentLayerIndex);
             }
 
-            SetupPath(wayPoints, mode, EndOfPathActionType.Idle);
+            SetupPath(wayPoints, mode, endOfPathAction);
         }
 
         private void MoveToTilePosition(Vector2Int position, int mode)
@@ -484,7 +507,8 @@ namespace Pal3.Actor
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
-            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ), command.Mode));
+            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
+                command.Mode, EndOfPathActionType.Idle));
         }
 
         public void Execute(ActorMoveToCommand command)
@@ -509,13 +533,11 @@ namespace Pal3.Actor
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
 
-            var wayPoints = new[]
-            {
-                _tilemap.GetWorldPosition(new Vector2Int(command.TileXPosition, command.TileZPosition),
-                    _currentLayerIndex),
-            };
-
-            SetupPath(wayPoints, command.Mode, EndOfPathActionType.DisposeSelf);
+            StartCoroutine(FindPathAndMoveToTilePosition(
+                new Vector2Int(command.TileX, command.TileZ),
+                command.Mode,
+                EndOfPathActionType.DisposeSelf,
+                true));
         }
 
         public void Execute(ActorStopActionAndStandCommand command)
