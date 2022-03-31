@@ -15,7 +15,6 @@ namespace Pal3.Actor
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Core.Services;
     using MetaData;
     using Scene;
     using Script.Waiter;

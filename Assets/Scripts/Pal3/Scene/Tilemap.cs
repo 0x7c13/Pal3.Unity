@@ -131,9 +131,9 @@ namespace Pal3.Scene
                 int xDistance = Mathf.Abs(fromTile.x - toTile.x);
                 int yDistance = Mathf.Abs(fromTile.y - toTile.y);
                 int remaining = Mathf.Abs(xDistance - yDistance);
-                return (MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
-                       MOVE_COST_STRAIGHT * remaining) *
-                       GetTileWeight(GetTile(toTile, layerIndex));
+                return MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
+                       MOVE_COST_STRAIGHT * remaining +
+                       GetTileExtraWeight(GetTile(toTile, layerIndex));
             }
 
             var result = LazyThetaStarPathFinder.FindPath(
@@ -171,14 +171,18 @@ namespace Pal3.Scene
         }
 
         // Add some weights to the tiles near obstacle.
-        private int GetTileWeight(NavTile tile)
+        private int GetTileExtraWeight(NavTile tile)
         {
             return tile.Distance switch
             {
-                1 => 3,
-                2 => 2,
-                3 => 1,
-                _ => 1
+                1 => 20,
+                2 => 10,
+                3 => 5,
+                4 => 0,
+                5 => 0,
+                6 => 0,
+                7 => 0,
+                _ => 0
             };
         }
     }

@@ -342,7 +342,7 @@ namespace Pal3.Actor
         public void Execute(ActorStopActionAndStandCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            PerformAction(ActorActionType.Stand);
+            PerformAction(_actor.GetIdleAction());
         }
 
         public void Execute(ActorChangeTextureCommand command)
