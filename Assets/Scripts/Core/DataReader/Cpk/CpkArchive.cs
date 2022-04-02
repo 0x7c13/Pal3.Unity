@@ -69,7 +69,7 @@ namespace Core.DataReader.Cpk
 
             var cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
             var indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
-            Span<byte> indexTableBuffer = stackalloc byte[indexTableSize];
+            Span<byte> indexTableBuffer = new byte[indexTableSize];
             // Read the whole index table into memory before processing
             // to avoid I/O overhead
             stream.Read(indexTableBuffer);

@@ -321,7 +321,7 @@ namespace Pal3
                 }
                 catch (Exception)
                 {
-                    // ignore
+                    // ignored
                 }
             }
         }

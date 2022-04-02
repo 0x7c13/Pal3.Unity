@@ -143,7 +143,7 @@ namespace Core.Algorithm.PathFinding
                         node.SetParent(null, float.MaxValue);
 
                         var currentNeighbors = GetNeighbors(node, nodes);
-                        for(int i = 0; i < currentNeighbors.Count; i++)
+                        for (var i = 0; i < currentNeighbors.Count; i++)
                         {
                             SearchNode neighbor = currentNeighbors[i];
                             if(neighbor.Closed)
@@ -173,7 +173,7 @@ namespace Core.Algorithm.PathFinding
 
                         float oldGCost = neighbor.GCost;
                         ComputeCost(node, neighbor, startNode, heuristicFunc);
-                        if(neighbor.GCost < oldGCost)
+                        if (neighbor.GCost < oldGCost)
                         {
                             if (neighbor.Opened == false)
                             {
@@ -275,63 +275,45 @@ namespace Core.Algorithm.PathFinding
             return false;
         }
 
-        private static bool LineOfSight(SearchNode from, SearchNode to, SearchNode[,] nodes)
+        private static bool LineOfSight(SearchNode start, SearchNode end, SearchNode[,] nodes)
         {
-            if (from == null || to == null || from == to) return false;
+            int x0 = start.X;
+            int y0 = start.Y;
+            int x1 = end.X;
+            int y1 = end.Y;
 
-            Vector2Int start = from.Position;
-            Vector2Int end = to.Position;
-            int dx = end.x - start.x;
-            int dy = end.y - start.y;
-            int ux = dx > 0 ? 1 : -1;
-            int uy = dy > 0 ? 1 : -1;
-            int x = start.x;
-            int y = start.y;
-            int eps = 0;
-            dx = Mathf.Abs(dx);
-            dy = Mathf.Abs(dy);
-            if(dx > dy)
+            int dx = Math.Abs(x1 - x0);
+            int dy = Math.Abs(y1 - y0);
+            int sx = x0 < x1 ? 1 : -1;
+            int sy = y0 < y1 ? 1 : -1;
+            int err = dx - dy;
+
+            while (true)
             {
-                for(x = start.x; x != end.x; x += ux)
+                if (x0 == x1 && y0 == y1)
                 {
-                    if (GetNode(x, y, nodes).IsObstacle) return false;
+                    return true;
+                }
 
-                    eps += dy;
-                    if((eps << 1) >= dx)
-                    {
-                        if(x != start.x)
-                        {
-                            if (GetNode(x + ux, y, nodes).IsObstacle &&
-                                GetNode(x - ux, y + uy, nodes).IsObstacle) return false;
-                        }
+                var node = GetNode(x0, y0, nodes);
+                if (node is {IsObstacle: true})
+                {
+                    return false;
+                }
 
-                        y += uy;
-                        eps -= dx;
-                    }
+                int e2 = 2 * err;
+                if (e2 > -dy)
+                {
+                    err -= dy;
+                    x0 += sx;
+                }
+
+                if (e2 < dx)
+                {
+                    err += dx;
+                    y0 += sy;
                 }
             }
-            else
-            {
-                for(y = start.y; y != end.y; y += uy)
-                {
-                    if (GetNode(x, y, nodes).IsObstacle) return false;
-
-                    eps += dx;
-                    if((eps << 1) >= dy)
-                    {
-                        if(y != start.y)
-                        {
-                            if (GetNode(x, y + uy, nodes).IsObstacle &&
-                                GetNode(x + ux, y - uy, nodes).IsObstacle) return false;
-                        }
-
-                        x += ux;
-                        eps -= dy;
-                    }
-                }
-            }
-
-            return true;
         }
     }
 }
