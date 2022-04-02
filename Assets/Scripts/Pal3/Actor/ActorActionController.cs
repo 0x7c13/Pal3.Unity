@@ -16,6 +16,7 @@ namespace Pal3.Actor
     using Core.Services;
     using Data;
     using MetaData;
+    using Player;
     using Renderer;
     using Script.Waiter;
     using State;
@@ -377,14 +378,19 @@ namespace Pal3.Actor
 
         public void Execute(GameStateChangedNotification command)
         {
-            if (command.NewState != GameState.Gameplay && _isKinematic == false)
+            if (command.NewState != GameState.Gameplay)
             {
                 _isKinematic = true;
+            }
+            else if (command.NewState == GameState.Gameplay)
+            {
+                var playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
+                _isKinematic = _actor.Info.Id != (byte)playerActor;
+            }
 
-                if (_rigidbody != null)
-                {
-                    _rigidbody.isKinematic = _isKinematic;
-                }
+            if (_rigidbody != null)
+            {
+                _rigidbody.isKinematic = _isKinematic;
             }
         }
 
