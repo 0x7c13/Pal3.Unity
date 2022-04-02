@@ -51,6 +51,10 @@ namespace Pal3.Actor
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
 
+        // By default, all none-player actors are kinematic.
+        // Also, the player actor is only non-kinematic during gameplay state.
+        private bool _isKinematic = true;
+
         public void Init(GameResourceProvider resourceProvider, Actor actor, Color tintColor)
         {
             _resourceProvider = resourceProvider;
@@ -149,6 +153,7 @@ namespace Pal3.Actor
 
             SetupShadow(action);
             SetupCollider();
+            SetupRigidBody();
         }
 
         private void SetupShadow(ActorActionType actorAction)
@@ -174,26 +179,29 @@ namespace Pal3.Actor
 
         private void SetupCollider()
         {
+            if (_collider == null)
+            {
+                _collider = gameObject.AddComponent<CapsuleCollider>();
+            }
+
             var bounds = GetLocalBounds();
-            _collider = gameObject.GetOrAddComponent<CapsuleCollider>();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
             _collider.radius = bounds.size.x * 0.5f;
-
-            var currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
-            ToggleCollisionDetectionBasedOnGameState(currentGameState);
         }
 
         private void SetupRigidBody()
         {
-            _rigidbody = gameObject.GetOrAddComponent<Rigidbody>();
-            _rigidbody.useGravity = false;
-            _rigidbody.isKinematic = false;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
-                                     RigidbodyConstraints.FreezeRotation;
+            if (_rigidbody == null)
+            {
+                _rigidbody = gameObject.AddComponent<Rigidbody>();
+                _rigidbody.useGravity = false;
+                _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
+                                         RigidbodyConstraints.FreezeRotation;
+            }
 
             var currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
-            ToggleCollisionDetectionBasedOnGameState(currentGameState);
+            _rigidbody.isKinematic = currentGameState != GameState.Gameplay || _isKinematic;
         }
 
         private void RenderShadow()
@@ -354,36 +362,25 @@ namespace Pal3.Actor
         public void Execute(ActorEnablePlayerControlCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-            var enableRigidBody = _actor.Info.Id == command.ActorId;
-            if (enableRigidBody && _rigidbody == null) SetupRigidBody();
-            if (!enableRigidBody && _rigidbody != null) Destroy(_rigidbody);
+
+            _isKinematic = _actor.Info.Id != command.ActorId;
+
+            if (_rigidbody != null)
+            {
+                _rigidbody.isKinematic = _isKinematic;
+            }
         }
 
         public void Execute(GameStateChangedNotification command)
         {
-            ToggleCollisionDetectionBasedOnGameState(command.NewState);
-        }
-
-        // TODO: Temporarily disable collision detection during cutscene since
-        // the current path finding solution is not ideal and might cause issues
-        public void ToggleCollisionDetectionBasedOnGameState(GameState state)
-        {
-            if (_collider != null)
+            if (command.NewState != GameState.Gameplay && _isKinematic == false)
             {
-                _collider.enabled = state switch
-                {
-                    GameState.Gameplay => true,
-                    _ => false
-                };
-            }
+                _isKinematic = true;
 
-            if (_rigidbody != null)
-            {
-                _rigidbody.detectCollisions = state switch
+                if (_rigidbody != null)
                 {
-                    GameState.Gameplay => true,
-                    _ => false
-                };
+                    _rigidbody.isKinematic = _isKinematic;
+                }
             }
         }
 

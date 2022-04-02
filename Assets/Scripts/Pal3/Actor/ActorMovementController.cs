@@ -147,7 +147,7 @@ namespace Pal3.Actor
             // Also we need to adjust Y position based on tile information
             // during the collision since we are locking Y movement for the
             // player actor's rigidbody.
-            if (_isDuringCollision && _actionController.GetRigidBody() is {} _)
+            if (_isDuringCollision && _actionController.GetRigidBody() is {isKinematic: false})
             {
                 var currentPosition = transform.position;
                 var tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);

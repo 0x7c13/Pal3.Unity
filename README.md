@@ -9,7 +9,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2021.2.16f1-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2021.2.18f1-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
@@ -66,4 +66,4 @@ https://www.bilibili.com/video/BV1Fu411R7jM
 
 ## 技术交流以及测试
 仙剑三复刻版讨论群：252315306
-仙剑三复刻版开发群：330680869
+

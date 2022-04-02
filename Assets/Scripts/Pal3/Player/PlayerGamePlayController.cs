@@ -534,11 +534,13 @@ namespace Pal3.Player
 
         public void Execute(ActorEnablePlayerControlCommand command)
         {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
+
             _lastKnownPosition = Vector3.zero;
             _lastKnownTilePosition = Vector2Int.zero;
 
             _playerActor = _sceneManager.GetCurrentScene()
-                .GetActorGameObject((byte) _playerManager.GetPlayerActor());
+                .GetActorGameObject((byte) command.ActorId);
             _playerActorActionController = _playerActor.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActor.GetComponent<ActorMovementController>();
         }
