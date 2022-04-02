@@ -61,6 +61,11 @@ namespace Pal3.Renderer
             root.transform.SetParent(gameObject.transform, false);
         }
 
+        public float GetAnimationDuration()
+        {
+            return _animationDuration;
+        }
+
         private void BuildTextureCache(CvdGeometryNode node,
             ITextureResourceProvider textureProvider,
             Dictionary<string, Texture2D> textureCache)

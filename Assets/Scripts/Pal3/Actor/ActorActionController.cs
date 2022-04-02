@@ -13,7 +13,6 @@ namespace Pal3.Actor
     using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Mv3;
-    using Core.Extensions;
     using Core.Services;
     using Data;
     using MetaData;
@@ -344,6 +343,11 @@ namespace Pal3.Actor
                     animationRenderer.StopAnimation();
                 }
                 _animationLoopPointWaiter?.CancelWait();
+
+                if (_autoStand)
+                {
+                    PerformAction(_actor.GetIdleAction());
+                }
             }
         }
 
