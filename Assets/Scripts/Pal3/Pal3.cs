@@ -35,6 +35,7 @@ namespace Pal3
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.Rendering;
+    using UnityEngine.Rendering.Universal;
     using UnityEngine.UI;
     using UnityEngine.Video;
     using Video;
@@ -326,7 +327,8 @@ namespace Pal3
                     // Android 6 Marshmallow <=> API Version 23
                     if (GetAndroidSdkLevel() <= 23)
                     {
-                        Screen.SetResolution((int) (Screen.width * 0.75f), (int) (Screen.height * 0.75f), true);
+                        UniversalRenderPipeline.asset.renderScale = 0.5f;
+                        _postProcessManager.DisableDepthOfField();
                     }
                 }
                 catch (Exception)
