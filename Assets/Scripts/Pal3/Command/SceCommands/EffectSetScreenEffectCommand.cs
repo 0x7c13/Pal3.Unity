@@ -7,9 +7,9 @@ namespace Pal3.Command.SceCommands
 {
     [SceCommand(141, "设置全局镜头（屏幕）特效，" +
                      "参数：特效模式（-1清除所有特效，0水下效果，1黑白色阶）")]
-    public class EffectSetScreenFxCommand : ICommand
+    public class EffectSetScreenEffectCommand : ICommand
     {
-        public EffectSetScreenFxCommand(int mode)
+        public EffectSetScreenEffectCommand(int mode)
         {
             Mode = mode;
         }

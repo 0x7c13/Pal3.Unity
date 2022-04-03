@@ -13,7 +13,6 @@ namespace Pal3.UI
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.Utils;
     using Data;
     using Input;
     using MetaData;
@@ -96,12 +95,7 @@ namespace Pal3.UI
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
 
-            // Disable dialogue background blur effect on handheld devices
-            if (Utility.IsHandheldDevice())
-            {
-                _dialogueBackgroundImage.material = null;
-                _dialogueBackgroundImage.color = new Color(0f, 0f, 0f, 0.65f);
-            }
+            //_dialogueBackgroundImage.color = new Color(0f, 0f, 0f, 0.65f);
 
             ResetUI();
 

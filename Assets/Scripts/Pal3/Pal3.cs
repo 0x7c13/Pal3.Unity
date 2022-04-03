@@ -20,6 +20,7 @@ namespace Pal3
     using Core.Utils;
     using Data;
     using Dev;
+    using Effect;
     using Feature;
     using Input;
     using IngameDebugConsole;
@@ -33,6 +34,7 @@ namespace Pal3
     using UI;
     using UnityEngine;
     using UnityEngine.EventSystems;
+    using UnityEngine.Rendering;
     using UnityEngine.UI;
     using UnityEngine.Video;
     using Video;
@@ -95,6 +97,9 @@ namespace Pal3
         // Event system
         [SerializeField] private EventSystem eventSystem;
 
+        // Global volume
+        [SerializeField] private Volume globalVolume;
+
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
 
@@ -112,6 +117,7 @@ namespace Pal3
         private AudioManager _audioManager;
         private PlayerManager _playerManager;
         private DialogueManager _dialogueManager;
+        private PostProcessManager _postProcessManager;
 
         // Game components
         private TouchControlUIManager _touchControlUIManager;
@@ -258,6 +264,10 @@ namespace Pal3
                 bigMapRegionButtonPrefab);
             ServiceLocator.Instance.Register(_bigMapManager);
 
+            _postProcessManager = gameObject.AddComponent<PostProcessManager>();
+            _postProcessManager.Init(globalVolume);
+            ServiceLocator.Instance.Register(_postProcessManager);
+
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
 
@@ -358,6 +368,7 @@ namespace Pal3
             Destroy(_bigMapManager);
             Destroy(_storySelector);
             Destroy(_captionRenderer);
+            Destroy(_postProcessManager);
 
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
