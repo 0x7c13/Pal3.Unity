@@ -14,7 +14,6 @@ namespace Pal3.Effect
     public class PostProcessManager : MonoBehaviour, ICommandExecutor<EffectSetScreenEffectCommand>
     {
         private Volume _globalVolume;
-        private bool _enableDepthOfField = true;
 
         public void Init(Volume volume)
         {
@@ -46,10 +45,6 @@ namespace Pal3.Effect
                     {
                         vignette.active = false;
                     }
-                    if (_globalVolume.profile.TryGet(out DepthOfField depthOfField))
-                    {
-                        depthOfField.active = _enableDepthOfField;
-                    }
                     break;
                 }
                 // Vintage + color filter effect
@@ -65,16 +60,6 @@ namespace Pal3.Effect
                     }
                     break;
                 }
-            }
-        }
-
-        public void DisableDepthOfField()
-        {
-            _enableDepthOfField = false;
-
-            if (_globalVolume.profile.TryGet(out DepthOfField depthOfField))
-            {
-                depthOfField.active = false;
             }
         }
     }

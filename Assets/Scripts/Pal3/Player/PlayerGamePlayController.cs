@@ -456,12 +456,14 @@ namespace Pal3.Player
             var climbableHeight = upperPosition.y - lowerPosition.y;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
 
             StartCoroutine(PlayerActorMoveToClimbableObjectAndClimb(climbableObject, climbUp,
                 false, climbableHeight, lowerPosition, lowerStandingPosition,
                 upperPosition, upperStandingPosition, lowerLayer, upperLayer, () =>
                 {
                     CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(0));
                 }));
         }
 
