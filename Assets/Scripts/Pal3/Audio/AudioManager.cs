@@ -7,6 +7,7 @@ namespace Pal3.Audio
 {
     using System;
     using System.Collections;
+    using System.Linq;
     using System.Threading;
     using Command;
     using Command.InternalCommands;
@@ -236,6 +237,13 @@ namespace Pal3.Audio
             {
                 _currentScriptMusic = string.Empty;
                 _musicPlayer.Stop();
+                return;
+            }
+
+            // TODO: Disable combat music since combat system has not been implemented yet.
+            if (MusicConstants.CombatMusicInfo.Any(musicInfo =>
+                    command.MusicName.Equals(musicInfo.Value, StringComparison.OrdinalIgnoreCase)))
+            {
                 return;
             }
 
