@@ -187,7 +187,7 @@ namespace Pal3.Actor
             var bounds = GetLocalBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
-            _collider.radius = bounds.size.x * 0.5f;
+            _collider.radius = bounds.size.x * 0.4f;
         }
 
         private void SetupRigidBody()

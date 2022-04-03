@@ -48,7 +48,7 @@ Shader "Pal3/StandardNoShadow"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             fixed _Cutoff;
-            fixed4 _TintColor;
+            half4 _TintColor;
             float _Transparency;
 
             v2f vert(appdata_t v)
@@ -62,9 +62,9 @@ Shader "Pal3/StandardNoShadow"
                 return o;
             }
 
-            fixed4 frag(v2f i) : SV_Target
+            half4 frag(v2f i) : SV_Target
             {
-                fixed4 color = tex2D(_MainTex, i.texcoord);
+                half4 color = tex2D(_MainTex, i.texcoord);
 
                 // Cutout
                 clip(color.a - _Cutoff);

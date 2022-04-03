@@ -96,8 +96,8 @@ namespace Pal3.UI
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
 
-            // Disable dialogue background blur effect on handheld devices
-            if (Utility.IsHandheldDevice())
+            // Disable dialogue background blur effect on Android devices
+            if (Application.platform == RuntimePlatform.Android)
             {
                 _dialogueBackgroundImage.material = null;
                 _dialogueBackgroundImage.color = new Color(0f, 0f, 0f, 0.65f);

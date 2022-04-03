@@ -14,7 +14,7 @@ namespace Pal3.Effect
     {
         private PostProcessVolume _postProcessVolume;
 
-        public void Init(PostProcessVolume  volume)
+        public void Init(PostProcessVolume volume)
         {
             _postProcessVolume = volume;
         }
