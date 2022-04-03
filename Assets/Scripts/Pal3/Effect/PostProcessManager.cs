@@ -13,10 +13,13 @@ namespace Pal3.Effect
     public class PostProcessManager : MonoBehaviour, ICommandExecutor<EffectSetScreenEffectCommand>
     {
         private PostProcessVolume _postProcessVolume;
+        private PostProcessLayer _postProcessLayer;
 
-        public void Init(PostProcessVolume volume)
+        public void Init(PostProcessVolume volume,
+            PostProcessLayer postProcessLayer)
         {
             _postProcessVolume = volume;
+            _postProcessLayer = postProcessLayer;
         }
 
         private void OnEnable()
@@ -36,6 +39,7 @@ namespace Pal3.Effect
                 // Disable all post-processing effects
                 case -1:
                 {
+                    _postProcessLayer.enabled = false;
                     if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
                     {
                         colorAdjustments.active = false;
@@ -57,6 +61,7 @@ namespace Pal3.Effect
                     {
                         vignette.active = true;
                     }
+                    _postProcessLayer.enabled = true;
                     break;
                 }
             }

@@ -97,8 +97,9 @@ namespace Pal3
         // Event system
         [SerializeField] private EventSystem eventSystem;
 
-        // Post-process volume
+        // Post-process volume and layer
         [SerializeField] private PostProcessVolume postProcessVolume;
+        [SerializeField] private PostProcessLayer postProcessLayer;
 
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
@@ -265,7 +266,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_bigMapManager);
 
             _postProcessManager = gameObject.AddComponent<PostProcessManager>();
-            _postProcessManager.Init(postProcessVolume);
+            _postProcessManager.Init(postProcessVolume, postProcessLayer);
             ServiceLocator.Instance.Register(_postProcessManager);
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;

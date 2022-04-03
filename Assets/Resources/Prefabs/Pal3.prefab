@@ -438,7 +438,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311849590}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
   m_Name: 
@@ -447,7 +447,7 @@ MonoBehaviour:
   volumeLayer:
     serializedVersion: 2
     m_Bits: 55
-  stopNaNPropagation: 1
+  stopNaNPropagation: 0
   finalBlitToCameraTarget: 0
   antialiasingMode: 0
   temporalAntialiasing:
@@ -4159,6 +4159,7 @@ MonoBehaviour:
   storySelectionButton: {fileID: 7186792160907318265}
   eventSystem: {fileID: 20216138}
   postProcessVolume: {fileID: 8346885185333560231}
+  postProcessLayer: {fileID: 7927220425085558669}
 --- !u!114 &887733067292281693
 MonoBehaviour:
   m_ObjectHideFlags: 0
