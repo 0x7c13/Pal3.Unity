@@ -132,6 +132,7 @@ namespace Core.DataReader.Cvd
         public GameBoxMatrix4X4 TransformMatrix;
         public CvdGeometryNode[] Children;
         public CvdMesh Mesh;
+        public bool IsGeometryNode;
     }
 
     public struct CvdVertex

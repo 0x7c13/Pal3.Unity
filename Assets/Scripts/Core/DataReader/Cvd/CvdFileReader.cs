@@ -43,11 +43,7 @@ namespace Core.DataReader.Cvd
             var rootNodes = new List<CvdGeometryNode>();
             for (var i = 0; i < numberONodes; i++)
             {
-                var isGeometryNode = reader.ReadByte();
-                if (isGeometryNode == 1)
-                {
-                    ReadGeometryNodes(reader, version, rootNodes, ref animationDuration);
-                }
+                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration);
             }
 
             return new CvdFile(animationDuration, rootNodes.ToArray());
@@ -65,18 +61,21 @@ namespace Core.DataReader.Cvd
             ref float animationDuration)
         #endif
         {
-            var parentNode = ReadGeometryNode(reader, version, ref animationDuration);
+            CvdGeometryNode parentNode = default;
+
+            var isGeometryNode = reader.ReadByte();
+            if (isGeometryNode == 1)
+            {
+                parentNode = ReadGeometryNode(reader, version, ref animationDuration);
+                parentNode.IsGeometryNode = true;
+            }
 
             var numberOfChildNodes = reader.ReadInt32();
 
             var children = new List<CvdGeometryNode>();
             for (var i = 0; i < numberOfChildNodes; i++)
             {
-                var isGeometryNode = reader.ReadByte();
-                if (isGeometryNode == 1)
-                {
-                    ReadGeometryNodes(reader, version, children, ref animationDuration);
-                }
+                ReadGeometryNodes(reader, version, children, ref animationDuration);
             }
 
             parentNode.Children = children.ToArray();

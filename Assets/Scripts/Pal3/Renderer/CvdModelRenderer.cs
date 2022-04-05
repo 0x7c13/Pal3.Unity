@@ -70,12 +70,15 @@ namespace Pal3.Renderer
             ITextureResourceProvider textureProvider,
             Dictionary<string, Texture2D> textureCache)
         {
-            foreach (var meshSection in node.Mesh.MeshSections)
+            if (node.IsGeometryNode)
             {
-                if (string.IsNullOrEmpty(meshSection.TextureName)) continue;
-                if (textureCache.ContainsKey(meshSection.TextureName)) continue;
-                var texture2D = textureProvider.GetTexture(meshSection.TextureName);
-                if (texture2D != null) textureCache[meshSection.TextureName] = texture2D;
+                foreach (var meshSection in node.Mesh.MeshSections)
+                {
+                    if (string.IsNullOrEmpty(meshSection.TextureName)) continue;
+                    if (textureCache.ContainsKey(meshSection.TextureName)) continue;
+                    var texture2D = textureProvider.GetTexture(meshSection.TextureName);
+                    if (texture2D != null) textureCache[meshSection.TextureName] = texture2D;
+                }
             }
 
             foreach (var childNode in node.Children)
@@ -125,83 +128,86 @@ namespace Pal3.Renderer
             Dictionary<string, Texture2D> textureCache,
             GameObject parent)
         {
-            var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
-
-            var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
-            var frameMatrix = GetFrameMatrix(time, node);
-
-            var influence = 0f;
-            if (time > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
-            {
-                influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
-                                (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
-                                 node.Mesh.AnimationTimeKeys[frameIndex]);
-            }
-
             var meshObject = new GameObject(meshName);
             meshObject.transform.SetParent(parent.transform, false);
 
-            for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
+            if (node.IsGeometryNode)
             {
-                var meshSection = node.Mesh.MeshSections[i];
+                var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
 
-                var sectionHashKey = $"{meshName}_{i}";
+                var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
+                var frameMatrix = GetFrameMatrix(time, node);
 
-                var meshDataBuffer = new MeshDataBuffer
+                var influence = 0f;
+                if (time > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
                 {
-                    VertexBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
-                    NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
-                    UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
-                };
-
-                UpdateMeshDataBuffer(ref meshDataBuffer,
-                    meshSection,
-                    frameIndex,
-                    influence,
-                    frameMatrix);
-
-                if (string.IsNullOrEmpty(meshSection.TextureName) ||
-                    !textureCache.ContainsKey(meshSection.TextureName)) continue;
-
-                var meshSectionObject = new GameObject($"{sectionHashKey}");
-
-                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability.
-                #if UNITY_EDITOR
-                var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
-                materialInfoPresenter.blendFlag = meshSection.BlendFlag;
-                materialInfoPresenter.material = meshSection.Material;
-                #endif
-
-                var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
-
-                var material = new Material(_standardNoShadowShader);
-                material.SetTexture(Shader.PropertyToID("_MainTex"), textureCache[meshSection.TextureName]);
-                var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
-                if (cutoff > Mathf.Epsilon)
-                {
-                    material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                    influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
+                                (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
+                                 node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
 
-                material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
-
-                var renderMesh = meshRenderer.Render(meshDataBuffer.VertexBuffer,
-                    GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles),
-                    meshDataBuffer.NormalBuffer,
-                    meshDataBuffer.UvBuffer,
-                    material,
-                    true);
-
-                nodeMeshes.Item2[i] = new RenderMeshComponent
+                for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
-                    Mesh = renderMesh,
-                    MeshRenderer = meshRenderer,
-                    MeshDataBuffer = meshDataBuffer
-                };
+                    var meshSection = node.Mesh.MeshSections[i];
 
-                meshSectionObject.transform.SetParent(meshObject.transform, false);
+                    var sectionHashKey = $"{meshName}_{i}";
+
+                    var meshDataBuffer = new MeshDataBuffer
+                    {
+                        VertexBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
+                        NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
+                        UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
+                    };
+
+                    UpdateMeshDataBuffer(ref meshDataBuffer,
+                        meshSection,
+                        frameIndex,
+                        influence,
+                        frameMatrix);
+
+                    if (string.IsNullOrEmpty(meshSection.TextureName) ||
+                        !textureCache.ContainsKey(meshSection.TextureName)) continue;
+
+                    var meshSectionObject = new GameObject($"{sectionHashKey}");
+
+                    // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability.
+                    #if UNITY_EDITOR
+                    var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
+                    materialInfoPresenter.blendFlag = meshSection.BlendFlag;
+                    materialInfoPresenter.material = meshSection.Material;
+                    #endif
+
+                    var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
+
+                    var material = new Material(_standardNoShadowShader);
+                    material.SetTexture(Shader.PropertyToID("_MainTex"), textureCache[meshSection.TextureName]);
+                    var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
+                    if (cutoff > Mathf.Epsilon)
+                    {
+                        material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                    }
+
+                    material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
+
+                    var renderMesh = meshRenderer.Render(meshDataBuffer.VertexBuffer,
+                        GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles),
+                        meshDataBuffer.NormalBuffer,
+                        meshDataBuffer.UvBuffer,
+                        material,
+                        true);
+
+                    nodeMeshes.Item2[i] = new RenderMeshComponent
+                    {
+                        Mesh = renderMesh,
+                        MeshRenderer = meshRenderer,
+                        MeshDataBuffer = meshDataBuffer
+                    };
+
+                    meshSectionObject.transform.SetParent(meshObject.transform, false);
+                }
+
+                _renderers.Add(nodeMeshes);
             }
-
-            _renderers.Add(nodeMeshes);
 
             for (var i = 0; i < node.Children.Length; i++)
             {
