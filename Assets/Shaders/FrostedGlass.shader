@@ -30,7 +30,7 @@ Shader "Pal3/FrostedGlass"
             Cull Off
             Lighting Off
             ZWrite Off
-            ZTest [unity_GUIZTestMode]
+            //ZTest [unity_GUIZTestMode]
             Blend SrcAlpha OneMinusSrcAlpha
 
             Pass
@@ -138,9 +138,9 @@ Shader "Pal3/FrostedGlass"
                     o.vertex = UnityObjectToClipPos(v.vertex);
 
                     #if UNITY_UV_STARTS_AT_TOP
-                    float scale = -1.0;
+                    const float scale = -1.0;
                     #else
-                    float scale = 1.0;
+                    const float scale = 1.0;
                     #endif
 
                     o.uvgrab.xy = (float2(o.vertex.x, o.vertex.y * scale) + o.vertex.w) * 0.5;
