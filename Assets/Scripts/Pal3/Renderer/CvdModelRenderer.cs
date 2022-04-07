@@ -444,12 +444,12 @@ namespace Pal3.Renderer
                             toKeyFrame.Rotation.W),
                         influence);
                     return new GameBoxQuaternion()
-                            {
-                                X = calculatedRotation.x,
-                                Y = calculatedRotation.y,
-                                Z = calculatedRotation.z,
-                                W = calculatedRotation.w,
-                            };
+                    {
+                        X = calculatedRotation.x,
+                        Y = calculatedRotation.y,
+                        Z = calculatedRotation.z,
+                        W = calculatedRotation.w,
+                    };
                 }
             }
 

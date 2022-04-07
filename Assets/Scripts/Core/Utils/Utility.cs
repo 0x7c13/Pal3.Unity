@@ -6,6 +6,7 @@
 namespace Core.Utils
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -153,6 +154,16 @@ namespace Core.Utils
         public static bool IsDesktopDevice()
         {
             return SystemInfo.deviceType == DeviceType.Desktop;
+        }
+
+        public static Bounds EncapsulateBounds(IEnumerable<Bounds> bounds)
+        {
+            var finalBounds = new Bounds(Vector3.zero, Vector3.zero);
+            foreach (var b in bounds)
+            {
+                finalBounds.Encapsulate(b);
+            }
+            return finalBounds;
         }
 
         public static void DrawBounds(Bounds b, float duration = 1000)

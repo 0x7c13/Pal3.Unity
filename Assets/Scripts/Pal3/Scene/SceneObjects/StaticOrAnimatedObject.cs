@@ -76,7 +76,7 @@ namespace Pal3.Scene.SceneObjects
             var animationWaiter = new WaitForSeconds(cvdModelRenderer.GetAnimationDuration());
             while (isActiveAndEnabled)
             {
-                yield return new WaitForSeconds(UnityEngine.Random.Range(1.5f, 5f));
+                yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f, 3.5f));
                 cvdModelRenderer.PlayAnimation(1f, 1);
                 yield return animationWaiter;
             }
@@ -84,20 +84,20 @@ namespace Pal3.Scene.SceneObjects
 
         void LateUpdate()
         {
-            var currentTransform = transform;
-
             // Parameters[2] describes animated object's default animation.
             // 0 means no animation. 1 means the object is animated up and down (sine curve).
             // 2 means the object is animated with constant rotation.
             if (_sceneObject.Info.Parameters[2] == 1)
             {
+                var currentTransform = transform;
                 var currentPosition = currentTransform.localPosition;
                 transform.localPosition = new Vector3(currentPosition.x,
-                    _startYPosition + Mathf.Sin(Time.time) / 2f,
+                    _startYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
             else if (_sceneObject.Info.Parameters[2] == 2)
             {
+                var currentTransform = transform;
                 transform.RotateAround(currentTransform.position, currentTransform.up, Time.deltaTime * 80f);
             }
         }

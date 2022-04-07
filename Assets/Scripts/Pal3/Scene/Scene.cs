@@ -28,6 +28,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneActivateObjectCommand>,
         ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
+        ICommandExecutor<SceneOpenDoorCommand>,
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorLookAtActorCommand>
     {
@@ -395,6 +396,22 @@ namespace Pal3.Scene
             else
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.SceneObjectId}.");
+            }
+        }
+
+        public void Execute(SceneOpenDoorCommand command)
+        {
+            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            {
+                var sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                {
+                    cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
 

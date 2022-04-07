@@ -14,6 +14,7 @@ namespace Pal3.Actor
     using Core.DataLoader;
     using Core.DataReader.Mv3;
     using Core.Services;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Player;
@@ -145,8 +146,8 @@ namespace Pal3.Actor
                 _mv3AnimationRenderers.Add(mv3AnimationRenderer);
             }
 
-            _worldBounds = _mv3AnimationRenderers.First().GetBounds();
-            _localBounds = _mv3AnimationRenderers.First().GetLocalBounds();
+            _worldBounds = Utility.EncapsulateBounds(_mv3AnimationRenderers.Select(_ => _.GetBounds()));
+            _localBounds = Utility.EncapsulateBounds(_mv3AnimationRenderers.Select(_ => _.GetLocalBounds()));
 
             var action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
@@ -222,12 +223,14 @@ namespace Pal3.Actor
 
         public Bounds GetBounds()
         {
-            return _mv3AnimationRenderers.Count == 0 ? _worldBounds : _mv3AnimationRenderers.First().GetBounds();
+            return _mv3AnimationRenderers.Count == 0 ? _worldBounds :
+                Utility.EncapsulateBounds(_mv3AnimationRenderers.Select(_ => _.GetBounds()));
         }
 
         public Bounds GetLocalBounds()
         {
-            return _mv3AnimationRenderers.Count == 0 ? _localBounds : _mv3AnimationRenderers.First().GetLocalBounds();
+            return _mv3AnimationRenderers.Count == 0 ? _localBounds :
+                Utility.EncapsulateBounds(_mv3AnimationRenderers.Select(_ => _.GetLocalBounds()));
         }
 
         private void AnimationLoopPointReached(object _, int loopCount)
