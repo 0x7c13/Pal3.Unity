@@ -32,18 +32,22 @@ namespace Pal3.Renderer
         private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
+        private Color _tintColor;
+
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
         private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
         private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
+        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
         private readonly int _transparencyPropertyId = Shader.PropertyToID("_Transparency");
         private Shader _standardShader;
         private Shader _standardNoShadowShader;
         private readonly Dictionary<string, Material> _materials = new ();
         private bool _disableTransparency;
 
-        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, bool disableTransparency = false)
+        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor, bool disableTransparency = false)
         {
             _textureProvider = textureProvider;
+            _tintColor = tintColor;
             _textureCache = BuildTextureCache(polFile, textureProvider);
             _disableTransparency = disableTransparency;
 
@@ -146,7 +150,6 @@ namespace Pal3.Renderer
                         material = new Material(_standardNoShadowShader);
                         material.SetTexture(_mainTexturePropertyId, textures[0].texture);
 
-
                         var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
                         if (cutoff > Mathf.Epsilon)
                         {
@@ -166,15 +169,15 @@ namespace Pal3.Renderer
                                 material.SetFloat(_transparencyPropertyId, transparency);
                             }
                         }
-
+                        material.SetColor(_tintColorPropertyId, _tintColor);
                         _materials[materialHashKey] = material;
                     }
 
-                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
-                        mesh.Textures[i].Triangles,
-                        mesh.VertexInfo.Normals,
-                        mesh.VertexInfo.Uvs[0],
-                        material,
+                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                        ref mesh.Textures[i].Triangles,
+                        ref mesh.VertexInfo.Normals,
+                        ref mesh.VertexInfo.Uvs[0],
+                        ref material,
                         false);
 
                     if (isWaterSurface)
@@ -225,14 +228,16 @@ namespace Pal3.Renderer
                                 material.SetFloat(_transparencyPropertyId, transparency);
                             }
                         }
+                        material.SetColor(_tintColorPropertyId, _tintColor);
+                        _materials[materialHashKey] = material;
                     }
 
-                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
-                        mesh.Textures[i].Triangles,
-                        mesh.VertexInfo.Normals,
-                        mesh.VertexInfo.Uvs[1],
-                        mesh.VertexInfo.Uvs[0],
-                        material,
+                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                        ref mesh.Textures[i].Triangles,
+                        ref mesh.VertexInfo.Normals,
+                        ref mesh.VertexInfo.Uvs[1],
+                        ref mesh.VertexInfo.Uvs[0],
+                        ref material,
                         false);
 
                     if (isWaterSurface)

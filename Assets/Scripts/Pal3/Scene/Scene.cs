@@ -98,7 +98,7 @@ namespace Pal3.Scene
             var timer = new Stopwatch();
             timer.Start();
             base.Init(_resourceProvider, scnFile);
-            //Debug.LogError($"InitTotal: {timer.Elapsed.TotalSeconds:0.00}");
+            //Debug.LogError($"InitTotal: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             _tilemap = new Tilemap(NavFile);
@@ -108,21 +108,22 @@ namespace Pal3.Scene
                 actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
             }
 
+            timer.Restart();
             RenderMesh();
-            //Debug.LogError($"RenderMesh: {timer.Elapsed.TotalSeconds:0.00}");
+            //Debug.LogError($"RenderMesh: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             RenderSkyBox();
             SetupNavMesh();
-            //Debug.LogError($"SkyBox+NavMesh: {timer.Elapsed.TotalSeconds:0.00}");
+            //Debug.LogError($"SkyBox+NavMesh: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             CreateActorObjects(actorTintColor, _tilemap);
-            //Debug.LogError($"CreateActors: {timer.Elapsed.TotalSeconds:0.00}");
+            //Debug.LogError($"CreateActors: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             ActivateSceneObjects();
-            //Debug.LogError($"ActivateSceneObjects: {timer.Elapsed.TotalSeconds:0.00}");
+            //Debug.LogError($"ActivateSceneObjects: {timer.ElapsedMilliseconds} ms");
             timer.Stop();
         }
 
@@ -178,7 +179,7 @@ namespace Pal3.Scene
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform);
 
-            polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider);
+            polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider, Color.white);
 
             if (SceneCvdMesh != null)
             {
@@ -271,7 +272,7 @@ namespace Pal3.Scene
             var tintColor = Color.white;
             if (ScnFile.SceneInfo.LightMap == 1)
             {
-                tintColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+                tintColor = new Color(0.35f, 0.35f, 0.35f, 1f);
             }
 
             var sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);

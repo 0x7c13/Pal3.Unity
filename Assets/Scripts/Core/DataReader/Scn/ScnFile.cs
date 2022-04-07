@@ -18,7 +18,7 @@ namespace Core.DataReader.Scn
         Dealer =        3,   // 小贩(职业动作)
         Soldier =       4,   // 官兵
         MainActor =  0xFF,   // 主角
-    };
+    }
 
     [System.Serializable]
     public enum ScnActorBehaviour
@@ -36,7 +36,7 @@ namespace Core.DataReader.Scn
         PetFollow,
         PetFly,
         Key,
-    };
+    }
 
     [System.Serializable]
     public enum ScnSceneType
@@ -44,7 +44,7 @@ namespace Core.DataReader.Scn
         StoryA = 0,  // 情节关城市村镇
         StoryB,      // 情节关建筑内部
         Maze,        // 战斗（迷宫）场景
-    };
+    }
 
     [System.Serializable]
     public enum ScnSceneObjectType

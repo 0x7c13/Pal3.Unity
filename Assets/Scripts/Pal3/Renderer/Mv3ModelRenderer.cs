@@ -29,9 +29,7 @@ namespace Pal3.Renderer
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
         private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
-        private readonly int _transparencyPropertyId = Shader.PropertyToID("_Transparency");
         private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
         private Shader _standardNoShadowShader;
 
@@ -115,11 +113,13 @@ namespace Pal3.Renderer
                     VertexBuffer = new Vector3[_keyFrames[0].Vertices.Length]
                 };
 
-                var renderMesh = meshRenderer.Render(_keyFrames[0].Vertices,
-                    _keyFrames[0].Triangles,
-                    Array.Empty<Vector3>(),
-                    _keyFrames[0].Uv,
-                    _material,
+                var normals = Array.Empty<Vector3>();
+
+                var renderMesh = meshRenderer.Render(ref _keyFrames[0].Vertices,
+                    ref _keyFrames[0].Triangles,
+                    ref normals,
+                    ref _keyFrames[0].Uv,
+                    ref _material,
                     true);
 
                 //renderMesh.RecalculateNormals();

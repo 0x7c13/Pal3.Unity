@@ -28,7 +28,7 @@ namespace Pal3.Effect
             {
                 var poly = resourceProvider.GetPol(info.ModelPath);
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
-                _sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider);
+                _sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider, Color.white);
             }
 
             if (!string.IsNullOrEmpty(info.TexturePathFormat))

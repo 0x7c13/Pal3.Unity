@@ -5,25 +5,28 @@
 
 namespace Core.Renderer
 {
-    using System;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     public sealed class StaticMeshRenderer : MonoBehaviour
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
-        public Mesh Render(Vector3[] vertices,
-            int[] triangles,
-            Vector3[] normals,
-            Vector2[] uv,
-            Material material,
+        public Mesh Render(ref Vector3[] vertices,
+            ref int[] triangles,
+            ref Vector3[] normals,
+            ref Vector2[] uv,
+            ref Material material,
             bool isDynamic)
         {
             Dispose();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            //_meshRenderer.receiveShadows = false;
+            //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
             _meshRenderer.sharedMaterial = material;
+
             _meshFilter = gameObject.AddComponent<MeshFilter>();
 
             var mesh = new Mesh();
@@ -32,10 +35,10 @@ namespace Core.Renderer
                 mesh.MarkDynamic();
             }
 
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            mesh.normals = normals;
-            mesh.uv = uv;
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.SetNormals(normals);
+            mesh.SetUVs(0, uv);
 
             if (triangles.Length == 0)
             {
@@ -51,17 +54,19 @@ namespace Core.Renderer
             return mesh;
         }
 
-        public Mesh Render(Vector3[] vertices,
-            int[] triangles,
-            Vector3[] normals,
-            Vector2[] mainTextureUv,
-            Vector2[] secondaryTextureUv,
-            Material material,
+        public Mesh Render(ref Vector3[] vertices,
+            ref int[] triangles,
+            ref Vector3[] normals,
+            ref Vector2[] mainTextureUv,
+            ref Vector2[] secondaryTextureUv,
+            ref Material material,
             bool isDynamic)
         {
             Dispose();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            //_meshRenderer.receiveShadows = false;
+            //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
             _meshRenderer.sharedMaterial = material;
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
@@ -71,11 +76,11 @@ namespace Core.Renderer
                 mesh.MarkDynamic();
             }
 
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            mesh.normals = normals;
-            mesh.uv = mainTextureUv;
-            mesh.uv2 = secondaryTextureUv;
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.SetNormals(normals);
+            mesh.SetUVs(0, mainTextureUv);
+            mesh.SetUVs(1, secondaryTextureUv);
 
             if (triangles.Length == 0)
             {

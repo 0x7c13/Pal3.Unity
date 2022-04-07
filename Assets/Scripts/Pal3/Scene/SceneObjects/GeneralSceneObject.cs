@@ -29,6 +29,12 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
+    [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
+    [ScnSceneObject(ScnSceneObjectType.Billboard)]
+    [ScnSceneObject(ScnSceneObjectType.Tuyere)]
+    [ScnSceneObject(ScnSceneObjectType.PreciseTrigger)]
+    [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
+    [ScnSceneObject(ScnSceneObjectType.Arrow)]
     public class GeneralSceneObject : SceneObject
     {
         public GeneralSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

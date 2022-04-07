@@ -31,6 +31,9 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
+        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
+        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
         private Shader _standardNoShadowShader;
 
         public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
@@ -180,20 +183,22 @@ namespace Pal3.Renderer
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
 
                     var material = new Material(_standardNoShadowShader);
-                    material.SetTexture(Shader.PropertyToID("_MainTex"), textureCache[meshSection.TextureName]);
+                    material.SetTexture(_mainTexturePropertyId, textureCache[meshSection.TextureName]);
                     var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
                     if (cutoff > Mathf.Epsilon)
                     {
-                        material.SetFloat(Shader.PropertyToID("_Cutoff"), cutoff);
+                        material.SetFloat(_cutoffPropertyId, cutoff);
                     }
 
-                    material.SetColor(Shader.PropertyToID("_TintColor"), _tintColor);
+                    material.SetColor(_tintColorPropertyId, _tintColor);
 
-                    var renderMesh = meshRenderer.Render(meshDataBuffer.VertexBuffer,
-                        GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles),
-                        meshDataBuffer.NormalBuffer,
-                        meshDataBuffer.UvBuffer,
-                        material,
+                    var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
+
+                    var renderMesh = meshRenderer.Render(ref meshDataBuffer.VertexBuffer,
+                        ref triangles,
+                        ref meshDataBuffer.NormalBuffer,
+                        ref meshDataBuffer.UvBuffer,
+                        ref material,
                         true);
 
                     nodeMeshes.Item2[i] = new RenderMeshComponent

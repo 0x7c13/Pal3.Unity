@@ -155,7 +155,7 @@ namespace ResourceViewer
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
-                meshRenderer.Render(polyFile, textureProvider);
+                meshRenderer.Render(polyFile, textureProvider, Color.white);
 
                 consoleTextUI.text = $"{filePath}";
 
