@@ -34,44 +34,117 @@ namespace Pal3.Renderer
         private Shader _standardNoShadowShader;
 
         private ITextureResourceProvider _textureProvider;
-        private VertexAnimationKeyFrame[] _keyFrames;
-        private Texture2D _texture;
-        private Material _material;
-        private GameBoxMaterial _gbMaterial;
+        private VertexAnimationKeyFrame[][] _keyFrames;
+        private Texture2D[] _textures;
+        private Material[] _materials;
+        private GameBoxMaterial[] _gbMaterials;
         private Mv3AnimationEvent[] _events;
-        private bool _textureHasAlphaChannel;
-        private Color _tintColor;
-        private GameObject _meshObject;
+        private bool[] _textureHasAlphaChannel;
+        private GameObject[] _meshObjects;
         private Coroutine _animation;
-        private string _animationName;
+        private Color _tintColor;
+        private string[] _animationName;
         private CancellationTokenSource _animationCts;
 
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
 
-        private uint[] _frameTicks;
+        private uint[][] _frameTicks;
         private uint _duration;
-        private RenderMeshComponent _renderMeshComponent;
+        private int _meshCount;
+        private RenderMeshComponent[] _renderMeshComponents;
         private WaitForSeconds _animationDelay;
 
-        public void Init(Mv3Mesh mv3Mesh,
-            Mv3Material material,
-            Mv3AnimationEvent[] events,
-            VertexAnimationKeyFrame[] keyFrames,
-            uint duration,
-            ITextureResourceProvider textureProvider,
-            Color tintColor)
+        public void Init(Mv3File mv3File, ITextureResourceProvider textureProvider, Color tintColor)
         {
-            _tintColor = tintColor;
-            _gbMaterial = material.Material;
-            _textureProvider = textureProvider;
-            _events = events;
-            _keyFrames = keyFrames;
-            _duration = duration;
-            _texture = textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
-            _textureHasAlphaChannel = hasAlphaChannel;
-            _animationName = mv3Mesh.Name;
+            DisposeAnimation();
+
             _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
+
+            _textureProvider = textureProvider;
+            _tintColor = tintColor;
+
+            _events = mv3File.AnimationEvents;
+            _duration = mv3File.Duration;
+            _meshCount = mv3File.Meshes.Length;
+
+            _renderMeshComponents = new RenderMeshComponent[_meshCount];
+            _gbMaterials = new GameBoxMaterial[_meshCount];
+            _textures = new Texture2D[_meshCount];
+            _textureHasAlphaChannel = new bool[_meshCount];
+            _materials = new Material[_meshCount];
+            _animationName = new string[_meshCount];
+            _frameTicks = new uint[_meshCount][];
+            _meshObjects = new GameObject[_meshCount];
+            _keyFrames = mv3File.MeshKeyFrames;
+
+            for (var i = 0; i < _meshCount; i++)
+            {
+                var mesh = mv3File.Meshes[i];
+                var material = mv3File.Meshes.Length != mv3File.Materials.Length ?
+                    mv3File.Materials[0] :
+                    mv3File.Materials[i];
+
+                InitSubMeshes(i, mesh, material);
+            }
+        }
+
+        private void InitSubMeshes(int index,
+            Mv3Mesh mv3Mesh,
+            Mv3Material material)
+        {
+            _gbMaterials[index] = material.Material;
+            _textures[index] = _textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
+            _textureHasAlphaChannel[index]= hasAlphaChannel;
+            _animationName[index] = mv3Mesh.Name;
+            _frameTicks[index] = _keyFrames[index].Select(f => f.Tick).ToArray();
+            _meshObjects[index] = new GameObject(mv3Mesh.Name);
+
+            // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+            #if UNITY_EDITOR
+            var materialInfoPresenter = _meshObjects[index].AddComponent<MaterialInfoPresenter>();
+            materialInfoPresenter.blendFlag = (uint) (_textureHasAlphaChannel[index] ? 1 : 0);
+            materialInfoPresenter.material = _gbMaterials[index] ;
+            #endif
+
+            var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
+
+            _materials[index] = new Material(_standardNoShadowShader);
+            _materials[index].SetTexture(_mainTexturePropertyId, _textures[index]);
+
+            var cutoff = _textureHasAlphaChannel[index] ? 0.3f : 0f;
+            if (cutoff > Mathf.Epsilon)
+            {
+                _materials[index].SetFloat(_cutoffPropertyId, cutoff);
+            }
+
+            _materials[index].SetColor(_tintColorPropertyId, _tintColor);
+
+            var meshDataBuffer = new MeshDataBuffer
+            {
+                VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length]
+            };
+
+            var normals = Array.Empty<Vector3>();
+
+            var renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
+                ref _keyFrames[index][0].Triangles,
+                ref normals,
+                ref _keyFrames[index][0].Uv,
+                ref _materials[index],
+                true);
+
+            //renderMesh.RecalculateNormals();
+            //renderMesh.RecalculateTangents();
+
+            _renderMeshComponents[index] = new RenderMeshComponent
+            {
+                Mesh = renderMesh,
+                MeshRenderer = meshRenderer,
+                MeshDataBuffer = meshDataBuffer
+            };
+
+            _meshObjects[index].transform.SetParent(transform, false);
         }
 
         public void PlayAnimation(int loopCount = -1, float fps = -1f)
@@ -81,61 +154,7 @@ namespace Pal3.Renderer
                 throw new Exception("Animation not initialized.");
             }
 
-            StopAnimation();
-
-            if (_renderMeshComponent == null)
-            {
-                _frameTicks = _keyFrames.Select(f => f.Tick).ToArray();
-                _meshObject = new GameObject(_animationName);
-
-                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
-                #if UNITY_EDITOR
-                var materialInfoPresenter = _meshObject.AddComponent<MaterialInfoPresenter>();
-                materialInfoPresenter.blendFlag = (uint) (_textureHasAlphaChannel ? 1 : 0);
-                materialInfoPresenter.material = _gbMaterial;
-                #endif
-
-                var meshRenderer = _meshObject.AddComponent<StaticMeshRenderer>();
-
-                _material = new Material(_standardNoShadowShader);
-                _material.SetTexture(_mainTexturePropertyId, _texture);
-
-                var cutoff = _textureHasAlphaChannel ? 0.3f : 0f;
-                if (cutoff > Mathf.Epsilon)
-                {
-                    _material.SetFloat(_cutoffPropertyId, cutoff);
-                }
-
-                _material.SetColor(_tintColorPropertyId, _tintColor);
-
-                var meshDataBuffer = new MeshDataBuffer
-                {
-                    VertexBuffer = new Vector3[_keyFrames[0].Vertices.Length]
-                };
-
-                var normals = Array.Empty<Vector3>();
-
-                var renderMesh = meshRenderer.Render(ref _keyFrames[0].Vertices,
-                    ref _keyFrames[0].Triangles,
-                    ref normals,
-                    ref _keyFrames[0].Uv,
-                    ref _material,
-                    true);
-
-                //renderMesh.RecalculateNormals();
-                //renderMesh.RecalculateTangents();
-
-                _renderMeshComponent = new RenderMeshComponent
-                {
-                    Mesh = renderMesh,
-                    MeshRenderer = meshRenderer,
-                    MeshDataBuffer = meshDataBuffer
-                };
-
-                _meshObject.transform.SetParent(transform, false);
-            }
-
-            if (_animation != null) StopCoroutine(_animation);
+            PauseAnimation();
 
             _animationCts = new CancellationTokenSource();
             _animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
@@ -147,11 +166,13 @@ namespace Pal3.Renderer
         public void ChangeTexture(string textureName)
         {
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
-            _texture = _textureProvider.GetTexture(textureName);
-            _material.SetTexture(_mainTexturePropertyId, _texture);
+
+            // Change the texture for the first sub-mesh only
+            _textures[0] = _textureProvider.GetTexture(textureName);
+            _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
         }
 
-        public void StopAnimation()
+        public void PauseAnimation()
         {
             if (_animation != null)
             {
@@ -161,14 +182,26 @@ namespace Pal3.Renderer
             }
         }
 
-        public Bounds GetBounds()
+        public void DisposeAnimation()
         {
-            return _renderMeshComponent.MeshRenderer.GetRendererBounds();
+            if (_renderMeshComponents != null)
+            {
+                PauseAnimation();
+                for (var i = 0; i < _renderMeshComponents.Length; i++)
+                {
+                    _renderMeshComponents[i].Mesh.Clear();
+                }
+            }
+        }
+
+        public Bounds GetWorldBounds()
+        {
+            return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetRendererBounds()));
         }
 
         public Bounds GetLocalBounds()
         {
-            return _renderMeshComponent.MeshRenderer.GetMeshBounds();
+            return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetMeshBounds()));
         }
 
         public bool IsActionInHoldState()
@@ -236,7 +269,6 @@ namespace Pal3.Renderer
             CancellationToken cancellationToken)
         {
             var startTime = Time.timeSinceLevelLoad;
-            var numOfFrames = _frameTicks.Length;
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -248,24 +280,29 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                if (_renderMeshComponent.MeshRenderer.IsVisible())
+                for (var i = 0; i < _meshCount; i++)
                 {
-                    var currentFrameIndex = Utility.GetFloorIndex(_frameTicks, (uint)tick);
-                    var currentFrameTick = _frameTicks[currentFrameIndex];
-                    var nextFrameIndex = currentFrameIndex < numOfFrames - 1 ? currentFrameIndex + 1 : 0;
-                    var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[nextFrameIndex];
+                    var meshComponent = _renderMeshComponents[i];
+                    if (!meshComponent.MeshRenderer.IsVisible()) continue;
+
+                    var frameTicks = _frameTicks[i];
+
+                    var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint) tick);
+                    var currentFrameTick = _frameTicks[i][currentFrameIndex];
+                    var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                    var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[i][nextFrameIndex];
 
                     var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                    var vertices = _renderMeshComponent.MeshDataBuffer.VertexBuffer;
-                    for (var i = 0; i < vertices.Length; i++)
+                    var vertices = meshComponent.MeshDataBuffer.VertexBuffer;
+                    for (var j = 0; j < vertices.Length; j++)
                     {
-                        vertices[i] = Vector3.Lerp(_keyFrames[currentFrameIndex].Vertices[i],
-                            _keyFrames[nextFrameIndex].Vertices[i], influence);
+                        vertices[j] = Vector3.Lerp(_keyFrames[i][currentFrameIndex].Vertices[j],
+                            _keyFrames[i][nextFrameIndex].Vertices[j], influence);
                     }
 
-                    _renderMeshComponent.Mesh.vertices = vertices;
-                    _renderMeshComponent.Mesh.RecalculateBounds();
+                    meshComponent.Mesh.SetVertices(vertices);
+                    meshComponent.Mesh.RecalculateBounds();
                 }
 
                 yield return animationDelay;
@@ -279,17 +316,23 @@ namespace Pal3.Renderer
 
         private void Dispose()
         {
-            StopAnimation();
+            DisposeAnimation();
 
-            if (_renderMeshComponent != null)
+            if (_renderMeshComponents != null)
             {
-                Destroy(_renderMeshComponent.Mesh);
-                Destroy(_renderMeshComponent.MeshRenderer);
+                foreach (var renderMeshComponent in _renderMeshComponents)
+                {
+                    Destroy(renderMeshComponent.Mesh);
+                    Destroy(renderMeshComponent.MeshRenderer);
+                }
             }
 
-            if (_meshObject != null)
+            if (_meshObjects != null)
             {
-                Destroy(_meshObject);
+                foreach (var meshObject in _meshObjects)
+                {
+                    Destroy(meshObject);
+                }
             }
         }
     }

@@ -135,7 +135,7 @@ namespace Pal3.Actor
             _actionController.DisposeCollider();
             _actionController.DisposeRigidBody();
             _actionController.DisposeShadow();
-            _actionController.DisposeCurrentAction();
+            _actionController.DisposeAction();
         }
 
         public IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
@@ -154,7 +154,7 @@ namespace Pal3.Actor
             emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             var parentPosition = transform.position;
 
-            var headPosition = new Vector3(parentPosition.x, _actionController.GetBounds().max.y, parentPosition.z);
+            var headPosition = new Vector3(parentPosition.x, _actionController.GetWorldBounds().max.y, parentPosition.z);
 
             emojiGameObject.transform.position = headPosition;
 
