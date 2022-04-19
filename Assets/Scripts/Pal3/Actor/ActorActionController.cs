@@ -6,16 +6,15 @@
 namespace Pal3.Actor
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.Extensions;
     using Core.Services;
-    using Core.Utils;
     using Data;
     using MetaData;
     using Player;
@@ -71,6 +70,8 @@ namespace Pal3.Actor
 
         private void OnDisable()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+
             DisposeCurrentAction();
 
             if (_mv3AnimationRenderer != null)
@@ -82,8 +83,6 @@ namespace Pal3.Actor
             {
                 Destroy(_shadow);
             }
-
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public string GetCurrentAction()
@@ -139,7 +138,24 @@ namespace Pal3.Actor
             _currentAction = actionName.ToLower();
 
             _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
-            _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor);
+
+            if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Dead], actionName, StringComparison.OrdinalIgnoreCase))
+            {
+                var separator = CpkConstants.CpkDirectorySeparatorChar;
+
+                var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                                 $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
+
+                var (polFile, weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
+                _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor,
+                    polFile, weaponTextureProvider, Color.white);
+            }
+            else
+            {
+                _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor);
+            }
+
             _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
             _mv3AnimationRenderer.PlayAnimation(loopCount);
 

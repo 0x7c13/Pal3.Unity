@@ -17,6 +17,7 @@ namespace ResourceViewer
     using Core.Utils;
     using IngameDebugConsole;
     using Pal3.Data;
+    using Pal3.MetaData;
     using Pal3.Renderer;
     using TMPro;
     using UnityEngine;
@@ -223,7 +224,28 @@ namespace ResourceViewer
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
                 var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
-                mv3AnimationRenderer.Init(mv3File, textureProvider, Color.white);
+
+                // For debuging tag node:
+                // if (mv3File.TagNodes is {Length: > 0} &&
+                //     !mv3File.TagNodes[0].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase) &&
+                //     filePath.Contains(@"ROLE\101"))
+                // {
+                //     var weaponName = "JT13";
+                //
+                //     var separator = CpkConstants.CpkDirectorySeparatorChar;
+                //
+                //     var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                //                      $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
+                //
+                //     var (polFile, weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
+                //     mv3AnimationRenderer.Init(mv3File, textureProvider, Color.white,
+                //         polFile, weaponTextureProvider, Color.white);
+                // }
+                // else
+                {
+                    mv3AnimationRenderer.Init(mv3File, textureProvider, Color.white);
+                }
+
                 mv3AnimationRenderer.PlayAnimation();
 
                 consoleTextUI.text = $"{filePath}";

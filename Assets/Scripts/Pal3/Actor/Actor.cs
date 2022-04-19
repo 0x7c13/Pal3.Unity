@@ -98,6 +98,20 @@ namespace Pal3.Actor
             };
         }
 
+        // TODO: Get weapon based on inventory context
+        public string GetWeaponName()
+        {
+            return Info.Name switch
+            {
+                "101" => "JT13",
+                "102" => "WCA",
+                "104" => "WXF",
+                "105" => "WLF",
+                "107" => "WZF",
+                _ => null
+            };
+        }
+
         public float GetInteractionMaxDistance()
         {
             return Info.Kind switch

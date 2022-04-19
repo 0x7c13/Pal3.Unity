@@ -33,6 +33,8 @@ namespace Pal3.MetaData
 
         public const string MovieFolderName = "movie";
 
+        public const string WeaponFolderName = "weapon";
+
         public static readonly (string cpkName, string relativePath) BaseDataCpkPathInfo = new ("basedata.cpk", "basedata");
 
         public static readonly (string cpkName, string relativePath) MusicCpkPathInfo = new ("music.cpk", "music");

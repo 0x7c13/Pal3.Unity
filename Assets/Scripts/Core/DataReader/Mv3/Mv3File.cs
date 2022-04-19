@@ -30,7 +30,7 @@ namespace Core.DataReader.Mv3
     {
         public uint Tick;
         public Vector3 Position;
-        public GameBoxQuaternion Rotation;
+        public Quaternion Rotation;
         public float[][] Scale; // 3x3
     }
 

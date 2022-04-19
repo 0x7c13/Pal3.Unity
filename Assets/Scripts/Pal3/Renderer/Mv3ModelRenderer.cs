@@ -7,10 +7,12 @@ namespace Pal3.Renderer
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Core.DataLoader;
     using Core.DataReader.Mv3;
+    using Core.DataReader.Pol;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
@@ -55,7 +57,17 @@ namespace Pal3.Renderer
         private RenderMeshComponent[] _renderMeshComponents;
         private WaitForSeconds _animationDelay;
 
-        public void Init(Mv3File mv3File, ITextureResourceProvider textureProvider, Color tintColor)
+        // Tag node
+        private Mv3TagNode[] _tagNodesInfo;
+        private uint[][] _tagNodeFrameTicks;
+        private GameObject[] _tagNodes;
+
+        public void Init(Mv3File mv3File,
+            ITextureResourceProvider textureProvider,
+            Color tintColor,
+            PolFile tagNodePolFile = default,
+            ITextureResourceProvider tagNodeTextureProvider = default,
+            Color tagNodeTintColor = default)
         {
             DisposeAnimation();
 
@@ -77,15 +89,44 @@ namespace Pal3.Renderer
             _frameTicks = new uint[_meshCount][];
             _meshObjects = new GameObject[_meshCount];
             _keyFrames = mv3File.MeshKeyFrames;
+            _tagNodesInfo = mv3File.TagNodes;
+            _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
+
+            for (var i = 0; i < _tagNodesInfo.Length; i++)
+            {
+                _tagNodeFrameTicks[i] = _tagNodesInfo[i].TagFrames.Select(_ => _.Tick).ToArray();
+            }
 
             for (var i = 0; i < _meshCount; i++)
             {
                 var mesh = mv3File.Meshes[i];
                 var material = mv3File.Meshes.Length != mv3File.Materials.Length ?
-                    mv3File.Materials[0] :
+                    mv3File.Materials.First() :
                     mv3File.Materials[i];
 
                 InitSubMeshes(i, mesh, material);
+            }
+
+            if (tagNodePolFile != null && _tagNodesInfo is {Length: > 0})
+            {
+                _tagNodes = new GameObject[_tagNodesInfo.Length];
+
+                for (var i = 0; i < _tagNodesInfo.Length; i++)
+                {
+                    if (_tagNodesInfo[i].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _tagNodes[i] = null;
+                        continue;
+                    }
+
+                    _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions.First().Name);
+                    var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
+                    tagNodeRenderer.Render(tagNodePolFile, tagNodeTextureProvider, tagNodeTintColor);
+
+                    _tagNodes[i].transform.SetParent(transform, true);
+                    _tagNodes[i].transform.localPosition = mv3File.TagNodes[i].TagFrames.First().Position;
+                    _tagNodes[i].transform.localRotation = mv3File.TagNodes[i].TagFrames.First().Rotation;
+                }
             }
         }
 
@@ -184,13 +225,26 @@ namespace Pal3.Renderer
 
         public void DisposeAnimation()
         {
-            if (_renderMeshComponents != null)
+            PauseAnimation();
+
+            if (_meshObjects != null)
             {
-                PauseAnimation();
-                for (var i = 0; i < _renderMeshComponents.Length; i++)
+                foreach (var meshObject in _meshObjects)
                 {
-                    _renderMeshComponents[i].Mesh.Clear();
+                    DestroyImmediate(meshObject);
                 }
+
+                _meshObjects = null;
+            }
+
+            if (_tagNodes != null)
+            {
+                foreach (var tagNode in _tagNodes)
+                {
+                    DestroyImmediate(tagNode);
+                }
+
+                _tagNodes = null;
             }
         }
 
@@ -303,6 +357,31 @@ namespace Pal3.Renderer
 
                     meshComponent.Mesh.SetVertices(vertices);
                     meshComponent.Mesh.RecalculateBounds();
+                }
+
+                if (_tagNodes != null)
+                {
+                    for (var i = 0; i < _tagNodes.Length; i++)
+                    {
+                        if (_tagNodes[i] == null) continue;
+
+                        var frameTicks = _tagNodeFrameTicks[i];
+
+                        var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint) tick);
+                        var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
+                        var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                        var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
+
+                        var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+
+                        var position = Vector3.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Position,
+                            _tagNodesInfo[i].TagFrames[nextFrameIndex].Position, influence);
+                        var rotation = Quaternion.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
+                            _tagNodesInfo[i].TagFrames[nextFrameIndex].Rotation, influence);
+
+                        _tagNodes[i].transform.localPosition = position;
+                        _tagNodes[i].transform.localRotation = rotation;
+                    }
                 }
 
                 yield return animationDelay;

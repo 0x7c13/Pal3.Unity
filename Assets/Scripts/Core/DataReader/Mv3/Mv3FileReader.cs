@@ -268,7 +268,7 @@ namespace Core.DataReader.Mv3
         #endif
         {
             var tick = reader.ReadUInt32();
-            var position = reader.ReadVector3();
+            var position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
 
             var rotation = new GameBoxQuaternion()
             {
@@ -289,7 +289,7 @@ namespace Core.DataReader.Mv3
             {
                 Tick = tick,
                 Position = position,
-                Rotation = rotation,
+                Rotation = GameBoxInterpreter.Mv3QuaternionToUnityQuaternion(rotation),
                 Scale = scale,
             };
         }

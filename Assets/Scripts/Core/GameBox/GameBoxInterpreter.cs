@@ -60,6 +60,11 @@ namespace Core.GameBox
             return new Quaternion(-quaternion.X, quaternion.Z, -quaternion.Y, quaternion.W);
         }
 
+        public static Quaternion Mv3QuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        {
+            return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+        }
+
         public static Quaternion ToUnityRotation(float pitch, float yaw, float roll)
         {
             return Quaternion.Euler(pitch - 180, yaw, roll -180);
