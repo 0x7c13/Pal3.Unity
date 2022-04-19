@@ -248,6 +248,11 @@ namespace Pal3.Renderer
             }
         }
 
+        public bool IsVisible()
+        {
+            return _meshObjects != null;
+        }
+
         public Bounds GetWorldBounds()
         {
             return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetRendererBounds()));

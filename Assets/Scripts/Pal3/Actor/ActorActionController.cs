@@ -72,7 +72,7 @@ namespace Pal3.Actor
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
-            DisposeCurrentAction();
+            DeActivate();
 
             if (_mv3AnimationRenderer != null)
             {
@@ -82,6 +82,16 @@ namespace Pal3.Actor
             if (_shadow != null)
             {
                 Destroy(_shadow);
+            }
+
+            if (_collider != null)
+            {
+                Destroy(_collider);
+            }
+
+            if (_rigidbody != null)
+            {
+                Destroy(_rigidbody);
             }
         }
 
@@ -113,6 +123,7 @@ namespace Pal3.Actor
             if (!_actor.HasAction(actionName))
             {
                 Debug.LogError($"Action {actionName} not found for actor {_actor.Info.Name}.");
+                _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
             }
@@ -126,21 +137,20 @@ namespace Pal3.Actor
             catch (Exception ex)
             {
                 Debug.LogError(ex);
+                _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
             }
 
-            DisposeCurrentAction();
+            DisposeAction();
 
-            _animationLoopPointWaiter?.CancelWait();
             _animationLoopPointWaiter = waiter;
-
             _currentAction = actionName.ToLower();
-
             _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
 
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Dead], actionName, StringComparison.OrdinalIgnoreCase))
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Dead], actionName, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Freeze], actionName, StringComparison.OrdinalIgnoreCase))
             {
                 var separator = CpkConstants.CpkDirectorySeparatorChar;
 
@@ -263,19 +273,10 @@ namespace Pal3.Actor
             }
         }
 
-        public void PauseCurrentAction()
+        private void DisposeAction()
         {
-            if (_mv3AnimationRenderer != null)
-            {
-                _mv3AnimationRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
-                _mv3AnimationRenderer.PauseAnimation();
-            }
+            _animationLoopPointWaiter?.CancelWait();
 
-            _currentAction = string.Empty;
-        }
-
-        public void DisposeCurrentAction()
-        {
             if (_mv3AnimationRenderer != null)
             {
                 _mv3AnimationRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
@@ -285,20 +286,15 @@ namespace Pal3.Actor
             _currentAction = string.Empty;
         }
 
-        public void DisposeShadow()
+        private void DisposeShadow()
         {
-            if (_shadowSpriteRenderer != null)
-            {
-                Destroy(_shadowSpriteRenderer);
-            }
-
             if (_shadow != null)
             {
                 Destroy(_shadow);
             }
         }
 
-        public void DisposeCollider()
+        private void DisposeCollider()
         {
             if (_collider != null)
             {
@@ -306,7 +302,7 @@ namespace Pal3.Actor
             }
         }
 
-        public void DisposeRigidBody()
+        private void DisposeRigidBody()
         {
             if (_rigidbody != null)
             {
@@ -314,13 +310,12 @@ namespace Pal3.Actor
             }
         }
 
-        public void DisposeAction()
+        public void DeActivate()
         {
-            DisposeCurrentAction();
-            if (_mv3AnimationRenderer != null)
-            {
-                Destroy(_mv3AnimationRenderer);
-            }
+            DisposeAction();
+            DisposeShadow();
+            DisposeRigidBody();
+            DisposeCollider();
         }
 
         public void Execute(ActorAutoStandCommand command)
@@ -355,7 +350,7 @@ namespace Pal3.Actor
 
         public void Execute(ActorStopActionCommand command)
         {
-            if (command.ActorId != _actor.Info.Id || _mv3AnimationRenderer == null) return;
+            if (command.ActorId != _actor.Info.Id || !_mv3AnimationRenderer.IsVisible()) return;
 
             if (_mv3AnimationRenderer.IsActionInHoldState())
             {

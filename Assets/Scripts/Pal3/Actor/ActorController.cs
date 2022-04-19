@@ -132,10 +132,7 @@ namespace Pal3.Actor
 
         private void DeActivate()
         {
-            _actionController.DisposeCollider();
-            _actionController.DisposeRigidBody();
-            _actionController.DisposeShadow();
-            _actionController.DisposeAction();
+            _actionController.DeActivate();
         }
 
         public IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
