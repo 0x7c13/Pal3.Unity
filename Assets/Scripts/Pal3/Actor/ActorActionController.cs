@@ -150,7 +150,10 @@ namespace Pal3.Actor
 
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
                 !string.Equals(ActorConstants.ActionNames[ActorActionType.Dead], actionName, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Freeze], actionName, StringComparison.OrdinalIgnoreCase))
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Freeze], actionName, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.BeAttack], actionName, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Attack1], actionName, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(ActorConstants.ActionNames[ActorActionType.Attack2], actionName, StringComparison.OrdinalIgnoreCase))
             {
                 var separator = CpkConstants.CpkDirectorySeparatorChar;
 
@@ -246,13 +249,13 @@ namespace Pal3.Actor
 
         public Bounds GetWorldBounds()
         {
-            return _mv3AnimationRenderer == null ? _worldBounds :
+            return !_mv3AnimationRenderer.IsVisible() ? _worldBounds :
                 _mv3AnimationRenderer.GetWorldBounds();
         }
 
         public Bounds GetLocalBounds()
         {
-            return _mv3AnimationRenderer == null ? _localBounds :
+            return !_mv3AnimationRenderer.IsVisible() ? _localBounds :
                 _mv3AnimationRenderer.GetLocalBounds();
         }
 

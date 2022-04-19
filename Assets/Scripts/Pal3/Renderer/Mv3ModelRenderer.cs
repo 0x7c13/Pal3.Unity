@@ -7,7 +7,6 @@ namespace Pal3.Renderer
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Core.DataLoader;
@@ -409,6 +408,8 @@ namespace Pal3.Renderer
                     Destroy(renderMeshComponent.Mesh);
                     Destroy(renderMeshComponent.MeshRenderer);
                 }
+
+                _renderMeshComponents = null;
             }
 
             if (_meshObjects != null)
@@ -417,6 +418,8 @@ namespace Pal3.Renderer
                 {
                     Destroy(meshObject);
                 }
+
+                _meshObjects = null;
             }
         }
     }
