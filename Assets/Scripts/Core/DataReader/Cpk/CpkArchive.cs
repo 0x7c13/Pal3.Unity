@@ -72,7 +72,7 @@ namespace Core.DataReader.Cpk
             Span<byte> indexTableBuffer = new byte[indexTableSize];
             // Read the whole index table into memory before processing
             // to avoid I/O overhead
-            stream.Read(indexTableBuffer);
+            _ = stream.Read(indexTableBuffer);
 
             _tableEntities = new Dictionary<uint, CpkTableEntity>((int)header.FileNum);
 
@@ -160,7 +160,7 @@ namespace Core.DataReader.Cpk
                 using var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
                 stream.Seek(entity.StartPos, SeekOrigin.Begin);
                 var buffer = new byte[entity.PackedSize];
-                stream.Read(buffer, 0, (int)entity.PackedSize);
+                _ = stream.Read(buffer, 0, (int)entity.PackedSize);
                 rawData = buffer;
             }
 
@@ -269,7 +269,7 @@ namespace Core.DataReader.Cpk
                 long extraInfoOffset = entity.StartPos + entity.PackedSize;
                 var extraInfo = new byte[entity.ExtraInfoSize];
                 stream.Seek(extraInfoOffset, SeekOrigin.Begin);
-                stream.Read(extraInfo);
+                _ = stream.Read(extraInfo);
 
                 var fileName = Utility.TrimEnd(extraInfo, new byte[] { 0x00, 0x00 });
                 _fileNameMap[entity.CRC] = fileName;
