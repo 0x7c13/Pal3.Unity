@@ -249,12 +249,22 @@ namespace Pal3.Actor
 
         public Bounds GetWorldBounds()
         {
+            if (_mv3AnimationRenderer == null)
+            {
+                return new Bounds(transform.position, Vector3.zero);
+            }
+            
             return !_mv3AnimationRenderer.IsVisible() ? _worldBounds :
                 _mv3AnimationRenderer.GetWorldBounds();
         }
 
         public Bounds GetLocalBounds()
         {
+            if (_mv3AnimationRenderer == null)
+            {
+                return new Bounds(transform.localPosition, Vector3.zero);
+            }
+            
             return !_mv3AnimationRenderer.IsVisible() ? _localBounds :
                 _mv3AnimationRenderer.GetLocalBounds();
         }
