@@ -38,10 +38,37 @@ namespace Pal3.Data
             {
                 if (!string.IsNullOrEmpty(_currentSceneCityName))
                 {
+                    #if PAL3
                     _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + ".cpk");
+                    #elif PAL3A
+                    if (_currentSceneCityName.Equals("q02", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + "_01.cpk");
+                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + "_02.cpk");
+                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + "_03.cpk");
+                    }
+                    else
+                    {
+                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + ".cpk");
+                    }
+                    #endif
                 }
-
+                
+                #if PAL3
                 _fileSystem.LoadArchiveIntoMemory(newSceneCityName + ".cpk");
+                #elif PAL3A
+                if (newSceneCityName.Equals("q02", StringComparison.OrdinalIgnoreCase))
+                {
+                    _fileSystem.LoadArchiveIntoMemory(newSceneCityName + "_01.cpk");
+                    _fileSystem.LoadArchiveIntoMemory(newSceneCityName + "_02.cpk");
+                    _fileSystem.LoadArchiveIntoMemory(newSceneCityName + "_03.cpk");
+                }
+                else
+                {
+                    _fileSystem.LoadArchiveIntoMemory(newSceneCityName + ".cpk");
+                }
+                #endif
+                
                 _currentSceneCityName = newSceneCityName;
             }
         }

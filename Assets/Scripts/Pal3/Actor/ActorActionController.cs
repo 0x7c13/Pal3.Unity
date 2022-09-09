@@ -148,12 +148,11 @@ namespace Pal3.Actor
             _currentAction = actionName.ToLower();
             _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
 
+            var actionType = ActorConstants.ActionNames
+                .FirstOrDefault(_ => string.Equals(_.Value, actionName, StringComparison.OrdinalIgnoreCase)).Key;
+            
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Dead], actionName, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Freeze], actionName, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.BeAttack], actionName, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Attack1], actionName, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(ActorConstants.ActionNames[ActorActionType.Attack2], actionName, StringComparison.OrdinalIgnoreCase))
+                ActorConstants.ActionNameToWeaponArmTypeMap[actionType] != WeaponArmType.None)
             {
                 var separator = CpkConstants.CpkDirectorySeparatorChar;
 

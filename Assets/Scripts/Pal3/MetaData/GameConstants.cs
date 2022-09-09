@@ -23,6 +23,6 @@ namespace Pal3.MetaData
 
         public const string AppIdentifier = AppIdentifierPrefix + "." + AppName;
 
-        public const string ContactInfo = "仙剑三复刻版讨论群：252315306 B站@柒才";
+        public const string ContactInfo = AppNameCNShort + "复刻版讨论群：252315306 B站@柒才";
     }
 }

@@ -78,8 +78,23 @@ namespace Core.FileSystem
         public bool FileExists(string fileVirtualPath)
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
-            return _cpkArchives.Keys.Contains(cpkFileName.ToLower()) &&
-                   _cpkArchives[cpkFileName].FileExists(relativeVirtualPath);
+
+            if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
+            {
+                return _cpkArchives[cpkFileName].FileExists(relativeVirtualPath);
+            }
+
+            // Check if the file exists in any of the segmented cpk archives.
+            foreach (var subCpkPath in _cpkArchives.Keys
+                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+            {
+                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
+                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -90,7 +105,24 @@ namespace Core.FileSystem
         public byte[] ReadAllBytes(string fileVirtualPath)
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
-            return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);
+            
+            if (_cpkArchives.ContainsKey(cpkFileName))
+            {
+                return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);   
+            }
+
+            // Find and read the file content in segmented cpk archives.
+            foreach (var subCpkPath in _cpkArchives.Keys
+                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+            {
+                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
+                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
+                {
+                    return _cpkArchives[subCpkPath].ReadAllBytes(relativePathInSubCpk);   
+                }
+            }
+
+            throw new Exception($"{fileVirtualPath} not found.");
         }
 
         /// <summary>

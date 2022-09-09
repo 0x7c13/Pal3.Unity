@@ -7,6 +7,13 @@ namespace Pal3.MetaData
 {
     using System.Collections.Generic;
 
+    public enum WeaponArmType
+    {
+        None,
+        LeftHanded,
+        RightHanded
+    }
+    
     #if PAL3
     public enum PlayerActorId
     {
@@ -212,7 +219,26 @@ namespace Pal3.MetaData
             {PlayerActorId.TaoZi,         "106"},  // 桃子兽形
         };
         #endif
-
+        
+        #if PAL3
+        public static readonly Dictionary<string, string> MainActorWeaponMap = new()
+        {
+            { "101", "JT13" },
+            { "102", "WCA" },
+            { "104", "WXF" },
+            { "105", "WLF" },
+            { "107", "WZF" },
+        };
+        #elif PAL3A
+        public static readonly Dictionary<string, string> MainActorWeaponMap = new()
+        {
+            { "101", "WHA" },
+            { "102", "WWA" },
+            { "104", "WXA" },
+            { "105", "WLA" },
+        };
+        #endif
+        
         //每个动作对应的.A_Q模型中的名字
         #if PAL3
         public static readonly Dictionary<ActorActionType, string> ActionNames = new()
@@ -353,18 +379,165 @@ namespace Pal3.MetaData
             { ActorActionType.NpcMagic2,         "x2"},    // 仙术2
             { ActorActionType.NpcMagic3,         "x3"},    // 仙术3
             { ActorActionType.NpcRun,            "z3"},    // 跑,用走代替
-
-            #if PAL3A
+            
             // 仙剑三外传新增动作
             { ActorActionType.LevelUp,          "z16"},    // 升级
             { ActorActionType.Transform,        "z20"},    // 变身
             { ActorActionType.Attack21,         "z021"},   // 扔八卦的第一段动作
             { ActorActionType.Attack22,	        "z022"},   // 扔八卦的第二段动作
             { ActorActionType.Attack23,	        "z023"},   // 扔八卦的第三段动作
-            #endif
         };
         #endif
 
+        #if PAL3
+        public static readonly Dictionary<ActorActionType, WeaponArmType> ActionNameToWeaponArmTypeMap = new()
+        {
+            // 基本动作
+            { ActorActionType.Stand,             WeaponArmType.None },   // 站立
+            { ActorActionType.Walk,              WeaponArmType.None },   // 行走
+            { ActorActionType.Run,               WeaponArmType.None },   // 奔跑
+            { ActorActionType.Back,              WeaponArmType.None },   // 后退
+            { ActorActionType.Jump,              WeaponArmType.None },   // 起跳
+            { ActorActionType.Climb,             WeaponArmType.None },   // 攀爬
+            { ActorActionType.ClimbDown,         WeaponArmType.None },   // 向下攀爬
+            { ActorActionType.Push,              WeaponArmType.None },   // 推
+            { ActorActionType.Skill,             WeaponArmType.None },   // 技能
+            { ActorActionType.Tire,              WeaponArmType.None },   // 疲倦
+            { ActorActionType.Seat,              WeaponArmType.None },   // 坐
+            { ActorActionType.Check,             WeaponArmType.None },   // 调查
+            { ActorActionType.Sleep,             WeaponArmType.None },   // 睡觉
+            { ActorActionType.Shake,             WeaponArmType.None },   // 摇头
+            { ActorActionType.Nod,               WeaponArmType.None },   // 点头
+            { ActorActionType.Wave,              WeaponArmType.None },   // 摆手
+
+            // 剧情动作
+            { ActorActionType.Signature,         WeaponArmType.None },   // 招牌
+            { ActorActionType.Shocked,           WeaponArmType.None },   // 惊吓
+            { ActorActionType.SeatDown,          WeaponArmType.None },   // 下蹲
+            { ActorActionType.SeatUp,            WeaponArmType.None },   // 坐起
+            { ActorActionType.Point,             WeaponArmType.None },   // 指点
+            { ActorActionType.Kick,              WeaponArmType.None },   // 踢
+            { ActorActionType.Salute,            WeaponArmType.None },   // 行礼
+            { ActorActionType.Tease,             WeaponArmType.None },   // 挑逗
+            { ActorActionType.Snuggle,           WeaponArmType.None },   // 依偎
+            { ActorActionType.Whining,           WeaponArmType.None },   // 撒娇
+            { ActorActionType.Anger,             WeaponArmType.None },   // 发怒
+            { ActorActionType.Dose,              WeaponArmType.None },   // 服药
+            { ActorActionType.J13,               WeaponArmType.None },   // 得意
+
+            // 战斗动作
+            { ActorActionType.Attack1,		     WeaponArmType.RightHanded },   // 攻击1
+            { ActorActionType.Attack2,		     WeaponArmType.RightHanded },   // 攻击2
+            { ActorActionType.AttackMove,	     WeaponArmType.RightHanded },   // 攻击移动
+            { ActorActionType.PreAttack,         WeaponArmType.RightHanded },   // 备战
+            { ActorActionType.BeAttack,		     WeaponArmType.RightHanded },   // 被攻击
+            { ActorActionType.MagicWait,         WeaponArmType.RightHanded },   // 仙术预备
+            { ActorActionType.Magic,             WeaponArmType.RightHanded },   // 仙术
+            { ActorActionType.Skill1,		     WeaponArmType.RightHanded },   // 特技1
+            { ActorActionType.Skill2,		     WeaponArmType.RightHanded },   // 特技2
+            { ActorActionType.UseItemRecover,    WeaponArmType.None        },   // 恢复物品
+            { ActorActionType.UseItemAttack,     WeaponArmType.RightHanded },   // 攻击物品
+            { ActorActionType.WeaponSkill,	     WeaponArmType.RightHanded },   // 武器技
+            { ActorActionType.StartDefence,	     WeaponArmType.RightHanded },   // 开始防御
+            { ActorActionType.Defence,		     WeaponArmType.RightHanded },   // 防御
+            { ActorActionType.DefenceBeAttack,   WeaponArmType.RightHanded },   // 攻击被防住
+            { ActorActionType.Dodge,             WeaponArmType.RightHanded },   // 回避
+            { ActorActionType.Freeze,            WeaponArmType.RightHanded },   // 眠定
+            { ActorActionType.Dying,             WeaponArmType.LeftHanded  },   // 濒死
+            { ActorActionType.Dead,			     WeaponArmType.RightHanded },   // 死亡
+            { ActorActionType.Flee,			     WeaponArmType.None        },   // 逃跑等到
+            { ActorActionType.Win,			     WeaponArmType.RightHanded },   // 胜利
+
+            // NPC,怪物动作
+            { ActorActionType.NpcStand1,         WeaponArmType.None },    // 站立1
+            { ActorActionType.NpcStand2,         WeaponArmType.None },    // 站立2
+            { ActorActionType.NpcWalk,	         WeaponArmType.None },    // 行走
+            { ActorActionType.NpcAttack,         WeaponArmType.None },    // 攻击
+            { ActorActionType.NpcBeAttacked,     WeaponArmType.None },    // 攻击
+            { ActorActionType.NpcMagic1,         WeaponArmType.None },    // 仙术1
+            { ActorActionType.NpcMagic2,         WeaponArmType.None },    // 仙术2
+            { ActorActionType.NpcMagic3,         WeaponArmType.None },    // 仙术3
+            { ActorActionType.NpcRun,            WeaponArmType.None },    // 跑,用走代替
+        };
+        #elif PAL3A        
+        public static readonly Dictionary<ActorActionType, WeaponArmType> ActionNameToWeaponArmTypeMap = new()
+        {
+            // 基本动作
+            { ActorActionType.Stand,             WeaponArmType.None },   // 站立
+            { ActorActionType.Walk,              WeaponArmType.None },   // 行走
+            { ActorActionType.Run,               WeaponArmType.None },   // 奔跑
+            { ActorActionType.Back,              WeaponArmType.None },   // 后退
+            { ActorActionType.Jump,              WeaponArmType.None },   // 起跳
+            { ActorActionType.Climb,             WeaponArmType.None },   // 向上攀爬
+            { ActorActionType.ClimbDown,         WeaponArmType.None },   // 向下攀爬
+            { ActorActionType.Push,              WeaponArmType.None },   // 推
+            { ActorActionType.Skill,             WeaponArmType.None },   // 技能
+            { ActorActionType.Tire,              WeaponArmType.None },   // 疲倦
+            { ActorActionType.Seat,              WeaponArmType.None },   // 坐
+            { ActorActionType.Check,             WeaponArmType.None },   // 调查
+            { ActorActionType.Sleep,             WeaponArmType.None },   // 睡觉
+            { ActorActionType.Shake,             WeaponArmType.None },   // 摇头
+            { ActorActionType.Nod,               WeaponArmType.None },   // 点头
+            { ActorActionType.Wave,              WeaponArmType.None },   // 摆手
+
+            // 剧情动作
+            { ActorActionType.Threaten,          WeaponArmType.None },   // 威胁
+            { ActorActionType.Shocked,           WeaponArmType.None },   // 惊吓
+            { ActorActionType.BendOver,          WeaponArmType.None },   // 下蹲
+            { ActorActionType.SeatUp,            WeaponArmType.None },   // 坐起
+            { ActorActionType.Point,             WeaponArmType.None },   // 指点
+            { ActorActionType.Kick,              WeaponArmType.None },   // 踢
+            { ActorActionType.Salute,            WeaponArmType.None },   // 行礼
+            { ActorActionType.Tease,             WeaponArmType.None },   // 挑逗
+            { ActorActionType.Snuggle,           WeaponArmType.None },   // 依偎
+            { ActorActionType.Whining,           WeaponArmType.None },   // 撒娇
+            { ActorActionType.Anger,             WeaponArmType.None },   // 发怒
+            { ActorActionType.Dose,              WeaponArmType.None },   // 服药
+            { ActorActionType.J13,               WeaponArmType.None },   // 得意
+
+            // 战斗动作
+            { ActorActionType.Attack1,		     WeaponArmType.RightHanded },   // 攻击1
+            { ActorActionType.Attack2,		     WeaponArmType.RightHanded },   // 攻击2
+            { ActorActionType.AttackMove,	     WeaponArmType.RightHanded },   // 攻击移动
+            { ActorActionType.PreAttack,         WeaponArmType.RightHanded },   // 备战
+            { ActorActionType.BeAttack,		     WeaponArmType.RightHanded },   // 被攻击
+            { ActorActionType.MagicWait,         WeaponArmType.RightHanded },   // 仙术预备
+            { ActorActionType.Magic,             WeaponArmType.RightHanded },   // 仙术
+            { ActorActionType.Skill1,		     WeaponArmType.RightHanded },   // 特技1
+            { ActorActionType.Skill2,		     WeaponArmType.RightHanded },   // 特技2
+            { ActorActionType.UseItemRecover,    WeaponArmType.None        },   // 恢复物品
+            { ActorActionType.UseItemAttack,     WeaponArmType.RightHanded },   // 攻击物品
+            { ActorActionType.WeaponSkill,	     WeaponArmType.RightHanded },   // 武器技
+            { ActorActionType.StartDefence,	     WeaponArmType.RightHanded },   // 开始防御
+            { ActorActionType.Defence,		     WeaponArmType.RightHanded },   // 防御
+            { ActorActionType.DefenceBeAttack,   WeaponArmType.RightHanded },   // 攻击被防住
+            { ActorActionType.Dodge,             WeaponArmType.RightHanded },   // 回避
+            { ActorActionType.Freeze,            WeaponArmType.RightHanded },   // 眠定
+            { ActorActionType.Dying,             WeaponArmType.LeftHanded  },   // 濒死
+            { ActorActionType.Dead,			     WeaponArmType.RightHanded },   // 死亡
+            { ActorActionType.Flee,			     WeaponArmType.None        },   // 逃跑等到
+            { ActorActionType.Win,			     WeaponArmType.RightHanded },   // 胜利
+
+            // NPC,怪物动作
+            { ActorActionType.NpcStand1,         WeaponArmType.None },    // 站立1
+            { ActorActionType.NpcStand2,         WeaponArmType.None },    // 站立2
+            { ActorActionType.NpcWalk,	         WeaponArmType.None },    // 行走
+            { ActorActionType.NpcAttack,         WeaponArmType.None },    // 攻击
+            { ActorActionType.NpcBeAttacked,     WeaponArmType.None },    // 攻击
+            { ActorActionType.NpcMagic1,         WeaponArmType.None },    // 仙术1
+            { ActorActionType.NpcMagic2,         WeaponArmType.None },    // 仙术2
+            { ActorActionType.NpcMagic3,         WeaponArmType.None },    // 仙术3
+            { ActorActionType.NpcRun,            WeaponArmType.None },    // 跑,用走代替
+            
+            // 仙剑三外传新增动作
+            { ActorActionType.LevelUp,          WeaponArmType.None },    // 升级
+            { ActorActionType.Transform,        WeaponArmType.None },    // 变身
+            { ActorActionType.Attack21,         WeaponArmType.None },    // 扔八卦的第一段动作
+            { ActorActionType.Attack22,	        WeaponArmType.None },    // 扔八卦的第二段动作
+            { ActorActionType.Attack23,	        WeaponArmType.None },    // 扔八卦的第三段动作
+        };
+        #endif
+        
         #if PAL3
         public static readonly HashSet<ActorActionType> ActionWithoutShadow = new()
         {
