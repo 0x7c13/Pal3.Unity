@@ -439,10 +439,22 @@ namespace Pal3.Camera
 
         public void Execute(CameraRotateCommand command)
         {
-            var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-            StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+            #if PAL3
+            if (true)
+            #elif PAL3A
+            if (command.Synchronous == 1)
+            #endif
+            {
+                var waiter = new WaitUntilCanceled(this);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+            }
+            else
+            {
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType));
+            }
         }
 
         public void Execute(CameraFadeInCommand command)
@@ -475,18 +487,42 @@ namespace Pal3.Camera
 
         public void Execute(CameraPushCommand command)
         {
-            var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-            StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+            #if PAL3
+            if (true)
+            #elif  PAL3A
+            if (command.Synchronous == 1)
+            #endif
+            {
+                var waiter = new WaitUntilCanceled(this);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+                var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+            }
+            else
+            {
+                var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType));
+            }
         }
 
         public void Execute(CameraMoveCommand command)
         {
-            var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            var position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
-            StartCoroutine(Move(position, command.Duration, command.Mode, waiter));
+            #if PAL3
+            if (true)
+            #elif  PAL3A
+            if (command.Synchronous == 1)
+            #endif
+            {
+                var waiter = new WaitUntilCanceled(this);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+                var position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+                StartCoroutine(Move(position, command.Duration, command.Mode, waiter));
+            }
+            else
+            {
+                var position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+                StartCoroutine(Move(position, command.Duration, command.Mode));
+            }
         }
 
         public void Execute(CameraSetYawCommand command)

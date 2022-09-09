@@ -23,21 +23,21 @@ namespace Pal3.Command.SceCommands
     }
     #elif PAL3A
     [SceCommand(32, "镜头推动作，" +
-                    "参数：最后from与lookAt之间的距离，动作时间，插值类型（0：Linear，1：Sine）")]
+                    "参数：最后from与lookAt之间的距离，动作时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
     public class CameraPushCommand : ICommand
     {
-        public CameraPushCommand(float distance, float duration, int curveType, int direction)
+        public CameraPushCommand(float distance, float duration, int curveType, int synchronous)
         {
             Distance = distance;
             Duration = duration;
             CurveType = curveType;
-            Direction = direction;
+            Synchronous = synchronous;
         }
 
         public float Distance { get; }
         public float Duration { get; }
         public int CurveType { get; }
-        public int Direction { get; }
+        public int Synchronous { get; }
     }
     #endif
 }
