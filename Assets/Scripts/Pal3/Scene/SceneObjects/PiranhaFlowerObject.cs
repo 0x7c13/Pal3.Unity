@@ -26,13 +26,15 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact()
         {
+            #if PAL3
             // For PiranhaFlower object:
             // Parameters[0] = x1
             // Parameters[1] = y1
             // Parameters[2] = portal to flower object Id
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(-1, Info.Parameters[0], Info.Parameters[1]));
+                new ActorSetTilePositionCommand(-1, (int)Info.Parameters[0], (int)Info.Parameters[1]));
+            #endif
         }
     }
 }

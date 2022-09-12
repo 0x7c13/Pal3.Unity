@@ -9,14 +9,14 @@ namespace Pal3.Command.SceCommands
     [SceCommand(174, "镜头朝向固定点左右Orbit?")]
     public class UnknownCommand174 : ICommand
     {
-        public UnknownCommand174(float x, float y, float z, float duration, int mode, int direction)
+        public UnknownCommand174(float x, float y, float z, float duration, int mode, int synchronous)
         {
             X = x;
             Y = y;
             Z = z;
             Duration = duration;
             Mode= mode;
-            Direction = direction;
+            Synchronous = synchronous;
         }
 
         public float X { get; }
@@ -24,7 +24,7 @@ namespace Pal3.Command.SceCommands
         public float Z { get; }
         public float Duration { get; }
         public int Mode { get; }
-        public int Direction { get; }
+        public int Synchronous { get; }
     }
     #endif
 }

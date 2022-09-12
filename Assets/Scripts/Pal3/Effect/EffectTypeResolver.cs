@@ -20,8 +20,9 @@ namespace Pal3.Effect
             };
         }
 
-        public static GraphicsEffect GetEffectByName(string name)
+        public static GraphicsEffect GetEffectByNameAndType(string name, uint effectModelType)
         {
+            #if PAL3
             if (name == "+") return GraphicsEffect.None;
 
             if (!string.IsNullOrEmpty(name) && name.StartsWith('+'))
@@ -34,6 +35,10 @@ namespace Pal3.Effect
             {
                 return GraphicsEffect.None;
             }
+            #elif PAL3A
+            if (name != "+") return GraphicsEffect.None;
+            else return (GraphicsEffect)effectModelType;
+            #endif
         }
     }
 }

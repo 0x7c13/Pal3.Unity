@@ -363,6 +363,7 @@ namespace Pal3.Scene
 
         public void Execute(ActorActivateCommand command)
         {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             var actorId = (byte) command.ActorId;
             if (!_actorObjects.ContainsKey(actorId)) return;
             ActivateActorObject(actorId, command.IsActive == 1);

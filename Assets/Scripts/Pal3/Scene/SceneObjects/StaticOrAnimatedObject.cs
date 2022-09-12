@@ -21,14 +21,14 @@ namespace Pal3.Scene.SceneObjects
         public StaticOrAnimatedObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            if (objectInfo.Parameters[1] == 1 &&
+            if ((int)objectInfo.Parameters[1] == 1 &&
                 ModelTypeResolver.GetType(objectInfo.Name) == ModelType.CvdModel)
             {
                 //Debug.Log("Dead object.");
             }
             else
             {
-                GraphicsEffect = EffectTypeResolver.GetEffectByName(objectInfo.Name);
+                GraphicsEffect = EffectTypeResolver.GetEffectByNameAndType(objectInfo.Name, objectInfo.EffectModelType);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Pal3.Scene.SceneObjects
             // Parameters[2] describes animated object's default animation.
             // 0 means no animation. 1 means the object is animated up and down (sine curve).
             // 2 means the object is animated with constant rotation.
-            if (_sceneObject.Info.Parameters[2] == 1)
+            if ((int)_sceneObject.Info.Parameters[2] == 1)
             {
                 var currentTransform = transform;
                 var currentPosition = currentTransform.localPosition;
@@ -95,7 +95,7 @@ namespace Pal3.Scene.SceneObjects
                     _startYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
-            else if (_sceneObject.Info.Parameters[2] == 2)
+            else if ((int)_sceneObject.Info.Parameters[2] == 2)
             {
                 var currentTransform = transform;
                 transform.RotateAround(currentTransform.position, currentTransform.up, Time.deltaTime * 80f);

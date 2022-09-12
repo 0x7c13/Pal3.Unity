@@ -48,6 +48,7 @@ namespace Pal3.Feature
         {
             var vars = _scriptManager.GetGlobalVariables();
 
+            #if PAL3
             if (command.HotelScriptName.Equals("DealScript\\rest\\q01rest.txt",
                     StringComparison.OrdinalIgnoreCase))
             {
@@ -66,6 +67,15 @@ namespace Pal3.Feature
                     _scriptManager.AddScript((uint)command.AfterRestScriptId);
                 }
             }
+            #elif PAL3A
+            if (command.HotelScriptName.Equals("DealScript\\rest\\q10rest.txt"))
+            {
+                if (vars[ScriptConstants.MainStoryVariableName] == 140300)
+                {
+                    Rest("q10", "n02y", 2007);
+                }
+            }
+            #endif
         }
     }
 }

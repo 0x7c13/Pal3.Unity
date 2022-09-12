@@ -26,7 +26,13 @@ namespace Pal3.Actor
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
         ICommandExecutor<ActorShowEmojiCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorShowEmoji2Command>,
+        #endif
         ICommandExecutor<ActorSetScriptCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorSetYPositionCommand>,
+        #endif
         ICommandExecutor<ActorChangeScaleCommand>
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
@@ -180,23 +186,23 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             #if PAL3
-            var currentYAngles = gameObject.transform.rotation.eulerAngles.y;
-            gameObject.transform.rotation = Quaternion.Euler(0, currentYAngles - command.Degrees, 0);
+            var currentYAngles = transform.rotation.eulerAngles.y;
+            transform.rotation = Quaternion.Euler(0, currentYAngles - command.Degrees, 0);
             #elif PAL3A
-            gameObject.transform.rotation = Quaternion.Euler(0, - command.Degrees, 0);
+            transform.rotation = Quaternion.Euler(0, - command.Degrees, 0);
             #endif
         }
 
         public void Execute(ActorSetFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            gameObject.transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+            transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
         }
 
         public void Execute(ActorRotateFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            gameObject.transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+            transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
         }
 
         public void Execute(ActorShowEmojiCommand command)
@@ -204,6 +210,14 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
         }
+        
+        #if PAL3A
+        public void Execute(ActorShowEmoji2Command command)
+        {
+            if (_actor.Info.Id != command.ActorId) return;
+            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
+        }
+        #endif
 
         public void Execute(ActorSetScriptCommand command)
         {
@@ -219,5 +233,16 @@ namespace Pal3.Actor
                 new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(AnimateScale(command.Scale, 2f, waiter));
         }
+
+        #if PAL3A
+        public void Execute(ActorSetYPositionCommand command)
+        {
+            if (command.ActorId != _actor.Info.Id) return;
+            var oldPosition = transform.position;
+            transform.position = new Vector3(oldPosition.x,
+                command.YPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                oldPosition.z);
+        }
+        #endif
     }
 }

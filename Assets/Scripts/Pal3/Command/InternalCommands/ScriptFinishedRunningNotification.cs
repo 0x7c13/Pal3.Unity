@@ -5,13 +5,17 @@
 
 namespace Pal3.Command.InternalCommands
 {
+    using Script;
+
     public class ScriptFinishedRunningNotification : ICommand
     {
-        public ScriptFinishedRunningNotification(uint scriptId)
+        public ScriptFinishedRunningNotification(uint scriptId, PalScriptType scriptType)
         {
             ScriptId = scriptId;
+            ScriptType = scriptType;
         }
 
-        public uint ScriptId;
+        public uint ScriptId { get; }
+        public PalScriptType ScriptType { get; }
     }
 }

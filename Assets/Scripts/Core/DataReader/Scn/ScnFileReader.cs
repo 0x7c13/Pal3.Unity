@@ -193,11 +193,11 @@ namespace Core.DataReader.Scn
                 SaveState = reader.ReadByte(),
                 OnLayer = reader.ReadByte(),
                 WuLing = reader.ReadByte(),
-
-                // TODO:
+                
+                Parameters = reader.ReadSingleArray(6),
+                
+                // TODO
                 Unknown1 = reader.ReadBytes(4),
-
-                Parameters = reader.ReadInt32Array(6),
 
                 NeedSpecialAction = reader.ReadUInt16(),
                 NeedItem = reader.ReadUInt16(),
@@ -207,7 +207,7 @@ namespace Core.DataReader.Scn
                 NeedAllOpen = reader.ReadUInt16(),
                 FailedMessage = reader.ReadGbkString(16),
 
-                // TODO:
+                // TODO
                 Unknown2 = reader.ReadBytes(4),
                 ScriptId = reader.ReadUInt32(),
 
@@ -228,13 +228,14 @@ namespace Core.DataReader.Scn
                 },
 
                 XRotation = reader.ReadSingle(),
+                ZRotation = reader.ReadSingle(),
                 SfxName = reader.ReadGbkString(8),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),
                 ScriptMoved = reader.ReadUInt32(),
 
-                Reserved = reader.ReadUInt32Array(46)
+                Reserved = reader.ReadUInt32Array(45)
             };
             #endif
         }

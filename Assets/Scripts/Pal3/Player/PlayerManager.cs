@@ -26,12 +26,18 @@ namespace Pal3.Player
         ICommandExecutor<ActorMoveBackwardsCommand>,
         ICommandExecutor<ActorLookAtActorCommand>,
         ICommandExecutor<ActorShowEmojiCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorShowEmoji2Command>,
+        #endif
         ICommandExecutor<ActorStopActionCommand>,
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>,
         ICommandExecutor<ActorFadeInCommand>,
         ICommandExecutor<ActorFadeOutCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorSetYPositionCommand>,
+        #endif
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<ScenePostLoadingNotification>,
@@ -114,6 +120,10 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorSetTilePositionCommand((int)_playerActor, command.TileXPosition, command.TileZPosition));
+                // TODO: fix PAL3A actor activation issue
+                #if PAL3A
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
+                #endif
             }
         }
 
@@ -202,6 +212,17 @@ namespace Pal3.Player
                     new ActorShowEmojiCommand((int)_playerActor, command.EmojiId));
             }
         }
+        
+        #if PAL3A
+        public void Execute(ActorShowEmoji2Command command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorShowEmoji2Command((int)_playerActor, command.EmojiId));
+            }
+        }
+        #endif
 
         public void Execute(ActorFadeInCommand command)
         {
@@ -270,6 +291,17 @@ namespace Pal3.Player
                     new ActorSetNavLayerCommand((int)_playerActor, command.LayerIndex));
             }
         }
+        
+        #if PAL3A
+        public void Execute(ActorSetYPositionCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetYPositionCommand((int)_playerActor, command.YPosition));
+            }
+        }
+        #endif
 
         public void Execute(CameraFocusOnActorCommand command)
         {
@@ -287,8 +319,10 @@ namespace Pal3.Player
 
         public void Execute(ScenePostLoadingNotification notification)
         {
+            #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
-
+            #endif
+            
             if (_playerActorControlEnabled)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand((int)_playerActor));
@@ -297,9 +331,16 @@ namespace Pal3.Player
             if (_playerInputEnabled)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+                
+                // TODO: fix PAL3A actor activation issue
+                #if PAL3A
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
+                #endif
             }
 
+            #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
+            #endif
         }
     }
 }

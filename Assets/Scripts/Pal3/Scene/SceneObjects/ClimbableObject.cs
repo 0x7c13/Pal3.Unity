@@ -38,9 +38,9 @@ namespace Pal3.Scene.SceneObjects
                 // Parameters[4] == 1 ? Crossing different layer : Same layer
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerActorClimbObjectCommand(Info.Id,
-                    new Vector2Int(Info.Parameters[0], Info.Parameters[1]),
-                    new Vector2Int(Info.Parameters[2], Info.Parameters[3]),
-                    Info.Parameters[4] == 1));
+                    new Vector2Int((int)Info.Parameters[0], (int)Info.Parameters[1]),
+                    new Vector2Int((int)Info.Parameters[2], (int)Info.Parameters[3]),
+                    (int)Info.Parameters[4] == 1));
             }
             else
             {

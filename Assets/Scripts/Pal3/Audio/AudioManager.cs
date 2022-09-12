@@ -18,21 +18,21 @@ namespace Pal3.Audio
     using Data;
     using MetaData;
     using Scene;
+    using State;
     using UnityEngine;
 
     public class AudioManager : MonoBehaviour,
         ICommandExecutor<PlaySfxCommand>,
         ICommandExecutor<PlayMusicCommand>,
         ICommandExecutor<PlaySfxAtGameObjectRequest>,
-        ICommandExecutor<PlayVideoCommand>,
-        ICommandExecutor<VideoEndedNotification>,
+        ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<StopMusicCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        public float MusicVolume { get; set; } = 0.8f;
-        public float SoundVolume { get; set; } = 0.8f;
+        public float MusicVolume { get; set; } = 0.7f;
+        public float SoundVolume { get; set; } = 0.7f;
 
         private AudioSource _musicPlayer;
         private AudioSource _sfxPlayer;
@@ -270,23 +270,6 @@ namespace Pal3.Audio
             PlaySceneMusic(sceneInfo.CityName, sceneInfo.Name);
         }
 
-        public void Execute(PlayVideoCommand command)
-        {
-            if (_musicPlayer.isPlaying)
-            {
-                _musicPlayer.Stop();
-            }
-
-            _musicPlayer.mute = true;
-            _sfxPlayer.mute = true;
-        }
-
-        public void Execute(VideoEndedNotification command)
-        {
-            _musicPlayer.mute = false;
-            _sfxPlayer.mute = false;
-        }
-
         public void Execute(ScenePreLoadingNotification command)
         {
             if (_sfxPlayer.clip != null)
@@ -313,6 +296,25 @@ namespace Pal3.Audio
             _currentScriptMusic = string.Empty;
             _musicPlayer.Stop();
             _sfxPlayer.Stop();
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (command.NewState == GameState.VideoPlaying)
+            {
+                if (_musicPlayer.isPlaying)
+                {
+                    _musicPlayer.Stop();
+                }
+
+                _musicPlayer.mute = true;
+                _sfxPlayer.mute = true;
+            }
+            else
+            {
+                if (_musicPlayer.mute) _musicPlayer.mute = false;
+                if (_sfxPlayer.mute) _sfxPlayer.mute = false;
+            }
         }
     }
 }

@@ -258,7 +258,11 @@ namespace Core.DataReader.Scn
             24 以拣起的道具
                 [0]:得到物品的数据库ID
         */
+        #if PAL3
         public int[] Parameters;
+        #elif PAL3A
+        public float[] Parameters;
+        #endif
 
         // 触发条件
         public ushort NeedSpecialAction;   // 对应特殊行走技能,0xFF为无此条件
@@ -281,6 +285,7 @@ namespace Core.DataReader.Scn
 
         public GameBoxAABBox BoundBox;
         public float XRotation;            // 绕X轴旋转
+        public float ZRotation;            // 绕Z轴旋转
         public string SfxName;             // char[8] 特效参数
         
         public uint EffectModelType;

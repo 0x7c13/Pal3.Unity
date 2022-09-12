@@ -196,7 +196,7 @@ namespace Core.FileSystem
         {
             if (!fullVirtualPath.Contains(CpkConstants.CpkDirectorySeparatorChar))
             {
-                throw new ArgumentException("File virtual path is invalid.");
+                throw new ArgumentException($"File virtual path is invalid: {fullVirtualPath}.");
             }
             cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.CpkDirectorySeparatorChar)].ToLower();
             relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.CpkDirectorySeparatorChar) + 1)..];

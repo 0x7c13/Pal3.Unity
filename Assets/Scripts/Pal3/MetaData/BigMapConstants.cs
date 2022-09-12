@@ -10,6 +10,7 @@ namespace Pal3.MetaData
 
     public static class BigMapConstants
     {
+        #if PAL3
         // Order matters
         public static string[] BigMapRegions = new[]
         {
@@ -52,6 +53,50 @@ namespace Pal3.MetaData
             "渝州",
             "镇江"
         };
+        #elif PAL3A
+        // Order matters
+        public static string[] BigMapRegions = new[]
+        {
+            "唐家堡",
+            "登云麓",
+            "蜀山后山",
+            "4",
+            "绿萝嶂",
+            "绿萝山",
+            "7",
+            "胜州",
+            "纳林河源",
+            "10",
+            "石村",   
+            "12",
+            "13",
+            "渝州",
+            "施洞",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35",
+            "36",
+            "37",
+            "38"
+        };
+        #endif
 
         // From basedata.cpk\ui\BigMap\Element\色表.doc
         public static readonly Dictionary<string, Color32> BigMapRegionColorInfo = new()

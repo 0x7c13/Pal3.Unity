@@ -25,7 +25,7 @@ namespace Pal3.Scene.SceneObjects
         public AutoTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            GraphicsEffect = EffectTypeResolver.GetEffectByName(objectInfo.Name);
+            GraphicsEffect = EffectTypeResolver.GetEffectByNameAndType(objectInfo.Name, objectInfo.EffectModelType);
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)

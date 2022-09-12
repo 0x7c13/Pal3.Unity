@@ -11,7 +11,12 @@ namespace Pal3.Effect
 
     public class PortalEffect : MonoBehaviour, IEffect
     {
+        #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
+        #elif PAL3A
+        private const string PORTAL_BASE_TEXTURE_NAME = "trans.tga";
+        #endif
+        
         private const float PORTAL_DEFAULT_SIZE = 1.3f;
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 

@@ -56,6 +56,7 @@ namespace Pal3.Script
         public event EventHandler<ICommand> OnCommandExecutionRequested;
 
         public uint ScriptId { get; }
+        public PalScriptType ScriptType { get; }
 
         private const int MAX_REGISTER_COUNT = 8;
 
@@ -70,7 +71,7 @@ namespace Pal3.Script
 
         private PalScriptRunner() {}
 
-        public static PalScriptRunner Create(SceFile sceFile, uint scriptId, Dictionary<int, int> globalVariables)
+        public static PalScriptRunner Create(SceFile sceFile, PalScriptType scriptType, uint scriptId, Dictionary<int, int> globalVariables)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
             {
@@ -79,12 +80,13 @@ namespace Pal3.Script
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
             Debug.Log($"Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
-            return new PalScriptRunner(scriptId, sceScriptBlock, globalVariables);
+            return new PalScriptRunner(scriptType, scriptId, sceScriptBlock, globalVariables);
         }
 
-        private PalScriptRunner(uint scriptId, SceScriptBlock scriptBlock, Dictionary<int, int> globalVariables,
+        private PalScriptRunner(PalScriptType scriptType, uint scriptId, SceScriptBlock scriptBlock, Dictionary<int, int> globalVariables,
             PalScriptExecutionMode executionMode = PalScriptExecutionMode.Break)
         {
+            ScriptType = scriptType;
             ScriptId = scriptId;
 
             _globalVariables = globalVariables;

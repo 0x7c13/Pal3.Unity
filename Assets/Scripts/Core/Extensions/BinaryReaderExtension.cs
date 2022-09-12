@@ -70,6 +70,16 @@ namespace Core.Extensions
             }
             return integers;
         }
+        
+        public static ushort[] ReadUInt16Array(this BinaryReader binaryReader, int count)
+        {
+            var integers = new ushort[count];
+            for (var i = 0; i < count; i++)
+            {
+                integers[i] = binaryReader.ReadUInt16();
+            }
+            return integers;
+        }
 
         public static string ReadAsciiString(this BinaryReader binaryReader, int count)
         {

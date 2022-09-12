@@ -489,7 +489,7 @@ namespace Pal3.Camera
         {
             #if PAL3
             if (true)
-            #elif  PAL3A
+            #elif PAL3A
             if (command.Synchronous == 1)
             #endif
             {
@@ -509,7 +509,7 @@ namespace Pal3.Camera
         {
             #if PAL3
             if (true)
-            #elif  PAL3A
+            #elif PAL3A
             if (command.Synchronous == 1)
             #endif
             {

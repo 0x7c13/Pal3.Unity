@@ -82,17 +82,17 @@ namespace Pal3.Script
             if (isBigMapScript)
             {
                 Debug.Log($"Add BigMap script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_bigMapSceFile, scriptId, _globalVariables);
+                scriptRunner = PalScriptRunner.Create(_bigMapSceFile, PalScriptType.BigMap, scriptId, _globalVariables);
             }
             else if (scriptId <= ScriptConstants.SystemScriptIdMax)
             {
                 Debug.Log($"Add system script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_systemSceFile, scriptId, _globalVariables);
+                scriptRunner = PalScriptRunner.Create(_systemSceFile, PalScriptType.System, scriptId, _globalVariables);
             }
             else
             {
                 Debug.Log($"Add scene script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_sceFile, scriptId, _globalVariables);
+                scriptRunner = PalScriptRunner.Create(_sceFile, PalScriptType.Scene, scriptId, _globalVariables);
             }
 
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;
@@ -104,7 +104,7 @@ namespace Pal3.Script
         {
             var sceCommandId = command.GetType().GetCustomAttribute<SceCommandAttribute>()?.Id;
 
-            Debug.Log($"Script {((PalScriptRunner)sender).ScriptId} executing command: [{sceCommandId}] " +
+            Debug.Log($"{((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} executing command: [{sceCommandId}] " +
                       $"{command.GetType().Name.Replace("Command", "")} " +
                       $"{JsonConvert.SerializeObject(command)}");
 
@@ -136,7 +136,7 @@ namespace Pal3.Script
 
                 Debug.Log($"Script {finishedScript.ScriptId} finished running.");
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptFinishedRunningNotification(finishedScript.ScriptId));
+                    new ScriptFinishedRunningNotification(finishedScript.ScriptId, finishedScript.ScriptType));
             }
 
             _finishedScripts.Clear();

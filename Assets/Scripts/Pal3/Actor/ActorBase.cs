@@ -5,6 +5,7 @@
 
 namespace Pal3.Actor
 {
+    using System;
     using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -74,15 +75,13 @@ namespace Pal3.Actor
             if (_actorConfig == null) return false;
 
             return _actorConfig.ActorActions
-                .Any(act => act.ActionName.ToLower().Equals(actionName));
+                .Any(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
         }
 
         public (Mv3File mv3File, ITextureResourceProvider textureProvider) GetActionMv3(string actionName)
         {
-            actionName = actionName.ToLower();
-
             var action = _actorConfig.ActorActions
-                .First(act => act.ActionName.ToLower().Equals(actionName));
+                .First(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
 
             var separator = CpkConstants.CpkDirectorySeparatorChar;
 

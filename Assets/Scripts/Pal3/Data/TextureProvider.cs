@@ -5,6 +5,7 @@
 
 namespace Pal3.Data
 {
+    using System;
     using System.IO;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -65,7 +66,17 @@ namespace Pal3.Data
             // Note: Most texture files used in (.pol, .cvd) files are stored inside Pal3's CPack
             // archives and they are pre-compressed to DXT format (DXT1 & DXT3). So we need to
             // swap the file extension from original texture format (.bmp, .tga etc.) to dds format.
-            var ddsTexturePath = Path.ChangeExtension(texturePath, ".dds");
+            string ddsTexturePath = null;
+            try
+            {
+                ddsTexturePath = Path.ChangeExtension(texturePath, ".dds");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Failed to change path extension for texture: {texturePath}, ex: {ex}");
+                hasAlphaChannel = false;
+                return Texture2D.whiteTexture;
+            }
 
             if (_textureCache != null)
             {

@@ -43,6 +43,7 @@ namespace Pal3.Player
         private int _lastKnownLayerIndex;
 
         private GameObject _playerActor;
+        private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
 
@@ -539,6 +540,7 @@ namespace Pal3.Player
 
             _playerActor = _sceneManager.GetCurrentScene()
                 .GetActorGameObject((byte) command.ActorId);
+            _playerActorController = _playerActor.GetComponent<ActorController>();
             _playerActorActionController = _playerActor.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActor.GetComponent<ActorMovementController>();
         }
@@ -552,7 +554,11 @@ namespace Pal3.Player
                     _playerActorMovementController.CancelCurrentMovement();
                 }
 
-                if (_playerActorActionController != null)
+                if (_playerActorActionController != null && 
+                    !string.IsNullOrEmpty(_playerActorActionController.GetCurrentAction()) &&
+                    !string.Equals(ActorConstants.ActionNames[ActorActionType.Stand],
+                        _playerActorActionController.GetCurrentAction(),
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     _playerActorActionController.PerformAction(ActorActionType.Stand);
                 }

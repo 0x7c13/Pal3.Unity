@@ -386,15 +386,13 @@ namespace Pal3.UI
         private string GetSelectionDisplayText(object selection)
         {
             var selectionString = (string)selection;
-            if (selectionString.EndsWith("；") ||
-                selectionString.EndsWith("。"))
+            return selectionString.Length switch
             {
-                return selectionString[2..^1];
-            }
-            else
-            {
-                return selectionString[2..];
-            }
+                >= 4 when (selectionString.EndsWith("；") || selectionString.EndsWith("。")) => selectionString[2..^1],
+                <= 1 => selectionString,
+                2 => selectionString[1..],
+                _ => selectionString[2..]
+            };
         }
 
         public void Execute(DialogueAddSelectionsCommand command)

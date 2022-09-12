@@ -430,7 +430,7 @@ namespace Pal3.MetaData
             { ActorActionType.Attack2,		     WeaponArmType.RightHanded },   // 攻击2
             { ActorActionType.AttackMove,	     WeaponArmType.RightHanded },   // 攻击移动
             { ActorActionType.PreAttack,         WeaponArmType.RightHanded },   // 备战
-            { ActorActionType.BeAttack,		     WeaponArmType.RightHanded },   // 被攻击
+            { ActorActionType.BeAttack,		     WeaponArmType.None        },   // 被攻击
             { ActorActionType.MagicWait,         WeaponArmType.RightHanded },   // 仙术预备
             { ActorActionType.Magic,             WeaponArmType.RightHanded },   // 仙术
             { ActorActionType.Skill1,		     WeaponArmType.RightHanded },   // 特技1
@@ -442,9 +442,9 @@ namespace Pal3.MetaData
             { ActorActionType.Defence,		     WeaponArmType.RightHanded },   // 防御
             { ActorActionType.DefenceBeAttack,   WeaponArmType.RightHanded },   // 攻击被防住
             { ActorActionType.Dodge,             WeaponArmType.RightHanded },   // 回避
-            { ActorActionType.Freeze,            WeaponArmType.RightHanded },   // 眠定
-            { ActorActionType.Dying,             WeaponArmType.LeftHanded  },   // 濒死
-            { ActorActionType.Dead,			     WeaponArmType.RightHanded },   // 死亡
+            { ActorActionType.Freeze,            WeaponArmType.None        },   // 眠定
+            { ActorActionType.Dying,             WeaponArmType.None        },   // 濒死
+            { ActorActionType.Dead,			     WeaponArmType.None        },   // 死亡
             { ActorActionType.Flee,			     WeaponArmType.None        },   // 逃跑等到
             { ActorActionType.Win,			     WeaponArmType.RightHanded },   // 胜利
 
@@ -500,7 +500,7 @@ namespace Pal3.MetaData
             { ActorActionType.Attack2,		     WeaponArmType.RightHanded },   // 攻击2
             { ActorActionType.AttackMove,	     WeaponArmType.RightHanded },   // 攻击移动
             { ActorActionType.PreAttack,         WeaponArmType.RightHanded },   // 备战
-            { ActorActionType.BeAttack,		     WeaponArmType.RightHanded },   // 被攻击
+            { ActorActionType.BeAttack,		     WeaponArmType.None        },   // 被攻击
             { ActorActionType.MagicWait,         WeaponArmType.RightHanded },   // 仙术预备
             { ActorActionType.Magic,             WeaponArmType.RightHanded },   // 仙术
             { ActorActionType.Skill1,		     WeaponArmType.RightHanded },   // 特技1
@@ -512,9 +512,9 @@ namespace Pal3.MetaData
             { ActorActionType.Defence,		     WeaponArmType.RightHanded },   // 防御
             { ActorActionType.DefenceBeAttack,   WeaponArmType.RightHanded },   // 攻击被防住
             { ActorActionType.Dodge,             WeaponArmType.RightHanded },   // 回避
-            { ActorActionType.Freeze,            WeaponArmType.RightHanded },   // 眠定
-            { ActorActionType.Dying,             WeaponArmType.LeftHanded  },   // 濒死
-            { ActorActionType.Dead,			     WeaponArmType.RightHanded },   // 死亡
+            { ActorActionType.Freeze,            WeaponArmType.None        },   // 眠定
+            { ActorActionType.Dying,             WeaponArmType.None        },   // 濒死
+            { ActorActionType.Dead,			     WeaponArmType.None        },   // 死亡
             { ActorActionType.Flee,			     WeaponArmType.None        },   // 逃跑等到
             { ActorActionType.Win,			     WeaponArmType.RightHanded },   // 胜利
 
