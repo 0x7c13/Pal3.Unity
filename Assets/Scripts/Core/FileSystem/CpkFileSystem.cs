@@ -68,6 +68,38 @@ namespace Core.FileSystem
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }
+        
+        /// <summary>
+        /// Check if file exists in any of the segmented archives using virtual path.
+        /// </summary>
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}.cpk\{File relative path inside archive}</param>
+        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
+        /// <returns>True if file exists in segmented archive</returns>
+        public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName)
+        {
+            ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
+
+            if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
+            {
+                segmentedArchiveName = null;
+                return false;
+            }
+            
+            // Check if the file exists in any of the segmented cpk archives.
+            foreach (var subCpkPath in _cpkArchives.Keys
+                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+            {
+                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
+                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
+                {
+                    segmentedArchiveName = subCpkPath;
+                    return true;
+                }
+            }
+
+            segmentedArchiveName = null;
+            return false;
+        }
 
         /// <summary>
         /// Check if file exists in the archive using virtual path.
