@@ -498,6 +498,7 @@ namespace Pal3.Camera
                 var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
                 StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
+            #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
@@ -508,6 +509,7 @@ namespace Pal3.Camera
                     waiter: null,
                     _asyncCameraAnimationCts.Token));
             }
+            #endif
         }
         
         #if PAL3A
@@ -621,6 +623,7 @@ namespace Pal3.Camera
                 var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
                 StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
+            #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
@@ -631,6 +634,7 @@ namespace Pal3.Camera
                     waiter: null,
                     _asyncCameraAnimationCts.Token));
             }
+            #endif
         }
 
         public void Execute(CameraMoveCommand command)
@@ -648,6 +652,7 @@ namespace Pal3.Camera
                 var position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
                 StartCoroutine(Move(position, command.Duration, command.Mode, waiter));
             }
+            #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
@@ -658,6 +663,7 @@ namespace Pal3.Camera
                     waiter: null,
                     _asyncCameraAnimationCts.Token));
             }
+            #endif
         }
 
         public void Execute(CameraSetYawCommand command)
