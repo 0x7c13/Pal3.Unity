@@ -156,7 +156,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.OSS.PAL3
-    Standalone: com.Jackil.PAL3A
+    Standalone: com.Jackil.PAL3
     iPhone: com.Jackil.PAL3
   buildNumber:
     Standalone: 0

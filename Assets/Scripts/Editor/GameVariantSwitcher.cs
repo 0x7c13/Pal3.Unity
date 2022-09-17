@@ -32,7 +32,8 @@ namespace Editor
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
             PlayerSettings.SetApplicationIdentifier(
-                EditorUserBuildSettings.selectedBuildTargetGroup, GameConstants.AppIdentifier);
+                EditorUserBuildSettings.selectedBuildTargetGroup,
+                $"{GameConstants.AppIdentifierPrefix}.{appName}");
             // TODO: Add icon based on variant
             //PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, icons);
             AssetDatabase.SaveAssets();
