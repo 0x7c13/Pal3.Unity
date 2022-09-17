@@ -7,6 +7,7 @@ namespace Core.Animation
 {
     using System;
     using System.Collections;
+    using System.Threading;
     using UnityEngine;
 
     public enum AnimationCurveType
@@ -60,12 +61,13 @@ namespace Core.Animation
         public static IEnumerator MoveTransform(Transform target,
             Vector3 toPosition,
             float duration,
-            AnimationCurveType curveType = AnimationCurveType.Linear)
+            AnimationCurveType curveType = AnimationCurveType.Linear,
+            CancellationToken cancellationToken = default)
         {
             var oldPosition = target.position;
 
             var timePast = 0f;
-            while (timePast < duration && target != null)
+            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
                 target.position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
@@ -73,7 +75,7 @@ namespace Core.Animation
                 yield return null;
             }
 
-            if (target != null) target.position = toPosition;
+            if (target != null && !cancellationToken.IsCancellationRequested) target.position = toPosition;
             yield return null;
         }
 
@@ -101,19 +103,21 @@ namespace Core.Animation
             Quaternion toRotation,
             Vector3 centerPoint,
             float duration,
-            AnimationCurveType curveType)
+            AnimationCurveType curveType,
+            float distanceDelta,
+            CancellationToken cancellationToken = default)
         {
             var distance = Vector3.Distance(target.position, centerPoint);
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast < duration && target != null)
+            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
                 var direction = (rotation * Vector3.forward).normalized;
-                var newPosition = centerPoint + direction * -distance;
+                var newPosition = centerPoint + direction * -(distance + (timePast / duration) * distanceDelta);
 
                 target.rotation = rotation;
                 target.position = newPosition;
@@ -122,23 +126,25 @@ namespace Core.Animation
                 yield return null;
             }
 
-            if (target != null)
+            if (target != null && !cancellationToken.IsCancellationRequested)
             {
                 target.rotation = toRotation;
-                target.position = centerPoint + (toRotation * Vector3.forward).normalized * -distance;
+                target.position = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
             }
+            
             yield return null;
         }
 
         public static IEnumerator RotateTransform(Transform target,
             Quaternion toRotation,
             float duration,
-            AnimationCurveType curveType)
+            AnimationCurveType curveType,
+            CancellationToken cancellationToken = default)
         {
             var startRotation = target.rotation;
 
             var timePast = 0f;
-            while (timePast < duration && target != null)
+            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
                 var rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -149,7 +155,7 @@ namespace Core.Animation
                 yield return null;
             }
 
-            if (target != null) target.rotation = toRotation;
+            if (target != null && !cancellationToken.IsCancellationRequested) target.rotation = toRotation;
             yield return null;
         }
     }

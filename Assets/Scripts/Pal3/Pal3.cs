@@ -399,13 +399,20 @@ namespace Pal3
             var playerActorMovementController = _sceneManager.GetCurrentScene()
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             var playerActorTilePosition = playerActorMovementController.GetTilePosition();
-            var mainStoryProgress = _scriptManager.GetGlobalVariables()[ScriptConstants.MainStoryVariableName];
+            var varsToSave = _scriptManager.GetGlobalVariables()
+                .Where(_ => _.Key == ScriptConstants.MainStoryVariableName); // Save main story var only
             var currentSceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
 
             var commands = new List<ICommand>
             {
                 new ResetGameStateCommand(),
-                new ScriptVarSetValueCommand(ScriptConstants.MainStoryVariableName, mainStoryProgress),
+            };
+            
+            commands.AddRange(varsToSave.Select(var =>
+                new ScriptVarSetValueCommand(var.Key, var.Value)));
+            
+            commands.AddRange(new List<ICommand>()
+            {
                 new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.Name),
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1),
                 new ActorEnablePlayerControlCommand(ActorConstants.PlayerActorVirtualID),
@@ -414,7 +421,7 @@ namespace Pal3
                     playerActorMovementController.GetCurrentLayerIndex()),
                 new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
                     playerActorTilePosition.x, playerActorTilePosition.y)
-            };
+            });
 
             commands.AddRange(_teamManager.GetActorsInTeam()
                 .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));

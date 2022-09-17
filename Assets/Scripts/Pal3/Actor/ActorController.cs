@@ -129,10 +129,13 @@ namespace Pal3.Actor
 
             if (_currentBehaviour == ScnActorBehaviour.PathFollow)
             {
-                _movementController.SetupPath(_actor.Info.Path.Waypoints
-                        .Where(p => p != Vector3.zero)
-                        .Select(waypoint => GameBoxInterpreter.ToUnityPosition(waypoint)).ToArray(),
-                    0, EndOfPathActionType.Reverse);
+                var waypoints = _actor.Info.Path.Waypoints
+                    .Where(p => p != Vector3.zero)
+                    .Select(waypoint => GameBoxInterpreter.ToUnityPosition(waypoint)).ToArray();
+                if (waypoints.Length > 0)
+                {
+                    _movementController.SetupPath(waypoints, 0, EndOfPathActionType.Reverse, ignoreObstacle: true);   
+                }
             }
         }
 

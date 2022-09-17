@@ -307,7 +307,8 @@ namespace Pal3.Script
         public void Execute(ScriptTestGotoCommand command)
         {
             if (!_isExecuting) return;
-            if (!(bool)_registers[(int) RegisterOperations.Value])
+            if (_registers[(int) RegisterOperations.Value] != null &&
+                !(bool)_registers[(int) RegisterOperations.Value])
             {
                 _scriptDataReader.BaseStream.Seek(command.Offset, SeekOrigin.Begin);
             }

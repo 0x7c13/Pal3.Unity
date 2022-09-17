@@ -31,6 +31,9 @@ namespace Pal3.Actor
     public class ActorMovementController : MonoBehaviour,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorPathToCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorWalkToUsingActionCommand>,
+        #endif
         ICommandExecutor<ActorMoveBackwardsCommand>,
         ICommandExecutor<ActorMoveToCommand>,
         ICommandExecutor<ActorStopActionAndStandCommand>,
@@ -123,9 +126,8 @@ namespace Pal3.Actor
         private void Update()
         {
             if (_currentPath.IsEndOfPath()) return;
-
-            var ignoreBlock = _currentPath.EndOfPathAction == EndOfPathActionType.Reverse;
-            var result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, ignoreBlock);
+            
+            var result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, _currentPath.IgnoreObstacle);
 
             if (result == MovementResult.Blocked)
             {
@@ -250,7 +252,7 @@ namespace Pal3.Actor
             var moveMode = isDoubleTap ? 1 : 0;
             // Keep running when actor is already in running mode
             if (_currentPath?.MovementMode == 1) moveMode = 1;
-            SetupPath(new[] { targetPosition }, moveMode, EndOfPathActionType.Idle);
+            SetupPath(new[] { targetPosition }, moveMode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
         private bool IsNearPortalAreaOfLayer(Vector3 position, int layerIndex)
@@ -275,7 +277,7 @@ namespace Pal3.Actor
             return true;
         }
 
-        public MovementResult MoveTowards(Vector3 targetPosition, int movementMode, bool ignoreBlock = false)
+        public MovementResult MoveTowards(Vector3 targetPosition, int movementMode, bool ignoreObstacle = false)
         {
             var currentTransform = transform;
             var currentPosition = currentTransform.position;
@@ -291,7 +293,7 @@ namespace Pal3.Actor
 
             var canGotoPosition = CanGotoPosition(currentPosition, newPosition, out var newYPosition);
 
-            if (!canGotoPosition && !ignoreBlock)
+            if (!canGotoPosition && !ignoreObstacle)
             {
                 return MovementResult.Blocked;
             }
@@ -368,9 +370,9 @@ namespace Pal3.Actor
             return false;
         }
 
-        public void SetupPath(Vector3[] wayPoints, int mode, EndOfPathActionType endOfPathAction)
+        public void SetupPath(Vector3[] wayPoints, int mode, EndOfPathActionType endOfPathAction, bool ignoreObstacle)
         {
-            _currentPath.SetPath(wayPoints, mode, endOfPathAction);
+            _currentPath.SetPath(wayPoints, mode, endOfPathAction, ignoreObstacle);
             _actionController.PerformAction(_actor.GetMovementAction(mode));
         }
 
@@ -408,7 +410,7 @@ namespace Pal3.Actor
         private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
-            SetupPath(waypoints, mode, EndOfPathActionType.Reverse);
+            SetupPath(waypoints, mode, EndOfPathActionType.Reverse, ignoreObstacle: true);
         }
 
         public IEnumerator MoveDirectlyTo(Vector3 position, int mode)
@@ -418,12 +420,11 @@ namespace Pal3.Actor
             _actionController.PerformAction(_actor.GetMovementAction(mode));
             do
             {
-                result = MoveTowards(position, mode, ignoreBlock: true);
+                result = MoveTowards(position, mode, ignoreObstacle: true);
                 yield return null;
             } while (result == MovementResult.InProgress);
             _actionController.PerformAction(_actor.GetIdleAction());
         }
-
 
         private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position,
             int mode,
@@ -459,7 +460,7 @@ namespace Pal3.Actor
                         _tilemap.GetWorldPosition(position, _currentLayerIndex),
                     };
 
-                    SetupPath(directWayPoints, mode, endOfPathAction);
+                    SetupPath(directWayPoints, mode, endOfPathAction, ignoreObstacle: true);
                 }
                 else
                 {
@@ -475,7 +476,7 @@ namespace Pal3.Actor
                 wayPoints[i] = _tilemap.GetWorldPosition(new Vector2Int(path[i].x, path[i].y), _currentLayerIndex);
             }
 
-            SetupPath(wayPoints, mode, endOfPathAction);
+            SetupPath(wayPoints, mode, endOfPathAction, ignoreObstacle: true);
         }
 
         private void MoveToTilePosition(Vector2Int position, int mode)
@@ -490,12 +491,13 @@ namespace Pal3.Actor
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
 
             var wayPoints = new [] { position };
-            SetupPath(wayPoints, mode, EndOfPathActionType.Idle);
+            SetupPath(wayPoints, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
+            CancelCurrentMovement();
             transform.position = _tilemap.GetWorldPosition(new Vector2Int(command.TileXPosition,
                 command.TileZPosition), _currentLayerIndex);
         }
@@ -509,6 +511,14 @@ namespace Pal3.Actor
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
                 command.Mode, EndOfPathActionType.Idle));
         }
+        
+        #if PAL3A
+        public void Execute(ActorWalkToUsingActionCommand command)
+        {
+            // TODO: proper impl
+            Execute(new ActorPathToCommand(command.ActorId, command.TileX, command.TileZ, mode: 0));
+        }
+        #endif
 
         public void Execute(ActorMoveToCommand command)
         {

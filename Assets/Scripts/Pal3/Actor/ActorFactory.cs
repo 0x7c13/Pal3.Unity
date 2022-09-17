@@ -46,6 +46,11 @@ namespace Pal3.Actor
             {
                 actorGameObject.AddComponent<HuaYingController>().Init(actorController, actionController);
             }
+            #elif PAL3A
+            if (actor.Info.Id == (byte) PlayerActorId.TaoZi)
+            {
+                actorGameObject.AddComponent<FlyingActorController>().Init(actionController);
+            }
             #endif
 
             return actorGameObject;

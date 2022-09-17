@@ -80,6 +80,16 @@ namespace Pal3.Scene.SceneObjects
             }
 
             //Utility.DrawBounds(_bounds);
+
+            // Set active Y position of the lifting mechanism
+            // TODO: impl of the lifting logic
+            if (_investigationTriggerBox.Info.Type == ScnSceneObjectType.LiftingMechanism)
+            {
+                var oldPosition = transform.position;
+                var activeYPosition = (float)_investigationTriggerBox.Info.Parameters[0] /
+                                       GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);
+            }
         }
     }
 }

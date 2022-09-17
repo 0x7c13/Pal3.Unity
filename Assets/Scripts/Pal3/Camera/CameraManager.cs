@@ -6,6 +6,7 @@
 namespace Pal3.Camera
 {
     using System.Collections;
+    using System.Threading;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -29,6 +30,10 @@ namespace Pal3.Camera
         ICommandExecutor<CameraShakeEffectCommand>,
         ICommandExecutor<CameraOrbitCommand>,
         ICommandExecutor<CameraRotateCommand>,
+        #if PAL3A
+        ICommandExecutor<CameraOrbitHorizontalCommand>,
+        ICommandExecutor<CameraOrbitVerticalCommand>,
+        #endif
         ICommandExecutor<CameraFadeInCommand>,
         ICommandExecutor<CameraFadeInWhiteCommand>,
         ICommandExecutor<CameraFadeOutCommand>,
@@ -77,6 +82,7 @@ namespace Pal3.Camera
         private bool _isTouchEnabled;
 
         private bool _cameraAnimationInProgress;
+        private CancellationTokenSource _asyncCameraAnimationCts = new ();
 
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
@@ -238,15 +244,22 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        private IEnumerator Move(Vector3 position, float duration, int mode, WaitUntilCanceled waiter = null)
+        private IEnumerator Move(Vector3 position,
+            float duration,
+            int mode,
+            WaitUntilCanceled waiter = null,
+            CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
             var curveType = (AnimationCurveType) mode;
             var cameraTransform = _camera.transform;
             var oldPosition = cameraTransform.position;
-            yield return AnimationHelper.MoveTransform(cameraTransform, position, duration, curveType);
-            _lastLookAtPoint += position - oldPosition;
-            _cameraOffset = _camera.transform.position - _lastLookAtPoint;
+            yield return AnimationHelper.MoveTransform(cameraTransform, position, duration, curveType, cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                _lastLookAtPoint += position - oldPosition;
+                _cameraOffset = _camera.transform.position - _lastLookAtPoint;
+            }
             _cameraAnimationInProgress = false;
             waiter?.CancelWait();
         }
@@ -254,7 +267,9 @@ namespace Pal3.Camera
         private IEnumerator Orbit(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null)
+            float distanceDelta,
+            WaitUntilCanceled waiter = null,
+            CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
             var lookAtPoint = _lastLookAtPoint;
@@ -262,8 +277,14 @@ namespace Pal3.Camera
                 toRotation,
                 lookAtPoint,
                 duration,
-                curveType);
-            _cameraOffset = _camera.transform.position - lookAtPoint;
+                curveType,
+                distanceDelta,
+                cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                _cameraOffset = _camera.transform.position - lookAtPoint;
+            }
             _cameraAnimationInProgress = false;
             waiter?.CancelWait();
         }
@@ -271,10 +292,15 @@ namespace Pal3.Camera
         private IEnumerator Rotate(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null)
+            WaitUntilCanceled waiter = null,
+            CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            yield return AnimationHelper.RotateTransform(_camera.transform, toRotation, duration, curveType);
+            yield return AnimationHelper.RotateTransform(_camera.transform,
+                toRotation,
+                duration,
+                curveType,
+                cancellationToken);
             _cameraAnimationInProgress = false;
             waiter?.CancelWait();
         }
@@ -282,16 +308,26 @@ namespace Pal3.Camera
         public IEnumerator Push(float distance,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null)
+            WaitUntilCanceled waiter = null,
+            CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
             var oldPosition = _camera.transform.position;
             var oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
             var cameraDirection = (oldPosition - _lastLookAtPoint).normalized;
-            var newPosition = oldPosition + cameraDirection *(distance - oldDistance);
+            var newPosition = oldPosition + cameraDirection * (distance - oldDistance);
             var cameraTransform = _camera.transform;
-            yield return AnimationHelper.MoveTransform(cameraTransform, newPosition, duration, curveType);
-            _cameraOffset = cameraTransform.position - _lastLookAtPoint;
+            
+            yield return AnimationHelper.MoveTransform(cameraTransform,
+                newPosition,
+                duration, 
+                curveType,
+                cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                _cameraOffset = cameraTransform.position - _lastLookAtPoint;
+            }
             _cameraAnimationInProgress = false;
             waiter?.CancelWait();
         }
@@ -393,6 +429,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraSetDefaultTransformCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
             ApplyDefaultSettings(command.Option);
             _free = true;
@@ -400,6 +438,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraSetTransformCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             _lookAtGameObject = null;
 
             var cameraPosition = GameBoxInterpreter.ToUnityPosition(
@@ -417,12 +457,16 @@ namespace Pal3.Camera
 
         public void Execute(CameraFreeCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
             _lookAtGameObject = null;
             _free = command.Free == 1;
         }
 
         public void Execute(CameraShakeEffectCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Shake(command.Duration,
@@ -431,14 +475,18 @@ namespace Pal3.Camera
 
         public void Execute(CameraOrbitCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-            StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+            StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, 0f, waiter));
         }
 
         public void Execute(CameraRotateCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             #if PAL3
             if (true)
             #elif PAL3A
@@ -452,13 +500,80 @@ namespace Pal3.Camera
             }
             else
             {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
                 var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType));
+                StartCoroutine(Rotate(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
             }
         }
+        
+        #if PAL3A
+        public void Execute(CameraOrbitHorizontalCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
+            var oldDistance = _cameraOffset.magnitude;
+            var newDistance = (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+            var distanceDelta = newDistance - oldDistance;
+            
+            if (command.Synchronous == 1)
+            {
+                var waiter = new WaitUntilCanceled(this);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+            }
+            else
+            {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Orbit(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
+            }
+        }
+        #endif
+        
+        #if PAL3A
+        public void Execute(CameraOrbitVerticalCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
+            var oldDistance = _cameraOffset.magnitude;
+            var newDistance = (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+            var distanceDelta = newDistance - oldDistance;
+            
+            if (command.Synchronous == 1)
+            {
+                var waiter = new WaitUntilCanceled(this);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+            }
+            else
+            {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
+                var rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(Orbit(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
+            }
+        }
+        #endif
 
         public void Execute(CameraFadeInCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.black, waiter));
@@ -466,6 +581,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraFadeInWhiteCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.white, waiter));
@@ -473,6 +590,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraFadeOutCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.black, waiter));
@@ -480,6 +599,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraFadeOutWhiteCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.white, waiter));
@@ -487,6 +608,8 @@ namespace Pal3.Camera
 
         public void Execute(CameraPushCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             #if PAL3
             if (true)
             #elif PAL3A
@@ -500,13 +623,20 @@ namespace Pal3.Camera
             }
             else
             {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
                 var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-                StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType));
+                StartCoroutine(Push(distance,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
             }
         }
 
         public void Execute(CameraMoveCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             #if PAL3
             if (true)
             #elif PAL3A
@@ -520,13 +650,20 @@ namespace Pal3.Camera
             }
             else
             {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
                 var position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
-                StartCoroutine(Move(position, command.Duration, command.Mode));
+                StartCoroutine(Move(position,
+                    command.Duration,
+                    command.Mode,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
             }
         }
 
         public void Execute(CameraSetYawCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             RotateToOrbitPoint(command.Yaw);
         }
 
@@ -538,11 +675,14 @@ namespace Pal3.Camera
         public void Execute(CameraFocusOnActorCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             _lookAtGameObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)command.ActorId);
         }
 
         public void Execute(CameraFocusOnSceneObjectCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+            
             _lookAtGameObject = _sceneManager.GetCurrentScene()
                 .GetSceneObjectGameObject((byte)command.SceneObjectId);
         }

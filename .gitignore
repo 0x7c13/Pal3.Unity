@@ -67,6 +67,6 @@ crashlytics-build.properties
 # MacOS generated files
 .DS_Store
 
-# PAL3 StreamingAssets folder
+# Unity StreamingAssets folder
 /Assets/StreamingAssets
 

@@ -26,6 +26,7 @@ namespace Pal3.Dev
         private readonly Button _mazeExitButton;
 
         // _0 for entrance, _1 for exit
+        #if PAL3
         private readonly Dictionary<string, IList<ICommand>> _skipperCommands = new()
         {
             { "m01_1_0", new List<ICommand>()
@@ -349,6 +350,403 @@ namespace Pal3.Dev
                 new ActorSetTilePositionCommand(-1, 281, 87)
             }},
         };
+        #elif PAL3A
+        private readonly Dictionary<string, IList<ICommand>> _skipperCommands = new()
+        {
+            { "m01_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 49, 284)
+            }},
+            { "m01_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 56, 103)
+            }},
+            { "m01_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 53, 137)
+            }},
+            { "m01_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 107, 30)
+            }},
+            { "m02_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 132, 152)
+            }},
+            { "m02_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 104, 49)
+            }},
+            { "m03_1_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 161, 157)
+            }},
+            { "m03_1_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 70, 165)
+            }},
+            { "m04_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 201, 421)
+            }},
+            { "m04_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 200, 84)
+            }},
+            { "m04_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 218, 407)
+            }},
+            { "m04_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 152, 215)
+            }},
+            { "m05_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 12, 269)
+            }},
+            { "m05_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 163, 271)
+            }},
+            { "m05_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 152, 260)
+            }},
+            { "m05_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 284, 23)
+            }},
+            { "m05_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 122, 245)
+            }},
+            { "m05_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 129, 22)
+            }},
+            { "m05_4_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 122, 229)
+            }},
+            { "m05_4_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 121, 45)
+            }},
+            { "m06_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 230, 332)
+            }},
+            { "m06_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 149, 11)
+            }},
+            { "m06_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 147, 336)
+            }},
+            { "m06_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 72, 61)
+            }},
+            { "m06_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 63, 105)
+            }},
+            { "m06_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 69, 61)
+            }},
+            { "m07_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 266, 16)
+            }},
+            { "m07_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 110, 331)
+            }},
+            { "m07_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 226, 120)
+            }},
+            { "m07_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 24, 122)
+            }},
+            { "m07_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 171, 77)
+            }},
+            { "m07_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 60, 77)
+            }},
+            { "m08_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 71, 406)
+            }},
+            { "m08_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 60, 64)
+            }},
+            { "m09_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 78, 395)
+            }},
+            { "m09_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 100, 126)
+            }},
+            { "m09_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 64, 280)
+            }},
+            { "m09_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 279, 185)
+            }},
+            { "m10_1_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 265, 400)
+            }},
+            { "m10_1_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 379, 463)
+            }},
+            { "m10_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 70, 142)
+            }},
+            { "m10_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 203, 23)
+            }},
+            { "m11_9_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 85, 45)
+            }},
+            { "m11_9_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 31, 70)
+            }},
+            { "m11_8_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 52, 109)
+            }},
+            { "m11_8_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 90, 90)
+            }},
+            { "m11_7_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 118, 125)
+            }},
+            { "m11_7_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 172, 6)
+            }},
+            { "m11_6_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 103, 169)
+            }},
+            { "m11_6_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 88, 74)
+            }},
+            { "m11_5_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 98, 106)
+            }},
+            { "m11_5_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 188, 78)
+            }},
+            { "m11_4_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 262, 139)
+            }},
+            { "m11_4_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 117, 254)
+            }},
+            { "m12_1_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 122, 231)
+            }},
+            { "m12_1_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 119, 102)
+            }},
+            { "m12_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 110, 227)
+            }},
+            { "m12_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 111, 15)
+            }},
+            { "m12_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 160, 172)
+            }},
+            { "m12_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 90, 125)
+            }},
+            { "m13_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 142, 137)
+            }},
+            { "m13_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 13, 28)
+            }},
+            { "m13_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 145, 104)
+            }},
+            { "m13_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 11, 8)
+            }},
+            { "m13_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 144, 18)
+            }},
+            { "m13_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 12, 102)
+            }},
+            { "m13_4_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 142, 27)
+            }},
+            { "m13_4_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 11, 122)
+            }},
+            { "m13_5_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 145, 140)
+            }},
+            { "m13_5_1", new List<ICommand>()
+            {
+                new SceneLoadCommand("m13", "6"),
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 75, 74)
+            }},
+            { "m13_6_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 75, 74)
+            }},
+            { "m13_6_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 41, 5)
+            }},
+            { "m14_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 121, 111)
+            }},
+            { "m14_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 240, 214)
+            }},
+            { "m14_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 122, 96)
+            }},
+            { "m14_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 228, 203)
+            }},
+            { "m14_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 78, 56)
+            }},
+            { "m14_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 351, 255)
+            }},
+            { "m15_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 287, 121)
+            }},
+            { "m15_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 12, 286)
+            }},
+            { "m15_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 219, 298)
+            }},
+            { "m15_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 116, 10)
+            }},
+            { "m16_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 17, 251)
+            }},
+            { "m16_1_1", new List<ICommand>()
+            {
+                new SceneLoadCommand("m16", "5"),
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 20, 20)
+            }},
+            { "m17_1_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 255, 84)
+            }},
+            { "m17_1_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 342, 155)
+            }},
+            { "m18_1_0", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 107, 321)
+            }},
+            { "m18_1_1", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 103, 22)
+            }},
+            { "m18_2_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 55, 520)
+            }},
+            { "m18_2_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 129, 106)
+            }},
+            { "m18_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 98, 238)
+            }},
+            { "m18_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 16, 136)
+            }},
+            { "m18_4_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 17, 72)
+            }},
+            { "m18_4_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 112, 101)
+            }},
+        };
+        #endif
 
         public MazeSkipper(GameStateManager gameStateManager,
             SceneManager sceneManager,

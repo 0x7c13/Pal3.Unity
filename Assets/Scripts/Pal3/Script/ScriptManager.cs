@@ -104,7 +104,7 @@ namespace Pal3.Script
         {
             var sceCommandId = command.GetType().GetCustomAttribute<SceCommandAttribute>()?.Id;
 
-            Debug.Log($"{((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} executing command: [{sceCommandId}] " +
+            Debug.Log($"{((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} : [{sceCommandId}] " +
                       $"{command.GetType().Name.Replace("Command", "")} " +
                       $"{JsonConvert.SerializeObject(command)}");
 

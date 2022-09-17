@@ -13,8 +13,10 @@ namespace Pal3.Player
     public class PlayerManager :
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<ActorActivateCommand>,
+        ICommandExecutor<ActorAddSkillCommand>,
         ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorPerformActionCommand>,
+        ICommandExecutor<ActorChangeScaleCommand>,
         ICommandExecutor<ActorChangeTextureCommand>,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorChangeColliderSettingCommand>,
@@ -22,8 +24,12 @@ namespace Pal3.Player
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
         ICommandExecutor<ActorPathToCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorWalkToUsingActionCommand>,
+        #endif
         ICommandExecutor<ActorMoveToCommand>,
         ICommandExecutor<ActorMoveBackwardsCommand>,
+        ICommandExecutor<ActorMoveOutOfScreenCommand>,
         ICommandExecutor<ActorLookAtActorCommand>,
         ICommandExecutor<ActorShowEmojiCommand>,
         #if PAL3A
@@ -96,6 +102,15 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(ActorAddSkillCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorAddSkillCommand((int)_playerActor, command.SkillId));
+            }
+        }
+        
         public void Execute(ActorAutoStandCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -114,6 +129,15 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(ActorChangeScaleCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorChangeScaleCommand((int)_playerActor, command.Scale));
+            }
+        }
+        
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -171,13 +195,33 @@ namespace Pal3.Player
                     new ActorPathToCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
             }
         }
-
+        
+        #if PAL3A
+        public void Execute(ActorWalkToUsingActionCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorWalkToUsingActionCommand((int)_playerActor, command.TileX, command.TileZ, command.Action));
+            }
+        }
+        #endif
+        
         public void Execute(ActorMoveToCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorMoveToCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
+            }
+        }
+        
+        public void Execute(ActorMoveOutOfScreenCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorMoveOutOfScreenCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
             }
         }
 
@@ -319,9 +363,7 @@ namespace Pal3.Player
 
         public void Execute(ScenePostLoadingNotification notification)
         {
-            #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
-            #endif
             
             if (_playerActorControlEnabled)
             {
@@ -331,16 +373,7 @@ namespace Pal3.Player
             if (_playerInputEnabled)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
-                
-                // TODO: fix PAL3A actor activation issue
-                #if PAL3A
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
-                #endif
             }
-
-            #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
-            #endif
         }
     }
 }

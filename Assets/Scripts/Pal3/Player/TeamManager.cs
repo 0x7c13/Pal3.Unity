@@ -5,6 +5,7 @@
 
 namespace Pal3.Player
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Actor;
@@ -72,7 +73,7 @@ namespace Pal3.Player
             #if PAL3
             foreach (var actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.HuaYing))
             #elif  PAL3A
-            foreach (var actor in _actorsInTeam.Where(a => a != playerActorId))
+            foreach (var actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
             #endif
             {
                 var actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)actor);
@@ -107,6 +108,19 @@ namespace Pal3.Player
         {
             var playerActorId = _playerManager.GetPlayerActor();
 
+            #if PAL3A
+            // Need to add all active player actors into the team
+            var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
+            var activePlayerActors = _sceneManager.GetCurrentScene()
+                .GetAllActors()
+                .Where(actor => playerActorIds.Contains(actor.Key) &&
+                                actor.Value.GetComponent<ActorController>().IsActive);
+            foreach (var activePlayerActor in activePlayerActors)
+            {
+                AddActor((PlayerActorId)activePlayerActor.Key);
+            }
+            #endif
+            
             foreach (var actor in _actorsInTeam.Where(a => a != playerActorId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actor, 0));

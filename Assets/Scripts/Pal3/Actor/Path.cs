@@ -21,13 +21,16 @@ namespace Pal3.Actor
 
         public EndOfPathActionType EndOfPathAction { get; private set; }
 
+        public bool IgnoreObstacle { get; private set; }
+
         private readonly List<Vector3> _wayPoints = new ();
 
         private int _currentWayPointIndex;
 
         public void SetPath(Vector3[] wayPoints,
             int movementMode,
-            EndOfPathActionType endOfPathAction)
+            EndOfPathActionType endOfPathAction,
+            bool ignoreObstacle)
         {
             Clear();
 
@@ -36,6 +39,7 @@ namespace Pal3.Actor
 
             MovementMode = movementMode;
             EndOfPathAction = endOfPathAction;
+            IgnoreObstacle = ignoreObstacle;
         }
 
         public void Clear()

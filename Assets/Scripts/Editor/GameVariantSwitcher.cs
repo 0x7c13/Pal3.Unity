@@ -32,8 +32,7 @@ namespace Editor
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
             PlayerSettings.SetApplicationIdentifier(
-                EditorUserBuildSettings.selectedBuildTargetGroup,
-                $"{GameConstants.AppIdentifierPrefix}.{appName}");
+                EditorUserBuildSettings.selectedBuildTargetGroup, GameConstants.AppIdentifier);
             // TODO: Add icon based on variant
             //PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, icons);
             AssetDatabase.SaveAssets();
@@ -58,10 +57,12 @@ namespace Editor
             var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(
                 EditorUserBuildSettings.selectedBuildTargetGroup);
             var allDefines = defines.Split(';').ToList();
+            var newDefines = allDefines
+                .Where(define => !string.Equals(define, symbolToDelete)).ToList();
+            newDefines.Sort();
             PlayerSettings.SetScriptingDefineSymbolsForGroup(
                 EditorUserBuildSettings.selectedBuildTargetGroup,
-                string.Join (";", allDefines
-                    .Where(define => !string.Equals(define, symbolToDelete)).ToArray()));
+                string.Join (";", newDefines.ToArray()));
         }
     }
 }
