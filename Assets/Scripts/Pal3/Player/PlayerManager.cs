@@ -374,6 +374,10 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }
+            
+            #if PAL3
+            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
+            #endif
         }
     }
 }

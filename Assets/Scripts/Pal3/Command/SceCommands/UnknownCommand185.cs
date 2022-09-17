@@ -27,7 +27,7 @@ namespace Pal3.Command.SceCommands
             Unknown7 = unknown7;
             Unknown8 = unknown8;
         }
-    
+
         public int Unknown1 { get; }
         public int Unknown2 { get; }
         public int Unknown3 { get; }
