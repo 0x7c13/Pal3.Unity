@@ -79,6 +79,7 @@ namespace Pal3.Scene
             {
                 Object.Destroy(_currentScene);
                 Object.Destroy(_currentSceneRoot);
+                _currentScene = null;
             }
         }
 

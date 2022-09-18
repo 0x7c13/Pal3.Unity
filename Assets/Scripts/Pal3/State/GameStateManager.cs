@@ -21,7 +21,8 @@ namespace Pal3.State
         ICommandExecutor<PlayerInteractionTriggeredNotification>,
         ICommandExecutor<DialogueRenderingStartedNotification>,
         ICommandExecutor<ScriptFinishedRunningNotification>,
-        ICommandExecutor<ScriptFailedToRunNotification>
+        ICommandExecutor<ScriptFailedToRunNotification>,
+        ICommandExecutor<GameSwitchToMainMenuCommand>
     {
         private GameState _previousState;
         private GameState _state;
@@ -142,6 +143,11 @@ namespace Pal3.State
             {
                 GoToState(GameState.Gameplay);
             }
+        }
+
+        public void Execute(GameSwitchToMainMenuCommand command)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
         }
     }
 }

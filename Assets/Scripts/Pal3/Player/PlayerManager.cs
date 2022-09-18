@@ -46,8 +46,10 @@ namespace Pal3.Player
         #endif
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
-        ICommandExecutor<ScenePostLoadingNotification>,
-        ICommandExecutor<LongKuiSwitchModeCommand>
+        #if PAL3
+        ICommandExecutor<LongKuiSwitchModeCommand>,
+        #endif
+        ICommandExecutor<ScenePostLoadingNotification>
     {
         private PlayerActorId _playerActor = 0;
         private bool _playerActorControlEnabled;
@@ -356,10 +358,12 @@ namespace Pal3.Player
             }
         }
 
+        #if PAL3
         public void Execute(LongKuiSwitchModeCommand command)
         {
             _longKuiLastKnownMode = command.Mode;
         }
+        #endif
 
         public void Execute(ScenePostLoadingNotification notification)
         {

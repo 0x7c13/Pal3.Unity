@@ -33,6 +33,7 @@ namespace Pal3.Actor
         #endif
         ICommandExecutor<ActorChangeTextureCommand>,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
+        ICommandExecutor<EffectPlayCommand>,
         ICommandExecutor<GameStateChangedNotification>
     {
         private GameResourceProvider _resourceProvider;
@@ -339,7 +340,7 @@ namespace Pal3.Actor
         {
             if (command.ActorId == _actor.Info.Id)
             {
-                if (!_actor.IsActive)
+                if (!_actor.IsActive && !_actor.IsMainActor())
                 {
                     Debug.LogError($"Failed to perform action since actor {command.ActorId} is inactive.");
                     return;
@@ -362,7 +363,9 @@ namespace Pal3.Actor
 
         public void Execute(ActorStopActionCommand command)
         {
-            if (command.ActorId != _actor.Info.Id || !_mv3AnimationRenderer.IsVisible()) return;
+            if (command.ActorId != _actor.Info.Id ||
+                _mv3AnimationRenderer == null ||
+                !_mv3AnimationRenderer.IsVisible()) return;
 
             if (_mv3AnimationRenderer.IsActionInHoldState())
             {
@@ -435,8 +438,22 @@ namespace Pal3.Actor
                 _actor.ChangeName(command.Mode == 0 ?
                     ActorConstants.LongKuiHumanModeActorName :
                     ActorConstants.LongKuiGhostModeActorName);
+                PerformAction(_actor.GetIdleAction(), overwrite: true);
             }
         }
         #endif
+
+        public void Execute(EffectPlayCommand command)
+        {
+            #if PAL3A
+            // 南宫煌变成狼形
+            if (_actor.Info.Id == (byte) PlayerActorId.NanGongHuang &&
+                command.EffectGroupId == 164)
+            {
+                _actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
+                PerformAction(_actor.GetIdleAction(), overwrite: true);
+            }
+            #endif
+        }
     }
 }

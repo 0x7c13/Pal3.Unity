@@ -191,8 +191,12 @@ namespace Pal3.MetaData
 
         public const float ActorClimbSpeed = 2f;
 
+        #if PAL3
         public const string LongKuiHumanModeActorName = "105";
         public const string LongKuiGhostModeActorName = "106";
+        #elif PAL3A
+        public const string NanGongHuangWolfModeActorName = "107";
+        #endif
 
         public const string MonsterIdleAction = "z0";
         public const string MonsterWalkAction = "z4";
@@ -211,7 +215,7 @@ namespace Pal3.MetaData
         #elif PAL3A
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
         {
-            {PlayerActorId.NanGongHuang,  "101"},  // 煌大仙狼形
+            {PlayerActorId.NanGongHuang,  "101"},  // 101 人形 107 狼形
             {PlayerActorId.WenHui,        "102"},
             {PlayerActorId.WangPengXu,    "103"},
             {PlayerActorId.XingXuan,      "104"},
@@ -553,6 +557,9 @@ namespace Pal3.MetaData
         {
             ActorActionType.Sleep,
             ActorActionType.Dead,
+            ActorActionType.Climb,
+            ActorActionType.ClimbDown,
+            ActorActionType.Jump,
         };
         #endif
     }

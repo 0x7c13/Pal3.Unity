@@ -9,6 +9,7 @@ namespace Pal3.Dev
     using System.Linq;
     using Command;
     using Command.InternalCommands;
+    using Command.SceCommands;
     using IngameDebugConsole;
     using Input;
     using MetaData;
@@ -22,7 +23,8 @@ namespace Pal3.Dev
     using UnityEngine.UI;
 
     public class StorySelector : MonoBehaviour,
-        ICommandExecutor<ToggleStorySelectorRequest>
+        ICommandExecutor<ToggleStorySelectorRequest>,
+        ICommandExecutor<GameSwitchToMainMenuCommand>
     {
         private InputManager _inputManager;
         private EventSystem _eventSystem;
@@ -2047,6 +2049,11 @@ namespace Pal3.Dev
         public void Execute(ToggleStorySelectorRequest command)
         {
             ToggleStorySelector();
+        }
+
+        public void Execute(GameSwitchToMainMenuCommand command)
+        {
+            if (!_storySelectorCanvas.interactable) Show();
         }
     }
 }

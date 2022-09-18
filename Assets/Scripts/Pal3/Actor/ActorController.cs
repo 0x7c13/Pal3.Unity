@@ -103,7 +103,10 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Kind == ScnActorKind.MainActor)
             {
-                _actionController.PerformAction(_actor.GetIdleAction());
+                if (string.IsNullOrEmpty(_actionController.GetCurrentAction()))
+                {
+                    _actionController.PerformAction(_actor.GetIdleAction());   
+                }
                 return;
             }
 

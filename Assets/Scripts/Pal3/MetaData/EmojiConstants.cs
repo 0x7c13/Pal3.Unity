@@ -31,7 +31,7 @@ namespace Pal3.MetaData
         public static readonly Dictionary<ActorEmojiType, (int Width, int Height, int Frames)> TextureInfo = new()
         {
             { ActorEmojiType.Sleepy,      new(38,  54,  6) },
-            { ActorEmojiType.Shock,       new(25,  39, 10) },
+            { ActorEmojiType.Shock,       new(25,  57, 10) },
             { ActorEmojiType.Doubt,       new(31,  43, 10) },
             { ActorEmojiType.Anger,       new(82,  51,  3) },
             { ActorEmojiType.Happy,       new(54,  32,  2) },

@@ -72,6 +72,7 @@ namespace Pal3.Script
 
         private readonly Stack<IWaitUntil> _waiters = new ();
         private bool _isExecuting;
+        private bool _idDisposed;
 
         private PalScriptRunner() {}
 
@@ -104,8 +105,10 @@ namespace Pal3.Script
 
         public void Dispose()
         {
+            if (_idDisposed) return;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _scriptDataReader.Dispose();
+            _idDisposed = true;
         }
 
         public bool Update(float deltaTime)
@@ -136,6 +139,8 @@ namespace Pal3.Script
 
         private bool Execute()
         {
+            if (_idDisposed) return false;
+            
             if (_scriptDataReader.BaseStream.Position == _scriptDataReader.BaseStream.Length)
             {
                 return false;
@@ -143,7 +148,7 @@ namespace Pal3.Script
 
             _isExecuting = true;
 
-            while (_scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
+            while (!_idDisposed && _scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
             {
                 ExecuteNextCommand();
                 if (_executionMode == PalScriptExecutionMode.Break) break;
