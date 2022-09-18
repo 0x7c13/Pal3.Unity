@@ -53,7 +53,7 @@ namespace Pal3.Script
         ICommandExecutor<ScriptVarSetMostFavorableActorIdCommand>,
         ICommandExecutor<ScriptVarSetLeastFavorableActorIdCommand>,
         #if PAL3
-        ICommandExecutor<MiniGameGetAppraisalsResultCommand>
+        ICommandExecutor<MiniGameGetAppraisalsResultCommand>,
         #endif
         ICommandExecutor<ScriptVarGetCombatResultCommand>
     {
