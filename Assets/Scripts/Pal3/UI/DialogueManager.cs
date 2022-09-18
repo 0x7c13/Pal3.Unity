@@ -420,11 +420,13 @@ namespace Pal3.UI
 
                 if (i == 0)
                 {
+                    buttonNavigation.selectOnUp = _selectionButtons[^1].GetComponentInChildren<Button>();
                     buttonNavigation.selectOnDown = _selectionButtons[i + 1].GetComponentInChildren<Button>();
                 }
                 else if (i == command.Selections.Count - 1)
                 {
                     buttonNavigation.selectOnUp = _selectionButtons[i - 1].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnDown = _selectionButtons[0].GetComponentInChildren<Button>();
                 }
                 else
                 {

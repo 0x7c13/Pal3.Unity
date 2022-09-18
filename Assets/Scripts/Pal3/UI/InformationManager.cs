@@ -48,7 +48,8 @@ namespace Pal3.UI
         {
             var deviceInfo =
                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
-                $"CPU: {SystemInfo.processorType.Trim()} GPU: {SystemInfo.graphicsDeviceName.Trim()}\n" +
+                $"CPU: {SystemInfo.processorType.Trim()}\n" +
+                $"GPU: {SystemInfo.graphicsDeviceName.Trim()}\n" +
                 $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
                 $"{GameConstants.ContactInfo}\n" +
                 $"Version: Alpha v{Application.version}\n";

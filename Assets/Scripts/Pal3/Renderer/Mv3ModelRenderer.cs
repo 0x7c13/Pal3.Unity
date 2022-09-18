@@ -99,10 +99,9 @@ namespace Pal3.Renderer
             for (var i = 0; i < _meshCount; i++)
             {
                 var mesh = mv3File.Meshes[i];
-                var material = mv3File.Meshes.Length != mv3File.Materials.Length ?
-                    mv3File.Materials.First() :
-                    mv3File.Materials[i];
-
+                var materialId = mesh.Attributes[0].MaterialId;
+                var material = mv3File.Materials[materialId];
+                
                 InitSubMeshes(i, mesh, material);
             }
 
@@ -133,8 +132,10 @@ namespace Pal3.Renderer
             Mv3Mesh mv3Mesh,
             Mv3Material material)
         {
+            var textureName = material.TextureNames[0];
+
             _gbMaterials[index] = material.Material;
-            _textures[index] = _textureProvider.GetTexture(material.TextureNames[0], out var hasAlphaChannel);
+            _textures[index] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[index]= hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
             _frameTicks[index] = _keyFrames[index].Select(f => f.Tick).ToArray();
@@ -159,7 +160,17 @@ namespace Pal3.Renderer
             }
 
             _materials[index].SetColor(_tintColorPropertyId, _tintColor);
-
+            
+            #if PAL3A
+            // Apply PAL3A texture scaling/tiling fix
+            var texturePath = _textureProvider.GetTexturePath(textureName);
+            if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Any(_ =>
+                    string.Equals(_, texturePath, StringComparison.OrdinalIgnoreCase)))
+            {
+                _materials[index].mainTextureScale = new Vector2(1.0f, -1.0f);
+            }
+            #endif
+            
             var meshDataBuffer = new MeshDataBuffer
             {
                 VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length]

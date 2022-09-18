@@ -982,6 +982,906 @@ namespace Pal3.Dev
                 FavorAdd 5 50
                 FavorAdd 2 10
                 CameraFadeIn"},
+            #elif PAL3A
+            {"与温慧相遇后去酒馆", @"
+                ScriptVarSetValue -32768 10500
+                SceneLoad Q01 Q01
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 96 169
+                CameraFadeIn"},
+            {"唐家堡-登云麓", @"
+                ScriptVarSetValue -32768 10800
+                SceneLoad Q01 Q01
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 190 20
+                CameraFadeIn"},
+            {"蜀山-找酒剑仙", @"
+                ScriptVarSetValue -32768 20200
+                SceneLoad q02 xH
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 332 185
+                CameraFadeIn"},
+            {"蜀山-第一次回家", @"
+                ScriptVarSetValue -32768 20800
+                SceneLoad q02 qH
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 91 114
+                CameraFadeIn"},
+            {"蜀山-绿萝嶂", @"
+                ScriptVarSetValue -32768 30101
+                SceneLoad Q02 HH
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 342 137
+                TeamAddOrRemoveActor 1 1
+                CameraFadeIn"},
+            {"绿萝山-蜀山", @"
+                ScriptVarSetValue -32768 30900
+                SceneLoad q03 q03
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 94 179
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 0
+                BigMapEnableRegion 1 0
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                CameraFadeIn"},
+            {"地脉门户-少阳三焦", @"
+                ScriptVarSetValue -32768 40200
+                SceneLoad m02 2
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 29 66
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                CameraFadeIn"},
+            {"第一次进入里蜀山", @"
+                ScriptVarSetValue -32768 41100
+                SceneLoad q04 wb
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 321 102
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                CameraFadeIn"},
+            {"打完狸猫回废屋休息", @"
+                ScriptVarSetValue -32768 41600
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 183 290
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                CameraFadeIn"},
+            {"里蜀山外城南-厥阴心包", @"
+                ScriptVarSetValue -32768 50200
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 346 180
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                CameraFadeIn"},
+            {"厥阴心包-胜州", @"
+                ScriptVarSetValue -32768 50500
+                SceneLoad M05 4
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 127 15
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                CameraFadeIn"},
+            {"胜州-纳林河源", @"
+                ScriptVarSetValue -32768 50800
+                SceneLoad q05 q05
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 150 85
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                CameraFadeIn"},
+            {"胜州祭坛欢庆盛典", @"
+                ScriptVarSetValue -32768 51100
+                SceneLoad q05 q05
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 417 177
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                CameraFadeIn"},
+            {"胜州-蜀山", @"
+                ScriptVarSetValue -32768 60100
+                SceneLoad q05 q05
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 391 283
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                CameraFadeIn"},
+            {"蜀山-深夜去经库", @"
+                ScriptVarSetValue -32768 60500
+                SceneLoad q02 qY
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 335 157
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                CameraFadeIn"},
+            {"地脉门户大厅-阳名百纳", @"
+                ScriptVarSetValue -32768 70100
+                SceneLoad m02 2
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 55 18
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                CameraFadeIn"},
+            {"血濡回魂-初入京城", @"
+                ScriptVarSetValue -32768 70700
+                SceneLoad q06 q06
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 13 192
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                CameraFadeIn"},
+            {"血濡回魂-蜀山深夜", @"
+                ScriptVarSetValue -32768 71501
+                SceneLoad Q11 Q11
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 1
+                ActorSetTilePosition -1 82 221
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                CameraFadeIn"},
+            {"血濡回魂-石村", @"
+                ScriptVarSetValue -32768 71700
+                SceneLoad Q07 Q07y
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 142 169
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                CameraFadeIn"},
+            {"血濡回魂-梦醒", @"
+                ScriptVarSetValue -32768 72001
+                SceneLoad m07 3
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 30 90
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"失散-双溪", @"
+                ScriptVarSetValue -32768 80100
+                SceneLoad m07 3
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 14 90
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"双溪-里蜀山", @"
+                ScriptVarSetValue -32768 80700
+                SceneLoad q04 wb
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 311 124
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"里蜀山外城南-太阴归尘", @"
+                ScriptVarSetValue -32768 80700
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 41 428
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"太阴归尘-蜀山故道", @"
+                ScriptVarSetValue -32768 90300
+                SceneLoad m10 1
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 1
+                ActorSetTilePosition -1 265 400
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"蜀山故道-蜀山", @"
+                ScriptVarSetValue -32768 91000
+                SceneLoad m10 2
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 192 27
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                CameraFadeIn"},
+            {"蜀山深夜-养父常纪房间", @"
+                ScriptVarSetValue -32768 100400
+                SceneLoad q02 qTY
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 89 116
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                CameraFadeIn"},
+            {"无极阁找掌门去锁妖塔", @"
+                ScriptVarSetValue -32768 100701
+                SceneLoad q02 hn01
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 25 17
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                CameraFadeIn"},
+            {"新安当", @"
+                ScriptVarSetValue -32768 101500
+                SceneLoad q09 d
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 50 21
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 12 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"蜀山回无极阁", @"
+                ScriptVarSetValue -32768 101600
+                SceneLoad Q02 HT
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 365 194
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"地脉门户-太阳华池", @"
+                ScriptVarSetValue -32768 110200
+                SceneLoad m12 1
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 123 226
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"小秘屋会和", @"
+                ScriptVarSetValue -32768 120300
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 112 160
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"里蜀山-魔界之门", @"
+                ScriptVarSetValue -32768 120400
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 195 394
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 3 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"回秘密基地看望星璇", @"
+                ScriptVarSetValue -32768 121100
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 113 161
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 3 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"里蜀山外城北-少阴凝碧", @"
+                ScriptVarSetValue -32768 130100
+                SceneLoad m14 1
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 122 111
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 3 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"施洞", @"
+                ScriptVarSetValue -32768 140200
+                SceneLoad q10 q10
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 383 310
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"出发去月光城", @"
+                ScriptVarSetValue -32768 140400
+                SceneLoad q10 q10y
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 301 192
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                CameraFadeIn"},
+            {"从施洞回到蜀山", @"
+                ScriptVarSetValue -32768 150100
+                SceneLoad Q02 HS
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 342 136
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"蜀山-绿萝山", @"
+                ScriptVarSetValue -32768 150300
+                SceneLoad Q02 HS
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 343 140
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 4 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"地脉门户-少阳参天", @"
+                ScriptVarSetValue -32768 150400
+                SceneLoad m02 2
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 76 45
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"回里蜀山秘密基地", @"
+                ScriptVarSetValue -32768 160101
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 115 173
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"里蜀山见燎日", @"
+                ScriptVarSetValue -32768 161200
+                SceneLoad Q04 N
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 191 162
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 3 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"里蜀山内城到厥阴蔽日", @"
+                ScriptVarSetValue -32768 170200
+                SceneLoad Q04 N
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 403 116
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActor 3 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"地脉门户-蜀山前山", @"
+                ScriptVarSetValue -32768 171200
+                SceneLoad m02 1
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 132 155
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"山门送别司徒钟", @"
+                ScriptVarSetValue -32768 180500
+                SceneLoad q02 q
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 132 215
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
+            {"重回里蜀山找星璇", @"
+                ScriptVarSetValue -32768 190201
+                SceneLoad q04 wn
+                ActorActivate -1 1
+                ActorEnablePlayerControl -1
+                PlayerEnableInput 1
+                ActorSetNavLayer -1 0
+                ActorSetTilePosition -1 290 192
+                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 2 1
+                BigMapEnableRegion 0 1
+                BigMapEnableRegion 1 1
+                BigMapEnableRegion 2 2
+                BigMapEnableRegion 4 2
+                BigMapEnableRegion 5 2
+                BigMapEnableRegion 6 1
+                BigMapEnableRegion 7 2
+                BigMapEnableRegion 8 2
+                BigMapEnableRegion 9 1
+                BigMapEnableRegion 10 2
+                BigMapEnableRegion 11 1
+                BigMapEnableRegion 13 2
+                BigMapEnableRegion 14 2
+                CameraFadeIn"},
             #endif
         };
 
@@ -1057,11 +1957,13 @@ namespace Pal3.Dev
 
                 if (i == 0)
                 {
+                    buttonNavigation.selectOnLeft = _selectionButtons[^1].GetComponent<Button>();
                     buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
                 }
                 else if (i == _selectionButtons.Count - 1)
                 {
                     buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
+                    buttonNavigation.selectOnRight = _selectionButtons[0].GetComponent<Button>();
                 }
                 else
                 {

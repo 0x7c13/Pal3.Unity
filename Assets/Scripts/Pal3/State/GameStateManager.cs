@@ -8,8 +8,10 @@ namespace Pal3.State
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Services;
     using Input;
     using Script;
+    using UI;
     using UnityEngine;
 
     public class GameStateManager :
@@ -123,6 +125,13 @@ namespace Pal3.State
         {
             if (_scriptManager.GetNumberOfRunningScripts() == 0)
             {
+                // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
+                // Thus we need to check if BigMap is visible before switching state back to Gameplay.
+                if (ServiceLocator.Instance.Get<BigMapManager>().IsVisible())
+                {
+                    return;
+                }
+                
                 GoToState(GameState.Gameplay);
             }
         }

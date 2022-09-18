@@ -37,6 +37,8 @@ namespace Pal3.UI
         private CanvasGroup _bigMapCanvas;
         private GameObject _bigMapRegionButtonPrefab;
 
+        private bool _isVisible;
+        
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
 
@@ -59,6 +61,7 @@ namespace Pal3.UI
 
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
+            _isVisible = false;
 
             _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
             _playerInputActions.Cutscene.ToggleBigMap.performed += ToggleBigMapOnPerformed;
@@ -81,6 +84,11 @@ namespace Pal3.UI
             ToggleBigMap();
         }
 
+        public bool IsVisible()
+        {
+            return _isVisible;
+        }
+        
         public Dictionary<int, int> GetRegionEnablementInfo()
         {
             return _regionEnablementInfo;
@@ -88,7 +96,7 @@ namespace Pal3.UI
 
         private void ToggleBigMap()
         {
-            if (_bigMapCanvas.interactable)
+            if (_isVisible)
             {
                 Hide();
             }
@@ -142,11 +150,13 @@ namespace Pal3.UI
 
                 if (i == 0)
                 {
+                    buttonNavigation.selectOnLeft = _selectionButtons[^1].GetComponent<Button>();
                     buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
                 }
                 else if (i == _selectionButtons.Count - 1)
                 {
                     buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
+                    buttonNavigation.selectOnRight = _selectionButtons[0].GetComponent<Button>();
                 }
                 else
                 {
@@ -171,6 +181,7 @@ namespace Pal3.UI
             {
                 _bigMapCanvas.alpha = 1f;
                 _bigMapCanvas.interactable = true;
+                _isVisible = true;
             }
         }
 
@@ -187,7 +198,8 @@ namespace Pal3.UI
         {
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
-
+            _isVisible = false;
+            
             foreach (var button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();

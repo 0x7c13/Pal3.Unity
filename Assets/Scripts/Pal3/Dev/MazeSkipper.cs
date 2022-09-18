@@ -745,6 +745,32 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 112, 101)
             }},
+            { "m19_3_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 137, 276)
+            }},
+            { "m19_3_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 132, 35)
+            }},
+            { "m19_8_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 15, 16)
+            }},
+            { "m19_8_1", new List<ICommand>()
+            {
+                new SceneLoadCommand("m19", "3"),
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 137, 276)
+            }},
+            { "m19_4_0", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 91, 208)
+            }},
+            { "m19_4_1", new List<ICommand>()
+            {
+                new ActorSetTilePositionCommand(-1, 92, 92)
+            }},
         };
         #endif
 

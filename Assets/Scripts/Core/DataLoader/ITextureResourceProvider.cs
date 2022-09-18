@@ -12,6 +12,8 @@ namespace Core.DataLoader
     /// </summary>
     public interface ITextureResourceProvider
     {
+        string GetTexturePath(string name);
+        
         Texture2D GetTexture(string name);
         
         Texture2D GetTexture(string name, out bool hasAlphaChannel);

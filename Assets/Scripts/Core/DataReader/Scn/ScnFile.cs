@@ -98,6 +98,18 @@ namespace Core.DataReader.Scn
         SavingPoint                   = 42,   // 存盘点
         SceneSfx                      = 43,   // 场景音效
         JumpableArea                  = 44,   // 可跳跃区域
+        
+        // PAL3A new scene objects
+        UnknownObj47                  = 47,   // PAL3A m19 8
+        UnknownObj48                  = 48,   // PAL3A m19 8
+        UnknownObj49                  = 49,   // PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
+        UnknownObj51                  = 51,   // PAL3A m10 2
+        UnknownObj52                  = 52,   // PAL3A m01 1
+        UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
+        UnknownObj54                  = 54,   // PAL3A m13 1, m13 2, m13 3, m13 4
+        UnknownObj55                  = 55,   // PAL3A m13 1, m13 2, m13 3, m13 4
+        UnknownObj56                  = 56,   // PAL3A m15 1
+        UnknownObj59                  = 59,   // PAL3A m15 2
     }
 
     // SCN (.scn) file header

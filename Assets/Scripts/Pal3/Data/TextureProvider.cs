@@ -48,6 +48,11 @@ namespace Pal3.Data
             return null;
         }
 
+        public string GetTexturePath(string name)
+        {
+            return _relativePath + name;
+        }
+            
         public Texture2D GetTexture(string name)
         {
             return GetTexture(name, out _);
