@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.MiniGame
 {
     using Command;
@@ -25,3 +27,5 @@ namespace Pal3.MiniGame
         }
     }
 }
+
+#endif

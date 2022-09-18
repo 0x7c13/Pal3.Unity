@@ -24,7 +24,9 @@ namespace Pal3
     using Input;
     using IngameDebugConsole;
     using MetaData;
+    #if PAL3
     using MiniGame;
+    #endif
     using Player;
     using Scene;
     using Script;
@@ -131,11 +133,14 @@ namespace Pal3
         private CaptionRenderer _captionRenderer;
 
         // Mini games
+        #if PAL3
         private AppraisalsMiniGame _appraisalsMiniGame;
         private SailingMiniGame _sailingMiniGame;
         private HideFightMiniGame _hideFightMiniGame;
         private EncampMiniGame _encampMiniGame;
         private SkiMiniGame _skiMiniGame;
+        private SwatAFlyMiniGame _swatAFlyMiniGame;
+        #endif
 
         // Dev tools
         private MazeSkipper _mazeSkipper;
@@ -169,6 +174,7 @@ namespace Pal3
             _favorManager = new FavorManager();
             ServiceLocator.Instance.Register(_favorManager);
 
+            #if PAL3
             _appraisalsMiniGame = new AppraisalsMiniGame();
             ServiceLocator.Instance.Register(_appraisalsMiniGame);
             _sailingMiniGame = new SailingMiniGame();
@@ -179,7 +185,10 @@ namespace Pal3
             ServiceLocator.Instance.Register(_encampMiniGame);
             _skiMiniGame = new SkiMiniGame(_scriptManager);
             ServiceLocator.Instance.Register(_skiMiniGame);
-
+            _swatAFlyMiniGame = new SwatAFlyMiniGame();
+            ServiceLocator.Instance.Register(_swatAFlyMiniGame);
+            #endif
+            
             _mazeSkipper = new MazeSkipper(_gameStateManager,
                 _sceneManager,
                 mazeSkipperCanvasGroup,
@@ -350,11 +359,14 @@ namespace Pal3
             _touchControlUIManager.Dispose();
             _favorManager.Dispose();
 
+            #if PAL3
             _appraisalsMiniGame.Dispose();
             _sailingMiniGame.Dispose();
             _hideFightMiniGame.Dispose();
             _encampMiniGame.Dispose();
             _skiMiniGame.Dispose();
+            _swatAFlyMiniGame.Dispose();
+            #endif
 
             _mazeSkipper.Dispose();
 

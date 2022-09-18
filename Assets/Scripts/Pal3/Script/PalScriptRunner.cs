@@ -15,7 +15,9 @@ namespace Pal3.Script
     using Core.Services;
     using Dev;
     using MetaData;
+    #if PAL3
     using MiniGame;
+    #endif
     using Player;
     using UI;
     using Feature;
@@ -50,8 +52,10 @@ namespace Pal3.Script
         ICommandExecutor<ScriptGetFavorCommand>,
         ICommandExecutor<ScriptVarSetMostFavorableActorIdCommand>,
         ICommandExecutor<ScriptVarSetLeastFavorableActorIdCommand>,
-        ICommandExecutor<ScriptVarGetCombatResultCommand>,
+        #if PAL3
         ICommandExecutor<MiniGameGetAppraisalsResultCommand>
+        #endif
+        ICommandExecutor<ScriptVarGetCombatResultCommand>
     {
         public event EventHandler<ICommand> OnCommandExecutionRequested;
 
@@ -320,6 +324,7 @@ namespace Pal3.Script
             _executionMode = (PalScriptExecutionMode)command.Mode;
         }
 
+        #if PAL3
         // TODO: Impl
         public void Execute(MiniGameGetAppraisalsResultCommand command)
         {
@@ -327,6 +332,7 @@ namespace Pal3.Script
             var result = ServiceLocator.Instance.Get<AppraisalsMiniGame>().GetResult();
             SetVariableValue(command.Variable, result ? 1: 0);
         }
+        #endif
 
         public void Execute(ScriptGetDialogueSelectionCommand command)
         {

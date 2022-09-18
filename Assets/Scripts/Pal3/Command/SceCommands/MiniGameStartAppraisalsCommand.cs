@@ -5,9 +5,11 @@
 
 namespace Pal3.Command.SceCommands
 {
+    #if PAL3
     [SceCommand(104, "进入签定游戏")]
     public class MiniGameStartAppraisalsCommand : ICommand
     {
         public MiniGameStartAppraisalsCommand() {}
     }
+    #endif
 }

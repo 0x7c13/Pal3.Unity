@@ -6,16 +6,10 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
-    [SceCommand(108, "取出鉴定小游戏的结果并设置给变量" +
-                     "参数：用户变量，0失败，1成功")]
-    public class MiniGameGetAppraisalsResultCommand : ICommand
+    [SceCommand(105, "进入打苍蝇游戏")]
+    public class MiniGameStartSwatAFlyCommand : ICommand
     {
-        public MiniGameGetAppraisalsResultCommand(int variable)
-        {
-            Variable = variable;
-        }
-
-        public int Variable { get; }
+        public MiniGameStartSwatAFlyCommand() {}
     }
     #endif
 }

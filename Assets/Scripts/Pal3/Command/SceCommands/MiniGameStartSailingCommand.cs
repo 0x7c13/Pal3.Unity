@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    #if PAL3
     [SceCommand(127, "进入行船游戏")]
     public class MiniGameStartSailingCommand : ICommand
     {
@@ -17,4 +18,5 @@ namespace Pal3.Command.SceCommands
         public int StartSegment { get; }
         public int EndScriptId { get; }
     }
+    #endif
 }

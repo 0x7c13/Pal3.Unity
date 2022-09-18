@@ -10,9 +10,9 @@ namespace Pal3.MiniGame
     using Command;
     using Command.SceCommands;
 
-    public class SailingMiniGame : ICommandExecutor<MiniGameStartSailingCommand>
+    public class SwatAFlyMiniGame : ICommandExecutor<MiniGameStartSwatAFlyCommand>
     {
-        public SailingMiniGame()
+        public SwatAFlyMiniGame()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -22,18 +22,8 @@ namespace Pal3.MiniGame
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void Execute(MiniGameStartSailingCommand command)
+        public void Execute(MiniGameStartSwatAFlyCommand command)
         {
-            if (command.StartSegment == 0)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m04", "1"));
-            }
-            else if (command.StartSegment == 1)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m05", "1"));
-            }
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(command.EndScriptId));
         }
     }
 }

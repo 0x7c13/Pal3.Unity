@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    #if PAL3
     [SceCommand(107, "进入滑雪游戏，" +
                      "参数：游戏结束后执行的脚本ID")]
     public class MiniGameStartSkiCommand : ICommand
@@ -16,4 +17,5 @@ namespace Pal3.Command.SceCommands
 
         public int EndGameScriptId { get; }
     }
+    #endif
 }
