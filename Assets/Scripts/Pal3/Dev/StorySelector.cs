@@ -1835,14 +1835,14 @@ namespace Pal3.Dev
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
                 CameraFadeIn"},
-            {"山门送别司徒钟", @"
-                ScriptVarSetValue -32768 180500
+            {"花圃找王蓬絮\n(温慧好感度最高)", @"
+                ScriptVarSetValue -32768 180600
                 SceneLoad q02 q
                 ActorActivate -1 1
                 ActorEnablePlayerControl -1
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 132 215
+                ActorSetTilePosition -1 353 98
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 BigMapEnableRegion 0 2
@@ -1858,20 +1858,21 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                FavorAdd 1 50
+                FavorAdd 2 10
                 CameraFadeIn"},
-            {"重回里蜀山找星璇", @"
-                ScriptVarSetValue -32768 190201
-                SceneLoad q04 wn
+            {"花圃找王蓬絮\n(王蓬絮好感度最高)", @"
+                ScriptVarSetValue -32768 180600
+                SceneLoad q02 q
                 ActorActivate -1 1
                 ActorEnablePlayerControl -1
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 290 192
+                ActorSetTilePosition -1 353 98
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 1
-                BigMapEnableRegion 1 1
+                BigMapEnableRegion 0 2
+                BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
@@ -1883,6 +1884,8 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                FavorAdd 1 10
+                FavorAdd 2 50
                 CameraFadeIn"},
             #endif
         };

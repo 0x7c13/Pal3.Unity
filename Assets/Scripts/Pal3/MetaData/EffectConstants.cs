@@ -72,11 +72,11 @@ namespace Pal3.MetaData
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
                     $"{EffectScnRelativePath}Lamp{PathSeparator}lamp.pol", 0.7f) },
                 {FireEffectType.Type4, new (
-                    EffectScnRelativePath + "Fire2" + PathSeparator + "huo{0:00}.tga",
-                    "", 1f) },
-                {FireEffectType.Type5, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
                     $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f) },
+                {FireEffectType.Type5, new (
+                    EffectScnRelativePath + "Fire2" + PathSeparator + "huo{0:00}.tga",
+                    "", 1f) },
                 {FireEffectType.Type6, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
                     "", 1f) },
