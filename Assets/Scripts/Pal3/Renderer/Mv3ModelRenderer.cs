@@ -219,8 +219,10 @@ namespace Pal3.Renderer
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
 
             // Change the texture for the first sub-mesh only
-            _textures[0] = _textureProvider.GetTexture(textureName);
+            _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
+            _materials[0].SetFloat(_cutoffPropertyId, hasAlphaChannel ? 0.3f : 0f);
+            _textureHasAlphaChannel[0] = hasAlphaChannel;
         }
 
         public void PauseAnimation()

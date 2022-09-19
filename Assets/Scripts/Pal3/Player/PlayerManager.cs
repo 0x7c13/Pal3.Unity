@@ -54,7 +54,10 @@ namespace Pal3.Player
         private PlayerActorId _playerActor = 0;
         private bool _playerActorControlEnabled;
         private bool _playerInputEnabled;
+        
+        #if PAL3
         private int _longKuiLastKnownMode = 0;
+        #endif
 
         public PlayerManager()
         {

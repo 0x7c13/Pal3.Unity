@@ -9,6 +9,6 @@ namespace Pal3.Effect
 
     public interface IEffect
     {
-        public void Init(GameResourceProvider resourceProvider, uint effectModelType);
+        public void Init(GameResourceProvider resourceProvider, uint effectParameter);
     }
 }

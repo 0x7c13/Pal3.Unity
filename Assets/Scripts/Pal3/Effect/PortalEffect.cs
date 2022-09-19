@@ -23,7 +23,7 @@ namespace Pal3.Effect
         private SpriteRenderer _spriteRenderer;
         private Coroutine _portalAnimation;
 
-        public void Init(GameResourceProvider resourceProvider, uint effectModelType)
+        public void Init(GameResourceProvider resourceProvider, uint _)
         {
             var baseTexture = resourceProvider.GetEffectTexture(PORTAL_BASE_TEXTURE_NAME);
 

@@ -19,9 +19,9 @@ namespace Pal3.Effect
         private PolyModelRenderer _sceneObjectRenderer;
         private GameObject _effectGameObject;
 
-        public void Init(GameResourceProvider resourceProvider, uint effectModelType)
+        public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
-            var fireEffectType = (FireEffectType)effectModelType;
+            var fireEffectType = (FireEffectType)effectParameter;
             var info = EffectConstants.FireEffectInfo[fireEffectType];
 
             if (!string.IsNullOrEmpty(info.ModelPath))
@@ -56,7 +56,7 @@ namespace Pal3.Effect
                     yPosition = _sceneObjectRenderer.GetRendererBounds().max.y;
                 }
 
-                _effectGameObject = new GameObject($"Effect {GraphicsEffect.Fire.ToString()}");
+                _effectGameObject = new GameObject($"Effect_{GraphicsEffect.Fire.ToString()}");
                 _effectGameObject.transform.localScale =
                     new Vector3(info.Size, info.Size, info.Size);
                 _effectGameObject.transform.SetParent(gameObject.transform);

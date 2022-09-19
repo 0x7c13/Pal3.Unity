@@ -20,18 +20,15 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
     public class AutoTriggerObject : SceneObject
     {
-        public GraphicsEffect GraphicsEffect { get; } = GraphicsEffect.None;
-
         public AutoTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            GraphicsEffect = EffectTypeResolver.GetEffectByNameAndType(objectInfo.Name, objectInfo.EffectModelType);
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             var sceneGameObject = base.Activate(resourceProvider, tintColor);
-            sceneGameObject.AddComponent<AutoTriggerObjectController>().Init(resourceProvider, this);
+            sceneGameObject.AddComponent<AutoTriggerObjectController>().Init(this);
             return sceneGameObject;
         }
     }
@@ -43,21 +40,13 @@ namespace Pal3.Scene.SceneObjects
         private AutoTriggerObject _autoTrigger;
         private bool _wasTriggered;
         private bool _isScriptRunningInProgress;
-
-        private Component _effectComponent;
+        
         private double _awakeTime;
 
-        public void Init(GameResourceProvider resourceProvider, AutoTriggerObject autoTriggerObject)
+        public void Init(AutoTriggerObject autoTriggerObject)
         {
             _awakeTime = Time.realtimeSinceStartupAsDouble;
-
             _autoTrigger = autoTriggerObject;
-
-            if (_autoTrigger.GraphicsEffect == GraphicsEffect.None) return;
-
-            var effectComponentType = EffectTypeResolver.GetEffectComponentType(_autoTrigger.GraphicsEffect);
-            _effectComponent = gameObject.AddComponent(effectComponentType);
-            (_effectComponent as IEffect)!.Init(resourceProvider, _autoTrigger.Info.EffectModelType);
         }
 
         private void OnEnable()
@@ -67,7 +56,6 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnDisable()
         {
-            Destroy(_effectComponent);
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 

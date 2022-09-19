@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.GameBox;
     using Data;
     using Dev;
+    using Effect;
     using MetaData;
     using Renderer;
     using UnityEngine;
@@ -17,7 +18,8 @@ namespace Pal3.Scene.SceneObjects
     public abstract class SceneObject
     {
         public ScnObjectInfo Info;
-
+        public GraphicsEffect GraphicsEffect { get; }
+        
         private readonly string _modelFilePath;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
@@ -26,9 +28,25 @@ namespace Pal3.Scene.SceneObjects
 
             _modelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
+
+            GraphicsEffect = GetEffectType(objectInfo);
         }
 
-        private static string GetModelFilePath(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)
+        {
+            if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
+            
+            if ((int)objectInfo.Parameters[1] == 1 &&
+                ModelTypeResolver.GetType(objectInfo.Name) == ModelType.CvdModel)
+            {
+                // Dead object
+                return GraphicsEffect.None;
+            }
+
+            return EffectTypeResolver.GetEffectByNameAndType(objectInfo.Name, objectInfo.EffectModelType);
+        }
+
+        private string GetModelFilePath(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
         {
             var separator = CpkConstants.CpkDirectorySeparatorChar;
             var modelFilePath = string.Empty;
@@ -105,6 +123,18 @@ namespace Pal3.Scene.SceneObjects
             sceneGameObject.transform.rotation =
                 Quaternion.Euler(Info.XRotation, -Info.YRotation, Info.ZRotation);
             #endif
+
+            if (GraphicsEffect != GraphicsEffect.None &&
+                EffectTypeResolver.GetEffectComponentType(GraphicsEffect) is {} effectComponentType)
+            {
+                var effectComponent = sceneGameObject.AddComponent(effectComponentType);
+                #if PAL3
+                var effectParameter = Info.EffectModelType;
+                #elif PAL3A
+                var effectParameter = (uint)Info.Parameters[5];
+                #endif
+                (effectComponent as IEffect)!.Init(resourceProvider, effectParameter);   
+            }
 
             return sceneGameObject;
         }

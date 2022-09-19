@@ -104,7 +104,12 @@ namespace Pal3.Scene
 
             _tilemap = new Tilemap(NavFile);
             var actorTintColor = Color.white;
+            #if PAL3
             if (ScnFile.SceneInfo.LightMap == 1)
+            #elif PAL3A
+            if (ScnFile.SceneInfo.LightMap == 1 ||
+                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+            #endif
             {
                 actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
             }
@@ -271,7 +276,12 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.ContainsKey(sceneObject.Info.Id)) return;
 
             var tintColor = Color.white;
+            #if PAL3
             if (ScnFile.SceneInfo.LightMap == 1)
+            #elif PAL3A
+            if (ScnFile.SceneInfo.LightMap == 1 ||
+                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+            #endif
             {
                 tintColor = new Color(0.35f, 0.35f, 0.35f, 1f);
             }

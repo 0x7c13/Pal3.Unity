@@ -431,6 +431,7 @@ namespace Pal3.Actor
         }
 
         #if PAL3
+        // TODO: Move to other class
         public void Execute(LongKuiSwitchModeCommand command)
         {
             if (_actor.Info.Id == (byte) PlayerActorId.LongKui)
@@ -443,15 +444,23 @@ namespace Pal3.Actor
         }
         #endif
 
+        // TODO: Move to other class
         public void Execute(EffectPlayCommand command)
         {
             #if PAL3A
-            // 南宫煌变成狼形
-            if (_actor.Info.Id == (byte) PlayerActorId.NanGongHuang &&
-                command.EffectGroupId == 164)
+            // 南宫煌形态切换特效
+            if (_actor.Info.Id == (byte) PlayerActorId.NanGongHuang)
             {
-                _actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
-                PerformAction(_actor.GetIdleAction(), overwrite: true);
+                if (command.EffectGroupId == 164)
+                {
+                    _actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
+                    if (_actor.IsActive) PerformAction(_actor.GetIdleAction(), overwrite: true);
+                }
+                else if (command.EffectGroupId == 315)
+                {
+                    _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
+                    if (_actor.IsActive) PerformAction(_actor.GetIdleAction(), overwrite: true); 
+                }
             }
             #endif
         }

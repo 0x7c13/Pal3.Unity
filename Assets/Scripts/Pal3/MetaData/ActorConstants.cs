@@ -195,6 +195,7 @@ namespace Pal3.MetaData
         public const string LongKuiHumanModeActorName = "105";
         public const string LongKuiGhostModeActorName = "106";
         #elif PAL3A
+        public const string NanGongHuangHumanModeActorName = "101";
         public const string NanGongHuangWolfModeActorName = "107";
         #endif
 
