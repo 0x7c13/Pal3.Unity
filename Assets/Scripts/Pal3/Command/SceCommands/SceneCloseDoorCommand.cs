@@ -6,15 +6,15 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(187, "播放开门动画？参数为门的ID")]
-    public class UnknownCommand187 : ICommand
+    [SceCommand(187, "播放门关闭的动画")]
+    public class SceneCloseDoorCommand : ICommand
     {
-        public UnknownCommand187(int unknown)
+        public SceneCloseDoorCommand(int objectId)
         {
-            Unknown = unknown;
+            ObjectId = objectId;
         }
 
-        public int Unknown { get; }
+        public int ObjectId { get; }
     }
     #endif
 }

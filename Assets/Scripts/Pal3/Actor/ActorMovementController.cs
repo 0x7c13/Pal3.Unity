@@ -370,10 +370,14 @@ namespace Pal3.Actor
             return false;
         }
 
-        public void SetupPath(Vector3[] wayPoints, int mode, EndOfPathActionType endOfPathAction, bool ignoreObstacle)
+        public void SetupPath(Vector3[] wayPoints,
+            int mode,
+            EndOfPathActionType endOfPathAction,
+            bool ignoreObstacle,
+            string specialAction = null)
         {
             _currentPath.SetPath(wayPoints, mode, endOfPathAction, ignoreObstacle);
-            _actionController.PerformAction(_actor.GetMovementAction(mode));
+            _actionController.PerformAction(specialAction ?? _actor.GetMovementAction(mode));
         }
 
         private void ReachingToEndOfPath()
@@ -429,7 +433,8 @@ namespace Pal3.Actor
         private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position,
             int mode,
             EndOfPathActionType endOfPathAction,
-            bool moveTowardsPositionIfNoPathFound = false)
+            bool moveTowardsPositionIfNoPathFound = false,
+            string specialAction = null)
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
             var fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
@@ -476,7 +481,7 @@ namespace Pal3.Actor
                 wayPoints[i] = _tilemap.GetWorldPosition(new Vector2Int(path[i].x, path[i].y), _currentLayerIndex);
             }
 
-            SetupPath(wayPoints, mode, endOfPathAction, ignoreObstacle: true);
+            SetupPath(wayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
         }
 
         private void MoveToTilePosition(Vector2Int position, int mode)
@@ -515,8 +520,12 @@ namespace Pal3.Actor
         #if PAL3A
         public void Execute(ActorWalkToUsingActionCommand command)
         {
-            // TODO: proper impl
-            Execute(new ActorPathToCommand(command.ActorId, command.TileX, command.TileZ, mode: 0));
+            if (_actor.Info.Id != command.ActorId) return;
+            _movementWaiter?.CancelWait();
+            _movementWaiter = new WaitUntilCanceled(this);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
+            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
+                mode: 0, EndOfPathActionType.Idle, specialAction: command.Action));
         }
         #endif
 

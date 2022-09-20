@@ -343,9 +343,12 @@ namespace Pal3.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var currentTime = (Time.timeSinceLevelLoad - startTime) * timeScale;
+                var currentTime = timeScale > 0 ? 
+                        (Time.timeSinceLevelLoad - startTime) * timeScale :
+                        (_animationDuration - (Time.timeSinceLevelLoad - startTime)) * -timeScale;
 
-                if (currentTime >= _animationDuration)
+                if ((timeScale > 0f && currentTime >= _animationDuration) ||
+                    (timeScale < 0f && currentTime <= 0f))
                 {
                     yield break;
                 }

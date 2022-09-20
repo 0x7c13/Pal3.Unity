@@ -31,6 +31,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneOpenDoorCommand>,
         #if PAL3A
         ICommandExecutor<FengYaSongCommand>,
+        ICommandExecutor<SceneCloseDoorCommand>,
         #endif
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorLookAtActorCommand>
@@ -428,6 +429,24 @@ namespace Pal3.Scene
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
+        
+        #if PAL3A
+        public void Execute(SceneCloseDoorCommand command)
+        {
+            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            {
+                var sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                {
+                    cvdMeshRenderer.PlayAnimation(timeScale: -1, loopCount: 1);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+            }
+        }
+        #endif
 
         public void Execute(SceneMoveObjectCommand command)
         {
