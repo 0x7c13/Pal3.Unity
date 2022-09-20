@@ -35,8 +35,8 @@ namespace Pal3.Data
 
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newSceneCityName = notification.SceneInfo.CityName.ToLower();
-            var newSceneName = notification.SceneInfo.Name.ToLower();
+            var newSceneCityName = notification.NewSceneInfo.CityName.ToLower();
+            var newSceneName = notification.NewSceneInfo.Name.ToLower();
 
             if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
             {

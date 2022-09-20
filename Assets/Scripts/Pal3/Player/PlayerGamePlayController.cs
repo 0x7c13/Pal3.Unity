@@ -29,7 +29,13 @@ namespace Pal3.Player
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<ActorPerformClimbActionCommand>,
         ICommandExecutor<PlayerActorClimbObjectCommand>,
-        ICommandExecutor<PlayerInteractionRequest>
+        ICommandExecutor<PlayerInteractionRequest>,
+        #if PAL3
+        ICommandExecutor<LongKuiSwitchModeCommand>,
+        #endif
+        ICommandExecutor<SceneBeforeLoadingNotification>,
+        ICommandExecutor<ScenePostLoadingNotification>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private GameStateManager _gameStateManager;
         private PlayerManager _playerManager;
@@ -41,11 +47,20 @@ namespace Pal3.Player
         private Vector3 _lastKnownPosition;
         private Vector2Int _lastKnownTilePosition;
         private int _lastKnownLayerIndex;
-
+        #if PAL3
+        private int _longKuiLastKnownMode = 0;
+        #endif
+        
         private GameObject _playerActor;
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
+
+        private const int POSITION_INFO_LIST_MAX_LENGTH = 2;
+        private readonly List<(string scene,
+            int actorNavIndex,
+            Vector2Int actorTilePosition,
+            Vector3 actorFacing)> _playerActorLastKnownPositionInfo = new ();
 
         public void Init(GameStateManager gameStateManager,
             PlayerManager playerManager,
@@ -586,5 +601,84 @@ namespace Pal3.Player
                     new Vector2Int(command.TileXPosition,command.TileZPosition), currentLayerIndex);
             }
         }
+
+        private string GetSceneNameHashKey(ScnSceneInfo sceneInfo)
+        {
+            #if PAL3
+            return $"{sceneInfo.CityName}_{sceneInfo.Model}";
+            #elif PAL3A
+            return sceneInfo.Model.EndsWith("y", StringComparison.OrdinalIgnoreCase) ?
+                $"{sceneInfo.CityName}_{sceneInfo.Model[..^1]}" :
+                $"{sceneInfo.CityName}_{sceneInfo.Model}";
+            #endif
+        }
+        
+        public void Execute(SceneBeforeLoadingNotification command)
+        {
+            if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
+            
+            _playerActorLastKnownPositionInfo.Add((
+                GetSceneNameHashKey(currentScene.GetSceneInfo()),
+                _playerActorMovementController.GetCurrentLayerIndex(),
+                _playerActorMovementController.GetTilePosition(),
+                _playerActor.transform.forward));
+            
+            if (_playerActorLastKnownPositionInfo.Count > POSITION_INFO_LIST_MAX_LENGTH)
+            {
+                _playerActorLastKnownPositionInfo.RemoveAt(0);
+            }
+        }
+        
+        public void Execute(ScenePostLoadingNotification notification)
+        {
+            var playerActorId = (int)_playerManager.GetPlayerActor();
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(playerActorId, 1));
+            
+            if (_playerActorLastKnownPositionInfo.Count > 0 && _playerActorLastKnownPositionInfo.Any(_ => string.Equals(
+                    _.scene,
+                    GetSceneNameHashKey(notification.NewSceneInfo),
+                    StringComparison.OrdinalIgnoreCase)))
+            {
+                var positionInfo = _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
+                    _.scene,
+                    GetSceneNameHashKey(notification.NewSceneInfo),
+                    StringComparison.OrdinalIgnoreCase));
+                
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetNavLayerCommand(playerActorId, positionInfo.actorNavIndex));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetTilePositionCommand(playerActorId, positionInfo.actorTilePosition.x, positionInfo.actorTilePosition.y));
+                
+                _sceneManager.GetCurrentScene()
+                    .GetActorGameObject((byte)playerActorId).transform.forward = positionInfo.actorFacing;
+            }
+            
+            if (_playerManager.IsPlayerActorControlEnabled())
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(playerActorId));
+            }
+
+            if (_playerManager.IsPlayerInputEnabled())
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+            }
+            
+            #if PAL3
+            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
+            #endif
+        }
+        
+        public void Execute(ResetGameStateCommand command)
+        {
+            _playerActorLastKnownPositionInfo.Clear();
+        }
+        
+        #if PAL3
+        public void Execute(LongKuiSwitchModeCommand command)
+        {
+            _longKuiLastKnownMode = command.Mode;
+        }
+        #endif
     }
 }

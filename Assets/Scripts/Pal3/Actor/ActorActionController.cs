@@ -303,13 +303,13 @@ namespace Pal3.Actor
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {
                 return new Vector3(parentPosition.x,
-                    _worldBounds.min.y + _localBounds.max.y,
+                    parentPosition.y + _localBounds.size.y,
                     parentPosition.z);
             }
             
             return new Vector3(parentPosition.x,
-                _mv3AnimationRenderer.GetWorldBounds().min.y +
-                _mv3AnimationRenderer.GetLocalBounds().max.y,
+                parentPosition.y +
+                _mv3AnimationRenderer.GetLocalBounds().size.y,
                 parentPosition.z);
         }
         

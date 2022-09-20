@@ -675,7 +675,7 @@ namespace Pal3.Camera
 
         public void Execute(ScenePreLoadingNotification notification)
         {
-            ApplySceneSettings(notification.SceneInfo);
+            ApplySceneSettings(notification.NewSceneInfo);
         }
 
         public void Execute(CameraFocusOnActorCommand command)

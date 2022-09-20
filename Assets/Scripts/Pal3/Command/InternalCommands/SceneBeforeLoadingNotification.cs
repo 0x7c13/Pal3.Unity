@@ -5,15 +5,8 @@
 
 namespace Pal3.Command.InternalCommands
 {
-    using Core.DataReader.Scn;
-
-    public class ScenePreLoadingNotification : ICommand
+    public class SceneBeforeLoadingNotification : ICommand
     {
-        public ScenePreLoadingNotification(ScnSceneInfo sceneInfo)
-        {
-            NewSceneInfo = sceneInfo;
-        }
-
-        public ScnSceneInfo NewSceneInfo { get; }
+        public SceneBeforeLoadingNotification() { }
     }
 }

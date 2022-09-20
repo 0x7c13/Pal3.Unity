@@ -455,7 +455,7 @@ namespace Pal3.Data
         private string _currentSceneCityName;
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newSceneCityName = notification.SceneInfo.CityName.ToLower();
+            var newSceneCityName = notification.NewSceneInfo.CityName.ToLower();
 
             if (string.IsNullOrEmpty(_currentSceneCityName))
             {

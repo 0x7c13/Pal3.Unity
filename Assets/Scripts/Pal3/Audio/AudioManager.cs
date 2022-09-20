@@ -287,7 +287,7 @@ namespace Pal3.Audio
         {
             if (string.IsNullOrEmpty(_currentScriptMusic))
             {
-                PlaySceneMusic(command.SceneInfo.CityName, command.SceneInfo.Name);
+                PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.Name);
             }
         }
 

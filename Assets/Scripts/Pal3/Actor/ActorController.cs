@@ -13,7 +13,6 @@ namespace Pal3.Actor
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Data;
     using Input;
     using MetaData;
     using Script.Waiter;
@@ -26,6 +25,8 @@ namespace Pal3.Actor
         ICommandExecutor<ActorSetScriptCommand>,
         #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
+        ICommandExecutor<EffectAttachToActorCommand>,
+        ICommandExecutor<EffectPlayCommand>,
         #endif
         ICommandExecutor<ActorChangeScaleCommand>
     {
@@ -90,6 +91,15 @@ namespace Pal3.Actor
 
         private void Activate()
         {
+            #if PAL3A
+            // Reset NanGongHuang actor name
+            if (_actor.Info.Id == (byte)PlayerActorId.NanGongHuang &&
+                !string.Equals(_actor.Info.Name, ActorConstants.NanGongHuangHumanModeActorName))
+            {
+                _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
+            }
+            #endif
+            
             if (_actor.Info.Kind == ScnActorKind.MainActor)
             {
                 if (string.IsNullOrEmpty(_actionController.GetCurrentAction()))
@@ -192,6 +202,41 @@ namespace Pal3.Actor
             transform.position = new Vector3(oldPosition.x,
                 command.YPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
                 oldPosition.z);
+        }
+        #endif
+
+        #if PAL3A
+        private bool _effectAttachedToSelf = false;
+        public void Execute(EffectAttachToActorCommand command)
+        {
+            if (_actor.Info.Id == command.ActorId) _effectAttachedToSelf = true;
+        }
+        #endif
+        
+        #if PAL3A
+        public void Execute(EffectPlayCommand command)
+        {
+            if (!_effectAttachedToSelf) return;
+            
+            switch (command.EffectGroupId)
+            {
+                // 南宫煌形态切换为狼形态特效
+                case 164:
+                {
+                    _actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
+                    if (_actor.IsActive) _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);
+                    break;
+                }
+                // 南宫煌形态切换为人形态特效
+                case 315:
+                {
+                    _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
+                    if (_actor.IsActive) _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);
+                    break;
+                }
+            }
+
+            _effectAttachedToSelf = false;
         }
         #endif
     }

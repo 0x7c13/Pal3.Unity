@@ -58,9 +58,6 @@ namespace Pal3.Actor
                 case (byte)PlayerActorId.TaoZi:
                     actorGameObject.AddComponent<FlyingActorController>().Init(actionController);
                     break;
-                case (byte)PlayerActorId.NanGongHuang:
-                    actorGameObject.AddComponent<NanGongHuangController>().Init(actor, actionController);
-                    break;
             }
             #endif
 

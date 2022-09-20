@@ -11,9 +11,9 @@ namespace Pal3.Command.InternalCommands
     {
         public ScenePostLoadingNotification(ScnSceneInfo sceneInfo)
         {
-            SceneInfo = sceneInfo;
+            NewSceneInfo = sceneInfo;
         }
 
-        public ScnSceneInfo SceneInfo { get; }
+        public ScnSceneInfo NewSceneInfo { get; }
     }
 }

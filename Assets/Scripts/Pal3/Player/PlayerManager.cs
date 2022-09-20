@@ -46,18 +46,11 @@ namespace Pal3.Player
         #endif
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
-        #if PAL3
-        ICommandExecutor<LongKuiSwitchModeCommand>,
-        #endif
-        ICommandExecutor<ScenePostLoadingNotification>
+        ICommandExecutor<EffectAttachToActorCommand>
     {
         private PlayerActorId _playerActor = 0;
         private bool _playerActorControlEnabled;
         private bool _playerInputEnabled;
-        
-        #if PAL3
-        private int _longKuiLastKnownMode = 0;
-        #endif
 
         public PlayerManager()
         {
@@ -361,30 +354,13 @@ namespace Pal3.Player
             }
         }
 
-        #if PAL3
-        public void Execute(LongKuiSwitchModeCommand command)
+        public void Execute(EffectAttachToActorCommand command)
         {
-            _longKuiLastKnownMode = command.Mode;
-        }
-        #endif
-
-        public void Execute(ScenePostLoadingNotification notification)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
-            
-            if (_playerActorControlEnabled)
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand((int)_playerActor));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new EffectAttachToActorCommand((int)_playerActor));
             }
-
-            if (_playerInputEnabled)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
-            }
-            
-            #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
-            #endif
         }
     }
 }

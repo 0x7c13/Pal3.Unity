@@ -402,7 +402,9 @@ namespace Pal3.Dev
             }},
             { "m04_2_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 152, 215)
+                new SceneLoadCommand("m04", "3"),
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 30, 71)
             }},
             { "m05_1_0", new List<ICommand>()
             {
@@ -458,7 +460,7 @@ namespace Pal3.Dev
             }},
             { "m06_3_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 69, 61)
+                new ActorSetTilePositionCommand(-1, 43, 30)
             }},
             { "m07_1_0", new List<ICommand>()
             {
@@ -864,8 +866,8 @@ namespace Pal3.Dev
         public void Execute(ScenePostLoadingNotification command)
         {
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                _skipperCommands.ContainsKey(GetEntranceCommandHashKey(command.SceneInfo)) &&
-                _skipperCommands.ContainsKey(GetExitCommandHashKey(command.SceneInfo)))
+                _skipperCommands.ContainsKey(GetEntranceCommandHashKey(command.NewSceneInfo)) &&
+                _skipperCommands.ContainsKey(GetExitCommandHashKey(command.NewSceneInfo)))
             {
                 _mazeSkipperCanvasGroup.alpha = 1f;
                 _mazeSkipperCanvasGroup.interactable = true;

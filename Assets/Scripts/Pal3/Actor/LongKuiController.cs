@@ -39,7 +39,10 @@ namespace Pal3.Actor
             _actor.ChangeName(command.Mode == 0 ?
                 ActorConstants.LongKuiHumanModeActorName :
                 ActorConstants.LongKuiGhostModeActorName);
-            _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);
+            if (_actor.IsActive)
+            {
+                _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);   
+            }
         }
     }
 }
