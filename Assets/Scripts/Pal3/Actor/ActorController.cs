@@ -5,7 +5,6 @@
 
 namespace Pal3.Actor
 {
-    using System;
     using System.Collections;
     using System.Linq;
     using Command;
@@ -14,7 +13,6 @@ namespace Pal3.Actor
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Core.Renderer;
     using Data;
     using Input;
     using MetaData;
@@ -25,19 +23,12 @@ namespace Pal3.Actor
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
-        ICommandExecutor<ActorShowEmojiCommand>,
-        #if PAL3A
-        ICommandExecutor<ActorShowEmoji2Command>,
-        #endif
         ICommandExecutor<ActorSetScriptCommand>,
         #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
         #endif
         ICommandExecutor<ActorChangeScaleCommand>
     {
-        private const float EMOJI_ANIMATION_FPS = 5f;
-
-        private GameResourceProvider _resourceProvider;
         private Actor _actor;
         private ActorActionController _actionController;
         private ActorMovementController _movementController;
@@ -56,12 +47,10 @@ namespace Pal3.Actor
 
         private ScnActorBehaviour _currentBehaviour;
 
-        public void Init(GameResourceProvider resourceProvider,
-            Actor actor,
+        public void Init(Actor actor,
             ActorActionController actionController,
             ActorMovementController movementController)
         {
-            _resourceProvider = resourceProvider;
             _actor = actor;
             _actionController = actionController;
             _movementController = movementController;
@@ -147,37 +136,6 @@ namespace Pal3.Actor
             _actionController.DeActivate();
         }
 
-        public IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
-        {
-            // For some reason, there are 12 emoji types exist in the game script,
-            // but only 11 sprite sheet in the data folder.
-            if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
-
-            var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-
-            var sprites = _resourceProvider.GetEmojiSprites(emojiType);
-
-            var emojiGameObject = new GameObject($"Emoji {emojiType.ToString()}");
-            emojiGameObject.transform.SetParent(transform);
-            emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            var parentPosition = transform.position;
-
-            var headPosition = new Vector3(parentPosition.x, _actionController.GetWorldBounds().max.y, parentPosition.z);
-
-            emojiGameObject.transform.position = headPosition;
-
-            var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
-
-            yield return billboardRenderer.PlaySpriteAnimation(sprites,
-                EMOJI_ANIMATION_FPS,
-                ActorEmoji.EmojiAnimationLoopCount[emojiType]);
-
-            Destroy(billboardRenderer);
-            Destroy(emojiGameObject);
-            waiter.CancelWait();
-        }
-
         private IEnumerator AnimateScale(float toScale, float duration, WaitUntilCanceled waiter = null)
         {
             yield return AnimationHelper.EnumerateValue(transform.localScale.x,
@@ -210,20 +168,6 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
         }
-
-        public void Execute(ActorShowEmojiCommand command)
-        {
-            if (_actor.Info.Id != command.ActorId) return;
-            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
-        }
-        
-        #if PAL3A
-        public void Execute(ActorShowEmoji2Command command)
-        {
-            if (_actor.Info.Id != command.ActorId) return;
-            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
-        }
-        #endif
 
         public void Execute(ActorSetScriptCommand command)
         {

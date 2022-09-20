@@ -342,7 +342,7 @@ namespace Pal3.Data
 
         public Sprite[] GetEmojiSprites(ActorEmojiType emojiType)
         {
-            var textureInfo = ActorEmoji.TextureInfo[emojiType];
+            var textureInfo = ActorEmojiConstants.TextureInfo[emojiType];
             var spriteSheet = GetEmojiSpriteSheetTexture(emojiType);
 
             var widthIndex = 0f;

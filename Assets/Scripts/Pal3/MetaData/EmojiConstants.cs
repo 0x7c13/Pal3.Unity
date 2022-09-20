@@ -26,7 +26,7 @@ namespace Pal3.MetaData
         #endif
     }
 
-    public static class ActorEmoji
+    public static class ActorEmojiConstants
     {
         public static readonly Dictionary<ActorEmojiType, (int Width, int Height, int Frames)> TextureInfo = new()
         {
@@ -46,7 +46,7 @@ namespace Pal3.MetaData
             #endif
         };
 
-        public static readonly Dictionary<ActorEmojiType, int> EmojiAnimationLoopCount = new()
+        public static readonly Dictionary<ActorEmojiType, int> AnimationLoopCountInfo = new()
         {
             { ActorEmojiType.Sleepy,      3 },
             { ActorEmojiType.Shock,       1 },
@@ -63,5 +63,22 @@ namespace Pal3.MetaData
             { ActorEmojiType.Speechless,  3 },
             #endif
         };
+        
+        #if PAL3
+        public static readonly Dictionary<ActorEmojiType, string> EmojiSfxInfo = new()
+        {
+            { ActorEmojiType.Sleepy,      "we06" },
+            { ActorEmojiType.Shock,       "" },
+            { ActorEmojiType.Doubt,       "" },
+            { ActorEmojiType.Anger,       "" },
+            { ActorEmojiType.Happy,       "" },
+            { ActorEmojiType.Heart,       "" },
+            { ActorEmojiType.Sweat,       "" },
+            { ActorEmojiType.Bother,      "" },
+            { ActorEmojiType.Anxious,     "" },
+            { ActorEmojiType.Cry,         "" },
+            { ActorEmojiType.Dizzy,       "we05" },
+        };
+        #endif
     }
 }

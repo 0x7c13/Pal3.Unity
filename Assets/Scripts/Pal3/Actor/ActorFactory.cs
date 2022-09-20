@@ -39,17 +39,28 @@ namespace Pal3.Actor
             movementController.Init(actor, tilemap, actionController, getAllActiveActorBlockingTilePositions);
 
             var actorController = actorGameObject.AddComponent<ActorController>();
-            actorController.Init(resourceProvider, actor, actionController, movementController);
+            actorController.Init(actor, actionController, movementController);
 
+            // Attach additional controller(s) to special actor
             #if PAL3
-            if (actor.Info.Id == (byte)PlayerActorId.HuaYing)
+            switch (actor.Info.Id)
             {
-                actorGameObject.AddComponent<HuaYingController>().Init(actorController, actionController);
+                case (byte)PlayerActorId.HuaYing:
+                    actorGameObject.AddComponent<HuaYingController>().Init(actorController, actionController);
+                    break;
+                case (byte)PlayerActorId.LongKui:
+                    actorGameObject.AddComponent<LongKuiController>().Init(actor, actionController);
+                    break;
             }
             #elif PAL3A
-            if (actor.Info.Id == (byte) PlayerActorId.TaoZi)
+            switch (actor.Info.Id)
             {
-                actorGameObject.AddComponent<FlyingActorController>().Init(actionController);
+                case (byte)PlayerActorId.TaoZi:
+                    actorGameObject.AddComponent<FlyingActorController>().Init(actionController);
+                    break;
+                case (byte)PlayerActorId.NanGongHuang:
+                    actorGameObject.AddComponent<NanGongHuangController>().Init(actor, actionController);
+                    break;
             }
             #endif
 

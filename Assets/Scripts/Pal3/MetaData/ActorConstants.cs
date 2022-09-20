@@ -34,6 +34,12 @@ namespace Pal3.MetaData
         LeiYuanGe     =  4,   // 雷元戈
         TaoZi         =  5,   // 王蓬絮兽形
     }
+    public enum FengYaSongActorId
+    {
+        Feng       = 250,
+        Ya         = 251,
+        Song       = 252,
+    }
     #endif
 
     #if PAL3
@@ -222,6 +228,12 @@ namespace Pal3.MetaData
             {PlayerActorId.XingXuan,      "104"},
             {PlayerActorId.LeiYuanGe,     "105"},
             {PlayerActorId.TaoZi,         "106"},  // 桃子兽形
+        };
+        public static readonly Dictionary<FengYaSongActorId, string> FengYaSongActorNameMap = new()
+        {
+            {FengYaSongActorId.Feng,  "110"},  // 风
+            {FengYaSongActorId.Ya,    "108"},  // 雅
+            {FengYaSongActorId.Song,  "109"},  // 颂
         };
         #endif
         

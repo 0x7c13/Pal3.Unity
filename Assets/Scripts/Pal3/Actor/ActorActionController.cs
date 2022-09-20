@@ -6,6 +6,7 @@
 namespace Pal3.Actor
 {
     using System;
+    using System.Collections;
     using System.Linq;
     using Command;
     using Command.InternalCommands;
@@ -14,6 +15,7 @@ namespace Pal3.Actor
     using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.Extensions;
+    using Core.Renderer;
     using Core.Services;
     using Data;
     using MetaData;
@@ -28,14 +30,16 @@ namespace Pal3.Actor
         ICommandExecutor<ActorPerformActionCommand>,
         ICommandExecutor<ActorStopActionCommand>,
         ICommandExecutor<ActorStopActionAndStandCommand>,
-        #if PAL3
-        ICommandExecutor<LongKuiSwitchModeCommand>,
-        #endif
         ICommandExecutor<ActorChangeTextureCommand>,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
-        ICommandExecutor<EffectPlayCommand>,
+        ICommandExecutor<ActorShowEmojiCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorShowEmoji2Command>,
+        #endif
         ICommandExecutor<GameStateChangedNotification>
     {
+        private const float EMOJI_ANIMATION_FPS = 5f;
+        
         private GameResourceProvider _resourceProvider;
         private Actor _actor;
         private Color _tintColor;
@@ -189,7 +193,14 @@ namespace Pal3.Actor
             #if PAL3
             if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;
             #elif PAL3A
-            if (_actor.Info.Id == (byte) PlayerActorId.TaoZi) return;
+            switch (_actor.Info.Id)
+            {
+                case (byte) PlayerActorId.TaoZi:
+                case (byte) FengYaSongActorId.Feng:
+                case (byte) FengYaSongActorId.Ya:
+                case (byte) FengYaSongActorId.Song:
+                    return;
+            }
             #endif
 
             // Disable shadow for some actions
@@ -214,7 +225,7 @@ namespace Pal3.Actor
             var bounds = GetLocalBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
-            _collider.radius = bounds.size.x * 0.4f;
+            _collider.radius = bounds.size.x * 0.35f;
         }
 
         private void SetupRigidBody()
@@ -247,25 +258,70 @@ namespace Pal3.Actor
             _shadow.transform.SetParent(transform, false);
         }
 
-        public Bounds GetWorldBounds()
+        private IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
         {
-            if (_mv3AnimationRenderer == null)
+            // For some reason, there are 12 emoji types exist in the game script,
+            // but only 11 sprite sheet in the data folder (PAL3A has 12 but PAL3 has 11).
+            if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
+
+            var waiter = new WaitUntilCanceled(this);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+
+            var sprites = _resourceProvider.GetEmojiSprites(emojiType);
+
+            var emojiGameObject = new GameObject($"Emoji_{emojiType.ToString()}");
+            emojiGameObject.transform.SetParent(transform);
+            emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            var actorHeadPosition = GetActorHeadWorldPosition();
+            emojiGameObject.transform.position = new Vector3(actorHeadPosition.x,
+                actorHeadPosition.y + 0.1f, // With a small Y offset
+                actorHeadPosition.z);
+
+            var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
+
+            #if PAL3
+            var emojiSfx = ActorEmojiConstants.EmojiSfxInfo[emojiType];
+            if (!string.IsNullOrEmpty(emojiSfx))
             {
-                return new Bounds(transform.position, Vector3.zero);
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(emojiSfx, 1));
+            }
+            #endif
+            
+            yield return billboardRenderer.PlaySpriteAnimation(sprites,
+                EMOJI_ANIMATION_FPS,
+                ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
+
+            Destroy(billboardRenderer);
+            Destroy(emojiGameObject);
+            waiter.CancelWait();
+        }
+        
+        public Vector3 GetActorHeadWorldPosition()
+        {
+            var parentPosition = transform.position;
+            
+            if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
+            {
+                return new Vector3(parentPosition.x,
+                    _worldBounds.min.y + _localBounds.max.y,
+                    parentPosition.z);
             }
             
-            return !_mv3AnimationRenderer.IsVisible() ? _worldBounds :
+            return new Vector3(parentPosition.x,
+                _mv3AnimationRenderer.GetWorldBounds().min.y +
+                _mv3AnimationRenderer.GetLocalBounds().max.y,
+                parentPosition.z);
+        }
+        
+        public Bounds GetWorldBounds()
+        {
+            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _worldBounds :
                 _mv3AnimationRenderer.GetWorldBounds();
         }
 
         public Bounds GetLocalBounds()
         {
-            if (_mv3AnimationRenderer == null)
-            {
-                return new Bounds(transform.localPosition, Vector3.zero);
-            }
-            
-            return !_mv3AnimationRenderer.IsVisible() ? _localBounds :
+            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _localBounds :
                 _mv3AnimationRenderer.GetLocalBounds();
         }
 
@@ -429,40 +485,19 @@ namespace Pal3.Actor
                 _rigidbody.isKinematic = _isKinematic;
             }
         }
-
-        #if PAL3
-        // TODO: Move to other class
-        public void Execute(LongKuiSwitchModeCommand command)
+        
+        public void Execute(ActorShowEmojiCommand command)
         {
-            if (_actor.Info.Id == (byte) PlayerActorId.LongKui)
-            {
-                _actor.ChangeName(command.Mode == 0 ?
-                    ActorConstants.LongKuiHumanModeActorName :
-                    ActorConstants.LongKuiGhostModeActorName);
-                PerformAction(_actor.GetIdleAction(), overwrite: true);
-            }
+            if (_actor.Info.Id != command.ActorId) return;
+            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
+        }
+        
+        #if PAL3A
+        public void Execute(ActorShowEmoji2Command command)
+        {
+            if (_actor.Info.Id != command.ActorId) return;
+            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
         }
         #endif
-
-        // TODO: Move to other class
-        public void Execute(EffectPlayCommand command)
-        {
-            #if PAL3A
-            // 南宫煌形态切换特效
-            if (_actor.Info.Id == (byte) PlayerActorId.NanGongHuang)
-            {
-                if (command.EffectGroupId == 164)
-                {
-                    _actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
-                    if (_actor.IsActive) PerformAction(_actor.GetIdleAction(), overwrite: true);
-                }
-                else if (command.EffectGroupId == 315)
-                {
-                    _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
-                    if (_actor.IsActive) PerformAction(_actor.GetIdleAction(), overwrite: true); 
-                }
-            }
-            #endif
-        }
     }
 }

@@ -10,6 +10,7 @@ namespace Pal3.Dev
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using MetaData;
     using Scene;
     using State;
     using UnityEngine;
@@ -805,6 +806,7 @@ namespace Pal3.Dev
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
         private void ExitButtonClicked()
@@ -815,6 +817,7 @@ namespace Pal3.Dev
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
         public void Dispose()

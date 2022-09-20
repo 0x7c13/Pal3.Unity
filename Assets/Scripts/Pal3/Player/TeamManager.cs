@@ -12,6 +12,7 @@ namespace Pal3.Player
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Scn;
     using MetaData;
     using Scene;
     using UnityEngine;
@@ -110,17 +111,20 @@ namespace Pal3.Player
 
             #if PAL3A
             // Need to add all active player actors into the team
-            var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
-            var activePlayerActors = _sceneManager.GetCurrentScene()
-                .GetAllActors()
-                .Where(actor => playerActorIds.Contains(actor.Key) &&
-                                actor.Value.GetComponent<ActorController>().IsActive);
-            foreach (var activePlayerActor in activePlayerActors)
+            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
             {
-                AddActor((PlayerActorId)activePlayerActor.Key);
+                var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
+                var activePlayerActors = _sceneManager.GetCurrentScene()
+                    .GetAllActors()
+                    .Where(actor => playerActorIds.Contains(actor.Key) &&
+                                    actor.Value.GetComponent<ActorController>().IsActive);
+                foreach (var activePlayerActor in activePlayerActors)
+                {
+                    AddActor((PlayerActorId)activePlayerActor.Key);
+                }
             }
             #endif
-            
+
             foreach (var actor in _actorsInTeam.Where(a => a != playerActorId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actor, 0));

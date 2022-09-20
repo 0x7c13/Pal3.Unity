@@ -106,6 +106,20 @@ namespace Pal3.Scene
                     Actors[playerInfo.Id] = new Actor(_resourceProvider, playerInfo);
                 }
             }
+
+            #if PAL3A
+            foreach (var fengYaSongInfo in FengYaSongActorNpcInfo.GetAll())
+            {
+                if (!Actors.ContainsKey(fengYaSongInfo.Id))
+                {
+                    Actors[fengYaSongInfo.Id] = new Actor(_resourceProvider, fengYaSongInfo);
+                }
+                else
+                {
+                    Debug.LogError("FengYsSong actor id is already used by another actor!");
+                }
+            }
+            #endif
         }
     }
 }

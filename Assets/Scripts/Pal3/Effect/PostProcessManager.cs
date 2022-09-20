@@ -6,11 +6,14 @@
 namespace Pal3.Effect
 {
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
-    public class PostProcessManager : MonoBehaviour, ICommandExecutor<EffectSetScreenEffectCommand>
+    public class PostProcessManager : MonoBehaviour,
+        ICommandExecutor<EffectSetScreenEffectCommand>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private PostProcessVolume _postProcessVolume;
         private PostProcessLayer _postProcessLayer;
@@ -65,6 +68,11 @@ namespace Pal3.Effect
                     break;
                 }
             }
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            Execute(new EffectSetScreenEffectCommand(-1));
         }
     }
 }
