@@ -67,8 +67,9 @@ namespace Editor
             
             foreach (var buildTarget in GetAllSupportedNamedBuildTargets())
             {
+                var iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
                 PlayerSettings.SetIcons(buildTarget,
-                    Enumerable.Repeat(gameIcon, 8).ToArray(),
+                    Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
                     IconKind.Application);
             }   
 
