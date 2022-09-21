@@ -67,10 +67,20 @@ namespace Editor
             
             foreach (var buildTarget in GetAllSupportedNamedBuildTargets())
             {
+                // Set app icon
                 var iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
                 PlayerSettings.SetIcons(buildTarget,
                     Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
                     IconKind.Application);
+                
+                // Set iOS store icon which is required for store publishing or TestFlight
+                if (buildTarget == NamedBuildTarget.iOS)
+                {
+                    PlayerSettings.SetIcons(buildTarget,
+                        Enumerable.Repeat(gameIcon,
+                            PlayerSettings.GetIconSizes(buildTarget, IconKind.Store).Length).ToArray(),
+                        IconKind.Store);
+                }
             }   
 
             AssetDatabase.SaveAssets();
