@@ -30,6 +30,7 @@ namespace Pal3
     using Player;
     using Scene;
     using Script;
+    using Settings;
     using State;
     using TMPro;
     using UI;
@@ -146,6 +147,8 @@ namespace Pal3
         private MazeSkipper _mazeSkipper;
         private StorySelector _storySelector;
 
+        private SettingsManager _settingsManager;
+        
         private void OnEnable()
         {
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
@@ -285,65 +288,11 @@ namespace Pal3
             DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommands);
             DebugLogConsole.AddCommand("info", "Get current game info.", GetCurrentGameInfo);
 
-            ApplyRenderingSettings();
-            ApplyPlatformSpecificSettings();
+            _settingsManager = new SettingsManager();
+            _settingsManager.ApplyDefaultRenderingSettings();
+            _settingsManager.ApplyPlatformSpecificSettings();
 
             _storySelector.Show();
-        }
-
-        private void ApplyPlatformSpecificSettings()
-        {
-            if (Utility.IsHandheldDevice())
-            {
-                TouchScreenKeyboard.hideInput = true;
-            }
-        }
-
-        // TODO: Move to SettingsManager
-        private void ApplyRenderingSettings()
-        {
-            //var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
-            //QualitySettings.vSyncCount = vSyncCount;
-
-            Application.targetFrameRate = Application.platform switch
-            {
-                RuntimePlatform.WindowsEditor => 120,
-                RuntimePlatform.WindowsPlayer => 120,
-                RuntimePlatform.OSXEditor => 120,
-                RuntimePlatform.OSXPlayer => 120,
-                RuntimePlatform.LinuxEditor => 120,
-                RuntimePlatform.LinuxPlayer => 120,
-                RuntimePlatform.IPhonePlayer => 120,
-                RuntimePlatform.Android => 120,
-                _ => -1,
-            };
-
-            Screen.sleepTimeout = SleepTimeout.NeverSleep;
-
-            // Downscaling resolution for old Android devices
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                try
-                {
-                    int GetAndroidSdkLevel()
-                    {
-                        var versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
-                        var sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
-                        var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
-                        return sdkLevel;
-                    }
-
-                    // Android 6 Marshmallow <=> API Version 23
-                    if (GetAndroidSdkLevel() <= 23)
-                    {
-                        Screen.SetResolution((int) (Screen.width * 0.75f), (int) (Screen.height * 0.75f), true);
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            }
         }
 
         private void OnDisable()
@@ -408,12 +357,14 @@ namespace Pal3
 
         private string ConvertCurrentGameStateToCommands()
         {
-            var playerActorMovementController = _sceneManager.GetCurrentScene()
+            if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
+            
+            var playerActorMovementController = currentScene
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             var playerActorTilePosition = playerActorMovementController.GetTilePosition();
             var varsToSave = _scriptManager.GetGlobalVariables()
                 .Where(_ => _.Key == ScriptConstants.MainStoryVariableName); // Save main story var only
-            var currentSceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
+            var currentSceneInfo = currentScene.GetSceneInfo();
 
             var commands = new List<ICommand>
             {
@@ -443,18 +394,20 @@ namespace Pal3
                 .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
             commands.Add(new CameraFadeInCommand());
 
-            return string.Join('\n', CommandsToString(commands));
+            return string.Join('\n', commands.Select(ToString).ToList());
         }
 
         private string GetCurrentGameInfo()
         {
+            if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
+            
             var info = new StringBuilder();
 
-            var currentSceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
+            var currentSceneInfo = currentScene.GetSceneInfo();
 
             info.Append($"Current scene: {currentSceneInfo.CityName} {currentSceneInfo.Name}\n");
 
-            var playerActorMovementController = _sceneManager.GetCurrentScene()
+            var playerActorMovementController = currentScene
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
 
             info.Append($"Player actor current nav layer: {playerActorMovementController.GetCurrentLayerIndex()} " +
@@ -463,40 +416,31 @@ namespace Pal3
             return info.ToString();
         }
 
-        private IList<string> CommandsToString(IList<ICommand> commands)
+        private static string ToString(ICommand command)
         {
-            var commandStrList = new List<string>();
-
-            foreach (var command in commands)
+            var builder = new StringBuilder();
+            var type = command.GetType();
+            
+            builder.Append(type.Name[..^"Command".Length]);
+            builder.Append(' ');
+            
+            foreach (var propertyInfo in type.GetProperties())
             {
-                var builder = new StringBuilder();
-                var type = command.GetType();
-                builder.Append(type.Name.Substring(0, type.Name.Length - "Command".Length));
+                builder.Append(propertyInfo.GetValue(command));
                 builder.Append(' ');
-                foreach (var propertyInfo in type.GetProperties())
-                {
-                    builder.Append(propertyInfo.GetValue(command));
-                    builder.Append(' ');
-                }
-
-                var commandStr = builder.ToString();
-                if (commandStr.EndsWith(' ')) commandStr = commandStr[..^1];
-                commandStrList.Add(commandStr);
             }
 
-            return commandStrList;
+            var commandStr = builder.ToString();
+            if (commandStr.EndsWith(' ')) commandStr = commandStr[..^1];
+            return commandStr;
         }
 
         private string ListCurrentGlobalVariables()
         {
-            var str = "Global vars: ";
-
-            foreach (var variable in _scriptManager.GetGlobalVariables())
-            {
-                str += $"{variable.Key}: {variable.Value} ";
-            }
-
-            return str;
+            if (_scriptManager.GetGlobalVariables() is not { Count: > 0 }) return null;
+            
+            return _scriptManager.GetGlobalVariables()
+                .Aggregate("Global vars: ", (current, variable) => current + $"{variable.Key}: {variable.Value} ");
         }
     }
 }

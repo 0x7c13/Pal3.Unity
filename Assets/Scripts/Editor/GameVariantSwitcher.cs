@@ -5,9 +5,12 @@
 
 namespace Editor
 {
+    using System;
     using System.Linq;
     using Pal3.MetaData;
     using UnityEditor;
+    using UnityEditor.Build;
+    using UnityEngine;
 
     public static class GameVariantSwitcher
     {
@@ -27,43 +30,79 @@ namespace Editor
             ApplyPlayerSettingsForVariant("PAL3A");
         }
 
+        private static BuildTargetGroup[] GetAllSupportedTargetGroups()
+        {
+            return new[]
+            {
+                BuildTargetGroup.Android,
+                BuildTargetGroup.Standalone,
+                BuildTargetGroup.iOS,
+            };
+        }
+        
+        private static NamedBuildTarget[] GetAllSupportedNamedBuildTargets()
+        {
+            return new[]
+            {
+                NamedBuildTarget.Android,
+                NamedBuildTarget.Standalone,
+                NamedBuildTarget.iOS,
+            };
+        }
+        
         private static void ApplyPlayerSettingsForVariant(string appName)
         {
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
-            PlayerSettings.SetApplicationIdentifier(
-                EditorUserBuildSettings.selectedBuildTargetGroup,
-                $"{GameConstants.AppIdentifierPrefix}.{appName}");
-            // TODO: Add icon based on variant
-            //PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, icons);
+
+            foreach (var targetGroup in GetAllSupportedTargetGroups())
+            {
+                PlayerSettings.SetApplicationIdentifier(targetGroup,
+                    $"{GameConstants.AppIdentifierPrefix}.{appName}");
+            }
+
+            var gameIconPath = $"UI/game-icon-{appName}";
+            var gameIcon = Resources.Load<Texture2D>(gameIconPath);
+            if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
+            
+            foreach (var buildTarget in GetAllSupportedNamedBuildTargets())
+            {
+                PlayerSettings.SetIcons(buildTarget,
+                    Enumerable.Repeat(gameIcon, 8).ToArray(),
+                    IconKind.Application);
+            }   
+
             AssetDatabase.SaveAssets();
         }
 
         private static void AddSymbol(string symbolToAdd)
         {
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(
-                EditorUserBuildSettings.selectedBuildTargetGroup);
-            var allDefines = defines.Split(';').ToList();
-            if (!allDefines.Any(d => string.Equals(d, symbolToAdd)))
+            foreach (var targetGroup in GetAllSupportedTargetGroups())
             {
-                allDefines.Add(symbolToAdd);
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+                var allDefines = defines.Split(';').ToList();
+                if (!allDefines.Any(_ => string.Equals(_, symbolToAdd)))
+                {
+                    allDefines.Add(symbolToAdd);
+                }
+
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,
+                    string.Join(";", allDefines.ToArray()));
             }
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(
-                EditorUserBuildSettings.selectedBuildTargetGroup,
-                string.Join (";", allDefines.ToArray()));
         }
 
         private static void RemoveSymbol(string symbolToDelete)
         {
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(
-                EditorUserBuildSettings.selectedBuildTargetGroup);
-            var allDefines = defines.Split(';').ToList();
-            var newDefines = allDefines
-                .Where(define => !string.Equals(define, symbolToDelete)).ToList();
-            newDefines.Sort();
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(
-                EditorUserBuildSettings.selectedBuildTargetGroup,
-                string.Join (";", newDefines.ToArray()));
+            foreach (var targetGroup in GetAllSupportedTargetGroups())
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+                var allDefines = defines.Split(';').ToList();
+                var newDefines = allDefines
+                    .Where(_ => !string.Equals(_, symbolToDelete)).ToList();
+                newDefines.Sort();
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,
+                    string.Join(";", newDefines.ToArray()));
+            }
         }
     }
 }

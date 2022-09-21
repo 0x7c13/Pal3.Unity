@@ -1,5 +1,7 @@
 <p align="center">
-  <img width="128" align="center" src="Assets/Resources/UI/game-icon.png">
+  <img width="128" align="center" src="Assets/Resources/UI/game-icon-PAL3.png">
+  +
+  <img width="128" align="center" src="Assets/Resources/UI/game-icon-PAL3A.png">
 </p>
 <h1 align="center">
   Pal3.Unity
@@ -9,7 +11,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2021.3.8f1-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2021.3.9f1-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
