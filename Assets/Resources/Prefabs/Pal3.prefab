@@ -2198,7 +2198,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u8FF7\u5BAB\u51FA\u53E3"
+  m_text: "\u51FA\u53E3\u6216\u5267\u60C5\u70B9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 06415fcd9086a4b3b9cb0804bf1013aa, type: 2}
   m_sharedMaterial: {fileID: 697520991437178811, guid: 06415fcd9086a4b3b9cb0804bf1013aa, type: 2}
@@ -4463,7 +4463,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled

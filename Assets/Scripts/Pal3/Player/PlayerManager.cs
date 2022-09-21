@@ -41,6 +41,7 @@ namespace Pal3.Player
         ICommandExecutor<ActorSetNavLayerCommand>,
         ICommandExecutor<ActorFadeInCommand>,
         ICommandExecutor<ActorFadeOutCommand>,
+        ICommandExecutor<ActorSetScriptCommand>,
         #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
         #endif
@@ -322,6 +323,15 @@ namespace Pal3.Player
             {
                 _playerActor = (PlayerActorId)command.ActorId;
                 _playerActorControlEnabled = true;
+            }
+        }
+        
+        public void Execute(ActorSetScriptCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetScriptCommand((int)_playerActor, command.ScriptId));
             }
         }
 

@@ -5,13 +5,17 @@
 
 namespace Pal3.Dev
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.Services;
     using MetaData;
     using Scene;
+    using Script;
     using State;
     using UnityEngine;
     using UnityEngine.UI;
@@ -388,6 +392,16 @@ namespace Pal3.Dev
                 new ActorSetNavLayerCommand(-1, 1),
                 new ActorSetTilePositionCommand(-1, 70, 165)
             }},
+            { "m03_1_30101", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 162, 150)
+            }},
+            { "m03_1_30300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 167, 222)
+            }},
             { "m04_1_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 201, 421)
@@ -395,6 +409,11 @@ namespace Pal3.Dev
             { "m04_1_1", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 200, 84)
+            }},
+            { "m04_1_40200", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 200, 426)
             }},
             { "m04_2_0", new List<ICommand>()
             {
@@ -412,7 +431,7 @@ namespace Pal3.Dev
             }},
             { "m05_1_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 163, 271)
+                new ActorSetTilePositionCommand(-1, 153, 270)
             }},
             { "m05_2_0", new List<ICommand>()
             {
@@ -470,6 +489,11 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 110, 331)
             }},
+            { "m07_1_70100", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 261, 10)
+            }},
             { "m07_2_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 226, 120)
@@ -494,6 +518,16 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 60, 64)
             }},
+            { "m08_1_80200", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 180, 403)
+            }},
+            { "m08_1_80300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 162, 338)
+            }},
             { "m09_1_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 78, 395)
@@ -502,6 +536,16 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 100, 126)
             }},
+            { "m09_1_80700", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 325, 396)
+            }},
+            { "m09_1_81300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 96, 167)
+            }},
             { "m09_2_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 64, 280)
@@ -509,6 +553,11 @@ namespace Pal3.Dev
             { "m09_2_1", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 279, 185)
+            }},
+            { "m09_2_81400", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 267, 137)
             }},
             { "m10_1_0", new List<ICommand>()
             {
@@ -552,7 +601,7 @@ namespace Pal3.Dev
             }},
             { "m11_7_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 172, 6)
+                new ActorSetTilePositionCommand(-1, 179, 6)
             }},
             { "m11_6_0", new List<ICommand>()
             {
@@ -578,7 +627,7 @@ namespace Pal3.Dev
             { "m11_4_1", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 1),
-                new ActorSetTilePositionCommand(-1, 117, 254)
+                new ActorSetTilePositionCommand(-1, 118, 236)
             }},
             { "m12_1_0", new List<ICommand>()
             {
@@ -589,6 +638,16 @@ namespace Pal3.Dev
             {
                 new ActorSetNavLayerCommand(-1, 1),
                 new ActorSetTilePositionCommand(-1, 119, 102)
+            }},
+            { "m12_1_100300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 122, 225)
+            }},
+            { "m12_1_110200", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 123, 225)
             }},
             { "m12_2_0", new List<ICommand>()
             {
@@ -630,6 +689,11 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 12, 102)
             }},
+            { "m13_3_120600", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 104, 135)
+            }},
             { "m13_4_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 142, 27)
@@ -646,7 +710,7 @@ namespace Pal3.Dev
             {
                 new SceneLoadCommand("m13", "6"),
                 new ActorSetNavLayerCommand(-1, 0),
-                new ActorSetTilePositionCommand(-1, 75, 74)
+                new ActorSetTilePositionCommand(-1, 36, 6)
             }},
             { "m13_6_0", new List<ICommand>()
             {
@@ -654,7 +718,7 @@ namespace Pal3.Dev
             }},
             { "m13_6_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 41, 5)
+                new ActorSetTilePositionCommand(-1, 36, 6)
             }},
             { "m14_1_0", new List<ICommand>()
             {
@@ -664,6 +728,11 @@ namespace Pal3.Dev
             {
                 new ActorSetTilePositionCommand(-1, 240, 214)
             }},
+            { "m14_1_130100", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 150, 152)
+            }},
             { "m14_2_0", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 122, 96)
@@ -671,6 +740,11 @@ namespace Pal3.Dev
             { "m14_2_1", new List<ICommand>()
             {
                 new ActorSetTilePositionCommand(-1, 228, 203)
+            }},
+            { "m14_2_130300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 208, 128)
             }},
             { "m14_3_0", new List<ICommand>()
             {
@@ -746,7 +820,7 @@ namespace Pal3.Dev
             }},
             { "m18_4_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 112, 101)
+                new ActorSetTilePositionCommand(-1, 128, 119)
             }},
             { "m19_3_0", new List<ICommand>()
             {
@@ -804,7 +878,7 @@ namespace Pal3.Dev
         {
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-            foreach (var command in _skipperCommands[GetEntranceCommandHashKey(currentScene.GetSceneInfo())])
+            foreach (var command in _skipperCommands[GetCommandHashKeyPrefix(currentScene.GetSceneInfo()) + "0"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
@@ -815,7 +889,34 @@ namespace Pal3.Dev
         {
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-            foreach (var command in _skipperCommands[GetExitCommandHashKey(currentScene.GetSceneInfo())])
+            
+            // This is how exit button works:
+            // If there are predefined commands that has a format of <sceneCityName>_<sceneName>_<mainStoryVarValue>
+            // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commandsm
+            // if no matching pattern found, it will execute the default exit commands (<sceneCityName>_<sceneName>_1)
+
+            var mainStoryVarCurrentValue = ServiceLocator.Instance.Get<ScriptManager>()
+                .GetGlobalVariables()[ScriptConstants.MainStoryVariableName];
+            
+            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentScene.GetSceneInfo());
+            foreach (var commandKey in _skipperCommands.Keys.Where(_ =>
+                         _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase) &&
+                         !_.EndsWith("_0") &&
+                         !_.EndsWith("_1")))
+            {
+                var mainStoryVarValue = int.Parse(commandKey[cmdHashKeyPrefix.Length..]);
+                if (mainStoryVarCurrentValue == mainStoryVarValue)
+                {
+                    foreach (var command in _skipperCommands[commandKey])
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(command);
+                    }
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                    return;
+                }
+            }
+                
+            foreach (var command in _skipperCommands[cmdHashKeyPrefix + "1"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
@@ -831,15 +932,10 @@ namespace Pal3.Dev
 
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
-
-        private string GetEntranceCommandHashKey(ScnSceneInfo sceneInfo)
+        
+        private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)
         {
-            return $"{sceneInfo.CityName}_{sceneInfo.Name}_0".ToLower();
-        }
-
-        private string GetExitCommandHashKey(ScnSceneInfo sceneInfo)
-        {
-            return $"{sceneInfo.CityName}_{sceneInfo.Name}_1".ToLower();
+            return $"{sceneInfo.CityName}_{sceneInfo.Name}_".ToLower();
         }
 
         public void Execute(GameStateChangedNotification command)
@@ -854,9 +950,10 @@ namespace Pal3.Dev
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             var currentSceneInfo = currentScene.GetSceneInfo();
+            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentSceneInfo);
+            
             if (command.NewState == GameState.Gameplay &&
-                _skipperCommands.ContainsKey(GetEntranceCommandHashKey(currentSceneInfo)) &&
-                _skipperCommands.ContainsKey(GetExitCommandHashKey(currentSceneInfo)))
+                _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
             {
                 _mazeSkipperCanvasGroup.alpha = 1f;
                 _mazeSkipperCanvasGroup.interactable = true;
@@ -865,9 +962,10 @@ namespace Pal3.Dev
 
         public void Execute(ScenePostLoadingNotification command)
         {
+            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(command.NewSceneInfo);
+            
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                _skipperCommands.ContainsKey(GetEntranceCommandHashKey(command.NewSceneInfo)) &&
-                _skipperCommands.ContainsKey(GetExitCommandHashKey(command.NewSceneInfo)))
+                _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
             {
                 _mazeSkipperCanvasGroup.alpha = 1f;
                 _mazeSkipperCanvasGroup.interactable = true;

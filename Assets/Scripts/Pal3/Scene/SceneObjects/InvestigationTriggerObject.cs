@@ -86,8 +86,8 @@ namespace Pal3.Scene.SceneObjects
             if (_investigationTriggerBox.Info.Type == ScnSceneObjectType.LiftingMechanism)
             {
                 var oldPosition = transform.position;
-                var activeYPosition = (float)_investigationTriggerBox.Info.Parameters[0] /
-                                       GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var activeYPosition = ((float)_investigationTriggerBox.Info.Parameters[0] /
+                                       GameBoxInterpreter.GameBoxUnitToUnityUnit) - 0.02f; // A small Y offset to ensure actor shadow is properly rendered
                 transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);
             }
         }

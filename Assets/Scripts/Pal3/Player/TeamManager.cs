@@ -111,7 +111,7 @@ namespace Pal3.Player
 
             #if PAL3A
             // Need to add all active player actors into the team
-            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
+            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.StoryA)
             {
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
                 var activePlayerActors = _sceneManager.GetCurrentScene()

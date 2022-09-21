@@ -260,6 +260,8 @@ namespace Pal3.Actor
 
         private IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
         {
+            if (!_actor.IsActive) yield break;
+            
             // For some reason, there are 12 emoji types exist in the game script,
             // but only 11 sprite sheet in the data folder (PAL3A has 12 but PAL3 has 11).
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;

@@ -5,14 +5,17 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Actor;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using Data;
     using Effect;
     using MetaData;
+    using Script;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
@@ -59,7 +62,7 @@ namespace Pal3.Scene.SceneObjects
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void Trigger()
+        private void Trigger(Vector2Int playerActorTilePosition)
         {
             if (_isScriptRunningInProgress) return;
 
@@ -68,6 +71,18 @@ namespace Pal3.Scene.SceneObjects
                 if (_autoTrigger.Info.Times <= 0) return;
                 else _autoTrigger.Info.Times--;
             }
+            
+            // For debugging purposes
+            // {
+            //     var currentScene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
+            //     var mainStoryVarValue = ServiceLocator.Instance.Get<ScriptManager>()
+            //         .GetGlobalVariables()[ScriptConstants.MainStoryVariableName];
+            //     var actorMovementController = currentScene.GetActorGameObject(0).GetComponent<ActorMovementController>();
+            //     
+            //     Debug.LogError($"INFO: {currentScene.GetSceneInfo().CityName.ToLower()}_{currentScene.GetSceneInfo().Name.ToLower()}_{mainStoryVarValue} " +
+            //                    $"| {actorMovementController.GetCurrentLayerIndex()}_{playerActorTilePosition}");
+            // }
+
             
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand((int)_autoTrigger.Info.ScriptId));
@@ -97,7 +112,7 @@ namespace Pal3.Scene.SceneObjects
             if (!_wasTriggered)
             {
                 _wasTriggered = true;
-                Trigger();
+                Trigger(notification.Position);
             }
         }
 

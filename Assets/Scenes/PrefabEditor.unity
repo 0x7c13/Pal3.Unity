@@ -218,6 +218,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1614348180326526211, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_text
+      value: "\u5267\u60C5\u70B9\u6216\u51FA\u53E3"
+      objectReference: {fileID: 0}
     - target: {fileID: 2546561680202900797, guid: e86d7889291c041ba854821fd25047d6, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
