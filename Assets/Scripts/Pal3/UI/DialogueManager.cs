@@ -392,13 +392,29 @@ namespace Pal3.UI
         private string GetSelectionDisplayText(object selection)
         {
             var selectionString = (string)selection;
-            return selectionString.Length switch
+
+            if (selectionString.EndsWith("；") || selectionString.EndsWith("。")) selectionString = selectionString[..^1];
+
+            if (selectionString.Contains('.'))
             {
-                >= 4 when (selectionString.EndsWith("；") || selectionString.EndsWith("。")) => selectionString[2..^1],
-                <= 1 => selectionString,
-                2 => selectionString[1..],
-                _ => selectionString[2..]
-            };
+                var numberStr = selectionString[..selectionString.IndexOf('.')];
+                if (int.TryParse(numberStr, out _))
+                {
+                    return selectionString[(selectionString.IndexOf('.') + 1)..];
+                }
+            }
+
+            // I don't think there will be more than 20 options, so let's start with 20
+            for (var i = 20; i >= 0; i--)
+            {
+                var intStr = i.ToString();
+                if (selectionString.StartsWith(intStr) && !string.Equals(selectionString, intStr))
+                {
+                    return selectionString[intStr.Length..];
+                }
+            }
+            
+            return selectionString;
         }
 
         public void Execute(DialogueAddSelectionsCommand command)

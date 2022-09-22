@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 339833874516050712}
   - component: {fileID: 3904627471100102018}
   m_Layer: 0
-  m_Name: SelectionUIButtonCanvas
+  m_Name: SelectionUIButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
