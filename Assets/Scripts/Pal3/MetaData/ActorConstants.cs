@@ -568,7 +568,6 @@ namespace Pal3.MetaData
         #elif PAL3A
         public static readonly HashSet<ActorActionType> ActionWithoutShadow = new()
         {
-            ActorActionType.Sleep,
             ActorActionType.Dead,
             ActorActionType.Climb,
             ActorActionType.ClimbDown,

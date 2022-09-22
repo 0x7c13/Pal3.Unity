@@ -92,14 +92,14 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 70 209
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"大渡口-初遇长卿紫萱", @"
-                ScriptVarSetValue -32768 20500
-                SceneLoad m03 1
+            {"船上醒来", @"
+                ScriptVarSetValue -32768 20700
+                SceneLoad q17 n04
                 ActorActivate -1 1
                 ActorEnablePlayerControl -1
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 359 370
+                ActorSetTilePosition -1 11 8
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},

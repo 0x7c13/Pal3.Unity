@@ -83,7 +83,6 @@ namespace Pal3.Scene.SceneObjects
             //                    $"| {actorMovementController.GetCurrentLayerIndex()}_{playerActorTilePosition}");
             // }
 
-            
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand((int)_autoTrigger.Info.ScriptId));
             _isScriptRunningInProgress = true;

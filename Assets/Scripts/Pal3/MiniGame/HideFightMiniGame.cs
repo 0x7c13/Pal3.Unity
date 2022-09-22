@@ -9,6 +9,9 @@ namespace Pal3.MiniGame
 {
     using Command;
     using Command.SceCommands;
+    using Core.Services;
+    using MetaData;
+    using Script;
 
     public class HideFightMiniGame : ICommandExecutor<MiniGameStartHideFightCommand>
     {
@@ -24,6 +27,12 @@ namespace Pal3.MiniGame
 
         public void Execute(MiniGameStartHideFightCommand command)
         {
+            if (ServiceLocator.Instance.Get<ScriptManager>().GetGlobalVariables()
+                    [ScriptConstants.MainStoryVariableName] == 71000)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
+            }
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(1701));
         }
     }

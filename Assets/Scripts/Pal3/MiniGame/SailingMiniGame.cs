@@ -9,6 +9,7 @@ namespace Pal3.MiniGame
 {
     using Command;
     using Command.SceCommands;
+    using MetaData;
 
     public class SailingMiniGame : ICommandExecutor<MiniGameStartSailingCommand>
     {
@@ -27,6 +28,7 @@ namespace Pal3.MiniGame
             if (command.StartSegment == 0)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m04", "1"));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 0));
             }
             else if (command.StartSegment == 1)
             {

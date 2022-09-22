@@ -48,7 +48,7 @@ namespace Pal3.Dev
             }},
             { "m02_1_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 408, 275)
+                new ActorSetTilePositionCommand(-1, 405, 287)
             }},
             { "m03_1_0", new List<ICommand>()
             {
@@ -59,6 +59,16 @@ namespace Pal3.Dev
             {
                 new ActorSetNavLayerCommand(-1, 0),
                 new ActorSetTilePositionCommand(-1, 354, 372)
+            }},
+            { "m03_1_20300", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 22, 30)
+            }},
+            { "m03_1_20500", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 366, 370)
             }},
             { "m06_2_0", new List<ICommand>()
             {
@@ -83,8 +93,9 @@ namespace Pal3.Dev
             }},
             { "m08_1a_1", new List<ICommand>()
             {
+                new SceneLoadCommand("m08", "1b"),
                 new ActorSetNavLayerCommand(-1, 1),
-                new ActorSetTilePositionCommand(-1, 22, 53)
+                new ActorSetTilePositionCommand(-1, 101, 24)
             }},
             { "m08_2_0", new List<ICommand>()
             {
@@ -110,7 +121,12 @@ namespace Pal3.Dev
             }},
             { "m10_1_1", new List<ICommand>()
             {
-                new ActorSetTilePositionCommand(-1, 232, 36)
+                new ActorSetTilePositionCommand(-1, 269, 50)
+            }},
+            { "m10_1_40900", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 238, 46)
             }},
             { "m10_2_0", new List<ICommand>()
             {
@@ -120,7 +136,12 @@ namespace Pal3.Dev
             { "m10_2_1", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 1),
-                new ActorSetTilePositionCommand(-1, 240, 190)
+                new ActorSetTilePositionCommand(-1, 244, 245)
+            }},
+            { "m10_2_41100", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 1),
+                new ActorSetTilePositionCommand(-1, 239, 196)
             }},
             { "m10_3_0", new List<ICommand>()
             {
@@ -267,12 +288,22 @@ namespace Pal3.Dev
             { "m22_3_0", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 0),
-                new ActorSetTilePositionCommand(-1, 239, 78)
+                new ActorSetTilePositionCommand(-1, 285, 18)
             }},
             { "m22_3_1", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 0),
                 new ActorSetTilePositionCommand(-1, 63, 14)
+            }},
+            { "m22_3_130600", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 200, 43)
+            }},
+            { "m22_3_130700", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 245, 75)
             }},
             { "m22_4_0", new List<ICommand>()
             {
