@@ -60,7 +60,8 @@ namespace Pal3.Data
 
         public Texture2D GetTexture(string name, out bool hasAlphaChannel)
         {
-            if (string.IsNullOrEmpty(name))
+            // Return if name is invalid
+            if (string.IsNullOrEmpty(name) || !name.Contains('.'))
             {
                 hasAlphaChannel = false;
                 return Texture2D.whiteTexture;
