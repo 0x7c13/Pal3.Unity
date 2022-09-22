@@ -47,6 +47,7 @@
 ## 截图
 ![PAL3 Mac](Screenshots/PAL3_Mac.png?raw=true)
 ![PAL3 iOS](Screenshots/PAL3_iOS.png?raw=true)
+![PAL3A Steam Deck](Screenshots/PAL3A_Steam_Deck.png?raw=true)
 
 ## iOS演示视频
 https://www.bilibili.com/video/BV1Fu411R7jM
