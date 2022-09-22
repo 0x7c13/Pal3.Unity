@@ -37,6 +37,7 @@ namespace Pal3.Script
         ICommandExecutor<ScriptVarLessThanOrEqualToCommand>,
         ICommandExecutor<ScriptVarInBetweenCommand>,
         ICommandExecutor<ScriptVarDistractValueCommand>,
+        ICommandExecutor<ScriptVarAddValueCommand>,
         ICommandExecutor<ScriptTestGotoCommand>,
         ICommandExecutor<ScriptGotoCommand>,
         ICommandExecutor<ScriptWaitUntilTimeCommand>,
@@ -217,6 +218,13 @@ namespace Pal3.Script
             if (!_isExecuting) return;
             if (command.Variable < 0) return; // Global var
             SetVariableValue(command.Variable, command.Value);
+        }
+
+        public void Execute(ScriptVarAddValueCommand command)
+        {
+            if (!_isExecuting) return;
+            if (command.Variable < 0) return; // Global var
+            SetVariableValue(command.Variable, GetVariableValue(command.Variable) + command.Value);
         }
 
         public void Execute(ScriptSetOperatorCommand command)

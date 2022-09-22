@@ -21,6 +21,7 @@ namespace Pal3.Script
     public class ScriptManager :
         ICommandExecutor<ScriptRunCommand>,
         ICommandExecutor<ScriptVarSetValueCommand>,
+        ICommandExecutor<ScriptVarAddValueCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private readonly Dictionary<int, int> _globalVariables = new ();
@@ -180,6 +181,15 @@ namespace Pal3.Script
             {
                 Debug.LogWarning($"Set global var {command.Variable} with value: {command.Value}");
                 SetGlobalVariable(command.Variable, command.Value);
+            }
+        }
+
+        public void Execute(ScriptVarAddValueCommand command)
+        {
+            if (command.Variable < 0)
+            {
+                var currentValue = _globalVariables.ContainsKey(command.Variable) ? _globalVariables[command.Variable] : 0;
+                SetGlobalVariable(command.Variable, currentValue + command.Value);
             }
         }
 

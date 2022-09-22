@@ -12,13 +12,16 @@ namespace ResourceViewer
     using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Sce;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
     using IngameDebugConsole;
+    using Newtonsoft.Json;
     using Pal3.Data;
-    using Pal3.MetaData;
+    using Pal3.Dev;
     using Pal3.Renderer;
+    using Pal3.Script;
     using TMPro;
     using UnityEngine;
     using UnityEngine.UI;
@@ -45,6 +48,7 @@ namespace ResourceViewer
         private static IList<string> _cvdFiles = new List<string>();
         private static IList<string> _mv3Files = new List<string>();
         private static IList<string> _mp3Files = new List<string>();
+        private static IList<string> _sceFiles = new List<string>();
         private static readonly Random Random = new ();
 
         private GameObject _renderingRoot;
@@ -80,6 +84,7 @@ namespace ResourceViewer
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
+            _sceFiles = _fileSystem.Search(".sce").ToList();
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
@@ -88,6 +93,11 @@ namespace ResourceViewer
 
             DebugLogConsole.AddCommand<string>("search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("load", "Load a file to the viewer (.pol or .mv3).", Load);
+
+            // foreach (var sceFile in _sceFiles)
+            // {
+            //     if (!LoadSce(sceFile)) break;
+            // }
         }
 
         private void Update()
@@ -138,6 +148,7 @@ namespace ResourceViewer
                 ".cvd" => LoadCvd(filePath),
                 ".mv3" => LoadMv3(filePath),
                 ".mp3" => LoadMp3(filePath),
+                ".sce" => LoadSce(filePath),
                 _ => throw new Exception($"File extension: <{ext}> not supported.")
             };
         }
@@ -261,12 +272,48 @@ namespace ResourceViewer
                 return false;
             }
         }
-
-        private bool LoadMp3(string fileVirtualPath)
+        
+        private bool LoadSce(string filePath)
         {
-            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(fileVirtualPath, CpkConstants.CpkDirectorySeparatorChar);
-            StartCoroutine(LoadMp3AudioClip(fileVirtualPath,
-                _resourceProvider.GetMp3FilePathInCacheFolder(fileVirtualPath)));
+            consoleTextUI.text = $"Loading: {filePath}";
+            Debug.Log($"Loading: {filePath}");
+
+            using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
+            
+            var sceFile = SceFileReader.Read(sceFileStream);
+
+            foreach (var scriptBlock in sceFile.ScriptBlocks)
+            {
+                Debug.Log($"{filePath}_{scriptBlock.Value.Id}_{scriptBlock.Value.Description}");
+                
+                var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
+
+                while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
+                {
+                    var commandId = scriptDataReader.ReadUInt16();
+                    var parameterFlag = scriptDataReader.ReadUInt16();
+                    
+                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag);
+
+                    if (command == null)
+                    {
+                        UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag);
+                        return false;
+                    }
+                    
+                    Debug.Log($"{command.GetType().Name.Replace("Command", "")} " +
+                              $"{JsonConvert.SerializeObject(command)}");
+                }
+            }
+            
+            return true;
+        }
+
+        private bool LoadMp3(string filePath)
+        {
+            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar);
+            StartCoroutine(LoadMp3AudioClip(filePath,
+                _resourceProvider.GetMp3FilePathInCacheFolder(filePath)));
             return true;
         }
 

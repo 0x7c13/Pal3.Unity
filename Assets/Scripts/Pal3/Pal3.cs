@@ -141,6 +141,7 @@ namespace Pal3
         private EncampMiniGame _encampMiniGame;
         private SkiMiniGame _skiMiniGame;
         private SwatAFlyMiniGame _swatAFlyMiniGame;
+        private CaveExperienceMiniGame _caveExperienceMiniGame;
         #endif
 
         // Dev tools
@@ -190,6 +191,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_skiMiniGame);
             _swatAFlyMiniGame = new SwatAFlyMiniGame();
             ServiceLocator.Instance.Register(_swatAFlyMiniGame);
+            _caveExperienceMiniGame = new CaveExperienceMiniGame();
+            ServiceLocator.Instance.Register(_caveExperienceMiniGame);
             #endif
             
             _mazeSkipper = new MazeSkipper(_gameStateManager,
@@ -315,6 +318,7 @@ namespace Pal3
             _encampMiniGame.Dispose();
             _skiMiniGame.Dispose();
             _swatAFlyMiniGame.Dispose();
+            _caveExperienceMiniGame.Dispose();
             #endif
 
             _mazeSkipper.Dispose();
