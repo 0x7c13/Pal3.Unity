@@ -236,7 +236,7 @@ namespace ResourceViewer
 
                 var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
 
-                // For debuging tag node:
+                // For debugging tag node:
                 // if (mv3File.TagNodes is {Length: > 0} &&
                 //     !mv3File.TagNodes[0].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase) &&
                 //     filePath.Contains(@"ROLE\101"))

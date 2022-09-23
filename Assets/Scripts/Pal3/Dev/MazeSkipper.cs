@@ -663,7 +663,7 @@ namespace Pal3.Dev
             { "m12_1_0", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 0),
-                new ActorSetTilePositionCommand(-1, 122, 231)
+                new ActorSetTilePositionCommand(-1, 126, 231)
             }},
             { "m12_1_1", new List<ICommand>()
             {
@@ -673,7 +673,13 @@ namespace Pal3.Dev
             { "m12_1_100300", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 0),
-                new ActorSetTilePositionCommand(-1, 122, 225)
+                new ActorSetTilePositionCommand(-1, 121, 211),
+                new PlayerInteractionRequest()
+            }},
+            { "m12_1_100400", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 126, 231)
             }},
             { "m12_1_110200", new List<ICommand>()
             {
@@ -923,7 +929,7 @@ namespace Pal3.Dev
             
             // This is how exit button works:
             // If there are predefined commands that has a format of <sceneCityName>_<sceneName>_<mainStoryVarValue>
-            // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commandsm
+            // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commands
             // if no matching pattern found, it will execute the default exit commands (<sceneCityName>_<sceneName>_1)
 
             var mainStoryVarCurrentValue = ServiceLocator.Instance.Get<ScriptManager>()
