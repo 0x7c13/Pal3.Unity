@@ -41,6 +41,7 @@ namespace Pal3.Data
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
+        private readonly int _codepage;
         private TextureCache _textureCache;
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
         private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
@@ -51,10 +52,13 @@ namespace Pal3.Data
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
 
-        public GameResourceProvider(ICpkFileSystem fileSystem, ITextureLoaderFactory textureLoaderFactory)
+        public GameResourceProvider(ICpkFileSystem fileSystem,
+            ITextureLoaderFactory textureLoaderFactory,
+            int codepage)
         {
             _fileSystem = fileSystem;
             _textureLoaderFactory = textureLoaderFactory;
+            _codepage = codepage;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -95,7 +99,7 @@ namespace Pal3.Data
             polFilePath = polFilePath.ToLower();
             if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
             var polData = _fileSystem.ReadAllBytes(polFilePath);
-            var polFile = PolFileReader.Read(polData);
+            var polFile = PolFileReader.Read(polData, _codepage);
             var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _polCache[polFilePath] = (polFile, textureProvider);
@@ -107,7 +111,7 @@ namespace Pal3.Data
             cvdFilePath = cvdFilePath.ToLower();
             if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
             var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
-            var cvdFile = CvdFileReader.Read(cvdData);
+            var cvdFile = CvdFileReader.Read(cvdData, _codepage);
             var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
@@ -119,7 +123,7 @@ namespace Pal3.Data
             mv3FilePath = mv3FilePath.ToLower();
             if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
             var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
-            var mv3File = Mv3FileReader.Read(mv3Data);
+            var mv3File = Mv3FileReader.Read(mv3Data, _codepage);
             var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.CpkDirectorySeparatorChar);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
@@ -151,7 +155,7 @@ namespace Pal3.Data
                               $"{sceneFileName}{separator}{sceneFileName}_{sceneName}.scn";
             #endif
             using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
-            return ScnFileReader.Read(scnFileStream);
+            return ScnFileReader.Read(scnFileStream, _codepage);
         }
 
         public SceFile GetSceneSce(string sceneFileName)
@@ -163,21 +167,21 @@ namespace Pal3.Data
             var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{separator}Sce{separator}{sceneFileName}.sce";
             #endif
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(sceFilePath));
-            return SceFileReader.Read(sceFileStream);
+            return SceFileReader.Read(sceFileStream, _codepage);
         }
 
         public SceFile GetSystemSce()
         {
             using var sceFileStream = new MemoryStream(
                 _fileSystem.ReadAllBytes(ScriptConstants.SystemSceFileVirtualPath));
-            return SceFileReader.Read(sceFileStream);
+            return SceFileReader.Read(sceFileStream, _codepage);
         }
 
         public SceFile GetBigMapSce()
         {
             using var sceFileStream = new MemoryStream(
                 _fileSystem.ReadAllBytes(ScriptConstants.BigMapSceFileVirtualPath));
-            return SceFileReader.Read(sceFileStream);
+            return SceFileReader.Read(sceFileStream, _codepage);
         }
 
         /// <summary>

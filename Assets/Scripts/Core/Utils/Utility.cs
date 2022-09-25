@@ -14,14 +14,12 @@ namespace Core.Utils
 
     public static class Utility
     {
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
-
-        public static string ConvertToGbkString(byte[] charArray)
+        public static string ConvertToString(byte[] charArray, int codepage)
         {
             var i = 0;
             var length = charArray.Length;
             while (i < length && charArray[i] != 0) i++;
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(charArray, 0, i);
+            return Encoding.GetEncoding(codepage).GetString(charArray, 0, i);
         }
 
         public static Color32 ToColor32(byte[] rgba)

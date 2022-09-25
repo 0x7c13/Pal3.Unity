@@ -23,21 +23,20 @@ namespace Core.DataReader.Cpk
         private const uint SUPPORTED_CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
         private const int CPK_DEFAULT_MAX_NUM_OF_FILE = 32768; // Max number of files per archive
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private readonly string _filePath;
+        private readonly CrcHash _crcHash;
+        private readonly int _codepage;
         private Dictionary<uint, CpkTableEntity> _tableEntities;
 
         private readonly Dictionary<uint, byte[]> _fileNameMap = new ();
         private readonly Dictionary<uint, uint> _crcToTableIndexMap = new ();
         private readonly Dictionary<uint, HashSet<uint>> _fatherCrcToChildCrcTableIndexMap = new ();
-
-        private readonly CrcHash _crcHash;
-
+        
         private bool _archiveInMemory;
         private byte[] _archiveData;
 
-        public CpkArchive(string cpkFilePath, CrcHash crcHash)
+        public CpkArchive(string cpkFilePath, CrcHash crcHash, int codepage)
         {
             if (!File.Exists(cpkFilePath))
             {
@@ -46,6 +45,7 @@ namespace Core.DataReader.Cpk
 
             _filePath = cpkFilePath;
             _crcHash = crcHash;
+            _codepage = codepage;
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Core.DataReader.Cpk
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath)
         {
-            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower());
+            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower(), _codepage);
             return _crcToTableIndexMap.ContainsKey(crc);
         }
 
@@ -173,7 +173,7 @@ namespace Core.DataReader.Cpk
 
         private CpkTableEntity ValidateAndGetTableEntity(string fileVirtualPath)
         {
-            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower());
+            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower(), _codepage);
             if (!_crcToTableIndexMap.ContainsKey(crc))
             {
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
@@ -292,7 +292,7 @@ namespace Core.DataReader.Cpk
             {
                 var index = _crcToTableIndexMap[childCrc];
                 var child = _tableEntities[index];
-                var fileName = Encoding.GetEncoding(GBK_CODE_PAGE).GetString(_fileNameMap[child.CRC]);
+                var fileName = Encoding.GetEncoding(_codepage).GetString(_fileNameMap[child.CRC]);
 
                 var virtualPath = rootPath + fileName;
 

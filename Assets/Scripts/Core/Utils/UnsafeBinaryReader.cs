@@ -16,7 +16,6 @@ namespace Core.Utils
 
     public sealed unsafe class UnsafeBinaryReader : IDisposable
     {
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
         private byte* _dataPtr;
         private GCHandle _handle;
 
@@ -148,13 +147,13 @@ namespace Core.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ReadGbkString(int count)
+        public string ReadString(int count, int codepage)
         {
             var strBytes = ReadBytes(count);
             var i = 0;
             var length = strBytes.Length;
             while (i < length && strBytes[i] != 0) i++;
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(strBytes, 0, i);
+            return Encoding.GetEncoding(codepage).GetString(strBytes, 0, i);
         }
 
         public void Close()

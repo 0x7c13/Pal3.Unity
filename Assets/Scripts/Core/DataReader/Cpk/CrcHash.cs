@@ -15,7 +15,6 @@ namespace Core.DataReader.Cpk
     {
         private const uint CRC_TABLE_MAX = 256;
         private const uint POLYNOMIAL = 0x04C11DB7; // CRC seed
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
 
         private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX];
         private bool _initialized;
@@ -44,10 +43,10 @@ namespace Core.DataReader.Cpk
             _initialized = true;
         }
 
-        public uint ComputeCrc32Hash(string str)
+        public uint ComputeCrc32Hash(string str, int codepage)
         {
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return ComputeCrc32HashInternal(Encoding.GetEncoding(GBK_CODE_PAGE).GetBytes(str));
+            return ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
         }
 
         private unsafe uint ComputeCrc32HashInternal(byte[] data)

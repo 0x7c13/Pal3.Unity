@@ -36,7 +36,8 @@ namespace Pal3
         [SerializeField] private TextMeshProUGUI loadingText;
 
         private const string CUSTOM_GAME_FOLDER_PATH_FILE_NAME = "CustomGameFolderPath.txt";
-
+        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
+        
         private string GetCustomGameFolderPathFilePath()
         {
             return Application.persistentDataPath +
@@ -100,14 +101,17 @@ namespace Pal3
 
             loadingText.text = "Loading game assets...";
 
-            yield return InitResource(GetGameFolderPath(), crcHash);
+            // TODO: let user to choose language? Or auto-detect encoding?
+            var codepage = GBK_CODE_PAGE;
+            
+            yield return InitResource(GetGameFolderPath(), crcHash, codepage);
         }
 
-        private IEnumerator InitResource(string gameRootPath, CrcHash crcHash)
+        private IEnumerator InitResource(string gameRootPath, CrcHash crcHash, int codepage)
         {
             ICpkFileSystem cpkFileSystem = null;
             // Init file system
-            yield return InitFileSystem(gameRootPath, crcHash, (fileSystem) =>
+            yield return InitFileSystem(gameRootPath, crcHash, codepage, (fileSystem) =>
             {
                 cpkFileSystem = fileSystem;
             });
@@ -119,7 +123,7 @@ namespace Pal3
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(cpkFileSystem, new TextureLoaderFactory());
+            var resourceProvider = new GameResourceProvider(cpkFileSystem, new TextureLoaderFactory(), codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component
@@ -147,7 +151,10 @@ namespace Pal3
             Destroy(this);
         }
 
-        private IEnumerator InitFileSystem(string gameRootPath, CrcHash crcHash, Action<ICpkFileSystem> callback)
+        private IEnumerator InitFileSystem(string gameRootPath,
+            CrcHash crcHash,
+            int codepage,
+            Action<ICpkFileSystem> callback)
         {
             ICpkFileSystem cpkFileSystem = null;
             var path = gameRootPath;
@@ -159,7 +166,7 @@ namespace Pal3
                 {
                     var timer = new Stopwatch();
                     timer.Start();
-                    cpkFileSystem = InitializeCpkFileSystem(path, crcHash);
+                    cpkFileSystem = InitializeCpkFileSystem(path, crcHash, codepage);
                     timer.Stop();
                     Debug.Log($"All files mounted successfully. Total time: {timer.Elapsed.TotalSeconds:0.000}s");
                 }
@@ -198,7 +205,7 @@ namespace Pal3
 
                     if (!string.IsNullOrEmpty(gameRootPath))
                     {
-                        StartCoroutine(InitResource(gameRootPath, crcHash));
+                        StartCoroutine(InitResource(gameRootPath, crcHash, codepage));
                     }
                 }
                 #endif
@@ -221,7 +228,7 @@ namespace Pal3
             backgroundImage.enabled = false;
         }
 
-        private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash)
+        private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash, int codepage)
         {
             var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
@@ -255,7 +262,7 @@ namespace Pal3
 
             foreach (var cpkFilePath in filesToMount)
             {
-                cpkFileSystem.Mount(cpkFilePath);
+                cpkFileSystem.Mount(cpkFilePath, codepage);
             }
 
             return cpkFileSystem;

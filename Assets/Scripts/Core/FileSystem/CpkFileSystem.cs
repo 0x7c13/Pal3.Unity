@@ -53,7 +53,8 @@ namespace Core.FileSystem
         /// Mount a Cpk archive to the file system.
         /// </summary>
         /// <param name="cpkFileRelativePath">CPK file relative path</param>
-        public void Mount(string cpkFileRelativePath)
+        /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
+        public void Mount(string cpkFileRelativePath, int codepage)
         {
             var cpkFileName = Path.GetFileName(cpkFileRelativePath).ToLower();
 
@@ -64,7 +65,7 @@ namespace Core.FileSystem
             }
 
             Debug.Log($"CpkFileSystem mounting: {_rootPath + cpkFileRelativePath}");
-            var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash);
+            var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash, codepage);
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }

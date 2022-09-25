@@ -43,8 +43,9 @@ namespace Core.DataReader.Sce
     {
         public SceIndex[] Indexes { get; }
         public Dictionary<uint, SceScriptBlock> ScriptBlocks { get; }
+        public int Codepage { get; }
 
-        public SceFile(SceIndex[] indexes, SceScriptBlock[] scriptBlocks)
+        public SceFile(SceIndex[] indexes, SceScriptBlock[] scriptBlocks, int codepage)
         {
             Indexes = indexes;
 
@@ -55,6 +56,7 @@ namespace Core.DataReader.Sce
             }
 
             ScriptBlocks = scriptBlocksDic;
+            Codepage = codepage;
         }
     }
 }

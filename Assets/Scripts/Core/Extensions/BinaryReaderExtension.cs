@@ -14,8 +14,6 @@ namespace Core.Extensions
     /// </summary>
     public static class BinaryReaderExtension
     {
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
-
         public static Vector3 ReadVector3(this BinaryReader binaryReader)
         {
             var x = binaryReader.ReadSingle();
@@ -86,13 +84,13 @@ namespace Core.Extensions
             return new string(binaryReader.ReadChars(count));
         }
 
-        public static string ReadGbkString(this BinaryReader binaryReader, int count)
+        public static string ReadString(this BinaryReader binaryReader, int count, int codepage)
         {
             var strBytes = binaryReader.ReadBytes(count);
             var i = 0;
             var length = strBytes.Length;
             while (i < length && strBytes[i] != 0) i++;
-            return Encoding.GetEncoding(GBK_CODE_PAGE).GetString(strBytes, 0, i);
+            return Encoding.GetEncoding(codepage).GetString(strBytes, 0, i);
         }
     }
 }

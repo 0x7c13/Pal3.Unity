@@ -15,7 +15,10 @@ namespace Pal3.Dev
 
     public static class UnknownSceCommandAnalyzer
     {
-        public static void AnalyzeCommand(BinaryReader reader, int commandId, ushort parameterFlag)
+        public static void AnalyzeCommand(BinaryReader reader,
+            int commandId,
+            ushort parameterFlag,
+            int codepage)
         {
             Debug.LogError($"Unknown Command Id: {commandId} ParameterFlag: {parameterFlag}");
 
@@ -36,7 +39,7 @@ namespace Pal3.Dev
                     var nextCmdType = SceCommandTypeResolver.GetType(id, flag);
                     if (nextCmdType != null)
                     {
-                        var command = SceCommandParser.ParseSceCommand(reader, id, flag);
+                        var command = SceCommandParser.ParseSceCommand(reader, id, flag, codepage);
                         Debug.Log($"Possible length: {length}, " +
                                   $"next command: {nextCmdType.Name}-{id}-{flag}-{JsonConvert.SerializeObject(command)}");
 

@@ -79,8 +79,12 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator ShakeTransform(Transform target, float duration, float amplitude,
-            bool shakeOnXAxis, bool shakeOnYAxis, bool shakeOnZAxis)
+        public static IEnumerator ShakeTransform(Transform target,
+            float duration,
+            float amplitude,
+            bool shakeOnXAxis,
+            bool shakeOnYAxis,
+            bool shakeOnZAxis)
         {
             var originalPosition = target.localPosition;
 

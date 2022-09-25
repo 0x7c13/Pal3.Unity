@@ -16,7 +16,10 @@ namespace Pal3.Script
     /// </summary>
     public static class SceCommandParser
     {
-        public static ICommand ParseSceCommand(BinaryReader reader, int commandId, ushort parameterFlag)
+        public static ICommand ParseSceCommand(BinaryReader reader,
+            int commandId,
+            ushort parameterFlag,
+            int codepage)
         {
             var commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
 
@@ -27,14 +30,18 @@ namespace Pal3.Script
             for (var i = properties.Length - 1; i >= 0; i--)
             {
                 var property = properties[i];
-                args[i] = ReadPropertyValue(reader, property.PropertyType, i, parameterFlag);
+                args[i] = ReadPropertyValue(reader, property.PropertyType, i, parameterFlag, codepage);
             }
 
             return Activator.CreateInstance(commandType, args) as ICommand;
         }
 
         // Read property value by type, property index and parameter flag using reflection.
-        private static object ReadPropertyValue(BinaryReader reader, Type propertyType, int index, ushort parameterFlag)
+        private static object ReadPropertyValue(BinaryReader reader,
+            Type propertyType,
+            int index,
+            ushort parameterFlag,
+            int codepage)
         {
             // This is for reading user var (2 bytes Int16).
             if ((parameterFlag & (ushort) (0x0001 << index)) != 0)
@@ -46,7 +53,7 @@ namespace Pal3.Script
             if (propertyType == typeof(string))
             {
                 var length = reader.ReadUInt16();
-                return reader.ReadGbkString(length);
+                return reader.ReadString(length, codepage);
             }
 
             // Special handling for List type.
@@ -57,7 +64,7 @@ namespace Pal3.Script
                 for (var i = 0; i < length; i++)
                 {
                     var varType = GetVariableType(reader.ReadByte());
-                    list.Insert(0, ReadPropertyValue(reader, varType, index, parameterFlag));
+                    list.Insert(0, ReadPropertyValue(reader, varType, index, parameterFlag, codepage));
                 }
                 return list;
             }

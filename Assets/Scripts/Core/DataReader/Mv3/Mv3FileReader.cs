@@ -17,7 +17,7 @@ namespace Core.DataReader.Mv3
 
     public static class Mv3FileReader
     {
-        public static Mv3File Read(byte[] data)
+        public static Mv3File Read(byte[] data, int codepage)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -54,26 +54,26 @@ namespace Core.DataReader.Mv3
             var animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
             for (var i = 0; i < numberOfAnimationEvents; i++)
             {
-                animationEvents[i] = ReadAnimationEvent(reader);
+                animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
             var tagNodes = new Mv3TagNode[numberOfTagNodes];
             for (var i = 0; i < numberOfTagNodes; i++)
             {
-                tagNodes[i] = ReadTagNode(reader);
+                tagNodes[i] = ReadTagNode(reader, codepage);
             }
 
             var materials = new Mv3Material[numberOfMaterials];
             for (var i = 0; i < numberOfMaterials; i++)
             {
-                materials[i] = ReadMaterial(reader);
+                materials[i] = ReadMaterial(reader, codepage);
             }
 
             var meshes = new Mv3Mesh[numberOfMeshes];
             var meshKeyFrames = new VertexAnimationKeyFrame[numberOfMeshes][];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                var mesh = ReadMesh(reader);
+                var mesh = ReadMesh(reader, codepage);
                 meshes[i] = mesh;
                 meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
             }
@@ -88,12 +88,12 @@ namespace Core.DataReader.Mv3
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static Mv3Mesh ReadMesh(UnsafeBinaryReader reader)
+        private static Mv3Mesh ReadMesh(UnsafeBinaryReader reader, int codepage)
         #else
-        private static Mv3Mesh ReadMesh(BinaryReader reader)
+        private static Mv3Mesh ReadMesh(BinaryReader reader, int codepage)
         #endif
         {
-            var name = reader.ReadGbkString(64);
+            var name = reader.ReadString(64, codepage);
             var numberOfVertices = reader.ReadInt32();
             var boundBox = new GameBoxAABBox()
             {
@@ -238,12 +238,12 @@ namespace Core.DataReader.Mv3
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static Mv3TagNode ReadTagNode(UnsafeBinaryReader reader)
+        private static Mv3TagNode ReadTagNode(UnsafeBinaryReader reader, int codepage)
         #else
-        private static Mv3TagNode ReadTagNode(BinaryReader reader)
+        private static Mv3TagNode ReadTagNode(BinaryReader reader, int codepage)
         #endif
         {
-            var nodeName = reader.ReadGbkString(64);
+            var nodeName = reader.ReadString(64, codepage);
             var flipScale = reader.ReadSingle();
             var numberOfFrames = reader.ReadInt32();
 
@@ -295,9 +295,9 @@ namespace Core.DataReader.Mv3
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static Mv3AnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader)
+        private static Mv3AnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader, int codepage)
         #else
-        private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader)
+        private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
         #endif
         {
             var tick = reader.ReadUInt32();
@@ -306,14 +306,14 @@ namespace Core.DataReader.Mv3
             return new Mv3AnimationEvent()
             {
                 Tick = tick,
-                Name = Utility.ConvertToGbkString(name)
+                Name = Utility.ConvertToString(name, codepage)
             };
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static Mv3Material ReadMaterial(UnsafeBinaryReader reader)
+        private static Mv3Material ReadMaterial(UnsafeBinaryReader reader, int codepage)
         #else
-        private static Mv3Material ReadMaterial(BinaryReader reader)
+        private static Mv3Material ReadMaterial(BinaryReader reader, int codepage)
         #endif
         {
             var material = new GameBoxMaterial()
@@ -342,7 +342,7 @@ namespace Core.DataReader.Mv3
                 }
                 else
                 {
-                    textureName = reader.ReadGbkString(length);
+                    textureName = reader.ReadString(length, codepage);
                 }
 
                 textureNames.Add(textureName);

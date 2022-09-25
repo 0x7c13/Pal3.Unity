@@ -19,7 +19,7 @@ namespace Core.DataReader.Cvd
 
     public static class CvdFileReader
     {
-        public static CvdFile Read(byte[] data)
+        public static CvdFile Read(byte[] data, int codepage)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -43,7 +43,7 @@ namespace Core.DataReader.Cvd
             var rootNodes = new List<CvdGeometryNode>();
             for (var i = 0; i < numberONodes; i++)
             {
-                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration);
+                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, codepage);
             }
 
             return new CvdFile(animationDuration, rootNodes.ToArray());
@@ -53,12 +53,14 @@ namespace Core.DataReader.Cvd
         private static void ReadGeometryNodes(UnsafeBinaryReader reader,
             float version,
             List<CvdGeometryNode> rootNodes,
-            ref float animationDuration)
+            ref float animationDuration,
+            int codepage)
         #else
         private static void ReadGeometryNodes(BinaryReader reader,
             float version,
             List<CvdGeometryNode> rootNodes,
-            ref float animationDuration)
+            ref float animationDuration,
+            int codepage)
         #endif
         {
             CvdGeometryNode parentNode = default;
@@ -66,7 +68,7 @@ namespace Core.DataReader.Cvd
             var isGeometryNode = reader.ReadByte();
             if (isGeometryNode == 1)
             {
-                parentNode = ReadGeometryNode(reader, version, ref animationDuration);
+                parentNode = ReadGeometryNode(reader, version, ref animationDuration, codepage);
                 parentNode.IsGeometryNode = true;
             }
 
@@ -75,7 +77,7 @@ namespace Core.DataReader.Cvd
             var children = new List<CvdGeometryNode>();
             for (var i = 0; i < numberOfChildNodes; i++)
             {
-                ReadGeometryNodes(reader, version, children, ref animationDuration);
+                ReadGeometryNodes(reader, version, children, ref animationDuration, codepage);
             }
 
             parentNode.Children = children.ToArray();
@@ -85,11 +87,13 @@ namespace Core.DataReader.Cvd
         #if USE_UNSAFE_BINARY_READER
         private static CvdGeometryNode ReadGeometryNode(UnsafeBinaryReader reader,
             float version,
-            ref float animationDuration)
+            ref float animationDuration,
+            int codepage)
         #else
         private static CvdGeometryNode ReadGeometryNode(BinaryReader reader,
             float version,
-            ref float animationDuration)
+            ref float animationDuration,
+            int codepage)
         #endif
         {
             var positionKeySize = Mathf.Max(
@@ -118,7 +122,7 @@ namespace Core.DataReader.Cvd
 
             var scale = reader.ReadSingle();
 
-            var mesh = ReadMesh(reader, version);
+            var mesh = ReadMesh(reader, version, codepage);
             if (mesh.AnimationTimeKeys.Last() > animationDuration) animationDuration = mesh.AnimationTimeKeys.Last();
 
             var transformMatrix = new GameBoxMatrix4X4()
@@ -340,9 +344,9 @@ namespace Core.DataReader.Cvd
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static CvdMesh ReadMesh(UnsafeBinaryReader reader, float version)
+        private static CvdMesh ReadMesh(UnsafeBinaryReader reader, float version, int codepage)
         #else
-        private static CvdMesh ReadMesh(BinaryReader reader, float version)
+        private static CvdMesh ReadMesh(BinaryReader reader, float version, int codepage)
         #endif
         {
             var numberOfFrames = reader.ReadInt32();
@@ -381,7 +385,7 @@ namespace Core.DataReader.Cvd
             var meshSections = new CvdMeshSection[numberOfMeshes];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                meshSections[i] = ReadMeshSection(reader, version, frameVertices);
+                meshSections[i] = ReadMeshSection(reader, version, frameVertices, codepage);
             }
 
             return new CvdMesh()
@@ -394,11 +398,13 @@ namespace Core.DataReader.Cvd
         #if USE_UNSAFE_BINARY_READER
         private static CvdMeshSection ReadMeshSection(UnsafeBinaryReader reader,
             float version,
-            CvdVertex[][] allFrameVertices)
+            CvdVertex[][] allFrameVertices,
+            int codepage)
         #else
         private static CvdMeshSection ReadMeshSection(BinaryReader reader,
             float version,
-            CvdVertex[][] allFrameVertices)
+            CvdVertex[][] allFrameVertices,
+            int codepage)
         #endif
         {
             var blendFlag = reader.ReadByte();
@@ -412,7 +418,7 @@ namespace Core.DataReader.Cvd
                 Power = reader.ReadSingle()
             };
 
-            var textureName = reader.ReadGbkString(64);
+            var textureName = reader.ReadString(64, codepage);
 
             var numberOfIndices = reader.ReadInt32();
 

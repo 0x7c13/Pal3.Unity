@@ -23,7 +23,8 @@ namespace Core.FileSystem
         /// Mount a Cpk archive to the file system.
         /// </summary>
         /// <param name="cpkFileRelativePath">CPK file relative path</param>
-        public void Mount(string cpkFileRelativePath);
+        /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
+        public void Mount(string cpkFileRelativePath, int codepage);
 
         /// <summary>
         /// Check if file exists in any of the segmented archives using virtual path.

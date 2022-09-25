@@ -16,7 +16,7 @@ namespace Core.DataReader.Pol
 
     public static class PolFileReader
     {
-        public static PolFile Read(byte[] data)
+        public static PolFile Read(byte[] data, int codepage)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -41,7 +41,7 @@ namespace Core.DataReader.Pol
             {
                 nodeInfos[i] = new PolGeometryNode
                 {
-                    Name     = reader.ReadGbkString(32),
+                    Name     = reader.ReadString(32, codepage),
                     Position = reader.ReadVector3(),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
@@ -57,7 +57,7 @@ namespace Core.DataReader.Pol
                     tagNodes = new TagNode[numberOfTagNodes];
                     for (var i = 0; i < numberOfTagNodes; i++)
                     {
-                        tagNodes[i] = ReadTagNodeInfo(reader);
+                        tagNodes[i] = ReadTagNodeInfo(reader, codepage);
                     }
                 }
             }
@@ -65,19 +65,19 @@ namespace Core.DataReader.Pol
             var meshInfos = new PolMesh[numberOfNodes];
             for (var i = 0; i < numberOfNodes; i++)
             {
-                meshInfos[i] = ReadMeshData(reader, version);
+                meshInfos[i] = ReadMeshData(reader, version, codepage);
             }
 
             return new PolFile(version, nodeInfos, meshInfos, tagNodes);
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static TagNode ReadTagNodeInfo(UnsafeBinaryReader reader)
+        private static TagNode ReadTagNodeInfo(UnsafeBinaryReader reader, int codepage)
         #else
-        private static TagNode ReadTagNodeInfo(BinaryReader reader)
+        private static TagNode ReadTagNodeInfo(BinaryReader reader, int codepage)
         #endif
         {
-            var name = reader.ReadGbkString(32);
+            var name = reader.ReadString(32, codepage);
             var transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
@@ -116,9 +116,9 @@ namespace Core.DataReader.Pol
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static PolMesh ReadMeshData(UnsafeBinaryReader reader, int version)
+        private static PolMesh ReadMeshData(UnsafeBinaryReader reader, int version, int codepage)
         #else
-        private static PolMesh ReadMeshData(BinaryReader reader, int version)
+        private static PolMesh ReadMeshData(BinaryReader reader, int version, int codepage)
         #endif
         {
             var boundBox = new GameBoxAABBox()
@@ -217,7 +217,7 @@ namespace Core.DataReader.Pol
 
             for (var i = 0; i < numberOfTextures; i++)
             {
-                textureInfos[i] = ReadTextureInfo(reader, version);
+                textureInfos[i] = ReadTextureInfo(reader, version, codepage);
             }
 
             return new PolMesh
@@ -230,9 +230,9 @@ namespace Core.DataReader.Pol
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static PolTexture ReadTextureInfo(UnsafeBinaryReader reader, int version)
+        private static PolTexture ReadTextureInfo(UnsafeBinaryReader reader, int version, int codepage)
         #else
-        private static PolTexture ReadTextureInfo(BinaryReader reader, int version)
+        private static PolTexture ReadTextureInfo(BinaryReader reader, int version, int codepage)
         #endif
         {
             var blendFlag = reader.ReadUInt32();
@@ -255,7 +255,7 @@ namespace Core.DataReader.Pol
 
             for (var i = 0; i < numberOfTextures; i++)
             {
-                var textureName = reader.ReadGbkString(64);
+                var textureName = reader.ReadString(64, codepage);
                 textureNames[i] = textureName;
             }
 

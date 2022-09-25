@@ -65,6 +65,7 @@ namespace Pal3.Script
 
         private const int MAX_REGISTER_COUNT = 8;
 
+        private readonly int _codepage;
         private readonly BinaryReader _scriptDataReader;
         private PalScriptExecutionMode _executionMode;
         private readonly object[] _registers;
@@ -77,7 +78,10 @@ namespace Pal3.Script
 
         private PalScriptRunner() {}
 
-        public static PalScriptRunner Create(SceFile sceFile, PalScriptType scriptType, uint scriptId, Dictionary<int, int> globalVariables)
+        public static PalScriptRunner Create(SceFile sceFile,
+            PalScriptType scriptType,
+            uint scriptId,
+            Dictionary<int, int> globalVariables)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
             {
@@ -86,18 +90,23 @@ namespace Pal3.Script
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
             Debug.Log($"Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
-            return new PalScriptRunner(scriptType, scriptId, sceScriptBlock, globalVariables);
+            return new PalScriptRunner(scriptType, scriptId, sceScriptBlock, globalVariables, sceFile.Codepage);
         }
 
-        private PalScriptRunner(PalScriptType scriptType, uint scriptId, SceScriptBlock scriptBlock, Dictionary<int, int> globalVariables,
+        private PalScriptRunner(PalScriptType scriptType,
+            uint scriptId,
+            SceScriptBlock scriptBlock,
+            Dictionary<int, int> globalVariables,
+            int codepage,
             PalScriptExecutionMode executionMode = PalScriptExecutionMode.Break)
         {
             ScriptType = scriptType;
             ScriptId = scriptId;
 
             _globalVariables = globalVariables;
-
+            _codepage = codepage;
             _executionMode = executionMode;
+            
             _registers = new object[MAX_REGISTER_COUNT];
             _scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.ScriptData));
 
@@ -169,11 +178,11 @@ namespace Pal3.Script
                 throw new InvalidDataException($"Command Id is invalid: {commandId}");
             }
 
-            var command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag);
+            var command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
 
             if (command == null)
             {
-                UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag);
+                UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
             }
             else
             {

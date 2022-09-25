@@ -10,7 +10,7 @@ namespace Core.DataReader.Sce
 
     public static class SceFileReader
     {
-        public static SceFile Read(Stream stream)
+        public static SceFile Read(Stream stream, int codepage)
         {
             using var reader = new BinaryReader(stream);
 
@@ -34,25 +34,25 @@ namespace Core.DataReader.Sce
             var indexes = new SceIndex[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                indexes[i] = ReadSceIndex(reader);
+                indexes[i] = ReadSceIndex(reader, codepage);
             }
 
             var scriptBlocks = new SceScriptBlock[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i]);
+                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], codepage);
             }
 
-            return new SceFile(indexes, scriptBlocks);
+            return new SceFile(indexes, scriptBlocks, codepage);
         }
 
-        private static SceScriptBlock ReadScriptBlock(BinaryReader reader, SceIndex sceIndex)
+        private static SceScriptBlock ReadScriptBlock(BinaryReader reader, SceIndex sceIndex, int codepage)
         {
             reader.BaseStream.Seek(sceIndex.Offset, SeekOrigin.Begin);
 
             var id = reader.ReadUInt32();
             var descriptionLength = reader.ReadUInt16();
-            var description = reader.ReadGbkString(descriptionLength);
+            var description = reader.ReadString(descriptionLength, codepage);
             var numberOfUserVars = reader.ReadUInt16();
 
             var userVarInfos = new SceUserVarInfo[numberOfUserVars];
@@ -86,13 +86,13 @@ namespace Core.DataReader.Sce
             };
         }
 
-        private static SceIndex ReadSceIndex(BinaryReader reader)
+        private static SceIndex ReadSceIndex(BinaryReader reader, int codepage)
         {
             return new SceIndex()
             {
                 Id = reader.ReadUInt32(),
                 Offset = reader.ReadUInt32(),
-                Description = reader.ReadGbkString(64)
+                Description = reader.ReadString(64, codepage)
             };
         }
     }

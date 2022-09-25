@@ -12,7 +12,7 @@ namespace Core.DataReader.Scn
 
     public static class ScnFileReader
     {
-        public static ScnFile Read(Stream stream)
+        public static ScnFile Read(Stream stream, int codepage)
         {
             using var reader = new BinaryReader(stream);
 
@@ -32,9 +32,9 @@ namespace Core.DataReader.Scn
 
             var sceneInfo = new ScnSceneInfo()
             {
-                CityName = reader.ReadGbkString(32),
-                Name = reader.ReadGbkString(32),
-                Model = reader.ReadGbkString(32),
+                CityName = reader.ReadString(32, codepage),
+                Name = reader.ReadString(32, codepage),
+                Model = reader.ReadString(32, codepage),
                 SceneType = (ScnSceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),
                 SkyBox = reader.ReadUInt32(),
@@ -45,7 +45,7 @@ namespace Core.DataReader.Scn
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
-                var npcInfo = ReadNpcInfo(reader);
+                var npcInfo = ReadNpcInfo(reader, codepage);
                 if (npcInfo.Unknown1[0] != 0 ||
                     npcInfo.Unknown1[1] != 0 ||
                     npcInfo.Unknown2[0] != 0 ||
@@ -61,21 +61,21 @@ namespace Core.DataReader.Scn
             var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
-                var sceneObject = ReadObjectInfo(reader);
+                var sceneObject = ReadObjectInfo(reader, codepage);
                 objInfos[i] = sceneObject;
             }
 
             return new ScnFile(sceneInfo, npcInfos, objInfos);
         }
 
-        private static ScnNpcInfo ReadNpcInfo(BinaryReader reader)
+        private static ScnNpcInfo ReadNpcInfo(BinaryReader reader, int codepage)
         {
             return new ScnNpcInfo()
             {
                 Id = reader.ReadByte(),
                 Kind = (ScnActorKind)reader.ReadByte(),
-                Name = reader.ReadGbkString(32),
-                Texture = reader.ReadGbkString(32),
+                Name = reader.ReadString(32, codepage),
+                Texture = reader.ReadString(32, codepage),
                 Unknown1 = reader.ReadBytes(2),
                 FacingDirection = reader.ReadSingle(),
                 OnLayer = reader.ReadByte(),
@@ -86,7 +86,7 @@ namespace Core.DataReader.Scn
                 InitBehaviour = (ScnActorBehaviour) reader.ReadInt32(),
                 ScriptId = reader.ReadUInt32(),
                 PositionY = reader.ReadSingle(),
-                InitAction = reader.ReadGbkString(16),
+                InitAction = reader.ReadString(16, codepage),
                 MonsterId = reader.ReadUInt32Array(3),
                 MonsterNumber = reader.ReadUInt16(),
                 MonsterRepeat = reader.ReadUInt16(),
@@ -102,7 +102,7 @@ namespace Core.DataReader.Scn
             };
         }
 
-        private static ScnObjectInfo ReadObjectInfo(BinaryReader reader)
+        private static ScnObjectInfo ReadObjectInfo(BinaryReader reader, int codepage)
         {
             #if PAL3
             return new ScnObjectInfo()
@@ -112,7 +112,7 @@ namespace Core.DataReader.Scn
                 Times = reader.ReadByte(),
                 Switch = reader.ReadByte(),
 
-                Name = reader.ReadGbkString(32),
+                Name = reader.ReadString(32, codepage),
                 TriggerType = reader.ReadUInt16(),
                 NonBlocking = reader.ReadUInt16(),
 
@@ -139,7 +139,7 @@ namespace Core.DataReader.Scn
                 NeedLv = reader.ReadUInt16(),
                 NeedWu = reader.ReadUInt16(),
                 NeedAllOpen = reader.ReadUInt16(),
-                FailedMessage = reader.ReadGbkString(16),
+                FailedMessage = reader.ReadString(16, codepage),
 
                 ScriptId = reader.ReadUInt32(),
                 Path = new ScnPath()
@@ -149,7 +149,7 @@ namespace Core.DataReader.Scn
                 },
 
                 LinkedObject = reader.ReadUInt16(),
-                DependentSceneName = reader.ReadGbkString(32),
+                DependentSceneName = reader.ReadString(32, codepage),
                 DependentId = reader.ReadUInt16(),
 
                 BoundBox = new GameBoxAABBox()
@@ -159,7 +159,7 @@ namespace Core.DataReader.Scn
                 },
 
                 XRotation = reader.ReadSingle(),
-                SfxName = reader.ReadGbkString(8),
+                SfxName = reader.ReadString(8, codepage),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),
@@ -175,7 +175,7 @@ namespace Core.DataReader.Scn
                 Times = reader.ReadByte(),
                 Switch = reader.ReadByte(),
 
-                Name = reader.ReadGbkString(32),
+                Name = reader.ReadString(32, codepage),
                 TriggerType = reader.ReadUInt16(),
                 NonBlocking = reader.ReadUInt16(),
 
@@ -205,7 +205,7 @@ namespace Core.DataReader.Scn
                 NeedLv = reader.ReadUInt16(),
                 NeedWu = reader.ReadUInt16(),
                 NeedAllOpen = reader.ReadUInt16(),
-                FailedMessage = reader.ReadGbkString(16),
+                FailedMessage = reader.ReadString(16, codepage),
 
                 // TODO
                 Unknown2 = reader.ReadBytes(4),
@@ -218,7 +218,7 @@ namespace Core.DataReader.Scn
                 },
 
                 LinkedObject = reader.ReadUInt16(),
-                DependentSceneName = reader.ReadGbkString(32),
+                DependentSceneName = reader.ReadString(32, codepage),
                 DependentId = reader.ReadUInt16(),
 
                 BoundBox = new GameBoxAABBox()
@@ -229,7 +229,7 @@ namespace Core.DataReader.Scn
 
                 XRotation = reader.ReadSingle(),
                 ZRotation = reader.ReadSingle(),
-                SfxName = reader.ReadGbkString(8),
+                SfxName = reader.ReadString(8, codepage),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),

@@ -51,6 +51,8 @@ namespace ResourceViewer
         private static IList<string> _sceFiles = new List<string>();
         private static readonly Random Random = new ();
 
+        private readonly int _codepage = 936; // GBK Encoding's code page,
+                                              // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
 
         private void OnEnable()
@@ -280,7 +282,7 @@ namespace ResourceViewer
 
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
             
-            var sceFile = SceFileReader.Read(sceFileStream);
+            var sceFile = SceFileReader.Read(sceFileStream, _codepage);
 
             foreach (var scriptBlock in sceFile.ScriptBlocks)
             {
@@ -293,11 +295,11 @@ namespace ResourceViewer
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
                     
-                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag);
+                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, _codepage);
 
                     if (command == null)
                     {
-                        UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag);
+                        UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag, _codepage);
                         return false;
                     }
                     
