@@ -6,15 +6,18 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(169, "???")]
-    public class UnknownCommand169 : ICommand
+    [SceCommand(184, "更改角色透明度，" +
+                     "参数：角色ID，透明度(0-1f)")]
+    public class ActorChangeTransparencyCommand : ICommand
     {
-        public UnknownCommand169(string unknown)
+        public ActorChangeTransparencyCommand(int actorId, float alpha)
         {
-            Unknown = unknown;
+            ActorId = actorId;
+            Alpha = alpha;
         }
 
-        public string Unknown { get; }
+        public int ActorId { get; }
+        public float Alpha { get; }
     }
     #endif
 }

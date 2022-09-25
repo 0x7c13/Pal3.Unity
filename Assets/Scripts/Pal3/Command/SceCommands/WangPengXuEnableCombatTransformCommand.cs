@@ -6,16 +6,17 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(177, "王蓬絮开启朱仙变???")]
-    public class UnknownCommand177: ICommand
+    [SceCommand(177, "设置开启/关闭王蓬絮战斗中变身（朱仙变），" +
+                     "参数：0关闭，1开启")]
+    public class WangPengXuEnableCombatTransformCommand: ICommand
     {
-        public UnknownCommand177(
-            int enable)
+        public WangPengXuEnableCombatTransformCommand(
+            int enabled)
         {
-            Enable = enable;
+            Enabled = enabled;
         }
 
-        public int Enable { get; }
+        public int Enabled { get; }
     }
     #endif
 }

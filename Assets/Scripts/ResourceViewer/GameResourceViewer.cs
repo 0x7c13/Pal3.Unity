@@ -18,6 +18,7 @@ namespace ResourceViewer
     using Core.Utils;
     using IngameDebugConsole;
     using Newtonsoft.Json;
+    using Pal3.Command.SceCommands;
     using Pal3.Data;
     using Pal3.Dev;
     using Pal3.Renderer;
@@ -95,11 +96,8 @@ namespace ResourceViewer
 
             DebugLogConsole.AddCommand<string>("search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("load", "Load a file to the viewer (.pol or .mv3).", Load);
-
-            // foreach (var sceFile in _sceFiles)
-            // {
-            //     if (!LoadSce(sceFile)) break;
-            // }
+            
+            //foreach (var sceFile in _sceFiles) if (!LoadSce(sceFile)) break;
         }
 
         private void Update()
@@ -274,11 +272,10 @@ namespace ResourceViewer
                 return false;
             }
         }
-        
+
         private bool LoadSce(string filePath)
         {
-            consoleTextUI.text = $"Loading: {filePath}";
-            Debug.Log($"Loading: {filePath}");
+            //Debug.Log($"Loading: {filePath}");
 
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
             
@@ -297,11 +294,11 @@ namespace ResourceViewer
                     
                     var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, _codepage);
 
-                    if (command == null)
-                    {
-                        UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag, _codepage);
-                        return false;
-                    }
+                    // if (command == null)
+                    // {
+                    //     UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag, _codepage);
+                    //     return false;
+                    // }
                     
                     Debug.Log($"{command.GetType().Name.Replace("Command", "")} " +
                               $"{JsonConvert.SerializeObject(command)}");

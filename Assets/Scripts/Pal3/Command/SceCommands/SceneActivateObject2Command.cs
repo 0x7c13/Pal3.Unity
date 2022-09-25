@@ -6,22 +6,23 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(163, "???")]
-    public class UnknownCommand163 : ICommand
+    [SceCommand(163, "设置某个物件出现或隐藏，" +
+                    "参数：场景名，物件ID，是否出现（0隐藏，1出现）")]
+    public class SceneActivateObject2Command : ICommand
     {
-        public UnknownCommand163(
+        public SceneActivateObject2Command(
             string sceneName,
             int objectId,
-            int enable)
+            int isActive)
         {
             SceneName = sceneName;
             ObjectId = objectId;
-            Enable = enable;
+            IsActive = isActive;
         }
     
         public string SceneName { get; }
         public int ObjectId { get; }
-        public int Enable { get; }
+        public int IsActive { get; }
     }
     #endif
 }

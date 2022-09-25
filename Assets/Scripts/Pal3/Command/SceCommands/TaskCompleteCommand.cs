@@ -6,10 +6,16 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(160, "PAL3A捉鬼游戏")]
-    public class UnknownCommand160 : ICommand
+    [SceCommand(170, "完成主线或支线任务，" +
+                     "参数：任务ID")]
+    public class TaskCompleteCommand : ICommand
     {
-        public UnknownCommand160() { }
+        public TaskCompleteCommand(string taskId)
+        {
+            TaskId = taskId;
+        }
+
+        public string TaskId { get; }
     }
     #endif
 }

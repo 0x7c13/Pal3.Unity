@@ -6,17 +6,10 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
-    [SceCommand(184, "更改角色透明度???")]
-    public class UnknownCommand184 : ICommand
+    [SceCommand(160, "PAL3A捉鬼（龙葵）游戏")]
+    public class MiniGameStartGhostHuntingCommand : ICommand
     {
-        public UnknownCommand184(int actorId, float transparency)
-        {
-            ActorId = actorId;
-            Transparency = transparency;
-        }
-
-        public int ActorId { get; }
-        public float Transparency { get; }
+        public MiniGameStartGhostHuntingCommand() { }
     }
     #endif
 }
