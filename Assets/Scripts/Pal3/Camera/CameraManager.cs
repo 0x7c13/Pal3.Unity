@@ -83,7 +83,7 @@ namespace Pal3.Camera
         private bool _isTouchEnabled;
 
         private bool _cameraAnimationInProgress;
-        private readonly CancellationTokenSource _asyncCameraAnimationCts = new ();
+        private CancellationTokenSource _asyncCameraAnimationCts = new ();
 
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
