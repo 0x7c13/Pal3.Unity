@@ -143,10 +143,6 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorSetTilePositionCommand((int)_playerActor, command.TileXPosition, command.TileZPosition));
-                // TODO: fix PAL3A actor activation issue
-                #if PAL3A
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)_playerActor, 1));
-                #endif
             }
         }
 

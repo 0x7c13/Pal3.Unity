@@ -13,6 +13,7 @@ namespace Pal3.Actor
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using MetaData;
@@ -503,8 +504,22 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             CancelCurrentMovement();
-            transform.position = _tilemap.GetWorldPosition(new Vector2Int(command.TileXPosition,
-                command.TileZPosition), _currentLayerIndex);
+
+            var tilePosition = new Vector2Int(command.TileXPosition, command.TileZPosition);
+
+            // Check if position at current layer exists,
+            // if not, auto switch to next layer (if tile at next layer is walkable)
+            if (_tilemap.GetLayerCount() > 1)
+            {
+                var isTileInsideCurrentLayer = _tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex);
+                var isTileInsideAtNextLayer = _tilemap.IsTilePositionInsideTileMap(tilePosition, (_currentLayerIndex + 1) % 2);
+                if (!isTileInsideCurrentLayer && isTileInsideAtNextLayer)
+                {
+                    SetNavLayer((_currentLayerIndex + 1) % 2);
+                }   
+            }
+
+            transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);   
         }
 
         public void Execute(ActorPathToCommand command)

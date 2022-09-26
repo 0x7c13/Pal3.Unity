@@ -285,7 +285,7 @@ namespace ResourceViewer
             {
                 Debug.Log($"{filePath}_{scriptBlock.Value.Id}_{scriptBlock.Value.Description}");
                 
-                var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
+                using var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
 
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
