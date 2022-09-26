@@ -233,6 +233,7 @@ namespace Pal3
             _cameraManager.Init(_inputActions,
                 _playerGamePlayController,
                 _sceneManager,
+                _gameStateManager,
                 mainCamera,
                 touchControlUI,
                 curtainImage);

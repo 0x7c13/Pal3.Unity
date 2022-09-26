@@ -73,6 +73,7 @@ namespace Pal3.Camera
         private PlayerInputActions _inputActions;
         private PlayerGamePlayController _gamePlayController;
         private SceneManager _sceneManager;
+        private GameStateManager _gameStateManager;
         private bool _freeToRotate;
 
         private GameObject _lookAtGameObject;
@@ -82,11 +83,12 @@ namespace Pal3.Camera
         private bool _isTouchEnabled;
 
         private bool _cameraAnimationInProgress;
-        private CancellationTokenSource _asyncCameraAnimationCts = new ();
+        private readonly CancellationTokenSource _asyncCameraAnimationCts = new ();
 
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
             SceneManager sceneManager,
+            GameStateManager gameStateManager,
             Camera mainCamera,
             Canvas touchControlUI,
             Image curtainImage)
@@ -94,7 +96,8 @@ namespace Pal3.Camera
             _inputActions = inputActions;
             _gamePlayController = gamePlayController;
             _sceneManager = sceneManager;
-
+            _gameStateManager = gameStateManager;
+            
             _camera = mainCamera;
             _camera!.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
 
@@ -452,7 +455,10 @@ namespace Pal3.Camera
                 (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
 
-            _free = false;
+            if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
+            {
+                _free = false;   
+            }
         }
 
         public void Execute(CameraFreeCommand command)
