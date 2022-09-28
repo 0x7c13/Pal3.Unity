@@ -116,7 +116,7 @@ namespace Pal3.Script
         {
             while (_pendingScripts.Count > 0)
             {
-                _runningScripts.Add( _pendingScripts.Dequeue());
+                _runningScripts.Insert(0, _pendingScripts.Dequeue());
             }
 
             if (_runningScripts.Count == 0) return;
@@ -147,7 +147,7 @@ namespace Pal3.Script
             if (_pendingSceneScriptExecution)
             {
                 _pendingSceneScriptExecution = false;
-                Update(0);
+                Update(1f);
             }
         }
 
@@ -163,6 +163,8 @@ namespace Pal3.Script
             {
                 AddScript(scriptBlock.Key);
                 _pendingSceneScriptExecution = true;
+                // This is to break the current running script from executing and let scene script to execute first
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptWaitUntilTimeCommand(0f));
                 break;
             }
         }

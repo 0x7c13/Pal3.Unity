@@ -5,8 +5,6 @@
 
 namespace Pal3.Command.InternalCommands
 {
-    using Script;
-
     public class ScriptFailedToRunNotification : ICommand
     {
         public ScriptFailedToRunNotification(uint scriptId)

@@ -36,7 +36,8 @@ namespace Core.Animation
             float to,
             float duration,
             AnimationCurveType curveType,
-            Action<float> onValueChanged)
+            Action<float> onValueChanged,
+            CancellationToken cancellationToken = default)
         {
             if (Mathf.Abs(duration) < Mathf.Epsilon)
             {
@@ -45,7 +46,7 @@ namespace Core.Animation
             }
 
             var timePast = 0f;
-            while (timePast < duration)
+            while (timePast < duration && !cancellationToken.IsCancellationRequested)
             {
                 var newValue = Mathf.Lerp(from, to,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -54,7 +55,10 @@ namespace Core.Animation
                 yield return null;
             }
 
-            onValueChanged?.Invoke(to);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                onValueChanged?.Invoke(to);   
+            }
             yield return null;
         }
 

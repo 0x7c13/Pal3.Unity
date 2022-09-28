@@ -467,54 +467,51 @@ namespace Pal3.Scene
         #if PAL3A
         public void Execute(FengYaSongCommand command)
         {
-            if (command.ModelType == 3)
+            switch (command.ModelType)
             {
-                // Hide all existing birds
-                foreach (FengYaSongActorId actorId in Enum.GetValues(typeof(FengYaSongActorId)))
+                case 3:
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));
-                }
-            }
-            else
-            {
-                var activeBirdActorId = FengYaSongActorId.Feng;
-                
-                switch (command.ModelType)
-                {
-                    case 0:
-                        activeBirdActorId = FengYaSongActorId.Feng;
-                        break;
-                    case 1:
-                        activeBirdActorId = FengYaSongActorId.Ya;
-                        break;
-                    case 2:
-                        activeBirdActorId = FengYaSongActorId.Song;
-                        break;
-                }
-                
-                // Hide all other birds
-                foreach (FengYaSongActorId actorId in Enum.GetValues(typeof(FengYaSongActorId)))
-                {
-                    if (actorId != activeBirdActorId)
+                    // Hide all existing birds
+                    foreach (FengYaSongActorId actorId in Enum.GetValues(typeof(FengYaSongActorId)))
                     {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((byte)actorId, 0));   
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));
                     }
+                    break;
                 }
+                case >= 0 and <= 2:
+                {
+                    var activeBirdActorId = command.ModelType switch
+                    {
+                        0 => FengYaSongActorId.Feng,
+                        1 => FengYaSongActorId.Ya,
+                        2 => FengYaSongActorId.Song,
+                    };
 
-                var leiYuanGeActorGameObject = GetActorGameObject((byte)PlayerActorId.LeiYuanGe);
-                var leiYuanGeHeadPosition = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
-                    .GetActorHeadWorldPosition();
+                    // Hide all other birds
+                    foreach (FengYaSongActorId actorId in Enum.GetValues(typeof(FengYaSongActorId)))
+                    {
+                        if (actorId != activeBirdActorId)
+                        {
+                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((byte)actorId, 0));   
+                        }
+                    }
 
-                var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;  // Height adjustment
+                    var leiYuanGeActorGameObject = GetActorGameObject((byte)PlayerActorId.LeiYuanGe);
+                    var leiYuanGeHeadPosition = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
+                        .GetActorHeadWorldPosition();
+
+                    var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;  // Height adjustment
                 
-                var birdActorGameObject = GetActorGameObject((byte)activeBirdActorId);
-                birdActorGameObject.transform.position = new Vector3(leiYuanGeHeadPosition.x,
-                    leiYuanGeHeadPosition.y + yOffset,
-                    leiYuanGeHeadPosition.z);
-                birdActorGameObject.transform.forward = leiYuanGeActorGameObject.transform.forward;
-                birdActorGameObject.GetComponent<ActorController>().IsActive = true;
-                birdActorGameObject.GetComponent<ActorActionController>()
-                    .PerformAction(command.ActionType == 0 ? ActorActionType.Stand : ActorActionType.Walk);
+                    var birdActorGameObject = GetActorGameObject((byte)activeBirdActorId);
+                    birdActorGameObject.transform.position = new Vector3(leiYuanGeHeadPosition.x,
+                        leiYuanGeHeadPosition.y + yOffset,
+                        leiYuanGeHeadPosition.z);
+                    birdActorGameObject.transform.forward = leiYuanGeActorGameObject.transform.forward;
+                    birdActorGameObject.GetComponent<ActorController>().IsActive = true;
+                    birdActorGameObject.GetComponent<ActorActionController>()
+                        .PerformAction(command.ActionType == 0 ? ActorActionType.Stand : ActorActionType.Walk);
+                    break;
+                }
             }
         }
         #endif

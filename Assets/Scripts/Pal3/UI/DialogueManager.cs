@@ -170,7 +170,7 @@ namespace Pal3.UI
         }
 
         private IEnumerator RenderDialogueTextWithAnimation(string text,
-            float waitSecondsBeforeRenderingChar = 0.05f)
+            float waitSecondsBeforeRenderingChar = 0.04f)
         {
             TextMeshProUGUI dialogueTextUI = GetRenderingTextUI();
 

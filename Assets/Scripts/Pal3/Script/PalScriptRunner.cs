@@ -124,11 +124,13 @@ namespace Pal3.Script
         public bool Update(float deltaTime)
         {
             var canExecute = true;
+            
             if (_waiters.Count > 0)
             {
                 UpdateWaiters(deltaTime);
             }
-            else
+            
+            if (_waiters.Count == 0)
             {
                 do { canExecute = Execute(); }
                 while (canExecute && _waiters.Count == 0);
@@ -428,10 +430,16 @@ namespace Pal3.Script
         {
             if (!_isExecuting) return;
             var won = Random.Range(0f, 1f);
-            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.4f
+            #if PAL3
+            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.35f
                 ? new UIDisplayNoteCommand("你战胜了重楼")
                 : new UIDisplayNoteCommand("你输给了重楼"));
-            SetVariableValue(command.Variable, won > 0.4f ? 1 : 0);
+            #elif PAL3A
+            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.35f
+                ? new UIDisplayNoteCommand("你战胜了景小楼")
+                : new UIDisplayNoteCommand("你输给了景小楼"));
+            #endif
+            SetVariableValue(command.Variable, won > 0.35f ? 1 : 0);
         }
     }
 }

@@ -39,6 +39,8 @@ namespace Pal3.Settings
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
+            QualitySettings.antiAliasing = 2; // 2xMSAA
+                
             // Downscaling resolution for old Android devices
             if (Application.platform == RuntimePlatform.Android)
             {
@@ -55,6 +57,7 @@ namespace Pal3.Settings
                     // Android 6 Marshmallow <=> API Version 23
                     if (GetAndroidSdkLevel() <= 23)
                     {
+                        QualitySettings.antiAliasing = 0; // No AA
                         Screen.SetResolution((int) (Screen.width * 0.75f), (int) (Screen.height * 0.75f), true);
                     }
                 }

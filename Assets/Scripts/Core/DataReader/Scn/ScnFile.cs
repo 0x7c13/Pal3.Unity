@@ -59,7 +59,7 @@ namespace Core.DataReader.Scn
         RotatingStoneBeam             =  7,   // 旋传石梁 (一字型)
         RotatingWall                  =  8,   // 旋转墙 (折尺型,JG13)
         PreciseTrigger                =  9,   // 精确触发点
-        Tuyere                        = 10,   // 风口
+        WindBlower                    = 10,   // 风口
         Pushable                      = 11,   // 推箱子
         SpecialMechanism              = 12,   // 主角特技机关
         ImpulsiveMechanism            = 13,   // 冲撞

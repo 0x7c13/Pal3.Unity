@@ -84,6 +84,7 @@ namespace Pal3.Camera
 
         private bool _cameraAnimationInProgress;
         private CancellationTokenSource _asyncCameraAnimationCts = new ();
+        private CancellationTokenSource _cameraFadeAnimationCts = new ();
 
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
@@ -335,7 +336,11 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        public IEnumerator Fade(bool fadeIn, float duration, Color color, WaitUntilCanceled waiter = null)
+        public IEnumerator Fade(bool fadeIn,
+            float duration,
+            Color color,
+            WaitUntilCanceled waiter = null,
+            CancellationToken cancellationToken = default)
         {
             _curtainImage.color = color;
 
@@ -346,9 +351,12 @@ namespace Pal3.Camera
                 alpha =>
             {
                 _curtainImage.color = new Color(color.r, color.g, color.b, alpha);
-            });
+            }, cancellationToken);
 
-            _curtainImage.color = new Color(color.r, color.g, color.b, to);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                _curtainImage.color = new Color(color.r, color.g, color.b, to);   
+            }
 
             waiter?.CancelWait();
         }
@@ -580,38 +588,38 @@ namespace Pal3.Camera
 
         public void Execute(CameraFadeInCommand command)
         {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+            if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
+            _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.black, waiter));
+            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeInWhiteCommand command)
         {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+            if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
+            _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.white, waiter));
+            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutCommand command)
         {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+            if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
+            _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.black, waiter));
+            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutWhiteCommand command)
         {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+            if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
+            _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.white, waiter));
+            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraPushCommand command)

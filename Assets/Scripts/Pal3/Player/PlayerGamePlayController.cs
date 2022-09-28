@@ -274,7 +274,15 @@ namespace Pal3.Player
                 if (actorController.IsInteractable(distance) && distance < nearestInteractableDistance)
                 {
                     nearestInteractableDistance = distance;
-                    interactionAction = actorController.Interact;
+                    interactionAction = () =>
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(
+                            new PlayerInteractionTriggeredNotification());
+                        CommandDispatcher<ICommand>.Instance.Dispatch(
+                            new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                        var actor = _sceneManager.GetCurrentScene().GetActor(actorInfo.Key);
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)actor.Info.ScriptId));
+                    };
                 }
             }
 

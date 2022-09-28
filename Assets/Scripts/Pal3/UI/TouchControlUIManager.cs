@@ -40,6 +40,7 @@ namespace Pal3.UI
 
             if (_isTouchSupported)
             {
+                _lastActiveDeviceIsTouchscreen = true;
                 _interactionButton.onClick.AddListener(InteractionButtonClicked);
                 _bigMapButton.onClick.AddListener(BigMapButtonClicked);
                 _storySelectionButton.onClick.AddListener(StorySelectionButtonClicked);

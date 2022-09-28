@@ -20,6 +20,7 @@ namespace Pal3
     using Core.Utils;
     using Data;
     using Dev;
+    using Effect;
     using Feature;
     using Input;
     using IngameDebugConsole;
@@ -122,6 +123,7 @@ namespace Pal3
         private PlayerManager _playerManager;
         private DialogueManager _dialogueManager;
         private PostProcessManager _postProcessManager;
+        private EffectManager _effectManager;
 
         // Game components
         private TouchControlUIManager _touchControlUIManager;
@@ -285,6 +287,10 @@ namespace Pal3
             _postProcessManager.Init(postProcessVolume, postProcessLayer);
             ServiceLocator.Instance.Register(_postProcessManager);
 
+            _effectManager = gameObject.AddComponent<EffectManager>();
+            _effectManager.Init(_sceneManager);
+            ServiceLocator.Instance.Register(_effectManager);
+            
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
 

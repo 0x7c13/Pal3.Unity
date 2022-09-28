@@ -17,7 +17,8 @@ namespace Pal3.UI
 
     [RequireComponent(typeof(FpsCounter))]
     public class InformationManager : MonoBehaviour,
-        ICommandExecutor<UIDisplayNoteCommand>
+        ICommandExecutor<UIDisplayNoteCommand>,
+        ICommandExecutor<UIShowDealerMenuCommand>
     {
         private const float NOTE_LAST_TIME_IN_SECONDS = 2f;
         private const float NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS = 1f;
@@ -96,6 +97,12 @@ namespace Pal3.UI
             if (_noteAnimation != null) StopCoroutine(_noteAnimation);
             _noteText.text = command.Note;
             _noteAnimation = StartCoroutine(AnimateNoteUI());
+        }
+
+        // TODO: Remove this
+        public void Execute(UIShowDealerMenuCommand command)
+        {
+            Execute(new UIDisplayNoteCommand("交易功能暂未开启"));
         }
     }
 }

@@ -460,7 +460,7 @@ namespace Pal3.MetaData
             { ActorActionType.DefenceBeAttack,   WeaponArmType.RightHanded },   // 攻击被防住
             { ActorActionType.Dodge,             WeaponArmType.RightHanded },   // 回避
             { ActorActionType.Freeze,            WeaponArmType.None        },   // 眠定
-            { ActorActionType.Dying,             WeaponArmType.None        },   // 濒死
+            { ActorActionType.Dying,             WeaponArmType.RightHanded },   // 濒死
             { ActorActionType.Dead,			     WeaponArmType.None        },   // 死亡
             { ActorActionType.Flee,			     WeaponArmType.None        },   // 逃跑等到
             { ActorActionType.Win,			     WeaponArmType.RightHanded },   // 胜利

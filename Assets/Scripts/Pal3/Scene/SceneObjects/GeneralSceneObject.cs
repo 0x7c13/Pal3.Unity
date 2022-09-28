@@ -31,7 +31,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
     [ScnSceneObject(ScnSceneObjectType.Billboard)]
-    [ScnSceneObject(ScnSceneObjectType.Tuyere)]
+    [ScnSceneObject(ScnSceneObjectType.WindBlower)]
     [ScnSceneObject(ScnSceneObjectType.PreciseTrigger)]
     [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
     [ScnSceneObject(ScnSceneObjectType.Arrow)]
