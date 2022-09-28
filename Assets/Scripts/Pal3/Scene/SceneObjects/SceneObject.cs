@@ -48,12 +48,12 @@ namespace Pal3.Scene.SceneObjects
 
         private string GetModelFilePath(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             var modelFilePath = string.Empty;
 
             if (objectInfo.Name.StartsWith('_'))
             {
-                modelFilePath = $"{sceneInfo.CityName}.cpk{separator}" +
+                modelFilePath = $"{sceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
                                 $"{sceneInfo.Model}{separator}{objectInfo.Name}";
             }
             else if (objectInfo.Name.StartsWith('+'))

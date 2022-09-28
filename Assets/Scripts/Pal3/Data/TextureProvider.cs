@@ -24,9 +24,9 @@ namespace Pal3.Data
             string relativePath,
             TextureCache textureCache = null)
         {
-            if (!relativePath.EndsWith(CpkConstants.CpkDirectorySeparatorChar))
+            if (!relativePath.EndsWith(CpkConstants.DirectorySeparator))
             {
-                relativePath += CpkConstants.CpkDirectorySeparatorChar;
+                relativePath += CpkConstants.DirectorySeparator;
             }
 
             _fileSystem = fileSystem;

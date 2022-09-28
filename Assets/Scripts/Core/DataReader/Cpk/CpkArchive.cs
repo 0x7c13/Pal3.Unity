@@ -286,7 +286,7 @@ namespace Core.DataReader.Cpk
                 yield break;
             }
 
-            if (rootPath != string.Empty)  rootPath += CpkConstants.CpkDirectorySeparatorChar;
+            if (rootPath != string.Empty)  rootPath += CpkConstants.DirectorySeparator;
 
             foreach (var childCrc in _fatherCrcToChildCrcTableIndexMap[fatherCrc])
             {

@@ -100,7 +100,7 @@ namespace Pal3.Data
             if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
             var polData = _fileSystem.ReadAllBytes(polFilePath);
             var polFile = PolFileReader.Read(polData, _codepage);
-            var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.CpkDirectorySeparatorChar);
+            var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.DirectorySeparator);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _polCache[polFilePath] = (polFile, textureProvider);
             return (polFile, textureProvider);
@@ -112,7 +112,7 @@ namespace Pal3.Data
             if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
             var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
             var cvdFile = CvdFileReader.Read(cvdData, _codepage);
-            var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.CpkDirectorySeparatorChar);
+            var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.DirectorySeparator);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
             return (cvdFile, textureProvider);
@@ -124,7 +124,7 @@ namespace Pal3.Data
             if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
             var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
             var mv3File = Mv3FileReader.Read(mv3Data, _codepage);
-            var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.CpkDirectorySeparatorChar);
+            var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparator);
             var textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
@@ -132,9 +132,9 @@ namespace Pal3.Data
 
         public NavFile GetNav(string sceneFileName, string sceneName)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var navFilePath = $"{sceneFileName}.cpk{separator}" +
+            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}" +
                               $"{sceneName}{separator}{sceneName}.nav";
             #elif PAL3A
             var navFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{separator}SCN{separator}" +
@@ -147,9 +147,9 @@ namespace Pal3.Data
 
         public ScnFile GetScn(string sceneFileName, string sceneName)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var scnFilePath = $"{sceneFileName}.cpk{separator}{sceneName}.scn";
+            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}{sceneName}.scn";
             #elif PAL3A
             var scnFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{separator}SCN{separator}" +
                               $"{sceneFileName}{separator}{sceneFileName}_{sceneName}.scn";
@@ -160,9 +160,9 @@ namespace Pal3.Data
 
         public SceFile GetSceneSce(string sceneFileName)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var sceFilePath = $"{sceneFileName}.cpk{separator}{sceneFileName}.sce";
+            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}{sceneFileName}.sce";
             #elif PAL3A
             var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{separator}Sce{separator}{sceneFileName}.sce";
             #endif
@@ -193,8 +193,8 @@ namespace Pal3.Data
         {
             return Application.persistentDataPath + Path.DirectorySeparatorChar + CACHE_FOLDER_NAME
                             +  Path.DirectorySeparatorChar + musicFileVirtualPath.Replace(
-                                    CpkConstants.CpkDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                .Replace(".cpk", string.Empty);
+                                    CpkConstants.DirectorySeparator, Path.DirectorySeparatorChar)
+                                .Replace(CpkConstants.FileExtension, string.Empty);
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Pal3.Data
 
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var roleAvatarTextureRelativePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
@@ -284,7 +284,7 @@ namespace Pal3.Data
 
         private Texture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var emojiSpriteSheetRelativePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
@@ -296,7 +296,7 @@ namespace Pal3.Data
 
         public Texture2D GetCaptionTexture(string name)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var captionTextureRelativePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
@@ -309,7 +309,7 @@ namespace Pal3.Data
 
         public Texture2D[] GetSkyBoxTextures(int skyBoxId)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var relativePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
@@ -332,7 +332,7 @@ namespace Pal3.Data
 
         public Texture2D GetEffectTexture(string name)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var effectFolderRelativePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
@@ -435,7 +435,7 @@ namespace Pal3.Data
 
         public Texture2D[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             var textureProvider = GetTextureResourceProvider(
                 Utility.GetDirectoryName(texturePathFormat, separator));
 

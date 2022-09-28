@@ -485,6 +485,7 @@ namespace Pal3.Scene
                         0 => FengYaSongActorId.Feng,
                         1 => FengYaSongActorId.Ya,
                         2 => FengYaSongActorId.Song,
+                        _ => throw new ArgumentOutOfRangeException()
                     };
 
                     // Hide all other birds

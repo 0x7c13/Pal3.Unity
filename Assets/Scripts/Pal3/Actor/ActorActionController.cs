@@ -159,7 +159,7 @@ namespace Pal3.Actor
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
                 ActorConstants.ActionNameToWeaponArmTypeMap[actionType] != WeaponArmType.None)
             {
-                var separator = CpkConstants.CpkDirectorySeparatorChar;
+                var separator = CpkConstants.DirectorySeparator;
 
                 var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                                  $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";

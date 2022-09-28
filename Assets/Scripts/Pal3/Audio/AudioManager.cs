@@ -154,7 +154,7 @@ namespace Pal3.Audio
 
         private string GetMusicFileVirtualPath(string musicName)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
             return $"{FileConstants.MusicCpkPathInfo.cpkName}{separator}" +
                    $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
         }

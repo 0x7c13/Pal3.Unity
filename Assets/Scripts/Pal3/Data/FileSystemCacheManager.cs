@@ -43,7 +43,7 @@ namespace Pal3.Data
                 // Dispose current scene cpk
                 if (!string.IsNullOrEmpty(_currentSceneCityName))
                 {
-                    var currentSceneFolderPath = _currentSceneCityName + ".cpk" + CpkConstants.CpkDirectorySeparatorChar
+                    var currentSceneFolderPath = _currentSceneCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
                                           + _currentSceneName;
                     
                     if (_fileSystem.FileExistsInSegmentedArchive(currentSceneFolderPath, out string segmentedArchiveName))
@@ -52,13 +52,13 @@ namespace Pal3.Data
                     }
                     else
                     {
-                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + ".cpk");
+                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + CpkConstants.FileExtension);
                     }
                 }
 
                 // Load new scene cpk into memory
                 {
-                    var newSceneFolderPath = newSceneCityName + ".cpk" + CpkConstants.CpkDirectorySeparatorChar
+                    var newSceneFolderPath = newSceneCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
                                              + newSceneName;
 
                     if (_fileSystem.FileExistsInSegmentedArchive(newSceneFolderPath, out string segmentedArchiveName))
@@ -67,7 +67,7 @@ namespace Pal3.Data
                     }
                     else
                     {
-                        _fileSystem.LoadArchiveIntoMemory(newSceneCityName + ".cpk");
+                        _fileSystem.LoadArchiveIntoMemory(newSceneCityName + CpkConstants.FileExtension);
                     }
                 }
 

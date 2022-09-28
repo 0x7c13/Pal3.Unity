@@ -32,7 +32,7 @@ namespace Pal3.MetaData
 
     public static class EffectConstants
     {
-        private static readonly char PathSeparator = CpkConstants.CpkDirectorySeparatorChar;
+        private static readonly char PathSeparator = CpkConstants.DirectorySeparator;
 
         private static readonly string EffectScnRelativePath =
             $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +

@@ -50,9 +50,9 @@ namespace Pal3.Scene
 
         private void InitMeshData()
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
-            var meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}.cpk{separator}" +
+            var meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
                                    $"{ScnFile.SceneInfo.Model}{separator}";
 
             // Switch to night version of the mesh model when LightMap flag is set to 1

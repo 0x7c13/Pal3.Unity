@@ -41,7 +41,7 @@ namespace Pal3.Actor
 
         private void InitActorConfig(string name)
         {
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var defaultActorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                                          $"{FileConstants.ActorFolderName}{separator}{name}{separator}{name}.ini";
@@ -83,7 +83,7 @@ namespace Pal3.Actor
             var action = _actorConfig.ActorActions
                 .First(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
 
-            var separator = CpkConstants.CpkDirectorySeparatorChar;
+            var separator = CpkConstants.DirectorySeparator;
 
             var mv3File = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                           $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +

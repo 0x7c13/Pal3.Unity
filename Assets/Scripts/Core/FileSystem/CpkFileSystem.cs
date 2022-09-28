@@ -58,7 +58,7 @@ namespace Core.FileSystem
         {
             var cpkFileName = Path.GetFileName(cpkFileRelativePath).ToLower();
 
-            if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
+            if (_cpkArchives.ContainsKey(cpkFileName))
             {
                 Debug.LogWarning($"{cpkFileRelativePath} already mounted.");
                 return;
@@ -80,7 +80,7 @@ namespace Core.FileSystem
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
 
-            if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
+            if (_cpkArchives.ContainsKey(cpkFileName))
             {
                 segmentedArchiveName = null;
                 return false;
@@ -88,7 +88,7 @@ namespace Core.FileSystem
             
             // Check if the file exists in any of the segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
@@ -112,14 +112,14 @@ namespace Core.FileSystem
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
 
-            if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
+            if (_cpkArchives.ContainsKey(cpkFileName))
             {
                 return _cpkArchives[cpkFileName].FileExists(relativeVirtualPath);
             }
 
             // Check if the file exists in any of the segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
@@ -146,7 +146,7 @@ namespace Core.FileSystem
 
             // Find and read the file content in segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^".cpk".Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
@@ -214,7 +214,7 @@ namespace Core.FileSystem
             {
                 var rootNodes = archive.Value.GetRootEntries();
                 results.Add(from result in SearchInternal(rootNodes, keyword)
-                    select archive.Key + CpkConstants.CpkDirectorySeparatorChar + result);
+                    select archive.Key + CpkConstants.DirectorySeparator + result);
             });
 
             var resultList = new List<string>();
@@ -227,12 +227,12 @@ namespace Core.FileSystem
 
         private void ParseFileVirtualPath(string fullVirtualPath, out string cpkFileName, out string relativeVirtualPath)
         {
-            if (!fullVirtualPath.Contains(CpkConstants.CpkDirectorySeparatorChar))
+            if (!fullVirtualPath.Contains(CpkConstants.DirectorySeparator))
             {
                 throw new ArgumentException($"File virtual path is invalid: {fullVirtualPath}.");
             }
-            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.CpkDirectorySeparatorChar)].ToLower();
-            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.CpkDirectorySeparatorChar) + 1)..];
+            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparator)].ToLower();
+            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparator) + 1)..];
         }
 
         private IEnumerable<string> SearchInternal(IEnumerable<CpkEntry> nodes, string keyword)
