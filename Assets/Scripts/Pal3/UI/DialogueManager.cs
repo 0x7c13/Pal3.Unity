@@ -13,7 +13,6 @@ namespace Pal3.UI
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.Utils;
     using Data;
     using Input;
     using MetaData;
@@ -55,14 +54,16 @@ namespace Pal3.UI
         private TextMeshProUGUI _dialogueTextDefault;
 
         private Texture2D _avatarTexture;
-        private bool _isRightAligned;
-        private bool _skipDialogueRequested;
-        private bool _isRenderingDialogue;
-        private bool _isAvatarPresented;
+        private bool _isDialoguePresenting;
+        private bool _isSkipDialogueRequested;
+        private bool _isDialogueRenderingAnimationInProgress;
 
         private int _lastSelectedButtonIndex;
         private readonly List<GameObject> _selectionButtons = new();
         private double _totalTimeUsedBeforeSkippingTheLastDialogue;
+
+        private readonly Queue<DialogueRenderActorAvatarCommand> _avatarCommandQueue = new();
+        private readonly Queue<IEnumerator> _dialogueRenderQueue = new();
 
         public void Init(GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
@@ -157,35 +158,43 @@ namespace Pal3.UI
                     continue;
                 }
 
-                if (_isRenderingDialogue == false) yield break;
+                if (_isDialogueRenderingAnimationInProgress == false) yield break;
                 textUI.text += letter;
                 yield return charTypingAnimationDelay;
             }
         }
 
-        private TextMeshProUGUI GetRenderingTextUI()
+        private void Update()
         {
-            if (!_isAvatarPresented) return _dialogueTextDefault;
-            else return _isRightAligned ? _dialogueTextRight : _dialogueTextLeft;
+            if (!_isDialoguePresenting && _dialogueRenderQueue.Count > 0)
+            {
+                _isDialoguePresenting = true;
+                StartCoroutine(_dialogueRenderQueue.Dequeue());
+            }
         }
 
-        private IEnumerator RenderDialogueTextWithAnimation(string text,
+        private TextMeshProUGUI GetRenderingTextUI(bool isAvatarPresented, bool isRightAligned)
+        {
+            if (!isAvatarPresented) return _dialogueTextDefault;
+            else return isRightAligned ? _dialogueTextRight : _dialogueTextLeft;
+        }
+
+        private IEnumerator RenderDialogueTextWithAnimation(TextMeshProUGUI dialogueTextUI,
+            string text,
             float waitSecondsBeforeRenderingChar = 0.04f)
         {
-            TextMeshProUGUI dialogueTextUI = GetRenderingTextUI();
-
             if (waitSecondsBeforeRenderingChar < Mathf.Epsilon)
             {
                 dialogueTextUI.text = text;
             }
             else
             {
-                _isRenderingDialogue = true;
+                _isDialogueRenderingAnimationInProgress = true;
                 yield return null;
                 yield return TypeSentence(dialogueTextUI, text, waitSecondsBeforeRenderingChar);
             }
 
-            _isRenderingDialogue = false;
+            _isDialogueRenderingAnimationInProgress = false;
         }
 
         /// <summary>
@@ -217,9 +226,38 @@ namespace Pal3.UI
             yield return text;
         }
 
-        public IEnumerator RenderDialogueAndWait(string text, bool trackReactionTime)
+        public IEnumerator RenderDialogueAndWait(string text,
+            bool trackReactionTime,
+            DialogueRenderActorAvatarCommand avatarCommand = null)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
+            
+            bool isRightAligned = true;
+            bool isAvatarPresented = false;
+            
+            if (avatarCommand != null &&
+                _sceneManager.GetCurrentScene().GetActor((byte) avatarCommand.ActorId) is { } actor)
+            {
+                var avatarSprite = _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName);
+
+                isRightAligned = avatarCommand.RightAligned == 1;
+
+                if (isRightAligned)
+                {
+                    _avatarImageRight.color = Color.white;
+                    _avatarImageRight.sprite = avatarSprite;
+                }
+                else
+                {
+                    _avatarImageLeft.color = Color.white;
+                    _avatarImageLeft.sprite = avatarSprite;
+                }
+
+                isAvatarPresented = true;
+            }
+
+            var dialogueTextUI = GetRenderingTextUI(isAvatarPresented, isRightAligned);
+            
             // TODO: when trackReactionTime set to true, we should also show alert on UI
             // to let player know
 
@@ -227,21 +265,20 @@ namespace Pal3.UI
             timer.Start();
             _dialogueBackgroundImage.enabled = true;
             _dialogueCanvas.enabled = true;
-            _skipDialogueRequested = false;
+            _isSkipDialogueRequested = false;
 
             foreach (var dialogue in GetSubDialogues(text))
             {
-                var renderDialogue = RenderDialogueTextWithAnimation(dialogue);
+                var renderDialogue = RenderDialogueTextWithAnimation(dialogueTextUI, dialogue);
 
                 StartCoroutine(renderDialogue);
 
                 yield return SkipDialogueRequested();
 
-                if (_isRenderingDialogue)
+                if (_isDialogueRenderingAnimationInProgress)
                 {
-                    _isRenderingDialogue = false;
+                    _isDialogueRenderingAnimationInProgress = false;
                     StopCoroutine(renderDialogue);
-                    TextMeshProUGUI dialogueTextUI = GetRenderingTextUI();
                     dialogueTextUI.text = dialogue;
                     yield return SkipDialogueRequested();
                 }
@@ -252,8 +289,10 @@ namespace Pal3.UI
             {
                 _totalTimeUsedBeforeSkippingTheLastDialogue = timer.Elapsed.TotalSeconds;
             }
+            
             ResetUI();
             _skipDialogueWaiter?.CancelWait();
+            _isDialoguePresenting = false;
         }
 
         private void ResetUI()
@@ -277,14 +316,12 @@ namespace Pal3.UI
                 Destroy(button);
             }
             _selectionButtons.Clear();
-
-            _isAvatarPresented = false;
         }
 
         IEnumerator SkipDialogueRequested()
         {
-            yield return new WaitUntil(() => _skipDialogueRequested);
-            _skipDialogueRequested = false;
+            yield return new WaitUntil(() => _isSkipDialogueRequested);
+            _isSkipDialogueRequested = false;
         }
 
         private string GetDisplayText(string text)
@@ -347,46 +384,33 @@ namespace Pal3.UI
         private void SkipDialoguePerformed(InputAction.CallbackContext obj)
         {
             if (_dialogueSelectionButtonsCanvas.enabled) return;
-            _skipDialogueRequested = true;
+            _isSkipDialogueRequested = true;
         }
 
         public void Execute(DialogueRenderTextCommand command)
         {
             _skipDialogueWaiter?.CancelWait();
             _skipDialogueWaiter = new WaitUntilCanceled(this);
-            StartCoroutine(RenderDialogueAndWait(GetDisplayText(command.DialogueText), false));
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
+            DialogueRenderActorAvatarCommand avatarCommand =
+                _avatarCommandQueue.Count > 0 ? _avatarCommandQueue.Dequeue() : null;
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, avatarCommand));
         }
 
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
         {
             _skipDialogueWaiter?.CancelWait();
             _skipDialogueWaiter = new WaitUntilCanceled(this);
-            StartCoroutine(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true));
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
+            DialogueRenderActorAvatarCommand avatarCommand =
+                _avatarCommandQueue.Count > 0 ? _avatarCommandQueue.Dequeue() : null;
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, avatarCommand));
         }
 
         public void Execute(DialogueRenderActorAvatarCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-
-            var actorName = _sceneManager.GetCurrentScene().GetActor((byte)command.ActorId).Info.Name;
-            var avatarSprite = _resourceProvider.GetActorAvatarSprite(actorName, command.AvatarTextureName);
-
-            _isRightAligned = command.RightAligned == 1;
-
-            if (_isRightAligned)
-            {
-                _avatarImageRight.color = Color.white;
-                _avatarImageRight.sprite = avatarSprite;
-            }
-            else
-            {
-                _avatarImageLeft.color = Color.white;
-                _avatarImageLeft.sprite = avatarSprite;
-            }
-
-            _isAvatarPresented = true;
+            _avatarCommandQueue.Enqueue(command);
         }
 
         private string GetSelectionDisplayText(object selection)
