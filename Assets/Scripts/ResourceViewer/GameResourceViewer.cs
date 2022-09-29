@@ -275,9 +275,11 @@ namespace ResourceViewer
         private void DecompileAllSceScripts()
         {
             var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
-            if (!Directory.Exists($"{outputFolderPath}\\{GameConstants.AppName}"))
+            outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}";
+
+            if (!Directory.Exists(outputFolderPath))
             {
-                Directory.CreateDirectory($"{outputFolderPath}\\{GameConstants.AppName}");
+                Directory.CreateDirectory(outputFolderPath);
             }
             foreach (var sceFile in _sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
         }
@@ -319,14 +321,14 @@ namespace ResourceViewer
                 }
             }
 
-            var cpkFileName = filePath.Substring(filePath.LastIndexOf('\\') + 1).Replace(".sce", "");
-            Debug.Log(cpkFileName);
+            var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparator) + 1).Replace(".sce", "");
+
             var sceneName = SceneConstants.SceneCpkNameInfos
                 .FirstOrDefault(_ => string.Equals(_.cpkName, cpkFileName + CpkConstants.FileExtension, StringComparison.OrdinalIgnoreCase)).sceneName;
 
             File.WriteAllText(string.IsNullOrEmpty(sceneName)
-                    ? $"{outputFolderPath}\\{GameConstants.AppName}\\{cpkFileName}.txt"
-                    : $"{outputFolderPath}\\{GameConstants.AppName}\\{cpkFileName}_{sceneName}.txt", output.ToString());
+                    ? $"{outputFolderPath}{Path.DirectorySeparatorChar}{cpkFileName}.txt"
+                    : $"{outputFolderPath}{Path.DirectorySeparatorChar}{cpkFileName}_{sceneName}.txt", output.ToString());
 
             return true;
         }
