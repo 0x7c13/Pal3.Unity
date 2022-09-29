@@ -38,8 +38,11 @@ namespace Pal3.Actor
             get => _actor.IsActive;
             set
             {
-                _actor.IsActive = value;
-                if (value) Activate();
+                if (value)
+                {
+                    Activate();
+                    _actor.IsActive = true;
+                }
                 else DeActivate();
             }
         }
@@ -98,24 +101,28 @@ namespace Pal3.Actor
                 return;
             }
 
-            switch (_actor.Info.InitBehaviour)
+            // Perform init action
+            if (!_actor.IsActive)
             {
-                case ScnActorBehaviour.None:
-                    _currentBehaviour = ScnActorBehaviour.None;
-                    _actionController.PerformAction(_actor.GetInitAction());
-                    break;
-                case ScnActorBehaviour.Hold:
-                    _currentBehaviour = ScnActorBehaviour.Hold;
-                    _actionController.PerformAction(_actor.GetInitAction());
-                    break;
-                case ScnActorBehaviour.Wander:
-                    _currentBehaviour = ScnActorBehaviour.Wander;
-                    _actionController.PerformAction(_actor.GetIdleAction());
-                    break;
-                case ScnActorBehaviour.PathFollow:
-                    _currentBehaviour = ScnActorBehaviour.PathFollow;
-                    _actionController.PerformAction(_actor.GetIdleAction());
-                    break;
+                switch (_actor.Info.InitBehaviour)
+                {
+                    case ScnActorBehaviour.None:
+                        _currentBehaviour = ScnActorBehaviour.None;
+                        _actionController.PerformAction(_actor.GetInitAction());
+                        break;
+                    case ScnActorBehaviour.Hold:
+                        _currentBehaviour = ScnActorBehaviour.Hold;
+                        _actionController.PerformAction(_actor.GetInitAction());
+                        break;
+                    case ScnActorBehaviour.Wander:
+                        _currentBehaviour = ScnActorBehaviour.Wander;
+                        _actionController.PerformAction(_actor.GetIdleAction());
+                        break;
+                    case ScnActorBehaviour.PathFollow:
+                        _currentBehaviour = ScnActorBehaviour.PathFollow;
+                        _actionController.PerformAction(_actor.GetIdleAction());
+                        break;
+                }
             }
 
             if (_currentBehaviour == ScnActorBehaviour.PathFollow)

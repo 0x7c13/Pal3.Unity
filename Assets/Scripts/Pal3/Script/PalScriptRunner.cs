@@ -108,6 +108,8 @@ namespace Pal3.Script
             _executionMode = executionMode;
             
             _registers = new object[MAX_REGISTER_COUNT];
+            _registers[(int) RegisterOperations.Operator] = 0; // Init operator
+            
             _scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.ScriptData));
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

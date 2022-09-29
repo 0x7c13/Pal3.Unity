@@ -466,7 +466,7 @@ namespace Pal3.Actor
                         _tilemap.GetWorldPosition(position, _currentLayerIndex),
                     };
 
-                    SetupPath(directWayPoints, mode, endOfPathAction, ignoreObstacle: true);
+                    SetupPath(directWayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
                 }
                 else
                 {

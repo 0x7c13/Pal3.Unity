@@ -30,6 +30,7 @@ namespace Pal3.Player
 
         private readonly HashSet<PlayerActorId> _actorsInTeam = new ();
 
+        #if PAL3
         private static readonly float[] ActorSpawnPositionDirectionInDegrees =
         {
             40f,
@@ -38,7 +39,17 @@ namespace Pal3.Player
             -80f,
             80f,
         };
-
+        #elif PAL3A
+        private static readonly float[] ActorSpawnPositionDirectionInDegrees =
+        {
+            -40f,
+            40f,
+            0f,
+            -80f,
+            80f,
+        };
+        #endif
+        
         public TeamManager(PlayerManager playerManager, SceneManager sceneManager)
         {
             _playerManager = playerManager;

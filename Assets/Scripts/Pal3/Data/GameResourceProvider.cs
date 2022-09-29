@@ -236,12 +236,12 @@ namespace Pal3.Data
         public string GetSfxFilePath(string sfxName)
         {
             #if PAL3
-            sfxName = sfxName.ToLower();
+            string sfxFileName = (sfxName + ".wav").ToLower();
             #elif PAL3A
-            sfxName = sfxName.ToUpper();
+            string sfxFileName = (sfxName + ".wav").ToUpper();
             #endif
-            var sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" +
-                                      $"{sfxName}.wav";
+            
+            var sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" + sfxFileName;
 
             var rootPath = _fileSystem.GetRootPath();
             var sfxFilePath = $"{rootPath}{sfxFileRelativePath}";
