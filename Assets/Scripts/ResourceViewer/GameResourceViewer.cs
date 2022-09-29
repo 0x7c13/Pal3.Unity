@@ -10,6 +10,7 @@ namespace ResourceViewer
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Sce;
@@ -18,12 +19,12 @@ namespace ResourceViewer
     using Core.Utils;
     using IngameDebugConsole;
     using Newtonsoft.Json;
-    using Pal3.Command.SceCommands;
     using Pal3.Data;
-    using Pal3.Dev;
+    using Pal3.MetaData;
     using Pal3.Renderer;
     using Pal3.Script;
     using TMPro;
+    using UnityEditor;
     using UnityEngine;
     using UnityEngine.UI;
     using Random = System.Random;
@@ -52,8 +53,8 @@ namespace ResourceViewer
         private static IList<string> _sceFiles = new List<string>();
         private static readonly Random Random = new ();
 
-        private readonly int _codepage = 936; // GBK Encoding's code page,
-                                              // change it to 950 to supports Traditional Chinese (Big5)
+        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page,
+                                               // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
 
         private void OnEnable()
@@ -87,17 +88,16 @@ namespace ResourceViewer
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
-            _sceFiles = _fileSystem.Search(".sce").ToList();
+            _sceFiles = _fileSystem.Search(".sce").Where(_ => !_.Contains(".bak", StringComparison.OrdinalIgnoreCase)).ToList();
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
             randomMv3Button.onClick.AddListener(RandMv3);
             randomMp3Button.onClick.AddListener(RandMp3);
 
-            DebugLogConsole.AddCommand<string>("search", "Search files using keyword.", Search);
-            DebugLogConsole.AddCommand<string, bool>("load", "Load a file to the viewer (.pol or .mv3).", Load);
-            
-            //foreach (var sceFile in _sceFiles) if (!LoadSce(sceFile)) break;
+            DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
+            DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol or .mv3).", Load);
+            DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
         }
 
         private void Update()
@@ -148,7 +148,6 @@ namespace ResourceViewer
                 ".cvd" => LoadCvd(filePath),
                 ".mv3" => LoadMv3(filePath),
                 ".mp3" => LoadMp3(filePath),
-                ".sce" => LoadSce(filePath),
                 _ => throw new Exception($"File extension: <{ext}> not supported.")
             };
         }
@@ -272,39 +271,63 @@ namespace ResourceViewer
                 return false;
             }
         }
-
-        private bool LoadSce(string filePath)
+        
+        private void DecompileAllSceScripts()
         {
-            //Debug.Log($"Loading: {filePath}");
+            var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
+            if (!Directory.Exists($"{outputFolderPath}\\{GameConstants.AppName}"))
+            {
+                Directory.CreateDirectory($"{outputFolderPath}\\{GameConstants.AppName}");
+            }
+            foreach (var sceFile in _sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
+        }
+
+        private bool DecompileSce(string filePath, string outputFolderPath)
+        {
+            var output = new StringBuilder();
 
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
+
+            SceFile sceFile;
             
-            var sceFile = SceFileReader.Read(sceFileStream, _codepage);
+            try
+            { 
+                sceFile = SceFileReader.Read(sceFileStream, GBK_CODE_PAGE);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                return true;
+            }
 
             foreach (var scriptBlock in sceFile.ScriptBlocks)
             {
-                Debug.Log($"{filePath}_{scriptBlock.Value.Id}_{scriptBlock.Value.Description}");
-                
-                using var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
+                output.Append($"----------------------------------------------------------");
+                output.Append($"\n{scriptBlock.Value.Id} {scriptBlock.Value.Description}\n");
+
+                using BinaryReader scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
 
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
                     
-                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, _codepage);
+                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
 
-                    // if (command == null)
-                    // {
-                    //     UnknownSceCommandAnalyzer.AnalyzeCommand(scriptDataReader, commandId, parameterFlag, _codepage);
-                    //     return false;
-                    // }
-                    
-                    Debug.Log($"{command.GetType().Name.Replace("Command", "")} " +
-                              $"{JsonConvert.SerializeObject(command)}");
+                    output.Append($"{scriptDataReader.BaseStream.Position} {command.GetType().Name.Replace("Command", "")} " +
+                                  $"{JsonConvert.SerializeObject(command)}\n");
                 }
             }
-            
+
+            var cpkFileName = filePath.Substring(filePath.LastIndexOf('\\') + 1).Replace(".sce", "");
+            Debug.Log(cpkFileName);
+            var sceneName = SceneConstants.SceneCpkNameInfos
+                .FirstOrDefault(_ => string.Equals(_.cpkName, cpkFileName + CpkConstants.FileExtension, StringComparison.OrdinalIgnoreCase)).sceneName;
+
+            File.WriteAllText(string.IsNullOrEmpty(sceneName)
+                    ? $"{outputFolderPath}\\{GameConstants.AppName}\\{cpkFileName}.txt"
+                    : $"{outputFolderPath}\\{GameConstants.AppName}\\{cpkFileName}_{sceneName}.txt", output.ToString());
+
             return true;
         }
 
