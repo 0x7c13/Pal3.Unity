@@ -164,7 +164,7 @@ namespace ResourceViewer
             {
                 var (polyFile, textureProvider) = _resourceProvider.GetPol(filePath);
 
-                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
+                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile, textureProvider, Color.white);
@@ -194,7 +194,7 @@ namespace ResourceViewer
             {
                 var (cvdFile, textureProvider) = _resourceProvider.GetCvd(filePath);
 
-                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
+                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
 
@@ -231,7 +231,7 @@ namespace ResourceViewer
                     Debug.LogWarning($"{filePath} has {mv3File.Meshes.Length} meshes.");
                 }
 
-                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar));
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
                 var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
@@ -310,7 +310,7 @@ namespace ResourceViewer
 
         private bool LoadMp3(string filePath)
         {
-            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.CpkDirectorySeparatorChar);
+            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.DirectorySeparator);
             StartCoroutine(LoadMp3AudioClip(filePath,
                 _resourceProvider.GetMp3FilePathInCacheFolder(filePath)));
             return true;
