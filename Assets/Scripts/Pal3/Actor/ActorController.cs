@@ -41,9 +41,13 @@ namespace Pal3.Actor
                 if (value)
                 {
                     Activate();
-                    _actor.IsActive = true;
                 }
-                else DeActivate();
+                else
+                {
+                    DeActivate();
+                }
+
+                _actor.IsActive = value;
             }
         }
 

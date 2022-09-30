@@ -121,17 +121,24 @@ namespace Pal3.Player
             PlayerActorId playerActorId = _playerManager.GetPlayerActor();
 
             #if PAL3A
-            // Need to add all active player actors into the team
-            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.StoryA)
+            // Need to add all active player actors into the team within certain radius
             {
+                GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((byte)playerActorId);
+                Vector3 playerActorPosition = playerActor.transform.position; 
+                
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
                 var activePlayerActors = _sceneManager.GetCurrentScene()
                     .GetAllActors()
                     .Where(actor => playerActorIds.Contains(actor.Key) &&
                                     actor.Value.GetComponent<ActorController>().IsActive);
+                
                 foreach (var activePlayerActor in activePlayerActors)
                 {
-                    AddActor((PlayerActorId)activePlayerActor.Key);
+                    if (Vector3.Distance(playerActorPosition,
+                            activePlayerActor.Value.transform.position) < 13f) // 13f is about right
+                    {
+                        AddActor((PlayerActorId)activePlayerActor.Key);   
+                    }
                 }
             }
             #endif

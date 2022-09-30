@@ -274,7 +274,8 @@ namespace Pal3.Data
                 actorName, avatarName);
 
             var avatarSprite = Sprite.Create(texture,
-                new Rect(0f, 0f, texture.width, texture.height),
+                // Cut 2f to hide artifacts near edges for some of the avatar textures
+                new Rect(2f, 0f, texture.width - 2f, texture.height),
                 new Vector2(0.5f, 0f));
 
             _spriteCache[cacheKey] = avatarSprite;
