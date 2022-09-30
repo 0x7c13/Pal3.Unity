@@ -61,7 +61,7 @@ namespace Pal3.Feature
             _skipCaptionWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipCaptionWaiter));
 
-            var texture = _gameResourceProvider.GetCaptionTexture(textureName);
+            Texture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);
             var sprite = Sprite.Create(texture,
                 new Rect(0f, 0f, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f));

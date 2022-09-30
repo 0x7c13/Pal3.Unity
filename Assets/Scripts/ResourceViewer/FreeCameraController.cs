@@ -134,7 +134,7 @@ namespace ResourceViewer
 
             if (_looking)
             {
-                var delta = Mouse.current.delta.ReadValue();
+                Vector2 delta = Mouse.current.delta.ReadValue();
                 if (delta.x != 0 || delta.y != 0)
                 {
                     if (!_lookingStarted)

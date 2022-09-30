@@ -39,7 +39,7 @@ namespace Pal3.Actor
 
         public void Execute(FlyingActorFlyToCommand command)
         {
-            var targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+            Vector3 targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
             
             if (Vector3.Distance(transform.position, PlayerActorNpcInfo.InitPosition) < float.Epsilon)
             {
@@ -59,7 +59,7 @@ namespace Pal3.Actor
         
         private IEnumerator Fly(Vector3 targetPosition, float duration, WaitUntilCanceled waiter = null)
         {
-            var oldPosition = transform.position;
+            Vector3 oldPosition = transform.position;
             
             // Facing towards target position, ignoring y
             transform.forward = (new Vector3(targetPosition.x, 0f, targetPosition.z)
@@ -68,7 +68,7 @@ namespace Pal3.Actor
             var timePast = 0f;
             while (timePast < duration)
             {
-                var newPosition = oldPosition;
+                Vector3 newPosition = oldPosition;
                 newPosition += (timePast / duration) * (targetPosition - oldPosition);
 
                 transform.position = newPosition;

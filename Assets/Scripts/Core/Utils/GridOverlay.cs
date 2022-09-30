@@ -30,7 +30,7 @@
             {
                 // Unity has a built-in shader that is useful for drawing
                 // simple colored things.
-                var shader = Shader.Find("Hidden/Internal-Colored");
+                Shader shader = Shader.Find("Hidden/Internal-Colored");
                 _lineMaterial = new Material(shader);
                 _lineMaterial.hideFlags = HideFlags.HideAndDontSave;
                 // Turn on alpha blending

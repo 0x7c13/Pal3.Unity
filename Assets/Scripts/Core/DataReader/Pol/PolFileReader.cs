@@ -78,14 +78,14 @@ namespace Core.DataReader.Pol
         #endif
         {
             var name = reader.ReadString(32, codepage);
-            var transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
+            Matrix4x4 transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             });
-            var origin = GameBoxInterpreter.ToUnityPosition(transformMatrix.MultiplyPoint(Vector3.zero));
+            Vector3 origin = GameBoxInterpreter.ToUnityPosition(transformMatrix.MultiplyPoint(Vector3.zero));
 
             var type = reader.ReadInt32();
             var customColorStringLength = reader.ReadInt32();

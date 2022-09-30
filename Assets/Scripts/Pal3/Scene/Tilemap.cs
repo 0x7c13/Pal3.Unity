@@ -33,7 +33,7 @@ namespace Pal3.Scene
 
         public bool IsInsidePortalArea(Vector2Int position, int layerIndex)
         {
-            var currentLayer = _navFile.TileLayers[layerIndex];
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return currentLayer.Portals.Any(portal =>
                 GameBoxInterpreter.IsPositionInsideRect(portal, position));
         }
@@ -47,7 +47,7 @@ namespace Pal3.Scene
         public Vector3 GetWorldPosition(Vector2Int tilePosition, int layerIndex)
         {
             var isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
-            var currentLayer = _navFile.TileLayers[layerIndex];
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             var position = new Vector3(
                 currentLayer.Min.x + (tilePosition.x + 1/2f) * NavigationConstants.NavTileSize,
                 isInside ? GetTile(tilePosition, layerIndex).Y : 0f,
@@ -57,8 +57,8 @@ namespace Pal3.Scene
 
         public Vector2Int GetTilePosition(Vector3 position, int layerIndex)
         {
-            var gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
-            var currentLayer = _navFile.TileLayers[layerIndex];
+            Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return new Vector2Int(
                 (int) ((gameBoxPosition.x - currentLayer.Min.x) / NavigationConstants.NavTileSize),
                 (int) ((gameBoxPosition.z - currentLayer.Min.z) / NavigationConstants.NavTileSize));
@@ -66,14 +66,14 @@ namespace Pal3.Scene
 
         public NavTile GetTile(Vector3 position, int layerIndex)
         {
-            var currentLayer = _navFile.TileLayers[layerIndex];
-            var tilePosition = GetTilePosition(position, layerIndex);
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            Vector2Int tilePosition = GetTilePosition(position, layerIndex);
             return currentLayer.Tiles[tilePosition.x + tilePosition.y * currentLayer.Width];
         }
 
         public NavTile GetTile(Vector2Int position, int layerIndex)
         {
-            var currentLayer = _navFile.TileLayers[layerIndex];
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
         }
 
@@ -98,7 +98,7 @@ namespace Pal3.Scene
             // next to the "to" tile to compensate (if there is any walkable tile right next to it).
             if (!GetTile(to, layerIndex).IsWalkable())
             {
-                if (TryGetAdjacentWalkableTile(to, layerIndex, out var nearestWalkableTile))
+                if (TryGetAdjacentWalkableTile(to, layerIndex, out Vector2Int nearestWalkableTile))
                 {
                     to = nearestWalkableTile;
                 }
@@ -110,7 +110,7 @@ namespace Pal3.Scene
             }
 
             var path = new List<Vector2Int>();
-            var currentLayer = _navFile.TileLayers[layerIndex];
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
 
             bool IsObstacle(Vector2Int position)
             {
@@ -155,9 +155,9 @@ namespace Pal3.Scene
         // Get a walkable tile right next to the tile if any.
         public bool TryGetAdjacentWalkableTile(Vector2Int position, int layerIndex, out Vector2Int nearestWalkableTile)
         {
-            foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+            foreach (Direction direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
             {
-                var tile = position + DirectionUtils.ToVector2Int(direction);
+                Vector2Int tile = position + DirectionUtils.ToVector2Int(direction);
                 if (!IsTilePositionInsideTileMap(tile, layerIndex)) continue;
                 if (GetTile(tile, layerIndex).IsWalkable())
                 {

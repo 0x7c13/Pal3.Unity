@@ -36,10 +36,10 @@ namespace Pal3.Dev
 
                 if (flag is 0b0000 or 0b0001 or 0b0011)
                 {
-                    var nextCmdType = SceCommandTypeResolver.GetType(id, flag);
+                    Type nextCmdType = SceCommandTypeResolver.GetType(id, flag);
                     if (nextCmdType != null)
                     {
-                        var command = SceCommandParser.ParseSceCommand(reader, id, flag, codepage);
+                        ICommand command = SceCommandParser.ParseSceCommand(reader, id, flag, codepage);
                         Debug.Log($"Possible length: {length}, " +
                                   $"next command: {nextCmdType.Name}-{id}-{flag}-{JsonConvert.SerializeObject(command)}");
 

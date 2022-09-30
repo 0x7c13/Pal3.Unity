@@ -43,7 +43,7 @@ namespace Pal3.Input
             if (change == InputActionChange.ActionPerformed)
             {
                 var inputAction = (InputAction) action;
-                var lastControl = inputAction.activeControl;
+                InputControl lastControl = inputAction.activeControl;
                 if (_lastActiveInputDevice != lastControl.device)
                 {
                     _lastActiveInputDevice = lastControl.device;
@@ -57,7 +57,7 @@ namespace Pal3.Input
         {
             _playerInputActions.Disable();
 
-            var inputActionMap = state switch
+            InputActionMap inputActionMap = state switch
             {
                 GameState.Gameplay     => _playerInputActions.Gameplay.Get(),
                 GameState.Cutscene     => _playerInputActions.Cutscene.Get(),

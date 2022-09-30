@@ -55,9 +55,9 @@ namespace Pal3.Data
         public void DisposeAll()
         {
             Debug.Log($"Disposing all cached textures: {_textureCache.Count}");
-            foreach (var textureTuple in _textureCache.Values)
+            foreach ((Texture2D texture, _) in _textureCache.Values)
             {
-                UnityEngine.Object.Destroy(textureTuple.texutre);
+                UnityEngine.Object.Destroy(texture);
             }
             _textureCache.Clear();
         }

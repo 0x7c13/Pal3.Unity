@@ -195,7 +195,7 @@ namespace Core.FileSystem
         /// </summary>
         public void DisposeAllInMemoryArchives()
         {
-            foreach (var cpkArchive in _cpkArchives.Values)
+            foreach (CpkArchive cpkArchive in _cpkArchives.Values)
             {
                 cpkArchive.DisposeInMemoryArchive();
             }
@@ -237,7 +237,7 @@ namespace Core.FileSystem
 
         private IEnumerable<string> SearchInternal(IEnumerable<CpkEntry> nodes, string keyword)
         {
-            foreach (var node in nodes)
+            foreach (CpkEntry node in nodes)
             {
                 if (node.IsDirectory)
                 {

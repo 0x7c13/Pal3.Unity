@@ -31,7 +31,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            var sceneGameObject = base.Activate(resourceProvider, tintColor);
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<InvestigationTriggerController>().Init(this);
             return sceneGameObject;
         }
@@ -85,7 +85,7 @@ namespace Pal3.Scene.SceneObjects
             // TODO: impl of the lifting logic
             if (_investigationTriggerBox.Info.Type == ScnSceneObjectType.LiftingMechanism)
             {
-                var oldPosition = transform.position;
+                Vector3 oldPosition = transform.position;
                 var activeYPosition = ((float)_investigationTriggerBox.Info.Parameters[0] /
                                        GameBoxInterpreter.GameBoxUnitToUnityUnit) - 0.02f; // A small Y offset to ensure actor shadow is properly rendered
                 transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);

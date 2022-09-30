@@ -915,7 +915,7 @@ namespace Pal3.Dev
         {
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-            foreach (var command in _skipperCommands[GetCommandHashKeyPrefix(currentScene.GetSceneInfo()) + "0"])
+            foreach (ICommand command in _skipperCommands[GetCommandHashKeyPrefix(currentScene.GetSceneInfo()) + "0"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
@@ -944,7 +944,7 @@ namespace Pal3.Dev
                 var mainStoryVarValue = int.Parse(commandKey[cmdHashKeyPrefix.Length..]);
                 if (mainStoryVarCurrentValue == mainStoryVarValue)
                 {
-                    foreach (var command in _skipperCommands[commandKey])
+                    foreach (ICommand command in _skipperCommands[commandKey])
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(command);
                     }
@@ -953,7 +953,7 @@ namespace Pal3.Dev
                 }
             }
                 
-            foreach (var command in _skipperCommands[cmdHashKeyPrefix + "1"])
+            foreach (ICommand command in _skipperCommands[cmdHashKeyPrefix + "1"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
@@ -986,7 +986,7 @@ namespace Pal3.Dev
 
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
-            var currentSceneInfo = currentScene.GetSceneInfo();
+            ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
             var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentSceneInfo);
             
             if (command.NewState == GameState.Gameplay &&

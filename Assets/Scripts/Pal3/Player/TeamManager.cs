@@ -74,24 +74,24 @@ namespace Pal3.Player
 
         public void Execute(TeamOpenCommand command)
         {
-            var playerActorId = _playerManager.GetPlayerActor();
-            var playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((byte)playerActorId);
+            PlayerActorId playerActorId = _playerManager.GetPlayerActor();
+            GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((byte)playerActorId);
             var currentNavLayer = playerActor.GetComponent<ActorMovementController>().GetCurrentLayerIndex();
 
-            var tilemap = _sceneManager.GetCurrentScene().GetTilemap();
+            Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
 
             var index = 0;
 
             #if PAL3
-            foreach (var actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.HuaYing))
+            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.HuaYing))
             #elif  PAL3A
-            foreach (var actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
+            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
             #endif
             {
-                var actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)actor);
+                GameObject actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)actor);
                 actorObject.GetComponent<ActorController>().IsActive = true;
-                var spawnPosition = CalculateSpawnPosition(playerActor.transform, index);
-                var tilePosition = tilemap.GetTilePosition(spawnPosition, currentNavLayer);
+                Vector3 spawnPosition = CalculateSpawnPosition(playerActor.transform, index);
+                Vector2Int tilePosition = tilemap.GetTilePosition(spawnPosition, currentNavLayer);
                 actorObject.transform.position = tilemap.GetWorldPosition(tilePosition, currentNavLayer);
                 var actorMovementController = actorObject.GetComponent<ActorMovementController>();
                 actorMovementController.SetNavLayer(currentNavLayer);
@@ -101,7 +101,7 @@ namespace Pal3.Player
             #if PAL3
             if (IsActorInTeam(PlayerActorId.XueJian))
             {
-                var huaYing = _sceneManager.GetCurrentScene().GetActorGameObject((byte)PlayerActorId.HuaYing);
+                GameObject huaYing = _sceneManager.GetCurrentScene().GetActorGameObject((byte)PlayerActorId.HuaYing);
                 huaYing.GetComponent<ActorMovementController>().SetNavLayer(currentNavLayer);
             }
             #endif
@@ -118,7 +118,7 @@ namespace Pal3.Player
 
         public void Execute(TeamCloseCommand command)
         {
-            var playerActorId = _playerManager.GetPlayerActor();
+            PlayerActorId playerActorId = _playerManager.GetPlayerActor();
 
             #if PAL3A
             // Need to add all active player actors into the team
@@ -136,7 +136,7 @@ namespace Pal3.Player
             }
             #endif
 
-            foreach (var actor in _actorsInTeam.Where(a => a != playerActorId))
+            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actor, 0));
             }

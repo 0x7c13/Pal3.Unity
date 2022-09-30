@@ -123,7 +123,7 @@ namespace Pal3.UI
 
             _gameStateManager.GoToState(GameState.Cutscene);
 
-            var exitButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
+            GameObject exitButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
             exitButton.GetComponentInChildren<TextMeshProUGUI>().text = "退出";
             exitButton.GetComponent<Button>().onClick
                 .AddListener(delegate { BigMapButtonClicked(-1);});
@@ -132,7 +132,7 @@ namespace Pal3.UI
             for (var i = 0; i < BigMapConstants.BigMapRegions.Length; i++)
             {
                 if (!_regionEnablementInfo.ContainsKey(i) || _regionEnablementInfo[i] != 2) continue;
-                var selectionButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
+                GameObject selectionButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = BigMapConstants.BigMapRegions[i];
                 var buttonIndex = i;
@@ -145,7 +145,7 @@ namespace Pal3.UI
             for (var i = 0; i < _selectionButtons.Count; i++)
             {
                 var button = _selectionButtons[i].GetComponent<Button>();
-                var buttonNavigation = button.navigation;
+                Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Explicit;
 
                 if (i == 0)
@@ -170,7 +170,7 @@ namespace Pal3.UI
             var firstButton = _selectionButtons.First().GetComponent<Button>();
             _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
-            var lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
+            InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current)
             {
@@ -200,7 +200,7 @@ namespace Pal3.UI
             _bigMapCanvas.interactable = false;
             _isVisible = false;
             
-            foreach (var button in _selectionButtons)
+            foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();
                 Destroy(button);

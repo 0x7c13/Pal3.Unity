@@ -1945,7 +1945,7 @@ namespace Pal3.Dev
             _gameStateManager.GoToState(GameState.Cutscene);
             foreach (var story in _storySelections)
             {
-                var selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
+                GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = story.Key;
                 selectionButton.GetComponent<Button>().onClick
@@ -1957,7 +1957,7 @@ namespace Pal3.Dev
             for (var i = 0; i < _selectionButtons.Count; i++)
             {
                 var button = _selectionButtons[i].GetComponent<Button>();
-                var buttonNavigation = button.navigation;
+                Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Explicit;
 
                 if (i == 0)
@@ -1982,7 +1982,7 @@ namespace Pal3.Dev
             var firstButton = _selectionButtons.First().GetComponent<Button>();
             _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
-            var lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
+            InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current)
             {
@@ -2040,7 +2040,7 @@ namespace Pal3.Dev
             _storySelectorCanvas.alpha = 0f;
             _storySelectorCanvas.interactable = false;
 
-            foreach (var button in _selectionButtons)
+            foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();
                 Destroy(button);

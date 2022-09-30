@@ -13,12 +13,16 @@ namespace ResourceViewer
     using System.Text;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
+    using Core.DataReader.Mv3;
+    using Core.DataReader.Pol;
     using Core.DataReader.Sce;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
     using IngameDebugConsole;
     using Newtonsoft.Json;
+    using Pal3.Command;
     using Pal3.Data;
     using Pal3.MetaData;
     using Pal3.Renderer;
@@ -161,7 +165,7 @@ namespace ResourceViewer
 
             try
             {
-                var (polyFile, textureProvider) = _resourceProvider.GetPol(filePath);
+                (PolFile polyFile, ITextureResourceProvider textureProvider) = _resourceProvider.GetPol(filePath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
@@ -191,7 +195,7 @@ namespace ResourceViewer
 
             try
             {
-                var (cvdFile, textureProvider) = _resourceProvider.GetCvd(filePath);
+                (CvdFile cvdFile, ITextureResourceProvider textureProvider) = _resourceProvider.GetCvd(filePath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
@@ -223,7 +227,7 @@ namespace ResourceViewer
 
             try
             {
-                var (mv3File, textureProvider) = _resourceProvider.GetMv3(filePath);
+                (Mv3File mv3File, ITextureResourceProvider textureProvider) = _resourceProvider.GetMv3(filePath);
 
                 if (mv3File.Meshes.Length > 1)
                 {
@@ -307,14 +311,14 @@ namespace ResourceViewer
                 output.Append($"----------------------------------------------------------");
                 output.Append($"\n{scriptBlock.Value.Id} {scriptBlock.Value.Description}\n");
 
-                using BinaryReader scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
+                using var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
 
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
                     
-                    var command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
+                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
 
                     output.Append($"{scriptDataReader.BaseStream.Position} {command.GetType().Name.Replace("Command", "")} " +
                                   $"{JsonConvert.SerializeObject(command)}\n");

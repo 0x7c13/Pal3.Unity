@@ -73,7 +73,7 @@ namespace Core.DataReader.Mv3
             var meshKeyFrames = new VertexAnimationKeyFrame[numberOfMeshes][];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                var mesh = ReadMesh(reader, codepage);
+                Mv3Mesh mesh = ReadMesh(reader, codepage);
                 meshes[i] = mesh;
                 meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
             }
@@ -191,7 +191,7 @@ namespace Core.DataReader.Mv3
 
             for (var i = 0; i < mv3Mesh.Attributes[0].IndexBuffers.Length; i++)
             {
-                var indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
+                Mv3IndexBuffer indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
                 for (var j = 0; j < 3; j++)
                 {
                     var hash = indexBuffer.TriangleIndex[j] * texCoords.Length + indexBuffer.TexCoordIndex[j];
@@ -205,8 +205,8 @@ namespace Core.DataReader.Mv3
 
                         for (var k = 0; k < mv3Mesh.Frames.Length; k++)
                         {
-                            var frame = mv3Mesh.Frames[k];
-                            var vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
+                            Mv3VertFrame frame = mv3Mesh.Frames[k];
+                            Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
 
                             keyFrameInfo[k].Add((GameBoxInterpreter
                                 .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
@@ -268,7 +268,7 @@ namespace Core.DataReader.Mv3
         #endif
         {
             var tick = reader.ReadUInt32();
-            var position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
+            Vector3 position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
 
             var rotation = new GameBoxQuaternion()
             {

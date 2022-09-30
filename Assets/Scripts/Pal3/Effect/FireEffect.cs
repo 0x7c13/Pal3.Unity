@@ -6,6 +6,7 @@
 namespace Pal3.Effect
 {
     using System;
+    using Core.DataLoader;
     using Core.Renderer;
     using Data;
     using MetaData;
@@ -22,11 +23,11 @@ namespace Pal3.Effect
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
             var fireEffectType = (FireEffectType)effectParameter;
-            var info = EffectConstants.FireEffectInfo[fireEffectType];
+            (string TexturePathFormat, string ModelPath, float Size) info = EffectConstants.FireEffectInfo[fireEffectType];
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
-                var poly = resourceProvider.GetPol(info.ModelPath);
+                (Core.DataReader.Pol.PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(info.ModelPath);
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider, Color.white);
             }
@@ -39,7 +40,7 @@ namespace Pal3.Effect
                 var sprites = new Sprite[_effectTextures.Length];
                 for (var i = 0; i < _effectTextures.Length; i++)
                 {
-                    var texture = _effectTextures[i];
+                    Texture2D texture = _effectTextures[i];
                     var sprite = Sprite.Create(texture,
                         new Rect(0f, 0f, texture.width, texture.height),
                         new Vector2(0.5f, 0f));
@@ -48,7 +49,7 @@ namespace Pal3.Effect
 
                 var fps = EffectConstants.EffectAnimationInfo[GraphicsEffect.Fire].Fps;
 
-                var parentPosition = transform.position;
+                Vector3 parentPosition = transform.position;
 
                 var yPosition = parentPosition.y;
                 if (_sceneObjectRenderer != null)

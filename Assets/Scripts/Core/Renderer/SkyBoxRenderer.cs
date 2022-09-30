@@ -19,7 +19,7 @@ namespace Core.Renderer
             {
                 throw new Exception("SkyBoxRenderer needs to be attached to a camera game object.");
             }
-            var material = CreateSkyboxMaterial(textures);
+            Material material = CreateSkyboxMaterial(textures);
             _skybox = mainCamera.gameObject.AddComponent<Skybox>();
             _skybox.material = material;
         }

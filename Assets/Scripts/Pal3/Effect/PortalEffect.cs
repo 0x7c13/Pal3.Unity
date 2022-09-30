@@ -25,7 +25,7 @@ namespace Pal3.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
-            var baseTexture = resourceProvider.GetEffectTexture(PORTAL_BASE_TEXTURE_NAME);
+            Texture2D baseTexture = resourceProvider.GetEffectTexture(PORTAL_BASE_TEXTURE_NAME);
 
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.sprite = Sprite.Create(baseTexture,

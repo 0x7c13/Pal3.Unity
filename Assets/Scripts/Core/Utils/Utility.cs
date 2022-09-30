@@ -157,7 +157,7 @@ namespace Core.Utils
         public static Bounds EncapsulateBounds(IEnumerable<Bounds> bounds)
         {
             var finalBounds = new Bounds(Vector3.zero, Vector3.zero);
-            foreach (var b in bounds)
+            foreach (Bounds b in bounds)
             {
                 finalBounds.Encapsulate(b);
             }

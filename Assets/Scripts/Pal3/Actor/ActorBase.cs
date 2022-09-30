@@ -80,7 +80,7 @@ namespace Pal3.Actor
 
         public (Mv3File mv3File, ITextureResourceProvider textureProvider) GetActionMv3(string actionName)
         {
-            var action = _actorConfig.ActorActions
+            ActorAction action = _actorConfig.ActorActions
                 .First(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
 
             var separator = CpkConstants.DirectorySeparator;

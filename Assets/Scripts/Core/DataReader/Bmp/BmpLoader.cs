@@ -141,10 +141,10 @@ namespace Core.DataReader.Bmp
 
         public void ReplaceColor(Color32 aColorToSearch, Color32 aReplacementColor)
         {
-            var s = aColorToSearch;
+            Color32 s = aColorToSearch;
             for (int i = 0; i < imageData.Length; i++)
             {
-                var c = imageData[i];
+                Color32 c = imageData[i];
                 if (c.r == s.r && c.g == s.g && c.b == s.b && c.a == s.a)
                     imageData[i] = aReplacementColor;
             }
@@ -167,7 +167,7 @@ namespace Core.DataReader.Bmp
 
         public BMPImage LoadBmp(string aFileName)
         {
-            using var file = File.OpenRead(aFileName);
+            using FileStream file = File.OpenRead(aFileName);
             return LoadBmp(file);
         }
 

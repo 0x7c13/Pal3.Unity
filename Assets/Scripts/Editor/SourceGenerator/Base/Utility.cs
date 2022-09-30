@@ -45,7 +45,7 @@ namespace Editor.SourceGenerator.Base
         public static Type[] GetTypesOfInterface(Type interfaceType)
         {
             var result = new List<Type>();
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
             {
                 result.AddRange(asm.GetTypes()
                     .Where(t => t.IsClass && t.GetInterfaces().Contains(interfaceType)));

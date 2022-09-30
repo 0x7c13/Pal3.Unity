@@ -9,6 +9,8 @@ namespace Pal3.Scene
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Sce;
+    using Core.DataReader.Scn;
     using Data;
     using Newtonsoft.Json;
     using Script;
@@ -53,7 +55,7 @@ namespace Pal3.Scene
             timer.Start();
             DisposeCurrentScene();
 
-            var scnFile = _resourceProvider.GetScn(sceneFileName, sceneName);
+            ScnFile scnFile = _resourceProvider.GetScn(sceneFileName, sceneName);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
             Debug.Log("Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
@@ -65,7 +67,7 @@ namespace Pal3.Scene
             _currentScene.Load(scnFile, _currentSceneRoot);
 
             // Add scene script
-            var sceFile = _resourceProvider.GetSceneSce(sceneFileName);
+            SceFile sceFile = _resourceProvider.GetSceneSce(sceneFileName);
             _scriptManager.AddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}");
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePostLoadingNotification(scnFile.SceneInfo));

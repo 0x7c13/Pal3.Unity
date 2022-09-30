@@ -14,6 +14,7 @@ namespace Pal3.Audio
     using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using MetaData;
@@ -216,14 +217,14 @@ namespace Pal3.Audio
             }
 
             var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
-            var cancellationToken = _sceneAudioCts.Token;
+            CancellationToken cancellationToken = _sceneAudioCts.Token;
             StartCoroutine(PlaySfx(sfxFilePath, loopCount, cancellationToken));
         }
 
         public void Execute(PlaySfxAtGameObjectRequest request)
         {
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
-            var cancellationToken = _sceneAudioCts.Token;
+            CancellationToken cancellationToken = _sceneAudioCts.Token;
             StartCoroutine(PlaySfxAfterDelay(sfxFilePath,
                 request.StartDelayInSeconds,
                 request.LoopCount,
@@ -266,7 +267,7 @@ namespace Pal3.Audio
             _currentScriptMusic = string.Empty;
             _currentMusicClipName = string.Empty;
 
-            var sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
+            ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
             PlaySceneMusic(sceneInfo.CityName, sceneInfo.Name);
         }
 

@@ -26,7 +26,7 @@ namespace Pal3.Script
             // 1. Return type of the method
             // 2. Name prefix of the method (Read...)
             // 3. No parameters
-            foreach (var methodInfo in typeof(BinaryReader).GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            foreach (MethodInfo methodInfo in typeof(BinaryReader).GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (methodInfo.ReturnType == readPropertyType &&
                     methodInfo.Name.StartsWith("Read") &&

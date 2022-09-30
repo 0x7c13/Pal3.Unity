@@ -119,7 +119,7 @@ namespace Core.DataReader.Cpk
 
         private byte[] ReadAllBytesUsingInMemoryCache(string fileVirtualPath)
         {
-            var entity = ValidateAndGetTableEntity(fileVirtualPath);
+            CpkTableEntity entity = ValidateAndGetTableEntity(fileVirtualPath);
 
             byte[] data;
 
@@ -141,7 +141,7 @@ namespace Core.DataReader.Cpk
 
         private byte[] GetFileContent(string fileVirtualPath)
         {
-            var entity = ValidateAndGetTableEntity(fileVirtualPath);
+            CpkTableEntity entity = ValidateAndGetTableEntity(fileVirtualPath);
             return GetFileContentInternal(entity);
         }
 
@@ -179,7 +179,7 @@ namespace Core.DataReader.Cpk
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
             }
 
-            var entity = _tableEntities[_crcToTableIndexMap[crc]];
+            CpkTableEntity entity = _tableEntities[_crcToTableIndexMap[crc]];
 
             if (entity.IsDirectory())
             {
@@ -221,7 +221,7 @@ namespace Core.DataReader.Cpk
 
         private void BuildCrcIndexMap()
         {
-            foreach (var (index, entity) in _tableEntities)
+            foreach ((var index, CpkTableEntity entity) in _tableEntities)
             {
                 _crcToTableIndexMap[entity.CRC] = index;
 
@@ -264,7 +264,7 @@ namespace Core.DataReader.Cpk
                     FileOptions.RandomAccess);
             }
 
-            foreach (var entity in _tableEntities.Values)
+            foreach (CpkTableEntity entity in _tableEntities.Values)
             {
                 long extraInfoOffset = entity.StartPos + entity.PackedSize;
                 var extraInfo = new byte[entity.ExtraInfoSize];
@@ -291,7 +291,7 @@ namespace Core.DataReader.Cpk
             foreach (var childCrc in _fatherCrcToChildCrcTableIndexMap[fatherCrc])
             {
                 var index = _crcToTableIndexMap[childCrc];
-                var child = _tableEntities[index];
+                CpkTableEntity child = _tableEntities[index];
                 var fileName = Encoding.GetEncoding(_codepage).GetString(_fileNameMap[child.CRC]);
 
                 var virtualPath = rootPath + fileName;

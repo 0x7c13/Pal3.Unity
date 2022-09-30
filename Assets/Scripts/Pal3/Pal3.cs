@@ -8,6 +8,7 @@ namespace Pal3
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
     using Actor;
     using Audio;
@@ -15,6 +16,7 @@ namespace Pal3
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -359,7 +361,7 @@ namespace Pal3
 
         private void Update()
         {
-            var currentState = _gameStateManager.GetCurrentState();
+            GameState currentState = _gameStateManager.GetCurrentState();
             if (currentState is GameState.Cutscene or GameState.Gameplay)
             {
                 _scriptManager.Update(Time.deltaTime);
@@ -372,10 +374,10 @@ namespace Pal3
             
             var playerActorMovementController = currentScene
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
-            var playerActorTilePosition = playerActorMovementController.GetTilePosition();
+            Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
             var varsToSave = _scriptManager.GetGlobalVariables()
                 .Where(_ => _.Key == ScriptConstants.MainStoryVariableName); // Save main story var only
-            var currentSceneInfo = currentScene.GetSceneInfo();
+            ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
             var commands = new List<ICommand>
             {
@@ -414,7 +416,7 @@ namespace Pal3
             
             var info = new StringBuilder();
 
-            var currentSceneInfo = currentScene.GetSceneInfo();
+            ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
             info.Append($"Current scene: {currentSceneInfo.CityName} {currentSceneInfo.Name}\n");
 
@@ -430,12 +432,12 @@ namespace Pal3
         private static string ToString(ICommand command)
         {
             var builder = new StringBuilder();
-            var type = command.GetType();
+            Type type = command.GetType();
             
             builder.Append(type.Name[..^"Command".Length]);
             builder.Append(' ');
             
-            foreach (var propertyInfo in type.GetProperties())
+            foreach (PropertyInfo propertyInfo in type.GetProperties())
             {
                 builder.Append(propertyInfo.GetValue(command));
                 builder.Append(' ');

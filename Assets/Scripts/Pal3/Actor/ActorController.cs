@@ -194,7 +194,7 @@ namespace Pal3.Actor
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;
-            var oldPosition = transform.position;
+            Vector3 oldPosition = transform.position;
             transform.position = new Vector3(oldPosition.x,
                 command.YPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
                 oldPosition.z);

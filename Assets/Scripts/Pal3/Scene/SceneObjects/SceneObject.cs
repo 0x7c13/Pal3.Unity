@@ -5,7 +5,10 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Core.DataLoader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
+    using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Data;
@@ -32,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
-        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)
+        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)  
         {
             if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
             
@@ -89,13 +92,13 @@ namespace Pal3.Scene.SceneObjects
             {
                 if (_modelFilePath.ToLower().EndsWith(".pol"))
                 {
-                    var poly = resourceProvider.GetPol(_modelFilePath);
+                    (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
                     sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider, tintColor, disableTransparency: true);
                 }
                 else if (_modelFilePath.ToLower().EndsWith(".cvd"))
                 {
-                    var cvd = resourceProvider.GetCvd(_modelFilePath);
+                    (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
 
                     var initTime = 0f;
@@ -127,7 +130,7 @@ namespace Pal3.Scene.SceneObjects
             if (GraphicsEffect != GraphicsEffect.None &&
                 EffectTypeResolver.GetEffectComponentType(GraphicsEffect) is {} effectComponentType)
             {
-                var effectComponent = sceneGameObject.AddComponent(effectComponentType);
+                Component effectComponent = sceneGameObject.AddComponent(effectComponentType);
                 #if PAL3
                 var effectParameter = Info.EffectModelType;
                 #elif PAL3A

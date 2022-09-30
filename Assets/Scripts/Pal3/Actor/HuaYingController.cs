@@ -56,8 +56,8 @@ namespace Pal3.Actor
 
         private Vector3 GetTargetStayPosition()
         {
-            var targetFacingDirection = _target.transform.forward;
-            var xOffsetDirection = Quaternion.Euler(0f, 90f, 0f) * targetFacingDirection;
+            Vector3 targetFacingDirection = _target.transform.forward;
+            Vector3 xOffsetDirection = Quaternion.Euler(0f, 90f, 0f) * targetFacingDirection;
 
             return _target.transform.position +
                    (-targetFacingDirection * FOLLOW_TARGET_MIN_DISTANCE) +
@@ -95,7 +95,7 @@ namespace Pal3.Actor
                 transform.position = GetTargetStayPosition();
             }
 
-            var myNewPosition = GetTargetStayPosition();
+            Vector3 myNewPosition = GetTargetStayPosition();
 
             if (Vector3.Distance(myNewPosition, transform.position) > FOLLOW_TARGET_MAX_DISTANCE)
             {

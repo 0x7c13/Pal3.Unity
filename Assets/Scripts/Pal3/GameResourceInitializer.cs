@@ -127,7 +127,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component
-            var startingGameObject = Instantiate(startingComponent, null);
+            GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;
 
             yield return FadeTextAndBackgroundImage();
@@ -244,7 +244,7 @@ namespace Pal3
 
             filesToMount.Add(musicCpk);
 
-            foreach (var sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
+            foreach ((string cpkName, string relativePath) sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
             {
                 var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
                                    sceneCpkPathInfo.cpkName;

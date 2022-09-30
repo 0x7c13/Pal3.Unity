@@ -30,7 +30,7 @@ namespace Core.DataLoader
 				throw new ArgumentException($"Not a valid DXT file.");
 			}
 
-			var header = DxtHeader.ReadHeader(reader);
+			DxtHeader header = DxtHeader.ReadHeader(reader);
 			var format = header.DxtPixelFormat.Format;
 			hasAlphaChannel = format == "DXT1";
 

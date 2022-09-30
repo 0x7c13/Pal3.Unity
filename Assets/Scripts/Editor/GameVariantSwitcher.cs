@@ -55,7 +55,7 @@ namespace Editor
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
 
-            foreach (var targetGroup in GetAllSupportedTargetGroups())
+            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
             {
                 PlayerSettings.SetApplicationIdentifier(targetGroup,
                     $"{GameConstants.AppIdentifierPrefix}.{appName}");
@@ -65,7 +65,7 @@ namespace Editor
             var gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
             
-            foreach (var buildTarget in GetAllSupportedNamedBuildTargets())
+            foreach (NamedBuildTarget buildTarget in GetAllSupportedNamedBuildTargets())
             {
                 // Set app icon
                 var iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
@@ -88,7 +88,7 @@ namespace Editor
 
         private static void AddSymbol(string symbolToAdd)
         {
-            foreach (var targetGroup in GetAllSupportedTargetGroups())
+            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
             {
                 var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
                 var allDefines = defines.Split(';').ToList();
@@ -104,7 +104,7 @@ namespace Editor
 
         private static void RemoveSymbol(string symbolToDelete)
         {
-            foreach (var targetGroup in GetAllSupportedTargetGroups())
+            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
             {
                 var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
                 var allDefines = defines.Split(';').ToList();

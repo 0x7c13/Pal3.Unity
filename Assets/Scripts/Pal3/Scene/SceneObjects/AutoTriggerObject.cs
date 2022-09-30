@@ -30,7 +30,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            var sceneGameObject = base.Activate(resourceProvider, tintColor);
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<AutoTriggerObjectController>().Init(this);
             return sceneGameObject;
         }

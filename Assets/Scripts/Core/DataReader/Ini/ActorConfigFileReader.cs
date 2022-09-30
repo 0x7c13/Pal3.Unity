@@ -30,7 +30,7 @@ namespace Core.DataReader.Ini
             IniData iniData = parser.ReadData(reader);
 
             var actions = new List<ActorAction>();
-            foreach (var section in iniData.Sections
+            foreach (SectionData section in iniData.Sections
                          .Where(s => s.SectionName.StartsWith(ACTION_SECTION_HEADER_PREFIX)))
             {
                 actions.Add(new ActorAction()

@@ -83,7 +83,7 @@ namespace Pal3.Scene
 
         private void InitSceneObjectData()
         {
-            foreach (var objectInfo in ScnFile.ObjectInfos)
+            foreach (ScnObjectInfo objectInfo in ScnFile.ObjectInfos)
             {
                 if (SceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)
                 {
@@ -94,12 +94,12 @@ namespace Pal3.Scene
 
         private void InitActorData()
         {
-            foreach (var npcInfo in ScnFile.NpcInfos)
+            foreach (ScnNpcInfo npcInfo in ScnFile.NpcInfos)
             {
                 Actors[npcInfo.Id] = new Actor(_resourceProvider, npcInfo);
             }
 
-            foreach (var playerInfo in PlayerActorNpcInfo.GetAll())
+            foreach (ScnNpcInfo playerInfo in PlayerActorNpcInfo.GetAll())
             {
                 if (!Actors.ContainsKey(playerInfo.Id))
                 {
@@ -108,7 +108,7 @@ namespace Pal3.Scene
             }
 
             #if PAL3A
-            foreach (var fengYaSongInfo in FengYaSongActorNpcInfo.GetAll())
+            foreach (ScnNpcInfo fengYaSongInfo in FengYaSongActorNpcInfo.GetAll())
             {
                 if (!Actors.ContainsKey(fengYaSongInfo.Id))
                 {

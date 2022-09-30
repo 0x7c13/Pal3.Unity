@@ -33,7 +33,7 @@ namespace Pal3.Command
                 return SceCommandTypeCache[hashKey];
             }
 
-            foreach (var commandType in CommandTypes)
+            foreach (Type commandType in CommandTypes)
             {
                 if (commandType.GetCustomAttribute(typeof(SceCommandAttribute))
                         is SceCommandAttribute attribute && attribute.Id == commandId)

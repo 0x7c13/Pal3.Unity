@@ -59,7 +59,7 @@ namespace Pal3.Command
                 return;
             }
 
-            foreach (var executorType in executorTypes)
+            foreach (Type executorType in executorTypes)
             {
                 if (_executors.ContainsKey(executorType))
                 {
@@ -110,7 +110,7 @@ namespace Pal3.Command
                 return;
             }
 
-            foreach (var executorType in executorTypes)
+            foreach (Type executorType in executorTypes)
             {
                 if (!_executors.ContainsKey(executorType))
                 {
@@ -132,7 +132,7 @@ namespace Pal3.Command
         /// <returns>ICommandExecutors</returns>
         public IEnumerable<ICommandExecutor<T>> GetRegisteredExecutors<T>() where T : TCommand
         {
-            var handlerType = typeof(ICommandExecutor<T>);
+            Type handlerType = typeof(ICommandExecutor<T>);
 
             if (!_executors.ContainsKey(handlerType)) yield break;
 

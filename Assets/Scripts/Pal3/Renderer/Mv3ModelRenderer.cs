@@ -98,9 +98,9 @@ namespace Pal3.Renderer
 
             for (var i = 0; i < _meshCount; i++)
             {
-                var mesh = mv3File.Meshes[i];
+                Mv3Mesh mesh = mv3File.Meshes[i];
                 var materialId = mesh.Attributes[0].MaterialId;
-                var material = mv3File.Materials[materialId];
+                Mv3Material material = mv3File.Materials[materialId];
                 
                 InitSubMeshes(i, mesh, material);
             }
@@ -178,7 +178,7 @@ namespace Pal3.Renderer
 
             var normals = Array.Empty<Vector3>();
 
-            var renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
+            Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
                 ref normals,
                 ref _keyFrames[index][0].Uv,
@@ -241,7 +241,7 @@ namespace Pal3.Renderer
 
             if (_meshObjects != null)
             {
-                foreach (var meshObject in _meshObjects)
+                foreach (GameObject meshObject in _meshObjects)
                 {
                     DestroyImmediate(meshObject);
                 }
@@ -251,7 +251,7 @@ namespace Pal3.Renderer
 
             if (_tagNodes != null)
             {
-                foreach (var tagNode in _tagNodes)
+                foreach (GameObject tagNode in _tagNodes)
                 {
                     DestroyImmediate(tagNode);
                 }
@@ -353,7 +353,7 @@ namespace Pal3.Renderer
 
                 for (var i = 0; i < _meshCount; i++)
                 {
-                    var meshComponent = _renderMeshComponents[i];
+                    RenderMeshComponent meshComponent = _renderMeshComponents[i];
                     if (!meshComponent.MeshRenderer.IsVisible()) continue;
 
                     var frameTicks = _frameTicks[i];
@@ -391,9 +391,9 @@ namespace Pal3.Renderer
 
                         var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                        var position = Vector3.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Position,
+                        Vector3 position = Vector3.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Position,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Position, influence);
-                        var rotation = Quaternion.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
+                        Quaternion rotation = Quaternion.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Rotation, influence);
 
                         _tagNodes[i].transform.localPosition = position;
@@ -416,7 +416,7 @@ namespace Pal3.Renderer
 
             if (_renderMeshComponents != null)
             {
-                foreach (var renderMeshComponent in _renderMeshComponents)
+                foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
                     Destroy(renderMeshComponent.Mesh);
                     Destroy(renderMeshComponent.MeshRenderer);
@@ -427,7 +427,7 @@ namespace Pal3.Renderer
 
             if (_meshObjects != null)
             {
-                foreach (var meshObject in _meshObjects)
+                foreach (GameObject meshObject in _meshObjects)
                 {
                     Destroy(meshObject);
                 }

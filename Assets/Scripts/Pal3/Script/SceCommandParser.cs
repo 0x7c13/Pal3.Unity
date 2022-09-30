@@ -8,6 +8,7 @@ namespace Pal3.Script
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Reflection;
     using Command;
     using Core.Extensions;
 
@@ -21,7 +22,7 @@ namespace Pal3.Script
             ushort parameterFlag,
             int codepage)
         {
-            var commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
+            Type commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
 
             if (commandType == null) return null;
 
@@ -29,7 +30,7 @@ namespace Pal3.Script
             var args = new object[properties.Length];
             for (var i = properties.Length - 1; i >= 0; i--)
             {
-                var property = properties[i];
+                PropertyInfo property = properties[i];
                 args[i] = ReadPropertyValue(reader, property.PropertyType, i, parameterFlag, codepage);
             }
 
@@ -63,7 +64,7 @@ namespace Pal3.Script
                 var list = new List<object>();
                 for (var i = 0; i < length; i++)
                 {
-                    var varType = GetVariableType(reader.ReadByte());
+                    Type varType = GetVariableType(reader.ReadByte());
                     list.Insert(0, ReadPropertyValue(reader, varType, index, parameterFlag, codepage));
                 }
                 return list;

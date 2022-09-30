@@ -50,7 +50,7 @@ namespace Core.DataReader.Sce
             Indexes = indexes;
 
             var scriptBlocksDic = new Dictionary<uint, SceScriptBlock>();
-            foreach (var block in scriptBlocks)
+            foreach (SceScriptBlock block in scriptBlocks)
             {
                 scriptBlocksDic[block.Id] = block;
             }

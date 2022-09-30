@@ -19,7 +19,7 @@ namespace Pal3.Player
         
         public static ScnNpcInfo Get(PlayerActorId actorId)
         {
-            var initPosition = GameBoxInterpreter.ToGameBoxPosition(InitPosition);
+            Vector3 initPosition = GameBoxInterpreter.ToGameBoxPosition(InitPosition);
             return new ScnNpcInfo
             {
                 Id = (byte)actorId,

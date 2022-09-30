@@ -29,13 +29,13 @@ namespace Pal3.Scene.SceneObjects
         {
             if (SceneObjectTypeCache.ContainsKey(objectInfo.Type))
             {
-                var type = SceneObjectTypeCache[objectInfo.Type];
+                Type type = SceneObjectTypeCache[objectInfo.Type];
                 return Activator.CreateInstance(type, objectInfo, sceneInfo) as SceneObject;
             }
 
-            foreach (var objectType in SceneObjectTypes)
+            foreach (Type objectType in SceneObjectTypes)
             {
-                foreach (var attribute in objectType.GetCustomAttributes(typeof(ScnSceneObjectAttribute)))
+                foreach (Attribute attribute in objectType.GetCustomAttributes(typeof(ScnSceneObjectAttribute)))
                 {
                     if (attribute is ScnSceneObjectAttribute sceneObjectAttribute &&
                         sceneObjectAttribute.Type == objectInfo.Type)

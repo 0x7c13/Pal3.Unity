@@ -122,7 +122,7 @@ namespace Core.DataReader.Cvd
 
             var scale = reader.ReadSingle();
 
-            var mesh = ReadMesh(reader, version, codepage);
+            CvdMesh mesh = ReadMesh(reader, version, codepage);
             if (mesh.AnimationTimeKeys.Last() > animationDuration) animationDuration = mesh.AnimationTimeKeys.Last();
 
             var transformMatrix = new GameBoxMatrix4X4()
@@ -182,7 +182,7 @@ namespace Core.DataReader.Cvd
 
             for (var i = 0; i < frameInfos.Length; i++)
             {
-                var (type, data) = frameInfos[i];
+                (CvdAnimationKeyType type, var data) = frameInfos[i];
 
                 switch (type)
                 {
@@ -236,14 +236,14 @@ namespace Core.DataReader.Cvd
 
             for (var i = 0; i < frameInfos.Length; i++)
             {
-                var (type, data) = frameInfos[i];
+                (CvdAnimationKeyType type, var data) = frameInfos[i];
 
                 switch (type)
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
                         var rotationKey = Utility.ReadStruct<CvdTcbRotationKey>(data);
-                        var quaternion = Quaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
+                        Quaternion quaternion = Quaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
@@ -297,7 +297,7 @@ namespace Core.DataReader.Cvd
 
             for (var i = 0; i < frameInfos.Length; i++)
             {
-                var (type, data) = frameInfos[i];
+                (CvdAnimationKeyType type, var data) = frameInfos[i];
 
                 switch (type)
                 {
@@ -361,9 +361,9 @@ namespace Core.DataReader.Cvd
                 var vertices = new CvdVertex[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
-                    var uv = reader.ReadVector2();
-                    var normal = reader.ReadVector3();
-                    var position = reader.ReadVector3();
+                    Vector2 uv = reader.ReadVector2();
+                    Vector3 normal = reader.ReadVector3();
+                    Vector3 position = reader.ReadVector3();
 
                     vertices[j] = new CvdVertex()
                     {

@@ -182,7 +182,7 @@ namespace Pal3.Script
                 throw new InvalidDataException($"Command Id is invalid: {commandId}");
             }
 
-            var command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
+            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
 
             if (command == null)
             {

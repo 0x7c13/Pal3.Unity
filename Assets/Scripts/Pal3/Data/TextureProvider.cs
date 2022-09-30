@@ -39,9 +39,9 @@ namespace Pal3.Data
         {
             if (_textureCache != null && _textureCache.Contains(textureFullPath))
             {
-                var textureInfo = _textureCache.GetTextureFromCache(textureFullPath);
-                hasAlphaChannel = textureInfo.hasAlphaChannel;
-                return textureInfo.texture;
+                (Texture2D texture, bool hasAlpha) = _textureCache.GetTextureFromCache(textureFullPath);
+                hasAlphaChannel = hasAlpha;
+                return texture;
             }
 
             hasAlphaChannel = false;
@@ -100,8 +100,8 @@ namespace Pal3.Data
             }
 
             // Get dds texture
-            var textureLoader = _textureLoaderFactory.GetTextureLoader(".dds");
-            var texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
+            ITextureLoader textureLoader = _textureLoaderFactory.GetTextureLoader(".dds");
+            Texture2D texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
             if (texture != null)
             {
                 _textureCache?.Add(ddsTexturePath, texture, hasAlphaChannel);

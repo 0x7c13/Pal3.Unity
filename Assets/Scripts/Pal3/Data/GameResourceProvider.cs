@@ -8,7 +8,6 @@ namespace Pal3.Data
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -99,9 +98,9 @@ namespace Pal3.Data
             polFilePath = polFilePath.ToLower();
             if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
             var polData = _fileSystem.ReadAllBytes(polFilePath);
-            var polFile = PolFileReader.Read(polData, _codepage);
+            PolFile polFile = PolFileReader.Read(polData, _codepage);
             var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.DirectorySeparator);
-            var textureProvider = GetTextureResourceProvider(relativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _polCache[polFilePath] = (polFile, textureProvider);
             return (polFile, textureProvider);
         }
@@ -111,9 +110,9 @@ namespace Pal3.Data
             cvdFilePath = cvdFilePath.ToLower();
             if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
             var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
-            var cvdFile = CvdFileReader.Read(cvdData, _codepage);
+            CvdFile cvdFile = CvdFileReader.Read(cvdData, _codepage);
             var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.DirectorySeparator);
-            var textureProvider = GetTextureResourceProvider(relativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
             return (cvdFile, textureProvider);
         }
@@ -123,9 +122,9 @@ namespace Pal3.Data
             mv3FilePath = mv3FilePath.ToLower();
             if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
             var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
-            var mv3File = Mv3FileReader.Read(mv3Data, _codepage);
+            Mv3File mv3File = Mv3FileReader.Read(mv3Data, _codepage);
             var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparator);
-            var textureProvider = GetTextureResourceProvider(relativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
         }
@@ -257,7 +256,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                 $"{FileConstants.ActorFolderName}{separator}{actorName}{separator}";
 
-            var textureProvider = GetTextureResourceProvider(roleAvatarTextureRelativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
 
@@ -267,11 +266,11 @@ namespace Pal3.Data
 
             if (_spriteCache.ContainsKey(cacheKey))
             {
-                var sprite = _spriteCache[cacheKey];
+                Sprite sprite = _spriteCache[cacheKey];
                 if (sprite.texture != null) return sprite;
             }
 
-            var texture = GetActorAvatarTexture(
+            Texture2D texture = GetActorAvatarTexture(
                 actorName, avatarName);
 
             var avatarSprite = Sprite.Create(texture,
@@ -290,7 +289,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                 $"{FileConstants.UIFolderName}{separator}{FileConstants.EmojiFolderName}{separator}";
 
-            var textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
         }
 
@@ -303,7 +302,7 @@ namespace Pal3.Data
                 $"{FileConstants.CaptionFolderName}{separator}";
 
             // No need to cache caption texture since it is a one time thing
-            var textureProvider = GetTextureResourceProvider(captionTextureRelativePath, useCache: false);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(captionTextureRelativePath, useCache: false);
             return textureProvider.GetTexture($"{name}.tga");
         }
 
@@ -313,7 +312,7 @@ namespace Pal3.Data
 
             var relativePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
-            var textureProvider = GetTextureResourceProvider(
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(
                 Utility.GetDirectoryName(relativePath, separator));
 
             var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
@@ -321,7 +320,7 @@ namespace Pal3.Data
             {
                 var textureNameFormat = Utility.GetFileName(
                     string.Format(SceneConstants.SkyBoxTexturePathFormat[i], skyBoxId), separator);
-                var texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
+                Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
                 textures[i] = texture;
@@ -338,16 +337,16 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                 $"{FileConstants.EffectFolderName}{separator}";
 
-            var textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
-            var effectTexture = textureProvider.GetTexture(name);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
+            Texture2D effectTexture = textureProvider.GetTexture(name);
             Utility.ApplyTransparencyBasedOnColorLuminance(effectTexture);
             return effectTexture;
         }
 
         public Sprite[] GetEmojiSprites(ActorEmojiType emojiType)
         {
-            var textureInfo = ActorEmojiConstants.TextureInfo[emojiType];
-            var spriteSheet = GetEmojiSpriteSheetTexture(emojiType);
+            (int Width, int Height, int Frames) textureInfo = ActorEmojiConstants.TextureInfo[emojiType];
+            Texture2D spriteSheet = GetEmojiSpriteSheetTexture(emojiType);
 
             var widthIndex = 0f;
             var sprites = new Sprite[textureInfo.Frames];
@@ -358,7 +357,7 @@ namespace Pal3.Data
 
                 if (_spriteCache.ContainsKey(cacheKey))
                 {
-                    var sprite = _spriteCache[cacheKey];
+                    Sprite sprite = _spriteCache[cacheKey];
                     if (sprite.texture != null)
                     {
                         sprites[i] = sprite;
@@ -394,7 +393,7 @@ namespace Pal3.Data
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
-                var config = ActorConfigFileReader.Read(configData);
+                ActorConfigFile config = ActorConfigFileReader.Read(configData);
                 _actorConfigCache[actorConfigFilePath] = config;
                 return config;
             }
@@ -419,7 +418,7 @@ namespace Pal3.Data
 
             var supportedVideoFormats = UnitySupportedVideoFormats.GetSupportedVideoFormats(Application.platform);
 
-            foreach (var file in new DirectoryInfo(videoFolder).GetFiles($"*.*", SearchOption.AllDirectories))
+            foreach (FileInfo file in new DirectoryInfo(videoFolder).GetFiles($"*.*", SearchOption.AllDirectories))
             {
                 var fileExtension = Path.GetExtension(file.Name);
                 if (supportedVideoFormats.Contains(fileExtension.ToLower()) &&
@@ -436,7 +435,7 @@ namespace Pal3.Data
         public Texture2D[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             var separator = CpkConstants.DirectorySeparator;
-            var textureProvider = GetTextureResourceProvider(
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(
                 Utility.GetDirectoryName(texturePathFormat, separator));
 
             if (effect == GraphicsEffect.Fire)
@@ -446,7 +445,7 @@ namespace Pal3.Data
                 for (var i = 0; i < numberOfFrames; i++)
                 {
                     var textureNameFormat = Utility.GetFileName(texturePathFormat, separator);
-                    var texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1));
+                    Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1));
                     textures[i] = texture;
                 }
 

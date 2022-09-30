@@ -68,17 +68,17 @@ namespace Core.Algorithm.PathFinding
             }
 
             // Init start node
-            var startNode = nodeArray[GetIndex(from.x, from.y, gridSize.x)];
+            Node startNode = nodeArray[GetIndex(from.x, from.y, gridSize.x)];
             startNode.GCost = 0;
             startNode.CalculateFCost();
             nodeArray[startNode.Index] = startNode;
 
             var endNodeIndex = GetIndex(to.x, to.y, gridSize.x);
 
-            List<int> openList = new List<int>();
-            List<int> closedList = new List<int>();
+            var openList = new List<int>();
+            var closedList = new List<int>();
 
-            Vector2Int[] neighbourOffset = new Vector2Int[8];
+            var neighbourOffset = new Vector2Int[8];
             neighbourOffset[0] = new Vector2Int(+0, -1);
             neighbourOffset[1] = new Vector2Int(+0, +1);
             neighbourOffset[2] = new Vector2Int(-1, +0);
@@ -93,7 +93,7 @@ namespace Core.Algorithm.PathFinding
             while (openList.Count > 0)
             {
                 var currentNodeIndex = GetLowestCostFNodeIndex(openList, nodeArray);
-                var currentNode = nodeArray[currentNodeIndex];
+                Node currentNode = nodeArray[currentNodeIndex];
                 if (currentNodeIndex == endNodeIndex)
                 {
                     break;
@@ -113,7 +113,7 @@ namespace Core.Algorithm.PathFinding
 
                 for (var i = 0; i < neighbourOffset.Length; i++)
                 {
-                    var offset = neighbourOffset[i];
+                    Vector2Int offset = neighbourOffset[i];
                     var neighbourPosition = new Vector2Int(currentNode.X + offset.x, currentNode.Y + offset.y);
 
                     if (!IsPositionInsideGrid(neighbourPosition, gridSize))
@@ -128,7 +128,7 @@ namespace Core.Algorithm.PathFinding
                         continue;
                     }
 
-                    var neighbourNode = nodeArray[neighbourNodeIndex];
+                    Node neighbourNode = nodeArray[neighbourNodeIndex];
                     if (neighbourNode.IsObstacle)
                     {
                         continue;
@@ -152,7 +152,7 @@ namespace Core.Algorithm.PathFinding
                 }
             }
 
-            var endNode = nodeArray[endNodeIndex];
+            Node endNode = nodeArray[endNodeIndex];
             if (endNode.PreviousNodeIndex != -1)
             {
                 var pathList = GetPath(nodeArray, endNode);
@@ -172,10 +172,10 @@ namespace Core.Algorithm.PathFinding
 
         private static int GetLowestCostFNodeIndex(IList<int> openList, ReadOnlySpan<Node> nodeArray)
         {
-            var lowestCostNode = nodeArray[openList[0]];
+            Node lowestCostNode = nodeArray[openList[0]];
             for (var i = 0; i < openList.Count; i++)
             {
-                var currentNode = nodeArray[openList[i]];
+                Node currentNode = nodeArray[openList[i]];
                 if (currentNode.FCost < lowestCostNode.FCost)
                 {
                     lowestCostNode = currentNode;
@@ -202,10 +202,10 @@ namespace Core.Algorithm.PathFinding
             else
             {
                 List<Vector2Int> path = new () { new Vector2Int(endNode.X, endNode.Y) };
-                var currentNode = endNode;
+                Node currentNode = endNode;
                 while (currentNode.PreviousNodeIndex != -1)
                 {
-                    var previousNode = nodeArray[currentNode.PreviousNodeIndex];
+                    Node previousNode = nodeArray[currentNode.PreviousNodeIndex];
                     path.Add(new Vector2Int(previousNode.X, previousNode.Y));
                     currentNode = previousNode;
                 }

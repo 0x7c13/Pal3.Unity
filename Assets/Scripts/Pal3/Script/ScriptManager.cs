@@ -46,7 +46,7 @@ namespace Pal3.Script
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
-            foreach (var scriptRunner in _runningScripts)
+            foreach (PalScriptRunner scriptRunner in _runningScripts)
             {
                 scriptRunner.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 scriptRunner.Dispose();
@@ -121,7 +121,7 @@ namespace Pal3.Script
 
             if (_runningScripts.Count == 0) return;
 
-            foreach (var script in _runningScripts)
+            foreach (PalScriptRunner script in _runningScripts)
             {
                 if (!script.Update(deltaTime))
                 {
@@ -129,7 +129,7 @@ namespace Pal3.Script
                 }
             }
 
-            foreach (var finishedScript in _finishedScripts)
+            foreach (PalScriptRunner finishedScript in _finishedScripts)
             {
                 _runningScripts.Remove(finishedScript);
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
@@ -197,13 +197,13 @@ namespace Pal3.Script
 
         public void Execute(ResetGameStateCommand command)
         {
-            foreach (var script in _pendingScripts)
+            foreach (PalScriptRunner script in _pendingScripts)
             {
                 script.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 script.Dispose();
             }
 
-            foreach (var script in _runningScripts)
+            foreach (PalScriptRunner script in _runningScripts)
             {
                 script.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 script.Dispose();

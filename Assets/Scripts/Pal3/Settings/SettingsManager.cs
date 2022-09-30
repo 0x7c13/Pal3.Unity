@@ -48,8 +48,8 @@ namespace Pal3.Settings
                 {
                     int GetAndroidSdkLevel()
                     {
-                        var versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
-                        var sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
+                        IntPtr versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
+                        IntPtr sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
                         var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
                         return sdkLevel;
                     }

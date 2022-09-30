@@ -68,7 +68,7 @@ namespace Core.Animation
             AnimationCurveType curveType = AnimationCurveType.Linear,
             CancellationToken cancellationToken = default)
         {
-            var oldPosition = target.position;
+            Vector3 oldPosition = target.position;
 
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
@@ -90,11 +90,11 @@ namespace Core.Animation
             bool shakeOnYAxis,
             bool shakeOnZAxis)
         {
-            var originalPosition = target.localPosition;
+            Vector3 originalPosition = target.localPosition;
 
             while (duration > 0 && target != null)
             {
-                var delta = UnityEngine.Random.insideUnitSphere * amplitude;
+                Vector3 delta = UnityEngine.Random.insideUnitSphere * amplitude;
                 target.localPosition = originalPosition + new Vector3(
                     shakeOnXAxis ? delta.x : 0f,
                     shakeOnYAxis ? delta.y : 0f,
@@ -116,16 +116,16 @@ namespace Core.Animation
             CancellationToken cancellationToken = default)
         {
             var distance = Vector3.Distance(target.position, centerPoint);
-            var startRotation = target.rotation;
+            Quaternion startRotation = target.rotation;
 
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
-                var rotation = Quaternion.Lerp(startRotation, toRotation,
+                Quaternion rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
-                var direction = (rotation * Vector3.forward).normalized;
-                var newPosition = centerPoint + direction * -(distance + (timePast / duration) * distanceDelta);
+                Vector3 direction = (rotation * Vector3.forward).normalized;
+                Vector3 newPosition = centerPoint + direction * -(distance + (timePast / duration) * distanceDelta);
 
                 target.rotation = rotation;
                 target.position = newPosition;
@@ -149,12 +149,12 @@ namespace Core.Animation
             AnimationCurveType curveType,
             CancellationToken cancellationToken = default)
         {
-            var startRotation = target.rotation;
+            Quaternion startRotation = target.rotation;
 
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
-                var rotation = Quaternion.Lerp(startRotation, toRotation,
+                Quaternion rotation = Quaternion.Lerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
                 target.rotation = rotation;

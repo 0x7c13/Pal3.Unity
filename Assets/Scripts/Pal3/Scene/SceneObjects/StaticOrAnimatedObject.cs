@@ -21,7 +21,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            var sceneGameObject = base.Activate(resourceProvider, tintColor);
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(this);
             return sceneGameObject;
         }
@@ -71,15 +71,15 @@ namespace Pal3.Scene.SceneObjects
             // 2 means the object is animated with constant rotation.
             if ((int)_sceneObject.Info.Parameters[2] == 1)
             {
-                var currentTransform = transform;
-                var currentPosition = currentTransform.localPosition;
+                Transform currentTransform = transform;
+                Vector3 currentPosition = currentTransform.localPosition;
                 transform.localPosition = new Vector3(currentPosition.x,
                     _startYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
             else if ((int)_sceneObject.Info.Parameters[2] == 2)
             {
-                var currentTransform = transform;
+                Transform currentTransform = transform;
                 transform.RotateAround(currentTransform.position, currentTransform.up, Time.deltaTime * 80f);
             }
         }

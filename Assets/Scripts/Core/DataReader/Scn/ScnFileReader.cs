@@ -45,7 +45,7 @@ namespace Core.DataReader.Scn
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
-                var npcInfo = ReadNpcInfo(reader, codepage);
+                ScnNpcInfo npcInfo = ReadNpcInfo(reader, codepage);
                 if (npcInfo.Unknown1[0] != 0 ||
                     npcInfo.Unknown1[1] != 0 ||
                     npcInfo.Unknown2[0] != 0 ||
@@ -61,7 +61,7 @@ namespace Core.DataReader.Scn
             var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
-                var sceneObject = ReadObjectInfo(reader, codepage);
+                ScnObjectInfo sceneObject = ReadObjectInfo(reader, codepage);
                 objInfos[i] = sceneObject;
             }
 

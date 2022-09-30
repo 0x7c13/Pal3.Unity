@@ -18,7 +18,7 @@ namespace Core.Renderer
 
         private void LateUpdate()
         {
-            var rotation = _camera.transform.rotation;
+            Quaternion rotation = _camera.transform.rotation;
             rotation = Quaternion.Euler(0f, rotation.eulerAngles.y, 0f);
             transform.rotation = rotation;
         }

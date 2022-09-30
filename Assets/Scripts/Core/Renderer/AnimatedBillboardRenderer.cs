@@ -51,7 +51,7 @@ namespace Core.Renderer
 
         private IEnumerator PlaySpriteAnimationInternal(Sprite[] sprites, float fps)
         {
-            foreach (var sprite in sprites)
+            foreach (Sprite sprite in sprites)
             {
                 if (!_isPlaying) yield break;
                 _spriteRenderer.sprite = sprite;

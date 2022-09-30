@@ -10,6 +10,7 @@ namespace Pal3.Renderer
     using System.Collections.Generic;
     using Core.DataLoader;
     using Core.DataReader.Pol;
+    using Core.GameBox;
     using Core.Renderer;
     using Dev;
     using UnityEngine;
@@ -66,7 +67,7 @@ namespace Pal3.Renderer
         {
             var bounds = new Bounds (transform.position, Vector3.one);
 
-            foreach (var meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 bounds.Encapsulate(meshRenderer.GetRendererBounds());
             }
@@ -78,15 +79,15 @@ namespace Pal3.Renderer
             ITextureResourceProvider textureProvider)
         {
             Dictionary<string, Texture2D> textureCache = new();
-            foreach (var mesh in polFile.Meshes)
+            foreach (PolMesh mesh in polFile.Meshes)
             {
-                foreach (var texture in mesh.Textures)
+                foreach (PolTexture texture in mesh.Textures)
                 {
                     foreach (var textureName in texture.TextureNames)
                     {
                         if (string.IsNullOrEmpty(textureName)) continue;
                         if (textureCache.ContainsKey(textureName)) continue;
-                        var texture2D = textureProvider.GetTexture(textureName);
+                        Texture2D texture2D = textureProvider.GetTexture(textureName);
                         if (texture2D != null) textureCache[textureName] = texture2D;
                     }
                 }
@@ -125,7 +126,7 @@ namespace Pal3.Renderer
                 #endif
 
                 var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();
-                var gbMaterial = mesh.Textures[i].Material;
+                GameBoxMaterial gbMaterial = mesh.Textures[i].Material;
                 var blendFlag = mesh.Textures[i].BlendFlag;
 
                 if (textures.Count == 1)
@@ -256,7 +257,7 @@ namespace Pal3.Renderer
 
             for (var i = 2; i <= ANIMATED_WATER_ANIMATION_FRAMES; i++)
             {
-                var texture = _textureProvider.GetTexture(
+                Texture2D texture = _textureProvider.GetTexture(
                     ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX +
                     $"{i:00}" +
                     ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION);
@@ -287,7 +288,7 @@ namespace Pal3.Renderer
 
         private void Dispose()
         {
-            foreach (var waterAnimation in _waterAnimations)
+            foreach (Coroutine waterAnimation in _waterAnimations)
             {
                 if (waterAnimation != null)
                 {
@@ -295,7 +296,7 @@ namespace Pal3.Renderer
                 }
             }
 
-            foreach (var meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 Destroy(meshRenderer.gameObject);
             }

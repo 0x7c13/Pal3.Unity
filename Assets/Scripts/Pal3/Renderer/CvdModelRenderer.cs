@@ -43,7 +43,7 @@ namespace Pal3.Renderer
 
             _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
 
-            foreach (var node in cvdFile.RootNodes)
+            foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
                 BuildTextureCache(node, textureProvider, _textureCache);
             }
@@ -75,16 +75,16 @@ namespace Pal3.Renderer
         {
             if (node.IsGeometryNode)
             {
-                foreach (var meshSection in node.Mesh.MeshSections)
+                foreach (CvdMeshSection meshSection in node.Mesh.MeshSections)
                 {
                     if (string.IsNullOrEmpty(meshSection.TextureName)) continue;
                     if (textureCache.ContainsKey(meshSection.TextureName)) continue;
-                    var texture2D = textureProvider.GetTexture(meshSection.TextureName);
+                    Texture2D texture2D = textureProvider.GetTexture(meshSection.TextureName);
                     if (texture2D != null) textureCache[meshSection.TextureName] = texture2D;
                 }
             }
 
-            foreach (var childNode in node.Children)
+            foreach (CvdGeometryNode childNode in node.Children)
             {
                 BuildTextureCache(childNode, textureProvider, textureCache);
             }
@@ -109,12 +109,12 @@ namespace Pal3.Renderer
 
         private Matrix4x4 GetFrameMatrix(float time, CvdGeometryNode node)
         {
-            var position = GetPosition(time, node.PositionKeyInfos);
-            var rotation = GetRotation(time, node.RotationKeyInfos);
-            var (scale, scaleRotation) = GetScale(time, node.ScaleKeyInfos);
+            Vector3 position = GetPosition(time, node.PositionKeyInfos);
+            GameBoxQuaternion rotation = GetRotation(time, node.RotationKeyInfos);
+            (Vector3 scale, GameBoxQuaternion scaleRotation) = GetScale(time, node.ScaleKeyInfos);
 
-            var scalePreRotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleRotation);
-            var scaleInverseRotation = Quaternion.Inverse(scalePreRotation);
+            Quaternion scalePreRotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleRotation);
+            Quaternion scaleInverseRotation = Quaternion.Inverse(scalePreRotation);
 
             return Matrix4x4.Translate(GameBoxInterpreter.CvdPositionToUnityPosition(position))
                    * Matrix4x4.Scale(new Vector3(node.Scale, node.Scale, node.Scale))
@@ -139,7 +139,7 @@ namespace Pal3.Renderer
                 var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
 
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
-                var frameMatrix = GetFrameMatrix(time, node);
+                Matrix4x4 frameMatrix = GetFrameMatrix(time, node);
 
                 var influence = 0f;
                 if (time > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
@@ -151,7 +151,7 @@ namespace Pal3.Renderer
 
                 for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
-                    var meshSection = node.Mesh.MeshSections[i];
+                    CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 
                     var sectionHashKey = $"{meshName}_{i}";
 
@@ -194,7 +194,7 @@ namespace Pal3.Renderer
 
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
 
-                    var renderMesh = meshRenderer.Render(ref meshDataBuffer.VertexBuffer,
+                    Mesh renderMesh = meshRenderer.Render(ref meshDataBuffer.VertexBuffer,
                         ref triangles,
                         ref meshDataBuffer.NormalBuffer,
                         ref meshDataBuffer.UvBuffer,
@@ -244,10 +244,10 @@ namespace Pal3.Renderer
                 for (var i = 0; i < frameVertices.Length; i++)
                 {
                     var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
-                    var lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
+                    Vector3 lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition));
                     // Ignoring normals here since Unity can help us do the calculation.
-                    var lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
+                    Vector2 lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
                     meshDataBuffer.UvBuffer[i] = lerpUv;
                 }
             }
@@ -255,10 +255,10 @@ namespace Pal3.Renderer
 
         private void UpdateMesh(float time)
         {
-            foreach (var (node, renderMeshComponents) in _renderers)
+            foreach ((CvdGeometryNode node, var renderMeshComponents) in _renderers)
             {
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
-                var frameMatrix = GetFrameMatrix(time, node);
+                Matrix4x4 frameMatrix = GetFrameMatrix(time, node);
 
                 var influence = 0f;
                 if (time > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
@@ -272,12 +272,12 @@ namespace Pal3.Renderer
                 {
                     if (!renderMeshComponents.ContainsKey(i)) continue;
 
-                    var renderMeshComponent = renderMeshComponents[i];
+                    RenderMeshComponent renderMeshComponent = renderMeshComponents[i];
                     if (!renderMeshComponent.MeshRenderer.IsVisible()) continue;
 
-                    var meshSection = node.Mesh.MeshSections[i];
+                    CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 
-                    var meshDataBuffer = renderMeshComponent.MeshDataBuffer;
+                    MeshDataBuffer meshDataBuffer = renderMeshComponent.MeshDataBuffer;
                     UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,
                         frameIndex,
@@ -307,7 +307,7 @@ namespace Pal3.Renderer
             if (_animation != null) StopCoroutine(_animation);
 
             _animationCts = new CancellationTokenSource();
-            var animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
+            WaitForSeconds animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
             _animation = StartCoroutine(PlayAnimationInternal(timeScale,
                 loopCount,
                 animationDelay,
@@ -366,10 +366,10 @@ namespace Pal3.Renderer
             // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodePositionInfo.Length - 1; i++)
             {
-                var toKeyFrame = nodePositionInfo[i + 1];
+                CvdAnimationPositionKeyFrame toKeyFrame = nodePositionInfo[i + 1];
                 if (time < toKeyFrame.Time)
                 {
-                    var fromKeyFrame =  nodePositionInfo[i];
+                    CvdAnimationPositionKeyFrame fromKeyFrame =  nodePositionInfo[i];
                     var influence = (time - fromKeyFrame.Time) /
                                     (toKeyFrame.Time - fromKeyFrame.Time);
                     return Vector3.Lerp(fromKeyFrame.Position, toKeyFrame.Position, influence);
@@ -384,20 +384,20 @@ namespace Pal3.Renderer
         {
             if (nodeScaleInfo.Length == 1)
             {
-                var scaleKeyFrame = nodeScaleInfo[0];
+                CvdAnimationScaleKeyFrame scaleKeyFrame = nodeScaleInfo[0];
                 return (scaleKeyFrame.Scale, scaleKeyFrame.Rotation);
             }
 
             // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodeScaleInfo.Length - 1; i++)
             {
-                var toKeyFrame = nodeScaleInfo[i + 1];
+                CvdAnimationScaleKeyFrame toKeyFrame = nodeScaleInfo[i + 1];
                 if (time < toKeyFrame.Time)
                 {
-                    var fromKeyFrame = nodeScaleInfo[i];
+                    CvdAnimationScaleKeyFrame fromKeyFrame = nodeScaleInfo[i];
                     var influence = (time - fromKeyFrame.Time) /
                                     (toKeyFrame.Time - fromKeyFrame.Time);
-                    var calculatedRotation = Quaternion.Lerp(
+                    Quaternion calculatedRotation = Quaternion.Lerp(
                         new Quaternion(fromKeyFrame.Rotation.X,
                             fromKeyFrame.Rotation.Y,
                             fromKeyFrame.Rotation.Z,
@@ -418,7 +418,7 @@ namespace Pal3.Renderer
                 }
             }
 
-            var lastKeyFrame = nodeScaleInfo[^1];
+            CvdAnimationScaleKeyFrame lastKeyFrame = nodeScaleInfo[^1];
             return (lastKeyFrame.Scale, lastKeyFrame.Rotation);
         }
 
@@ -430,13 +430,13 @@ namespace Pal3.Renderer
             // TODO: Use binary search and interpolate value based on curve type
             for (var i = 0; i < nodeRotationInfo.Length - 1; i++)
             {
-                var toKeyFrame = nodeRotationInfo[i + 1];
+                CvdAnimationRotationKeyFrame toKeyFrame = nodeRotationInfo[i + 1];
                 if (time < toKeyFrame.Time)
                 {
-                    var fromKeyFrame = nodeRotationInfo[i];
+                    CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[i];
                     var influence = (time - fromKeyFrame.Time) /
                                     (toKeyFrame.Time - fromKeyFrame.Time);
-                    var calculatedRotation = Quaternion.Lerp(
+                    Quaternion calculatedRotation = Quaternion.Lerp(
                         new Quaternion(fromKeyFrame.Rotation.X,
                             fromKeyFrame.Rotation.Y,
                             fromKeyFrame.Rotation.Z,
@@ -477,7 +477,7 @@ namespace Pal3.Renderer
         private void Dispose()
         {
             StopAnimation();
-            foreach (var meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 Destroy(meshRenderer.gameObject);
             }

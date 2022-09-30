@@ -14,6 +14,7 @@ namespace Pal3.Actor
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
+    using Core.DataReader.Pol;
     using Core.Extensions;
     using Core.Renderer;
     using Core.Services;
@@ -153,7 +154,7 @@ namespace Pal3.Actor
             _currentAction = actionName.ToLower();
             _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
 
-            var actionType = ActorConstants.ActionNames
+            ActorActionType actionType = ActorConstants.ActionNames
                 .FirstOrDefault(_ => string.Equals(_.Value, actionName, StringComparison.OrdinalIgnoreCase)).Key;
             
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
@@ -164,7 +165,7 @@ namespace Pal3.Actor
                 var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                                  $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
 
-                var (polFile, weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
+                (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
                 _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor,
                     polFile, weaponTextureProvider, Color.white);
             }
@@ -179,7 +180,7 @@ namespace Pal3.Actor
             _worldBounds = _mv3AnimationRenderer.GetWorldBounds();
             _localBounds = _mv3AnimationRenderer.GetLocalBounds();
 
-            var action = ActorConstants.ActionNames
+            ActorActionType action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
             SetupShadow(action);
@@ -222,7 +223,7 @@ namespace Pal3.Actor
                 _collider = gameObject.AddComponent<CapsuleCollider>();
             }
 
-            var bounds = GetLocalBounds();
+            Bounds bounds = GetLocalBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
             _collider.radius = bounds.size.x * 0.35f;
@@ -238,20 +239,20 @@ namespace Pal3.Actor
                                          RigidbodyConstraints.FreezeRotation;
             }
 
-            var currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
+            GameState currentGameState = ServiceLocator.Instance.Get<GameStateManager>().GetCurrentState();
             _rigidbody.isKinematic = currentGameState != GameState.Gameplay || _isKinematic;
         }
 
         private void RenderShadow()
         {
             _shadow = new GameObject("Shadow");
-            var shadowTexture = _resourceProvider.GetShadowTexture();
+            Texture2D shadowTexture = _resourceProvider.GetShadowTexture();
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
             _shadowSpriteRenderer.sprite = Sprite.Create(shadowTexture,
                 new Rect(0, 0, shadowTexture.width, shadowTexture.height),
                 new Vector2(0.5f, 0.5f));
             _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.7f);
-            var shadowTransform = _shadow.transform;
+            Transform shadowTransform = _shadow.transform;
             shadowTransform.rotation = Quaternion.Euler(90f, 0f, 0f);
             shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
             shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
@@ -274,7 +275,7 @@ namespace Pal3.Actor
             var emojiGameObject = new GameObject($"Emoji_{emojiType.ToString()}");
             emojiGameObject.transform.SetParent(transform);
             emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            var actorHeadPosition = GetActorHeadWorldPosition();
+            Vector3 actorHeadPosition = GetActorHeadWorldPosition();
             emojiGameObject.transform.position = new Vector3(actorHeadPosition.x,
                 actorHeadPosition.y + 0.1f, // With a small Y offset
                 actorHeadPosition.z);
@@ -300,7 +301,7 @@ namespace Pal3.Actor
         
         public Vector3 GetActorHeadWorldPosition()
         {
-            var parentPosition = transform.position;
+            Vector3 parentPosition = transform.position;
             
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {
@@ -478,7 +479,7 @@ namespace Pal3.Actor
             }
             else if (command.NewState == GameState.Gameplay)
             {
-                var playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
+                PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
                 _isKinematic = _actor.Info.Id != (byte)playerActor;
             }
 

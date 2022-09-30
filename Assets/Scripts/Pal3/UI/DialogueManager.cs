@@ -238,7 +238,7 @@ namespace Pal3.UI
             if (avatarCommand != null &&
                 _sceneManager.GetCurrentScene().GetActor((byte) avatarCommand.ActorId) is { } actor)
             {
-                var avatarSprite = _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName);
+                Sprite avatarSprite = _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName);
 
                 isRightAligned = avatarCommand.RightAligned == 1;
 
@@ -256,7 +256,7 @@ namespace Pal3.UI
                 isAvatarPresented = true;
             }
 
-            var dialogueTextUI = GetRenderingTextUI(isAvatarPresented, isRightAligned);
+            TextMeshProUGUI dialogueTextUI = GetRenderingTextUI(isAvatarPresented, isRightAligned);
             
             // TODO: when trackReactionTime set to true, we should also show alert on UI
             // to let player know
@@ -269,7 +269,7 @@ namespace Pal3.UI
 
             foreach (var dialogue in GetSubDialogues(text))
             {
-                var renderDialogue = RenderDialogueTextWithAnimation(dialogueTextUI, dialogue);
+                IEnumerator renderDialogue = RenderDialogueTextWithAnimation(dialogueTextUI, dialogue);
 
                 StartCoroutine(renderDialogue);
 
@@ -310,7 +310,7 @@ namespace Pal3.UI
 
             _dialogueSelectionButtonsCanvas.enabled = false;
 
-            foreach (var button in _selectionButtons)
+            foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
                 Destroy(button);
@@ -445,10 +445,10 @@ namespace Pal3.UI
         {
             _gameStateManager.GoToState(GameState.UI);
 
-            var canvasTransform = _dialogueSelectionButtonsCanvas.transform;
+            Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Count; i++)
             {
-                var selectionButton = Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
+                GameObject selectionButton = Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = GetSelectionDisplayText(command.Selections[i]);
                 var buttonIndex = i;
@@ -461,7 +461,7 @@ namespace Pal3.UI
             for (var i = 0; i < command.Selections.Count; i++)
             {
                 var button = _selectionButtons[i].GetComponentInChildren<Button>();
-                var buttonNavigation = button.navigation;
+                Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Explicit;
 
                 if (i == 0)
@@ -486,7 +486,7 @@ namespace Pal3.UI
             var firstButton = _selectionButtons.First().GetComponentInChildren<Button>();
             _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
-            var lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
+            InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current)
             {

@@ -65,8 +65,8 @@ namespace Core.DataReader.Nav
                 }
             }
 
-            var max = reader.ReadVector3();
-            var min = reader.ReadVector3();
+            Vector3 max = reader.ReadVector3();
+            Vector3 min = reader.ReadVector3();
 
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();

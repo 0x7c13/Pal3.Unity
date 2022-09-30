@@ -52,8 +52,8 @@ namespace Pal3.Effect
                 // 南宫煌形态切换为狼形态特效
                 case 164:
                 {
-                    var scene = _sceneManager.GetCurrentScene();
-                    var actor = scene.GetActor((byte)_targetActorId);
+                    Scene scene = _sceneManager.GetCurrentScene();
+                    Actor actor = scene.GetActor((byte)_targetActorId);
                     actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
                     if (actor.IsActive)
                     {
@@ -66,8 +66,8 @@ namespace Pal3.Effect
                 // 南宫煌形态切换为人形态特效
                 case 315:
                 {
-                    var scene = _sceneManager.GetCurrentScene();
-                    var actor = scene.GetActor((byte)_targetActorId);
+                    Scene scene = _sceneManager.GetCurrentScene();
+                    Actor actor = scene.GetActor((byte)_targetActorId);
                     actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
                     if (actor.IsActive)
                     {

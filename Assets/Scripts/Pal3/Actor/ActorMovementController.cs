@@ -66,14 +66,14 @@ namespace Pal3.Actor
             _currentLayerIndex = actor.Info.OnLayer;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
-            var initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(actor.Info.PositionX,
+            Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(actor.Info.PositionX,
                 actor.Info.PositionY, actor.Info.PositionZ));
 
-            var tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
+            Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
             if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
                 _tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
             {
-                var tile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
+                NavTile tile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
 
                 if (tile.IsWalkable())
                 {
@@ -85,7 +85,7 @@ namespace Pal3.Actor
                 {
                     // Snap to the nearest adjacent tile if exists
                     var nextToWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
-                        _currentLayerIndex, out var nearestTile);
+                        _currentLayerIndex, out Vector2Int nearestTile);
                     transform.position = nextToWalkableTile ?
                         _tilemap.GetWorldPosition(nearestTile, _currentLayerIndex) :
                         initPosition;
@@ -128,7 +128,7 @@ namespace Pal3.Actor
         {
             if (_currentPath.IsEndOfPath()) return;
             
-            var result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, _currentPath.IgnoreObstacle);
+            MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, _currentPath.IgnoreObstacle);
 
             if (result == MovementResult.Blocked)
             {
@@ -152,15 +152,15 @@ namespace Pal3.Actor
             // player actor's rigidbody.
             if (_isDuringCollision && _actionController.GetRigidBody() is {isKinematic: false})
             {
-                var currentPosition = transform.position;
-                var tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);
+                Vector3 currentPosition = transform.position;
+                Vector2Int tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);
                 if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
                 {
                     transform.position = _lastKnownValidPositionDuringCollision;
                 }
                 else
                 {
-                    var currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
+                    NavTile currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
                     if (!currentTile.IsWalkable())
                     {
                         transform.position = _lastKnownValidPositionDuringCollision;
@@ -225,7 +225,7 @@ namespace Pal3.Actor
 
         public void MoveToTapPoint(Dictionary<int, Vector3> tapPoints, bool isDoubleTap)
         {
-            var targetPosition = Vector3.zero;
+            Vector3 targetPosition = Vector3.zero;
             var targetPositionFound = false;
             if (tapPoints.ContainsKey(_currentLayerIndex))
             {
@@ -258,7 +258,7 @@ namespace Pal3.Actor
 
         private bool IsNearPortalAreaOfLayer(Vector3 position, int layerIndex)
         {
-            var tilePosition = _tilemap.GetTilePosition(position, layerIndex);
+            Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
 
             if (_tilemap.IsInsidePortalArea(tilePosition, layerIndex)) return true;
 
@@ -270,9 +270,9 @@ namespace Pal3.Actor
         private bool IsNotObstacleAtLayer(Vector3 position, int layerIndex, out float y)
         {
             y = 0;
-            var tilePosition = _tilemap.GetTilePosition(position, layerIndex);
+            Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
             if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) return false;
-            var tile = _tilemap.GetTile(tilePosition, layerIndex);
+            NavTile tile = _tilemap.GetTile(tilePosition, layerIndex);
             if (!tile.IsWalkable()) return false;
             y = tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit;
             return true;
@@ -280,8 +280,8 @@ namespace Pal3.Actor
 
         public MovementResult MoveTowards(Vector3 targetPosition, int movementMode, bool ignoreObstacle = false)
         {
-            var currentTransform = transform;
-            var currentPosition = currentTransform.position;
+            Transform currentTransform = transform;
+            Vector3 currentPosition = currentTransform.position;
 
             // TODO: Use speed info from datascript\scene.txt file
             //var speed = _actor.Info.Speed == 0 ? 2f : _actor.Info.Speed;
@@ -290,7 +290,7 @@ namespace Pal3.Actor
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 
-            var newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
+            Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
 
             var canGotoPosition = CanGotoPosition(currentPosition, newPosition, out var newYPosition);
 
@@ -405,7 +405,7 @@ namespace Pal3.Actor
             // Special handling for final rotation after moving backwards
             if (_currentPath.MovementMode == 2)
             {
-                var actorTransform = transform;
+                Transform actorTransform = transform;
                 actorTransform.forward = -actorTransform.forward;
             }
 
@@ -438,7 +438,7 @@ namespace Pal3.Actor
             string specialAction = null)
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
-            var fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+            Vector2Int fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
             var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Info.Id});
 
             var pathFindingThread = new Thread(() =>
@@ -554,7 +554,7 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             var moveDistance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-            var newPosition = transform.position +  (-transform.forward * moveDistance);
+            Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
             MoveTo(newPosition, 2);
         }
 

@@ -53,7 +53,7 @@ namespace Pal3.Command
         /// </summary>
         public void Dispatch(TCommand command)
         {
-            var commandExecutorType = typeof(ICommandExecutor<>).MakeGenericType(command.GetType());
+            Type commandExecutorType = typeof(ICommandExecutor<>).MakeGenericType(command.GetType());
 
             var executed = false;
             foreach (var commandExecutor in _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType))

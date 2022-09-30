@@ -18,6 +18,7 @@ namespace Pal3.Player
     using Input;
     using MetaData;
     using Scene;
+    using Scene.SceneObjects;
     using Script.Waiter;
     using State;
     using UnityEngine;
@@ -112,14 +113,14 @@ namespace Pal3.Player
                 ReadInputAndMovePlayerIfNeeded();
             }
 
-            var position = _playerActor.transform.position;
+            Vector3 position = _playerActor.transform.position;
             var layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             if (!(position == _lastKnownPosition && layerIndex == _lastKnownLayerIndex))
             {
                 _lastKnownPosition = position;
 
-                var tilePosition = _playerActorMovementController.GetTilePosition();
+                Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
                 if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
                 {
                     _lastKnownTilePosition = tilePosition;
@@ -142,12 +143,12 @@ namespace Pal3.Player
             if (movement == Vector2.zero) return;
 
             var movementMode = movement.magnitude < 0.7f ? 0 : 1;
-            var movementAction = movementMode == 0 ? ActorActionType.Walk : ActorActionType.Run;
+            ActorActionType movementAction = movementMode == 0 ? ActorActionType.Walk : ActorActionType.Run;
             _playerActorMovementController.CancelCurrentMovement();
-            var cameraTransform = _camera.transform;
-            var inputDirection = cameraTransform.forward * movement.y +
-                                cameraTransform.right * movement.x;
-            var result = PlayerActorMoveTowards(inputDirection, movementMode);
+            Transform cameraTransform = _camera.transform;
+            Vector3 inputDirection = cameraTransform.forward * movement.y +
+                                     cameraTransform.right * movement.x;
+            MovementResult result = PlayerActorMoveTowards(inputDirection, movementMode);
             _playerActorActionController.PerformAction(result == MovementResult.Blocked
                 ? ActorActionType.Stand
                 : movementAction);
@@ -163,8 +164,8 @@ namespace Pal3.Player
         /// <returns>MovementResult</returns>
         private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, int movementMode)
         {
-            var playerActorPosition = _playerActor.transform.position;
-            var result = _playerActorMovementController.MoveTowards(
+            Vector3 playerActorPosition = _playerActor.transform.position;
+            MovementResult result = _playerActorMovementController.MoveTowards(
                 playerActorPosition + inputDirection, movementMode);
 
             if (result != MovementResult.Blocked) return result;
@@ -174,14 +175,14 @@ namespace Pal3.Player
             {
                 // + degrees
                 {
-                    var newDirection = Quaternion.Euler(0f, degrees, 0f) * inputDirection;
+                    Vector3 newDirection = Quaternion.Euler(0f, degrees, 0f) * inputDirection;
                     result = _playerActorMovementController.MoveTowards(
                         playerActorPosition + newDirection, movementMode);
                     if (result != MovementResult.Blocked) return result;
                 }
                 // - degrees
                 {
-                    var newDirection = Quaternion.Euler(0f, -degrees, 0f) * inputDirection;
+                    Vector3 newDirection = Quaternion.Euler(0f, -degrees, 0f) * inputDirection;
                     result = _playerActorMovementController.MoveTowards(
                         playerActorPosition + newDirection, movementMode);
                     if (result != MovementResult.Blocked) return result;
@@ -252,7 +253,7 @@ namespace Pal3.Player
 
         private void InteractWithNearestInteractable()
         {
-            var position = _playerActorMovementController.GetWorldPosition();
+            Vector3 position = _playerActorMovementController.GetWorldPosition();
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             var nearestInteractableDistance = float.MaxValue;
@@ -267,7 +268,7 @@ namespace Pal3.Player
                     actorInfo.Key == (byte)_playerManager.GetPlayerActor() ||
                     !actorController.IsActive) continue;
 
-                var actorPosition = actorInfo.Value.transform.position;
+                Vector3 actorPosition = actorInfo.Value.transform.position;
                 var distance = Vector2.Distance(new Vector2(position.x, position.z),
                     new Vector2(actorPosition.x, actorPosition.z));
 
@@ -280,7 +281,7 @@ namespace Pal3.Player
                             new PlayerInteractionTriggeredNotification());
                         CommandDispatcher<ICommand>.Instance.Dispatch(
                             new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                        var actor = _sceneManager.GetCurrentScene().GetActor(actorInfo.Key);
+                        Actor actor = _sceneManager.GetCurrentScene().GetActor(actorInfo.Key);
                         CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)actor.Info.ScriptId));
                     };
                 }
@@ -289,12 +290,12 @@ namespace Pal3.Player
             foreach (var sceneObjectInfo in
                      _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
             {
-                var sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectInfo.Key);
+                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectInfo.Key);
 
                 if (sceneObject.Info.Type != ScnSceneObjectType.Climbable &&
                     sceneObject.Info.OnLayer != currentLayerIndex) continue;
 
-                var sceneObjectPosition = sceneObjectInfo.Value.transform.position;
+                Vector3 sceneObjectPosition = sceneObjectInfo.Value.transform.position;
                 var distance = Vector2.Distance(new Vector2(position.x, position.z),
                     new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
 
@@ -310,9 +311,9 @@ namespace Pal3.Player
 
         private void PortalToTapPosition()
         {
-            var ray = _camera.ScreenPointToRay(_lastInputTapPosition);
+            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition);
 
-            if (!Physics.Raycast(ray, out var hit)) return;
+            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
             var layerIndex = _sceneManager.GetCurrentScene().GetMeshColliders().FirstOrDefault(
                 c => c.Value.Contains(hit.collider)).Key;
@@ -324,28 +325,28 @@ namespace Pal3.Player
         private readonly Dictionary<int, Vector3> _tapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
         {
-            var currentScene = _sceneManager.GetCurrentScene();
+            Scene currentScene = _sceneManager.GetCurrentScene();
             var meshColliders = currentScene.GetMeshColliders();
 
-            var ray = _camera.ScreenPointToRay(_lastInputTapPosition);
+            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition);
 
             var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
             if (hitCount == 0) return;
 
-            var tilemap = currentScene.GetTilemap();
+            Tilemap tilemap = currentScene.GetTilemap();
 
             _tapPoints.Clear();
             for (var i = 0; i < hitCount; i++)
             {
-                var hit = _raycastHits[i];
+                RaycastHit hit = _raycastHits[i];
                 var layerIndex = meshColliders.FirstOrDefault(
                     c => c.Value.Contains(hit.collider)).Key;
 
-                var tilePosition = tilemap.GetTilePosition(hit.point, layerIndex);
+                Vector2Int tilePosition = tilemap.GetTilePosition(hit.point, layerIndex);
                 if (!tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) continue;
                 //if (!tilemap.GetTile(tilePosition, layerIndex).IsWalkable()) continue;
 
-                var cameraPosition = _camera.transform.position;
+                Vector3 cameraPosition = _camera.transform.position;
                 var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
 
                 if (_tapPoints.ContainsKey(layerIndex))
@@ -370,23 +371,23 @@ namespace Pal3.Player
 
         public void Execute(ActorPerformClimbActionCommand command)
         {
-            var scene = _sceneManager.GetCurrentScene();
-            var climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
-            var climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
+            Scene scene = _sceneManager.GetCurrentScene();
+            SceneObject climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
+            GameObject climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
             if (climbableObject == null)
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
                 return;
             }
 
-            var climbableObjectPosition = climbableObject.transform.position;
-            var climbableObjectFacing =
+            Vector3 climbableObjectPosition = climbableObject.transform.position;
+            Vector3 climbableObjectFacing =
                 Quaternion.Euler(0f, -climbableSceneObject.Info.YRotation, 0f) * Vector3.forward;
 
-            var lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
-            var lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
-            var upperPosition = -climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
-            var upperStandingPosition = -climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
+            Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
+            Vector3 lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
+            Vector3 upperPosition = -climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
+            Vector3 upperStandingPosition = -climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
 
             var currentPlayerLayer = _playerActorMovementController.GetCurrentLayerIndex();
 
@@ -394,7 +395,7 @@ namespace Pal3.Player
             var climbableHeight = climbableObject.GetComponentInChildren<StaticMeshRenderer>()
                                       .GetRendererBounds().max.y / 2f; // Half is enough for the animation
 
-            var playerCurrentPosition = _playerActor.transform.position;
+            Vector3 playerCurrentPosition = _playerActor.transform.position;
             if (command.ClimbUp == 1)
             {
                 lowerPosition.y = playerCurrentPosition.y;
@@ -424,20 +425,20 @@ namespace Pal3.Player
 
         public void Execute(PlayerActorClimbObjectCommand command)
         {
-            var scene = _sceneManager.GetCurrentScene();
-            var climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
-            var climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
+            Scene scene = _sceneManager.GetCurrentScene();
+            SceneObject climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
+            GameObject climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
             if (climbableObject == null)
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
                 return;
             }
 
-            var climbableObjectPosition = climbableObject.transform.position;
-            var climbableObjectFacing =
+            Vector3 climbableObjectPosition = climbableObject.transform.position;
+            Vector3 climbableObjectFacing =
                 Quaternion.Euler(0f, -climbableSceneObject.Info.YRotation, 0f) * Vector3.forward;
 
-            var tileMap = scene.GetTilemap();
+            Tilemap tileMap = scene.GetTilemap();
 
             int upperLayer, lowerLayer;
 
@@ -453,8 +454,8 @@ namespace Pal3.Player
                 lowerLayer = playerCurrentLayer;
             }
 
-            var fromPosition = tileMap.GetWorldPosition(command.FromPosition, lowerLayer);
-            var toPosition = tileMap.GetWorldPosition(command.ToPosition, upperLayer);
+            Vector3 fromPosition = tileMap.GetWorldPosition(command.FromPosition, lowerLayer);
+            Vector3 toPosition = tileMap.GetWorldPosition(command.ToPosition, upperLayer);
 
             Vector3 upperStandingPosition, lowerStandingPosition;
             if (fromPosition.y > toPosition.y)
@@ -468,12 +469,12 @@ namespace Pal3.Player
                 lowerStandingPosition = fromPosition;
             }
 
-            var upperPosition = -climbableObjectFacing.normalized * 1f + climbableObjectPosition;
-            var lowerPosition = climbableObjectFacing.normalized * 1f + climbableObjectPosition;
+            Vector3 upperPosition = -climbableObjectFacing.normalized * 1f + climbableObjectPosition;
+            Vector3 lowerPosition = climbableObjectFacing.normalized * 1f + climbableObjectPosition;
             upperPosition.y = upperStandingPosition.y;
             lowerPosition.y = lowerStandingPosition.y;
 
-            var playerActorPosition = _playerActor.transform.position;
+            Vector3 playerActorPosition = _playerActor.transform.position;
             var climbUp = Mathf.Abs(playerActorPosition.y - lowerPosition.y) <
                               Mathf.Abs(playerActorPosition.y - upperPosition.y);
 
@@ -600,7 +601,7 @@ namespace Pal3.Player
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
-                var currentScene = _sceneManager.GetCurrentScene();
+                Scene currentScene = _sceneManager.GetCurrentScene();
                 var currentLayerIndex = currentScene
                     .GetActorGameObject((byte) _playerManager.GetPlayerActor())
                     .GetComponent<ActorMovementController>()
@@ -648,7 +649,7 @@ namespace Pal3.Player
                     GetSceneNameHashKey(notification.NewSceneInfo),
                     StringComparison.OrdinalIgnoreCase)))
             {
-                var positionInfo = _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
+                (string scene, int actorNavIndex, Vector2Int actorTilePosition, Vector3 actorFacing) positionInfo = _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
                     _.scene,
                     GetSceneNameHashKey(notification.NewSceneInfo),
                     StringComparison.OrdinalIgnoreCase));

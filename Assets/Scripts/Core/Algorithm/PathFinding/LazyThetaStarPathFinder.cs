@@ -111,12 +111,12 @@ namespace Core.Algorithm.PathFinding
                 }
             }
 
-            var startNode = nodes[from.x, from.y];
+            SearchNode startNode = nodes[from.x, from.y];
             startNode.IsObstacle = false;
             startNode.SearchType = SearchType.Start;
             startNode.GCost = 0;
 
-            var endNode = nodes[to.x, to.y];
+            SearchNode endNode = nodes[to.x, to.y];
             endNode.IsObstacle = false;
             startNode.SearchType = SearchType.Goal;
 
@@ -146,7 +146,7 @@ namespace Core.Algorithm.PathFinding
                         for (var i = 0; i < currentNeighbors.Count; i++)
                         {
                             SearchNode neighbor = currentNeighbors[i];
-                            if(neighbor.Closed)
+                            if (neighbor.Closed)
                             {
                                 var newGCost = neighbor.GCost +
                                              heuristicFunc(new Vector2Int(neighbor.X, neighbor.Y), new Vector2Int(node.X, node.Y));
@@ -165,7 +165,7 @@ namespace Core.Algorithm.PathFinding
                 var neighbors = GetNeighbors(node, nodes);
                 for (var i = 0; i < neighbors.Count; i++)
                 {
-                    var neighbor = neighbors[i];
+                    SearchNode neighbor = neighbors[i];
                     if (IsNeighborValid(neighbor))
                     {
                         if (neighbor.Opened == false)
@@ -185,7 +185,7 @@ namespace Core.Algorithm.PathFinding
             }
 
             var path = new List<Vector2Int>();
-            var lastNode = GetNode(endNode.Position, nodes);
+            SearchNode lastNode = GetNode(endNode.Position, nodes);
             while (lastNode != null)
             {
                 path.Add(new Vector2Int(lastNode.X, lastNode.Y));
@@ -229,7 +229,7 @@ namespace Core.Algorithm.PathFinding
             SearchNode startNode,
             Func<Vector2Int, Vector2Int, int> heuristicFunc)
         {
-            var parent = (currentNode.X == startNode.X && currentNode.Y == startNode.Y)  ?
+            SearchNode parent = (currentNode.X == startNode.X && currentNode.Y == startNode.Y)  ?
                 startNode : currentNode.Parent;
 
             float gCost = parent.GCost +
@@ -264,7 +264,7 @@ namespace Core.Algorithm.PathFinding
             List<SearchNode> result,
             SearchNode[,] nodes)
         {
-            var node = GetNode(curtPos.x + dx, curtPos.y + dy, nodes);
+            SearchNode node = GetNode(curtPos.x + dx, curtPos.y + dy, nodes);
 
             if (node is {IsObstacle: false})
             {
@@ -295,7 +295,7 @@ namespace Core.Algorithm.PathFinding
                     return true;
                 }
 
-                var node = GetNode(x0, y0, nodes);
+                SearchNode node = GetNode(x0, y0, nodes);
                 if (node is {IsObstacle: true})
                 {
                     return false;
