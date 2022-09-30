@@ -96,6 +96,8 @@ namespace Pal3.UI
 
         private void ToggleBigMap()
         {
+            if (_sceneManager.GetCurrentScene() == null) return;
+            
             if (_isVisible)
             {
                 Hide();
@@ -124,7 +126,7 @@ namespace Pal3.UI
             _gameStateManager.GoToState(GameState.Cutscene);
 
             GameObject exitButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
-            exitButton.GetComponentInChildren<TextMeshProUGUI>().text = "退出";
+            exitButton.GetComponentInChildren<TextMeshProUGUI>().text = "关闭";
             exitButton.GetComponent<Button>().onClick
                 .AddListener(delegate { BigMapButtonClicked(-1);});
             _selectionButtons.Add(exitButton);

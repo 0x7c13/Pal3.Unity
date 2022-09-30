@@ -39,7 +39,7 @@ namespace Pal3.Dev
 
         private readonly Dictionary<string, string> _storySelections = new()
         {
-            {"退出", ""},
+            {"关闭", ""},
             {"新的游戏", ""},
             #if PAL3
             {"永安当-去客房找赵文昌", @"
@@ -1933,7 +1933,13 @@ namespace Pal3.Dev
 
         private void ToggleStorySelector()
         {
-            if (_storySelectorCanvas.interactable) Hide();
+            if (_sceneManager.GetCurrentScene() == null) return;
+            
+            if (_storySelectorCanvas.interactable)
+            {
+                Hide();
+                _gameStateManager.GoToState(GameState.Gameplay);
+            }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
                 Show();
@@ -1943,8 +1949,13 @@ namespace Pal3.Dev
         public void Show()
         {
             _gameStateManager.GoToState(GameState.Cutscene);
+            
+            var hideCloseButton = _sceneManager.GetCurrentScene() == null;
+            
             foreach (var story in _storySelections)
             {
+                if (hideCloseButton && story.Key == "关闭") continue;
+                
                 GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = story.Key;
@@ -1997,8 +2008,9 @@ namespace Pal3.Dev
         {
             switch (story)
             {
-                case "退出":
+                case "关闭":
                     if (_sceneManager.GetCurrentScene() == null) return;
+                    _gameStateManager.GoToState(GameState.Gameplay);
                     break;
                 case "新的游戏":
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
@@ -2046,7 +2058,6 @@ namespace Pal3.Dev
                 Destroy(button);
             }
             _selectionButtons.Clear();
-            _gameStateManager.GoToState(GameState.Gameplay);
         }
 
         public void Execute(ToggleStorySelectorRequest command)
