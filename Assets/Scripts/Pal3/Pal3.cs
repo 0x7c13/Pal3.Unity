@@ -136,6 +136,7 @@ namespace Pal3
         private BigMapManager _bigMapManager;
         private FavorManager _favorManager;
         private CaptionRenderer _captionRenderer;
+        private CursorManager _cursorManager;
 
         // Mini games
         #if PAL3
@@ -271,6 +272,12 @@ namespace Pal3
                 dialogueSelectionButtonPrefab);
             ServiceLocator.Instance.Register(_dialogueManager);
 
+            #if UNITY_STANDALONE
+            _cursorManager = gameObject.AddComponent<CursorManager>();
+            _cursorManager.Init(_gameResourceProvider);
+            ServiceLocator.Instance.Register(_cursorManager);
+            #endif
+                
             _hotelManager = gameObject.AddComponent<HotelManager>();
             _hotelManager.Init(_scriptManager, _sceneManager);
             ServiceLocator.Instance.Register(_hotelManager);

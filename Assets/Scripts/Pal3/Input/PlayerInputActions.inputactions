@@ -631,6 +631,17 @@
                     "action": "SkipVideo",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5ea955e9-ed45-4e99-a2e5-d663e5807fdb",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "MultiTap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkipVideo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

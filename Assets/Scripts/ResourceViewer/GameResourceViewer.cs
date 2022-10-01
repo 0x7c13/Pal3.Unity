@@ -101,7 +101,9 @@ namespace ResourceViewer
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol or .mv3).", Load);
+            #if UNITY_EDITOR
             DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
+            #endif
         }
 
         private void Update()
@@ -276,6 +278,7 @@ namespace ResourceViewer
             }
         }
         
+        #if UNITY_EDITOR
         private void DecompileAllSceScripts()
         {
             var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
@@ -287,6 +290,7 @@ namespace ResourceViewer
             }
             foreach (var sceFile in _sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
         }
+        #endif
 
         private bool DecompileSce(string filePath, string outputFolderPath)
         {

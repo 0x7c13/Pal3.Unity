@@ -30,6 +30,8 @@ namespace Pal3.MetaData
         public const string CaptionFolderName = "caption";
 
         public const string EmojiFolderName = "EMOTE";
+        
+        public const string CursorFolderName = "cursor";
 
         public const string MovieFolderName = "movie";
 

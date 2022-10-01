@@ -456,6 +456,18 @@ namespace Pal3.Data
             return Array.Empty<Texture2D>();
         }
 
+        public Texture2D GetCursorTexture()
+        {
+            var separator = CpkConstants.DirectorySeparator;
+
+            var emojiSpriteSheetRelativePath =
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                $"{FileConstants.UIFolderName}{separator}{FileConstants.CursorFolderName}{separator}";
+
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
+            return textureProvider.GetTexture($"jt.tga");
+        }
+        
         private string _currentSceneCityName;
         public void Execute(ScenePreLoadingNotification notification)
         {
