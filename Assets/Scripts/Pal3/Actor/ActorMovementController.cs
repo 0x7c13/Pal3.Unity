@@ -127,18 +127,22 @@ namespace Pal3.Actor
         private void Update()
         {
             if (_currentPath.IsEndOfPath()) return;
-            
-            MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode, _currentPath.IgnoreObstacle);
 
-            if (result == MovementResult.Blocked)
+            MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode,
+                _currentPath.IgnoreObstacle);
+
+            switch (result)
             {
-                ReachingToEndOfPath();
-            }
-            else if (result == MovementResult.Completed)
-            {
-                if (!_currentPath.MoveToNextWayPoint())
-                {
+                case MovementResult.Blocked:
                     ReachingToEndOfPath();
+                    break;
+                case MovementResult.Completed:
+                {
+                    if (!_currentPath.MoveToNextWayPoint())
+                    {
+                        ReachingToEndOfPath();
+                    }
+                    break;
                 }
             }
         }
@@ -171,7 +175,6 @@ namespace Pal3.Actor
                             currentTile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit,
                             currentPosition.z);
                         transform.position = adjustedPosition;
-                        _lastKnownValidPositionDuringCollision = adjustedPosition;
                     }
                 }
             }
