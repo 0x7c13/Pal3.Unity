@@ -5,6 +5,7 @@
 
 namespace Pal3.Camera
 {
+    using System;
     using System.Collections;
     using System.Threading;
     using Command;
@@ -96,10 +97,10 @@ namespace Pal3.Camera
             Canvas touchControlUI,
             Image curtainImage)
         {
-            _inputActions = inputActions;
-            _gamePlayController = gamePlayController;
-            _sceneManager = sceneManager;
-            _gameStateManager = gameStateManager;
+            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
+            _gamePlayController = gamePlayController != null ? gamePlayController : throw new ArgumentNullException(nameof(gamePlayController));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             
             _camera = mainCamera;
             _camera!.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);

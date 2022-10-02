@@ -52,10 +52,10 @@ namespace Pal3.Audio
             AudioSource musicSource,
             AudioSource sfxSource)
         {
-            _resourceProvider = resourceProvider;
-            _sceneManager = sceneManager;
-            _musicPlayer = musicSource;
-            _sfxPlayer = sfxSource;
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _musicPlayer = musicSource != null ? musicSource : throw new ArgumentNullException(nameof(musicSource));
+            _sfxPlayer = sfxSource != null ? sfxSource : throw new ArgumentNullException(nameof(sfxSource));
         }
 
         private void OnEnable()

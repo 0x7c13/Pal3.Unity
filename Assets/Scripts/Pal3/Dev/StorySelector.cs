@@ -5,6 +5,7 @@
 
 namespace Pal3.Dev
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Command;
@@ -1886,15 +1887,15 @@ namespace Pal3.Dev
             CanvasGroup storySelectorCanvas,
             GameObject storySelectorButtonPrefab)
         {
-            _inputManager = inputManager;
-            _eventSystem = eventSystem;
-            _sceneManager = sceneManager;
-            _gameStateManager = gameStateManager;
+            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
+            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _playerInputActions = inputManager.GetPlayerInputActions();
-            _scriptManager = scriptManager;
-            _saveManager = saveManager;
-            _storySelectorCanvas = storySelectorCanvas;
-            _storySelectorButtonPrefab = storySelectorButtonPrefab;
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
+            _storySelectorCanvas = storySelectorCanvas != null ? storySelectorCanvas : throw new ArgumentNullException(nameof(storySelectorCanvas));
+            _storySelectorButtonPrefab = storySelectorButtonPrefab != null ? storySelectorButtonPrefab : throw new ArgumentNullException(nameof(storySelectorButtonPrefab));
 
             _storySelectorCanvas.alpha = 0f;
             _storySelectorCanvas.interactable = false;

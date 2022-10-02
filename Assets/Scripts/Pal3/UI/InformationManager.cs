@@ -36,11 +36,11 @@ namespace Pal3.UI
 
         public void Init(CanvasGroup noteCanvasGroup, TextMeshProUGUI noteText, TextMeshProUGUI debugInfo)
         {
-            _noteCanvasGroup = noteCanvasGroup;
-            _noteCanvasGroup.alpha = 0f;
-            _noteText = noteText;
-            _debugInfo = debugInfo;
+            _noteCanvasGroup = noteCanvasGroup != null ? noteCanvasGroup : throw new ArgumentNullException(nameof(noteCanvasGroup));
+            _noteText = noteText != null ? noteText : throw new ArgumentNullException(nameof(noteText));
+            _debugInfo = debugInfo != null ? debugInfo : throw new ArgumentNullException(nameof(debugInfo));
 
+            _noteCanvasGroup.alpha = 0f;
             _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
             _heapSizeLastQueryTime = Time.realtimeSinceStartupAsDouble;
         }

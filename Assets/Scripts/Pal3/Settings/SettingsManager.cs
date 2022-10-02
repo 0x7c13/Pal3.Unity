@@ -46,14 +46,6 @@ namespace Pal3.Settings
             {
                 try
                 {
-                    int GetAndroidSdkLevel()
-                    {
-                        IntPtr versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
-                        IntPtr sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
-                        var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
-                        return sdkLevel;
-                    }
-
                     // Android 6 Marshmallow <=> API Version 23
                     if (GetAndroidSdkLevel() <= 23)
                     {
@@ -66,6 +58,14 @@ namespace Pal3.Settings
                     // ignored
                 }
             }
+        }
+        
+        private int GetAndroidSdkLevel()
+        {
+            IntPtr versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
+            IntPtr sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
+            var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
+            return sdkLevel;
         }
     }
 }

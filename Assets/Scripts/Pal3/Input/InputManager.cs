@@ -5,6 +5,7 @@
 
 namespace Pal3.Input
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using State;
@@ -17,7 +18,7 @@ namespace Pal3.Input
 
         public InputManager(PlayerInputActions playerInputActions)
         {
-            _playerInputActions = playerInputActions;
+            _playerInputActions = playerInputActions ?? throw new ArgumentNullException(nameof(playerInputActions));
             SwitchCurrentActionMap(GameState.UI);
             InputSystem.onActionChange += OnInputActionChange;
         }

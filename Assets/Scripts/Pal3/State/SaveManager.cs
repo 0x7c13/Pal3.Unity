@@ -53,14 +53,14 @@ namespace Pal3.State
             CameraManager cameraManager,
             PostProcessManager postProcessManager)
         {
-            _sceneManager = sceneManager;
-            _playerManager = playerManager;
-            _teamManager = teamManager;
-            _bigMapManager = bigMapManager;
-            _scriptManager = scriptManager;
-            _favorManager = favorManager;
-            _cameraManager = cameraManager;
-            _postProcessManager = postProcessManager;
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
+            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
+            _bigMapManager = bigMapManager != null ? bigMapManager : throw new ArgumentNullException(nameof(bigMapManager));
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _favorManager = favorManager ?? throw new ArgumentNullException(nameof(favorManager));
+            _cameraManager = cameraManager != null ? cameraManager : throw new ArgumentNullException(nameof(cameraManager));
+            _postProcessManager = postProcessManager != null ? postProcessManager : throw new ArgumentNullException(nameof(postProcessManager));
         }
 
         private string GetSaveFilePath()

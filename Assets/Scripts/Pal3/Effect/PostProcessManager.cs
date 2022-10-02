@@ -5,6 +5,7 @@
 
 namespace Pal3.Effect
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -23,8 +24,8 @@ namespace Pal3.Effect
         public void Init(PostProcessVolume volume,
             PostProcessLayer postProcessLayer)
         {
-            _postProcessVolume = volume;
-            _postProcessLayer = postProcessLayer;
+            _postProcessVolume = volume != null ? volume : throw new ArgumentNullException(nameof(volume));
+            _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
         }
 
         private void OnEnable()

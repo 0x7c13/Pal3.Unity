@@ -32,11 +32,12 @@ namespace Pal3.UI
             Button bigMapButton,
             Button storySelectionButton)
         {
-            _touchControlUI = touchControlUI;
+            _touchControlUI = touchControlUI != null ? touchControlUI : throw new ArgumentNullException(nameof(touchControlUI));
+            _interactionButton = interactionButton != null ? interactionButton : throw new ArgumentNullException(nameof(interactionButton));
+            _bigMapButton = bigMapButton != null ? bigMapButton : throw new ArgumentNullException(nameof(bigMapButton));
+            _storySelectionButton = storySelectionButton != null ? storySelectionButton : throw new ArgumentNullException(nameof(storySelectionButton));
+            
             _touchControlUI.enabled = false;
-            _interactionButton = interactionButton;
-            _bigMapButton = bigMapButton;
-            _storySelectionButton = storySelectionButton;
             _isTouchSupported = Utility.IsHandheldDevice();
 
             if (_isTouchSupported)

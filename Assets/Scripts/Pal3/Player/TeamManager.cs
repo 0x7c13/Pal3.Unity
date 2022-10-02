@@ -52,8 +52,8 @@ namespace Pal3.Player
         
         public TeamManager(PlayerManager playerManager, SceneManager sceneManager)
         {
-            _playerManager = playerManager;
-            _sceneManager = sceneManager;
+            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

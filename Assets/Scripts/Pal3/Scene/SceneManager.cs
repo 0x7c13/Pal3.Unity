@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene
 {
+    using System;
     using System.Diagnostics;
     using Command;
     using Command.InternalCommands;
@@ -16,6 +17,7 @@ namespace Pal3.Scene
     using Script;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
+    using Object = UnityEngine.Object;
 
     public sealed class SceneManager :
         ICommandExecutor<SceneLoadCommand>,
@@ -30,9 +32,9 @@ namespace Pal3.Scene
 
         public SceneManager(GameResourceProvider resourceProvider, ScriptManager scriptManager, Camera mainCamera)
         {
-            _resourceProvider = resourceProvider;
-            _scriptManager = scriptManager;
-            _mainCamera = mainCamera;
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

@@ -81,29 +81,29 @@ namespace Pal3.UI
             Canvas dialogueSelectionButtonsCanvas,
             GameObject dialogueSelectionButtonPrefab)
         {
-            _dialogueCanvas = dialogueCanvas;
-            _gameStateManager = gameStateManager;
-            _dialogueBackgroundImage = dialogueBackgroundImage;
+            _dialogueCanvas = dialogueCanvas != null ? dialogueCanvas : throw new ArgumentNullException(nameof(dialogueCanvas));
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
+            _dialogueBackgroundImage = dialogueBackgroundImage != null ? dialogueBackgroundImage : throw new ArgumentNullException(nameof(dialogueBackgroundImage));
 
-            _avatarImageLeft = avatarImageLeft;
-            _avatarImageRight = avatarImageRight;
+            _avatarImageLeft = avatarImageLeft != null ? avatarImageLeft : throw new ArgumentNullException(nameof(avatarImageLeft));
+            _avatarImageRight = avatarImageRight != null ? avatarImageRight : throw new ArgumentNullException(nameof(avatarImageRight));
 
-            _dialogueTextLeft = textLeft;
-            _dialogueTextRight = textRight;
-            _dialogueTextDefault = textDefault;
+            _dialogueTextLeft = textLeft != null ? textLeft : throw new ArgumentNullException(nameof(textLeft));
+            _dialogueTextRight = textRight != null ? textRight : throw new ArgumentNullException(nameof(textRight));
+            _dialogueTextDefault = textDefault != null ? textDefault : throw new ArgumentNullException(nameof(textDefault));
 
-            _dialogueSelectionButtonsCanvas = dialogueSelectionButtonsCanvas;
-            _dialogueSelectionButtonPrefab = dialogueSelectionButtonPrefab;
+            _dialogueSelectionButtonsCanvas = dialogueSelectionButtonsCanvas != null ? dialogueSelectionButtonsCanvas : throw new ArgumentNullException(nameof(dialogueSelectionButtonsCanvas));
+            _dialogueSelectionButtonPrefab = dialogueSelectionButtonPrefab != null ? dialogueSelectionButtonPrefab : throw new ArgumentNullException(nameof(dialogueSelectionButtonPrefab));
 
+            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
+            
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
-
             ResetUI();
-
-            _eventSystem = eventSystem;
-            _resourceProvider = resourceProvider;
-            _sceneManager = sceneManager;
-            _inputManager = inputManager;
+            
             _inputActions = inputManager.GetPlayerInputActions();
             _inputActions.Cutscene.Continue.performed += SkipDialoguePerformed;
         }

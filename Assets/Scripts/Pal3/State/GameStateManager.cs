@@ -5,6 +5,7 @@
 
 namespace Pal3.State
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -34,8 +35,8 @@ namespace Pal3.State
 
         public GameStateManager(InputManager inputManager, ScriptManager scriptManager)
         {
-            _inputManager = inputManager;
-            _scriptManager = scriptManager;
+            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _previousState = GameState.UI;
             _state = GameState.UI;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

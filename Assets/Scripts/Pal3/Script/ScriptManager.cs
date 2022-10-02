@@ -37,6 +37,7 @@ namespace Pal3.Script
 
         public ScriptManager(GameResourceProvider resourceProvider)
         {
+            resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _systemSceFile = resourceProvider.GetSystemSce();
             _bigMapSceFile = resourceProvider.GetBigMapSce();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

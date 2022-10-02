@@ -27,6 +27,9 @@ namespace Core.FileSystem
 
         public CpkFileSystem(string rootPath, CrcHash crcHash)
         {
+            rootPath = !string.IsNullOrEmpty(rootPath) ? rootPath : throw new ArgumentNullException(nameof(rootPath));
+            crcHash = crcHash ?? throw new ArgumentNullException(nameof(crcHash));
+            
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 rootPath += Path.DirectorySeparatorChar;

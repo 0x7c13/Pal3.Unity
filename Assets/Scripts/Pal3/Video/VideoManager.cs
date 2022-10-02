@@ -31,15 +31,13 @@ namespace Pal3.Video
             Canvas videoPlayerUI,
             VideoPlayer videoPlayer)
         {
-            _resourceProvider = resourceProvider;
-            _inputActions = inputActions;
-
-            _videoPlayerUI = videoPlayerUI;
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
+            _videoPlayerUI = videoPlayerUI != null ? videoPlayerUI : throw new ArgumentNullException(nameof(videoPlayerUI));
+            _videoPlayer = videoPlayer != null ? videoPlayer : throw new ArgumentNullException(nameof(videoPlayer));
+            
             _videoPlayerUI.enabled = false;
-
-            _videoPlayer = videoPlayer;
             _videoPlayer.loopPointReached += StopVideoInternal;
-
             _inputActions.VideoPlaying.SkipVideo.performed += SkipVideoPerformed;
         }
 

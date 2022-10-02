@@ -5,6 +5,7 @@
 
 namespace Pal3.Effect
 {
+    using System;
     using Actor;
     using Command;
     using Command.InternalCommands;
@@ -23,7 +24,7 @@ namespace Pal3.Effect
         
         public void Init(SceneManager sceneManager)
         {
-            _sceneManager = sceneManager;
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
         }
         
         private void OnEnable()

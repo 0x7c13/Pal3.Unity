@@ -74,8 +74,8 @@ namespace Pal3.Data
             ITextureLoaderFactory textureLoaderFactory,
             int codepage)
         {
-            _fileSystem = fileSystem;
-            _textureLoaderFactory = textureLoaderFactory;
+            _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+            _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
             _codepage = codepage;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }

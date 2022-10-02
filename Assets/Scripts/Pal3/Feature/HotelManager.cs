@@ -22,8 +22,8 @@ namespace Pal3.Feature
 
         public void Init(ScriptManager scriptManager, SceneManager sceneManager)
         {
-            _scriptManager = scriptManager;
-            _sceneManager = sceneManager;
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
         }
 
         private void OnEnable()

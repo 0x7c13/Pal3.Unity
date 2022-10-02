@@ -77,11 +77,11 @@ namespace Pal3.Player
             SceneManager sceneManager,
             Camera mainCamera)
         {
-            _gameStateManager = gameStateManager;
-            _playerManager = playerManager;
-            _inputActions = inputActions;
-            _sceneManager = sceneManager;
-            _camera = mainCamera;
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
+            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
+            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _camera = mainCamera != null ? mainCamera :throw new ArgumentNullException(nameof(mainCamera));
 
             _inputActions.Gameplay.OnTap.performed += OnTapPerformed;
             _inputActions.Gameplay.OnMove.performed += OnMovePerformed;

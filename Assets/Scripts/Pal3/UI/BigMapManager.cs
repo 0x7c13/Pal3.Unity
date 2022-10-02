@@ -5,6 +5,7 @@
 
 namespace Pal3.UI
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Command;
@@ -50,14 +51,14 @@ namespace Pal3.UI
             CanvasGroup bigMapCanvas,
             GameObject bigMapRegionButtonPrefab)
         {
-            _eventSystem = eventSystem;
-            _gameStateManager = gameStateManager;
-            _sceneManager = sceneManager;
-            _inputManager = inputManager;
+            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
+            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
             _playerInputActions = inputManager.GetPlayerInputActions();
-            _scriptManager = scriptManager;
-            _bigMapCanvas = bigMapCanvas;
-            _bigMapRegionButtonPrefab = bigMapRegionButtonPrefab;
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _bigMapCanvas = bigMapCanvas != null ? bigMapCanvas : throw new ArgumentNullException(nameof(bigMapCanvas));
+            _bigMapRegionButtonPrefab = bigMapRegionButtonPrefab != null ? bigMapRegionButtonPrefab : throw new ArgumentNullException(nameof(bigMapRegionButtonPrefab));
 
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;

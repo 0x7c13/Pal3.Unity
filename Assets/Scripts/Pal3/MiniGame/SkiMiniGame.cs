@@ -7,6 +7,7 @@
 
 namespace Pal3.MiniGame
 {
+    using System;
     using Command;
     using Command.SceCommands;
     using Script;
@@ -17,7 +18,7 @@ namespace Pal3.MiniGame
 
         public SkiMiniGame(ScriptManager scriptManager)
         {
-            _scriptManager = scriptManager;
+            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
