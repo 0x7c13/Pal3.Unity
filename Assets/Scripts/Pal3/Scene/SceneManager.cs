@@ -17,7 +17,7 @@ namespace Pal3.Scene
     using UnityEngine;
     using Debug = UnityEngine.Debug;
 
-    public class SceneManager :
+    public sealed class SceneManager :
         ICommandExecutor<SceneLoadCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {

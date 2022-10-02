@@ -10,7 +10,7 @@ namespace Pal3.MiniGame
     using Command;
     using Command.SceCommands;
 
-    public class AppraisalsMiniGame : ICommandExecutor<MiniGameStartAppraisalsCommand>
+    public sealed class AppraisalsMiniGame : ICommandExecutor<MiniGameStartAppraisalsCommand>
     {
         public AppraisalsMiniGame()
         {

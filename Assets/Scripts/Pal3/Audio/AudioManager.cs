@@ -22,7 +22,7 @@ namespace Pal3.Audio
     using State;
     using UnityEngine;
 
-    public class AudioManager : MonoBehaviour,
+    public sealed class AudioManager : MonoBehaviour,
         ICommandExecutor<PlaySfxCommand>,
         ICommandExecutor<PlayMusicCommand>,
         ICommandExecutor<PlaySfxAtGameObjectRequest>,

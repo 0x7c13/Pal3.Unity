@@ -14,7 +14,7 @@ namespace Pal3.Feature
     using Script;
     using UnityEngine;
 
-    public class HotelManager : MonoBehaviour,
+    public sealed class HotelManager : MonoBehaviour,
         ICommandExecutor<UIShowHotelMenuCommand>
     {
         private ScriptManager _scriptManager;
@@ -58,8 +58,8 @@ namespace Pal3.Feature
                     Rest("Q01", "xn01", (uint)command.AfterRestScriptId);
                 }
             }
-
-            if (command.HotelScriptName.Equals("DealScript\\rest\\q13rest.txt"))
+            else if (command.HotelScriptName.Equals("DealScript\\rest\\q13rest.txt",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 if (vars[ScriptConstants.MainStoryVariableName] == 120301)
                 {
@@ -68,7 +68,8 @@ namespace Pal3.Feature
                 }
             }
             #elif PAL3A
-            if (command.HotelScriptName.Equals("DealScript\\rest\\q10rest.txt"))
+            if (command.HotelScriptName.Equals("DealScript\\rest\\q10rest.txt",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 if (vars[ScriptConstants.MainStoryVariableName] == 140300)
                 {

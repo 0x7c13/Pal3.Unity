@@ -13,7 +13,7 @@ namespace Pal3.Effect
     using Scene;
     using UnityEngine;
 
-    public class EffectManager : MonoBehaviour,
+    public sealed class EffectManager : MonoBehaviour,
         ICommandExecutor<EffectAttachToActorCommand>,
         ICommandExecutor<EffectPlayCommand>,
         ICommandExecutor<ResetGameStateCommand>

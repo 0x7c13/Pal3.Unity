@@ -10,7 +10,7 @@ namespace Pal3.Player
     using Command.SceCommands;
     using MetaData;
 
-    public class PlayerManager :
+    public sealed class PlayerManager :
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorAddSkillCommand>,

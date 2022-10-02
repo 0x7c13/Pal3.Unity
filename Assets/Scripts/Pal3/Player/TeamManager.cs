@@ -17,7 +17,7 @@ namespace Pal3.Player
     using Scene;
     using UnityEngine;
 
-    public class TeamManager :
+    public sealed class TeamManager :
         ICommandExecutor<TeamOpenCommand>,
         ICommandExecutor<TeamCloseCommand>,
         ICommandExecutor<TeamAddOrRemoveActorCommand>,

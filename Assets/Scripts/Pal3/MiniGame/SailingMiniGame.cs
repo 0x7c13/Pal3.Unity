@@ -11,7 +11,7 @@ namespace Pal3.MiniGame
     using Command.SceCommands;
     using MetaData;
 
-    public class SailingMiniGame : ICommandExecutor<MiniGameStartSailingCommand>
+    public sealed class SailingMiniGame : ICommandExecutor<MiniGameStartSailingCommand>
     {
         public SailingMiniGame()
         {

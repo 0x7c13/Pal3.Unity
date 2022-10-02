@@ -16,7 +16,7 @@ namespace Pal3.UI
     using UnityEngine;
 
     [RequireComponent(typeof(FpsCounter))]
-    public class InformationManager : MonoBehaviour,
+    public sealed class InformationManager : MonoBehaviour,
         ICommandExecutor<UIDisplayNoteCommand>,
         ICommandExecutor<UIShowDealerMenuCommand>
     {

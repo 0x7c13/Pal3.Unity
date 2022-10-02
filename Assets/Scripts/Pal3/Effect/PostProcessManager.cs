@@ -11,13 +11,15 @@ namespace Pal3.Effect
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
-    public class PostProcessManager : MonoBehaviour,
+    public sealed class PostProcessManager : MonoBehaviour,
         ICommandExecutor<EffectSetScreenEffectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private PostProcessVolume _postProcessVolume;
         private PostProcessLayer _postProcessLayer;
 
+        private int _currentAppliedEffectMode = -1;
+        
         public void Init(PostProcessVolume volume,
             PostProcessLayer postProcessLayer)
         {
@@ -35,6 +37,11 @@ namespace Pal3.Effect
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
+        public int GetCurrentAppliedEffectMode()
+        {
+            return _currentAppliedEffectMode;
+        }
+        
         public void Execute(EffectSetScreenEffectCommand command)
         {
             switch (command.Mode)
@@ -68,6 +75,8 @@ namespace Pal3.Effect
                     break;
                 }
             }
+
+            _currentAppliedEffectMode = command.Mode;
         }
 
         public void Execute(ResetGameStateCommand command)

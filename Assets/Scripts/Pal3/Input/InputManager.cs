@@ -10,7 +10,7 @@ namespace Pal3.Input
     using State;
     using UnityEngine.InputSystem;
 
-    public class InputManager
+    public sealed class InputManager
     {
         private readonly PlayerInputActions _playerInputActions;
         private InputDevice _lastActiveInputDevice;

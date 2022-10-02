@@ -9,7 +9,7 @@ namespace Pal3.Settings
     using Core.Utils;
     using UnityEngine;
 
-    public class SettingsManager
+    public sealed class SettingsManager
     {
         public void ApplyPlatformSpecificSettings()
         {

@@ -28,7 +28,7 @@ namespace Pal3
     /// The Game Resource initializer
     /// Initialize file system etc.
     /// </summary>
-    public class GameResourceInitializer : MonoBehaviour
+    public sealed class GameResourceInitializer : MonoBehaviour
     {
         [SerializeField] private UnityEngine.Camera uiCamera;
         [SerializeField] private GameObject startingComponent;
@@ -168,7 +168,7 @@ namespace Pal3
                     timer.Start();
                     cpkFileSystem = InitializeCpkFileSystem(path, crcHash, codepage);
                     timer.Stop();
-                    Debug.Log($"All files mounted successfully. Total time: {timer.Elapsed.TotalSeconds:0.000}s");
+                    Debug.Log($"All cpk files mounted successfully under {path}. Total time: {timer.Elapsed.TotalSeconds:0.000}s");
                 }
                 catch (Exception ex)
                 {

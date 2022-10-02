@@ -22,7 +22,7 @@ namespace Pal3.UI
     using UnityEngine.InputSystem;
     using UnityEngine.UI;
 
-    public class BigMapManager : MonoBehaviour,
+    public sealed class BigMapManager : MonoBehaviour,
         ICommandExecutor<BigMapEnableRegionCommand>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<GameSwitchRenderingStateCommand>,

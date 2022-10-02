@@ -10,7 +10,7 @@ namespace Pal3.MiniGame
     using Command;
     using Command.SceCommands;
 
-    public class EncampMiniGame : ICommandExecutor<MiniGameStartEncampCommand>
+    public sealed class EncampMiniGame : ICommandExecutor<MiniGameStartEncampCommand>
     {
         public EncampMiniGame()
         {

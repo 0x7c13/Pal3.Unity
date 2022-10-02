@@ -24,7 +24,7 @@ namespace Pal3.Camera
     using UnityEngine.InputSystem.OnScreen;
     using UnityEngine.UI;
 
-    public class CameraManager : MonoBehaviour,
+    public sealed class CameraManager : MonoBehaviour,
         ICommandExecutor<CameraSetTransformCommand>,
         ICommandExecutor<CameraSetDefaultTransformCommand>,
         ICommandExecutor<CameraShakeEffectCommand>,
@@ -78,6 +78,8 @@ namespace Pal3.Camera
 
         private GameObject _lookAtGameObject;
 
+        private int _currentAppliedDefaultTransformOption = 0;
+        
         private RectTransform _joyStickRect;
         private float _joyStickMovementRange;
         private bool _isTouchEnabled;
@@ -361,6 +363,11 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
+        public int GetCurrentAppliedDefaultTransformOption()
+        {
+            return _currentAppliedDefaultTransformOption;
+        }
+        
         public void ApplySceneSettings(ScnSceneInfo sceneInfo)
         {
             switch (sceneInfo.SceneType)
@@ -444,6 +451,7 @@ namespace Pal3.Camera
             
             _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
             ApplyDefaultSettings(command.Option);
+            _currentAppliedDefaultTransformOption = command.Option;
             _free = true;
         }
 
@@ -689,6 +697,7 @@ namespace Pal3.Camera
 
         public void Execute(ScenePreLoadingNotification notification)
         {
+            _currentAppliedDefaultTransformOption = 0;
             ApplySceneSettings(notification.NewSceneInfo);
         }
 

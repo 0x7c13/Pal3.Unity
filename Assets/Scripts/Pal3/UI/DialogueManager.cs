@@ -23,9 +23,10 @@ namespace Pal3.UI
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
-    public class DialogueManager : MonoBehaviour,
+    public sealed class DialogueManager : MonoBehaviour,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<DialogueRenderTextCommand>,
         ICommandExecutor<DialogueAddSelectionsCommand>,
@@ -488,7 +489,8 @@ namespace Pal3.UI
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
-                lastActiveInputDevice == Gamepad.current)
+                lastActiveInputDevice == Gamepad.current ||
+                lastActiveInputDevice == DualShockGamepad.current)
             {
                 firstButton.Select();
             }

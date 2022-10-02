@@ -48,7 +48,7 @@ namespace Pal3
     /// <summary>
     /// Pal3 game model
     /// </summary>
-    public class Pal3 : Singleton<Pal3>
+    public sealed class Pal3 : Singleton<Pal3>
     {
         // Camera
         [SerializeField] private UnityEngine.Camera mainCamera;
@@ -137,7 +137,8 @@ namespace Pal3
         private FavorManager _favorManager;
         private CaptionRenderer _captionRenderer;
         private CursorManager _cursorManager;
-
+        private SaveManager _saveManager;
+        
         // Mini games
         #if PAL3
         private AppraisalsMiniGame _appraisalsMiniGame;
@@ -199,24 +200,6 @@ namespace Pal3
             _caveExperienceMiniGame = new CaveExperienceMiniGame();
             ServiceLocator.Instance.Register(_caveExperienceMiniGame);
             #endif
-            
-            _mazeSkipper = new MazeSkipper(_gameStateManager,
-                _sceneManager,
-                mazeSkipperCanvasGroup,
-                mazeEntranceButton,
-                mazeExitButton);
-            ServiceLocator.Instance.Register(_mazeSkipper);
-
-            _storySelector = gameObject.AddComponent<StorySelector>();
-            _storySelector.Init(
-                _inputManager,
-                eventSystem,
-                _sceneManager,
-                _gameStateManager,
-                _scriptManager,
-                storySelectionCanvasGroup,
-                storySelectionButtonPrefab);
-            ServiceLocator.Instance.Register(_storySelector);
 
             _videoManager = gameObject.AddComponent<VideoManager>();
             _videoManager.Init(_gameResourceProvider,_inputActions, videoPlayerCanvas, videoPlayer);
@@ -299,12 +282,41 @@ namespace Pal3
             _effectManager = gameObject.AddComponent<EffectManager>();
             _effectManager.Init(_sceneManager);
             ServiceLocator.Instance.Register(_effectManager);
+
+            _saveManager = new SaveManager(_sceneManager,
+                _playerManager,
+                _teamManager,
+                _bigMapManager,
+                _scriptManager,
+                _favorManager,
+                _cameraManager,
+                _postProcessManager);
+            ServiceLocator.Instance.Register(_saveManager);
             
+            _mazeSkipper = new MazeSkipper(_gameStateManager,
+                _sceneManager,
+                mazeSkipperCanvasGroup,
+                mazeEntranceButton,
+                mazeExitButton);
+            ServiceLocator.Instance.Register(_mazeSkipper);
+
+            _storySelector = gameObject.AddComponent<StorySelector>();
+            _storySelector.Init(
+                _inputManager,
+                eventSystem,
+                _sceneManager,
+                _gameStateManager,
+                _scriptManager,
+                _saveManager,
+                storySelectionCanvasGroup,
+                storySelectionButtonPrefab);
+            ServiceLocator.Instance.Register(_storySelector);
+
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
 
             DebugLogConsole.AddCommand("vars", "List current global variables.", ListCurrentGlobalVariables);
-            DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommands);
+            DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommandStr);
             DebugLogConsole.AddCommand("info", "Get current game info.", GetCurrentGameInfo);
 
             _settingsManager = new SettingsManager();
@@ -326,7 +338,8 @@ namespace Pal3
             _sceneManager.Dispose();
             _touchControlUIManager.Dispose();
             _favorManager.Dispose();
-
+            _mazeSkipper.Dispose();
+            
             #if PAL3
             _appraisalsMiniGame.Dispose();
             _sailingMiniGame.Dispose();
@@ -337,11 +350,8 @@ namespace Pal3
             _caveExperienceMiniGame.Dispose();
             #endif
 
-            _mazeSkipper.Dispose();
-
             Destroy(_videoManager);
             Destroy(_playerGamePlayController);
-            Destroy(_cameraManager);
             Destroy(_cameraManager);
             Destroy(_audioManager);
             Destroy(_informationManager);
@@ -351,6 +361,12 @@ namespace Pal3
             Destroy(_storySelector);
             Destroy(_captionRenderer);
             Destroy(_postProcessManager);
+            Destroy(_effectManager);
+
+            if (_cursorManager != null)
+            {
+                Destroy(_cursorManager);
+            }
 
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
@@ -375,46 +391,10 @@ namespace Pal3
             }
         }
 
-        private string ConvertCurrentGameStateToCommands()
+        private string ConvertCurrentGameStateToCommandStr()
         {
-            if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
-            
-            var playerActorMovementController = currentScene
-                .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
-            Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
-            var varsToSave = _scriptManager.GetGlobalVariables()
-                .Where(_ => _.Key == ScriptConstants.MainStoryVariableName); // Save main story var only
-            ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
-
-            var commands = new List<ICommand>
-            {
-                new ResetGameStateCommand(),
-            };
-            
-            commands.AddRange(varsToSave.Select(var =>
-                new ScriptVarSetValueCommand(var.Key, var.Value)));
-            
-            commands.AddRange(new List<ICommand>()
-            {
-                new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.Name),
-                new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1),
-                new ActorEnablePlayerControlCommand(ActorConstants.PlayerActorVirtualID),
-                new PlayerEnableInputCommand(1),
-                new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID,
-                    playerActorMovementController.GetCurrentLayerIndex()),
-                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
-                    playerActorTilePosition.x, playerActorTilePosition.y)
-            });
-
-            commands.AddRange(_teamManager.GetActorsInTeam()
-                .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
-            // commands.AddRange(_favorManager.GetAllActorFavorInfo()
-            //     .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
-            commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
-                .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
-            commands.Add(new CameraFadeInCommand());
-
-            return string.Join('\n', commands.Select(ToString).ToList());
+            var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Minimal);
+            return commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
         }
 
         private string GetCurrentGameInfo()
@@ -434,25 +414,6 @@ namespace Pal3
                         $"tile position: {playerActorMovementController.GetTilePosition()}\n");
 
             return info.ToString();
-        }
-
-        private static string ToString(ICommand command)
-        {
-            var builder = new StringBuilder();
-            Type type = command.GetType();
-            
-            builder.Append(type.Name[..^"Command".Length]);
-            builder.Append(' ');
-            
-            foreach (PropertyInfo propertyInfo in type.GetProperties())
-            {
-                builder.Append(propertyInfo.GetValue(command));
-                builder.Append(' ');
-            }
-
-            var commandStr = builder.ToString();
-            if (commandStr.EndsWith(' ')) commandStr = commandStr[..^1];
-            return commandStr;
         }
 
         private string ListCurrentGlobalVariables()

@@ -17,7 +17,7 @@ namespace Pal3.Feature
     using UnityEngine.InputSystem;
     using UnityEngine.UI;
 
-    public class CaptionRenderer : MonoBehaviour,
+    public sealed class CaptionRenderer : MonoBehaviour,
         ICommandExecutor<UIDisplayCaptionCommand>
     {
         private const float CAPTION_ANIMATION_DURATION = 10f;

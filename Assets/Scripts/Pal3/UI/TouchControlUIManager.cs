@@ -14,7 +14,7 @@ namespace Pal3.UI
     using UnityEngine.InputSystem;
     using UnityEngine.UI;
 
-    public class TouchControlUIManager :
+    public sealed class TouchControlUIManager :
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {

@@ -12,7 +12,7 @@ namespace Pal3.UI
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
 
-    public class CursorManager : MonoBehaviour,
+    public sealed class CursorManager : MonoBehaviour,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
         private Texture2D _cursorTextureNormal;

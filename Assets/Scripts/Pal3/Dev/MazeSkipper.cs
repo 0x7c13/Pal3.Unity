@@ -20,7 +20,7 @@ namespace Pal3.Dev
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class MazeSkipper :
+    public sealed class MazeSkipper :
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<GameStateChangedNotification>
     {

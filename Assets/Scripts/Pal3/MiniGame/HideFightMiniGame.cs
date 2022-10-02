@@ -13,7 +13,7 @@ namespace Pal3.MiniGame
     using MetaData;
     using Script;
 
-    public class HideFightMiniGame : ICommandExecutor<MiniGameStartHideFightCommand>
+    public sealed class HideFightMiniGame : ICommandExecutor<MiniGameStartHideFightCommand>
     {
         public HideFightMiniGame()
         {

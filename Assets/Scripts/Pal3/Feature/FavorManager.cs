@@ -13,11 +13,11 @@ namespace Pal3.Feature
     using Command.SceCommands;
     using MetaData;
 
-    public class FavorManager :
+    public sealed class FavorManager :
         ICommandExecutor<FavorAddCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const int DEFAULT_FAVOR_AMOUNT = 20;
+        private const int BASE_FAVOR_AMOUNT = 20;
 
         private readonly Dictionary<int, int> _actorFavor = new ();
 
@@ -37,14 +37,19 @@ namespace Pal3.Feature
             foreach (var actorId in Enum.GetValues(typeof(PlayerActorId)).Cast<int>())
             {
                 if (actorId == 0) continue; // Skip for the main actor
-                _actorFavor[actorId] = DEFAULT_FAVOR_AMOUNT;
+                _actorFavor[actorId] = 0;
             }
+        }
+
+        public Dictionary<int, int> GetAllActorFavorInfo()
+        {
+            return _actorFavor;
         }
         
         public int GetFavorByActor(int actorId)
         {
             return _actorFavor.ContainsKey(actorId) ?
-                _actorFavor[actorId] : DEFAULT_FAVOR_AMOUNT;
+                _actorFavor[actorId] + BASE_FAVOR_AMOUNT : BASE_FAVOR_AMOUNT;
         }
 
         public void Execute(FavorAddCommand command)

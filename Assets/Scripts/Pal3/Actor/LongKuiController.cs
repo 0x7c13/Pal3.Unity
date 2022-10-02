@@ -12,7 +12,7 @@ namespace Pal3.Actor
     using MetaData;
     using UnityEngine;
 
-    public class LongKuiController : MonoBehaviour,
+    public sealed class LongKuiController : MonoBehaviour,
         ICommandExecutor<LongKuiSwitchModeCommand>
     {
         private Actor _actor;

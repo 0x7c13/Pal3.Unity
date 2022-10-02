@@ -10,7 +10,7 @@ namespace Pal3.MiniGame
     using Command;
     using Command.SceCommands;
 
-    public class SwatAFlyMiniGame : ICommandExecutor<MiniGameStartSwatAFlyCommand>
+    public sealed class SwatAFlyMiniGame : ICommandExecutor<MiniGameStartSwatAFlyCommand>
     {
         public SwatAFlyMiniGame()
         {

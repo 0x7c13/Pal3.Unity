@@ -25,7 +25,7 @@ namespace Pal3.Player
     using UnityEngine;
     using UnityEngine.InputSystem;
 
-    public class PlayerGamePlayController : MonoBehaviour,
+    public sealed class PlayerGamePlayController : MonoBehaviour,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,

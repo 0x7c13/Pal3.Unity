@@ -18,7 +18,7 @@ namespace Pal3.Script
     using Newtonsoft.Json;
     using UnityEngine;
 
-    public class ScriptManager :
+    public sealed class ScriptManager :
         ICommandExecutor<ScriptRunCommand>,
         ICommandExecutor<ScriptVarSetValueCommand>,
         ICommandExecutor<ScriptVarAddValueCommand>,

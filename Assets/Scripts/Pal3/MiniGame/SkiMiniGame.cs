@@ -11,7 +11,7 @@ namespace Pal3.MiniGame
     using Command.SceCommands;
     using Script;
 
-    public class SkiMiniGame : ICommandExecutor<MiniGameStartSkiCommand>
+    public sealed class SkiMiniGame : ICommandExecutor<MiniGameStartSkiCommand>
     {
         private readonly ScriptManager _scriptManager;
 

@@ -20,9 +20,10 @@ namespace Pal3.Dev
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
-    public class StorySelector : MonoBehaviour,
+    public sealed class StorySelector : MonoBehaviour,
         ICommandExecutor<ToggleStorySelectorRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>
     {
@@ -32,6 +33,7 @@ namespace Pal3.Dev
         private ScriptManager _scriptManager;
         private GameStateManager _gameStateManager;
         private SceneManager _sceneManager;
+        private SaveManager _saveManager;
         private CanvasGroup _storySelectorCanvas;
         private GameObject _storySelectorButtonPrefab;
 
@@ -40,6 +42,8 @@ namespace Pal3.Dev
         private readonly Dictionary<string, string> _storySelections = new()
         {
             {"关闭", ""},
+            {"继续游戏", ""},
+            {"保存当前游戏进度", ""},
             {"新的游戏", ""},
             #if PAL3
             {"永安当-去客房找赵文昌", @"
@@ -1262,24 +1266,6 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 CameraFadeIn"},
-            {"血濡回魂-石村", @"
-                ScriptVarSetValue -32768 71700
-                SceneLoad Q07 Q07y
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 142 169
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                CameraFadeIn"},
             {"血濡回魂-梦醒", @"
                 ScriptVarSetValue -32768 72001
                 SceneLoad m07 3
@@ -1447,6 +1433,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
+                CameraSetDefaultTransform 2
                 CameraFadeIn"},
             {"新安当", @"
                 ScriptVarSetValue -32768 101500
@@ -1895,6 +1882,7 @@ namespace Pal3.Dev
             SceneManager sceneManager,
             GameStateManager gameStateManager,
             ScriptManager scriptManager,
+            SaveManager saveManager,
             CanvasGroup storySelectorCanvas,
             GameObject storySelectorButtonPrefab)
         {
@@ -1904,6 +1892,7 @@ namespace Pal3.Dev
             _gameStateManager = gameStateManager;
             _playerInputActions = inputManager.GetPlayerInputActions();
             _scriptManager = scriptManager;
+            _saveManager = saveManager;
             _storySelectorCanvas = storySelectorCanvas;
             _storySelectorButtonPrefab = storySelectorButtonPrefab;
 
@@ -1954,13 +1943,14 @@ namespace Pal3.Dev
             
             foreach (var story in _storySelections)
             {
-                if (hideCloseButton && story.Key == "关闭") continue;
-                
+                if (hideCloseButton && story.Key is "关闭" or "保存当前游戏进度") continue;
+
                 GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
+
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = story.Key;
-                selectionButton.GetComponent<Button>().onClick
-                    .AddListener(delegate { StorySelectionButtonClicked(story.Key);});
+                var button = selectionButton.GetComponent<Button>();
+                button.onClick.AddListener(delegate { StorySelectionButtonClicked(story.Key);});
                 _selectionButtons.Add(selectionButton);
             }
 
@@ -1995,7 +1985,8 @@ namespace Pal3.Dev
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
-                lastActiveInputDevice == Gamepad.current)
+                lastActiveInputDevice == Gamepad.current ||
+                lastActiveInputDevice == DualShockGamepad.current)
             {
                 firstButton.Select();
             }
@@ -2015,6 +2006,32 @@ namespace Pal3.Dev
                 case "新的游戏":
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                     StartNewGame();
+                    break;
+                case "继续游戏":
+                    if (!_saveManager.SaveFileExists())
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+                        StartNewGame();
+                    }
+                    else
+                    {
+                        var commands = _saveManager.LoadFromSaveFile();
+                        if (commands == null)
+                        {
+                            CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+                            StartNewGame();
+                        }
+                        else
+                        {
+                            ExecuteCommands(commands);
+                        }
+                    }
+                    break;
+                case "保存当前游戏进度":
+                    CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
+                        ? new UIDisplayNoteCommand("游戏保存成功")
+                        : new UIDisplayNoteCommand("游戏保存失败"));
+                    _gameStateManager.GoToState(GameState.Gameplay);
                     break;
                 default:
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
