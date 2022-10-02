@@ -5,7 +5,6 @@
 
 namespace Pal3.UI
 {
-    using System;
     using Command;
     using Command.InternalCommands;
     using Data;

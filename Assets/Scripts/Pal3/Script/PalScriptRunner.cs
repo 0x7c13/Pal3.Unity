@@ -410,7 +410,7 @@ namespace Pal3.Script
         {
             if (!_isExecuting) return;
             var favorManager = ServiceLocator.Instance.Get<FavorManager>();
-            SetVariableValue(command.Variable, favorManager.GetCalculatedFavor(command.ActorId));
+            SetVariableValue(command.Variable, favorManager.GetFavorByActor(command.ActorId));
         }
 
         public void Execute(ScriptVarSetMostFavorableActorIdCommand command)

@@ -5,11 +5,13 @@
 
 namespace Pal3.Feature
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using MetaData;
 
     public class FavorManager :
         ICommandExecutor<FavorAddCommand>,
@@ -21,6 +23,7 @@ namespace Pal3.Feature
 
         public FavorManager()
         {
+            Init();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -29,14 +32,19 @@ namespace Pal3.Feature
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public int GetCalculatedFavor(int actorId)
+        private void Init()
         {
-            if (_actorFavor.ContainsKey(actorId))
+            foreach (var actorId in Enum.GetValues(typeof(PlayerActorId)).Cast<int>())
             {
-                return DEFAULT_FAVOR_AMOUNT + _actorFavor[actorId];
+                if (actorId == 0) continue; // Skip for the main actor
+                _actorFavor[actorId] = DEFAULT_FAVOR_AMOUNT;
             }
-
-            return DEFAULT_FAVOR_AMOUNT;
+        }
+        
+        public int GetFavorByActor(int actorId)
+        {
+            return _actorFavor.ContainsKey(actorId) ?
+                _actorFavor[actorId] : DEFAULT_FAVOR_AMOUNT;
         }
 
         public void Execute(FavorAddCommand command)
@@ -54,6 +62,7 @@ namespace Pal3.Feature
         public void Execute(ResetGameStateCommand command)
         {
             _actorFavor.Clear();
+            Init();
         }
 
         public int GetMostFavorableActorId()

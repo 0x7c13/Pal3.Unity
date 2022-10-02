@@ -51,7 +51,8 @@ namespace Pal3.Player
         #if PAL3
         private int _longKuiLastKnownMode = 0;
         #endif
-        
+
+        private bool _isDuringSceneTransition = true;
         private GameObject _playerActor;
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
@@ -101,7 +102,7 @@ namespace Pal3.Player
 
         private void Update()
         {
-            if (_playerActor == null) return;
+            if (_isDuringSceneTransition) return;
 
             var isPlayerInControl = false;
 
@@ -624,6 +625,8 @@ namespace Pal3.Player
         
         public void Execute(SceneBeforeLoadingNotification command)
         {
+            _isDuringSceneTransition = true;
+            
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
             _playerActorLastKnownPositionInfo.Add((
@@ -676,6 +679,8 @@ namespace Pal3.Player
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
+
+            _isDuringSceneTransition = false;
         }
         
         public void Execute(ResetGameStateCommand command)
