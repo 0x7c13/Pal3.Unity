@@ -5,6 +5,7 @@
 
 namespace Pal3.UI
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using Core.Utils;
@@ -85,8 +86,10 @@ namespace Pal3.UI
         public void Execute(ActiveInputDeviceChangedNotification notification)
         {
             if (!_isTouchSupported) return;
-            _lastActiveDeviceIsTouchscreen = notification.Device == Touchscreen.current ||
-                                             notification.Device == Joystick.current;
+            _lastActiveDeviceIsTouchscreen = notification.Device == Touchscreen.current ||  // Current touchscreen
+                                             notification.Device == Joystick.current || // On-screen virtual joystick
+                                             string.Equals("Touchscreen", notification.Device.displayName,
+                                                 StringComparison.OrdinalIgnoreCase); // Other touchscreen
             if (!_isInGamePlayState) return;
             _touchControlUI.enabled = _lastActiveDeviceIsTouchscreen;
         }

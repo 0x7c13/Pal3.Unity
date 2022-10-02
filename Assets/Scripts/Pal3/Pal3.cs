@@ -272,7 +272,7 @@ namespace Pal3
                 dialogueSelectionButtonPrefab);
             ServiceLocator.Instance.Register(_dialogueManager);
 
-            #if UNITY_STANDALONE
+            #if UNITY_STANDALONE || UNITY_EDITOR
             _cursorManager = gameObject.AddComponent<CursorManager>();
             _cursorManager.Init(_gameResourceProvider);
             ServiceLocator.Instance.Register(_cursorManager);
