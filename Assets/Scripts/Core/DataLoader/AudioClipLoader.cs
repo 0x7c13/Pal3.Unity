@@ -34,7 +34,15 @@ namespace Core.DataLoader
             }
             else
             {
-                callback?.Invoke(DownloadHandlerAudioClip.GetContent(request));
+                try
+                {
+                    AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
+                    callback?.Invoke(audioClip);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to get audio clip: {filePath} with exception: {ex}");
+                }
             }
         }
     }

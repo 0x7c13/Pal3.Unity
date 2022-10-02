@@ -26,13 +26,14 @@ namespace Pal3.Audio
         ICommandExecutor<PlaySfxCommand>,
         ICommandExecutor<PlayMusicCommand>,
         ICommandExecutor<PlaySfxAtGameObjectRequest>,
+        ICommandExecutor<StopSfxPlayingAtGameObjectRequest>,
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<StopMusicCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        public float MusicVolume { get; set; } = 0.6f;
+        public float MusicVolume { get; set; } = 0.5f;
         public float SoundVolume { get; set; } = 0.5f;
 
         private AudioSource _musicPlayer;
@@ -67,7 +68,7 @@ namespace Pal3.Audio
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void PlaySceneMusic(string cityName, string sceneName)
+        private IEnumerator PlaySceneMusic(string cityName, string sceneName)
         {
             var key = $"{cityName}_{sceneName}";
             var musicName = string.Empty;
@@ -84,28 +85,29 @@ namespace Pal3.Audio
             {
                 _currentMusicClipName = string.Empty;
                 _musicPlayer.Stop();
-                return;
+                yield break;
             }
 
             if (_musicPlayer.isPlaying &&
                 string.Equals(_currentMusicClipName, musicName, StringComparison.OrdinalIgnoreCase))
             {
-                return;
+                yield break;
             }
 
             _currentMusicClipName = musicName;
             var musicFileVirtualPath = GetMusicFileVirtualPath(musicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
-            StartCoroutine(PlayMusic(musicFileVirtualPath, musicFileCachePath, -1));
+            yield return PlayMusic(musicFileVirtualPath, musicFileCachePath, -1);
         }
 
         public IEnumerator PlayAudioClip(AudioSource audioSource,
             AudioClip audioClip,
             int loopCount,
+            float interval,
             float volume,
             CancellationToken cancellationToken)
         {
-            if (loopCount <= 0)
+            if (loopCount <= 0 && interval == 0f)
             {
                 if (audioSource.clip != null)
                 {
@@ -118,9 +120,17 @@ namespace Pal3.Audio
                 audioSource.loop = true;
                 audioSource.Play();
             }
+            else if (loopCount <= 0 && interval > 0f)
+            {
+                while (!cancellationToken.IsCancellationRequested && audioSource != null)
+                {
+                    audioSource.PlayOneShot(audioClip, volume);
+                    yield return new WaitForSeconds(audioClip.length + interval);
+                }
+            }
             else
             {
-                while (--loopCount >= 0 && !cancellationToken.IsCancellationRequested)
+                while (--loopCount >= 0 && !cancellationToken.IsCancellationRequested && audioSource != null)
                 {
                     audioSource.PlayOneShot(audioClip, volume);
                     yield return new WaitForSeconds(audioClip.length);
@@ -130,27 +140,54 @@ namespace Pal3.Audio
 
         public IEnumerator PlaySfx(string sfxFilePath, int loopCount, CancellationToken cancellationToken)
         {
+            AudioClip sfxAudioClip = null;
             yield return AudioClipLoader.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
             {
-                if (cancellationToken.IsCancellationRequested) return;
-                StartCoroutine(PlayAudioClip(_sfxPlayer, audioClip, loopCount, SoundVolume, cancellationToken));
+                sfxAudioClip = audioClip;
             });
+            if (sfxAudioClip == null || cancellationToken.IsCancellationRequested) yield break;
+            yield return PlayAudioClip(_sfxPlayer, sfxAudioClip, loopCount, 0f, SoundVolume, cancellationToken);
         }
 
         // Spatial Audio
-        public IEnumerator PlaySfx(string sfxFilePath, int loopCount, GameObject parent, CancellationToken cancellationToken)
+        public IEnumerator PlaySfx(GameObject parent,
+            string sfxFilePath,
+            string audioSourceName,
+            float volume,
+            int loopCount = -1,
+            float interval = 0f,
+            CancellationToken cancellationToken = default)
         {
+            if (parent == null || cancellationToken.IsCancellationRequested) yield break;
+
+            AudioClip sfxAudioClip = null;
+            
             yield return AudioClipLoader.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
             {
-                if (parent == null || cancellationToken.IsCancellationRequested) return;
-
-                var audioSource = parent.GetOrAddComponent<AudioSource>();
-                audioSource.spatialBlend = 1.0f;
-                audioSource.rolloffMode = AudioRolloffMode.Linear;
-                audioSource.maxDistance = 75f;
-
-                StartCoroutine(PlayAudioClip(audioSource, audioClip, loopCount, SoundVolume, cancellationToken));
+                sfxAudioClip = audioClip;
             });
+            
+            if (parent == null || cancellationToken.IsCancellationRequested || sfxAudioClip == null) yield break;
+            
+            GameObject audioSourceParent;
+            Transform audioSourceParentTransform = parent.transform.Find(audioSourceName);
+            if (audioSourceParentTransform != null)
+            {
+                audioSourceParent = audioSourceParentTransform.gameObject;
+            }
+            else
+            {
+                audioSourceParent = new GameObject(audioSourceName);
+                audioSourceParent.transform.parent = parent.transform;
+                audioSourceParent.transform.position = parent.transform.position;
+            }
+
+            var audioSource = audioSourceParent.GetOrAddComponent<AudioSource>();
+            audioSource.spatialBlend = 1.0f;
+            audioSource.rolloffMode = AudioRolloffMode.Linear;
+            audioSource.maxDistance = 75f;
+
+            yield return PlayAudioClip(audioSource, sfxAudioClip, loopCount, interval, volume, cancellationToken);
         }
 
         private string GetMusicFileVirtualPath(string musicName)
@@ -163,16 +200,22 @@ namespace Pal3.Audio
         public IEnumerator PlayMusic(string musicFileVirtualPath, string musicFileCachePath, int loopCount)
         {
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
+            AudioClip musicClip = null;
             yield return AudioClipLoader.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
             {
-                StartCoroutine(PlayAudioClip(_musicPlayer, audioClip, loopCount, MusicVolume,
-                    new CancellationToken(false))); // Should not stop music during scene switch
+                musicClip = audioClip;
             });
+            if (musicClip == null) yield break;
+            StartCoroutine(PlayAudioClip(_musicPlayer, musicClip, loopCount, 0f, MusicVolume,
+                new CancellationToken(false))); // Should not stop music during scene switch
         }
 
-        private IEnumerator PlaySfxAfterDelay(string sfxFilePath,
+        private IEnumerator PlaySfxAtGameObject(string sfxFilePath,
+            string audioSourceName,
+            float volume,
             float startDelayInSeconds,
             int loopCount,
+            float interval,
             GameObject parent,
             CancellationToken cancellationToken)
         {
@@ -181,11 +224,14 @@ namespace Pal3.Audio
                 yield return new WaitForSeconds(startDelayInSeconds);
             }
 
-            if (!cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested && parent != null)
             {
-                yield return PlaySfx(sfxFilePath,
+                yield return PlaySfx(parent,
+                    sfxFilePath,
+                    audioSourceName,
+                    volume,
                     loopCount,
-                    parent,
+                    interval,
                     cancellationToken);
             }
         }
@@ -225,11 +271,29 @@ namespace Pal3.Audio
         {
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(PlaySfxAfterDelay(sfxFilePath,
+            StartCoroutine(PlaySfxAtGameObject(sfxFilePath,
+                request.AudioSourceName,
+                request.Volume,
                 request.StartDelayInSeconds,
                 request.LoopCount,
+                request.Interval,
                 request.Parent,
                 cancellationToken));
+        }
+        
+        public void Execute(StopSfxPlayingAtGameObjectRequest command)
+        {
+            Transform audioSourceParentTransform = command.Parent.transform.Find(command.AudioSourceName);
+            if (audioSourceParentTransform == null) return;
+
+            GameObject audioSourceParent = audioSourceParentTransform.gameObject;
+            if (audioSourceParent == default) return;
+            
+            var audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
+            if (audioSource == default) return;
+            
+            audioSource.Stop();
+            audioSource.clip = null;
         }
 
         public void Execute(PlayMusicCommand command)
@@ -268,7 +332,7 @@ namespace Pal3.Audio
             _currentMusicClipName = string.Empty;
 
             ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
-            PlaySceneMusic(sceneInfo.CityName, sceneInfo.Name);
+            StartCoroutine(PlaySceneMusic(sceneInfo.CityName, sceneInfo.Name));
         }
 
         public void Execute(ScenePreLoadingNotification command)
@@ -288,7 +352,7 @@ namespace Pal3.Audio
         {
             if (string.IsNullOrEmpty(_currentScriptMusic))
             {
-                PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.Name);
+                StartCoroutine(PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.Name));
             }
         }
 

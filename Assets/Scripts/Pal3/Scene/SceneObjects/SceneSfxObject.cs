@@ -16,6 +16,9 @@ namespace Pal3.Scene.SceneObjects
     {
         public string SfxName { get; }
 
+        private const string SCENE_SFX_AUDIO_SOURCE_NAME = nameof(SceneSfxObject);
+        private const float SCENE_SFX_VOLUME = 0.4f;
+
         public SceneSfxObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo, hasModel: false)
         {
@@ -31,8 +34,20 @@ namespace Pal3.Scene.SceneObjects
             // playing the exact same audio sfx, which will cause "Comb filter" effect.
             var startDelay = Random.Range(0f, 1f);
 
+            var interval = 0f;
+            if (Info.Parameters[0] > 0)
+            {
+                interval = ((float) Info.Parameters[0]) / 1000f;
+            }
+            
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlaySfxAtGameObjectRequest(SfxName, 0, startDelay, sceneGameObject));
+                new PlaySfxAtGameObjectRequest(sceneGameObject,
+                    SfxName,
+                    SCENE_SFX_AUDIO_SOURCE_NAME,
+                    SCENE_SFX_VOLUME,
+                    0,
+                    startDelay, 
+                    interval));
 
             return sceneGameObject;
         }

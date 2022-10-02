@@ -13,6 +13,7 @@ namespace Pal3.Player
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.Renderer;
     using Input;
@@ -44,10 +45,16 @@ namespace Pal3.Player
         private SceneManager _sceneManager;
         private Camera _camera;
 
+        private string _currentMovementSfxAudioName = string.Empty;
+        private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
+        private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
+        private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 0.9f;
+
         private Vector2 _lastInputTapPosition;
         private Vector3 _lastKnownPosition;
         private Vector2Int _lastKnownTilePosition;
         private int _lastKnownLayerIndex;
+        private string _lastKnownPlayerActorAction = string.Empty;
         #if PAL3
         private int _longKuiLastKnownMode = 0;
         #endif
@@ -114,6 +121,8 @@ namespace Pal3.Player
                 ReadInputAndMovePlayerIfNeeded();
             }
 
+            var shouldUpdatePlayerActorMovementSfx = false;
+            
             Vector3 position = _playerActor.transform.position;
             var layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
@@ -124,6 +133,9 @@ namespace Pal3.Player
                 Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
                 if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
                 {
+                    #if PAL3
+                    shouldUpdatePlayerActorMovementSfx = true;
+                    #endif
                     _lastKnownTilePosition = tilePosition;
                     CommandDispatcher<ICommand>.Instance.Dispatch(
                         new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, !isPlayerInControl));
@@ -131,6 +143,79 @@ namespace Pal3.Player
             }
 
             _lastKnownLayerIndex = layerIndex;
+
+            var currentAction = _playerActorActionController.GetCurrentAction();
+            if (currentAction != _lastKnownPlayerActorAction)
+            {
+                _lastKnownPlayerActorAction = currentAction;
+                shouldUpdatePlayerActorMovementSfx = true;
+            }
+
+            if (shouldUpdatePlayerActorMovementSfx)
+            {
+                UpdatePlayerActorMovementSfx(_lastKnownPlayerActorAction);   
+            }
+        }
+
+        private string GetMovementSfxName(ActorActionType movementAction)
+        {
+            if (movementAction is not (ActorActionType.Walk or ActorActionType.Run)) return string.Empty;
+
+            #if PAL3
+            Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
+            NavTile tile = tileMap.GetTile(_lastKnownTilePosition, _lastKnownLayerIndex);
+            var sfxPrefix = movementAction == ActorActionType.Walk ? "we021" : "we022";
+
+            return tile.FloorKind switch
+            {
+                NavFloorKind.Grass => sfxPrefix + 'b',
+                NavFloorKind.Snow => sfxPrefix + 'c',
+                NavFloorKind.Sand => sfxPrefix + 'd',
+                _ => sfxPrefix + 'a'
+            };
+            #elif PAL3A
+            return movementAction == ActorActionType.Walk ? "WE007" : "WE008";
+            #endif
+        }
+
+        private void UpdatePlayerActorMovementSfx(string playerActorAction)
+        {
+            var newMovementSfxAudioFileName = string.Empty;
+            ActorActionType actionType = ActorActionType.Walk;
+            
+            if (string.Equals(playerActorAction, ActorConstants.ActionNames[ActorActionType.Walk]))
+            {
+                newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Walk);
+                actionType = ActorActionType.Walk;
+            }
+            else if (string.Equals(playerActorAction, ActorConstants.ActionNames[ActorActionType.Run]))
+            {
+                newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Run);
+                actionType = ActorActionType.Run;
+            }
+
+            if (string.Equals(_currentMovementSfxAudioName, newMovementSfxAudioFileName)) return;
+            
+            _currentMovementSfxAudioName = newMovementSfxAudioFileName;
+
+            if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));
+            }
+            else
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlaySfxAtGameObjectRequest(_playerActor,
+                        newMovementSfxAudioFileName,
+                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        actionType == ActorActionType.Walk ?
+                            PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME :
+                            PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
+                        -1,
+                        0f,
+                        0f));
+            }
         }
 
         public Vector3 GetPlayerActorLastKnownPosition()
@@ -562,12 +647,15 @@ namespace Pal3.Player
 
             _lastKnownPosition = Vector3.zero;
             _lastKnownTilePosition = Vector2Int.zero;
-
+            _lastKnownPlayerActorAction = string.Empty;
+            
             _playerActor = _sceneManager.GetCurrentScene()
                 .GetActorGameObject((byte) command.ActorId);
             _playerActorController = _playerActor.GetComponent<ActorController>();
             _playerActorActionController = _playerActor.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActor.GetComponent<ActorMovementController>();
+
+            _currentMovementSfxAudioName = string.Empty;
         }
 
         public void Execute(PlayerEnableInputCommand command)
