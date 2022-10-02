@@ -47,6 +47,25 @@ namespace Pal3.Data
         private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
         private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
         private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
+        private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
+
+        // Cache player actor movement sfx audio clips
+        private readonly HashSet<string> _audioClipCacheList = new ()
+        {
+            #if PAL3
+            "we021a.wav",
+            "we021b.wav",
+            "we021c.wav",
+            "we021d.wav",
+            "we022a.wav",
+            "we022b.wav",
+            "we022c.wav",
+            "we022d.wav",
+            #elif PAL3A
+            "WE007.WAV",
+            "WE008.WAV"
+            #endif
+        };
 
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
@@ -68,6 +87,7 @@ namespace Pal3.Data
             _polCache.Clear();
             _mv3Cache.Clear();
             _actorConfigCache.Clear();
+            _audioClipCache.Clear();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -246,6 +266,31 @@ namespace Pal3.Data
             var sfxFilePath = $"{rootPath}{sfxFileRelativePath}";
 
             return sfxFilePath;
+        }
+        
+        public IEnumerator LoadAudioClip(string filePath, AudioType audioType, Action<AudioClip> callback)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var shouldCache = _audioClipCacheList.Contains(fileName);
+
+            if (shouldCache && _audioClipCache.ContainsKey(fileName))
+            {
+                if (_audioClipCache[fileName] != null) // check if clip has been destroyed
+                {
+                    callback?.Invoke(_audioClipCache[fileName]);
+                    yield break;   
+                }
+            }
+            
+            yield return AudioClipLoader.LoadAudioClip(filePath, audioType, audioClip =>
+            {
+                if (shouldCache && audioClip != null)
+                {
+                    _audioClipCache[fileName] = audioClip;
+                }
+                
+                callback?.Invoke(audioClip);
+            });
         }
 
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)

@@ -33,7 +33,7 @@ namespace Pal3.Audio
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        public float MusicVolume { get; set; } = 0.5f;
+        public float MusicVolume { get; set; } = 0.4f;
         public float SoundVolume { get; set; } = 0.5f;
 
         private AudioSource _musicPlayer;
@@ -141,7 +141,7 @@ namespace Pal3.Audio
         public IEnumerator PlaySfx(string sfxFilePath, int loopCount, CancellationToken cancellationToken)
         {
             AudioClip sfxAudioClip = null;
-            yield return AudioClipLoader.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
+            yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
             {
                 sfxAudioClip = audioClip;
             });
@@ -162,7 +162,7 @@ namespace Pal3.Audio
 
             AudioClip sfxAudioClip = null;
             
-            yield return AudioClipLoader.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
+            yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
             {
                 sfxAudioClip = audioClip;
             });
@@ -201,7 +201,7 @@ namespace Pal3.Audio
         {
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
             AudioClip musicClip = null;
-            yield return AudioClipLoader.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
+            yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
             {
                 musicClip = audioClip;
             });
@@ -287,8 +287,6 @@ namespace Pal3.Audio
             if (audioSourceParentTransform == null) return;
 
             GameObject audioSourceParent = audioSourceParentTransform.gameObject;
-            if (audioSourceParent == default) return;
-            
             var audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
             if (audioSource == default) return;
             

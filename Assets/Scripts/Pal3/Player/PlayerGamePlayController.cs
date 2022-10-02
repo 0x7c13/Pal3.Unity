@@ -110,7 +110,8 @@ namespace Pal3.Player
         private void Update()
         {
             if (_isDuringSceneTransition) return;
-
+            if (_playerActor == null) return;
+            
             var isPlayerInControl = false;
 
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&

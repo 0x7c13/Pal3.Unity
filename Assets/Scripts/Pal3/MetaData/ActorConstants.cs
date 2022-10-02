@@ -453,7 +453,7 @@ namespace Pal3.MetaData
             { ActorActionType.Skill1,		     WeaponArmType.RightHanded },   // 特技1
             { ActorActionType.Skill2,		     WeaponArmType.RightHanded },   // 特技2
             { ActorActionType.UseItemRecover,    WeaponArmType.None        },   // 恢复物品
-            { ActorActionType.UseItemAttack,     WeaponArmType.RightHanded },   // 攻击物品
+            { ActorActionType.UseItemAttack,     WeaponArmType.None        },   // 攻击物品
             { ActorActionType.WeaponSkill,	     WeaponArmType.RightHanded },   // 武器技
             { ActorActionType.StartDefence,	     WeaponArmType.RightHanded },   // 开始防御
             { ActorActionType.Defence,		     WeaponArmType.RightHanded },   // 防御
