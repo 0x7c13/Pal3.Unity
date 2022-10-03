@@ -33,8 +33,8 @@ namespace Pal3.Audio
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        public float MusicVolume { get; set; } = 0.4f;
-        public float SoundVolume { get; set; } = 0.6f;
+        public float MusicVolume { get; set; } = 0.45f;
+        public float SoundVolume { get; set; } = 0.65f;
 
         private AudioSource _musicPlayer;
         private AudioSource _sfxPlayer;

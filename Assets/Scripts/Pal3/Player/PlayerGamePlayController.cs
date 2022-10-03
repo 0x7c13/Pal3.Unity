@@ -48,7 +48,7 @@ namespace Pal3.Player
         private string _currentMovementSfxAudioName = string.Empty;
         private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
         private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
-        private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 0.9f;
+        private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;
 
         private Vector2 _lastInputTapPosition;
         private Vector3 _lastKnownPosition;
@@ -654,7 +654,10 @@ namespace Pal3.Player
             _playerActorActionController = _playerActor.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActor.GetComponent<ActorMovementController>();
 
+            // Stop current player actor movement sfx
             _currentMovementSfxAudioName = string.Empty;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -716,6 +719,14 @@ namespace Pal3.Player
             
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
+            // Stop current player actor movement sfx
+            if (_playerActor != null)
+            {
+                _currentMovementSfxAudioName = string.Empty;
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));   
+            }
+
             _playerActorLastKnownPositionInfo.Add((
                 GetSceneNameHashKey(currentScene.GetSceneInfo()),
                 _playerActorMovementController.GetCurrentLayerIndex(),
