@@ -161,17 +161,25 @@ namespace Pal3.Player
             if (movementAction is not (ActorActionType.Walk or ActorActionType.Run)) return string.Empty;
 
             #if PAL3
-            Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
-            NavTile tile = tileMap.GetTile(_lastKnownTilePosition, _lastKnownLayerIndex);
             var sfxPrefix = movementAction == ActorActionType.Walk ? "we021" : "we022";
 
-            return tile.FloorKind switch
+            Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
+            if (tileMap.IsTilePositionInsideTileMap(_lastKnownTilePosition, _lastKnownLayerIndex))
             {
-                NavFloorKind.Grass => sfxPrefix + 'b',
-                NavFloorKind.Snow => sfxPrefix + 'c',
-                NavFloorKind.Sand => sfxPrefix + 'd',
-                _ => sfxPrefix + 'a'
-            };
+                NavTile tile = tileMap.GetTile(_lastKnownTilePosition, _lastKnownLayerIndex);
+            
+                return tile.FloorKind switch
+                {
+                    NavFloorKind.Grass => sfxPrefix + 'b',
+                    NavFloorKind.Snow => sfxPrefix + 'c',
+                    NavFloorKind.Sand => sfxPrefix + 'd',
+                    _ => sfxPrefix + 'a'
+                };   
+            }
+            else
+            {
+                return sfxPrefix + 'a';
+            }
             #elif PAL3A
             return movementAction == ActorActionType.Walk ? "WE007" : "WE008";
             #endif
