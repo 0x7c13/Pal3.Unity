@@ -81,7 +81,7 @@ namespace Pal3.Player
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
             _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _camera = mainCamera != null ? mainCamera :throw new ArgumentNullException(nameof(mainCamera));
+            _camera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
 
             _inputActions.Gameplay.OnTap.performed += OnTapPerformed;
             _inputActions.Gameplay.OnMove.performed += OnMovePerformed;

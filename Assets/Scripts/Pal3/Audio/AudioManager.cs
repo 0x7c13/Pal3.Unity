@@ -45,6 +45,10 @@ namespace Pal3.Audio
         private string _currentMusicClipName = string.Empty;
         private string _currentScriptMusic = string.Empty;
 
+        // TODO: Fix and remove this hack
+        private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
+        private bool _playerMovementSfxInProgress;
+        
         private CancellationTokenSource _sceneAudioCts = new ();
 
         public void Init(GameResourceProvider resourceProvider,
@@ -168,6 +172,12 @@ namespace Pal3.Audio
             });
             
             if (parent == null || cancellationToken.IsCancellationRequested || sfxAudioClip == null) yield break;
+
+            if (audioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME &&
+                _playerMovementSfxInProgress == false)
+            {
+                yield break;
+            }
             
             GameObject audioSourceParent;
             Transform audioSourceParentTransform = parent.transform.Find(audioSourceName);
@@ -269,6 +279,11 @@ namespace Pal3.Audio
 
         public void Execute(PlaySfxAtGameObjectRequest request)
         {
+            if (request.AudioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME)
+            {
+                _playerMovementSfxInProgress = true;
+            }
+            
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
             StartCoroutine(PlaySfxAtGameObject(sfxFilePath,
@@ -283,6 +298,11 @@ namespace Pal3.Audio
         
         public void Execute(StopSfxPlayingAtGameObjectRequest command)
         {
+            if (command.AudioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME)
+            {
+                _playerMovementSfxInProgress = false;
+            }            
+            
             Transform audioSourceParentTransform = command.Parent.transform.Find(command.AudioSourceName);
             if (audioSourceParentTransform == null) return;
 
