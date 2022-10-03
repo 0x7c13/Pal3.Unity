@@ -112,7 +112,8 @@ namespace Pal3.Actor
                 {
                     case ScnActorBehaviour.None:
                         _currentBehaviour = ScnActorBehaviour.None;
-                        _actionController.PerformAction(_actor.Info.Kind != ScnActorKind.HotelManager
+                        _actionController.PerformAction(_actor.Info.Kind != ScnActorKind.HotelManager &&
+                                                        _actor.Info.Kind != ScnActorKind.StoryNpc
                             ? _actor.GetInitAction()
                             : _actor.GetIdleAction());
                         break;

@@ -134,9 +134,7 @@ namespace Pal3.Player
                 Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
                 if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
                 {
-                    #if PAL3
                     shouldUpdatePlayerActorMovementSfx = true;
-                    #endif
                     _lastKnownTilePosition = tilePosition;
                     CommandDispatcher<ICommand>.Instance.Dispatch(
                         new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, !isPlayerInControl));
