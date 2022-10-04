@@ -161,6 +161,11 @@ namespace Pal3.Scene
         {
             return _activatedSceneObjects;
         }
+        
+        public Dictionary<byte, SceneObject> GetAllSceneObjects()
+        {
+            return SceneObjects;
+        }
 
         public Actor GetActor(byte id)
         {

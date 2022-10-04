@@ -10,13 +10,15 @@ namespace Pal3.Command.InternalCommands
 
     public class StopSfxPlayingAtGameObjectRequest : ICommand
     {
-        public StopSfxPlayingAtGameObjectRequest(GameObject parent, string audioSourceName)
+        public StopSfxPlayingAtGameObjectRequest(GameObject parent, string audioSourceName, bool disposeSource)
         {
             Parent = parent;
             AudioSourceName = audioSourceName;
+            DisposeSource = disposeSource;
         }
         
         [JsonIgnore] public GameObject Parent { get; }
         public string AudioSourceName { get; }
+        public bool DisposeSource { get; }
     }
 }

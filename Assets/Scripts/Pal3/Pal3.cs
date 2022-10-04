@@ -228,7 +228,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_cameraManager);
 
             _audioManager = gameObject.AddComponent<AudioManager>();
-            _audioManager.Init(_gameResourceProvider,
+            _audioManager.Init(mainCamera,
+                _gameResourceProvider,
                 _sceneManager,
                 musicSource,
                 sfxSource);

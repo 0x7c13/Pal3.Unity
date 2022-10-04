@@ -141,7 +141,22 @@ namespace Pal3.State
             if (saveLevel == SaveLevel.Full)
             {
                 commands.AddRange(_favorManager.GetAllActorFavorInfo()
-                    .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));                
+                    .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
+
+                var allSceneObjectIds = currentScene.GetAllSceneObjects().Keys.ToArray();
+                var allActivatedSceneObjectIds = currentScene.GetAllActivatedSceneObjects().Keys.ToArray();
+
+                commands.AddRange(allActivatedSceneObjectIds
+                    .Select(activeSceneObjectId => new SceneActivateObjectCommand(activeSceneObjectId, 1)));
+
+                commands.AddRange(allSceneObjectIds
+                    .Where(_ => !allActivatedSceneObjectIds.Contains(_))
+                    .Select(inactiveSceneObjectId => new SceneActivateObjectCommand(inactiveSceneObjectId, 0)));
+
+                commands.AddRange(currentScene.GetAllActors()
+                    .Select(actorInfo => actorInfo.Value.GetComponent<ActorController>().IsActive
+                        ? new ActorActivateCommand(actorInfo.Key, 1)
+                        : new ActorActivateCommand(actorInfo.Key, 0)));
             }
 
             commands.AddRange(_bigMapManager.GetRegionEnablementInfo()

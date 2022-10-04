@@ -208,7 +208,9 @@ namespace Pal3.Player
             if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));
+                    new StopSfxPlayingAtGameObjectRequest(_playerActor,
+                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        disposeSource: false));
             }
             else
             {
@@ -216,12 +218,12 @@ namespace Pal3.Player
                     new PlaySfxAtGameObjectRequest(_playerActor,
                         newMovementSfxAudioFileName,
                         PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
-                        actionType == ActorActionType.Walk ?
-                            PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME :
-                            PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
-                        -1,
-                        0f,
-                        0f));
+                        actionType == ActorActionType.Walk
+                            ? PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME
+                            : PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
+                        loopCount: -1,
+                        startDelayInSeconds: 0f,
+                        interval: 0f));
             }
         }
 
@@ -665,7 +667,9 @@ namespace Pal3.Player
             // Stop current player actor movement sfx
             _currentMovementSfxAudioName = string.Empty;
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));
+                new StopSfxPlayingAtGameObjectRequest(_playerActor,
+                    PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                    disposeSource: false));
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -732,7 +736,9 @@ namespace Pal3.Player
             {
                 _currentMovementSfxAudioName = string.Empty;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActor, PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME));   
+                    new StopSfxPlayingAtGameObjectRequest(_playerActor,
+                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        disposeSource: true));   
             }
 
             _playerActorLastKnownPositionInfo.Add((

@@ -36,6 +36,7 @@ namespace Pal3.Audio
         public float MusicVolume { get; set; } = 0.45f;
         public float SoundVolume { get; set; } = 0.65f;
 
+        private Camera _mainCamera;
         private AudioSource _musicPlayer;
         private AudioSource _sfxPlayer;
         private GameResourceProvider _resourceProvider;
@@ -51,11 +52,13 @@ namespace Pal3.Audio
         
         private CancellationTokenSource _sceneAudioCts = new ();
 
-        public void Init(GameResourceProvider resourceProvider,
+        public void Init(Camera mainCamera,
+            GameResourceProvider resourceProvider,
             SceneManager sceneManager,
             AudioSource musicSource,
             AudioSource sfxSource)
         {
+            _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _musicPlayer = musicSource != null ? musicSource : throw new ArgumentNullException(nameof(musicSource));
@@ -111,7 +114,9 @@ namespace Pal3.Audio
             float volume,
             CancellationToken cancellationToken)
         {
-            if (loopCount <= 0 && interval == 0f)
+            if (audioSource == null || !audioSource.enabled) yield break;
+
+            if (loopCount == -1 && interval == 0f)
             {
                 if (audioSource.clip != null)
                 {
@@ -124,7 +129,7 @@ namespace Pal3.Audio
                 audioSource.loop = true;
                 audioSource.Play();
             }
-            else if (loopCount <= 0 && interval > 0f)
+            else if (loopCount == -1 && interval > 0f)
             {
                 while (!cancellationToken.IsCancellationRequested && audioSource != null)
                 {
@@ -158,7 +163,7 @@ namespace Pal3.Audio
             string sfxFilePath,
             string audioSourceName,
             float volume,
-            int loopCount = -1,
+            int loopCount,
             float interval = 0f,
             CancellationToken cancellationToken = default)
         {
@@ -248,33 +253,51 @@ namespace Pal3.Audio
 
         public void Execute(PlaySfxCommand command)
         {
-            var sfxName = command.SfxName;
+            #if PAL3
+            var sfxName = command.SfxName.ToLower();
+            #elif PAL3A
+            var sfxName = command.SfxName.ToUpper();
+            #endif
+            
             var loopCount = command.LoopCount;
 
-            // TODO: Start/stop walk/run sfx based on actor behaviour
-            if (command.SfxName.Contains("we022", StringComparison.OrdinalIgnoreCase))
+            #if PAL3
+            // Fix actor movement sfx name
+            if (sfxName.Equals("we021", StringComparison.OrdinalIgnoreCase))
             {
-                loopCount = 3;
+                sfxName = "we021a";
             }
-
-            // TODO: Change walk/run sfx based on tile type
-            if (command.SfxName.Equals("we022", StringComparison.OrdinalIgnoreCase))
+            if (sfxName.Equals("we022", StringComparison.OrdinalIgnoreCase))
             {
-                sfxName = "we022b";
+                sfxName = "we022a";
             }
+            #endif
 
-            // TODO: This sfx will be triggered to loop forever after actor
-            // leaving the hotel. Maybe we should play it by attaching
-            // the sound to the hotel position?
-            if (command.SfxName.Equals("wc019", StringComparison.OrdinalIgnoreCase) &&
-                command.LoopCount == -1)
+            switch (loopCount)
             {
-                return;
+                case 0: // start playing sfx indefinitely for the given sfxName
+                    StartCoroutine(PlaySfx(_mainCamera.gameObject,
+                        _resourceProvider.GetSfxFilePath(sfxName),
+                        sfxName, // use sfx name as audio source name
+                        SoundVolume,
+                        loopCount: -1,
+                        interval: 0f,
+                        _sceneAudioCts.Token));
+                    break;
+                case -1: // stop playing sfx by sfxName
+                    Execute(new StopSfxPlayingAtGameObjectRequest(
+                        _mainCamera.gameObject,
+                        sfxName,
+                        disposeSource: true));
+                    break;
+                default:
+                {
+                    var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
+                    CancellationToken cancellationToken = _sceneAudioCts.Token;
+                    StartCoroutine(PlaySfx(sfxFilePath, loopCount, cancellationToken));
+                    break;
+                }
             }
-
-            var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
-            CancellationToken cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(PlaySfx(sfxFilePath, loopCount, cancellationToken));
         }
 
         public void Execute(PlaySfxAtGameObjectRequest request)
@@ -312,6 +335,11 @@ namespace Pal3.Audio
             
             audioSource.Stop();
             audioSource.clip = null;
+
+            if (command.DisposeSource)
+            {
+                Destroy(audioSourceParent);
+            }
         }
 
         public void Execute(PlayMusicCommand command)
@@ -357,10 +385,11 @@ namespace Pal3.Audio
 
         public void Execute(ScenePreLoadingNotification command)
         {
+            _sfxPlayer.Stop();
+            
             if (_sfxPlayer.clip != null)
             {
                 _sfxPlayer.loop = false;
-                _sfxPlayer.Stop();
                 Destroy(_sfxPlayer.clip);
             }
 
