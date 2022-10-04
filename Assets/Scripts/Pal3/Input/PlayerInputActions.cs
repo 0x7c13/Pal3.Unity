@@ -474,6 +474,17 @@ namespace Pal3.Input
                 },
                 {
                     ""name"": """",
+                    ""id"": ""4460ae52-4a0c-496b-9d61-4675024a3498"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleStorySelector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""954e0003-1b73-4c17-a01a-4dccbafa8ca9"",
                     ""path"": ""<Keyboard>/m"",
                     ""interactions"": """",
@@ -522,6 +533,15 @@ namespace Pal3.Input
                     ""name"": ""ToggleStorySelector"",
                     ""type"": ""Button"",
                     ""id"": ""a7a425ae-d24d-45f9-a11d-54d0f876a1d0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ExitCurrentShowingMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""f4c71292-8ed0-4ea2-9f78-bf137d63f607"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -597,6 +617,17 @@ namespace Pal3.Input
                 },
                 {
                     ""name"": """",
+                    ""id"": ""30885317-9959-46c4-a930-1a29c0e33b47"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleStorySelector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""6404737e-bf57-43a9-83a5-3fa155e78c1b"",
                     ""path"": ""<Keyboard>/m"",
                     ""interactions"": """",
@@ -614,6 +645,28 @@ namespace Pal3.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ToggleBigMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9a0e1e31-3aac-4131-8cc6-f1a87d113db6"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExitCurrentShowingMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""046969fe-1445-429a-b8ca-1a687dbdd20d"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExitCurrentShowingMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1167,6 +1220,7 @@ namespace Pal3.Input
             m_Cutscene_Continue = m_Cutscene.FindAction("Continue", throwIfNotFound: true);
             m_Cutscene_ToggleBigMap = m_Cutscene.FindAction("ToggleBigMap", throwIfNotFound: true);
             m_Cutscene_ToggleStorySelector = m_Cutscene.FindAction("ToggleStorySelector", throwIfNotFound: true);
+            m_Cutscene_ExitCurrentShowingMenu = m_Cutscene.FindAction("ExitCurrentShowingMenu", throwIfNotFound: true);
             // VideoPlaying
             m_VideoPlaying = asset.FindActionMap("VideoPlaying", throwIfNotFound: true);
             m_VideoPlaying_SkipVideo = m_VideoPlaying.FindAction("SkipVideo", throwIfNotFound: true);
@@ -1397,6 +1451,7 @@ namespace Pal3.Input
         private readonly InputAction m_Cutscene_Continue;
         private readonly InputAction m_Cutscene_ToggleBigMap;
         private readonly InputAction m_Cutscene_ToggleStorySelector;
+        private readonly InputAction m_Cutscene_ExitCurrentShowingMenu;
         public struct CutsceneActions
         {
             private @PlayerInputActions m_Wrapper;
@@ -1404,6 +1459,7 @@ namespace Pal3.Input
             public InputAction @Continue => m_Wrapper.m_Cutscene_Continue;
             public InputAction @ToggleBigMap => m_Wrapper.m_Cutscene_ToggleBigMap;
             public InputAction @ToggleStorySelector => m_Wrapper.m_Cutscene_ToggleStorySelector;
+            public InputAction @ExitCurrentShowingMenu => m_Wrapper.m_Cutscene_ExitCurrentShowingMenu;
             public InputActionMap Get() { return m_Wrapper.m_Cutscene; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1422,6 +1478,9 @@ namespace Pal3.Input
                     @ToggleStorySelector.started -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnToggleStorySelector;
                     @ToggleStorySelector.performed -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnToggleStorySelector;
                     @ToggleStorySelector.canceled -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnToggleStorySelector;
+                    @ExitCurrentShowingMenu.started -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnExitCurrentShowingMenu;
+                    @ExitCurrentShowingMenu.performed -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnExitCurrentShowingMenu;
+                    @ExitCurrentShowingMenu.canceled -= m_Wrapper.m_CutsceneActionsCallbackInterface.OnExitCurrentShowingMenu;
                 }
                 m_Wrapper.m_CutsceneActionsCallbackInterface = instance;
                 if (instance != null)
@@ -1435,6 +1494,9 @@ namespace Pal3.Input
                     @ToggleStorySelector.started += instance.OnToggleStorySelector;
                     @ToggleStorySelector.performed += instance.OnToggleStorySelector;
                     @ToggleStorySelector.canceled += instance.OnToggleStorySelector;
+                    @ExitCurrentShowingMenu.started += instance.OnExitCurrentShowingMenu;
+                    @ExitCurrentShowingMenu.performed += instance.OnExitCurrentShowingMenu;
+                    @ExitCurrentShowingMenu.canceled += instance.OnExitCurrentShowingMenu;
                 }
             }
         }
@@ -1601,6 +1663,7 @@ namespace Pal3.Input
             void OnContinue(InputAction.CallbackContext context);
             void OnToggleBigMap(InputAction.CallbackContext context);
             void OnToggleStorySelector(InputAction.CallbackContext context);
+            void OnExitCurrentShowingMenu(InputAction.CallbackContext context);
         }
         public interface IVideoPlayingActions
         {

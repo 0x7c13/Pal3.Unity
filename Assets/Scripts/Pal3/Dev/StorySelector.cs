@@ -1884,6 +1884,7 @@ namespace Pal3.Dev
 
             _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
             _playerInputActions.Cutscene.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideStorySelectorOnPerformed;
         }
 
         private void OnEnable()
@@ -1896,13 +1897,25 @@ namespace Pal3.Dev
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleStorySelector.performed -= ToggleStorySelectorOnPerformed;
             _playerInputActions.Cutscene.ToggleStorySelector.performed -= ToggleStorySelectorOnPerformed;
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideStorySelectorOnPerformed;
         }
 
-        private void ToggleStorySelectorOnPerformed(InputAction.CallbackContext obj)
+        private void ToggleStorySelectorOnPerformed(InputAction.CallbackContext _)
         {
             ToggleStorySelector();
         }
 
+        private void HideStorySelectorOnPerformed(InputAction.CallbackContext _)
+        {
+            if (_sceneManager.GetCurrentScene() == null) return;
+            
+            if (_storySelectorCanvas.interactable)
+            {
+                Hide();
+                _gameStateManager.GoToState(GameState.Gameplay);
+            }
+        }
+        
         private void ToggleStorySelector()
         {
             if (_sceneManager.GetCurrentScene() == null) return;

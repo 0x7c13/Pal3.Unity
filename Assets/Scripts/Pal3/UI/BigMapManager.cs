@@ -66,6 +66,7 @@ namespace Pal3.UI
 
             _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
             _playerInputActions.Cutscene.ToggleBigMap.performed += ToggleBigMapOnPerformed;
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideBigMapOnPerformed;
         }
 
         private void OnEnable()
@@ -75,16 +76,24 @@ namespace Pal3.UI
 
         private void OnDisable()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
             _playerInputActions.Cutscene.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideBigMapOnPerformed;
         }
 
-        private void ToggleBigMapOnPerformed(InputAction.CallbackContext obj)
+        private void ToggleBigMapOnPerformed(InputAction.CallbackContext _)
         {
             ToggleBigMap();
         }
 
+        private void HideBigMapOnPerformed(InputAction.CallbackContext _)
+        {
+            if (_isVisible)
+            {
+                Hide();
+            }
+        }
         public bool IsVisible()
         {
             return _isVisible;

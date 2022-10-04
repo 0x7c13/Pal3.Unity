@@ -319,6 +319,8 @@ namespace Pal3
             DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommandStr);
             DebugLogConsole.AddCommand("info", "Get current game info.", GetCurrentGameInfo);
 
+            DisableInGameDebugConsoleButtonNavigation();
+            
             _settingsManager = new SettingsManager();
             _settingsManager.ApplyDefaultRenderingSettings();
             _settingsManager.ApplyPlatformSpecificSettings();
@@ -380,6 +382,21 @@ namespace Pal3
         private void OnDebugWindowHidden()
         {
             _gameStateManager.LeaveDebugState();
+            // We need to do this since InGameDebugConsole will reset
+            // it's button navigation when it's hidden (not sure why tho).
+            DisableInGameDebugConsoleButtonNavigation();
+        }
+
+        // Disable button navigation for InGameDebugConsole
+        private void DisableInGameDebugConsoleButtonNavigation()
+        {
+            foreach (Button button in DebugLogManager.Instance.gameObject.GetComponentsInChildren<Button>())
+            {
+                button.navigation = new Navigation()
+                {
+                    mode = Navigation.Mode.None
+                };
+            }
         }
 
         private void Update()
