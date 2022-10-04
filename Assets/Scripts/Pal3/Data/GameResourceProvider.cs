@@ -505,11 +505,11 @@ namespace Pal3.Data
         {
             var separator = CpkConstants.DirectorySeparator;
 
-            var emojiSpriteSheetRelativePath =
+            var cursorSpriteRelativePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                 $"{FileConstants.UIFolderName}{separator}{FileConstants.CursorFolderName}{separator}";
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(cursorSpriteRelativePath);
             return textureProvider.GetTexture($"jt.tga");
         }
         

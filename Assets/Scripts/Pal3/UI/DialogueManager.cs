@@ -30,7 +30,8 @@ namespace Pal3.UI
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<DialogueRenderTextCommand>,
         ICommandExecutor<DialogueAddSelectionsCommand>,
-        ICommandExecutor<DialogueRenderTextWithTimeLimitCommand>
+        ICommandExecutor<DialogueRenderTextWithTimeLimitCommand>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME = 4f;
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
@@ -63,7 +64,7 @@ namespace Pal3.UI
         private readonly List<GameObject> _selectionButtons = new();
         private double _totalTimeUsedBeforeSkippingTheLastDialogue;
 
-        private readonly Queue<DialogueRenderActorAvatarCommand> _avatarCommandQueue = new();
+        private DialogueRenderActorAvatarCommand _lastAvatarCommand;
         private readonly Queue<IEnumerator> _dialogueRenderQueue = new();
 
         public void Init(GameResourceProvider resourceProvider,
@@ -393,9 +394,9 @@ namespace Pal3.UI
             _skipDialogueWaiter?.CancelWait();
             _skipDialogueWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
-            DialogueRenderActorAvatarCommand avatarCommand =
-                _avatarCommandQueue.Count > 0 ? _avatarCommandQueue.Dequeue() : null;
+            DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, avatarCommand));
+            _lastAvatarCommand = null;
         }
 
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
@@ -403,15 +404,15 @@ namespace Pal3.UI
             _skipDialogueWaiter?.CancelWait();
             _skipDialogueWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
-            DialogueRenderActorAvatarCommand avatarCommand =
-                _avatarCommandQueue.Count > 0 ? _avatarCommandQueue.Dequeue() : null;
+            DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, avatarCommand));
+            _lastAvatarCommand = null;
         }
 
         public void Execute(DialogueRenderActorAvatarCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-            _avatarCommandQueue.Enqueue(command);
+            _lastAvatarCommand = command;
         }
 
         private string GetSelectionDisplayText(object selection)
@@ -426,6 +427,15 @@ namespace Pal3.UI
                 if (int.TryParse(numberStr, out _))
                 {
                     return selectionString[(selectionString.IndexOf('.') + 1)..];
+                }
+            }
+            
+            if (selectionString.Contains('、'))
+            {
+                var numberStr = selectionString[..selectionString.IndexOf('、')];
+                if (int.TryParse(numberStr, out _))
+                {
+                    return selectionString[(selectionString.IndexOf('、') + 1)..];
                 }
             }
 
@@ -509,6 +519,13 @@ namespace Pal3.UI
             _skipDialogueWaiter?.CancelWait();
             ResetUI();
             _gameStateManager.GoToPreviousState();
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _lastAvatarCommand = null;
+            _dialogueRenderQueue.Clear();
+            ResetUI();
         }
     }
 }
