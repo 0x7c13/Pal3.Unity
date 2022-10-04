@@ -61,6 +61,7 @@ namespace Pal3.Actor
 
         protected void ChangeName(string name)
         {
+            if (_actorName == name) return;
             _actorName = name;
             InitActorConfig(name);
         }

@@ -159,6 +159,16 @@ namespace Pal3.State
                         : new ActorActivateCommand(actorInfo.Key, 0)));
             }
 
+            #if PAL3
+            var longKuiCurrentMode = currentScene.GetActorGameObject((byte) PlayerActorId.LongKui)
+                .GetComponent<LongKuiController>()
+                .GetCurrentMode();
+            if (longKuiCurrentMode != 0)
+            {
+                commands.Add(new LongKuiSwitchModeCommand(longKuiCurrentMode));
+            }
+            #endif
+            
             commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
                 .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
 
