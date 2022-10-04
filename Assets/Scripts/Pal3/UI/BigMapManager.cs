@@ -126,11 +126,16 @@ namespace Pal3.UI
 
             _gameStateManager.GoToState(GameState.Cutscene);
 
-            GameObject exitButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
-            exitButton.GetComponentInChildren<TextMeshProUGUI>().text = "关闭";
-            exitButton.GetComponent<Button>().onClick
-                .AddListener(delegate { BigMapButtonClicked(-1);});
-            _selectionButtons.Add(exitButton);
+            GameObject exitButtonObj = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
+            var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+            exitButtonTextUI.text =  "关闭";
+            exitButtonTextUI.fontStyle = FontStyles.Underline;
+            var exitButton = exitButtonObj.GetComponent<Button>();
+            Navigation exitButtonNavigation = exitButton.navigation;
+            exitButtonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
+            exitButton.navigation = exitButtonNavigation;
+            exitButton.onClick.AddListener(delegate { BigMapButtonClicked(-1);});
+            _selectionButtons.Add(exitButtonObj);
 
             for (var i = 0; i < BigMapConstants.BigMapRegions.Length; i++)
             {
@@ -140,34 +145,11 @@ namespace Pal3.UI
                 buttonTextUI.text = BigMapConstants.BigMapRegions[i];
                 var buttonIndex = i;
                 var button = selectionButton.GetComponent<Button>();
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
+                button.navigation = buttonNavigation;
                 button.onClick.AddListener(delegate { BigMapButtonClicked(buttonIndex);});
                 _selectionButtons.Add(selectionButton);
-            }
-
-            // Setup button navigation
-            for (var i = 0; i < _selectionButtons.Count; i++)
-            {
-                var button = _selectionButtons[i].GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Explicit;
-
-                if (i == 0)
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[^1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
-                }
-                else if (i == _selectionButtons.Count - 1)
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[0].GetComponent<Button>();
-                }
-                else
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
-                }
-
-                button.navigation = buttonNavigation;
             }
 
             var firstButton = _selectionButtons.First().GetComponent<Button>();

@@ -43,6 +43,7 @@ namespace Pal3.Dev
         private readonly Dictionary<string, string> _storySelections = new()
         {
             {"关闭", ""},
+            {"退出游戏", ""},
             {"继续游戏", ""},
             {"保存当前游戏进度", ""},
             {"新的游戏", ""},
@@ -1135,25 +1136,6 @@ namespace Pal3.Dev
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
                 CameraFadeIn"},
-            {"胜州-纳林河源", @"
-                ScriptVarSetValue -32768 50800
-                SceneLoad q05 q05
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 150 85
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                CameraFadeIn"},
             {"胜州祭坛欢庆盛典", @"
                 ScriptVarSetValue -32768 51100
                 SceneLoad q05 q05
@@ -1945,40 +1927,27 @@ namespace Pal3.Dev
             foreach (var story in _storySelections)
             {
                 if (hideCloseButton && story.Key is "关闭" or "保存当前游戏进度") continue;
-
+                
+                #if !UNITY_STANDALONE || UNITY_EDITOR
+                if (story.Key == "退出游戏") continue;
+                #endif
+                
                 GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
 
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = story.Key;
+
+                if (story.Key is "关闭" or "保存当前游戏进度" or "退出游戏" or "新的游戏" or "继续游戏")
+                {
+                    buttonTextUI.fontStyle = FontStyles.Underline;
+                }
+                
                 var button = selectionButton.GetComponent<Button>();
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
+                button.navigation = buttonNavigation;
                 button.onClick.AddListener(delegate { StorySelectionButtonClicked(story.Key);});
                 _selectionButtons.Add(selectionButton);
-            }
-
-            // Setup button navigation
-            for (var i = 0; i < _selectionButtons.Count; i++)
-            {
-                var button = _selectionButtons[i].GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Explicit;
-
-                if (i == 0)
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[^1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
-                }
-                else if (i == _selectionButtons.Count - 1)
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[0].GetComponent<Button>();
-                }
-                else
-                {
-                    buttonNavigation.selectOnLeft = _selectionButtons[i - 1].GetComponent<Button>();
-                    buttonNavigation.selectOnRight = _selectionButtons[i + 1].GetComponent<Button>();
-                }
-
-                button.navigation = buttonNavigation;
             }
 
             var firstButton = _selectionButtons.First().GetComponent<Button>();
@@ -2003,6 +1972,9 @@ namespace Pal3.Dev
                 case "关闭":
                     if (_sceneManager.GetCurrentScene() == null) return;
                     _gameStateManager.GoToState(GameState.Gameplay);
+                    break;
+                case "退出游戏":
+                    Application.Quit();
                     break;
                 case "新的游戏":
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
