@@ -325,7 +325,9 @@ namespace Pal3.Audio
 
             // TODO: Disable combat music since combat system has not been implemented yet.
             if (MusicConstants.CombatMusicInfo.Any(musicInfo =>
-                    command.MusicName.Equals(musicInfo.Value, StringComparison.OrdinalIgnoreCase)))
+                    command.MusicName.Equals(musicInfo.Value, StringComparison.OrdinalIgnoreCase)) ||
+                command.MusicName.Equals("PI25A", StringComparison.OrdinalIgnoreCase) ||
+                command.MusicName.Equals("PI25", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }

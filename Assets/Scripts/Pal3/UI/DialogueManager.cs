@@ -41,7 +41,6 @@ namespace Pal3.UI
         private SceneManager _sceneManager;
         private InputManager _inputManager;
         private PlayerInputActions _inputActions;
-        private WaitUntilCanceled _skipDialogueWaiter;
 
         private EventSystem _eventSystem;
         private Canvas _dialogueCanvas;
@@ -230,6 +229,7 @@ namespace Pal3.UI
 
         public IEnumerator RenderDialogueAndWait(string text,
             bool trackReactionTime,
+            WaitUntilCanceled waitUntilCanceled,
             DialogueRenderActorAvatarCommand avatarCommand = null)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
@@ -293,7 +293,7 @@ namespace Pal3.UI
             }
             
             ResetUI();
-            _skipDialogueWaiter?.CancelWait();
+            waitUntilCanceled.CancelWait();
             _isDialoguePresenting = false;
         }
 
@@ -391,21 +391,20 @@ namespace Pal3.UI
 
         public void Execute(DialogueRenderTextCommand command)
         {
-            _skipDialogueWaiter?.CancelWait();
-            _skipDialogueWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
+            var skipDialogueWaiter = new WaitUntilCanceled(this);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
-            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, avatarCommand));
+            _dialogueRenderQueue.Enqueue(
+                RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
         {
-            _skipDialogueWaiter?.CancelWait();
-            _skipDialogueWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
+            var skipDialogueWaiter = new WaitUntilCanceled(this);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
-            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, avatarCommand));
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 
@@ -455,7 +454,10 @@ namespace Pal3.UI
         public void Execute(DialogueAddSelectionsCommand command)
         {
             _gameStateManager.GoToState(GameState.UI);
-
+            
+            var waiter = new WaitUntilCanceled(this);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+            
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Count; i++)
             {
@@ -464,7 +466,12 @@ namespace Pal3.UI
                 buttonTextUI.text = GetSelectionDisplayText(command.Selections[i]);
                 var buttonIndex = i;
                 selectionButton.GetComponentInChildren<Button>().onClick
-                    .AddListener(delegate { SelectionButtonClicked(buttonIndex);});
+                    .AddListener(delegate
+                    {
+                        SelectionButtonClicked(buttonIndex);
+                        waiter.CancelWait();
+                        _gameStateManager.GoToPreviousState();
+                    });
                 _selectionButtons.Add(selectionButton);
             }
 
@@ -507,18 +514,12 @@ namespace Pal3.UI
 
             _dialogueCanvas.enabled = true;
             _dialogueSelectionButtonsCanvas.enabled = true;
-
-            _skipDialogueWaiter?.CancelWait();
-            _skipDialogueWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_skipDialogueWaiter));
         }
 
         private void SelectionButtonClicked(int index)
         {
             _lastSelectedButtonIndex = index;
-            _skipDialogueWaiter?.CancelWait();
             ResetUI();
-            _gameStateManager.GoToPreviousState();
         }
 
         public void Execute(ResetGameStateCommand command)

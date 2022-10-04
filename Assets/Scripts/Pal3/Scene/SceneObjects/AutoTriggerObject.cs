@@ -105,7 +105,7 @@ namespace Pal3.Scene.SceneObjects
             // scene when holding the stick while transferring between scenes.
             // We simply disable the auto trigger for a short time window after
             // a fresh scene load.
-            var disableTime = _autoTrigger.Info.Type == ScnSceneObjectType.Door ? 1f : 0.4f;
+            var disableTime = _autoTrigger.Info.Type == ScnSceneObjectType.Door ? 1f : 0.45f;
             if (Time.realtimeSinceStartupAsDouble - _awakeTime < disableTime) return;
 
             if (!_wasTriggered)
