@@ -51,7 +51,7 @@ namespace Pal3.Player
         ICommandExecutor<EffectAttachToActorCommand>
     {
         private PlayerActorId _playerActor = 0;
-        private bool _playerActorControlEnabled;
+        private bool _playerActorControlEnabled = true;
         private bool _playerInputEnabled;
 
         public PlayerManager()

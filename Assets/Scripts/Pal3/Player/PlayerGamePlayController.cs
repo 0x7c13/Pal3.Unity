@@ -705,12 +705,19 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 Scene currentScene = _sceneManager.GetCurrentScene();
+                
                 var currentLayerIndex = currentScene
                     .GetActorGameObject((byte) _playerManager.GetPlayerActor())
                     .GetComponent<ActorMovementController>()
                     .GetCurrentLayerIndex();
+                
                 _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
                     new Vector2Int(command.TileXPosition,command.TileZPosition), currentLayerIndex);
+                
+                if (!_playerActorController.IsActive)
+                {
+                    _playerActorController.IsActive = true;
+                }
             }
         }
 
