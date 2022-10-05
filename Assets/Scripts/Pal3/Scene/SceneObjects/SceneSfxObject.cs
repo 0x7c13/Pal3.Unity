@@ -41,9 +41,10 @@ namespace Pal3.Scene.SceneObjects
             }
             
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlaySfxAtGameObjectRequest(sceneGameObject,
+                new AttachSfxToGameObjectRequest(sceneGameObject,
                     SfxName,
                     SCENE_SFX_AUDIO_SOURCE_NAME,
+                    loopCount: -1,
                     SCENE_SFX_VOLUME,
                     startDelay, 
                     interval));

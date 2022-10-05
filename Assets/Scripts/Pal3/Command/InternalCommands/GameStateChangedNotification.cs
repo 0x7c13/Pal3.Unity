@@ -9,11 +9,13 @@ namespace Pal3.Command.InternalCommands
 
     public class GameStateChangedNotification : ICommand
     {
-        public GameStateChangedNotification(GameState newState)
+        public GameStateChangedNotification(GameState previousState, GameState newState)
         {
+            PreviousState = previousState;
             NewState = newState;
         }
 
+        public GameState PreviousState { get; }
         public GameState NewState { get; }
     }
 }

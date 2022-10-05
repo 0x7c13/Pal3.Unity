@@ -8,11 +8,12 @@ namespace Pal3.Command.InternalCommands
     using Newtonsoft.Json;
     using UnityEngine;
 
-    public class PlaySfxAtGameObjectRequest : ICommand
+    public class AttachSfxToGameObjectRequest : ICommand
     {
-        public PlaySfxAtGameObjectRequest(GameObject parent,
+        public AttachSfxToGameObjectRequest(GameObject parent,
             string sfxName,
             string audioSourceName,
+            int loopCount,
             float volume,
             float startDelayInSeconds,
             float interval)
@@ -20,6 +21,7 @@ namespace Pal3.Command.InternalCommands
             Parent = parent;
             SfxName = sfxName;
             AudioSourceName = audioSourceName;
+            LoopCount = loopCount;
             Volume = volume;
             StartDelayInSeconds = startDelayInSeconds;
             Interval = interval;
@@ -28,6 +30,7 @@ namespace Pal3.Command.InternalCommands
         [JsonIgnore] public GameObject Parent { get; }
         public string SfxName { get; }
         public string AudioSourceName { get; }
+        public int LoopCount { get; }
         public float Volume { get; }
         public float StartDelayInSeconds { get; }
         public float Interval { get; }

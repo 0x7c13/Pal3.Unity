@@ -26,7 +26,7 @@ namespace Pal3.State
         ICommandExecutor<GameSwitchToMainMenuCommand>
     {
         private GameState _previousState;
-        private GameState _state;
+        private GameState _currentState;
         private readonly InputManager _inputManager;
         private readonly ScriptManager _scriptManager;
         private bool _isDebugging;
@@ -38,7 +38,7 @@ namespace Pal3.State
             _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _previousState = GameState.UI;
-            _state = GameState.UI;
+            _currentState = GameState.UI;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -49,21 +49,22 @@ namespace Pal3.State
 
         public GameState GetCurrentState()
         {
-            return _state;
+            return _currentState;
         }
 
-        public void GoToState(GameState state)
+        public void GoToState(GameState newState)
         {
-            if (_state == state) return;
+            if (_currentState == newState) return;
 
-            Debug.Log($"Goto State: {state.ToString()}");
+            Debug.Log($"Goto State: {newState.ToString()}");
 
-            _previousState = _state;
-            _state = state;
+            _previousState = _currentState;
+            _currentState = newState;
 
             UpdateInputManagerState();
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangedNotification(state));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangedNotification(_previousState, _currentState));
         }
 
         public void GoToPreviousState()
@@ -75,7 +76,7 @@ namespace Pal3.State
         {
             if (!_isDebugging)
             {
-                _inputManager.SwitchCurrentActionMap(_state);
+                _inputManager.SwitchCurrentActionMap(_currentState);
             }
         }
 
@@ -88,7 +89,7 @@ namespace Pal3.State
         public void LeaveDebugState()
         {
             _isDebugging = false;
-            _inputManager.SwitchCurrentActionMap(_state);
+            _inputManager.SwitchCurrentActionMap(_currentState);
         }
 
         public void Execute(PlayVideoCommand command)

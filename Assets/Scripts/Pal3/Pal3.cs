@@ -56,7 +56,6 @@ namespace Pal3
 
         // Audio
         [SerializeField] private AudioSource musicSource;
-        [SerializeField] private AudioSource sfxSource;
 
         // Video
         [SerializeField] private Canvas videoPlayerCanvas;
@@ -231,8 +230,7 @@ namespace Pal3
             _audioManager.Init(mainCamera,
                 _gameResourceProvider,
                 _sceneManager,
-                musicSource,
-                sfxSource);
+                musicSource);
             ServiceLocator.Instance.Register(_audioManager);
 
             _informationManager = gameObject.AddComponent<InformationManager>();

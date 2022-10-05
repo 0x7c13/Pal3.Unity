@@ -215,9 +215,10 @@ namespace Pal3.Player
             else
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlaySfxAtGameObjectRequest(_playerActor,
+                    new AttachSfxToGameObjectRequest(_playerActor,
                         newMovementSfxAudioFileName,
                         PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        loopCount: -1,
                         actionType == ActorActionType.Walk
                             ? PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME
                             : PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
