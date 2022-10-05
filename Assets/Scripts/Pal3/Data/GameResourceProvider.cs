@@ -512,7 +512,6 @@ namespace Pal3.Data
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(cursorSpriteRelativePath);
             Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
-            cursorTexture.alphaIsTransparency = true;
             return cursorTexture;
         }
         

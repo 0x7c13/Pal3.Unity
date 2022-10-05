@@ -121,9 +121,6 @@ namespace Core.DataReader.Bmp
 
             texture.SetPixels32(imageData);
             texture.Apply();
-            
-            texture.alphaIsTransparency = true;
-            
             return texture;
         }
 

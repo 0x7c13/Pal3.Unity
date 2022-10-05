@@ -84,7 +84,6 @@ namespace Core.DataLoader
 			Texture2D texture = new Texture2D(_width, _height, _format, mipChain: false);
 			texture.LoadRawTextureData(_rawData);
 			texture.Apply();
-			texture.alphaIsTransparency = true;
 			return texture;
 		}
 	}

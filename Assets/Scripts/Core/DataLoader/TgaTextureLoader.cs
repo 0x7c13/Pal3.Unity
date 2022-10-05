@@ -77,7 +77,6 @@ namespace Core.DataLoader
             var texture = new Texture2D(_width, _height, TextureFormat.RGBA32, mipChain: false);
             texture.SetPixels32(_pixels);
             texture.Apply();
-            texture.alphaIsTransparency = true;
             return texture;
         }
     }
