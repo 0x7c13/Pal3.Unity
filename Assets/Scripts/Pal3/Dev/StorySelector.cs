@@ -18,6 +18,7 @@ namespace Pal3.Dev
     using Script;
     using State;
     using TMPro;
+    using UI;
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
@@ -1959,6 +1960,7 @@ namespace Pal3.Dev
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
                 button.navigation = buttonNavigation;
+                button.colors = UITheme.GetButtonColors();
                 button.onClick.AddListener(delegate { StorySelectionButtonClicked(story.Key);});
                 _selectionButtons.Add(selectionButton);
             }

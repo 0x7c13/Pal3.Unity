@@ -465,7 +465,9 @@ namespace Pal3.UI
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = GetSelectionDisplayText(command.Selections[i]);
                 var buttonIndex = i;
-                selectionButton.GetComponentInChildren<Button>().onClick
+                var button = selectionButton.GetComponentInChildren<Button>();
+                button.colors = UITheme.GetButtonColors();
+                button.onClick
                     .AddListener(delegate
                     {
                         SelectionButtonClicked(buttonIndex);

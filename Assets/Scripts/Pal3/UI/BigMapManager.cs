@@ -143,6 +143,7 @@ namespace Pal3.UI
             Navigation exitButtonNavigation = exitButton.navigation;
             exitButtonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
             exitButton.navigation = exitButtonNavigation;
+            exitButton.colors = UITheme.GetButtonColors();
             exitButton.onClick.AddListener(delegate { BigMapButtonClicked(-1);});
             _selectionButtons.Add(exitButtonObj);
 
@@ -157,6 +158,7 @@ namespace Pal3.UI
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
                 button.navigation = buttonNavigation;
+                button.colors = UITheme.GetButtonColors();
                 button.onClick.AddListener(delegate { BigMapButtonClicked(buttonIndex);});
                 _selectionButtons.Add(selectionButton);
             }

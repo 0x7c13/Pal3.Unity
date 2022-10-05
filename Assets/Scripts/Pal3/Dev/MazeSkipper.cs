@@ -17,6 +17,7 @@ namespace Pal3.Dev
     using Scene;
     using Script;
     using State;
+    using UI;
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -903,8 +904,10 @@ namespace Pal3.Dev
             _mazeSkipperCanvasGroup.alpha = 0f;
             _mazeSkipperCanvasGroup.interactable = false;
 
+            _mazeEntranceButton.colors = UITheme.GetButtonColors();
             _mazeEntranceButton.onClick
                 .AddListener(EntranceButtonClicked);
+            _mazeExitButton.colors = UITheme.GetButtonColors();
             _mazeExitButton.onClick
                 .AddListener(ExitButtonClicked);
 
