@@ -53,7 +53,7 @@ namespace Pal3.Actor
         private WaitUntilCanceled _movementWaiter;
 
         private bool _isDuringCollision;
-        private Vector3 _lastKnownValidPositionDuringCollision;
+        private Vector3 _lastKnownValidPositionWhenCollisionEnter;
 
         private Func<int, byte[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
 
@@ -160,14 +160,14 @@ namespace Pal3.Actor
                 Vector2Int tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);
                 if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
                 {
-                    transform.position = _lastKnownValidPositionDuringCollision;
+                    transform.position = _lastKnownValidPositionWhenCollisionEnter;
                 }
                 else
                 {
                     NavTile currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
                     if (!currentTile.IsWalkable())
                     {
-                        transform.position = _lastKnownValidPositionDuringCollision;
+                        transform.position = _lastKnownValidPositionWhenCollisionEnter;
                     }
                     else
                     {
@@ -183,7 +183,24 @@ namespace Pal3.Actor
         private void OnCollisionEnter(Collision _)
         {
             _isDuringCollision = true;
-            _lastKnownValidPositionDuringCollision = transform.position;
+            
+            Vector3 currentActorPosition = transform.position;
+            Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
+            
+            if (_tilemap.IsTilePositionInsideTileMap(currentTilePosition, _currentLayerIndex) &&
+                _tilemap.GetTile(currentActorPosition, _currentLayerIndex).IsWalkable())
+            {
+                _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
+            }
+            else
+            {
+                _lastKnownValidPositionWhenCollisionEnter = 
+                    _tilemap.TryGetAdjacentWalkableTile(currentTilePosition,
+                        _currentLayerIndex,
+                        out Vector2Int nearestWalkableTilePosition) 
+                        ? _tilemap.GetWorldPosition(nearestWalkableTilePosition, _currentLayerIndex)
+                        : currentActorPosition; // Highly unlikely to happen, but this is the best effort
+            }
         }
 
         private void OnCollisionExit(Collision _)
