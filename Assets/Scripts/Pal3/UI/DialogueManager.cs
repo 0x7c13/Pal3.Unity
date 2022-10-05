@@ -504,14 +504,18 @@ namespace Pal3.UI
             }
 
             var firstButton = _selectionButtons.First().GetComponentInChildren<Button>();
-            _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current ||
                 lastActiveInputDevice == DualShockGamepad.current)
             {
+                _eventSystem.firstSelectedGameObject = firstButton.gameObject;
                 firstButton.Select();
+            }
+            else
+            {
+                _eventSystem.firstSelectedGameObject = null;
             }
 
             _dialogueCanvas.enabled = true;

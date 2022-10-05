@@ -21,6 +21,7 @@ namespace Pal3.UI
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
     public sealed class BigMapManager : MonoBehaviour,
@@ -164,13 +165,18 @@ namespace Pal3.UI
             }
 
             var firstButton = _selectionButtons.First().GetComponent<Button>();
-            _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
-                lastActiveInputDevice == Gamepad.current)
+                lastActiveInputDevice == Gamepad.current ||
+                lastActiveInputDevice == DualShockGamepad.current)
             {
+                _eventSystem.firstSelectedGameObject = firstButton.gameObject;
                 firstButton.Select();
+            }
+            else
+            {
+                _eventSystem.firstSelectedGameObject = null;
             }
 
             if (_selectionButtons.Count > 0)

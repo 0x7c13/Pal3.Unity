@@ -539,7 +539,7 @@ namespace Pal3.Actor
                 }   
             }
 
-            transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);   
+            transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);
         }
 
         public void Execute(ActorPathToCommand command)

@@ -23,6 +23,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
         ICommandExecutor<ActorSetScriptCommand>,
+        ICommandExecutor<ActorSetTilePositionCommand>,
         #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
         #endif
@@ -188,6 +189,12 @@ namespace Pal3.Actor
             _actor.Info.ScriptId = (uint)command.ScriptId;
         }
 
+        public void Execute(ActorSetTilePositionCommand command)
+        {
+            if (command.ActorId != _actor.Info.Id) return;
+            if (!IsActive) IsActive = true;
+        }
+        
         public void Execute(ActorChangeScaleCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;

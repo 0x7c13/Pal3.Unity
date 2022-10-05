@@ -1966,14 +1966,18 @@ namespace Pal3.Dev
             }
 
             var firstButton = _selectionButtons.First().GetComponent<Button>();
-            _eventSystem.firstSelectedGameObject = firstButton.gameObject;
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current ||
                 lastActiveInputDevice == DualShockGamepad.current)
             {
+                _eventSystem.firstSelectedGameObject = firstButton.gameObject;
                 firstButton.Select();
+            }
+            else
+            {
+                _eventSystem.firstSelectedGameObject = null;
             }
 
             _storySelectorCanvas.alpha = 1f;
