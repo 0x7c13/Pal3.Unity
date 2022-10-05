@@ -5,12 +5,13 @@
 
 namespace Pal3.Player
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using MetaData;
 
-    public sealed class PlayerManager :
+    public sealed class PlayerManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorAddSkillCommand>,

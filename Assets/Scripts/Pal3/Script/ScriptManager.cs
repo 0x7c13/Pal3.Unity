@@ -18,7 +18,7 @@ namespace Pal3.Script
     using Newtonsoft.Json;
     using UnityEngine;
 
-    public sealed class ScriptManager :
+    public sealed class ScriptManager : IDisposable,
         ICommandExecutor<ScriptRunCommand>,
         ICommandExecutor<ScriptVarSetValueCommand>,
         ICommandExecutor<ScriptVarAddValueCommand>,
@@ -47,6 +47,8 @@ namespace Pal3.Script
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
+            _pendingScripts.Clear();
+            
             foreach (PalScriptRunner scriptRunner in _runningScripts)
             {
                 scriptRunner.OnCommandExecutionRequested -= OnCommandExecutionRequested;

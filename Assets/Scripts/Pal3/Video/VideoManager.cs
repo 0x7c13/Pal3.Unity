@@ -49,12 +49,18 @@ namespace Pal3.Video
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            
             _inputActions.VideoPlaying.SkipVideo.performed -= SkipVideoPerformed;
             _videoPlayer.loopPointReached -= StopVideoInternal;
-            StopVideoInternal(_videoPlayer); // In case video is still playing
+            
+            // In case video is still playing
+            _videoPlayer.Stop();
+            _videoPlayer.targetTexture.Release();
+            _videoPlayingWaiter?.CancelWait();
+            _videoPlayerUI.enabled = false;
         }
 
-        private void SkipVideoPerformed(InputAction.CallbackContext obj)
+        private void SkipVideoPerformed(InputAction.CallbackContext _)
         {
             StopVideoInternal(_videoPlayer);
         }

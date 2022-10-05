@@ -50,11 +50,11 @@ namespace ResourceViewer
 
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _resourceProvider;
-        private static IList<string> _polFiles = new List<string>();
-        private static IList<string> _cvdFiles = new List<string>();
-        private static IList<string> _mv3Files = new List<string>();
-        private static IList<string> _mp3Files = new List<string>();
-        private static IList<string> _sceFiles = new List<string>();
+        private IList<string> _polFiles = new List<string>();
+        private IList<string> _cvdFiles = new List<string>();
+        private IList<string> _mv3Files = new List<string>();
+        private IList<string> _mp3Files = new List<string>();
+        private IList<string> _sceFiles = new List<string>();
         private static readonly Random Random = new ();
 
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page,

@@ -14,7 +14,6 @@ namespace Pal3.Command.InternalCommands
             string sfxName,
             string audioSourceName,
             float volume,
-            int loopCount,
             float startDelayInSeconds,
             float interval)
         {
@@ -22,7 +21,6 @@ namespace Pal3.Command.InternalCommands
             SfxName = sfxName;
             AudioSourceName = audioSourceName;
             Volume = volume;
-            LoopCount = loopCount;
             StartDelayInSeconds = startDelayInSeconds;
             Interval = interval;
         }
@@ -31,7 +29,6 @@ namespace Pal3.Command.InternalCommands
         public string SfxName { get; }
         public string AudioSourceName { get; }
         public float Volume { get; }
-        public int LoopCount { get; }
         public float StartDelayInSeconds { get; }
         public float Interval { get; }
 

@@ -334,6 +334,7 @@ namespace Pal3
             _gameResourceProvider.Dispose();
             _fileSystemCacheManager.Dispose();
             _inputManager.Dispose();
+            _inputActions.Dispose();
             _gameStateManager.Dispose();
             _scriptManager.Dispose();
             _playerManager.Dispose();

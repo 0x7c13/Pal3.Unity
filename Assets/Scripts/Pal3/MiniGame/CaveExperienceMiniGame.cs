@@ -7,10 +7,12 @@
 
 namespace Pal3.MiniGame
 {
+    using System;
     using Command;
     using Command.SceCommands;
 
-    public sealed class CaveExperienceMiniGame : ICommandExecutor<MiniGameStartCaveExperienceCommand>
+    public sealed class CaveExperienceMiniGame : IDisposable,
+        ICommandExecutor<MiniGameStartCaveExperienceCommand>
     {
         public CaveExperienceMiniGame()
         {

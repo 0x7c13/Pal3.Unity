@@ -25,7 +25,7 @@ namespace Pal3.Script
     using Waiter;
     using Random = UnityEngine.Random;
 
-    public class PalScriptRunner:
+    public class PalScriptRunner : IDisposable,
         ICommandExecutor<ScriptChangeExecutionModeCommand>,
         ICommandExecutor<ScriptSetOperatorCommand>,
         ICommandExecutor<ScriptVarGreaterThanCommand>,
@@ -74,7 +74,7 @@ namespace Pal3.Script
 
         private readonly Stack<IWaitUntil> _waiters = new ();
         private bool _isExecuting;
-        private bool _idDisposed;
+        private bool _isDisposed;
 
         private PalScriptRunner() {}
 
@@ -117,10 +117,21 @@ namespace Pal3.Script
 
         public void Dispose()
         {
-            if (_idDisposed) return;
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            _scriptDataReader.Dispose();
-            _idDisposed = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+                    _scriptDataReader.Dispose();
+                }
+                _isDisposed = true;
+            }
         }
 
         public bool Update(float deltaTime)
@@ -153,7 +164,7 @@ namespace Pal3.Script
 
         private bool Execute()
         {
-            if (_idDisposed) return false;
+            if (_isDisposed) return false;
             
             if (_scriptDataReader.BaseStream.Position == _scriptDataReader.BaseStream.Length)
             {
@@ -162,7 +173,8 @@ namespace Pal3.Script
 
             _isExecuting = true;
 
-            while (!_idDisposed && _scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
+            while (!_isDisposed &&
+                   _scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
             {
                 ExecuteNextCommand();
                 if (_executionMode == PalScriptExecutionMode.Break) break;

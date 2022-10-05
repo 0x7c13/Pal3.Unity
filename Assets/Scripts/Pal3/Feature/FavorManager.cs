@@ -13,7 +13,7 @@ namespace Pal3.Feature
     using Command.SceCommands;
     using MetaData;
 
-    public sealed class FavorManager :
+    public sealed class FavorManager : IDisposable,
         ICommandExecutor<FavorAddCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {

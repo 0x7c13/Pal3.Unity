@@ -33,7 +33,8 @@ namespace Pal3.Data
     /// Single resource provider for accessing game data.
     /// Also manages the lifecycle of the resource it provides.
     /// </summary>
-    public class GameResourceProvider : ICommandExecutor<ScenePreLoadingNotification>
+    public class GameResourceProvider : IDisposable,
+        ICommandExecutor<ScenePreLoadingNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
@@ -510,7 +511,9 @@ namespace Pal3.Data
                 $"{FileConstants.UIFolderName}{separator}{FileConstants.CursorFolderName}{separator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(cursorSpriteRelativePath);
-            return textureProvider.GetTexture($"jt.tga");
+            Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
+            cursorTexture.alphaIsTransparency = true;
+            return cursorTexture;
         }
         
         private string _currentSceneCityName;

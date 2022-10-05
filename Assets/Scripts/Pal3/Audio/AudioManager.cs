@@ -7,6 +7,7 @@ namespace Pal3.Audio
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Command;
@@ -45,6 +46,7 @@ namespace Pal3.Audio
         private const string STOP_MUSIC_NAME = "NONE";
         private string _currentMusicClipName = string.Empty;
         private string _currentScriptMusic = string.Empty;
+        private readonly List<string> _playingSfxSourceNames = new ();
 
         // TODO: Fix and remove this hack
         private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
@@ -107,7 +109,7 @@ namespace Pal3.Audio
             yield return PlayMusic(musicFileVirtualPath, musicFileCachePath, -1);
         }
 
-        public IEnumerator PlayAudioClip(AudioSource audioSource,
+        private IEnumerator PlayAudioClip(AudioSource audioSource,
             AudioClip audioClip,
             int loopCount,
             float interval,
@@ -159,11 +161,10 @@ namespace Pal3.Audio
         }
 
         // Spatial Audio
-        public IEnumerator PlaySfx(GameObject parent,
+        public IEnumerator PlaySfxAtGameObject(GameObject parent,
             string sfxFilePath,
             string audioSourceName,
             float volume,
-            int loopCount,
             float interval = 0f,
             CancellationToken cancellationToken = default)
         {
@@ -202,7 +203,7 @@ namespace Pal3.Audio
             audioSource.rolloffMode = AudioRolloffMode.Linear;
             audioSource.maxDistance = 75f;
 
-            yield return PlayAudioClip(audioSource, sfxAudioClip, loopCount, interval, volume, cancellationToken);
+            yield return PlayAudioClip(audioSource, sfxAudioClip, loopCount: -1, interval, volume, cancellationToken);
         }
 
         private string GetMusicFileVirtualPath(string musicName)
@@ -229,7 +230,6 @@ namespace Pal3.Audio
             string audioSourceName,
             float volume,
             float startDelayInSeconds,
-            int loopCount,
             float interval,
             GameObject parent,
             CancellationToken cancellationToken)
@@ -241,11 +241,10 @@ namespace Pal3.Audio
 
             if (!cancellationToken.IsCancellationRequested && parent != null)
             {
-                yield return PlaySfx(parent,
+                yield return PlaySfxAtGameObject(parent,
                     sfxFilePath,
                     audioSourceName,
                     volume,
-                    loopCount,
                     interval,
                     cancellationToken);
             }
@@ -276,15 +275,16 @@ namespace Pal3.Audio
             switch (loopCount)
             {
                 case 0: // start playing sfx indefinitely for the given sfxName
-                    StartCoroutine(PlaySfx(_mainCamera.gameObject,
+                    _playingSfxSourceNames.Add(sfxName);
+                    StartCoroutine(PlaySfxAtGameObject(_mainCamera.gameObject,
                         _resourceProvider.GetSfxFilePath(sfxName),
                         sfxName, // use sfx name as audio source name
                         SoundVolume,
-                        loopCount: -1,
                         interval: 0f,
                         _sceneAudioCts.Token));
                     break;
                 case -1: // stop playing sfx by sfxName
+                    _playingSfxSourceNames.Remove(sfxName);
                     Execute(new StopSfxPlayingAtGameObjectRequest(
                         _mainCamera.gameObject,
                         sfxName,
@@ -313,7 +313,6 @@ namespace Pal3.Audio
                 request.AudioSourceName,
                 request.Volume,
                 request.StartDelayInSeconds,
-                request.LoopCount,
                 request.Interval,
                 request.Parent,
                 cancellationToken));
@@ -385,6 +384,14 @@ namespace Pal3.Audio
 
         public void Execute(ScenePreLoadingNotification command)
         {
+            // Destroy current playing sfx
+            foreach (Transform audioSourceParentTransform in _playingSfxSourceNames
+                         .Select(sfxName => _mainCamera.transform.Find(sfxName))
+                         .Where(audioSourceParentTransform => audioSourceParentTransform != null))
+            {
+                Destroy(audioSourceParentTransform.gameObject);
+            }
+            
             _sfxPlayer.Stop();
             
             if (_sfxPlayer.clip != null)
@@ -407,6 +414,14 @@ namespace Pal3.Audio
 
         public void Execute(ResetGameStateCommand command)
         {
+            // Destroy current playing sfx
+            foreach (Transform audioSourceParentTransform in _playingSfxSourceNames
+                         .Select(sfxName => _mainCamera.transform.Find(sfxName))
+                         .Where(audioSourceParentTransform => audioSourceParentTransform != null))
+            {
+                Destroy(audioSourceParentTransform.gameObject);
+            }
+            
             _currentScriptMusic = string.Empty;
             _musicPlayer.Stop();
             _sfxPlayer.Stop();

@@ -45,7 +45,6 @@ namespace Pal3.Scene.SceneObjects
                     SfxName,
                     SCENE_SFX_AUDIO_SOURCE_NAME,
                     SCENE_SFX_VOLUME,
-                    loopCount: -1,
                     startDelay, 
                     interval));
 

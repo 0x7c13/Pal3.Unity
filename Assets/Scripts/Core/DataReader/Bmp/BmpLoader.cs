@@ -111,14 +111,20 @@ namespace Core.DataReader.Bmp
 
         public Texture2D ToTexture2D()
         {
-            var tex = new Texture2D(info.absWidth, info.absHeight);
+            var texture = new Texture2D(info.absWidth,
+                info.absHeight,
+                TextureFormat.RGBA32,
+                mipChain: false);
 
             if (info.height < 0)
                 FlipImage();
 
-            tex.SetPixels32(imageData);
-            tex.Apply();
-            return tex;
+            texture.SetPixels32(imageData);
+            texture.Apply();
+            
+            texture.alphaIsTransparency = true;
+            
+            return texture;
         }
 
         // flip image if height is negative

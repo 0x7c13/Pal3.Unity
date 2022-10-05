@@ -383,7 +383,7 @@ namespace Pal3.UI
             return newStr;
         }
 
-        private void SkipDialoguePerformed(InputAction.CallbackContext obj)
+        private void SkipDialoguePerformed(InputAction.CallbackContext _)
         {
             if (_dialogueSelectionButtonsCanvas.enabled) return;
             _isSkipDialogueRequested = true;

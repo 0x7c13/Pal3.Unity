@@ -14,7 +14,7 @@ namespace Pal3.UI
     using UnityEngine.InputSystem;
     using UnityEngine.UI;
 
-    public sealed class TouchControlUIManager :
+    public sealed class TouchControlUIManager : IDisposable,
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
@@ -68,13 +68,14 @@ namespace Pal3.UI
 
         public void Dispose()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            
             if (_isTouchSupported)
             {
                 _interactionButton.onClick.RemoveAllListeners();
                 _bigMapButton.onClick.RemoveAllListeners();
                 _storySelectionButton.onClick.RemoveAllListeners();
             }
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void Execute(GameStateChangedNotification command)

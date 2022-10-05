@@ -15,7 +15,7 @@ namespace Pal3.State
     using UI;
     using UnityEngine;
 
-    public sealed class GameStateManager :
+    public sealed class GameStateManager : IDisposable,
         ICommandExecutor<PlayVideoCommand>,
         ICommandExecutor<VideoEndedNotification>,
         ICommandExecutor<PlayerEnableInputCommand>,

@@ -7,11 +7,13 @@
 
 namespace Pal3.MiniGame
 {
+    using System;
     using Command;
     using Command.SceCommands;
     using MetaData;
 
-    public sealed class SailingMiniGame : ICommandExecutor<MiniGameStartSailingCommand>
+    public sealed class SailingMiniGame : IDisposable,
+        ICommandExecutor<MiniGameStartSailingCommand>
     {
         public SailingMiniGame()
         {

@@ -17,13 +17,11 @@ namespace Pal3.UI
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
         private Texture2D _cursorTextureNormal;
-        private readonly CursorMode _cursorMode = CursorMode.Auto;
-
         public void Init(GameResourceProvider gameResourceProvider)
         {
             gameResourceProvider = gameResourceProvider ?? throw new ArgumentNullException(nameof(gameResourceProvider));
             _cursorTextureNormal = gameResourceProvider.GetCursorTexture();
-            Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, _cursorMode);
+            Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, CursorMode.Auto);
         }
 
         private void OnEnable()

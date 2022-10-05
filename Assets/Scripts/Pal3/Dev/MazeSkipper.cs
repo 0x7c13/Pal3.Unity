@@ -20,7 +20,7 @@ namespace Pal3.Dev
     using UnityEngine;
     using UnityEngine.UI;
 
-    public sealed class MazeSkipper :
+    public sealed class MazeSkipper : IDisposable,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<GameStateChangedNotification>
     {
@@ -962,12 +962,11 @@ namespace Pal3.Dev
 
         public void Dispose()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _mazeEntranceButton.onClick
                 .RemoveListener(EntranceButtonClicked);
             _mazeExitButton.onClick
                 .RemoveListener(ExitButtonClicked);
-
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
         
         private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)

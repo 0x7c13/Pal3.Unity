@@ -14,7 +14,7 @@ namespace Pal3.Data
     /// <summary>
     /// Cache/dispose Cpk archive into memory based on scenarios.
     /// </summary>
-    public class FileSystemCacheManager :
+    public sealed class FileSystemCacheManager : IDisposable,
         ICommandExecutor<ScenePreLoadingNotification>
     {
         private readonly ICpkFileSystem _fileSystem;

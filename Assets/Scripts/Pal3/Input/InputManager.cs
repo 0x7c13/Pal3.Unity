@@ -11,7 +11,7 @@ namespace Pal3.Input
     using State;
     using UnityEngine.InputSystem;
 
-    public sealed class InputManager
+    public sealed class InputManager : IDisposable
     {
         private readonly PlayerInputActions _playerInputActions;
         private InputDevice _lastActiveInputDevice;
@@ -26,7 +26,6 @@ namespace Pal3.Input
         public void Dispose()
         {
             InputSystem.onActionChange -= OnInputActionChange;
-            _playerInputActions.Dispose();
         }
 
         public PlayerInputActions GetPlayerInputActions()

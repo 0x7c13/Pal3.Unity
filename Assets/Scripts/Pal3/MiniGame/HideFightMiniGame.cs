@@ -7,13 +7,15 @@
 
 namespace Pal3.MiniGame
 {
+    using System;
     using Command;
     using Command.SceCommands;
     using Core.Services;
     using MetaData;
     using Script;
 
-    public sealed class HideFightMiniGame : ICommandExecutor<MiniGameStartHideFightCommand>
+    public sealed class HideFightMiniGame : IDisposable,
+        ICommandExecutor<MiniGameStartHideFightCommand>
     {
         public HideFightMiniGame()
         {

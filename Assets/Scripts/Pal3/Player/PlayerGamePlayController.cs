@@ -221,7 +221,6 @@ namespace Pal3.Player
                         actionType == ActorActionType.Walk
                             ? PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME
                             : PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
-                        loopCount: -1,
                         startDelayInSeconds: 0f,
                         interval: 0f));
             }
@@ -287,12 +286,12 @@ namespace Pal3.Player
             return result;
         }
 
-        private void MovementCanceled(InputAction.CallbackContext ctx)
+        private void MovementCanceled(InputAction.CallbackContext _)
         {
             _playerActorActionController.PerformAction(ActorActionType.Stand);
         }
 
-        private void OnTapPerformed(InputAction.CallbackContext ctx)
+        private void OnTapPerformed(InputAction.CallbackContext _)
         {
             if (!_playerManager.IsPlayerActorControlEnabled() ||
                 !_playerManager.IsPlayerInputEnabled())
@@ -303,7 +302,7 @@ namespace Pal3.Player
             MoveToTapPosition(false);
         }
 
-        private void OnDoubleTapPerformed(InputAction.CallbackContext ctx)
+        private void OnDoubleTapPerformed(InputAction.CallbackContext _)
         {
             if (!_playerManager.IsPlayerActorControlEnabled() ||
                 !_playerManager.IsPlayerInputEnabled())
@@ -314,7 +313,7 @@ namespace Pal3.Player
             MoveToTapPosition(true);
         }
 
-        private void PortalToPerformed(InputAction.CallbackContext ctx)
+        private void PortalToPerformed(InputAction.CallbackContext _)
         {
             if (!_playerManager.IsPlayerActorControlEnabled() ||
                 !_playerManager.IsPlayerInputEnabled())
