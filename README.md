@@ -35,6 +35,8 @@
 因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。
 - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
 - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
+- 因为原始游戏的过场动画为Bink格式，Unity并不原生支持，所以请自行转码视频为Unity所支持的格式放在游戏根目录下的movie文件夹即可（大部分设备和系统支持.mp4等主流格式视频，Linux下仅支持.webm格式视频）。
+  * Linux用户可以使用FFmpeg转码视频为.webm格式封装（vp8 + vorbis）：ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm
 
 ## 如何在手持设备上运行
 - 在打包后的运行时，所有平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请阅读Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html)
@@ -62,9 +64,8 @@ https://www.bilibili.com/video/BV1Fu411R7jM
 
 ## 如何贡献？
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
-
 另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
 
-## 技术交流以及测试
+## 社区
 仙剑三（及外传）复刻版讨论群：252315306
-
+仙剑三（及外传）复刻版开发群：330680869

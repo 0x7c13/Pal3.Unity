@@ -24,7 +24,7 @@ namespace Pal3.Actor
         private const float FOLLOW_TARGET_X_OFFSET = -0.8f;
         private const float FOLLOW_TARGET_Y_OFFSET = -0.8f;
 
-        private readonly PlayerActorId _followActorId = PlayerActorId.XueJian;
+        private const PlayerActorId FOLLOW_ACTOR_ID = PlayerActorId.XueJian;
 
         private SceneManager _sceneManager;
         private ActorController _actorController;
@@ -35,6 +35,7 @@ namespace Pal3.Actor
         private ActorActionController _targetActorActionController;
         private float _targetHeight;
         private bool _followTarget = true;
+        private int _currentMode = 1; // defaults to follow target actor
 
         public void Init(ActorController actorController,
             ActorActionController actionController)
@@ -44,6 +45,11 @@ namespace Pal3.Actor
             _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
         }
 
+        public int GetCurrentMode()
+        {
+            return _currentMode;
+        }
+        
         private void OnEnable()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -116,7 +122,7 @@ namespace Pal3.Actor
 
         private void FindAndSetTarget()
         {
-            _target = _sceneManager.GetCurrentScene().GetActorGameObject((byte) _followActorId);
+            _target = _sceneManager.GetCurrentScene().GetActorGameObject((byte) FOLLOW_ACTOR_ID);
             _targetActorController = _target.GetComponent<ActorController>();
             _targetActorActionController = _target.GetComponent<ActorActionController>();
             _isTargetRegistered = true;
@@ -139,6 +145,8 @@ namespace Pal3.Actor
                     _followTarget = false;
                     break;
             }
+
+            _currentMode = command.Mode;
         }
     }
 }

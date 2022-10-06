@@ -74,7 +74,7 @@ namespace Core.Utils
                 RuntimePlatform.IPhonePlayer => iOSSupportedVideoFormats,
                 RuntimePlatform.Android => AndroidSupportedVideoFormats,
 
-                _ => new () {".mp4" }
+                _ => new HashSet<string> {".mp4" }
             };
         }
     }

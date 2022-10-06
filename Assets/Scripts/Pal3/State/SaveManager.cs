@@ -10,6 +10,7 @@ namespace Pal3.State
     using System.IO;
     using System.Linq;
     using Actor;
+    using Audio;
     using Camera;
     using Command;
     using Command.InternalCommands;
@@ -40,6 +41,7 @@ namespace Pal3.State
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
         private readonly CameraManager _cameraManager;
+        private readonly AudioManager _audioManager;
         private readonly PostProcessManager _postProcessManager;
 
         private const string SAVE_FILE_NAME = "save.txt";
@@ -51,6 +53,7 @@ namespace Pal3.State
             ScriptManager scriptManager,
             FavorManager favorManager,
             CameraManager cameraManager,
+            AudioManager audioManager,
             PostProcessManager postProcessManager)
         {
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
@@ -60,6 +63,7 @@ namespace Pal3.State
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _favorManager = favorManager ?? throw new ArgumentNullException(nameof(favorManager));
             _cameraManager = cameraManager != null ? cameraManager : throw new ArgumentNullException(nameof(cameraManager));
+            _audioManager = audioManager != null ? audioManager : throw new ArgumentNullException(nameof(audioManager));
             _postProcessManager = postProcessManager != null ? postProcessManager : throw new ArgumentNullException(nameof(postProcessManager));
         }
 
@@ -122,16 +126,24 @@ namespace Pal3.State
             
             commands.AddRange(varsToSave.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
+
+            var currentPlayerActorId = (int)_playerManager.GetPlayerActor();
+
+            var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
+            if (!string.IsNullOrEmpty(currentScriptMusic))
+            {
+                commands.Add(new PlayMusicCommand(currentScriptMusic, 1));
+            }
             
             commands.AddRange(new List<ICommand>()
             {
                 new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.Name),
-                new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1),
-                new ActorEnablePlayerControlCommand(ActorConstants.PlayerActorVirtualID),
+                new ActorActivateCommand(currentPlayerActorId, 1),
+                new ActorEnablePlayerControlCommand(currentPlayerActorId),
                 new PlayerEnableInputCommand(1),
-                new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID,
+                new ActorSetNavLayerCommand(currentPlayerActorId,
                     playerActorMovementController.GetCurrentLayerIndex()),
-                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
+                new ActorSetTilePositionCommand(currentPlayerActorId,
                     playerActorTilePosition.x, playerActorTilePosition.y)
             });
 
@@ -166,6 +178,13 @@ namespace Pal3.State
             if (longKuiCurrentMode != 0)
             {
                 commands.Add(new LongKuiSwitchModeCommand(longKuiCurrentMode));
+            }
+            var huaYingCurrentMode = currentScene.GetActorGameObject((byte) PlayerActorId.HuaYing)
+                .GetComponent<HuaYingController>()
+                .GetCurrentMode();
+            if (longKuiCurrentMode != 1)
+            {
+                commands.Add(new HuaYingSwitchBehaviourModeCommand(huaYingCurrentMode));
             }
             #endif
             

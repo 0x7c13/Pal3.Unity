@@ -238,6 +238,11 @@ namespace Pal3.Audio
                 new CancellationToken(false))); // Should not stop music during scene switch
         }
 
+        public string GetCurrentScriptMusic()
+        {
+            return _currentScriptMusic;
+        }
+
         private void DestroyAllSfxAudioSource()
         {
             // Destroy current playing sfx

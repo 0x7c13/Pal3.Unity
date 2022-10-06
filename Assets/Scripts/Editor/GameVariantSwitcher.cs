@@ -96,7 +96,7 @@ namespace Editor
                 {
                     allDefines.Add(symbolToAdd);
                 }
-
+                allDefines.Sort();
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,
                     string.Join(";", allDefines.ToArray()));
             }

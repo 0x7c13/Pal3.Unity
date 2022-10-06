@@ -289,6 +289,7 @@ namespace Pal3
                 _scriptManager,
                 _favorManager,
                 _cameraManager,
+                _audioManager,
                 _postProcessManager);
             ServiceLocator.Instance.Register(_saveManager);
             
