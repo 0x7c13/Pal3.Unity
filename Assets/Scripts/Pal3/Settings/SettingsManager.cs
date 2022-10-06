@@ -21,19 +21,22 @@ namespace Pal3.Settings
         
         public void ApplyDefaultRenderingSettings()
         {
-            //var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
-            //QualitySettings.vSyncCount = vSyncCount;
+            var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
+            QualitySettings.vSyncCount = vSyncCount;
 
+            var monitorRefreshRate = Screen.currentResolution.refreshRate;
+            
             Application.targetFrameRate = Application.platform switch
             {
-                RuntimePlatform.WindowsEditor => 120,
-                RuntimePlatform.WindowsPlayer => 120,
-                RuntimePlatform.OSXEditor => 120,
-                RuntimePlatform.OSXPlayer => 120,
-                RuntimePlatform.LinuxEditor => 120,
-                RuntimePlatform.LinuxPlayer => 120,
+                RuntimePlatform.WindowsEditor => monitorRefreshRate,
+                RuntimePlatform.WindowsPlayer => monitorRefreshRate,
+                RuntimePlatform.OSXEditor => monitorRefreshRate,
+                RuntimePlatform.OSXPlayer => monitorRefreshRate,
+                RuntimePlatform.LinuxEditor => monitorRefreshRate,
+                RuntimePlatform.LinuxPlayer => monitorRefreshRate,
                 RuntimePlatform.IPhonePlayer => 120,
                 RuntimePlatform.Android => 120,
+                RuntimePlatform.Switch => 60,
                 _ => -1,
             };
 
