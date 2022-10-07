@@ -19,6 +19,8 @@ namespace Pal3.Actor
         ICommandExecutor<HuaYingSwitchBehaviourModeCommand>
     {
         private const float FLY_SPEED = 144f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+        private const float ROTATION_SPEED = 10f;
+        private const float ROTATION_SYNCING_DISTANCE = 2f;
         private const float FOLLOW_TARGET_MIN_DISTANCE = 1f;
         private const float FOLLOW_TARGET_MAX_DISTANCE = 6f;
         private const float FOLLOW_TARGET_X_OFFSET = -0.8f;
@@ -27,7 +29,9 @@ namespace Pal3.Actor
         private const PlayerActorId FOLLOW_ACTOR_ID = PlayerActorId.XueJian;
 
         private SceneManager _sceneManager;
+        private Actor _actor;
         private ActorController _actorController;
+        private ActorActionController _actorActionController;
 
         private bool _isTargetRegistered;
         private GameObject _target;
@@ -37,11 +41,14 @@ namespace Pal3.Actor
         private bool _followTarget = true;
         private int _currentMode = 1; // defaults to follow target actor
 
-        public void Init(ActorController actorController,
+        public void Init(Actor actor,
+            ActorController actorController,
             ActorActionController actionController)
         {
-            base.Init(actionController);
+            base.Init(actor, actionController);
+            _actor = actor;
             _actorController = actorController;
+            _actorActionController = actionController;
             _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
         }
 
@@ -102,21 +109,36 @@ namespace Pal3.Actor
             }
 
             Vector3 myNewPosition = GetTargetStayPosition();
+            var distanceToNewPosition = Vector3.Distance(myNewPosition, transform.position);
 
-            if (Vector3.Distance(myNewPosition, transform.position) > FOLLOW_TARGET_MAX_DISTANCE)
+            if (distanceToNewPosition < float.Epsilon)
             {
-                transform.position = myNewPosition;
+                _actorActionController.PerformAction(_actor.GetIdleAction());
             }
             else
             {
+                if (Vector3.Distance(myNewPosition, transform.position) < FOLLOW_TARGET_MAX_DISTANCE)
+                {
+                    _actorActionController.PerformAction(_actor.GetMovementAction(0));
+                }
+                else
+                {
+                    transform.position = (transform.position - myNewPosition).normalized * FOLLOW_TARGET_MAX_DISTANCE +
+                                         myNewPosition;
+                    _actorActionController.PerformAction(_actor.GetMovementAction(1));
+                }
+                
                 transform.position = Vector3.MoveTowards(transform.position,
                     myNewPosition,
                     Time.deltaTime * FLY_SPEED);
+                transform.LookAt(new Vector3(myNewPosition.x, transform.position.y, myNewPosition.z));
             }
 
-            if (_isTargetRegistered)
+            if (distanceToNewPosition < ROTATION_SYNCING_DISTANCE)
             {
-                transform.rotation = _target.transform.rotation;
+                Vector3 newRotation= Vector3.RotateTowards(transform.forward,
+                    _target.transform.forward, ROTATION_SPEED * Time.deltaTime, 0.0f);
+                transform.rotation = Quaternion.LookRotation(newRotation);
             }
         }
 

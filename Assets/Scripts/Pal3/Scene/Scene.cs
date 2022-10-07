@@ -172,12 +172,17 @@ namespace Pal3.Scene
             return Actors.ContainsKey(id) ? Actors[id] : null;
         }
 
+        public Dictionary<byte, Actor> GetAllActors()
+        {
+            return Actors;
+        }
+
         public GameObject GetActorGameObject(byte id)
         {
             return _actorObjects.ContainsKey(id) ? _actorObjects[id] : null;
         }
 
-        public Dictionary<byte, GameObject> GetAllActors()
+        public Dictionary<byte, GameObject> GetAllActorGameObjects()
         {
             return _actorObjects;
         }
@@ -330,7 +335,7 @@ namespace Pal3.Scene
         /// </summary>
         private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, byte[] excludeActorIds)
         {
-            var allActors = GetAllActors();
+            var allActors = GetAllActorGameObjects();
 
             var actorTiles = new HashSet<Vector2Int>();
             foreach ((var id, GameObject actor) in allActors)

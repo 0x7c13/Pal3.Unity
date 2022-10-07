@@ -128,7 +128,7 @@ namespace Pal3.Player
                 
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
                 var activePlayerActors = _sceneManager.GetCurrentScene()
-                    .GetAllActors()
+                    .GetAllActorGameObjects()
                     .Where(actor => playerActorIds.Contains(actor.Key) &&
                                     actor.Value.GetComponent<ActorController>().IsActive);
                 

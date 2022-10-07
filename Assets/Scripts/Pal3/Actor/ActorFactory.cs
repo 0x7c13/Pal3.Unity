@@ -46,7 +46,7 @@ namespace Pal3.Actor
             switch (actor.Info.Id)
             {
                 case (byte)PlayerActorId.HuaYing:
-                    actorGameObject.AddComponent<HuaYingController>().Init(actorController, actionController);
+                    actorGameObject.AddComponent<HuaYingController>().Init(actor, actorController, actionController);
                     break;
                 case (byte)PlayerActorId.LongKui:
                     actorGameObject.AddComponent<LongKuiController>().Init(actor, actionController);

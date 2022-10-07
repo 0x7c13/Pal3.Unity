@@ -121,20 +121,23 @@ namespace Pal3.State
 
             var commands = new List<ICommand>
             {
-                new ResetGameStateCommand(),
+                new ResetGameStateCommand(), // Reset game state at first
             };
             
+            // Save global variable(s)
             commands.AddRange(varsToSave.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
 
             var currentPlayerActorId = (int)_playerManager.GetPlayerActor();
 
+            // Save current playing script music (if any)
             var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
             if (!string.IsNullOrEmpty(currentScriptMusic))
             {
                 commands.Add(new PlayMusicCommand(currentScriptMusic, 1));
             }
             
+            // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()
             {
                 new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.Name),
@@ -144,34 +147,48 @@ namespace Pal3.State
                 new ActorSetNavLayerCommand(currentPlayerActorId,
                     playerActorMovementController.GetCurrentLayerIndex()),
                 new ActorSetTilePositionCommand(currentPlayerActorId,
-                    playerActorTilePosition.x, playerActorTilePosition.y)
+                    playerActorTilePosition.x, playerActorTilePosition.y),
+                new ActorRotateFacingCommand(currentPlayerActorId,
+                    -(int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
 
+            // Save team state
             commands.AddRange(_teamManager.GetActorsInTeam()
                 .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
 
             if (saveLevel == SaveLevel.Full)
             {
+                // Save favor info
                 commands.AddRange(_favorManager.GetAllActorFavorInfo()
                     .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
 
-                var allSceneObjectIds = currentScene.GetAllSceneObjects().Keys.ToArray();
-                var allActivatedSceneObjectIds = currentScene.GetAllActivatedSceneObjects().Keys.ToArray();
+                // Save scene object activation state changed by the script
+                var allSceneObjects = currentScene.GetAllSceneObjects();
+                var allActivatedSceneObjects = currentScene.GetAllActivatedSceneObjects();
+                commands.AddRange(allActivatedSceneObjects
+                    .Where(_ => allSceneObjects[_.Key].Info.Active == 0)
+                    .Select(_ => new SceneActivateObjectCommand(_.Key, 1)));
+                commands.AddRange(allSceneObjects
+                    .Where(_ => allSceneObjects[_.Key].Info.Active == 1)
+                    .Where(_ => !allActivatedSceneObjects.Keys.Contains(_.Key))
+                    .Select(_ => new SceneActivateObjectCommand(_.Key, 0)));
 
-                commands.AddRange(allActivatedSceneObjectIds
-                    .Select(activeSceneObjectId => new SceneActivateObjectCommand(activeSceneObjectId, 1)));
-
-                commands.AddRange(allSceneObjectIds
-                    .Where(_ => !allActivatedSceneObjectIds.Contains(_))
-                    .Select(inactiveSceneObjectId => new SceneActivateObjectCommand(inactiveSceneObjectId, 0)));
-
-                commands.AddRange(currentScene.GetAllActors()
-                    .Select(actorInfo => actorInfo.Value.GetComponent<ActorController>().IsActive
-                        ? new ActorActivateCommand(actorInfo.Key, 1)
-                        : new ActorActivateCommand(actorInfo.Key, 0)));
+                // Save actor activation state changed by the script
+                var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>().ToList();
+                var allActors = currentScene.GetAllActors().Where(_ => !playerActorIds.Contains(_.Key)).ToArray();
+                var allActorGameObjects = currentScene.GetAllActorGameObjects();
+                commands.AddRange(allActors
+                    .Where(_ => _.Value.Info.InitActive == 0)
+                    .Where(_ => allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                    .Select(_ => new ActorActivateCommand(_.Key, 1)));
+                commands.AddRange(allActors
+                    .Where(_ => _.Value.Info.InitActive == 1)
+                    .Where(_ => !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                    .Select(_ => new ActorActivateCommand(_.Key, 0)));
             }
 
             #if PAL3
+            // Save LongKui state
             var longKuiCurrentMode = currentScene.GetActorGameObject((byte) PlayerActorId.LongKui)
                 .GetComponent<LongKuiController>()
                 .GetCurrentMode();
@@ -179,32 +196,49 @@ namespace Pal3.State
             {
                 commands.Add(new LongKuiSwitchModeCommand(longKuiCurrentMode));
             }
-            var huaYingCurrentMode = currentScene.GetActorGameObject((byte) PlayerActorId.HuaYing)
-                .GetComponent<HuaYingController>()
-                .GetCurrentMode();
-            if (longKuiCurrentMode != 1)
+
+            // Save HuaYing state
+            var huaYingGameObject = currentScene.GetActorGameObject((byte) PlayerActorId.HuaYing);
+            var huaYingCurrentMode = huaYingGameObject.GetComponent<HuaYingController>().GetCurrentMode();
+            if (huaYingCurrentMode != 1)
             {
                 commands.Add(new HuaYingSwitchBehaviourModeCommand(huaYingCurrentMode));
             }
+            if (huaYingCurrentMode == 2 && huaYingGameObject.GetComponent<ActorController>().IsActive)
+            {
+                commands.Add(new ActorActivateCommand((int) PlayerActorId.HuaYing, 1));
+                var huaYingMovementController = huaYingGameObject.GetComponent<ActorMovementController>();
+                commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
+                    huaYingMovementController.GetCurrentLayerIndex()));
+                Vector2Int tilePosition = huaYingMovementController.GetTilePosition();
+                commands.Add(new ActorSetTilePositionCommand((int)PlayerActorId.HuaYing,
+                    tilePosition.x,
+                    tilePosition.y));
+                var rotationInDegrees = (int)huaYingGameObject.transform.rotation.eulerAngles.y;
+                commands.Add(new ActorRotateFacingCommand((int)PlayerActorId.HuaYing, -rotationInDegrees));
+            }
             #endif
             
+            // Save big map region activation state
             commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
                 .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
 
+            // Save current applied screen effect state
             var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
             if (currentEffectMode != -1)
             {
                 commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));   
             }
 
+            // Save current applied camera settings
             var defaultCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
             if (defaultCameraTransformOption != 0)
             {
                 commands.Add(new CameraSetDefaultTransformCommand(defaultCameraTransformOption));   
             }
 
+            // Good to have
             commands.Add(new CameraFadeInCommand());
-
             return commands;
         }
     }

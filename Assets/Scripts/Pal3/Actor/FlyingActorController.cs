@@ -10,7 +10,6 @@ namespace Pal3.Actor
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
-    using MetaData;
     using Player;
     using Script.Waiter;
     using UnityEngine;
@@ -19,11 +18,14 @@ namespace Pal3.Actor
         ICommandExecutor<FlyingActorFlyToCommand>
     {
         private const float FLY_SPEED = 144f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+        private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         
+        private Actor _actor;
         private ActorActionController _actionController;
 
-        public void Init(ActorActionController actionController)
+        public void Init(Actor actor, ActorActionController actionController)
         {
+            _actor = actor;
             _actionController = actionController;
         }
 
@@ -44,6 +46,7 @@ namespace Pal3.Actor
             if (Vector3.Distance(transform.position, PlayerActorNpcInfo.InitPosition) < float.Epsilon)
             {
                 transform.position = targetPosition;
+                _actionController.PerformAction(_actor.GetIdleAction());
                 return;
             }
 
@@ -53,7 +56,10 @@ namespace Pal3.Actor
             var distance = (targetPosition - transform.position).magnitude;
             var duration = distance / FLY_SPEED;
 
-            _actionController.PerformAction(ActorActionType.Run);
+            _actionController.PerformAction(distance < FLYING_MOVEMENT_MODE_SWITCH_DISTANCE
+                ? _actor.GetMovementAction(1)
+                : _actor.GetMovementAction(2));
+
             StartCoroutine(Fly(targetPosition, duration, waiter));
         }
         
@@ -62,9 +68,8 @@ namespace Pal3.Actor
             Vector3 oldPosition = transform.position;
             
             // Facing towards target position, ignoring y
-            transform.forward = (new Vector3(targetPosition.x, 0f, targetPosition.z)
-                                 - new Vector3(oldPosition.x, 0f, oldPosition.z)).normalized;
-            
+            transform.LookAt(new Vector3(targetPosition.x, oldPosition.y, targetPosition.z));
+
             var timePast = 0f;
             while (timePast < duration)
             {
@@ -78,6 +83,7 @@ namespace Pal3.Actor
             }
 
             transform.position = targetPosition;
+            _actionController.PerformAction(_actor.GetIdleAction());
             waiter?.CancelWait();
         }
     }

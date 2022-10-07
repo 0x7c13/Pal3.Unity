@@ -354,7 +354,7 @@ namespace Pal3.Player
             var nearestInteractableDistance = float.MaxValue;
             Action interactionAction = null;
 
-            foreach (var actorInfo in _sceneManager.GetCurrentScene().GetAllActors())
+            foreach (var actorInfo in _sceneManager.GetCurrentScene().GetAllActorGameObjects())
             {
                 var actorController = actorInfo.Value.GetComponent<ActorController>();
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
@@ -805,6 +805,24 @@ namespace Pal3.Player
         public void Execute(ResetGameStateCommand command)
         {
             _playerActorLastKnownPositionInfo.Clear();
+        
+            _currentMovementSfxAudioName = string.Empty;
+
+            _lastInputTapPosition = default;
+            _lastKnownPosition = default;
+            _lastKnownTilePosition = default;
+            _lastKnownLayerIndex = 0;
+            _lastKnownPlayerActorAction = string.Empty;
+        
+            #if PAL3
+            _longKuiLastKnownMode = 0;
+            #endif
+
+            _isDuringSceneTransition = true;
+            _playerActor = null;
+            _playerActorController = null;
+            _playerActorActionController = null;
+            _playerActorMovementController = null;
         }
         
         #if PAL3

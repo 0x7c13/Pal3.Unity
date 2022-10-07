@@ -34,6 +34,5 @@ namespace Pal3.Command.InternalCommands
         public float Volume { get; }
         public float StartDelayInSeconds { get; }
         public float Interval { get; }
-
     }
 }

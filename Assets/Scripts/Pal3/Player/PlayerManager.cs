@@ -48,7 +48,8 @@ namespace Pal3.Player
         #endif
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
-        ICommandExecutor<EffectAttachToActorCommand>
+        ICommandExecutor<EffectAttachToActorCommand>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private PlayerActorId _playerActor = 0;
         private bool _playerActorControlEnabled = true;
@@ -368,6 +369,11 @@ namespace Pal3.Player
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new EffectAttachToActorCommand((int)_playerActor));
             }
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _playerActor = 0;
         }
     }
 }
