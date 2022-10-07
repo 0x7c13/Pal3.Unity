@@ -15,6 +15,7 @@ namespace Pal3.Dev
         // Should be (1, 1) but these are (1, -1)
         public static readonly HashSet<string> KnownTextureFiles = new HashSet<string>
         {
+            "basedata.cpk\\role\\607\\607.tga",
             "basedata.cpk\\role\\611\\611.tga",
             "basedata.cpk\\role\\613\\613.tga",
             "basedata.cpk\\role\\b03\\b03.tga",
