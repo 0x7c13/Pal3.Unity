@@ -25,6 +25,8 @@ namespace Pal3.Renderer
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
+        private const int TRANSPARENT_RENDER_QUEUE_INDEX = 3000;
+        
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
         private const float TIME_TO_TICK_SCALE = 5000f;
@@ -154,10 +156,11 @@ namespace Pal3.Renderer
             _materials[index] = new Material(_standardNoShadowShader);
             _materials[index].SetTexture(_mainTexturePropertyId, _textures[index]);
 
-            var cutoff = _textureHasAlphaChannel[index] ? 0.3f : 0f;
+            var cutoff = _textureHasAlphaChannel[index] ? 0.01f : 0f;
             if (cutoff > Mathf.Epsilon)
             {
                 _materials[index].SetFloat(_cutoffPropertyId, cutoff);
+                _materials[index].renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
                 _materials[index].SetFloat(_isOpaquePropertyId, .0f);
             }
 
