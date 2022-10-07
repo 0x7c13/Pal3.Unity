@@ -374,6 +374,8 @@ namespace Pal3.Player
         public void Execute(ResetGameStateCommand command)
         {
             _playerActor = 0;
+            _playerActorControlEnabled = true;
+            _playerInputEnabled = false;
         }
     }
 }

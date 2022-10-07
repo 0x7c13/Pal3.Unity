@@ -51,8 +51,6 @@ namespace Pal3.Scene
 
         public void LoadScene(string sceneFileName, string sceneName)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneBeforeLoadingNotification());
-            
             var timer = new Stopwatch();
             timer.Start();
             DisposeCurrentScene();

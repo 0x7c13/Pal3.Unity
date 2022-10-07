@@ -35,7 +35,7 @@ namespace Pal3.Player
         #if PAL3
         ICommandExecutor<LongKuiSwitchModeCommand>,
         #endif
-        ICommandExecutor<SceneBeforeLoadingNotification>,
+        ICommandExecutor<SceneLoadCommand>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
@@ -58,8 +58,7 @@ namespace Pal3.Player
         #if PAL3
         private int _longKuiLastKnownMode = 0;
         #endif
-
-        private bool _isDuringSceneTransition = true;
+        
         private GameObject _playerActor;
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
@@ -109,7 +108,6 @@ namespace Pal3.Player
 
         private void Update()
         {
-            if (_isDuringSceneTransition) return;
             if (_playerActor == null) return;
             
             var isPlayerInControl = false;
@@ -732,10 +730,8 @@ namespace Pal3.Player
             #endif
         }
         
-        public void Execute(SceneBeforeLoadingNotification command)
+        public void Execute(SceneLoadCommand command)
         {
-            _isDuringSceneTransition = true;
-            
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
             // Stop current player actor movement sfx
@@ -798,8 +794,6 @@ namespace Pal3.Player
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
-
-            _isDuringSceneTransition = false;
         }
         
         public void Execute(ResetGameStateCommand command)
@@ -817,8 +811,7 @@ namespace Pal3.Player
             #if PAL3
             _longKuiLastKnownMode = 0;
             #endif
-
-            _isDuringSceneTransition = true;
+            
             _playerActor = null;
             _playerActorController = null;
             _playerActorActionController = null;

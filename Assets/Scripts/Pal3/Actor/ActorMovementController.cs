@@ -404,6 +404,7 @@ namespace Pal3.Actor
         private void ReachingToEndOfPath()
         {
             _movementWaiter?.CancelWait();
+            
             switch (_currentPath.EndOfPathAction)
             {
                 case EndOfPathActionType.DisposeSelf:

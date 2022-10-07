@@ -27,7 +27,10 @@ namespace Pal3.Dev
 
     public sealed class StorySelector : MonoBehaviour,
         ICommandExecutor<ToggleStorySelectorRequest>,
-        ICommandExecutor<GameSwitchToMainMenuCommand>
+        ICommandExecutor<GameSwitchToMainMenuCommand>,
+        ICommandExecutor<ScriptFinishedRunningNotification>,
+        ICommandExecutor<GameStateChangedNotification>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private InputManager _inputManager;
         private EventSystem _eventSystem;
@@ -39,6 +42,8 @@ namespace Pal3.Dev
         private CanvasGroup _storySelectorCanvas;
         private GameObject _storySelectorButtonPrefab;
 
+        private readonly List<string> _deferredExecutionCommands = new();
+        
         private readonly List<GameObject> _selectionButtons = new();
 
         private readonly Dictionary<string, string> _storySelections = new()
@@ -2015,7 +2020,7 @@ namespace Pal3.Dev
                         }
                         else
                         {
-                            ExecuteCommands(commands);
+                            ExecuteCommandsFromSaveFile(commands);
                         }
                     }
                     break;
@@ -2055,6 +2060,32 @@ namespace Pal3.Dev
                 }
             }
         }
+        
+        private void ExecuteCommandsFromSaveFile(string commands)
+        {
+            foreach (var command in commands.Split('\n'))
+            {
+                if (string.IsNullOrEmpty(command)) continue;
+                
+                var arguments = new List<string>();
+                    
+                DebugLogConsole.FetchArgumentsFromCommand(command, arguments);
+                    
+                if (arguments[0] == nameof(ActorActivateCommand).Replace("Command", string.Empty) &&
+                    !Enum.GetValues(typeof(PlayerActorId)).Cast<int>().Contains(int.Parse(arguments[1])))
+                {
+                    _deferredExecutionCommands.Add(command);
+                }
+                else if (arguments[0] == nameof(SceneActivateObjectCommand).Replace("Command", string.Empty))
+                {
+                    _deferredExecutionCommands.Add(command);
+                }
+                else
+                {
+                    DebugLogConsole.ExecuteCommand(command);
+                }
+            }
+        }
 
         public void Hide()
         {
@@ -2077,6 +2108,33 @@ namespace Pal3.Dev
         public void Execute(GameSwitchToMainMenuCommand command)
         {
             if (!_storySelectorCanvas.interactable) Show();
+        }
+
+        public void Execute(ScriptFinishedRunningNotification command)
+        {
+            if (command.ScriptType == PalScriptType.Scene &&
+                _deferredExecutionCommands.Count > 0)
+            {
+                ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
+                _deferredExecutionCommands.Clear();
+            }
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            // Not every scene has init scene script to run,
+            // so we need to check if there are pending deferred commands to run.
+            if (command.NewState == GameState.Gameplay &&
+                _deferredExecutionCommands.Count > 0)
+            {
+                ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
+                _deferredExecutionCommands.Clear();
+            }
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _deferredExecutionCommands.Clear();
         }
     }
 }
