@@ -11,7 +11,7 @@ Shader "Pal3/Standard"
         _ShadowTex ("Shadow map (RGB)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
-        _Transparency("Transparency Amount", Range(0.1,1.0)) = 1.0
+        _IsOpaque("Is Material Opaque", Range(0,1)) = 1.0
     }
     SubShader
     {
@@ -54,7 +54,7 @@ Shader "Pal3/Standard"
             float4 _ShadowTex_ST;
             fixed _Cutoff;
             float _Exposure;
-            float _Transparency;
+            float _IsOpaque;
 
             v2f vert(appdata_t v)
             {
@@ -71,13 +71,23 @@ Shader "Pal3/Standard"
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-
+                const half alpha = color.a;
+                
                 // Cutout
                 clip(color.a - _Cutoff);
+                
                 // Shadow
                 color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
-                // Transparency
-                color.a = _Transparency;
+                
+                // Preserve alpha or not
+                if (_IsOpaque == 1.0)
+                {
+                    color.a = 1.0;
+                }
+                else
+                {
+                    color.a = alpha;
+                }
 
                 UNITY_APPLY_FOG(i.fogCoord, color);
                 return color;

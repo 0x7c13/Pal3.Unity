@@ -10,7 +10,7 @@ Shader "Pal3/StandardNoShadow"
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Transparency("Transparency Amount", Range(0.1,1.0)) = 1.0
+        _IsOpaque("Is Material Opaque", Range(0,1)) = 1.0
     }
     SubShader
     {
@@ -49,7 +49,7 @@ Shader "Pal3/StandardNoShadow"
             float4 _MainTex_ST;
             fixed _Cutoff;
             half4 _TintColor;
-            float _Transparency;
+            float _IsOpaque;
 
             v2f vert(appdata_t v)
             {
@@ -65,13 +65,23 @@ Shader "Pal3/StandardNoShadow"
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-
+                const half alpha = color.a;
+                
                 // Cutout
                 clip(color.a - _Cutoff);
+                
                 // Tint color
                 color *= _TintColor;
-                // Transparency
-                color.a = _Transparency;
+                
+                // Preserve alpha or not
+                if (_IsOpaque == 1.0)
+                {
+                    color.a = 1.0;
+                }
+                else
+                {
+                    color.a = alpha;
+                }
 
                 UNITY_APPLY_FOG(i.fogCoord, color);
                 return color;

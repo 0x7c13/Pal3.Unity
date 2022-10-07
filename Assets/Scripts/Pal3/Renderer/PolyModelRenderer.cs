@@ -39,18 +39,16 @@ namespace Pal3.Renderer
         private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
         private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
         private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private readonly int _transparencyPropertyId = Shader.PropertyToID("_Transparency");
+        private readonly int _isOpaquePropertyId = Shader.PropertyToID("_IsOpaque");
         private Shader _standardShader;
         private Shader _standardNoShadowShader;
         private readonly Dictionary<string, Material> _materials = new ();
-        private bool _disableTransparency;
 
-        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor, bool disableTransparency = false)
+        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor)
         {
             _textureProvider = textureProvider;
             _tintColor = tintColor;
             _textureCache = BuildTextureCache(polFile, textureProvider);
-            _disableTransparency = disableTransparency;
 
             _standardShader = Shader.Find("Pal3/Standard");
             _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
@@ -133,10 +131,7 @@ namespace Pal3.Renderer
                 {
                     var materialHashKey = _standardNoShadowShader.name +
                                           textures[0].name +
-                                          blendFlag +
-                                          gbMaterial.Emissive.r +
-                                          gbMaterial.Emissive.g +
-                                          gbMaterial.Emissive.b;
+                                          blendFlag;
 
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
@@ -157,18 +152,10 @@ namespace Pal3.Renderer
                             material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
-                        if (!_disableTransparency &&
-                            (gbMaterial.Emissive.r is > 0 and < 255 ||
-                             gbMaterial.Emissive.g is > 0 and < 255 ||
-                             gbMaterial.Emissive.b is > 0 and < 255 ||
-                             isWaterSurface))
+                        if (blendFlag is 1 or 2)
                         {
-                            var transparency = blendFlag is 1 or 2 ? 0.5f : 0f;
-                            if (transparency > Mathf.Epsilon)
-                            {
-                                material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                                material.SetFloat(_transparencyPropertyId, transparency);
-                            }
+                            material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
+                            material.SetFloat(_isOpaquePropertyId, .0f);
                         }
                         material.SetColor(_tintColorPropertyId, _tintColor);
                         _materials[materialHashKey] = material;
@@ -191,10 +178,7 @@ namespace Pal3.Renderer
                     var materialHashKey = _standardShader.name +
                                           textures[0].name +
                                           textures[1].name +
-                                          blendFlag +
-                                          gbMaterial.Emissive.r +
-                                          gbMaterial.Emissive.g +
-                                          gbMaterial.Emissive.b;
+                                          blendFlag;
 
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
@@ -216,18 +200,10 @@ namespace Pal3.Renderer
                             material.SetFloat(_cutoffPropertyId, cutoff);
                         }
 
-                        if (!_disableTransparency &&
-                            (gbMaterial.Emissive.r is > 0 and < 255 ||
-                             gbMaterial.Emissive.g is > 0 and < 255 ||
-                             gbMaterial.Emissive.b is > 0 and < 255 ||
-                             isWaterSurface))
+                        if (blendFlag is 1 or 2)
                         {
-                            var transparency = blendFlag is 1 or 2 ? 0.5f : 0f;
-                            if (transparency > Mathf.Epsilon)
-                            {
-                                material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                                material.SetFloat(_transparencyPropertyId, transparency);
-                            }
+                            material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
+                            material.SetFloat(_isOpaquePropertyId, .0f);
                         }
                         material.SetColor(_tintColorPropertyId, _tintColor);
                         _materials[materialHashKey] = material;

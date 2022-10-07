@@ -32,6 +32,7 @@ namespace Pal3.Renderer
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
         private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
         private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
+        private readonly int _isOpaquePropertyId = Shader.PropertyToID("_IsOpaque");
         private Shader _standardNoShadowShader;
 
         private ITextureResourceProvider _textureProvider;
@@ -157,6 +158,7 @@ namespace Pal3.Renderer
             if (cutoff > Mathf.Epsilon)
             {
                 _materials[index].SetFloat(_cutoffPropertyId, cutoff);
+                _materials[index].SetFloat(_isOpaquePropertyId, .0f);
             }
 
             _materials[index].SetColor(_tintColorPropertyId, _tintColor);

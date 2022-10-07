@@ -32,7 +32,7 @@ namespace Core.DataLoader
 
 			DxtHeader header = DxtHeader.ReadHeader(reader);
 			var format = header.DxtPixelFormat.Format;
-			hasAlphaChannel = format == "DXT1";
+			hasAlphaChannel = true;
 
 			_width = header.Width;
 			_height = header.Height;

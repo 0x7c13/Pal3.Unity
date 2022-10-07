@@ -179,11 +179,13 @@ namespace Pal3.State
                 var allActorGameObjects = currentScene.GetAllActorGameObjects();
                 commands.AddRange(allActors
                     .Where(_ => _.Value.Info.InitActive == 0)
-                    .Where(_ => allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                    .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
+                                allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
                     .Select(_ => new ActorActivateCommand(_.Key, 1)));
                 commands.AddRange(allActors
                     .Where(_ => _.Value.Info.InitActive == 1)
-                    .Where(_ => !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                    .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
+                                !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
                     .Select(_ => new ActorActivateCommand(_.Key, 0)));
             }
 
