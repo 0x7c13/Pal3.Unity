@@ -58,8 +58,8 @@ namespace Core.GameBox
 
     public static class GameBoxVertexType
     {
-        public const int MaxUvSet    = 4;
         public const int Null        = 0;
+        public const int MaxUvSet    = 4;
         public const int XYZ         = (1 << 0);
         public const int Normal      = (1 << 1);
         public const int Diffuse     = (1 << 2);

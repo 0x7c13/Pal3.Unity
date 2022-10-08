@@ -160,7 +160,7 @@ namespace Pal3.Renderer
             if (cutoff > Mathf.Epsilon)
             {
                 _materials[index].SetFloat(_cutoffPropertyId, cutoff);
-                _materials[index].renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
+                _materials[index].renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX - 100; // TODO: Find a better way to set render queue
                 _materials[index].SetFloat(_isOpaquePropertyId, .0f);
             }
 

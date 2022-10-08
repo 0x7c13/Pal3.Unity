@@ -134,7 +134,7 @@ namespace Pal3.State
             var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
             if (!string.IsNullOrEmpty(currentScriptMusic))
             {
-                commands.Add(new PlayMusicCommand(currentScriptMusic, 1));
+                commands.Add(new PlayMusicCommand(currentScriptMusic, 0));
             }
             
             // Save current scene info and player actor state
