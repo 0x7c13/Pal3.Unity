@@ -56,7 +56,7 @@ namespace Pal3.Renderer
             for (var i = 0; i < polFile.Meshes.Length; i++)
             {
                 RenderMeshInternal(
-                    polFile.NodeDescriptions[i].Name,
+                    polFile.NodeDescriptions[i],
                     polFile.Meshes[i]);
             }
         }
@@ -93,7 +93,7 @@ namespace Pal3.Renderer
             return textureCache;
         }
 
-        private void RenderMeshInternal(string meshName, PolMesh mesh)
+        private void RenderMeshInternal(PolGeometryNode meshNode, PolMesh mesh)
         {
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
@@ -110,11 +110,11 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 0)
                 {
-                    Debug.LogWarning($"0 texture found for {meshName}");
+                    Debug.LogWarning($"0 texture found for {meshNode.Name}");
                     return;
                 }
 
-                var meshObject = new GameObject(meshName);
+                var meshObject = new GameObject(meshNode.Name);
 
                 // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
                 #if UNITY_EDITOR
@@ -124,7 +124,6 @@ namespace Pal3.Renderer
                 #endif
 
                 var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();
-                GameBoxMaterial gbMaterial = mesh.Textures[i].Material;
                 var blendFlag = mesh.Textures[i].BlendFlag;
 
                 if (textures.Count == 1)

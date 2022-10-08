@@ -42,7 +42,7 @@ namespace Core.DataReader.Pol
                 nodeInfos[i] = new PolGeometryNode
                 {
                     Name     = reader.ReadString(32, codepage),
-                    Position = reader.ReadVector3(),
+                    Position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
                 };
