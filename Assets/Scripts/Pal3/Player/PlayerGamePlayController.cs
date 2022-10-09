@@ -35,7 +35,7 @@ namespace Pal3.Player
         #if PAL3
         ICommandExecutor<LongKuiSwitchModeCommand>,
         #endif
-        ICommandExecutor<SceneLoadCommand>,
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
@@ -732,7 +732,7 @@ namespace Pal3.Player
             #endif
         }
         
-        public void Execute(SceneLoadCommand command)
+        public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
@@ -769,7 +769,8 @@ namespace Pal3.Player
                     GetSceneNameHashKey(notification.NewSceneInfo),
                     StringComparison.OrdinalIgnoreCase)))
             {
-                (string scene, int actorNavIndex, Vector2Int actorTilePosition, Vector3 actorFacing) positionInfo = _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
+                (string scene, int actorNavIndex, Vector2Int actorTilePosition, Vector3 actorFacing) positionInfo = 
+                    _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
                     _.scene,
                     GetSceneNameHashKey(notification.NewSceneInfo),
                     StringComparison.OrdinalIgnoreCase));

@@ -81,6 +81,7 @@ namespace Pal3.Scene
         {
             if (_currentScene != null)
             {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLeavingCurrentSceneNotification());
                 Object.Destroy(_currentScene);
                 Object.Destroy(_currentSceneRoot);
                 _currentScene = null;
