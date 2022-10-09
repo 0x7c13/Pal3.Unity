@@ -83,7 +83,7 @@ Shader "Pal3/StandardNoShadow"
                     color.a = alpha;
                 }
 
-                UNITY_APPLY_FOG(i.fogCoord, color);
+                //UNITY_APPLY_FOG(i.fogCoord, color);
                 return color;
             }
             ENDCG

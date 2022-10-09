@@ -69,21 +69,9 @@ namespace ResourceViewer
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
 
-            Application.targetFrameRate = Application.platform switch
-            {
-                RuntimePlatform.WindowsEditor => 120,
-                RuntimePlatform.WindowsPlayer => 120,
-                RuntimePlatform.OSXEditor => 120,
-                RuntimePlatform.OSXPlayer => 120,
-                RuntimePlatform.LinuxEditor => 120,
-                RuntimePlatform.LinuxPlayer => 120,
-                RuntimePlatform.IPhonePlayer => 60,
-                RuntimePlatform.Android => 60,
-                _ => -1,
-            };
+            Application.targetFrameRate = Screen.currentResolution.refreshRate;
 
-            if (Application.platform == RuntimePlatform.IPhonePlayer ||
-                Application.platform == RuntimePlatform.Android)
+            if (Application.platform is RuntimePlatform.IPhonePlayer or RuntimePlatform.Android)
             {
                 DebugLogManager.Instance.PopupEnabled = true;
             }
