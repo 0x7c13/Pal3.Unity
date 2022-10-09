@@ -668,6 +668,13 @@ namespace Pal3.Player
                 new StopSfxPlayingAtGameObjectRequest(_playerActor,
                     PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
                     disposeSource: false));
+
+            // Just to make sure actor is activated
+            if (_playerManager.IsPlayerInputEnabled() &&
+                !_playerActorController.IsActive)
+            {
+                _playerActorController.IsActive = true;
+            }
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -711,11 +718,6 @@ namespace Pal3.Player
                 
                 _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
                     new Vector2Int(command.TileXPosition,command.TileZPosition), currentLayerIndex);
-                
-                if (!_playerActorController.IsActive)
-                {
-                    _playerActorController.IsActive = true;
-                }
             }
         }
 
