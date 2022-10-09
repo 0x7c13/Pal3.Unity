@@ -103,7 +103,8 @@ namespace Pal3.Audio
             _currentMusicClipName = musicName;
             var musicFileVirtualPath = GetMusicFileVirtualPath(musicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
-            yield return PlayMusic(musicFileVirtualPath, musicFileCachePath, -1);
+            
+            yield return PlayMusic(musicName, musicFileVirtualPath, musicFileCachePath, -1);
         }
 
         private IEnumerator PlayAudioClip(AudioSource audioSource,
@@ -225,17 +226,27 @@ namespace Pal3.Audio
                    $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
         }
 
-        public IEnumerator PlayMusic(string musicFileVirtualPath, string musicFileCachePath, int loopCount)
+        public IEnumerator PlayMusic(string musicName,
+            string musicFileVirtualPath,
+            string musicFileCachePath,
+            int loopCount)
         {
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
+            
             AudioClip musicClip = null;
             yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
             {
                 musicClip = audioClip;
             });
-            if (musicClip == null) yield break;
-            StartCoroutine(PlayAudioClip(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
-                new CancellationToken(false))); // Should not stop music during scene switch
+            
+            // We need to check if current music clip is the same as the one we are trying to play,
+            // since we are using coroutine to load and play music, there is a chance that the music
+            // clip we are trying to play is not the same as the one we supposed to play.
+            if (musicClip == null ||
+                !string.Equals(_currentMusicClipName, musicName, StringComparison.OrdinalIgnoreCase)) yield break;
+            
+            yield return PlayAudioClip(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
+                new CancellationToken(false)); // Should not stop music during scene switch
         }
 
         public string GetCurrentScriptMusic()
@@ -402,7 +413,8 @@ namespace Pal3.Audio
             _currentMusicClipName = command.MusicName;
             var musicFileVirtualPath = GetMusicFileVirtualPath(command.MusicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
-            StartCoroutine(PlayMusic(musicFileVirtualPath,
+            StartCoroutine(PlayMusic(command.MusicName,
+                musicFileVirtualPath,
                 musicFileCachePath,
                 command.Loop == 0 ? -1 : command.Loop));
         }
