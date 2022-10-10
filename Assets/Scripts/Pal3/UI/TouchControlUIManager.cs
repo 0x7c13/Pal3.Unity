@@ -12,6 +12,7 @@ namespace Pal3.UI
     using State;
     using UnityEngine;
     using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
     public sealed class TouchControlUIManager : IDisposable,
@@ -25,7 +26,7 @@ namespace Pal3.UI
         private readonly bool _isTouchSupported;
 
         private bool _isInGamePlayState;
-        private bool _lastActiveDeviceIsTouchscreen;
+        private bool _lastActiveDeviceIsGamepadOrKeyboard;
 
         public TouchControlUIManager(Canvas touchControlUI,
             Button interactionButton,
@@ -42,7 +43,7 @@ namespace Pal3.UI
 
             if (_isTouchSupported)
             {
-                _lastActiveDeviceIsTouchscreen = true;
+                _lastActiveDeviceIsGamepadOrKeyboard = false;
                 _interactionButton.onClick.AddListener(InteractionButtonClicked);
                 _bigMapButton.onClick.AddListener(BigMapButtonClicked);
                 _storySelectionButton.onClick.AddListener(StorySelectionButtonClicked);
@@ -82,18 +83,16 @@ namespace Pal3.UI
         {
             if (!_isTouchSupported) return;
             _isInGamePlayState = command.NewState == GameState.Gameplay;
-            _touchControlUI.enabled = _isInGamePlayState && _lastActiveDeviceIsTouchscreen;
+            _touchControlUI.enabled = _isInGamePlayState && !_lastActiveDeviceIsGamepadOrKeyboard;
         }
 
         public void Execute(ActiveInputDeviceChangedNotification notification)
         {
             if (!_isTouchSupported) return;
-            _lastActiveDeviceIsTouchscreen = notification.Device == Touchscreen.current ||  // Current touchscreen
-                                             notification.Device == Joystick.current || // On-screen virtual joystick
-                                             string.Equals("Touchscreen", notification.Device.displayName,
-                                                 StringComparison.OrdinalIgnoreCase); // Other touchscreen
-            if (!_isInGamePlayState) return;
-            _touchControlUI.enabled = _lastActiveDeviceIsTouchscreen;
+            _lastActiveDeviceIsGamepadOrKeyboard = notification.Device == Keyboard.current ||
+                                                   notification.Device == Gamepad.current ||
+                                                   notification.Device == DualShockGamepad.current;
+            _touchControlUI.enabled = _isInGamePlayState && !_lastActiveDeviceIsGamepadOrKeyboard;
         }
     }
 }
