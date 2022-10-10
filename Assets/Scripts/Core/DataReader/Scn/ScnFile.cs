@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Scn
 {
+    using System;
     using GameBox;
     using Newtonsoft.Json;
     using UnityEngine;
@@ -139,6 +140,34 @@ namespace Core.DataReader.Scn
         public int LightMap;           // 0日景灯光, 1夜景灯光, -1不知道是什么意思(比如M01)
         public uint SkyBox;
         public uint[] Reserved;         // 6 DWORDs
+
+        /// <summary>
+        /// Check if two scene share the same model.
+        /// </summary>
+        /// <param name="sceneInfo">ScnSceneInfo</param>
+        /// <returns>True if two scene share the same model</returns>
+        public bool ModelEquals(ScnSceneInfo sceneInfo)
+        {
+            #if PAL3
+            return string.Equals(CityName, sceneInfo.CityName, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(Model, sceneInfo.Model, StringComparison.OrdinalIgnoreCase);
+
+            #elif PAL3A
+            var modelAName = Model;
+            if (modelAName.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+            {
+                modelAName = modelAName[..^1];
+            }
+            var modelBName = sceneInfo.Model;
+            if (modelBName.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+            {
+                modelBName = modelBName[..^1];
+                
+            }
+            return string.Equals(CityName, sceneInfo.CityName, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(modelAName, modelBName, StringComparison.OrdinalIgnoreCase);
+            #endif
+        }
     }
 
     [System.Serializable]

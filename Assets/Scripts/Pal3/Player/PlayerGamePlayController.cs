@@ -64,11 +64,11 @@ namespace Pal3.Player
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
 
-        private const int POSITION_INFO_LIST_MAX_LENGTH = 2;
-        private readonly List<(string scene,
+        private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
+        private readonly List<(ScnSceneInfo sceneInfo,
             int actorNavIndex,
             Vector2Int actorTilePosition,
-            Vector3 actorFacing)> _playerActorLastKnownPositionInfo = new ();
+            Vector3 actorFacing)> _playerActorLastKnownSceneState = new ();
 
         public void Init(GameStateManager gameStateManager,
             PlayerManager playerManager,
@@ -721,17 +721,6 @@ namespace Pal3.Player
             }
         }
 
-        private string GetSceneNameHashKey(ScnSceneInfo sceneInfo)
-        {
-            #if PAL3
-            return $"{sceneInfo.CityName}_{sceneInfo.Model}";
-            #elif PAL3A
-            return sceneInfo.Model.EndsWith("y", StringComparison.OrdinalIgnoreCase) ?
-                $"{sceneInfo.CityName}_{sceneInfo.Model[..^1]}" :
-                $"{sceneInfo.CityName}_{sceneInfo.Model}";
-            #endif
-        }
-        
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
@@ -746,15 +735,15 @@ namespace Pal3.Player
                         disposeSource: true));   
             }
 
-            _playerActorLastKnownPositionInfo.Add((
-                GetSceneNameHashKey(currentScene.GetSceneInfo()),
+            _playerActorLastKnownSceneState.Add((
+                currentScene.GetSceneInfo(),
                 _playerActorMovementController.GetCurrentLayerIndex(),
                 _playerActorMovementController.GetTilePosition(),
                 _playerActor.transform.forward));
             
-            if (_playerActorLastKnownPositionInfo.Count > POSITION_INFO_LIST_MAX_LENGTH)
+            if (_playerActorLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
             {
-                _playerActorLastKnownPositionInfo.RemoveAt(0);
+                _playerActorLastKnownSceneState.RemoveAt(0);
             }
         }
         
@@ -764,24 +753,19 @@ namespace Pal3.Player
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(playerActorId, 1));
             
-            if (_playerActorLastKnownPositionInfo.Count > 0 && _playerActorLastKnownPositionInfo.Any(_ => string.Equals(
-                    _.scene,
-                    GetSceneNameHashKey(notification.NewSceneInfo),
-                    StringComparison.OrdinalIgnoreCase)))
+            if (_playerActorLastKnownSceneState.Count > 0 && _playerActorLastKnownSceneState.Any(_ => 
+                        _.sceneInfo.ModelEquals(notification.NewSceneInfo)))
             {
-                (string scene, int actorNavIndex, Vector2Int actorTilePosition, Vector3 actorFacing) positionInfo = 
-                    _playerActorLastKnownPositionInfo.Last(_ => string.Equals(
-                    _.scene,
-                    GetSceneNameHashKey(notification.NewSceneInfo),
-                    StringComparison.OrdinalIgnoreCase));
+                (ScnSceneInfo _, int actorNavIndex, Vector2Int actorTilePosition, Vector3 actorFacing) = 
+                    _playerActorLastKnownSceneState.Last(_ => _.sceneInfo.ModelEquals(notification.NewSceneInfo));
                 
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorSetNavLayerCommand(playerActorId, positionInfo.actorNavIndex));
+                    new ActorSetNavLayerCommand(playerActorId, actorNavIndex));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorSetTilePositionCommand(playerActorId, positionInfo.actorTilePosition.x, positionInfo.actorTilePosition.y));
-                
+                    new ActorSetTilePositionCommand(playerActorId, actorTilePosition.x, actorTilePosition.y));
+
                 _sceneManager.GetCurrentScene()
-                    .GetActorGameObject((byte)playerActorId).transform.forward = positionInfo.actorFacing;
+                    .GetActorGameObject((byte)playerActorId).transform.forward = actorFacing;
             }
             
             if (_playerManager.IsPlayerActorControlEnabled())
@@ -801,7 +785,7 @@ namespace Pal3.Player
         
         public void Execute(ResetGameStateCommand command)
         {
-            _playerActorLastKnownPositionInfo.Clear();
+            _playerActorLastKnownSceneState.Clear();
         
             _currentMovementSfxAudioName = string.Empty;
 

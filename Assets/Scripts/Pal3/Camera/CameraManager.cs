@@ -7,6 +7,8 @@ namespace Pal3.Camera
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Command;
     using Command.InternalCommands;
@@ -46,7 +48,9 @@ namespace Pal3.Camera
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<CameraFocusOnSceneObjectCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
-        ICommandExecutor<GameStateChangedNotification>
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>,
+        ICommandExecutor<GameStateChangedNotification>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
         private const float SCENE_STORY_B_ROOM_HEIGHT = 32f;
@@ -89,6 +93,12 @@ namespace Pal3.Camera
         private CancellationTokenSource _asyncCameraAnimationCts = new ();
         private CancellationTokenSource _cameraFadeAnimationCts = new ();
 
+        private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 1;
+        private readonly List<(ScnSceneInfo sceneInfo,
+            Vector3 cameraPosition,
+            Quaternion cameraRotation,
+            Vector3 cameraOffset)> _cameraLastKnownSceneState = new ();
+        
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
             SceneManager sceneManager,
@@ -369,7 +379,7 @@ namespace Pal3.Camera
             return _currentAppliedDefaultTransformOption;
         }
         
-        public void ApplySceneSettings(ScnSceneInfo sceneInfo)
+        private void ApplySceneSettings(ScnSceneInfo sceneInfo)
         {
             switch (sceneInfo.SceneType)
             {
@@ -406,7 +416,7 @@ namespace Pal3.Camera
             _shouldResetVelocity = true;
         }
 
-        public void ApplyDefaultSettings(int option)
+        private void ApplyDefaultSettings(int option)
         {
             Quaternion rotation;
             float distance = 688.0f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
@@ -692,16 +702,49 @@ namespace Pal3.Camera
         public void Execute(CameraSetYawCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
             RotateToOrbitPoint(command.Yaw);
         }
 
+        public void Execute(SceneLeavingCurrentSceneNotification command)
+        {
+            if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
+
+            if (currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
+            {
+                var cameraTransform = _camera.transform;
+                _cameraLastKnownSceneState.Add((
+                    currentScene.GetSceneInfo(),
+                    cameraTransform.position,
+                    cameraTransform.rotation,
+                    _cameraOffset));
+
+                if (_cameraLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
+                {
+                    _cameraLastKnownSceneState.RemoveAt(0);
+                }   
+            }
+        }
+        
         public void Execute(ScenePreLoadingNotification notification)
         {
             _currentAppliedDefaultTransformOption = 0;
             ApplySceneSettings(notification.NewSceneInfo);
-        }
+            
+            // Apply the last known scene state if found in record.
+            if (notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
+            {
+                if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
+                        _.sceneInfo.ModelEquals(notification.NewSceneInfo)))
+                {
+                    (ScnSceneInfo _, Vector3 cameraPosition, Quaternion cameraRotation, Vector3 cameraOffset) =
+                        _cameraLastKnownSceneState.Last(_ => _.sceneInfo.ModelEquals(notification.NewSceneInfo));
 
+                    _camera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
+                    _cameraOffset = cameraOffset;
+                }
+            }
+        }
+        
         public void Execute(CameraFocusOnActorCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
@@ -720,6 +763,12 @@ namespace Pal3.Camera
         public void Execute(GameStateChangedNotification command)
         {
             if (command.NewState == GameState.Gameplay) _free = true;
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _cameraLastKnownSceneState.Clear();
+            _free = true;
         }
     }
 }
