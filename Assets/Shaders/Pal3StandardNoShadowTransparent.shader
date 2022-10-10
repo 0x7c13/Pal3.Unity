@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-Shader "Pal3/StandardNoShadow"
+Shader "Pal3/StandardNoShadowTransparent"
 {
     Properties
     {
@@ -18,15 +18,18 @@ Shader "Pal3/StandardNoShadow"
         LOD 100
 
         Lighting Off
-        Blend Off
-
+        
+        // Pass 1, rendering Opaque part.Blend Off for performance 
         Pass
         {
+            Blend Off 
+            ZWrite On
+            
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
-            //#pragma multi_compile_fog
+            
 
             #include "UnityCG.cginc"
 
@@ -41,7 +44,7 @@ Shader "Pal3/StandardNoShadow"
             {
                 float4 vertex : SV_POSITION;
                 float2 texcoord : TEXCOORD0;
-                //UNITY_FOG_COORDS(1)
+                
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -58,35 +61,76 @@ Shader "Pal3/StandardNoShadow"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-                //UNITY_TRANSFER_FOG(o, o.vertex);
+                
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-                const half alpha = color.a;
-                
-                // Cutout
-                clip(color.a - _Cutoff);
-                
-                // Tint color
-                color *= _TintColor;
-                
-                // Preserve alpha or not
-                if (_IsOpaque == 1.0)
-                {
-                    color.a = 1.0;
-                }
-                else
-                {
-                    color.a = alpha;
-                }
-
-                //UNITY_APPLY_FOG(i.fogCoord, color);
+                clip(color.a - 1.0);
                 return color;
             }
             ENDCG
         }
+        
+        // Pass 2, rendering transparent part.ZWrite Off for transparent effect
+        Pass
+        {
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
+            
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 2.0
+            
+
+            #include "UnityCG.cginc"
+
+            struct appdata_t
+            {
+                float4 vertex : POSITION;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+                
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed _Cutoff;
+            half4 _TintColor;
+            float _IsOpaque;
+
+            v2f vert(appdata_t v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                
+                return o;
+            }
+
+            half4 frag(v2f i) : SV_Target
+            {
+                half4 color = tex2D(_MainTex, i.texcoord);
+                if(color.a >= 1.0)
+                {
+                    discard;
+                }
+                return color;
+            }
+            ENDCG
+        }
+        
     }
 }

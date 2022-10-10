@@ -36,6 +36,7 @@ namespace Pal3.Renderer
         private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
         private readonly int _isOpaquePropertyId = Shader.PropertyToID("_IsOpaque");
         private Shader _standardNoShadowShader;
+        private Shader _standardNoShadowTransparentShader;
 
         private ITextureResourceProvider _textureProvider;
         private VertexAnimationKeyFrame[][] _keyFrames;
@@ -74,6 +75,7 @@ namespace Pal3.Renderer
             DisposeAnimation();
 
             _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
+            _standardNoShadowTransparentShader = Shader.Find("Pal3/StandardNoShadowTransparent");
 
             _textureProvider = textureProvider;
             _tintColor = tintColor;
@@ -153,18 +155,9 @@ namespace Pal3.Renderer
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
 
-            _materials[index] = new Material(_standardNoShadowShader);
-            _materials[index].SetTexture(_mainTexturePropertyId, _textures[index]);
+            bool bTransparency = _textureHasAlphaChannel[index];
+            _materials[index] = bTransparency ? InitWithTransparencyMaterial(_textures[index]) : InitWithOpaqueMaterial(_textures[index]);     
 
-            var cutoff = _textureHasAlphaChannel[index] ? 0.01f : 0f;
-            if (cutoff > Mathf.Epsilon)
-            {
-                _materials[index].SetFloat(_cutoffPropertyId, cutoff);
-                _materials[index].renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX - 100; // TODO: Find a better way to set render queue
-                _materials[index].SetFloat(_isOpaquePropertyId, .0f);
-            }
-
-            _materials[index].SetColor(_tintColorPropertyId, _tintColor);
             
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -201,6 +194,23 @@ namespace Pal3.Renderer
             };
 
             _meshObjects[index].transform.SetParent(transform, false);
+        }
+
+
+        protected Material InitWithTransparencyMaterial(Texture texture)
+        {
+            Material mat = new Material(_standardNoShadowTransparentShader);
+            mat.SetTexture(_mainTexturePropertyId, texture);
+            mat.SetColor(_tintColorPropertyId, _tintColor);
+            return mat;
+        }
+        
+        protected Material InitWithOpaqueMaterial(Texture texture)
+        {
+            Material mat = new Material(_standardNoShadowShader);
+            mat.SetTexture(_mainTexturePropertyId, texture);
+            mat.SetColor(_tintColorPropertyId, _tintColor);
+            return mat;
         }
 
         public void PlayAnimation(int loopCount = -1, float fps = -1f)
