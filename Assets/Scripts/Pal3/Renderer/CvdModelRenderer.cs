@@ -30,19 +30,14 @@ namespace Pal3.Renderer
         private float _animationDuration;
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
-
-        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
-        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private Shader _standardNoShadowShader;
-
+        
+        private const float TRANSPARENT_THRESHOLD = 1.0f;
+        
         public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
-
-            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
-
+            
             foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
                 BuildTextureCache(node, textureProvider, _textureCache);
@@ -182,15 +177,16 @@ namespace Pal3.Renderer
 
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
 
-                    var material = new Material(_standardNoShadowShader);
-                    material.SetTexture(_mainTexturePropertyId, textureCache[meshSection.TextureName]);
-                    var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
-                    if (cutoff > Mathf.Epsilon)
+                    Material material = null;
+                    bool bTransparent = (meshSection.BlendFlag == 1);
+                    if (bTransparent)
                     {
-                        material.SetFloat(_cutoffPropertyId, cutoff);
+                        material = MaterialFactory.CreateTransparentMaterial(textureCache[meshSection.TextureName],_tintColor,TRANSPARENT_THRESHOLD);
                     }
-
-                    material.SetColor(_tintColorPropertyId, _tintColor);
+                    else
+                    {
+                        material = MaterialFactory.CreateOpaqueMaterial(textureCache[meshSection.TextureName],_tintColor);
+                    }
 
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
 

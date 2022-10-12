@@ -24,18 +24,15 @@ namespace Pal3.Renderer
     public class Mv3ModelRenderer : MonoBehaviour
     {
         public event EventHandler<int> AnimationLoopPointReached;
-
-        private const int TRANSPARENT_RENDER_QUEUE_INDEX = 3000;
+        
+        private const float TRANSPARENT_THRESHOLD = 1.0f;
         
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
-        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private readonly int _isOpaquePropertyId = Shader.PropertyToID("_IsOpaque");
-        private Shader _standardNoShadowShader;
+                
 
         private ITextureResourceProvider _textureProvider;
         private VertexAnimationKeyFrame[][] _keyFrames;
@@ -73,7 +70,7 @@ namespace Pal3.Renderer
         {
             DisposeAnimation();
 
-            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
+            
 
             _textureProvider = textureProvider;
             _tintColor = tintColor;
@@ -153,18 +150,17 @@ namespace Pal3.Renderer
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
 
-            _materials[index] = new Material(_standardNoShadowShader);
-            _materials[index].SetTexture(_mainTexturePropertyId, _textures[index]);
 
-            var cutoff = _textureHasAlphaChannel[index] ? 0.01f : 0f;
-            if (cutoff > Mathf.Epsilon)
+            bool bTransparent = _textureHasAlphaChannel[index];
+            if (bTransparent)
             {
-                _materials[index].SetFloat(_cutoffPropertyId, cutoff);
-                _materials[index].renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX - 100; // TODO: Find a better way to set render queue
-                _materials[index].SetFloat(_isOpaquePropertyId, .0f);
+                _materials[index] = MaterialFactory.CreateTransparentMaterial(_textures[index],_tintColor,TRANSPARENT_THRESHOLD);
             }
-
-            _materials[index].SetColor(_tintColorPropertyId, _tintColor);
+            else
+            {
+                _materials[index] = MaterialFactory.CreateOpaqueMaterial(_textures[index],_tintColor);                
+            }
+            
             
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -226,7 +222,7 @@ namespace Pal3.Renderer
             // Change the texture for the first sub-mesh only
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
-            _materials[0].SetFloat(_cutoffPropertyId, hasAlphaChannel ? 0.3f : 0f);
+            //_materials[0].SetFloat(_cutoffPropertyId, hasAlphaChannel ? 0.3f : 0f);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
         }
 
