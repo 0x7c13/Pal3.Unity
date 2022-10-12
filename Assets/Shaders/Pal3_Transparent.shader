@@ -49,8 +49,8 @@ Shader "Pal3/Transparent"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Threshold;
-            float _HasShadowTex;
             
+            float _HasShadowTex;
             sampler2D _ShadowTex;
             float4 _ShadowTex_ST;
             float _Exposure;
@@ -71,12 +71,12 @@ Shader "Pal3/Transparent"
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
                 clip(color.a - _Threshold);
-                
+
                 if(_HasShadowTex > 0.5f)
                 {
                     color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);    
                 }
-                
+                                
                 return color;
             }
             ENDCG
@@ -117,6 +117,12 @@ Shader "Pal3/Transparent"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Threshold;
+
+            
+            float _HasShadowTex;
+            sampler2D _ShadowTex;
+            float4 _ShadowTex_ST;
+            float _Exposure;
             
             v2f vert(appdata_t v)
             {
@@ -125,17 +131,25 @@ Shader "Pal3/Transparent"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-                
+                o.shadowcoord = TRANSFORM_TEX(v.shadowcoord, _ShadowTex);
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
+                float alpha = color.a;
                 if(color.a >= _Threshold)
                 {
                     discard;
                 }
+                
+                if(_HasShadowTex > 0.5f)
+                {
+                    color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
+                    color.a = alpha;
+                }
+                
                 return color;
             }
             ENDCG
