@@ -1,9 +1,10 @@
-Shader "Pal3/Transparent"
+Shader "Pal3/TransparentOpaquePart"
 {
     Properties
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Threshold ("Transparent Threshold", Range(0,1)) = 1.0
+        
         
         _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
         _ShadowTex ("Shadow Texture",2D) = "white" {}
@@ -13,14 +14,12 @@ Shader "Pal3/Transparent"
     {
         Lighting Off
         
-        Tags{"Queue" = "Transparent"}
-        
-        
-        // Pass 2 ,transparent part
+        Tags{"Qeueue" = "Geometry"}
+        // pass 1 , opaque part
         Pass
         {
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
+            Blend Off
+            ZWrite On
             
             CGPROGRAM
             #pragma vertex vert
@@ -50,13 +49,12 @@ Shader "Pal3/Transparent"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Threshold;
-
             
             float _HasShadowTex;
             sampler2D _ShadowTex;
             float4 _ShadowTex_ST;
             float _Exposure;
-            
+
             v2f vert(appdata_t v)
             {
                 v2f o;
@@ -65,30 +63,25 @@ Shader "Pal3/Transparent"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 o.shadowcoord = TRANSFORM_TEX(v.shadowcoord, _ShadowTex);
+                
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-                float alpha = color.a;
-                if(color.a >= _Threshold)
-                {
-                    discard;
-                }
-                
+                clip(color.a - _Threshold);
+
                 if(_HasShadowTex > 0.5f)
                 {
-                    color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
-                    color.a = alpha;
+                    color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);    
                 }
-                
+                                
                 return color;
             }
             ENDCG
         }
         
+        
     }
-    
-    
 }

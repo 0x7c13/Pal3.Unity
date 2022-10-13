@@ -149,18 +149,11 @@ namespace Pal3.Renderer
             #endif
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
-
-
-            bool bTransparent = _textureHasAlphaChannel[index];
-            if (bTransparent)
-            {
-                _materials[index] = MaterialFactory.CreateTransparentMaterial(_textures[index],_tintColor,TRANSPARENT_THRESHOLD,null);
-            }
-            else
-            {
-                _materials[index] = MaterialFactory.CreateOpaqueMaterial(_textures[index],_tintColor,null);                
-            }
             
+            bool bTransparent = _textureHasAlphaChannel[index];
+            
+            Material[] mats = MaterialFactory.CreateMaterials(_textures[index],null,_tintColor,bTransparent,TRANSPARENT_THRESHOLD);
+            _materials[index] = mats[0];    // @miao todo .only hold the 1st material 
             
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -179,12 +172,20 @@ namespace Pal3.Renderer
 
             var normals = Array.Empty<Vector3>();
 
-            Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
+            // Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
+            //     ref _keyFrames[index][0].Triangles,
+            //     ref normals,
+            //     ref _keyFrames[index][0].Uv,
+            //     ref _materials[index],
+            //     true);
+            
+            Mesh renderMesh = meshRenderer.RenderWithMaterials(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
                 ref normals,
                 ref _keyFrames[index][0].Uv,
-                ref _materials[index],
-                true);
+            ref _keyFrames[index][0].Uv,
+                ref mats,
+                true);            
 
             //renderMesh.RecalculateNormals();
             //renderMesh.RecalculateTangents();
@@ -223,6 +224,9 @@ namespace Pal3.Renderer
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
+            
+            // @miao todo
+            // should also change reference material,not only the main material
         }
 
         public void PauseAnimation()

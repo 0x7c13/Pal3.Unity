@@ -41,7 +41,7 @@ namespace Pal3.Renderer
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
         
-        private readonly Dictionary<string, Material> _materials = new ();
+        
 
         public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor)
         {
@@ -130,37 +130,24 @@ namespace Pal3.Renderer
 
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-
-                    Material material;
-                    if (_materials.ContainsKey(materialHashKey))
-                    {
-                        material = _materials[materialHashKey];
-                    }
-                    else
-                    {
-                        bool bTransparent = blendFlag is 1 or 2;
-                        if (bTransparent)
-                        {
-                            material = MaterialFactory.CreateTransparentMaterial(textures[0].texture,_tintColor,NOSHADOW_TRANSPARENT_THRESHOLD,null);
-                        }
-                        else
-                        {
-                            material = MaterialFactory.CreateOpaqueMaterial(textures[0].texture,_tintColor,null);
-                        }
-                        
-                        _materials[materialHashKey] = material;
-                    }
-
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                    
+                    bool bTransparent = blendFlag is 1 or 2;
+                    
+                    Material[] mats = MaterialFactory.CreateMaterials(textures[0].texture,null,
+                                                                _tintColor,bTransparent,NOSHADOW_TRANSPARENT_THRESHOLD);
+                                                
+                    
+                    _ = meshRenderer.RenderWithMaterials(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[0],
-                        ref material,
+                        ref mesh.VertexInfo.Uvs[1],
+                        ref mats,
                         false);
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(material, textures[0].texture);
+                        StartWaterSurfaceAnimation(mats[0], textures[0].texture);
                     }
                 }
                 else if (textures.Count >= 2)
@@ -173,65 +160,27 @@ namespace Pal3.Renderer
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
-                    Material material;
-                    if (_materials.ContainsKey(materialHashKey))
-                    {
-                        material = _materials[materialHashKey];
-                    }
-                    else
-                    {
-                        // here should handle shadow
-                        bool bTransparent = blendFlag is 1 or 2;
-                        if (bTransparent)
-                        {
-                            material = MaterialFactory.CreateTransparentMaterial(textures[1].texture, 
-                                                                                _tintColor,
-                                                                                WITHSHADOW_TRANSPARENT_THRESHOLD,
-                                                                                textures[0].texture);   
-                        }
-                        else
-                        {
-                            material = MaterialFactory.CreateOpaqueMaterial(textures[1].texture, 
-                                                                            _tintColor,
-                                                                            textures[0].texture);
-                        }
+                    // here should handle shadow
+                    bool bTransparent = blendFlag is 1 or 2;
 
-                        /*
-                        material = new Material(_standardShader);
-                        material.SetTexture(_mainTexturePropertyId, textures[1].texture);
-                        material.SetTexture(_shadowTexturePropertyId, textures[0].texture);
+                    Material[] mats = MaterialFactory.CreateMaterials(textures[1].texture,
+                        textures[0].texture,
+                        _tintColor,
+                        bTransparent,
+                        WITHSHADOW_TRANSPARENT_THRESHOLD);
+                     
 
-                        var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
-                        if (cutoff > Mathf.Epsilon)
-                        {
-                            material.SetFloat(_cutoffPropertyId, cutoff);
-                        }
-
-                        if (blendFlag is 1 or 2)
-                        {
-                            material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                            material.SetFloat(_isOpaquePropertyId, .0f);
-                        }
-                        
-                        
-                        material.SetColor(_tintColorPropertyId, _tintColor);
-                        */
-                        
-                        
-                        _materials[materialHashKey] = material;
-                    }
-
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                    _ = meshRenderer.RenderWithMaterials(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[1],
                         ref mesh.VertexInfo.Uvs[0],
-                        ref material,
+                        ref mats,
                         false);
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(material, textures[1].texture);
+                        StartWaterSurfaceAnimation(mats[0], textures[1].texture);
                     }
                 }
 

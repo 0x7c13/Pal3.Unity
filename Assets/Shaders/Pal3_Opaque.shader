@@ -12,10 +12,11 @@ Shader "Pal3/Opaque"
     SubShader
     {
         Lighting Off
+        Tags{"QUEUE" = "Geometry"}
         
         Pass
         {
-            Tags{"Qeueue" = "Opaque"}
+            Tags{"Qeueue" = "Geometry"}
             Blend Off
             ZWrite On
             
@@ -68,6 +69,8 @@ Shader "Pal3/Opaque"
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
+
+                //return half4(0.0,1.0,0.0,1.0);
                 if(_HasShadowTex > 0.5f)
                 {
                     color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);    

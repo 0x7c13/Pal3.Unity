@@ -54,6 +54,7 @@ namespace Core.Renderer
             return mesh;
         }
 
+        /*
         public Mesh Render(ref Vector3[] vertices,
             ref int[] triangles,
             ref Vector3[] normals,
@@ -62,12 +63,40 @@ namespace Core.Renderer
             ref Material material,
             bool isDynamic)
         {
+            Mesh mesh = RenderInternal(ref vertices,ref triangles,ref normals,ref mainTextureUv,ref secondaryTextureUv,isDynamic);
+            _meshRenderer.sharedMaterial = material;
+            return mesh;
+        }
+        */
+        
+        public Mesh RenderWithMaterials(ref Vector3[] vertices,
+            ref int[] triangles,
+            ref Vector3[] normals,
+            ref Vector2[] mainTextureUv,
+            ref Vector2[] secondaryTextureUv,
+            ref Material[] materials,
+            bool isDynamic)
+        {
+            Mesh mesh = RenderInternal(ref vertices,ref triangles,ref normals,ref mainTextureUv,ref secondaryTextureUv,isDynamic);
+            _meshRenderer.materials = materials;
+            
+            return mesh;
+        }
+
+        private Mesh RenderInternal(ref Vector3[] vertices,
+            ref int[] triangles,
+            ref Vector3[] normals,
+            ref Vector2[] mainTextureUv,
+            ref Vector2[] secondaryTextureUv,
+            bool isDynamic)
+        {
             Dispose();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             //_meshRenderer.receiveShadows = false;
             //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            _meshRenderer.sharedMaterial = material;
+            //_meshRenderer.sharedMaterial = material;
+            
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             var mesh = new Mesh();
@@ -95,6 +124,7 @@ namespace Core.Renderer
 
             return mesh;
         }
+    
 
         public Mesh GetMesh()
         {
@@ -131,7 +161,10 @@ namespace Core.Renderer
 
             if (_meshRenderer != null)
             {
-                Destroy(_meshRenderer.sharedMaterial);
+                for (int i = 0;i < _meshRenderer.materials.Length;i++)
+                {
+                    Destroy(_meshRenderer.materials[i]);
+                }
                 Destroy(_meshRenderer);
             }
         }

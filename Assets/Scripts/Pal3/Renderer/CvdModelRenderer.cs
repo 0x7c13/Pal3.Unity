@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using UnityEngine.Animations;
+
 namespace Pal3.Renderer
 {
     using System;
@@ -143,7 +145,7 @@ namespace Pal3.Renderer
                                 (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
-
+                
                 for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];
@@ -175,26 +177,25 @@ namespace Pal3.Renderer
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
 
-                    var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
-
-                    Material material = null;
-                    bool bTransparent = (meshSection.BlendFlag == 1);
-                    if (bTransparent)
-                    {
-                        material = MaterialFactory.CreateTransparentMaterial(textureCache[meshSection.TextureName],_tintColor,TRANSPARENT_THRESHOLD,null);
-                    }
-                    else
-                    {
-                        material = MaterialFactory.CreateOpaqueMaterial(textureCache[meshSection.TextureName],_tintColor,null);
-                    }
-
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
 
-                    Mesh renderMesh = meshRenderer.Render(ref meshDataBuffer.VertexBuffer,
-                        ref triangles,
+                    
+                    //Material material = null;
+                    bool bTransparent = (meshSection.BlendFlag == 1);
+                    Material[] materials = MaterialFactory.CreateMaterials(textureCache[meshSection.TextureName],
+                        null,
+                        _tintColor,
+                        bTransparent,
+                        TRANSPARENT_THRESHOLD);
+                    
+                    var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
+                    Mesh renderMesh = meshRenderer.RenderWithMaterials(
+                        ref meshDataBuffer.VertexBuffer,
+                                ref triangles,
                         ref meshDataBuffer.NormalBuffer,
-                        ref meshDataBuffer.UvBuffer,
-                        ref material,
+                    ref meshDataBuffer.UvBuffer,
+                ref meshDataBuffer.UvBuffer,
+                                ref materials,
                         true);
 
                     nodeMeshes.Item2[i] = new RenderMeshComponent
