@@ -709,7 +709,8 @@ namespace Pal3.Camera
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
-            if (currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
+            if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
+                currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
             {
                 var cameraTransform = _camera.transform;
                 _cameraLastKnownSceneState.Add((
