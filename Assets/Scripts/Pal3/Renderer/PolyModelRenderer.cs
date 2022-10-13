@@ -141,11 +141,11 @@ namespace Pal3.Renderer
                         bool bTransparent = blendFlag is 1 or 2;
                         if (bTransparent)
                         {
-                            material = MaterialFactory.CreateTransparentMaterial(textures[0].texture,_tintColor,NOSHADOW_TRANSPARENT_THRESHOLD);
+                            material = MaterialFactory.CreateTransparentMaterial(textures[0].texture,_tintColor,NOSHADOW_TRANSPARENT_THRESHOLD,null);
                         }
                         else
                         {
-                            material = MaterialFactory.CreateOpaqueMaterial(textures[0].texture,_tintColor);
+                            material = MaterialFactory.CreateOpaqueMaterial(textures[0].texture,_tintColor,null);
                         }
                         
                         _materials[materialHashKey] = material;

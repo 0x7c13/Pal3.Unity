@@ -3,7 +3,7 @@ namespace Pal3.Renderer
 {
     using UnityEngine;
 
-    public class MaterialFactory
+    public static class MaterialFactory
     {
 
         private static string kOpaqueShaderPath = "Pal3/Opaque";
@@ -18,7 +18,7 @@ namespace Pal3.Renderer
         public static Material CreateTransparentMaterial(Texture2D mainTexture,
                                                         Color tintColor,
                                                         float transparentThreshold,
-                                                        Texture2D shadowTexture = null)
+                                                        Texture2D shadowTexture)
         {
             Material material = new Material(Shader.Find(kTransparentShaderPath));
             material.SetTexture(_mainTexturePropertyId,mainTexture);
@@ -37,7 +37,7 @@ namespace Pal3.Renderer
         
         public static Material CreateOpaqueMaterial(Texture2D mainTexture,
                                                     Color tintColor,
-                                                    Texture2D shadowTexture = null)
+                                                    Texture2D shadowTexture)
         {
             Material material = new Material(Shader.Find(kOpaqueShaderPath));
             material.SetTexture(_mainTexturePropertyId,mainTexture);

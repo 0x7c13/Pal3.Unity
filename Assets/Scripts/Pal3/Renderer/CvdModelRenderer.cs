@@ -181,11 +181,11 @@ namespace Pal3.Renderer
                     bool bTransparent = (meshSection.BlendFlag == 1);
                     if (bTransparent)
                     {
-                        material = MaterialFactory.CreateTransparentMaterial(textureCache[meshSection.TextureName],_tintColor,TRANSPARENT_THRESHOLD);
+                        material = MaterialFactory.CreateTransparentMaterial(textureCache[meshSection.TextureName],_tintColor,TRANSPARENT_THRESHOLD,null);
                     }
                     else
                     {
-                        material = MaterialFactory.CreateOpaqueMaterial(textureCache[meshSection.TextureName],_tintColor);
+                        material = MaterialFactory.CreateOpaqueMaterial(textureCache[meshSection.TextureName],_tintColor,null);
                     }
 
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);

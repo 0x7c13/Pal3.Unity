@@ -154,11 +154,11 @@ namespace Pal3.Renderer
             bool bTransparent = _textureHasAlphaChannel[index];
             if (bTransparent)
             {
-                _materials[index] = MaterialFactory.CreateTransparentMaterial(_textures[index],_tintColor,TRANSPARENT_THRESHOLD);
+                _materials[index] = MaterialFactory.CreateTransparentMaterial(_textures[index],_tintColor,TRANSPARENT_THRESHOLD,null);
             }
             else
             {
-                _materials[index] = MaterialFactory.CreateOpaqueMaterial(_textures[index],_tintColor);                
+                _materials[index] = MaterialFactory.CreateOpaqueMaterial(_textures[index],_tintColor,null);                
             }
             
             
@@ -222,7 +222,6 @@ namespace Pal3.Renderer
             // Change the texture for the first sub-mesh only
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
-            //_materials[0].SetFloat(_cutoffPropertyId, hasAlphaChannel ? 0.3f : 0f);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
         }
 
