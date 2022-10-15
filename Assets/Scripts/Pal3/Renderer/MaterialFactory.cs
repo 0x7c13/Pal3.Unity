@@ -32,7 +32,7 @@ namespace Pal3.Renderer
         public Material CreateSpriteMaterial(Texture2D texture)
         {
             var material = new Material(Shader.Find(SPRITE_SHADER_PATH));;
-            material.SetTexture(SpriteMainTexPropertyId,texture);
+            material.SetTexture(SpriteMainTexPropertyId, texture);
             return material;
         }
 
@@ -48,8 +48,14 @@ namespace Pal3.Renderer
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
                 materials = new Material[2];
-                materials[0] = CreateTransparentOpaquePartMaterial(mainTexture,tintColor,transparentThreshold,shadowTexture);
-                materials[1] = CreateTransparentMaterial(mainTexture,tintColor,transparentThreshold,shadowTexture);
+                materials[0] = CreateTransparentOpaquePartMaterial(mainTexture,
+                    tintColor,
+                    transparentThreshold,
+                    shadowTexture);
+                materials[1] = CreateTransparentMaterial(mainTexture,
+                    tintColor,
+                    transparentThreshold,
+                    shadowTexture);
 
                 BlendMode srcFactor;
                 BlendMode destFactor;
@@ -65,13 +71,13 @@ namespace Pal3.Renderer
                     destFactor = BlendMode.OneMinusSrcAlpha;
                 }
                 
-                materials[1].SetInt(BlendSrcFactorPropertyId,(int)srcFactor);
-                materials[1].SetInt(BlendDstFactorPropertyId,(int)destFactor);
+                materials[1].SetInt(BlendSrcFactorPropertyId, (int)srcFactor);
+                materials[1].SetInt(BlendDstFactorPropertyId, (int)destFactor);
             }
             else if (blendFlag == GameBoxBlendFlag.Opaque)
             {
                 materials = new Material[1];
-                materials[0] = CreateOpaqueMaterial(mainTexture,tintColor,shadowTexture);
+                materials[0] = CreateOpaqueMaterial(mainTexture, tintColor, shadowTexture);
             }
             
             return materials;
@@ -83,17 +89,18 @@ namespace Pal3.Renderer
             Texture2D shadowTexture)
         {
             var material = new Material(Shader.Find(TRANSPARENT_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId,mainTexture);
+            material.SetTexture(MainTexturePropertyId, mainTexture);
             material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId,transparentThreshold);
+            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
             
             // shadow texture
-            material.SetFloat(HasShadowTexturePropertyId,0.0f);
+            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
             {
-                material.SetFloat(HasShadowTexturePropertyId,1.0f);
-                material.SetTexture(ShadowTexturePropertyId,shadowTexture);
+                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
+            
             return material;
         }
         
@@ -103,17 +110,18 @@ namespace Pal3.Renderer
             Texture2D shadowTexture)
         {
             Material material = new Material(Shader.Find(TRANSPARENT_OPAQUE_PART_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId,mainTexture);
+            material.SetTexture(MainTexturePropertyId, mainTexture);
             material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId,transparentThreshold);
+            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
             
             // shadow
-            material.SetFloat(HasShadowTexturePropertyId,0.0f);
+            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
             {
-                material.SetFloat(HasShadowTexturePropertyId,1.0f);
-                material.SetTexture(ShadowTexturePropertyId,shadowTexture);
+                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
+            
             return material;
         }
         
@@ -122,15 +130,15 @@ namespace Pal3.Renderer
             Texture2D shadowTexture)
         {
             Material material = new Material(Shader.Find(OPAQUE_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId,mainTexture);
-            material.SetColor(TintColorPropertyId,tintColor);
+            material.SetTexture(MainTexturePropertyId, mainTexture);
+            material.SetColor(TintColorPropertyId, tintColor);
             
             // shadow
-            material.SetFloat(HasShadowTexturePropertyId,0.0f);
+            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
             {
-                material.SetFloat(HasShadowTexturePropertyId,1.0f);
-                material.SetTexture(ShadowTexturePropertyId,shadowTexture);
+                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
             
             return material;

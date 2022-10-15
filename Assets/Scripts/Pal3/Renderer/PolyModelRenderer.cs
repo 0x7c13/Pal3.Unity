@@ -8,6 +8,7 @@ namespace Pal3.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.Renderer;
@@ -143,18 +144,13 @@ namespace Pal3.Renderer
 
                     if (isWaterSurface)
                     {
-                        //StartWaterSurfaceAnimation(mats[0], textures[0].texture);
-                        foreach(Material mat in materials)
-                        {
-                            StartWaterSurfaceAnimation(mat, textures[0].texture);       
-                        }
+                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
                 }
                 else if (textures.Count >= 2)
                 {
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-
                     
                     Material[] materials = _materialFactory.CreateStandardMaterials(
                         textures[1].texture,
@@ -173,10 +169,7 @@ namespace Pal3.Renderer
 
                     if (isWaterSurface)
                     {
-                        foreach(Material mat in materials)
-                        {
-                            StartWaterSurfaceAnimation(mat, textures[1].texture);       
-                        }
+                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
                     }
                 }
 
