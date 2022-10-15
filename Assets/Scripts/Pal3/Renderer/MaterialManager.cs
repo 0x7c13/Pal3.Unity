@@ -37,15 +37,12 @@ namespace Pal3.Renderer
         private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
         
         // Sprite material uniforms
-        
         private static readonly int SpriteMainTexPropertyId = Shader.PropertyToID("_MainTex");
         
         public Material CreateSpriteMaterial(Texture2D texture)
         {
             Material material = new Material(Shader.Find(kSpriteShaderPath));;
-            
             material.SetTexture(SpriteMainTexPropertyId,texture);
-            
             return material;
         }
 
