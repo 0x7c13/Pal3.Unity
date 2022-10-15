@@ -6,7 +6,6 @@ Shader "Pal3/TransparentOpaquePart"
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Threshold ("Transparent Threshold", Range(0,1)) = 1.0
         
-        
         _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
         _ShadowTex ("Shadow Texture",2D) = "white" {}
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
@@ -16,6 +15,7 @@ Shader "Pal3/TransparentOpaquePart"
         Lighting Off
         
         Tags{"Qeueue" = "Geometry"}
+        
         // pass 1 , opaque part
         Pass
         {
@@ -84,7 +84,5 @@ Shader "Pal3/TransparentOpaquePart"
             }
             ENDCG
         }
-        
-        
     }
 }

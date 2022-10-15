@@ -10,19 +10,17 @@ Shader "Pal3/Transparent"
         _ShadowTex ("Shadow Texture",2D) = "white" {}
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
         
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _BlendSrcFactor("Source Blend Factor",int) = 5    // BlendMode.SrcAlpha as Default
         
         [Enum(UnityEngine.Rendering.BlendMode)]
-        _BlendSrcFactor("Source Blend Factor",int) = 5     // srcAlpha as Default
-        
-        [Enum(UnityEngine.Rendering.BlendMode)]
-        _BlendDstFactor("Dest Blend Factor",int) = 10   // 1-srcAlpha as Default
+        _BlendDstFactor("Dest Blend Factor",int) = 10     // BlendMode.OneMinusSrcAlpha as Default
     }
     SubShader
     {
         Lighting Off
         
         Tags{"Queue" = "Transparent"}
-        
         
         // Pass 2 ,transparent part
         Pass
@@ -35,7 +33,6 @@ Shader "Pal3/Transparent"
             #pragma fragment frag
             #pragma target 2.0
             
-
             #include "UnityCG.cginc"
 
             struct appdata_t
@@ -58,7 +55,6 @@ Shader "Pal3/Transparent"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Threshold;
-
             
             float _HasShadowTex;
             sampler2D _ShadowTex;
@@ -97,8 +93,5 @@ Shader "Pal3/Transparent"
             }
             ENDCG
         }
-        
     }
-    
-    
 }

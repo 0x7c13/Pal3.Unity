@@ -18,7 +18,7 @@ namespace Pal3.Renderer
         public Material CreateSpriteMaterial(Texture2D texture);
 
         /// <summary>
-        /// Create standard materials
+        /// Create standard materials.
         /// </summary>
         /// <param name="mainTexture">Main texture</param>
         /// <param name="shadowTexture">Shadow texture</param>
