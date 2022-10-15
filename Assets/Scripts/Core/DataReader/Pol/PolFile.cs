@@ -44,7 +44,7 @@ namespace Core.DataReader.Pol
 
     public struct PolTexture
     {
-        public uint BlendFlag; // 0--opaque, 1--alpha blend, 2--invert color blend, 3--add
+        public GameBoxBlendFlag BlendFlag; // 0--opaque, 1--alpha blend, 2--invert color blend, 3--add
         public GameBoxMaterial Material;
         public string[] TextureNames;
         public int VertStart;

@@ -407,7 +407,7 @@ namespace Core.DataReader.Cvd
             int codepage)
         #endif
         {
-            var blendFlag = reader.ReadByte();
+            var blendFlag = (GameBoxBlendFlag)reader.ReadByte();
 
             var material = new GameBoxMaterial()
             {

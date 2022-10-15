@@ -3,16 +3,16 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Core.Services;
-using Pal3.Renderer;
-
 namespace Pal3.Effect
 {
-    using System.Collections;
+    using System;
+    using Core.Services;
     using Data;
+    using Renderer;
+    using System.Collections;
     using UnityEngine;
 
-    public class PortalEffect : MonoBehaviour, IEffect
+    public class PortalEffect : MonoBehaviour, IEffect, IDisposable
     {
         #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
@@ -26,23 +26,21 @@ namespace Pal3.Effect
         private SpriteRenderer _spriteRenderer;
         private Material _material;
         private Coroutine _portalAnimation;
-        
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
             Texture2D baseTexture = resourceProvider.GetEffectTexture(PORTAL_BASE_TEXTURE_NAME);
-            
+
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.sprite = Sprite.Create(baseTexture,
                 new Rect(0, 0, baseTexture.width, baseTexture.height),
                 new Vector2(0.5f, 0.5f));
             
-            _material = ServiceLocator.Instance.Get<MaterialManager>().CreateSpriteMaterial(baseTexture);
+            _material = resourceProvider.GetMaterialFactory().CreateSpriteMaterial(baseTexture);
             _spriteRenderer.sharedMaterial = _material;
 
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            transform.localScale =
-                new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE);
+            transform.localScale = new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE);
 
             _portalAnimation = StartCoroutine(Animate());
         }
@@ -59,6 +57,11 @@ namespace Pal3.Effect
 
         private void OnDisable()
         {
+            Dispose();
+        }
+        
+        public void Dispose()
+        {
             if (_portalAnimation != null)
             {
                 StopCoroutine(_portalAnimation);
@@ -73,7 +76,6 @@ namespace Pal3.Effect
             {
                 Destroy(_spriteRenderer);
             }
-            
         }
     }
 }

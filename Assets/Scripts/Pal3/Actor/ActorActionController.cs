@@ -166,12 +166,20 @@ namespace Pal3.Actor
                                  $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
 
                 (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
-                _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor,
-                    polFile, weaponTextureProvider, Color.white);
+                _mv3AnimationRenderer.Init(mv3File,
+                    _resourceProvider.GetMaterialFactory(),
+                    textureProvider, 
+                    _tintColor,
+                    polFile,
+                    weaponTextureProvider,
+                    Color.white);
             }
             else
             {
-                _mv3AnimationRenderer.Init(mv3File, textureProvider, _tintColor);
+                _mv3AnimationRenderer.Init(mv3File,
+                    _resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    _tintColor);
             }
 
             _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;

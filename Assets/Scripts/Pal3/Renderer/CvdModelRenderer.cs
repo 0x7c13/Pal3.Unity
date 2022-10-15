@@ -3,9 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Core.Services;
-using UnityEngine.Animations;
-
 namespace Pal3.Renderer
 {
     using System;
@@ -35,12 +32,16 @@ namespace Pal3.Renderer
         private CancellationTokenSource _animationCts;
         
         private const float TRANSPARENT_THRESHOLD = 1.0f;
-        
-        public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
+
+        public void Init(CvdFile cvdFile,
+            IMaterialFactory materialFactory,
+            ITextureResourceProvider textureProvider,
+            Color tintColor,
+            float time)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
-            
+
             foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
                 BuildTextureCache(node, textureProvider, _textureCache);
@@ -56,6 +57,7 @@ namespace Pal3.Renderer
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,
+                    materialFactory,
                     root);
             }
 
@@ -127,6 +129,7 @@ namespace Pal3.Renderer
             string meshName,
             CvdGeometryNode node,
             Dictionary<string, Texture2D> textureCache,
+            IMaterialFactory materialFactory,
             GameObject parent)
         {
             var meshObject = new GameObject(meshName);
@@ -179,26 +182,22 @@ namespace Pal3.Renderer
                     #endif
 
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
-
                     
-                    
-                    //bool bTransparent = (meshSection.BlendFlag == 1);
-                    Material[] materials = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
-                        MaterialManager.EMeshType.Cvd,
+                    Material[] materials = materialFactory.CreateStandardMaterials(
                         textureCache[meshSection.TextureName],
-                        null,
+                        shadowTexture: null, // CVD models don't have shadow textures
                         _tintColor,
-                        (MaterialManager.EBlendMode)meshSection.BlendFlag,
+                        meshSection.BlendFlag,
                         TRANSPARENT_THRESHOLD);
                     
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
-                    Mesh renderMesh = meshRenderer.RenderWithMaterials(
+                    Mesh renderMesh = meshRenderer.Render(
                         ref meshDataBuffer.VertexBuffer,
-                                ref triangles,
+                        ref triangles,
                         ref meshDataBuffer.NormalBuffer,
-                    ref meshDataBuffer.UvBuffer,
-                ref meshDataBuffer.UvBuffer,
-                                ref materials,
+                        ref meshDataBuffer.UvBuffer,
+                        ref meshDataBuffer.UvBuffer,
+                        ref materials,
                         true);
 
                     nodeMeshes.Item2[i] = new RenderMeshComponent
@@ -217,7 +216,12 @@ namespace Pal3.Renderer
             for (var i = 0; i < node.Children.Length; i++)
             {
                 var childMeshName = $"{meshName}-{i}";
-                RenderMeshInternal(time, childMeshName, node.Children[i], textureCache, meshObject);
+                RenderMeshInternal(time,
+                    childMeshName,
+                    node.Children[i],
+                    textureCache,
+                    materialFactory,
+                    meshObject);
             }
         }
 

@@ -94,7 +94,10 @@ namespace Pal3.Scene.SceneObjects
                 {
                     (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
-                    sceneObjectRenderer.Render(poly.PolFile, poly.TextureProvider, tintColor);
+                    sceneObjectRenderer.Render(poly.PolFile,
+                        resourceProvider.GetMaterialFactory(),
+                        poly.TextureProvider,
+                        tintColor);
                 }
                 else if (_modelFilePath.ToLower().EndsWith(".cvd"))
                 {
@@ -109,7 +112,11 @@ namespace Pal3.Scene.SceneObjects
                     //     initTime = cvd.CvdFile.AnimationDuration;
                     // }
 
-                    sceneObjectRenderer.Init(cvd.CvdFile, cvd.TextureProvider, tintColor, initTime);
+                    sceneObjectRenderer.Init(cvd.CvdFile,
+                        resourceProvider.GetMaterialFactory(),
+                        cvd.TextureProvider,
+                        tintColor,
+                        initTime);
 
                     if (Info.Type == ScnSceneObjectType.General)
                     {

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Core.Services;
-
 namespace Pal3.Renderer
 {
     using System;
@@ -12,7 +10,6 @@ namespace Pal3.Renderer
     using System.Collections.Generic;
     using Core.DataLoader;
     using Core.DataReader.Pol;
-    using Core.GameBox;
     using Core.Renderer;
     using Dev;
     using UnityEngine;
@@ -28,14 +25,12 @@ namespace Pal3.Renderer
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION = ".dds";
         private const int ANIMATED_WATER_ANIMATION_FRAMES = 30;
         private const float ANIMATED_WATER_ANIMATION_FPS = 20f;
-
-        private const string WITHSHADOW_MATERIAL_KEY_PREFIX = "MatWithShadow";
-        private const string NOSHADOW_MATERIAL_KEY_PREFIX = "MatNoShadow";
-        private const float NOSHADOW_TRANSPARENT_THRESHOLD = 1.0f;
-        private const float WITHSHADOW_TRANSPARENT_THRESHOLD = 0.9f;
         
+        private const float TRANSPARENT_THRESHOLD_WITHOUT_SHADOW = 1.0f;
+        private const float TRANSPARENT_THRESHOLD_WITH_SHADOW = 0.9f;
 
         private ITextureResourceProvider _textureProvider;
+        private IMaterialFactory _materialFactory;
         private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
@@ -43,10 +38,12 @@ namespace Pal3.Renderer
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
         
-        
-
-        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor)
+        public void Render(PolFile polFile,
+            IMaterialFactory materialFactory,
+            ITextureResourceProvider textureProvider,
+            Color tintColor)
         {
+            _materialFactory = materialFactory;
             _textureProvider = textureProvider;
             _tintColor = tintColor;
             _textureCache = BuildTextureCache(polFile, textureProvider);
@@ -126,36 +123,28 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 1)
                 {
-                    var materialHashKey = NOSHADOW_MATERIAL_KEY_PREFIX + 
-                                          textures[0].name +
-                                          blendFlag;
-
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
                     
-                    bool bTransparent = blendFlag is 1 or 2;
-                    
-                    Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
-                        MaterialManager.EMeshType.Poly,
+                    Material[] materials = _materialFactory.CreateStandardMaterials(
                         textures[0].texture,
                         null,
                         _tintColor,
-                        (MaterialManager.EBlendMode)blendFlag,
-                        NOSHADOW_TRANSPARENT_THRESHOLD);
-                                                
-                    
-                    _ = meshRenderer.RenderWithMaterials(ref mesh.VertexInfo.Positions,
+                        blendFlag,
+                        TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+
+                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[0],
                         ref mesh.VertexInfo.Uvs[1],
-                        ref mats,
+                        ref materials,
                         false);
 
                     if (isWaterSurface)
                     {
                         //StartWaterSurfaceAnimation(mats[0], textures[0].texture);
-                        foreach(Material mat in mats)
+                        foreach(Material mat in materials)
                         {
                             StartWaterSurfaceAnimation(mat, textures[0].texture);       
                         }
@@ -163,35 +152,28 @@ namespace Pal3.Renderer
                 }
                 else if (textures.Count >= 2)
                 {
-                    var materialHashKey = WITHSHADOW_MATERIAL_KEY_PREFIX + 
-                                          textures[0].name +
-                                          textures[1].name +
-                                          blendFlag;
-
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
                     
-                    Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
-                        MaterialManager.EMeshType.Poly,
+                    Material[] materials = _materialFactory.CreateStandardMaterials(
                         textures[1].texture,
                         textures[0].texture,
                         _tintColor,
-                        (MaterialManager.EBlendMode)blendFlag,
-                        WITHSHADOW_TRANSPARENT_THRESHOLD);
-                     
-
-                    _ = meshRenderer.RenderWithMaterials(ref mesh.VertexInfo.Positions,
+                        blendFlag,
+                        TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                    
+                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[1],
                         ref mesh.VertexInfo.Uvs[0],
-                        ref mats,
+                        ref materials,
                         false);
 
                     if (isWaterSurface)
                     {
-                        foreach(Material mat in mats)
+                        foreach(Material mat in materials)
                         {
                             StartWaterSurfaceAnimation(mat, textures[1].texture);       
                         }

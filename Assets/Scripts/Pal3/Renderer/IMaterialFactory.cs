@@ -3,17 +3,20 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Dev
+namespace Pal3.Renderer
 {
     using Core.GameBox;
     using UnityEngine;
 
-    /// <summary>
-    /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector.
-    /// </summary>
-    public class MaterialInfoPresenter : MonoBehaviour
+    public interface IMaterialFactory
     {
-        [SerializeField] public GameBoxBlendFlag blendFlag;
-        [SerializeField] public GameBoxMaterial material;
+        public Material CreateSpriteMaterial(Texture2D texture);
+
+        public Material[] CreateStandardMaterials(
+            Texture2D mainTexture,
+            Texture2D shadowTexture,
+            Color tintColor,
+            GameBoxBlendFlag blendFlag,
+            float transparentThreshold);
     }
 }

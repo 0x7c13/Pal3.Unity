@@ -125,16 +125,15 @@ namespace Pal3
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(cpkFileSystem, new TextureLoaderFactory(), codepage);
+            var resourceProvider = new GameResourceProvider(cpkFileSystem,
+                new TextureLoaderFactory(),
+                new MaterialFactory(),
+                codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;
-            
-            // Init MaterialManager
-            var materialManager = new MaterialManager();
-            ServiceLocator.Instance.Register(materialManager);
 
             yield return FadeTextAndBackgroundImage();
 

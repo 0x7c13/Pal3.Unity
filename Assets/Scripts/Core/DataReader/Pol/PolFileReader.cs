@@ -235,7 +235,7 @@ namespace Core.DataReader.Pol
         private static PolTexture ReadTextureInfo(BinaryReader reader, int version, int codepage)
         #endif
         {
-            var blendFlag = reader.ReadUInt32();
+            var blendFlag = (GameBoxBlendFlag)reader.ReadUInt32();
 
             var material = new GameBoxMaterial()
             {

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Core.Services;
-
 namespace Pal3.Renderer
 {
     using System;
@@ -26,7 +24,7 @@ namespace Pal3.Renderer
     public class Mv3ModelRenderer : MonoBehaviour
     {
         public event EventHandler<int> AnimationLoopPointReached;
-        
+
         private const float TRANSPARENT_THRESHOLD = 1.0f;
         
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
@@ -34,8 +32,9 @@ namespace Pal3.Renderer
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        
+
         private ITextureResourceProvider _textureProvider;
+        private IMaterialFactory _materialFactory;
         private VertexAnimationKeyFrame[][] _keyFrames;
         private Texture2D[] _textures;
         private Material[] _materials;
@@ -63,6 +62,7 @@ namespace Pal3.Renderer
         private GameObject[] _tagNodes;
 
         public void Init(Mv3File mv3File,
+            IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
             Color tintColor,
             PolFile tagNodePolFile = default,
@@ -71,8 +71,7 @@ namespace Pal3.Renderer
         {
             DisposeAnimation();
 
-            
-
+            _materialFactory = materialFactory;
             _textureProvider = textureProvider;
             _tintColor = tintColor;
 
@@ -120,7 +119,10 @@ namespace Pal3.Renderer
 
                     _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions.First().Name);
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
-                    tagNodeRenderer.Render(tagNodePolFile, tagNodeTextureProvider, tagNodeTintColor);
+                    tagNodeRenderer.Render(tagNodePolFile,
+                        _materialFactory,
+                        tagNodeTextureProvider,
+                        tagNodeTintColor);
 
                     _tagNodes[i].transform.SetParent(transform, true);
                     _tagNodes[i].transform.localPosition = mv3File.TagNodes[i].TagFrames.First().Position;
@@ -145,20 +147,21 @@ namespace Pal3.Renderer
             // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
             #if UNITY_EDITOR
             var materialInfoPresenter = _meshObjects[index].AddComponent<MaterialInfoPresenter>();
-            materialInfoPresenter.blendFlag = (uint) (_textureHasAlphaChannel[index] ? 1 : 0);
+            materialInfoPresenter.blendFlag = _textureHasAlphaChannel[index] ?
+                GameBoxBlendFlag.AlphaBlend :
+                GameBoxBlendFlag.Opaque;
             materialInfoPresenter.material = _gbMaterials[index] ;
             #endif
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
             
-            Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
-                MaterialManager.EMeshType.Mv3,
+            Material[] materials = _materialFactory.CreateStandardMaterials(
                 _textures[index],
-                null,
+                shadowTexture: null, // MV3 models don't have shadow textures
                 _tintColor,
-                _textureHasAlphaChannel[index] ? MaterialManager.EBlendMode.AlphaBlend : MaterialManager.EBlendMode.Opaque,
+                _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
                 TRANSPARENT_THRESHOLD);
-            _materials[index] = mats[0];    // @miao todo .only hold the 1st material 
+            _materials[index] = materials[0];    // TODO: @miao. only hold the 1st material 
             
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -176,12 +179,12 @@ namespace Pal3.Renderer
             };
 
             var normals = Array.Empty<Vector3>();
-            Mesh renderMesh = meshRenderer.RenderWithMaterials(ref _keyFrames[index][0].Vertices,
+            Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
                 ref normals,
                 ref _keyFrames[index][0].Uv,
-            ref _keyFrames[index][0].Uv,
-                ref mats,
+                ref _keyFrames[index][0].Uv,
+                ref materials,
                 true);            
 
             //renderMesh.RecalculateNormals();
@@ -222,8 +225,8 @@ namespace Pal3.Renderer
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
             
-            // @miao todo
-            // should also change reference material,not only the main material
+            // TODO: @miao
+            // should also change reference material, not only the main material
         }
 
         public void PauseAnimation()

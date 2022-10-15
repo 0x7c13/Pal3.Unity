@@ -6,40 +6,26 @@
 namespace Core.Renderer
 {
     using UnityEngine;
-    using UnityEngine.Rendering;
 
     public sealed class StaticMeshRenderer : MonoBehaviour
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
-        
-        public Mesh RenderWithMaterials(ref Vector3[] vertices,
-            ref int[] triangles,
-            ref Vector3[] normals,
-            ref Vector2[] mainTextureUv,
-            ref Vector2[] secondaryTextureUv,
-            ref Material[] materials,
-            bool isDynamic)
-        {
-            Mesh mesh = RenderInternal(ref vertices,ref triangles,ref normals,ref mainTextureUv,ref secondaryTextureUv,isDynamic);
-            _meshRenderer.sharedMaterials = materials;
-            return mesh;
-        }
 
-        private Mesh RenderInternal(ref Vector3[] vertices,
+        public Mesh Render(ref Vector3[] vertices,
             ref int[] triangles,
             ref Vector3[] normals,
-            ref Vector2[] mainTextureUv,
-            ref Vector2[] secondaryTextureUv,
+            ref Vector2[] mainTextureUvs,
+            ref Vector2[] secondaryTextureUvs,
+            ref Material[] materials,
             bool isDynamic)
         {
             Dispose();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer.sharedMaterials = materials;
             //_meshRenderer.receiveShadows = false;
             //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            //_meshRenderer.sharedMaterial = material;
-            
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             var mesh = new Mesh();
@@ -51,8 +37,8 @@ namespace Core.Renderer
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.SetNormals(normals);
-            mesh.SetUVs(0, mainTextureUv);
-            mesh.SetUVs(1, secondaryTextureUv);
+            mesh.SetUVs(0, mainTextureUvs);
+            mesh.SetUVs(1, secondaryTextureUvs);
 
             if (triangles.Length == 0)
             {
@@ -67,7 +53,6 @@ namespace Core.Renderer
 
             return mesh;
         }
-    
 
         public Mesh GetMesh()
         {
@@ -104,10 +89,11 @@ namespace Core.Renderer
 
             if (_meshRenderer != null)
             {
-                for (int i = 0;i < _meshRenderer.sharedMaterials.Length;i++)
+                foreach (Material material in _meshRenderer.sharedMaterials)
                 {
-                    Destroy(_meshRenderer.sharedMaterials[i]);
+                    Destroy(material);
                 }
+
                 Destroy(_meshRenderer);
             }
         }

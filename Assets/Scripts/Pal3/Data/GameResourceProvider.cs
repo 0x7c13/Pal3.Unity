@@ -26,6 +26,7 @@ namespace Pal3.Data
     using Core.FileSystem;
     using Core.Utils;
     using MetaData;
+    using Renderer;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
 
@@ -41,6 +42,7 @@ namespace Pal3.Data
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
+        private readonly IMaterialFactory _materialFactory;
         private readonly int _codepage;
         private TextureCache _textureCache;
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
@@ -73,10 +75,12 @@ namespace Pal3.Data
 
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
+            IMaterialFactory materialFactory,
             int codepage)
         {
             _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
+            _materialFactory = materialFactory ?? throw new ArgumentNullException(nameof(materialFactory));
             _codepage = codepage;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -107,6 +111,11 @@ namespace Pal3.Data
             return ShadowTexture;
         }
 
+        public IMaterialFactory GetMaterialFactory()
+        {
+            return _materialFactory;
+        }
+        
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
@@ -385,9 +394,7 @@ namespace Pal3.Data
                 $"{FileConstants.EffectFolderName}{separator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
-            Texture2D effectTexture = textureProvider.GetTexture(name);
-            //Utility.ApplyTransparencyBasedOnColorLuminance(effectTexture);    // said by Jackie, this should be del    
-            return effectTexture;
+            return textureProvider.GetTexture(name);
         }
 
         public Sprite[] GetEmojiSprites(ActorEmojiType emojiType)

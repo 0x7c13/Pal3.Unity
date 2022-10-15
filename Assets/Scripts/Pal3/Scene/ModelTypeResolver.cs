@@ -10,7 +10,8 @@ namespace Pal3.Scene
         Unknown       = 0,
         PolModel      = 2,
         CvdModel      = 3,
-        EffectModel   = 4,
+        Mv3Model      = 4,
+        EffectModel   = 5,
     }
 
     public static class ModelTypeResolver
@@ -35,6 +36,11 @@ namespace Pal3.Scene
             if (fileName.ToLower().EndsWith(".cvd"))
             {
                 return ModelType.CvdModel;
+            }
+            
+            if (fileName.ToLower().EndsWith(".mv3"))
+            {
+                return ModelType.Mv3Model;
             }
 
             return ModelType.Unknown;

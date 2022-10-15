@@ -152,7 +152,7 @@ namespace Core.DataReader.Cvd
     {
         public CvdVertex[][] FrameVertices;
         public int[] Triangles;
-        public byte BlendFlag;
+        public GameBoxBlendFlag BlendFlag;
         public GameBoxMaterial Material;
         public string TextureName;
         public float[] AnimationTimeKeys;
