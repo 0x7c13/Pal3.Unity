@@ -17,7 +17,7 @@ namespace Pal3.Renderer
         {
             Opaque,             // don't blend
             AlphaBlend,         // src.alpha, 1-src.alpha, +
-            InvertColorBlend,   // One, One , + 
+            InvertColorBlend,   // srcAlpha, One , + 
         }
 
         private static readonly string kOpaqueShaderPath = "Pal3/Opaque";
