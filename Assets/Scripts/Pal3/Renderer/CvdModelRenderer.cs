@@ -149,7 +149,7 @@ namespace Pal3.Renderer
                                 (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
-                
+
                 for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];

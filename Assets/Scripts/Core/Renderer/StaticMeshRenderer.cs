@@ -5,9 +5,10 @@
 
 namespace Core.Renderer
 {
+    using System;
     using UnityEngine;
 
-    public sealed class StaticMeshRenderer : MonoBehaviour
+    public sealed class StaticMeshRenderer : MonoBehaviour, IDisposable
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
@@ -79,7 +80,7 @@ namespace Core.Renderer
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             if (_meshFilter != null)
             {

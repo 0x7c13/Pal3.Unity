@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Pal3.Renderer;
-
 namespace Pal3
 {
     using System;
@@ -20,6 +18,7 @@ namespace Pal3
     using Core.Utils;
     using Data;
     using MetaData;
+    using Renderer;
     using TMPro;
     using UnityEditor;
     using UnityEngine;

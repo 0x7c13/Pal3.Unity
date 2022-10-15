@@ -5,17 +5,12 @@
 
 namespace Pal3
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using Actor;
     using Audio;
     using Camera;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
@@ -26,10 +21,6 @@ namespace Pal3
     using Feature;
     using Input;
     using IngameDebugConsole;
-    using MetaData;
-    #if PAL3
-    using MiniGame;
-    #endif
     using Player;
     using Scene;
     using Script;
@@ -44,8 +35,11 @@ namespace Pal3
     using UnityEngine.Video;
     using Video;
     using PostProcessManager = Effect.PostProcessManager;
-    using Renderer;
 
+    #if PAL3
+    using MiniGame;
+    #endif
+    
     /// <summary>
     /// Pal3 game model
     /// </summary>
@@ -344,7 +338,7 @@ namespace Pal3
             _favorManager.Dispose();
             _mazeSkipper.Dispose();
 
-#if PAL3
+            #if PAL3
             _appraisalsMiniGame.Dispose();
             _sailingMiniGame.Dispose();
             _hideFightMiniGame.Dispose();

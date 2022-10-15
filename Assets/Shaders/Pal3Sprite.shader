@@ -46,6 +46,7 @@ Shader "Pal3/Sprite"
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
+                col.a = 1.0f; // force alpha to 1 to avoid transparency
                 return col;
             }
             ENDCG
