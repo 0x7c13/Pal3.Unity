@@ -32,8 +32,7 @@ namespace Pal3.Renderer
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-                
-
+        
         private ITextureResourceProvider _textureProvider;
         private VertexAnimationKeyFrame[][] _keyFrames;
         private Texture2D[] _textures;
