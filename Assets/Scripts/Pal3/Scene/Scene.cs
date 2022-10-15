@@ -199,13 +199,20 @@ namespace Pal3.Scene
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform);
 
-            polyMeshRenderer.Render(ScenePolyMesh.PolFile, ScenePolyMesh.TextureProvider, Color.white);
+            polyMeshRenderer.Render(ScenePolyMesh.PolFile,
+                _resourceProvider.GetMaterialFactory(),
+                ScenePolyMesh.TextureProvider,
+                Color.white);
 
             if (SceneCvdMesh != null)
             {
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 _mesh.transform.SetParent(_parent.transform);
-                cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile, SceneCvdMesh.Value.TextureProvider, Color.white, 0f);
+                cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
+                    _resourceProvider.GetMaterialFactory(),
+                    SceneCvdMesh.Value.TextureProvider,
+                    Color.white,
+                    0f);
                 cvdMeshRenderer.PlayAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
         }

@@ -5,11 +5,14 @@
 
 namespace Pal3.Effect
 {
-    using System.Collections;
+    using System;
+    using Core.Services;
     using Data;
+    using Renderer;
+    using System.Collections;
     using UnityEngine;
 
-    public class PortalEffect : MonoBehaviour, IEffect
+    public class PortalEffect : MonoBehaviour, IEffect, IDisposable
     {
         #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
@@ -21,6 +24,7 @@ namespace Pal3.Effect
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 
         private SpriteRenderer _spriteRenderer;
+        private Material _material;
         private Coroutine _portalAnimation;
 
         public void Init(GameResourceProvider resourceProvider, uint _)
@@ -31,10 +35,12 @@ namespace Pal3.Effect
             _spriteRenderer.sprite = Sprite.Create(baseTexture,
                 new Rect(0, 0, baseTexture.width, baseTexture.height),
                 new Vector2(0.5f, 0.5f));
+            
+            _material = resourceProvider.GetMaterialFactory().CreateSpriteMaterial(baseTexture);
+            _spriteRenderer.sharedMaterial = _material;
 
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            transform.localScale =
-                new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE);
+            transform.localScale = new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE);
 
             _portalAnimation = StartCoroutine(Animate());
         }
@@ -51,9 +57,19 @@ namespace Pal3.Effect
 
         private void OnDisable()
         {
+            Dispose();
+        }
+        
+        public void Dispose()
+        {
             if (_portalAnimation != null)
             {
                 StopCoroutine(_portalAnimation);
+            }
+
+            if (_material != null)
+            {
+                Destroy(_material);
             }
 
             if (_spriteRenderer != null)

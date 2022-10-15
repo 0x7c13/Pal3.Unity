@@ -10,14 +10,16 @@ Shader "Pal3/Dev"
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
     }
 
-    SubShader {
+    SubShader 
+    {
         Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
         LOD 100
 
         ZWrite Off
         Blend SrcAlpha OneMinusSrcAlpha
 
-        Pass {
+        Pass 
+        {
             CGPROGRAM
                 #pragma vertex vert
                 #pragma fragment frag

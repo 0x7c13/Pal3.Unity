@@ -18,6 +18,7 @@ namespace Pal3
     using Core.Utils;
     using Data;
     using MetaData;
+    using Renderer;
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -123,7 +124,10 @@ namespace Pal3
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(cpkFileSystem, new TextureLoaderFactory(), codepage);
+            var resourceProvider = new GameResourceProvider(cpkFileSystem,
+                new TextureLoaderFactory(),
+                new MaterialFactory(),
+                codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Instantiate starting component

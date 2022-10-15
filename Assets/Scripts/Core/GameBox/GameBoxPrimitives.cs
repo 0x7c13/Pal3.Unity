@@ -72,6 +72,14 @@ namespace Core.GameBox
         public const int FlagMask    = (1 << 31);
     }
 
+    public enum GameBoxBlendFlag
+    {
+        Opaque,             // opaque
+        AlphaBlend,         // src.alpha, 1-src.alpha, +
+        InvertColorBlend,   // srcAlpha, One , +
+        AdditiveBlend,      //
+    }
+    
     public static class GameBoxVertex
     {
         public static int GetSize(uint vertexType)

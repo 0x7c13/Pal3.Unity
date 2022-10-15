@@ -1,33 +1,30 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2022, Jiaqi Liu. All rights reserved.
-//  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
-
-Shader "Pal3/Standard"
+Shader "Pal3/Opaque"
 {
     Properties
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
-        _ShadowTex ("Shadow map (RGB)", 2D) = "white" {}
-        _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
+        _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
+        
+        _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
+        _ShadowTex ("Shadow Texture",2D) = "white" {}
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
-        _IsOpaque("Is Material Opaque", Range(0,1)) = 1.0
     }
     SubShader
     {
-        Tags { "Queue"="Geometry" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
-        LOD 100
-
         Lighting Off
-        Blend SrcAlpha OneMinusSrcAlpha
-
+        Tags{"QUEUE" = "Geometry"}
+        
         Pass
         {
+            Tags{"Qeueue" = "Geometry"}
+            Blend Off
+            ZWrite On
+            
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
-            #pragma multi_compile_fog
+            
 
             #include "UnityCG.cginc"
 
@@ -44,18 +41,19 @@ Shader "Pal3/Standard"
                 float4 vertex : SV_POSITION;
                 float2 texcoord : TEXCOORD0;
                 float2 shadowcoord : TEXCOORD1;
-                UNITY_FOG_COORDS(2)
+                
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4 _TintColor;
+            
+            float _HasShadowTex;
             sampler2D _ShadowTex;
             float4 _ShadowTex_ST;
-            fixed _Cutoff;
             float _Exposure;
-            float _IsOpaque;
-
+            
             v2f vert(appdata_t v)
             {
                 v2f o;
@@ -64,32 +62,18 @@ Shader "Pal3/Standard"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 o.shadowcoord = TRANSFORM_TEX(v.shadowcoord, _ShadowTex);
-                UNITY_TRANSFER_FOG(o, o.vertex);
+                
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-                const half alpha = color.a;
-                
-                // Cutout
-                clip(color.a - _Cutoff);
-                
-                // Shadow
-                color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
-                
-                // Preserve alpha or not
-                if (_IsOpaque == 1.0)
+                if(_HasShadowTex > 0.5f)
                 {
-                    color.a = 1.0;
+                    color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);    
                 }
-                else
-                {
-                    color.a = alpha;
-                }
-
-                //UNITY_APPLY_FOG(i.fogCoord, color);
+                color *= _TintColor;
                 return color;
             }
             ENDCG

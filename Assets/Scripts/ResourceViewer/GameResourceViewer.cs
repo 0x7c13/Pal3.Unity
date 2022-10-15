@@ -160,7 +160,10 @@ namespace ResourceViewer
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
-                meshRenderer.Render(polyFile, textureProvider, Color.white);
+                meshRenderer.Render(polyFile,
+                    _resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    Color.white);
 
                 consoleTextUI.text = $"{filePath}";
 
@@ -191,7 +194,11 @@ namespace ResourceViewer
                 var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
 
-                meshRenderer.Init(cvdFile, textureProvider, Color.white, 0f);
+                meshRenderer.Init(cvdFile,
+                    _resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    Color.white,
+                    0f);
                 meshRenderer.PlayAnimation();
 
                 consoleTextUI.text = $"{filePath}";
@@ -247,7 +254,10 @@ namespace ResourceViewer
                 // }
                 // else
                 {
-                    mv3AnimationRenderer.Init(mv3File, textureProvider, Color.white);
+                    mv3AnimationRenderer.Init(mv3File,
+                        _resourceProvider.GetMaterialFactory(),
+                        textureProvider,
+                        Color.white);
                 }
 
                 mv3AnimationRenderer.PlayAnimation();

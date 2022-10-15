@@ -30,18 +30,17 @@ namespace Pal3.Renderer
         private float _animationDuration;
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
+        
+        private const float TRANSPARENT_THRESHOLD = 1.0f;
 
-        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
-        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private Shader _standardNoShadowShader;
-
-        public void Init(CvdFile cvdFile, ITextureResourceProvider textureProvider, Color tintColor, float time)
+        public void Init(CvdFile cvdFile,
+            IMaterialFactory materialFactory,
+            ITextureResourceProvider textureProvider,
+            Color tintColor,
+            float time)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
-
-            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
 
             foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
@@ -58,6 +57,7 @@ namespace Pal3.Renderer
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,
+                    materialFactory,
                     root);
             }
 
@@ -129,6 +129,7 @@ namespace Pal3.Renderer
             string meshName,
             CvdGeometryNode node,
             Dictionary<string, Texture2D> textureCache,
+            IMaterialFactory materialFactory,
             GameObject parent)
         {
             var meshObject = new GameObject(meshName);
@@ -180,25 +181,23 @@ namespace Pal3.Renderer
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
 
-                    var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
-
-                    var material = new Material(_standardNoShadowShader);
-                    material.SetTexture(_mainTexturePropertyId, textureCache[meshSection.TextureName]);
-                    var cutoff = (meshSection.BlendFlag == 1) ? 0.3f : 0f;
-                    if (cutoff > Mathf.Epsilon)
-                    {
-                        material.SetFloat(_cutoffPropertyId, cutoff);
-                    }
-
-                    material.SetColor(_tintColorPropertyId, _tintColor);
-
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
-
-                    Mesh renderMesh = meshRenderer.Render(ref meshDataBuffer.VertexBuffer,
+                    
+                    Material[] materials = materialFactory.CreateStandardMaterials(
+                        textureCache[meshSection.TextureName],
+                        shadowTexture: null, // CVD models don't have shadow textures
+                        _tintColor,
+                        meshSection.BlendFlag,
+                        TRANSPARENT_THRESHOLD);
+                    
+                    var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
+                    Mesh renderMesh = meshRenderer.Render(
+                        ref meshDataBuffer.VertexBuffer,
                         ref triangles,
                         ref meshDataBuffer.NormalBuffer,
                         ref meshDataBuffer.UvBuffer,
-                        ref material,
+                        ref meshDataBuffer.UvBuffer,
+                        ref materials,
                         true);
 
                     nodeMeshes.Item2[i] = new RenderMeshComponent
@@ -217,7 +216,12 @@ namespace Pal3.Renderer
             for (var i = 0; i < node.Children.Length; i++)
             {
                 var childMeshName = $"{meshName}-{i}";
-                RenderMeshInternal(time, childMeshName, node.Children[i], textureCache, meshObject);
+                RenderMeshInternal(time,
+                    childMeshName,
+                    node.Children[i],
+                    textureCache,
+                    materialFactory,
+                    meshObject);
             }
         }
 

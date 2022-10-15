@@ -8,9 +8,9 @@ namespace Pal3.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Pol;
-    using Core.GameBox;
     using Core.Renderer;
     using Dev;
     using UnityEngine;
@@ -21,38 +21,34 @@ namespace Pal3.Renderer
     /// </summary>
     public class PolyModelRenderer : MonoBehaviour
     {
-        private const int TRANSPARENT_RENDER_QUEUE_INDEX = 3000;
-
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION = ".dds";
         private const int ANIMATED_WATER_ANIMATION_FRAMES = 30;
         private const float ANIMATED_WATER_ANIMATION_FPS = 20f;
+        
+        private const float TRANSPARENT_THRESHOLD_WITHOUT_SHADOW = 1.0f;
+        private const float TRANSPARENT_THRESHOLD_WITH_SHADOW = 0.9f;
 
         private ITextureResourceProvider _textureProvider;
+        private IMaterialFactory _materialFactory;
         private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
         private Color _tintColor;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
-        private readonly int _cutoffPropertyId = Shader.PropertyToID("_Cutoff");
-        private readonly int _tintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private readonly int _isOpaquePropertyId = Shader.PropertyToID("_IsOpaque");
-        private Shader _standardShader;
-        private Shader _standardNoShadowShader;
-        private readonly Dictionary<string, Material> _materials = new ();
-
-        public void Render(PolFile polFile, ITextureResourceProvider textureProvider, Color tintColor)
+        
+        public void Render(PolFile polFile,
+            IMaterialFactory materialFactory,
+            ITextureResourceProvider textureProvider,
+            Color tintColor)
         {
+            _materialFactory = materialFactory;
             _textureProvider = textureProvider;
             _tintColor = tintColor;
             _textureCache = BuildTextureCache(polFile, textureProvider);
-
-            _standardShader = Shader.Find("Pal3/Standard");
-            _standardNoShadowShader = Shader.Find("Pal3/StandardNoShadow");
-
+            
             for (var i = 0; i < polFile.Meshes.Length; i++)
             {
                 RenderMeshInternal(
@@ -128,97 +124,52 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 1)
                 {
-                    var materialHashKey = _standardNoShadowShader.name +
-                                          textures[0].name +
-                                          blendFlag;
-
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-
-                    Material material;
-                    if (_materials.ContainsKey(materialHashKey))
-                    {
-                        material = _materials[materialHashKey];
-                    }
-                    else
-                    {
-                        material = new Material(_standardNoShadowShader);
-                        material.SetTexture(_mainTexturePropertyId, textures[0].texture);
-
-                        var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
-                        if (cutoff > Mathf.Epsilon)
-                        {
-                            material.SetFloat(_cutoffPropertyId, cutoff);
-                        }
-
-                        if (blendFlag is 1 or 2)
-                        {
-                            material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                            material.SetFloat(_isOpaquePropertyId, .0f);
-                        }
-                        material.SetColor(_tintColorPropertyId, _tintColor);
-                        _materials[materialHashKey] = material;
-                    }
+                    
+                    Material[] materials = _materialFactory.CreateStandardMaterials(
+                        textures[0].texture,
+                        null,
+                        _tintColor,
+                        blendFlag,
+                        TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[0],
-                        ref material,
+                        ref mesh.VertexInfo.Uvs[1],
+                        ref materials,
                         false);
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(material, textures[0].texture);
+                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
                 }
                 else if (textures.Count >= 2)
                 {
-                    var materialHashKey = _standardShader.name +
-                                          textures[0].name +
-                                          textures[1].name +
-                                          blendFlag;
-
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-
-                    Material material;
-                    if (_materials.ContainsKey(materialHashKey))
-                    {
-                        material = _materials[materialHashKey];
-                    }
-                    else
-                    {
-                        material = new Material(_standardShader);
-                        material.SetTexture(_mainTexturePropertyId, textures[1].texture);
-                        material.SetTexture(_shadowTexturePropertyId, textures[0].texture);
-
-                        var cutoff = blendFlag is 1 or 2 ? 0.3f : 0f;
-                        if (cutoff > Mathf.Epsilon)
-                        {
-                            material.SetFloat(_cutoffPropertyId, cutoff);
-                        }
-
-                        if (blendFlag is 1 or 2)
-                        {
-                            material.renderQueue = TRANSPARENT_RENDER_QUEUE_INDEX;
-                            material.SetFloat(_isOpaquePropertyId, .0f);
-                        }
-                        material.SetColor(_tintColorPropertyId, _tintColor);
-                        _materials[materialHashKey] = material;
-                    }
-
+                    
+                    Material[] materials = _materialFactory.CreateStandardMaterials(
+                        textures[1].texture,
+                        textures[0].texture,
+                        _tintColor,
+                        blendFlag,
+                        TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                    
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[1],
                         ref mesh.VertexInfo.Uvs[0],
-                        ref material,
+                        ref materials,
                         false);
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(material, textures[1].texture);
+                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
                     }
                 }
 

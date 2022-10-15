@@ -5,10 +5,10 @@
 
 namespace Core.Renderer
 {
+    using System;
     using UnityEngine;
-    using UnityEngine.Rendering;
 
-    public sealed class StaticMeshRenderer : MonoBehaviour
+    public sealed class StaticMeshRenderer : MonoBehaviour, IDisposable
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
@@ -16,58 +16,17 @@ namespace Core.Renderer
         public Mesh Render(ref Vector3[] vertices,
             ref int[] triangles,
             ref Vector3[] normals,
-            ref Vector2[] uv,
-            ref Material material,
+            ref Vector2[] mainTextureUvs,
+            ref Vector2[] secondaryTextureUvs,
+            ref Material[] materials,
             bool isDynamic)
         {
             Dispose();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer.sharedMaterials = materials;
             //_meshRenderer.receiveShadows = false;
             //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            _meshRenderer.sharedMaterial = material;
-
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
-
-            var mesh = new Mesh();
-            if (isDynamic)
-            {
-                mesh.MarkDynamic();
-            }
-
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
-            mesh.SetNormals(normals);
-            mesh.SetUVs(0, uv);
-
-            if (triangles.Length == 0)
-            {
-                // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
-                // After modifying vertices you should call this function to ensure the
-                // bounding volume is correct. Assigning triangles automatically
-                // recalculates the bounding volume.
-                mesh.RecalculateBounds();
-            }
-
-            _meshFilter.sharedMesh = mesh;
-
-            return mesh;
-        }
-
-        public Mesh Render(ref Vector3[] vertices,
-            ref int[] triangles,
-            ref Vector3[] normals,
-            ref Vector2[] mainTextureUv,
-            ref Vector2[] secondaryTextureUv,
-            ref Material material,
-            bool isDynamic)
-        {
-            Dispose();
-
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            //_meshRenderer.receiveShadows = false;
-            //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            _meshRenderer.sharedMaterial = material;
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             var mesh = new Mesh();
@@ -79,8 +38,8 @@ namespace Core.Renderer
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.SetNormals(normals);
-            mesh.SetUVs(0, mainTextureUv);
-            mesh.SetUVs(1, secondaryTextureUv);
+            mesh.SetUVs(0, mainTextureUvs);
+            mesh.SetUVs(1, secondaryTextureUvs);
 
             if (triangles.Length == 0)
             {
@@ -121,7 +80,7 @@ namespace Core.Renderer
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             if (_meshFilter != null)
             {
@@ -131,7 +90,11 @@ namespace Core.Renderer
 
             if (_meshRenderer != null)
             {
-                Destroy(_meshRenderer.sharedMaterial);
+                foreach (Material material in _meshRenderer.sharedMaterials)
+                {
+                    Destroy(material);
+                }
+
                 Destroy(_meshRenderer);
             }
         }

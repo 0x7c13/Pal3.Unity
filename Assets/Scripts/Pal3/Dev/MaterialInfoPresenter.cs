@@ -13,7 +13,7 @@ namespace Pal3.Dev
     /// </summary>
     public class MaterialInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public uint blendFlag;
+        [SerializeField] public GameBoxBlendFlag blendFlag;
         [SerializeField] public GameBoxMaterial material;
     }
 }
