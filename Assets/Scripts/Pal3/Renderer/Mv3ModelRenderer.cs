@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.Services;
+
 namespace Pal3.Renderer
 {
     using System;
@@ -149,14 +151,12 @@ namespace Pal3.Renderer
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
             
-            bool bTransparent = _textureHasAlphaChannel[index];
-            
-            Material[] mats = MaterialFactory.CreateMaterials(
-                MaterialFactory.EMeshType.Mv3,
+            Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
+                MaterialManager.EMeshType.Mv3,
                 _textures[index],
                 null,
                 _tintColor,
-                bTransparent,
+                _textureHasAlphaChannel[index] ? MaterialManager.EBlendMode.AlphaBlend : MaterialManager.EBlendMode.Opaque,
                 TRANSPARENT_THRESHOLD);
             _materials[index] = mats[0];    // @miao todo .only hold the 1st material 
             

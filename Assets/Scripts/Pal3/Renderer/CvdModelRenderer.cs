@@ -3,6 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.Services;
 using UnityEngine.Animations;
 
 namespace Pal3.Renderer
@@ -180,14 +181,14 @@ namespace Pal3.Renderer
                     var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
 
                     
-                    //Material material = null;
-                    bool bTransparent = (meshSection.BlendFlag == 1);
-                    Material[] materials = MaterialFactory.CreateMaterials(
-                        MaterialFactory.EMeshType.Cvd,
+                    
+                    //bool bTransparent = (meshSection.BlendFlag == 1);
+                    Material[] materials = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
+                        MaterialManager.EMeshType.Cvd,
                         textureCache[meshSection.TextureName],
                         null,
                         _tintColor,
-                        bTransparent,
+                        (MaterialManager.EBlendMode)meshSection.BlendFlag,
                         TRANSPARENT_THRESHOLD);
                     
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();

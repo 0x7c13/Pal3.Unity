@@ -9,6 +9,13 @@ Shader "Pal3/Transparent"
         _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
         _ShadowTex ("Shadow Texture",2D) = "white" {}
         _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
+        
+        
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _BlendSrcFactor("Source Blend Factor",int) = 5     // srcAlpha as Default
+        
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _BlendDstFactor("Dest Blend Factor",int) = 10   // 1-srcAlpha as Default
     }
     SubShader
     {
@@ -20,7 +27,7 @@ Shader "Pal3/Transparent"
         // Pass 2 ,transparent part
         Pass
         {
-            Blend SrcAlpha OneMinusSrcAlpha
+            Blend [_BlendSrcFactor] [_BlendDstFactor]
             ZWrite Off
             
             CGPROGRAM

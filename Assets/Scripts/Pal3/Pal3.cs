@@ -44,6 +44,7 @@ namespace Pal3
     using UnityEngine.Video;
     using Video;
     using PostProcessManager = Effect.PostProcessManager;
+    using Renderer;
 
     /// <summary>
     /// Pal3 game model
@@ -342,8 +343,8 @@ namespace Pal3
             _touchControlUIManager.Dispose();
             _favorManager.Dispose();
             _mazeSkipper.Dispose();
-            
-            #if PAL3
+
+#if PAL3
             _appraisalsMiniGame.Dispose();
             _sailingMiniGame.Dispose();
             _hideFightMiniGame.Dispose();

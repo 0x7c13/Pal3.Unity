@@ -386,7 +386,7 @@ namespace Pal3.Data
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
             Texture2D effectTexture = textureProvider.GetTexture(name);
-            Utility.ApplyTransparencyBasedOnColorLuminance(effectTexture);
+            //Utility.ApplyTransparencyBasedOnColorLuminance(effectTexture);    // said by Jackie, this should be del    
             return effectTexture;
         }
 

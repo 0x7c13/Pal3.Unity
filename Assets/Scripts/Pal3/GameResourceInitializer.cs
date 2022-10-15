@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Pal3.Renderer;
+
 namespace Pal3
 {
     using System;
@@ -129,6 +131,10 @@ namespace Pal3
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;
+            
+            // Init MaterialManager
+            var materialManager = new MaterialManager();
+            ServiceLocator.Instance.Register(materialManager);
 
             yield return FadeTextAndBackgroundImage();
 

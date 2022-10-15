@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.Services;
+
 namespace Pal3.Renderer
 {
     using System;
@@ -133,12 +135,12 @@ namespace Pal3.Renderer
                     
                     bool bTransparent = blendFlag is 1 or 2;
                     
-                    Material[] mats = MaterialFactory.CreateMaterials(
-                        MaterialFactory.EMeshType.Poly,
+                    Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
+                        MaterialManager.EMeshType.Poly,
                         textures[0].texture,
                         null,
                         _tintColor,
-                        bTransparent,
+                        (MaterialManager.EBlendMode)blendFlag,
                         NOSHADOW_TRANSPARENT_THRESHOLD);
                                                 
                     
@@ -170,13 +172,12 @@ namespace Pal3.Renderer
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
                     
-                    bool bTransparent = blendFlag is 1 or 2;
-                    Material[] mats = MaterialFactory.CreateMaterials(
-                        MaterialFactory.EMeshType.Poly,
+                    Material[] mats = ServiceLocator.Instance.Get<MaterialManager>().CreateStandardMaterials(
+                        MaterialManager.EMeshType.Poly,
                         textures[1].texture,
                         textures[0].texture,
                         _tintColor,
-                        bTransparent,
+                        (MaterialManager.EBlendMode)blendFlag,
                         WITHSHADOW_TRANSPARENT_THRESHOLD);
                      
 
