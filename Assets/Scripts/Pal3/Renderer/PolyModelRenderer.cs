@@ -152,7 +152,11 @@ namespace Pal3.Renderer
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(mats[0], textures[0].texture);
+                        //StartWaterSurfaceAnimation(mats[0], textures[0].texture);
+                        foreach(Material mat in mats)
+                        {
+                            StartWaterSurfaceAnimation(mat, textures[0].texture);       
+                        }
                     }
                 }
                 else if (textures.Count >= 2)
@@ -165,9 +169,8 @@ namespace Pal3.Renderer
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
-                    // here should handle shadow
+                    
                     bool bTransparent = blendFlag is 1 or 2;
-
                     Material[] mats = MaterialFactory.CreateMaterials(
                         MaterialFactory.EMeshType.Poly,
                         textures[1].texture,
@@ -187,7 +190,10 @@ namespace Pal3.Renderer
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(mats[0], textures[1].texture);
+                        foreach(Material mat in mats)
+                        {
+                            StartWaterSurfaceAnimation(mat, textures[1].texture);       
+                        }
                     }
                 }
 

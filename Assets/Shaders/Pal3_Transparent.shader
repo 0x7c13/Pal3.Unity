@@ -74,7 +74,7 @@ Shader "Pal3/Transparent"
             half4 frag(v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.texcoord);
-                float alpha = color.a;
+                const float alpha = color.a;
                 if(color.a >= _Threshold)
                 {
                     discard;
