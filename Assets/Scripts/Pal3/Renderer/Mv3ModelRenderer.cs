@@ -151,7 +151,13 @@ namespace Pal3.Renderer
             
             bool bTransparent = _textureHasAlphaChannel[index];
             
-            Material[] mats = MaterialFactory.CreateMaterials(_textures[index],null,_tintColor,bTransparent,TRANSPARENT_THRESHOLD);
+            Material[] mats = MaterialFactory.CreateMaterials(
+                MaterialFactory.EMeshType.Mv3,
+                _textures[index],
+                null,
+                _tintColor,
+                bTransparent,
+                TRANSPARENT_THRESHOLD);
             _materials[index] = mats[0];    // @miao todo .only hold the 1st material 
             
             #if PAL3A
@@ -170,14 +176,6 @@ namespace Pal3.Renderer
             };
 
             var normals = Array.Empty<Vector3>();
-
-            // Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
-            //     ref _keyFrames[index][0].Triangles,
-            //     ref normals,
-            //     ref _keyFrames[index][0].Uv,
-            //     ref _materials[index],
-            //     true);
-            
             Mesh renderMesh = meshRenderer.RenderWithMaterials(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
                 ref normals,

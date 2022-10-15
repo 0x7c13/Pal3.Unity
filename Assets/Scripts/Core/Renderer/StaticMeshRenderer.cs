@@ -12,7 +12,8 @@ namespace Core.Renderer
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
-
+    
+            /*
         public Mesh Render(ref Vector3[] vertices,
             ref int[] triangles,
             ref Vector3[] normals,
@@ -53,6 +54,7 @@ namespace Core.Renderer
 
             return mesh;
         }
+        */
 
         /*
         public Mesh Render(ref Vector3[] vertices,
@@ -78,8 +80,7 @@ namespace Core.Renderer
             bool isDynamic)
         {
             Mesh mesh = RenderInternal(ref vertices,ref triangles,ref normals,ref mainTextureUv,ref secondaryTextureUv,isDynamic);
-            _meshRenderer.materials = materials;
-            
+            _meshRenderer.sharedMaterials = materials;
             return mesh;
         }
 
@@ -161,9 +162,9 @@ namespace Core.Renderer
 
             if (_meshRenderer != null)
             {
-                for (int i = 0;i < _meshRenderer.materials.Length;i++)
+                for (int i = 0;i < _meshRenderer.sharedMaterials.Length;i++)
                 {
-                    Destroy(_meshRenderer.materials[i]);
+                    Destroy(_meshRenderer.sharedMaterials[i]);
                 }
                 Destroy(_meshRenderer);
             }

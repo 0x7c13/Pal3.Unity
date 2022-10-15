@@ -3,7 +3,7 @@ Shader "Pal3/Opaque"
     Properties
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
-        //_TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
         
         _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
         _ShadowTex ("Shadow Texture",2D) = "white" {}
@@ -75,6 +75,7 @@ Shader "Pal3/Opaque"
                 {
                     color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);    
                 }
+                color *= _TintColor;
                 return color;
             }
             ENDCG

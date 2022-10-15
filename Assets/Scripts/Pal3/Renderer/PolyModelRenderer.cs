@@ -133,8 +133,13 @@ namespace Pal3.Renderer
                     
                     bool bTransparent = blendFlag is 1 or 2;
                     
-                    Material[] mats = MaterialFactory.CreateMaterials(textures[0].texture,null,
-                                                                _tintColor,bTransparent,NOSHADOW_TRANSPARENT_THRESHOLD);
+                    Material[] mats = MaterialFactory.CreateMaterials(
+                        MaterialFactory.EMeshType.Poly,
+                        textures[0].texture,
+                        null,
+                        _tintColor,
+                        bTransparent,
+                        NOSHADOW_TRANSPARENT_THRESHOLD);
                                                 
                     
                     _ = meshRenderer.RenderWithMaterials(ref mesh.VertexInfo.Positions,
@@ -163,7 +168,9 @@ namespace Pal3.Renderer
                     // here should handle shadow
                     bool bTransparent = blendFlag is 1 or 2;
 
-                    Material[] mats = MaterialFactory.CreateMaterials(textures[1].texture,
+                    Material[] mats = MaterialFactory.CreateMaterials(
+                        MaterialFactory.EMeshType.Poly,
+                        textures[1].texture,
                         textures[0].texture,
                         _tintColor,
                         bTransparent,

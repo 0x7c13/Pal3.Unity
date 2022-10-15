@@ -3,6 +3,7 @@ Shader "Pal3/Transparent"
     Properties
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+        _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Threshold ("Transparent Threshold", Range(0,1)) = 1.0
         
         _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
@@ -56,6 +57,8 @@ Shader "Pal3/Transparent"
             sampler2D _ShadowTex;
             float4 _ShadowTex_ST;
             float _Exposure;
+
+            float4 _TintColor;
             
             v2f vert(appdata_t v)
             {
@@ -82,7 +85,7 @@ Shader "Pal3/Transparent"
                     color *= tex2D(_ShadowTex, i.shadowcoord) / (1 - _Exposure);
                     color.a = alpha;
                 }
-                
+                color *= _TintColor;
                 return color;
             }
             ENDCG

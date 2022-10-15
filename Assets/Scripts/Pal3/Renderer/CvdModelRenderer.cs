@@ -182,7 +182,9 @@ namespace Pal3.Renderer
                     
                     //Material material = null;
                     bool bTransparent = (meshSection.BlendFlag == 1);
-                    Material[] materials = MaterialFactory.CreateMaterials(textureCache[meshSection.TextureName],
+                    Material[] materials = MaterialFactory.CreateMaterials(
+                        MaterialFactory.EMeshType.Cvd,
+                        textureCache[meshSection.TextureName],
                         null,
                         _tintColor,
                         bTransparent,

@@ -5,6 +5,12 @@ namespace Pal3.Renderer
 
     public static class MaterialFactory
     {
+        public enum EMeshType
+        {
+            Poly,
+            Mv3,
+            Cvd,
+        }
 
         private static string kOpaqueShaderPath = "Pal3/Opaque";
         private static string kTransparentShaderPath = "Pal3/Transparent";
@@ -17,7 +23,8 @@ namespace Pal3.Renderer
         private static readonly int _shadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
 
 
-        public static Material[] CreateMaterials(Texture2D mainTexture,
+        public static Material[] CreateMaterials(EMeshType meshType,
+                                                Texture2D mainTexture,
                                                 Texture2D shadowTexture,
                                                 Color tintColor,
                                                 bool bTransparent,
@@ -38,8 +45,6 @@ namespace Pal3.Renderer
             return result;
         }
         
-        
-
         private static Material CreateTransparentMaterial(Texture2D mainTexture,
                                                         Color tintColor,
                                                         float transparentThreshold,
