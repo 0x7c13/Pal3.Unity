@@ -19,9 +19,9 @@ Shader "Pal3/Water"
         _BlendSrcFactor("Source Blend Factor",int) = 5    // BlendMode.SrcAlpha as Default
         
         [Enum(UnityEngine.Rendering.BlendMode)]
-        _BlendDstFactor("Dest Blend Factor",int) = 10     // BlendMode.OneMinusSrcAlpha as Default
-        
+        _BlendDstFactor("Dest Blend Factor",int) = 1     // BlendMode.One as Default
     }
+    
     SubShader
     {
         Lighting Off
