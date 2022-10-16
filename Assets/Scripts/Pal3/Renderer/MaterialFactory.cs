@@ -15,6 +15,7 @@ namespace Pal3.Renderer
         private const string TRANSPARENT_SHADER_PATH = "Pal3/Transparent";
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string SPRITE_SHADER_PATH = "Pal3/Sprite";
+        private const string WATER_SHADER_PATH = "Pal3/Water";
 
         // Standard material uniforms 
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
@@ -29,6 +30,36 @@ namespace Pal3.Renderer
         // Sprite material uniforms
         private static readonly int SpriteMainTexPropertyId = Shader.PropertyToID("_MainTex");
         
+        // Water material uniforms
+        private static readonly int WaterMainTexPropId = Shader.PropertyToID("_MainTex");
+        private static readonly int Water2ndTexPropId = Shader.PropertyToID("_2ndTexture");
+        private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
+        private static readonly int WaterHas2ndTexPropId = Shader.PropertyToID("_Has2ndTexture");
+        private static readonly int WaterTintColorPropId = Shader.PropertyToID("_TintColor");
+        
+        /* Water material */
+        public Material CreateWaterMaterial(Texture2D mainTexture, 
+            Texture2D the2ndTexture, 
+            float alpha,
+            Color tintColor)
+        {
+            var material = new Material(Shader.Find(WATER_SHADER_PATH));
+            material.SetTexture(WaterMainTexPropId,mainTexture);
+            material.SetFloat(WaterAlphaPropId,alpha);
+            material.SetColor(WaterTintColorPropId,tintColor);
+            if (the2ndTexture != null)
+            {
+                material.SetFloat(WaterHas2ndTexPropId,1.0f);
+                material.SetTexture(Water2ndTexPropId,the2ndTexture);
+            }
+            else
+            {
+                material.SetFloat(WaterHas2ndTexPropId,0.5f);
+            }
+            return material;
+        }
+
+        /* Sprtie material */
         public Material CreateSpriteMaterial(Texture2D texture)
         {
             var material = new Material(Shader.Find(SPRITE_SHADER_PATH));;
@@ -36,6 +67,7 @@ namespace Pal3.Renderer
             return material;
         }
 
+        /* Standard materials */
         public Material[] CreateStandardMaterials(
             Texture2D mainTexture,
             Texture2D shadowTexture,

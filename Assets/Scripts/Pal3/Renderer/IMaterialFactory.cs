@@ -32,5 +32,11 @@ namespace Pal3.Renderer
             Color tintColor,
             GameBoxBlendFlag blendFlag,
             float transparentThreshold);
+
+        
+        public Material CreateWaterMaterial(Texture2D mainTexture,
+            Texture2D normalTexture,
+            float alpha,
+            Color tintColor);
     }
 }

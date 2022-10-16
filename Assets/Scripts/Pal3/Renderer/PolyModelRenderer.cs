@@ -29,6 +29,7 @@ namespace Pal3.Renderer
         
         private const float TRANSPARENT_THRESHOLD_WITHOUT_SHADOW = 1.0f;
         private const float TRANSPARENT_THRESHOLD_WITH_SHADOW = 0.9f;
+        private const float WATER_ALPHA = 0.5f;
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
@@ -127,12 +128,26 @@ namespace Pal3.Renderer
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
                     
-                    Material[] materials = _materialFactory.CreateStandardMaterials(
-                        textures[0].texture,
-                        null,
-                        _tintColor,
-                        blendFlag,
-                        TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+                    Material[] materials = null;
+                    if (isWaterSurface)
+                    {
+                        materials = new Material[1];
+                        materials[0] = _materialFactory.CreateWaterMaterial(
+                            textures[0].texture,
+                            null,
+                            WATER_ALPHA,
+                            _tintColor);
+                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
+                    }
+                    else
+                    {
+                        materials = _materialFactory.CreateStandardMaterials(
+                            textures[0].texture,
+                            null,
+                            _tintColor,
+                            blendFlag,
+                            TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+                    }
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
@@ -141,23 +156,34 @@ namespace Pal3.Renderer
                         ref mesh.VertexInfo.Uvs[1],
                         ref materials,
                         false);
-
-                    if (isWaterSurface)
-                    {
-                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
-                    }
                 }
                 else if (textures.Count >= 2)
                 {
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-                    
-                    Material[] materials = _materialFactory.CreateStandardMaterials(
-                        textures[1].texture,
-                        textures[0].texture,
-                        _tintColor,
-                        blendFlag,
-                        TRANSPARENT_THRESHOLD_WITH_SHADOW);
+
+
+                    Material[] materials = null;
+                    if (isWaterSurface)
+                    {
+                        materials = new Material[1];
+                        materials[0] = _materialFactory.CreateWaterMaterial(
+                            textures[1].texture,
+                            textures[0].texture,
+                            WATER_ALPHA,
+                            _tintColor);
+                        
+                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
+                    }
+                    else
+                    {
+                        materials = _materialFactory.CreateStandardMaterials(
+                            textures[1].texture,
+                            textures[0].texture,
+                            _tintColor,
+                            blendFlag,
+                            TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                    }
                     
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
@@ -166,16 +192,11 @@ namespace Pal3.Renderer
                         ref mesh.VertexInfo.Uvs[0],
                         ref materials,
                         false);
-
-                    if (isWaterSurface)
-                    {
-                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
-                    }
                 }
-
                 meshObject.transform.SetParent(transform, false);
             }
         }
+        
 
         private IEnumerator AnimateWaterTexture(Material material, Texture2D defaultTexture)
         {
