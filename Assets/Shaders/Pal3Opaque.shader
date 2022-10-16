@@ -5,18 +5,18 @@ Shader "Pal3/Opaque"
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
         
-        _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
-        _ShadowTex ("Shadow Texture",2D) = "white" {}
-        _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
+        _HasShadowTex ("Has Shadow Texture", Range(0, 1)) = 0.0
+        _ShadowTex ("Shadow Texture", 2D) = "white" {}
+        _Exposure("Exposure Amount", Range(0.1, 1.0)) = 0.4
     }
     SubShader
     {
         Lighting Off
-        Tags{"QUEUE" = "Geometry"}
+        Tags { "QUEUE" = "Geometry" }
         
         Pass
         {
-            Tags{"Qeueue" = "Geometry"}
+            Tags{ "Qeueue" = "Geometry" }
             Blend Off
             ZWrite On
             
@@ -24,7 +24,6 @@ Shader "Pal3/Opaque"
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
-            
 
             #include "UnityCG.cginc"
 

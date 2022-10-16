@@ -15,6 +15,7 @@ namespace Pal3.Renderer
         private const string TRANSPARENT_SHADER_PATH = "Pal3/Transparent";
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string SPRITE_SHADER_PATH = "Pal3/Sprite";
+        private const string WATER_SHADER_PATH = "Pal3/Water";
 
         // Standard material uniforms 
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
@@ -29,6 +30,33 @@ namespace Pal3.Renderer
         // Sprite material uniforms
         private static readonly int SpriteMainTexPropertyId = Shader.PropertyToID("_MainTex");
         
+        // Water material uniforms
+        private static readonly int WaterMainTexPropId = Shader.PropertyToID("_MainTex");
+        private static readonly int WaterShadowTexPropId = Shader.PropertyToID("_ShadowTex");
+        private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
+        private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
+
+        /// <inheritdoc/>
+        public Material CreateWaterMaterial(Texture2D mainTexture, 
+            Texture2D shadowTexture, 
+            float alpha)
+        {
+            var material = new Material(Shader.Find(WATER_SHADER_PATH));
+            material.SetTexture(WaterMainTexPropId,mainTexture);
+            material.SetFloat(WaterAlphaPropId, alpha);
+            if (shadowTexture != null)
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 1.0f);
+                material.SetTexture(WaterShadowTexPropId, shadowTexture);
+            }
+            else
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 0.5f);
+            }
+            return material;
+        }
+
+        /// <inheritdoc/>
         public Material CreateSpriteMaterial(Texture2D texture)
         {
             var material = new Material(Shader.Find(SPRITE_SHADER_PATH));;
@@ -36,6 +64,7 @@ namespace Pal3.Renderer
             return material;
         }
 
+        /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
             Texture2D mainTexture,
             Texture2D shadowTexture,

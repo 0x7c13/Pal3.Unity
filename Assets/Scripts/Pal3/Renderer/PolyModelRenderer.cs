@@ -8,7 +8,6 @@ namespace Pal3.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.Renderer;
@@ -124,15 +123,31 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 1)
                 {
+                    Material[] materials;
+                    
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-                    
-                    Material[] materials = _materialFactory.CreateStandardMaterials(
-                        textures[0].texture,
-                        null,
-                        _tintColor,
-                        blendFlag,
-                        TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+
+                    if (isWaterSurface)
+                    {
+                        materials = new Material[1];
+                        // get alpha from first pixel of the water texture
+                        float waterSurfaceOpacity = textures[0].texture.GetPixel(0, 0).a;
+                        materials[0] = _materialFactory.CreateWaterMaterial(
+                            textures[0].texture,
+                            shadowTexture: null,
+                            waterSurfaceOpacity);
+                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
+                    }
+                    else
+                    {
+                        materials = _materialFactory.CreateStandardMaterials(
+                            textures[0].texture,
+                            shadowTexture: null,
+                            _tintColor,
+                            blendFlag,
+                            TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+                    }
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
@@ -141,23 +156,34 @@ namespace Pal3.Renderer
                         ref mesh.VertexInfo.Uvs[1],
                         ref materials,
                         false);
-
-                    if (isWaterSurface)
-                    {
-                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
-                    }
                 }
                 else if (textures.Count >= 2)
                 {
+                    Material[] materials;
+                    
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
                     
-                    Material[] materials = _materialFactory.CreateStandardMaterials(
-                        textures[1].texture,
-                        textures[0].texture,
-                        _tintColor,
-                        blendFlag,
-                        TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                    if (isWaterSurface)
+                    {
+                        materials = new Material[1];
+                        // get alpha from first pixel of the water texture
+                        float waterSurfaceOpacity = textures[1].texture.GetPixel(0, 0).a;
+                        materials[0] = _materialFactory.CreateWaterMaterial(
+                            textures[1].texture,
+                            textures[0].texture,
+                            waterSurfaceOpacity);
+                        StartWaterSurfaceAnimation(materials[0], textures[1].texture);
+                    }
+                    else
+                    {
+                        materials = _materialFactory.CreateStandardMaterials(
+                            textures[1].texture,
+                            textures[0].texture,
+                            _tintColor,
+                            blendFlag,
+                            TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                    }
                     
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
@@ -166,11 +192,6 @@ namespace Pal3.Renderer
                         ref mesh.VertexInfo.Uvs[0],
                         ref materials,
                         false);
-
-                    if (isWaterSurface)
-                    {
-                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
-                    }
                 }
 
                 meshObject.transform.SetParent(transform, false);
