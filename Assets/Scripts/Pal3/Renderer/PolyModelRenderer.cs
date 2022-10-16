@@ -197,7 +197,6 @@ namespace Pal3.Renderer
                 meshObject.transform.SetParent(transform, false);
             }
         }
-        
 
         private IEnumerator AnimateWaterTexture(Material material, Texture2D defaultTexture)
         {
