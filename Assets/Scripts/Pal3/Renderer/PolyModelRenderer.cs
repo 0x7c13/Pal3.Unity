@@ -8,7 +8,6 @@ namespace Pal3.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.Renderer;
@@ -136,7 +135,7 @@ namespace Pal3.Renderer
                         float waterSurfaceOpacity = textures[0].texture.GetPixel(0, 0).a;
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[0].texture,
-                            null,
+                            shadowTexture: null,
                             waterSurfaceOpacity);
                         StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
@@ -144,7 +143,7 @@ namespace Pal3.Renderer
                     {
                         materials = _materialFactory.CreateStandardMaterials(
                             textures[0].texture,
-                            null,
+                            shadowTexture: null,
                             _tintColor,
                             blendFlag,
                             TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
@@ -174,8 +173,7 @@ namespace Pal3.Renderer
                             textures[1].texture,
                             textures[0].texture,
                             waterSurfaceOpacity);
-                        
-                        StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
+                        StartWaterSurfaceAnimation(materials[0], textures[1].texture);
                     }
                     else
                     {
@@ -195,7 +193,7 @@ namespace Pal3.Renderer
                         ref materials,
                         false);
                 }
-                
+
                 meshObject.transform.SetParent(transform, false);
             }
         }

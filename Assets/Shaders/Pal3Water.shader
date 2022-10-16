@@ -8,12 +8,11 @@ Shader "Pal3/Water"
         // alpha value
         _Alpha ("Alpha",Range(0, 1)) = 0.5
         
+        _Exposure("Exposure Amount", Range(0.1, 1.0)) = 0.3
+        
         // pre baked shadow texture
         _ShadowTex ("Shadow texture", 2D) = "white" {}
         _HasShadowTex ("Has Shadow Texture", Range(0, 1)) = 0.0
-        
-        // tint color
-        _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
         
         [Enum(UnityEngine.Rendering.BlendMode)]
         _BlendSrcFactor("Source Blend Factor", int) = 5    // BlendMode.SrcAlpha as Default
@@ -59,9 +58,8 @@ Shader "Pal3/Water"
             float4 _MainTex_ST;
 
             float _Alpha;
-            
-            float4 _TintColor;
-            
+            float _Exposure;
+
             float _HasShadowTex;
             sampler2D _ShadowTex;
             float4 _ShadowTex_ST;
@@ -82,7 +80,7 @@ Shader "Pal3/Water"
             {
                 const half4 color = tex2D(_MainTex, i.texcoord);
                 const half4 colorShadow = tex2D(_ShadowTex, i.texcoord2);
-                half4 mixedColor = color * colorShadow * _TintColor;
+                half4 mixedColor = color * colorShadow / (1 - _Exposure);
                 mixedColor.a = _Alpha; // use global alpha
                 return mixedColor;
             }
