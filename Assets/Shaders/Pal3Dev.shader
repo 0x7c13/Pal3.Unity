@@ -12,7 +12,7 @@ Shader "Pal3/Dev"
 
     SubShader 
     {
-        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+        Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent" }
         LOD 100
 
         ZWrite Off

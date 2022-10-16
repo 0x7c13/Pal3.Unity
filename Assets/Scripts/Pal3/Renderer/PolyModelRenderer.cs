@@ -29,7 +29,6 @@ namespace Pal3.Renderer
         
         private const float TRANSPARENT_THRESHOLD_WITHOUT_SHADOW = 1.0f;
         private const float TRANSPARENT_THRESHOLD_WITH_SHADOW = 0.9f;
-        private const float WATER_ALPHA = 0.5f;
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
@@ -125,18 +124,20 @@ namespace Pal3.Renderer
 
                 if (textures.Count == 1)
                 {
+                    Material[] materials;
+                    
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-                    
-                    Material[] materials = null;
+
                     if (isWaterSurface)
                     {
                         materials = new Material[1];
+                        // get alpha from first pixel of the water texture
+                        float waterSurfaceOpacity = textures[0].texture.GetPixel(0, 0).a;
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[0].texture,
                             null,
-                            WATER_ALPHA,
-                            _tintColor);
+                            waterSurfaceOpacity);
                         StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
                     else
@@ -159,19 +160,20 @@ namespace Pal3.Renderer
                 }
                 else if (textures.Count >= 2)
                 {
+                    Material[] materials;
+                    
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-
-
-                    Material[] materials = null;
+                    
                     if (isWaterSurface)
                     {
                         materials = new Material[1];
+                        // get alpha from first pixel of the water texture
+                        float waterSurfaceOpacity = textures[1].texture.GetPixel(0, 0).a;
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[1].texture,
                             textures[0].texture,
-                            WATER_ALPHA,
-                            _tintColor);
+                            waterSurfaceOpacity);
                         
                         StartWaterSurfaceAnimation(materials.Last(), textures[1].texture);
                     }
@@ -193,6 +195,7 @@ namespace Pal3.Renderer
                         ref materials,
                         false);
                 }
+                
                 meshObject.transform.SetParent(transform, false);
             }
         }

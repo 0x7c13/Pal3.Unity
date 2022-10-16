@@ -33,10 +33,15 @@ namespace Pal3.Renderer
             GameBoxBlendFlag blendFlag,
             float transparentThreshold);
 
-        
+        /// <summary>
+        /// Create material for water surface
+        /// </summary>
+        /// <param name="mainTexture">Main texture</param>
+        /// <param name="shadowTexture">Shadow texture</param>
+        /// <param name="alpha">Opacity</param>
+        /// <returns>Material</returns>
         public Material CreateWaterMaterial(Texture2D mainTexture,
-            Texture2D normalTexture,
-            float alpha,
-            Color tintColor);
+            Texture2D shadowTexture,
+            float alpha);
     }
 }

@@ -4,17 +4,17 @@ Shader "Pal3/TransparentOpaquePart"
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Threshold ("Transparent Threshold", Range(0,1)) = 1.0
+        _Threshold ("Transparent Threshold", Range(0, 1)) = 1.0
         
-        _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
-        _ShadowTex ("Shadow Texture",2D) = "white" {}
-        _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
+        _HasShadowTex ("Has Shadow Texture", Range(0, 1)) = 0.0
+        _ShadowTex ("Shadow Texture", 2D) = "white" {}
+        _Exposure("Exposure Amount", Range(0.1, 1.0)) = 0.4
     }
     SubShader
     {
         Lighting Off
         
-        Tags{"Qeueue" = "Geometry"}
+        Tags { "Qeueue" = "Geometry" }
         
         // pass 1 , opaque part
         Pass
@@ -26,7 +26,6 @@ Shader "Pal3/TransparentOpaquePart"
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
-            
 
             #include "UnityCG.cginc"
 

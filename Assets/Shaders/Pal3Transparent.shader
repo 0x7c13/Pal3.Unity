@@ -4,23 +4,23 @@ Shader "Pal3/Transparent"
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _TintColor ("Tint color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Threshold ("Transparent Threshold", Range(0,1)) = 1.0
+        _Threshold ("Transparent Threshold", Range(0, 1)) = 1.0
         
-        _HasShadowTex ("Has Shadow Texture", Range(0,1)) = 0.0
-        _ShadowTex ("Shadow Texture",2D) = "white" {}
-        _Exposure("Exposure Amount", Range(0.1,1.0)) = 0.4
-        
-        [Enum(UnityEngine.Rendering.BlendMode)]
-        _BlendSrcFactor("Source Blend Factor",int) = 5    // BlendMode.SrcAlpha as Default
+        _HasShadowTex ("Has Shadow Texture", Range(0, 1)) = 0.0
+        _ShadowTex ("Shadow Texture", 2D) = "white" {}
+        _Exposure("Exposure Amount", Range(0.1, 1.0)) = 0.4
         
         [Enum(UnityEngine.Rendering.BlendMode)]
-        _BlendDstFactor("Dest Blend Factor",int) = 10     // BlendMode.OneMinusSrcAlpha as Default
+        _BlendSrcFactor("Source Blend Factor", int) = 5    // BlendMode.SrcAlpha as Default
+        
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _BlendDstFactor("Dest Blend Factor", int) = 10     // BlendMode.OneMinusSrcAlpha as Default
     }
     SubShader
     {
         Lighting Off
         
-        Tags{"Queue" = "Transparent"}
+        Tags { "Queue" = "Transparent" }
         
         // Pass 2 ,transparent part
         Pass
