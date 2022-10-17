@@ -46,15 +46,18 @@ namespace Core.DataReader.Lgt
         private static LightNode ReadLightNode(BinaryReader reader)
         #endif
         {
+            var transformMatrix = new GameBoxMatrix4X4()
+            {
+                Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
+                Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
+                Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
+                Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
+            };
+            transformMatrix.Tw = 1f;
+            
             var lightNode = new LightNode
             {
-                WorldMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
-                {
-                    Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
-                    Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
-                    Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
-                    Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
-                }),
+                WorldMatrix = GameBoxInterpreter.ToUnityMatrix4x4(transformMatrix),
                 LightType = (GameBoxLightType)reader.ReadInt32(),
                 LightColor = Utility.ToColor(reader.ReadSingleArray(4)),
                 AmbientColor = Utility.ToColor(reader.ReadSingleArray(4)),
