@@ -309,10 +309,9 @@ namespace Pal3
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
-
-            DebugLogConsole.AddCommand("vars", "List current global variables.", ListCurrentGlobalVariables);
-            DebugLogConsole.AddCommand("save", "Save game state into executable commands.", ConvertCurrentGameStateToCommandStr);
-            DebugLogConsole.AddCommand("info", "Get current game info.", GetCurrentGameInfo);
+            
+            DebugLogConsole.AddCommand("state", "Get current game state in commands form.", PrintCurrentGameStateInCommandsForm);
+            DebugLogConsole.AddCommand("info", "Get current game info.", PrintCurrentGameInfo);
 
             DisableInGameDebugConsoleButtonNavigation();
             
@@ -404,15 +403,16 @@ namespace Pal3
             }
         }
 
-        private string ConvertCurrentGameStateToCommandStr()
+        private void PrintCurrentGameStateInCommandsForm()
         {
             var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Minimal);
-            return commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+            var state = commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+            Debug.Log(state + '\n');
         }
 
-        private string GetCurrentGameInfo()
+        private void PrintCurrentGameInfo()
         {
-            if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
+            if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
             var info = new StringBuilder();
 
@@ -426,15 +426,10 @@ namespace Pal3
             info.Append($"Player actor current nav layer: {playerActorMovementController.GetCurrentLayerIndex()} " +
                         $"tile position: {playerActorMovementController.GetTilePosition()}\n");
 
-            return info.ToString();
-        }
+            info.Append(_scriptManager.GetGlobalVariables()
+                .Aggregate("Global vars: ", (current, variable) => current + $"{variable.Key}: {variable.Value} "));
 
-        private string ListCurrentGlobalVariables()
-        {
-            if (_scriptManager.GetGlobalVariables() is not { Count: > 0 }) return null;
-            
-            return _scriptManager.GetGlobalVariables()
-                .Aggregate("Global vars: ", (current, variable) => current + $"{variable.Key}: {variable.Value} ");
+            Debug.Log(info.ToString() + '\n');
         }
     }
 }
