@@ -64,6 +64,15 @@ namespace Core.GameBox
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
+        
+        public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        {
+            var rotation = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);
+            rotation.eulerAngles = new Vector3(rotation.eulerAngles.x + 90f,
+                -rotation.eulerAngles.y,
+                rotation.eulerAngles.z);
+            return rotation;
+        }
 
         public static Quaternion ToUnityRotation(float pitch, float yaw, float roll)
         {

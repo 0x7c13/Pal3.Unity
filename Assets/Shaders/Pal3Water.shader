@@ -24,6 +24,7 @@ Shader "Pal3/Water"
     SubShader
     {
         Lighting Off
+        
         Tags { "QUEUE" = "Transparent" }
         
         Pass

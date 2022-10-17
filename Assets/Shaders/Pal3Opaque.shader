@@ -12,6 +12,7 @@ Shader "Pal3/Opaque"
     SubShader
     {
         Lighting Off
+        
         Tags { "QUEUE" = "Geometry" }
         
         Pass
@@ -40,7 +41,6 @@ Shader "Pal3/Opaque"
                 float4 vertex : SV_POSITION;
                 float2 texcoord : TEXCOORD0;
                 float2 shadowcoord : TEXCOORD1;
-                
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 

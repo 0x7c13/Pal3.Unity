@@ -31,6 +31,7 @@ namespace Core.DataReader.Lgt
             for (var i = 0; i < numOfLightNodes; i++)
             {
                 var lightNode = ReadLightNode(reader);
+                
                 if (Enum.IsDefined(typeof(GameBoxLightType), lightNode.LightType))
                 {
                     lightNodes.Add(lightNode);
