@@ -25,7 +25,7 @@ Shader "Pal3/Water"
     {
         Lighting Off
         
-        Tags { "QUEUE" = "Transparent" }
+        Tags { "QUEUE" = "Transparent-1" } // -1 to fix sorting order issue with semi-transparent trees etc.
         
         Pass
         {
