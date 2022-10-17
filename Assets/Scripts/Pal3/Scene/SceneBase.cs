@@ -10,6 +10,7 @@ namespace Pal3.Scene
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
+    using Core.DataReader.Lgt;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
@@ -26,6 +27,7 @@ namespace Pal3.Scene
         protected Tilemap Tilemap;
         protected ScnFile ScnFile;
         protected NavFile NavFile;
+        protected LgtFile LgtFile;
 
         protected (PolFile PolFile, ITextureResourceProvider TextureProvider) ScenePolyMesh;
         protected (CvdFile CvdFile, ITextureResourceProvider TextureProvider)? SceneCvdMesh;
@@ -43,7 +45,6 @@ namespace Pal3.Scene
 
             InitMeshData();
             InitNavData();
-            InitLgtData();
             InitSceneObjectData();
             InitActorData();
         }
@@ -61,12 +62,20 @@ namespace Pal3.Scene
                 meshFileRelativePath += $"1{separator}";
             }
 
-            ScenePolyMesh = _resourceProvider.GetPol(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.pol");
+            var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
+            
+            ScenePolyMesh = _resourceProvider.GetPol(sceneMetadataFilePrefix + ".pol");
 
             // Only few of the scenes use CVD models, so we need to check first
-            if (_resourceProvider.FileExists(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.cvd"))
+            if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".cvd"))
             {
-                SceneCvdMesh = _resourceProvider.GetCvd(meshFileRelativePath + $"{ScnFile.SceneInfo.Model}.cvd");
+                SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
+            }
+            
+            // Check if light file exists
+            if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
+            {
+                LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
             }
         }
 
@@ -75,12 +84,7 @@ namespace Pal3.Scene
             NavFile = _resourceProvider.GetNav(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
             Tilemap = new Tilemap(NavFile);
         }
-
-        private void InitLgtData()
-        {
-            // TODO: Impl
-        }
-
+        
         private void InitSceneObjectData()
         {
             foreach (ScnObjectInfo objectInfo in ScnFile.ObjectInfos)

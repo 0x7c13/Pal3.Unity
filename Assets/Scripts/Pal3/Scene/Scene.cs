@@ -13,11 +13,13 @@ namespace Pal3.Scene
     using Command;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.DataReader.Lgt;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
     using Data;
+    using Dev;
     using MetaData;
     using Renderer;
     using SceneObjects;
@@ -43,6 +45,8 @@ namespace Pal3.Scene
 
         private GameObject _parent;
         private GameObject _mesh;
+        private List<GameObject> _lights = new();
+        
         private readonly List<GameObject> _navMeshLayers = new ();
         private readonly Dictionary<int, MeshCollider[]> _meshColliders = new ();
 
@@ -68,6 +72,11 @@ namespace Pal3.Scene
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
             Destroy(_mesh);
+            
+            foreach (GameObject lightSource in _lights)
+            {
+                Destroy(lightSource);
+            }
 
             foreach (var meshColliders in _meshColliders.Values)
             {
@@ -125,7 +134,10 @@ namespace Pal3.Scene
 
             RenderSkyBox();
             SetupNavMesh();
-            //Debug.LogError($"SkyBox+NavMesh: {timer.ElapsedMilliseconds} ms");
+            #if UNITY_EDITOR
+            CreateLightSources();
+            #endif
+            //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             CreateActorObjects(actorTintColor, _tilemap);
@@ -207,7 +219,6 @@ namespace Pal3.Scene
             if (SceneCvdMesh != null)
             {
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
-                _mesh.transform.SetParent(_parent.transform);
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
                     _resourceProvider.GetMaterialFactory(),
                     SceneCvdMesh.Value.TextureProvider,
@@ -235,7 +246,7 @@ namespace Pal3.Scene
 
             for (var i = 0; i < NavFile.FaceLayers.Length; i++)
             {
-                var navMesh = new GameObject($"Nav Mesh Layer {i}")
+                var navMesh = new GameObject($"NavMesh_Layer_{i}")
                 {
                     layer = LayerMask.NameToLayer("RaycastOnly")
                 };
@@ -273,6 +284,37 @@ namespace Pal3.Scene
             }
         }
 
+        private void CreateLightSources()
+        {
+            if (LgtFile == null) return;
+
+            _lights = new List<GameObject>();
+            
+            foreach (LightNode lightNode in LgtFile.LightNodes)
+            {
+                var lightSource = new GameObject($"LightSource_{lightNode.LightType}");
+                lightSource.transform.SetParent(_parent.transform);
+
+                // Attach LightNode to the GameObject for better debuggability
+                #if UNITY_EDITOR
+                var materialInfoPresenter = lightSource.AddComponent<LightSourceInfoPresenter>();
+                materialInfoPresenter.LightNode = lightNode;
+                #endif
+
+                if (lightNode.LightType == GameBoxLightType.Spot)
+                {
+                    lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
+
+                    float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
+                    lightSource.transform.rotation = new Quaternion( (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
+                        (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
+                        (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w), w);   
+                }
+
+                _lights.Add(lightSource);
+            }
+        }
+        
         private void ActivateSceneObjects()
         {
             foreach (SceneObject sceneObject in SceneObjects.Values.Where(s => s.Info.Active == 1))

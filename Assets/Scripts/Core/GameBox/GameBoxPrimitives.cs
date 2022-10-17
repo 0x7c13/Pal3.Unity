@@ -80,6 +80,26 @@ namespace Core.GameBox
         AdditiveBlend,      //
     }
     
+    public enum GameBoxLightType
+    {
+        Omni,           // point light
+        Spot,           // spot light
+        Directional,    // directional light
+    }
+    
+    public enum GameBoxLightDecayType
+    {
+        None,
+        Distance,
+        Square,
+    }
+
+    public enum GameBoxLightShapeType
+    {
+        Cone,
+        Square,
+    }
+    
     public static class GameBoxVertex
     {
         public static int GetSize(uint vertexType)

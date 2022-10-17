@@ -18,6 +18,7 @@ namespace Pal3.Data
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Ini;
+    using Core.DataReader.Lgt;
     using Core.DataReader.Mv3;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
@@ -157,6 +158,11 @@ namespace Pal3.Data
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
+        }
+
+        public LgtFile GetLgt(string lgtFilePath)
+        {
+            return LgtFileReader.Read(_fileSystem.ReadAllBytes(lgtFilePath));
         }
 
         public NavFile GetNav(string sceneFileName, string sceneName)
