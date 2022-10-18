@@ -72,11 +72,13 @@ namespace Pal3.Scene
                 SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
             }
             
+            #if UNITY_EDITOR
             // Check if light file exists
             if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
             {
                 LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
             }
+            #endif
         }
 
         private void InitNavData()
