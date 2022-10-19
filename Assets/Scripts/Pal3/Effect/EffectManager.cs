@@ -78,7 +78,7 @@ namespace Pal3.Effect
 
             if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
             {
-                Transform actorTransform = currentScene.GetActorGameObject((byte) actorCommand.ActorId).transform;
+                Transform actorTransform = currentScene.GetActorGameObject((byte)actorCommand.ActorId).transform;
                 parent.transform.SetParent(actorTransform);
                 parent.transform.localPosition = Vector3.zero;
             }

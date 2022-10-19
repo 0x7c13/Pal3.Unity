@@ -76,4 +76,6 @@ crashlytics-build.properties
 
 # VFX prefabs that are using the 3rd party passets
 /Assets/Resources/Prefabs/VFX/PAL3/*.prefab
+/Assets/Resources/Prefabs/VFX/PAL3/*.meta
 /Assets/Resources/Prefabs/VFX/PAL3A/*.prefab
+/Assets/Resources/Prefabs/VFX/PAL3A/*.meta
