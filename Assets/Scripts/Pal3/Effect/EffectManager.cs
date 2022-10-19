@@ -13,7 +13,6 @@ namespace Pal3.Effect
     using Core.GameBox;
     using MetaData;
     using Scene;
-    using UnityEditor;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -64,29 +63,31 @@ namespace Pal3.Effect
                 HandleNanGongHuangTransformEffect(effectAttachToActorCommand, command, currentScene);
             }
             #endif
-            
-            var parent = new GameObject($"VFX_{command.EffectGroupId}");
-            parent.transform.localScale = Vector3.one;
-
-            if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
-                _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
-            {
-                parent.transform.SetParent(sceneRootGameObject.transform);
-                parent.transform.position = GameBoxInterpreter.ToUnityPosition(
-                    new Vector3(positionCommand.X, positionCommand.Y, positionCommand.Z));
-            }
-
-            if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
-            {
-                Transform actorTransform = currentScene.GetActorGameObject((byte)actorCommand.ActorId).transform;
-                parent.transform.SetParent(actorTransform);
-                parent.transform.localPosition = Vector3.zero;
-            }
 
             Object vfxPrefab = Resources.Load($"Prefabs/VFX/{GameConstants.AppName}/{command.EffectGroupId}");
             if (vfxPrefab != null)
             {
-                Instantiate(vfxPrefab, parent.transform, false);
+                Transform parent = null;
+                Vector3 localPosition = Vector3.zero;
+                
+                if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
+                    _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
+                {
+                    parent = sceneRootGameObject.transform;
+                    localPosition = GameBoxInterpreter.ToUnityPosition(
+                        new Vector3(positionCommand.X, positionCommand.Y, positionCommand.Z));
+                }
+                else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
+                {
+                    parent = currentScene.GetActorGameObject((byte)actorCommand.ActorId).transform;
+                }
+
+                if (parent != null)
+                {
+                    var vfx = (GameObject)Instantiate(vfxPrefab, parent, false);
+                    vfx.name = "VFX_" + command.EffectGroupId;
+                    vfx.transform.localPosition = localPosition; 
+                }
             }
             else
             {
