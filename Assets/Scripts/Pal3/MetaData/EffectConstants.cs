@@ -91,5 +91,22 @@ namespace Pal3.MetaData
             {GraphicsEffect.Fire, new (16, 10)},
             {GraphicsEffect.Combat, new (0, 0)},
         };
+
+        #if PAL3
+        // Effect group id to sfx mapping
+        public static readonly Dictionary<int, string> EffectSfxInfo = new()
+        {
+            { 254, "wd163" },
+            { 255, "wd155" },
+            { 256, "wd008" },
+            { 257, "wd001" },
+            { 264, "wd160" },
+            { 458, "wd140" },
+        };
+        #elif PAL3A
+        public static readonly Dictionary<int, string> EffectSfxInfo = new()
+        {
+        };
+        #endif
     }
 }

@@ -86,12 +86,19 @@ namespace Pal3.Effect
                 {
                     var vfx = (GameObject)Instantiate(vfxPrefab, parent, false);
                     vfx.name = "VFX_" + command.EffectGroupId;
-                    vfx.transform.localPosition = localPosition; 
+                    vfx.transform.localPosition += localPosition; 
                 }
             }
             else
             {
                 Debug.LogWarning("VFX prefab not found: " + command.EffectGroupId);
+            }
+            
+            // Play sound effect if any
+            if (EffectConstants.EffectSfxInfo.ContainsKey(command.EffectGroupId))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlaySfxCommand(EffectConstants.EffectSfxInfo[command.EffectGroupId], 1));
             }
 
             //_effectPositionCommand = null;
