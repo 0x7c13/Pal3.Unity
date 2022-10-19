@@ -48,6 +48,11 @@ namespace Pal3.Scene
         {
             return _currentScene;
         }
+        
+        public GameObject GetSceneRootGameObject()
+        {
+            return _currentSceneRoot;
+        }
 
         public void LoadScene(string sceneFileName, string sceneName)
         {

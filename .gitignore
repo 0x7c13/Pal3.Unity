@@ -70,3 +70,10 @@ crashlytics-build.properties
 # Unity StreamingAssets folder
 /Assets/StreamingAssets
 
+# 3rd party plugin/assets
+/Assets/Hovl Studio
+/Assets/Hovl Studio.meta
+
+# VFX prefabs that are using the 3rd party passets
+/Assets/Resources/Prefabs/VFX/PAL3/*.prefab
+/Assets/Resources/Prefabs/VFX/PAL3A/*.prefab
