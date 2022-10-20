@@ -600,11 +600,7 @@ namespace Pal3.Data
                 // _mv3Cache.Clear();
                 // _cvdCache.Clear();
                 
-                // Dispose all vfx prefabs in cache
-                foreach (Object vfxPrefab in _vfxEffectPrefabCache.Values)
-                {
-                    Object.Destroy(vfxPrefab);
-                }
+                // clear all vfx prefabs in cache
                 _vfxEffectPrefabCache.Clear();
 
                 // Unloads assets that are not used (textures etc.)
