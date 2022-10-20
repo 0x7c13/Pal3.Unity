@@ -11,23 +11,28 @@ namespace Pal3.Effect
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
+    using Data;
     using MetaData;
     using Scene;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    public sealed class EffectManager : MonoBehaviour,
+    public sealed class EffectManager : MonoBehaviour, IDisposable,
+        ICommandExecutor<EffectPreLoadCommand>,
         ICommandExecutor<EffectAttachToActorCommand>,
         ICommandExecutor<EffectSetPositionCommand>,
         ICommandExecutor<EffectPlayCommand>,
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
+        private GameResourceProvider _resourceProvider;
         private SceneManager _sceneManager;
-
         private ICommand _effectPositionCommand;
-        
-        public void Init(SceneManager sceneManager)
+
+        public void Init(GameResourceProvider resourceProvider,
+            SceneManager sceneManager)
         {
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
         }
         
@@ -40,6 +45,16 @@ namespace Pal3.Effect
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
+
+        public void Dispose()
+        {
+            _effectPositionCommand = null;
+        }
+        
+        public void Execute(EffectPreLoadCommand command)
+        {
+            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
+        }
         
         public void Execute(EffectSetPositionCommand command)
         {
@@ -51,7 +66,7 @@ namespace Pal3.Effect
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             _effectPositionCommand = command;
         }
-        
+
         public void Execute(EffectPlayCommand command)
         {
             if (_effectPositionCommand == null ||
@@ -64,7 +79,8 @@ namespace Pal3.Effect
             }
             #endif
 
-            Object vfxPrefab = Resources.Load($"Prefabs/VFX/{GameConstants.AppName}/{command.EffectGroupId}");
+            // Play VFX
+            Object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
             if (vfxPrefab != null)
             {
                 Transform parent = null;
@@ -89,19 +105,13 @@ namespace Pal3.Effect
                     vfx.transform.localPosition += localPosition; 
                 }
             }
-            else
-            {
-                Debug.LogWarning("VFX prefab not found: " + command.EffectGroupId);
-            }
-            
-            // Play sound effect if any
+
+            // Play SFX if any
             if (EffectConstants.EffectSfxInfo.ContainsKey(command.EffectGroupId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new PlaySfxCommand(EffectConstants.EffectSfxInfo[command.EffectGroupId], 1));
             }
-
-            //_effectPositionCommand = null;
         }
 
         #if PAL3A
@@ -141,10 +151,15 @@ namespace Pal3.Effect
             }
         }
         #endif
-
+        
+        public void Execute(SceneLeavingCurrentSceneNotification command)
+        {
+            Dispose();
+        }
+        
         public void Execute(ResetGameStateCommand command)
         {
-            _effectPositionCommand = null;
+            Dispose();
         }
     }
 }

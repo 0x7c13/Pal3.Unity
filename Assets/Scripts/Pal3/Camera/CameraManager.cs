@@ -732,7 +732,8 @@ namespace Pal3.Camera
             ApplySceneSettings(notification.NewSceneInfo);
             
             // Apply the last known scene state if found in record.
-            if (notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
+            if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
+                notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
             {
                 if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))

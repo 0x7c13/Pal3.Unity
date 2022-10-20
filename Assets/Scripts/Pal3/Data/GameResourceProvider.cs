@@ -30,6 +30,7 @@ namespace Pal3.Data
     using Renderer;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
+    using Object = UnityEngine.Object;
 
     /// <summary>
     /// Single resource provider for accessing game data.
@@ -45,14 +46,17 @@ namespace Pal3.Data
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly IMaterialFactory _materialFactory;
         private readonly int _codepage;
+        
         private TextureCache _textureCache;
+        
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
         private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
         private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
         private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
         private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
-
+        private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
+        
         // Cache player actor movement sfx audio clips
         private readonly HashSet<string> _audioClipCacheList = new ()
         {
@@ -88,7 +92,7 @@ namespace Pal3.Data
 
         public void Dispose()
         {
-            _textureCache.DisposeAll();
+            _textureCache?.DisposeAll();
             _spriteCache.Clear();
             _polCache.Clear();
             _mv3Cache.Clear();
@@ -514,6 +518,52 @@ namespace Pal3.Data
 
             return Array.Empty<Texture2D>();
         }
+        
+        private string GetVfxPrefabPath(int effectGroupId)
+        {
+            return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
+        }
+        
+        public Object GetVfxEffectPrefab(int effectGroupId)
+        {
+            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
+            {
+                return _vfxEffectPrefabCache[effectGroupId];
+            }
+            
+            Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
+            if (vfxPrefab != null)
+            {
+                _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
+                return vfxPrefab;
+            }
+            else
+            {
+                Debug.LogWarning("VFX prefab not found: " + effectGroupId);
+                return null;
+            }
+        }
+
+        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
+        {
+            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
+            {
+                yield break;
+            }
+            
+            ResourceRequest request = Resources.LoadAsync(GetVfxPrefabPath(effectGroupId));
+            
+            while (!request.isDone) 
+            {
+                yield return request;
+            }
+            
+            if (request.asset != null)
+            {
+                _vfxEffectPrefabCache[effectGroupId] = request.asset;
+                Debug.Log("VFX prefab preloaded: " + effectGroupId);
+            }
+        }
 
         public Texture2D GetCursorTexture()
         {
@@ -542,13 +592,20 @@ namespace Pal3.Data
             if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
             {
                 // Clean up cache after exiting current scene block
-                _textureCache.DisposeAll();
+                _textureCache?.DisposeAll();
                 _spriteCache.Clear();
 
                 // TODO: Have a better way to manage the lifecycle of pol, mv3, cvd data.
                 // _polCache.Clear();
                 // _mv3Cache.Clear();
                 // _cvdCache.Clear();
+                
+                // Dispose all vfx prefabs in cache
+                foreach (Object vfxPrefab in _vfxEffectPrefabCache.Values)
+                {
+                    Object.Destroy(vfxPrefab);
+                }
+                _vfxEffectPrefabCache.Clear();
 
                 // Unloads assets that are not used (textures etc.)
                 Resources.UnloadUnusedAssets();

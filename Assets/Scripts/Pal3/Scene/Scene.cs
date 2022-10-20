@@ -239,7 +239,7 @@ namespace Pal3.Scene
         {
             if (Utility.IsHandheldDevice())
             {
-                // We only enable joystick control for the gameplay on mobile
+                // We only enable joystick/gamepad control for the gameplay on mobile
                 // devices so there is no need for setting up nav mesh.
                 return;
             }
@@ -301,44 +301,44 @@ namespace Pal3.Scene
                 materialInfoPresenter.LightNode = lightNode;
                 #endif
 
-                switch (lightNode.LightType)
-                {
-                    case GameBoxLightType.Omni:
-                        lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                        // TODO: Add light component
-                        break;
-                    case GameBoxLightType.Spot:
-                    {
-                        lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                        float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                        lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                        {
-                            X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                            Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                            Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                            W = w,
-                        });
-                        var lightComponent = lightSource.AddComponent<Light>();
-                        lightComponent.type = LightType.Spot;
-                        lightComponent.color = lightNode.LightColor;
-                        lightComponent.range = 300f;
-                        lightComponent.spotAngle = 90f;
-                        break;
-                    }
-                    case GameBoxLightType.Directional:
-                    {
-                        float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                        lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                        {
-                            X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                            Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                            Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                            W = w,
-                        });
-                        // TODO: Add light component
-                        break;
-                    }
-                }
+                // switch (lightNode.LightType)
+                // {
+                //     case GameBoxLightType.Omni:
+                //         lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
+                //         // TODO: Add light component
+                //         break;
+                //     case GameBoxLightType.Spot:
+                //     {
+                //         lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
+                //         float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
+                //         lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+                //         {
+                //             X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
+                //             Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
+                //             Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
+                //             W = w,
+                //         });
+                //         var lightComponent = lightSource.AddComponent<Light>();
+                //         lightComponent.type = LightType.Spot;
+                //         lightComponent.color = lightNode.LightColor;
+                //         lightComponent.range = 300f;
+                //         lightComponent.spotAngle = 90f;
+                //         break;
+                //     }
+                //     case GameBoxLightType.Directional:
+                //     {
+                //         float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
+                //         lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+                //         {
+                //             X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
+                //             Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
+                //             Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
+                //             W = w,
+                //         });
+                //         // TODO: Add light component
+                //         break;
+                //     }
+                // }
 
                 _lights.Add(lightSource);
             }

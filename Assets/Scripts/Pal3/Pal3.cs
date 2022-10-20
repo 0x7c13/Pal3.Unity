@@ -274,7 +274,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_postProcessManager);
 
             _effectManager = gameObject.AddComponent<EffectManager>();
-            _effectManager.Init(_sceneManager);
+            _effectManager.Init(_gameResourceProvider, _sceneManager);
             ServiceLocator.Instance.Register(_effectManager);
 
             _saveManager = new SaveManager(_sceneManager,
