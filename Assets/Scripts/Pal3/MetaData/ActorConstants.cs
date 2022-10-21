@@ -244,7 +244,7 @@ namespace Pal3.MetaData
             { "102", "WCA" },
             { "104", "WXF" },
             { "105", "WLF" },
-            { "107", "WZF" },
+            { "107", "WZC" },
         };
         #elif PAL3A
         public static readonly Dictionary<string, string> MainActorWeaponMap = new()
