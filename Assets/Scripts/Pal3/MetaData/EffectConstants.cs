@@ -96,12 +96,19 @@ namespace Pal3.MetaData
         // Effect group id to sfx mapping
         public static readonly Dictionary<int, string> EffectSfxInfo = new()
         {
+            { 251, "wd163" },
+            { 252, "wd160" },
             { 254, "wd163" },
             { 255, "wd155" },
             { 256, "wd008" },
             { 257, "wd001" },
             { 261, "wd163" },
             { 264, "wd160" },
+            { 266, "wd160" },
+            { 276, "wd150" },
+            { 278, "wd150" },
+            { 297, "wd141" },
+            { 341, "wd160" },
             { 457, "wd141" },
             { 458, "wd140" },
         };

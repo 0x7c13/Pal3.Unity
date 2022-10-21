@@ -143,6 +143,7 @@ namespace Pal3.Scene.SceneObjects
                 #elif PAL3A
                 var effectParameter = (uint)Info.Parameters[5];
                 #endif
+                Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {Info.Id}");
                 (effectComponent as IEffect)!.Init(resourceProvider, effectParameter);   
             }
 

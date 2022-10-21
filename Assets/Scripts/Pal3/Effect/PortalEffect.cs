@@ -6,9 +6,7 @@
 namespace Pal3.Effect
 {
     using System;
-    using Core.Services;
     using Data;
-    using Renderer;
     using System.Collections;
     using UnityEngine;
 
@@ -23,58 +21,27 @@ namespace Pal3.Effect
         private const float PORTAL_DEFAULT_SIZE = 1.3f;
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 
-        private SpriteRenderer _spriteRenderer;
-        private Material _material;
-        private Coroutine _portalAnimation;
+        private RotatingSpriteEffect _baseEffect;
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
-            Texture2D baseTexture = resourceProvider.GetEffectTexture(PORTAL_BASE_TEXTURE_NAME);
-
-            _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-            _spriteRenderer.sprite = Sprite.Create(baseTexture,
-                new Rect(0, 0, baseTexture.width, baseTexture.height),
-                new Vector2(0.5f, 0.5f));
-            
-            _material = resourceProvider.GetMaterialFactory().CreateSpriteMaterial(baseTexture);
-            _spriteRenderer.sharedMaterial = _material;
-
-            transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            transform.localScale = new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE);
-
-            _portalAnimation = StartCoroutine(Animate());
-        }
-
-        private IEnumerator Animate()
-        {
-            while (isActiveAndEnabled)
-            {
-                var rotationDelta = PORTAL_ANIMATION_ROTATION_SPEED * Time.deltaTime;
-                gameObject.transform.localRotation *= Quaternion.Euler(0f, 0f, -rotationDelta);
-                yield return null;
-            }
+            _baseEffect = gameObject.AddComponent<RotatingSpriteEffect>();
+            _baseEffect.Init(resourceProvider,
+                PORTAL_BASE_TEXTURE_NAME,
+                new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
+                PORTAL_ANIMATION_ROTATION_SPEED);
         }
 
         private void OnDisable()
         {
             Dispose();
         }
-        
+
         public void Dispose()
         {
-            if (_portalAnimation != null)
+            if (_baseEffect != null)
             {
-                StopCoroutine(_portalAnimation);
-            }
-
-            if (_material != null)
-            {
-                Destroy(_material);
-            }
-
-            if (_spriteRenderer != null)
-            {
-                Destroy(_spriteRenderer);
+                _baseEffect.Dispose();
             }
         }
     }

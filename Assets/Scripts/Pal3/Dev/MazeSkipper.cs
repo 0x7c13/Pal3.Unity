@@ -252,6 +252,11 @@ namespace Pal3.Dev
             {
                 new ActorSetNavLayerCommand(-1, 0),
                 new ActorSetTilePositionCommand(-1, 207, 255)
+            }},            
+            { "m20_1_120700", new List<ICommand>()
+            {
+                new ActorSetNavLayerCommand(-1, 0),
+                new ActorSetTilePositionCommand(-1, 72, 48)
             }},
             { "m20_2_0", new List<ICommand>()
             {
