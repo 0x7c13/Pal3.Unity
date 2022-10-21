@@ -7,8 +7,8 @@ namespace Pal3.Effect
 {
     using System;
     using Data;
-    using System.Collections;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     public class PortalEffect : MonoBehaviour, IEffect, IDisposable
     {
@@ -22,6 +22,7 @@ namespace Pal3.Effect
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 
         private RotatingSpriteEffect _baseEffect;
+        private GameObject _rayEffect;
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
@@ -30,6 +31,13 @@ namespace Pal3.Effect
                 PORTAL_BASE_TEXTURE_NAME,
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
+            
+            Object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
+            if (rayEffectPrefab != null)
+            {
+                _rayEffect = (GameObject)Instantiate(rayEffectPrefab, transform, false);
+                _rayEffect.name = "VFX_0";
+            }
         }
 
         private void OnDisable()
@@ -42,6 +50,11 @@ namespace Pal3.Effect
             if (_baseEffect != null)
             {
                 _baseEffect.Dispose();
+            }
+
+            if (_rayEffect != null)
+            {
+                Destroy(_rayEffect);
             }
         }
     }

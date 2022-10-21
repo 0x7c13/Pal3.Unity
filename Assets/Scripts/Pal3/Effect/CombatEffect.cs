@@ -30,7 +30,8 @@ namespace Pal3.Effect
         
         private RotatingSpriteEffect _bridgeBaseEffect;
         private RotatingSpriteEffect _bridgeEffect;
-
+        private GameObject _effect;
+        
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
             // Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
@@ -67,6 +68,18 @@ namespace Pal3.Effect
             {
                 Debug.LogWarning("Combat effect for scene object not implemented: " + effectParameter);
             }
+            
+            #if PAL3
+            if (effectParameter == 275) // 重楼创建的用来禁锢雪见/龙葵的法阵特效
+            {
+                Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
+                if (vfxPrefab != null)
+                {
+                    _effect = (GameObject)Instantiate(vfxPrefab, transform, false);
+                    _effect.name = "VFX_" + effectParameter;
+                }
+            }
+            #endif
         }
         
         private void OnDisable()
@@ -84,6 +97,11 @@ namespace Pal3.Effect
             if (_bridgeEffect != null)
             {
                 _bridgeEffect.Dispose();
+            }
+
+            if (_effect != null)
+            {
+                Destroy(_effect);
             }
         }
     }
