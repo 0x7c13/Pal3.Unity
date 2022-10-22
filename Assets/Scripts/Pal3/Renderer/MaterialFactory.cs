@@ -55,11 +55,17 @@ namespace Pal3.Renderer
             }
             return material;
         }
+        
+        /// <inheritdoc/>
+        public Material CreateSpriteMaterial()
+        {
+            return new Material(Shader.Find(SPRITE_SHADER_PATH));
+        }
 
         /// <inheritdoc/>
         public Material CreateSpriteMaterial(Texture2D texture)
         {
-            var material = new Material(Shader.Find(SPRITE_SHADER_PATH));;
+            var material = new Material(Shader.Find(SPRITE_SHADER_PATH));
             material.SetTexture(SpriteMainTexPropertyId, texture);
             return material;
         }

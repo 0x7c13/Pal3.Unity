@@ -11,6 +11,7 @@ namespace Core.DataReader.Cpk
     using System.Runtime.InteropServices;
     using System.Text;
     using Lzo;
+    using UnityEngine;
     using Utils;
 
     /// <summary>
@@ -94,6 +95,33 @@ namespace Core.DataReader.Cpk
             BuildCrcIndexMap();
         }
 
+        /// <summary>
+        /// Extract the complete archive to the specified destination
+        /// </summary>
+        public void ExtractTo(string outputFolder)
+        {
+            ExtractToInternal(outputFolder, GetRootEntries());
+        }
+       
+        private void ExtractToInternal(string outputFolder, IEnumerable<CpkEntry> nodes)
+        {
+            foreach (CpkEntry node in nodes)
+            {
+                var relativePath = node.VirtualPath.Replace(
+                    CpkConstants.DirectorySeparator, Path.DirectorySeparatorChar);
+
+                if (node.IsDirectory)
+                {
+                    new DirectoryInfo(outputFolder + relativePath).Create();
+                    ExtractToInternal(outputFolder, node.Children);
+                }
+                else
+                {
+                    File.WriteAllBytes(outputFolder + relativePath, ReadAllBytes(node.VirtualPath));
+                }
+            }
+        }
+        
         /// <summary>
         /// Check if file exists inside the archive.
         /// </summary>

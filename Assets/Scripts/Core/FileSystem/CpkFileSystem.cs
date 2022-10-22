@@ -205,6 +205,25 @@ namespace Core.FileSystem
         }
 
         /// <summary>
+        /// Extract all archives to the specified destination
+        /// </summary>
+        public void ExtractTo(string outputFolder)
+        {
+            foreach ((string cpkFileName, CpkArchive cpkArchive) in _cpkArchives)
+            {
+                var outputDir = outputFolder + cpkFileName + Path.DirectorySeparatorChar;
+                
+                if (!Directory.Exists(outputDir))
+                {
+                    Directory.CreateDirectory(outputDir);
+                }
+                
+                cpkArchive.ExtractTo(outputDir);
+                Debug.Log($"{cpkFileName} extracted to {outputDir}");
+            }
+        }
+        
+        /// <summary>
         /// Search files using keyword.
         /// </summary>
         /// <param name="keyword"></param>

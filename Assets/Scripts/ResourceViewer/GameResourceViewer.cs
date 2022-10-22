@@ -91,6 +91,7 @@ namespace ResourceViewer
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol or .mv3).", Load);
             #if UNITY_EDITOR
             DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
+            DebugLogConsole.AddCommand("ExtractAllCpkArchives", "Extract all .cpk archives into the output directory.", ExtractAllCpkArchives);
             #endif
         }
 
@@ -286,7 +287,21 @@ namespace ResourceViewer
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
+            
             foreach (var sceFile in _sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
+        }
+        
+        private void ExtractAllCpkArchives()
+        {
+            var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解压后导出目录", "", "");
+            outputFolderPath += Path.DirectorySeparatorChar;
+
+            if (!Directory.Exists(outputFolderPath))
+            {
+                Directory.CreateDirectory(outputFolderPath);
+            }
+            
+            _fileSystem.ExtractTo(outputFolderPath);
         }
         #endif
 

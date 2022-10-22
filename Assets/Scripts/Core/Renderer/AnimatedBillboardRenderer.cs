@@ -29,9 +29,15 @@ namespace Core.Renderer
 
         public IEnumerator PlaySpriteAnimation(Sprite[] sprites,
             float fps,
-            int loopCount)
+            int loopCount,
+            Material material = default)
         {
             _isPlaying = true;
+            
+            if (material != default)
+            {
+                _spriteRenderer.material = material;
+            }
 
             if (loopCount == -1)
             {

@@ -68,7 +68,10 @@ namespace Pal3.Effect
                     yPosition,
                     parentPosition.z);
                 _billboardRenderer = _effectGameObject.AddComponent<AnimatedBillboardRenderer>();
-                StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites, fps, -1));
+                StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
+                    fps,
+                    -1,
+                    resourceProvider.GetMaterialFactory().CreateSpriteMaterial()));
             }
         }
 

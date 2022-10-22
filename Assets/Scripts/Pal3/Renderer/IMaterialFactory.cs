@@ -13,6 +13,12 @@ namespace Pal3.Renderer
         /// <summary>
         /// Create a material for effect sprite.
         /// </summary>
+        /// <returns>Material</returns>
+        public Material CreateSpriteMaterial();
+        
+        /// <summary>
+        /// Create a material for effect sprite.
+        /// </summary>
         /// <param name="texture">Texture</param>
         /// <returns>Material</returns>
         public Material CreateSpriteMaterial(Texture2D texture);

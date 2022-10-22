@@ -65,6 +65,11 @@ namespace Core.FileSystem
         public void DisposeAllInMemoryArchives();
 
         /// <summary>
+        /// Extract all archives to the specified destination
+        /// </summary>
+        public void ExtractTo(string outputFolder);
+        
+        /// <summary>
         /// Search files using keyword.
         /// </summary>
         /// <param name="keyword"></param>

@@ -46,13 +46,13 @@ namespace Pal3.MetaData
                     EffectScnRelativePath + "Fire1" + PathSeparator + "torch{0:00}.tga",
                     "", 3.3f) },
                 {FireEffectType.Type2, new (
-                    EffectScnRelativePath + "Fire2" + PathSeparator + "huo{0:00}.tga",
+                    EffectScnRelativePath + "Fire2" + PathSeparator + "{0:00}.tga",
                     "", 1f) },
                 {FireEffectType.Type3, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
                     $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f) },
                 {FireEffectType.Type4, new (
-                    EffectScnRelativePath + "Fire4" + PathSeparator + "{0:000}.tga",
+                    EffectScnRelativePath + "Fire4" + PathSeparator + "{0:00}.tga",
                     "", 5.8f) },
                 {FireEffectType.Type5, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
@@ -63,7 +63,7 @@ namespace Pal3.MetaData
             FireEffectInfo = new()
             {
                 {FireEffectType.Type1, new (
-                    EffectScnRelativePath + "Fire4" + PathSeparator + "{0:000}.tga",
+                    EffectScnRelativePath + "Fire4" + PathSeparator + "{0:00}.tga",
                     "", 5.8f) },
                 {FireEffectType.Type2, new (
                     EffectScnRelativePath + "Fire1" + PathSeparator + "torch{0:00}.tga",
@@ -75,7 +75,7 @@ namespace Pal3.MetaData
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
                     $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f) },
                 {FireEffectType.Type5, new (
-                    EffectScnRelativePath + "Fire2" + PathSeparator + "huo{0:00}.tga",
+                    EffectScnRelativePath + "Fire2" + PathSeparator + "{0:00}.tga",
                     "", 1f) },
                 {FireEffectType.Type6, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
