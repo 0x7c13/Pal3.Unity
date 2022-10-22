@@ -156,11 +156,6 @@ namespace Core.Utils
             return Encoding.GetEncoding(codepage).GetString(strBytes, 0, i);
         }
 
-        public void Close()
-        {
-            Dispose(true);
-        }
-
         private bool _disposedValue;
         private void Dispose(bool disposing)
         {

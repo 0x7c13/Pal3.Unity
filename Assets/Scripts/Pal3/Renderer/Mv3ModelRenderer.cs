@@ -25,7 +25,7 @@ namespace Pal3.Renderer
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
-        private const float TRANSPARENT_THRESHOLD = 1.0f;
+        private const float TRANSPARENT_THRESHOLD = 0.9f;
         
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
@@ -161,7 +161,7 @@ namespace Pal3.Renderer
                 _tintColor,
                 _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
                 TRANSPARENT_THRESHOLD);
-            _materials[index] = materials[0];    // TODO: @miao. only hold the 1st material 
+            _materials[index] = materials[0];
             
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -224,9 +224,6 @@ namespace Pal3.Renderer
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
-            
-            // TODO: @miao
-            // should also change reference material, not only the main material
         }
 
         public void PauseAnimation()

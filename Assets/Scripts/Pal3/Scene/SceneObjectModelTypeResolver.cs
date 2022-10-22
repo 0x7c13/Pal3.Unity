@@ -5,45 +5,39 @@
 
 namespace Pal3.Scene
 {
-    public enum ModelType
+    public enum SceneObjectModelType
     {
-        Unknown       = 0,
+        None          = 0,
         PolModel      = 2,
         CvdModel      = 3,
-        Mv3Model      = 4,
-        EffectModel   = 5,
+        EffectModel   = 4,
     }
 
-    public static class ModelTypeResolver
+    public static class SceneObjectModelTypeResolver
     {
-        public static ModelType GetType(string fileName)
+        public static SceneObjectModelType GetType(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                return ModelType.Unknown;
+                return SceneObjectModelType.None;
             }
 
             if (fileName[0] == '+')
             {
-                return ModelType.EffectModel;
+                return SceneObjectModelType.EffectModel;
             }
 
             if (fileName.ToLower().EndsWith(".pol"))
             {
-                return ModelType.PolModel;
+                return SceneObjectModelType.PolModel;
             }
 
             if (fileName.ToLower().EndsWith(".cvd"))
             {
-                return ModelType.CvdModel;
-            }
-            
-            if (fileName.ToLower().EndsWith(".mv3"))
-            {
-                return ModelType.Mv3Model;
+                return SceneObjectModelType.CvdModel;
             }
 
-            return ModelType.Unknown;
+            return SceneObjectModelType.None;
         }
     }
 }

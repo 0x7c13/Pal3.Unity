@@ -51,6 +51,7 @@ namespace Pal3.Actor
 
         private readonly Path _currentPath = new ();
         private WaitUntilCanceled _movementWaiter;
+        private CancellationTokenSource _movementCts = new ();
 
         private bool _isDuringCollision;
         private Vector3 _lastKnownValidPositionWhenCollisionEnter;
@@ -106,6 +107,7 @@ namespace Pal3.Actor
         {
             _currentPath.Clear();
             _movementWaiter?.CancelWait();
+            _movementCts?.Cancel();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -418,7 +420,9 @@ namespace Pal3.Actor
                     _actionController.PerformAction(_actor.GetIdleAction());
                     var waypoints = _currentPath.GetAllWayPoints();
                     waypoints.Reverse();
-                    StartCoroutine(WaitForSomeTimeAndFollowPath(waypoints.ToArray(), _currentPath.MovementMode));
+                    StartCoroutine(WaitForSomeTimeAndFollowPath(waypoints.ToArray(),
+                        _currentPath.MovementMode,
+                        _movementCts.Token));
                     break;
                 }
             }
@@ -433,10 +437,13 @@ namespace Pal3.Actor
             _currentPath.Clear();
         }
 
-        private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode)
+        private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode, CancellationToken cancellationToken)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
-            SetupPath(waypoints, mode, EndOfPathActionType.Reverse, ignoreObstacle: true);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                SetupPath(waypoints, mode, EndOfPathActionType.Reverse, ignoreObstacle: true);   
+            }
         }
 
         public IEnumerator MoveDirectlyTo(Vector3 position, int mode)
@@ -455,8 +462,9 @@ namespace Pal3.Actor
         private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position,
             int mode,
             EndOfPathActionType endOfPathAction,
+            CancellationToken cancellationToken,
             bool moveTowardsPositionIfNoPathFound = false,
-            string specialAction = null)
+            string specialAction = default)
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
             Vector2Int fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
@@ -478,6 +486,8 @@ namespace Pal3.Actor
                 yield return null;
             }
 
+            if (cancellationToken.IsCancellationRequested) yield break;
+            
             if (path.Length <= 0)
             {
                 if (moveTowardsPositionIfNoPathFound)
@@ -550,7 +560,7 @@ namespace Pal3.Actor
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
-                command.Mode, EndOfPathActionType.Idle));
+                command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
         
         #if PAL3A
@@ -561,7 +571,7 @@ namespace Pal3.Actor
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
-                mode: 0, EndOfPathActionType.Idle, specialAction: command.Action));
+                mode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
         }
         #endif
 
@@ -591,6 +601,7 @@ namespace Pal3.Actor
                 new Vector2Int(command.TileX, command.TileZ),
                 command.Mode,
                 EndOfPathActionType.DisposeSelf,
+                _movementCts.Token,
                 true));
         }
 
@@ -598,6 +609,8 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
+            _movementCts?.Cancel();
+            _movementCts = new CancellationTokenSource();
             _currentPath.Clear();
         }
 
@@ -610,7 +623,13 @@ namespace Pal3.Actor
         public void Execute(ActorActivateCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            if (command.IsActive == 0) _currentPath.Clear();
+            if (command.IsActive == 0)
+            {
+                _movementWaiter?.CancelWait();
+                _movementCts?.Cancel();
+                _movementCts = new CancellationTokenSource();
+                _currentPath.Clear();
+            }
         }
     }
 }

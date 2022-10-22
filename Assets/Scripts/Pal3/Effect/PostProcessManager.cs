@@ -26,6 +26,23 @@ namespace Pal3.Effect
         {
             _postProcessVolume = volume != null ? volume : throw new ArgumentNullException(nameof(volume));
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
+            
+            if (_postProcessVolume.profile.TryGetSettings(out Bloom bloom))
+            {
+                bloom.active = true; // Always enable bloom since it is a must have for VFX
+            }
+            
+            if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
+            {
+                colorAdjustments.active = false;
+            }
+            
+            if (_postProcessVolume.profile.TryGetSettings(out Vignette vignette))
+            {
+                vignette.active = false;
+            }
+            
+            _postProcessLayer.enabled = true;
         }
 
         private void OnEnable()
@@ -50,7 +67,6 @@ namespace Pal3.Effect
                 // Disable all post-processing effects
                 case -1:
                 {
-                    _postProcessLayer.enabled = false;
                     if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
                     {
                         colorAdjustments.active = false;
@@ -72,7 +88,6 @@ namespace Pal3.Effect
                     {
                         vignette.active = true;
                     }
-                    _postProcessLayer.enabled = true;
                     break;
                 }
             }

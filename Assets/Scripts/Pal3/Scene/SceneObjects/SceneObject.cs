@@ -23,6 +23,8 @@ namespace Pal3.Scene.SceneObjects
         public ScnObjectInfo Info;
         public GraphicsEffect GraphicsEffect { get; }
         
+        public SceneObjectModelType ModelType { get; }
+        
         private readonly string _modelFilePath;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
@@ -32,6 +34,7 @@ namespace Pal3.Scene.SceneObjects
             _modelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
+            ModelType = SceneObjectModelTypeResolver.GetType(objectInfo.Name);
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
@@ -39,8 +42,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
             
-            if ((int)objectInfo.Parameters[1] == 1 &&
-                ModelTypeResolver.GetType(objectInfo.Name) == ModelType.CvdModel)
+            if ((int)objectInfo.Parameters[1] == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
                 // Dead object
                 return GraphicsEffect.None;
@@ -61,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
             }
             else if (objectInfo.Name.StartsWith('+'))
             {
-                // Special graphics effect.
+                // Special vfx effect.
             }
             else if (!objectInfo.Name.Contains('.'))
             {
@@ -90,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!string.IsNullOrEmpty(_modelFilePath))
             {
-                if (_modelFilePath.ToLower().EndsWith(".pol"))
+                if (ModelType == SceneObjectModelType.PolModel)
                 {
                     (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
@@ -99,7 +101,7 @@ namespace Pal3.Scene.SceneObjects
                         poly.TextureProvider,
                         tintColor);
                 }
-                else if (_modelFilePath.ToLower().EndsWith(".cvd"))
+                else if (ModelType == SceneObjectModelType.CvdModel)
                 {
                     (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
                     var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();

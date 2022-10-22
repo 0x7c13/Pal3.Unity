@@ -64,11 +64,7 @@ namespace Pal3.Effect
                         SHUSHAN_BRIDGE_EFFECT_DEFAULT_SIZE),
                     SHUSHAN_BRIDGE_EFFECT_ANIMATION_ROTATION_SPEED);
             }
-            else
-            {
-                Debug.LogWarning("Combat effect for scene object not implemented: " + effectParameter);
-            }
-            
+
             #if PAL3
             if (effectParameter == 275) // 重楼创建的用来禁锢雪见/龙葵的法阵特效
             {
