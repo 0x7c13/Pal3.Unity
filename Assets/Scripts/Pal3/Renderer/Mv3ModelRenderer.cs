@@ -187,8 +187,8 @@ namespace Pal3.Renderer
                 ref materials,
                 true);            
 
-            //renderMesh.RecalculateNormals();
-            //renderMesh.RecalculateTangents();
+            renderMesh.RecalculateNormals();
+            renderMesh.RecalculateTangents();
 
             _renderMeshComponents[index] = new RenderMeshComponent
             {

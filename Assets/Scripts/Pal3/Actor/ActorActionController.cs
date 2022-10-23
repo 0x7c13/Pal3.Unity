@@ -198,6 +198,8 @@ namespace Pal3.Actor
 
         private void SetupShadow(ActorActionType actorAction)
         {
+            return;
+            
             // Disable shadow for HuaYing and TaoZi
             #if PAL3
             if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;

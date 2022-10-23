@@ -16,6 +16,8 @@ namespace Pal3.Renderer
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string SPRITE_SHADER_PATH = "Pal3/Sprite";
         private const string WATER_SHADER_PATH = "Pal3/Water";
+        private const string REALTOON_DEFAULT_SHADER_PATH = "RealToon/Version 5/Default/Default";
+        private const string REALTOON_TRANSPARENCY_SHADER_PATH = "RealToon/Version 5/Default/Fade Transparency";
 
         // Standard material uniforms 
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
@@ -123,20 +125,24 @@ namespace Pal3.Renderer
             float transparentThreshold,
             Texture2D shadowTexture)
         {
-            var material = new Material(Shader.Find(TRANSPARENT_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture);
-            material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-            
-            // shadow texture
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-            if (shadowTexture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
-            }
-            
+            Material material = new Material(Shader.Find(REALTOON_TRANSPARENCY_SHADER_PATH));
+            material.mainTexture = mainTexture;
             return material;
+            
+            // var material = new Material(Shader.Find(TRANSPARENT_SHADER_PATH));
+            // material.SetTexture(MainTexturePropertyId, mainTexture);
+            // material.SetColor(TintColorPropertyId, tintColor);
+            // material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
+            //
+            // // shadow texture
+            // material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+            // if (shadowTexture != null)
+            // {
+            //     material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+            //     material.SetTexture(ShadowTexturePropertyId, shadowTexture);
+            // }
+            //
+            // return material;
         }
         
         private static Material CreateTransparentOpaquePartMaterial(Texture2D mainTexture,
@@ -144,39 +150,47 @@ namespace Pal3.Renderer
             float transparentThreshold,
             Texture2D shadowTexture)
         {
-            Material material = new Material(Shader.Find(TRANSPARENT_OPAQUE_PART_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture);
-            material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-            
-            // shadow
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-            if (shadowTexture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
-            }
-            
+            Material material = new Material(Shader.Find(REALTOON_TRANSPARENCY_SHADER_PATH));
+            material.mainTexture = mainTexture;
             return material;
+            
+            // Material material = new Material(Shader.Find(TRANSPARENT_OPAQUE_PART_SHADER_PATH));
+            // material.SetTexture(MainTexturePropertyId, mainTexture);
+            // material.SetColor(TintColorPropertyId, tintColor);
+            // material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
+            //
+            // // shadow
+            // material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+            // if (shadowTexture != null)
+            // {
+            //     material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+            //     material.SetTexture(ShadowTexturePropertyId, shadowTexture);
+            // }
+            //
+            // return material;
         }
         
         private static Material CreateOpaqueMaterial(Texture2D mainTexture,
             Color tintColor,
             Texture2D shadowTexture)
         {
-            Material material = new Material(Shader.Find(OPAQUE_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture);
-            material.SetColor(TintColorPropertyId, tintColor);
-            
-            // shadow
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-            if (shadowTexture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture);
-            }
-            
+            Material material = new Material(Shader.Find(REALTOON_DEFAULT_SHADER_PATH));
+            material.mainTexture = mainTexture;
             return material;
+            
+            // Material material = new Material(Shader.Find(OPAQUE_SHADER_PATH));
+            // material.SetTexture(MainTexturePropertyId, mainTexture);
+            // material.SetColor(TintColorPropertyId, tintColor);
+            //
+            // // shadow
+            // material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+            // if (shadowTexture != null)
+            // {
+            //     material.SetFloat(HasShadowTexturePropertyId, 1.0f);
+            //     material.SetTexture(ShadowTexturePropertyId, shadowTexture);
+            // }
+            //
+            // return material;
         }
     }
 }

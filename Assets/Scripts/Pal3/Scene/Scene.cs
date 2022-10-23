@@ -56,6 +56,8 @@ namespace Pal3.Scene
         private GameResourceProvider _resourceProvider;
         private Tilemap _tilemap;
 
+        private bool _isMainLightInitialized;
+
         public void Init(GameResourceProvider resourceProvider, Camera mainCamera)
         {
             _resourceProvider = resourceProvider;
@@ -117,12 +119,7 @@ namespace Pal3.Scene
 
             _tilemap = new Tilemap(NavFile);
             Color actorTintColor = Color.white;
-            #if PAL3
-            if (ScnFile.SceneInfo.LightMap == 1)
-            #elif PAL3A
-            if (ScnFile.SceneInfo.LightMap == 1 ||
-                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
-            #endif
+            if (IsNightScene())
             {
                 actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
             }
@@ -134,9 +131,8 @@ namespace Pal3.Scene
 
             RenderSkyBox();
             SetupNavMesh();
-            #if UNITY_EDITOR
             CreateLightSources();
-            #endif
+            SetupEnvironmentLight();
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -290,6 +286,8 @@ namespace Pal3.Scene
 
             _lights = new List<GameObject>();
             
+            var isMainLightInitialized = false;
+
             foreach (LightNode lightNode in LgtFile.LightNodes)
             {
                 var lightSource = new GameObject($"LightSource_{lightNode.LightType}");
@@ -301,47 +299,72 @@ namespace Pal3.Scene
                 materialInfoPresenter.LightNode = lightNode;
                 #endif
 
-                // switch (lightNode.LightType)
-                // {
-                //     case GameBoxLightType.Omni:
-                //         lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                //         // TODO: Add light component
-                //         break;
-                //     case GameBoxLightType.Spot:
-                //     {
-                //         lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                //         float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                //         lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                //         {
-                //             X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                //             Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                //             Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                //             W = w,
-                //         });
-                //         var lightComponent = lightSource.AddComponent<Light>();
-                //         lightComponent.type = LightType.Spot;
-                //         lightComponent.color = lightNode.LightColor;
-                //         lightComponent.range = 300f;
-                //         lightComponent.spotAngle = 90f;
-                //         break;
-                //     }
-                //     case GameBoxLightType.Directional:
-                //     {
-                //         float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                //         lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                //         {
-                //             X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                //             Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                //             Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                //             W = w,
-                //         });
-                //         // TODO: Add light component
-                //         break;
-                //     }
-                // }
+                switch (lightNode.LightType)
+                {
+                    // case GameBoxLightType.Omni:
+                    //     lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
+                    //     break;
+                    case GameBoxLightType.Spot:
+                    {
+                        lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
+                        float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
+                        lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+                        {
+                            X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
+                            Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
+                            Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
+                            W = w,
+                        });
+                        var lightComponent = lightSource.AddComponent<Light>();
+                        lightComponent.type = LightType.Directional;
+                        lightComponent.color = lightNode.LightColor;
+                        lightComponent.intensity = 1f;
+                        lightComponent.range = 500f;
+                        lightComponent.shadows = LightShadows.Soft;
+                        _isMainLightInitialized = true;
+                        break;
+                    }
+                    // case GameBoxLightType.Directional:
+                    // {
+                    //     float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
+                    //     lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+                    //     {
+                    //         X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
+                    //         Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
+                    //         Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
+                    //         W = w,
+                    //     });
+                    //     break;
+                    // }
+                }
 
                 _lights.Add(lightSource);
             }
+        }
+
+        private void SetupEnvironmentLight()
+        {
+            if (!_isMainLightInitialized)
+            {
+                var lightSource = new GameObject($"LightSource_Default");
+                lightSource.transform.SetParent(_parent.transform);
+                lightSource.transform.rotation = Quaternion.Euler(70f, 0f, 0f);
+                
+                var lightComponent = lightSource.AddComponent<Light>();
+                
+                lightComponent.color = IsNightScene() ?
+                    new Color(100f / 255f, 100f / 255f, 100f / 255f) :
+                    new Color(190f / 255f, 180f / 255f, 160f / 255f);
+                
+                lightComponent.type = LightType.Directional;
+                lightComponent.intensity = 1f;
+                lightComponent.range = 500f;
+                lightComponent.shadows = LightShadows.Soft;
+            }
+
+            RenderSettings.ambientLight = IsNightScene() ?
+                new Color( 60f/ 255f, 70f / 255f, 100f / 255f) :
+                new Color(200f / 255f, 200f / 255f, 180f / 255f);
         }
         
         private void ActivateSceneObjects()
@@ -368,12 +391,7 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.ContainsKey(sceneObject.Info.Id)) return;
 
             Color tintColor = Color.white;
-            #if PAL3
-            if (ScnFile.SceneInfo.LightMap == 1)
-            #elif PAL3A
-            if (ScnFile.SceneInfo.LightMap == 1 ||
-                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
-            #endif
+            if (IsNightScene())
             {
                 tintColor = new Color(0.35f, 0.35f, 0.35f, 1f);
             }
