@@ -4064,6 +4064,9 @@ MonoBehaviour:
   eventSystem: {fileID: 20216138}
   postProcessVolume: {fileID: 8346885185333560231}
   postProcessLayer: {fileID: 7927220425085558669}
+  shaders:
+  - {fileID: 4800000, guid: d12428961551799408aa97256fd770c3, type: 3}
+  - {fileID: 4800000, guid: c73d0a68c32425f44990e420368ddda6, type: 3}
 --- !u!114 &887733067292281693
 MonoBehaviour:
   m_ObjectHideFlags: 0
