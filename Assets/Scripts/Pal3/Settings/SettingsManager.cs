@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#define ENERGY_SAVING_MODE
+
 namespace Pal3.Settings
 {
     using System;
@@ -40,6 +42,13 @@ namespace Pal3.Settings
                 _ => -1,
             };
 
+            #if ENERGY_SAVING_MODE && UNITY_EDITOR
+            if (SystemInfo.batteryStatus == BatteryStatus.Discharging)
+            {
+                Application.targetFrameRate = 45;   
+            }
+            #endif
+            
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             QualitySettings.antiAliasing = 2; // 2xMSAA

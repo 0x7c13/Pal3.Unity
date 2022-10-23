@@ -9,6 +9,7 @@ namespace Pal3.Effect
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
@@ -19,6 +20,10 @@ namespace Pal3.Effect
         private PostProcessVolume _postProcessVolume;
         private PostProcessLayer _postProcessLayer;
 
+        private Bloom _bloom;
+        private ColorGrading _colorGrading;
+        private Vignette _vignette;
+        
         private int _currentAppliedEffectMode = -1;
         
         public void Init(PostProcessVolume volume,
@@ -26,23 +31,31 @@ namespace Pal3.Effect
         {
             _postProcessVolume = volume != null ? volume : throw new ArgumentNullException(nameof(volume));
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
-            
-            if (_postProcessVolume.profile.TryGetSettings(out Bloom bloom))
+
+            _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
+            _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual on desktop devices   
+
+            _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
+            _colorGrading.active = false;
+
+            _vignette = _postProcessVolume.profile.GetSetting<Vignette>();
+            _vignette.active = false;
+
+            TogglePostProcessLayerWhenNeeded();
+        }
+
+        private void TogglePostProcessLayerWhenNeeded()
+        {
+            if (_bloom.active ||
+                _colorGrading.active ||
+                _vignette.active)
             {
-                bloom.active = true; // Always enable bloom since it is a must have for VFX
+                _postProcessLayer.enabled = true;
             }
-            
-            if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
+            else
             {
-                colorAdjustments.active = false;
+                _postProcessLayer.enabled = false;
             }
-            
-            if (_postProcessVolume.profile.TryGetSettings(out Vignette vignette))
-            {
-                vignette.active = false;
-            }
-            
-            _postProcessLayer.enabled = true;
         }
 
         private void OnEnable()
@@ -67,32 +80,21 @@ namespace Pal3.Effect
                 // Disable all post-processing effects
                 case -1:
                 {
-                    if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
-                    {
-                        colorAdjustments.active = false;
-                    }
-                    if (_postProcessVolume.profile.TryGetSettings(out Vignette vignette))
-                    {
-                        vignette.active = false;
-                    }
+                    _colorGrading.active = false;
+                    _vignette.active = false;
                     break;
                 }
                 // Vintage + color filter effect
                 case 1:
                 {
-                    if (_postProcessVolume.profile.TryGetSettings(out ColorGrading colorAdjustments))
-                    {
-                        colorAdjustments.active = true;
-                    }
-                    if (_postProcessVolume.profile.TryGetSettings(out Vignette vignette))
-                    {
-                        vignette.active = true;
-                    }
+                    _colorGrading.active = true;
+                    _vignette.active = true;
                     break;
                 }
             }
 
             _currentAppliedEffectMode = command.Mode;
+            TogglePostProcessLayerWhenNeeded();
         }
 
         public void Execute(ResetGameStateCommand command)
