@@ -286,8 +286,6 @@ namespace Pal3.Scene
             if (LgtFile == null) return;
 
             _lights = new List<GameObject>();
-            
-            var isMainLightInitialized = false;
 
             foreach (LightNode lightNode in LgtFile.LightNodes)
             {
@@ -323,6 +321,7 @@ namespace Pal3.Scene
                         lightComponent.range = 500f;
                         lightComponent.shadows = LightShadows.Soft;
                         _isMainLightInitialized = true;
+                        RenderSettings.sun = lightComponent;
                         break;
                     }
                     // case GameBoxLightType.Directional:
@@ -361,6 +360,8 @@ namespace Pal3.Scene
                 lightComponent.intensity = 1f;
                 lightComponent.range = 500f;
                 lightComponent.shadows = LightShadows.Soft;
+
+                RenderSettings.sun = lightComponent;
             }
             
             RenderSettings.ambientIntensity = 1f;

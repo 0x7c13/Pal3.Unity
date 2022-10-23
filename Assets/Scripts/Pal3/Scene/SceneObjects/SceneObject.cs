@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.IO;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -34,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
             _modelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
-            ModelType = SceneObjectModelTypeResolver.GetType(objectInfo.Name);
+            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(_modelFilePath));
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
@@ -90,40 +91,37 @@ namespace Pal3.Scene.SceneObjects
             infoPresenter.sceneObjectInfo = Info;
             #endif
 
-            if (!string.IsNullOrEmpty(_modelFilePath))
+            if (ModelType == SceneObjectModelType.PolModel)
             {
-                if (ModelType == SceneObjectModelType.PolModel)
+                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
+                var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
+                sceneObjectRenderer.Render(poly.PolFile,
+                    resourceProvider.GetMaterialFactory(),
+                    poly.TextureProvider,
+                    tintColor);
+            }
+            else if (ModelType == SceneObjectModelType.CvdModel)
+            {
+                (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
+                var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
+
+                var initTime = 0f;
+                // if (Info.Type == ScnSceneObjectType.Switch &&
+                //     Info.Parameters[0] == 1 &&
+                //     Info.Parameters[1] == 1)
+                // {
+                //     initTime = cvd.CvdFile.AnimationDuration;
+                // }
+
+                sceneObjectRenderer.Init(cvd.CvdFile,
+                    resourceProvider.GetMaterialFactory(),
+                    cvd.TextureProvider,
+                    tintColor,
+                    initTime);
+
+                if (Info.Type == ScnSceneObjectType.General)
                 {
-                    (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
-                    var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
-                    sceneObjectRenderer.Render(poly.PolFile,
-                        resourceProvider.GetMaterialFactory(),
-                        poly.TextureProvider,
-                        tintColor);
-                }
-                else if (ModelType == SceneObjectModelType.CvdModel)
-                {
-                    (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
-                    var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
-
-                    var initTime = 0f;
-                    // if (Info.Type == ScnSceneObjectType.Switch &&
-                    //     Info.Parameters[0] == 1 &&
-                    //     Info.Parameters[1] == 1)
-                    // {
-                    //     initTime = cvd.CvdFile.AnimationDuration;
-                    // }
-
-                    sceneObjectRenderer.Init(cvd.CvdFile,
-                        resourceProvider.GetMaterialFactory(),
-                        cvd.TextureProvider,
-                        tintColor,
-                        initTime);
-
-                    if (Info.Type == ScnSceneObjectType.General)
-                    {
-                        sceneObjectRenderer.PlayAnimation();
-                    }
+                    sceneObjectRenderer.PlayAnimation();
                 }
             }
 
