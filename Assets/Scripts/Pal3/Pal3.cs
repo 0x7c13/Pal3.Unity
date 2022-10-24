@@ -101,8 +101,6 @@ namespace Pal3
         [SerializeField] private PostProcessVolume postProcessVolume;
         [SerializeField] private PostProcessLayer postProcessLayer;
 
-        [SerializeField] private Shader[] shaders;
-        
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
 

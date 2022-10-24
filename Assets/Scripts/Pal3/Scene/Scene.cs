@@ -132,8 +132,12 @@ namespace Pal3.Scene
 
             RenderSkyBox();
             SetupNavMesh();
+            
+            #if RTX_ON
             CreateLightSources();
             SetupEnvironmentLight();
+            #endif
+            
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 

@@ -191,15 +191,16 @@ namespace Pal3.Actor
             ActorActionType action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
+            #if !RTX_ON
             SetupShadow(action);
+            #endif
+            
             SetupCollider();
             SetupRigidBody();
         }
 
         private void SetupShadow(ActorActionType actorAction)
         {
-            return;
-            
             // Disable shadow for HuaYing and TaoZi
             #if PAL3
             if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;
