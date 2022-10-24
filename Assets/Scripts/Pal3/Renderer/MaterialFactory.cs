@@ -18,7 +18,7 @@ namespace Pal3.Renderer
         private const string SPRITE_SHADER_PATH = "Pal3/Sprite";
         private const string WATER_SHADER_PATH = "Pal3/Water";
         
-        private const string REALTOON_DEFAULT_SHADER_PATH = "Pal3/RealToon//Default";
+        private const string REALTOON_DEFAULT_SHADER_PATH = "Pal3/RealToon/Default";
         private const string REALTOON_TRANSPARENT_SHADER_PATH = "Pal3/RealToon/Transparent";
 
         // Standard material uniforms 
