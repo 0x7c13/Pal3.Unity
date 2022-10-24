@@ -149,13 +149,16 @@ namespace Pal3.Renderer
                             TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
                     }
 
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                    var renderMesh = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[0],
                         ref mesh.VertexInfo.Uvs[1],
                         ref materials,
                         false);
+                    
+                    renderMesh.RecalculateNormals();
+                    renderMesh.RecalculateTangents();
                 }
                 else if (textures.Count >= 2)
                 {
@@ -185,13 +188,16 @@ namespace Pal3.Renderer
                             TRANSPARENT_THRESHOLD_WITH_SHADOW);
                     }
                     
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
+                    var renderMesh = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
                         ref mesh.VertexInfo.Uvs[1],
                         ref mesh.VertexInfo.Uvs[0],
                         ref materials,
                         false);
+                    
+                    renderMesh.RecalculateNormals();
+                    renderMesh.RecalculateTangents();
                 }
 
                 meshObject.transform.SetParent(transform, false);

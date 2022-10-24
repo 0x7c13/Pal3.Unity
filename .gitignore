@@ -73,6 +73,8 @@ crashlytics-build.properties
 # 3rd party plugin/assets
 /Assets/Hovl Studio
 /Assets/Hovl Studio.meta
+/Assets/RealToon
+/Assets/RealToon.meta
 
 # VFX prefabs that are using the 3rd party passets
 /Assets/Resources/Prefabs/VFX/PAL3/*.prefab

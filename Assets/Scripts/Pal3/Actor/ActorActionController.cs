@@ -191,7 +191,10 @@ namespace Pal3.Actor
             ActorActionType action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
+            #if !RTX_ON
             SetupShadow(action);
+            #endif
+            
             SetupCollider();
             SetupRigidBody();
         }

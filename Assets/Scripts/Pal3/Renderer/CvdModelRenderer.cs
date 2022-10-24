@@ -199,6 +199,9 @@ namespace Pal3.Renderer
                         ref meshDataBuffer.UvBuffer,
                         ref materials,
                         true);
+                    
+                    renderMesh.RecalculateNormals();
+                    renderMesh.RecalculateTangents();
 
                     nodeMeshes.Item2[i] = new RenderMeshComponent
                     {
@@ -291,8 +294,6 @@ namespace Pal3.Renderer
                     renderMeshComponent.Mesh.vertices = meshDataBuffer.VertexBuffer;
                     renderMeshComponent.Mesh.uv = meshDataBuffer.UvBuffer;
                     renderMeshComponent.Mesh.RecalculateBounds();
-                    //renderMeshComponent.Mesh.RecalculateNormals();
-                    //renderMeshComponent.Mesh.RecalculateTangents();
                 }
             }
         }

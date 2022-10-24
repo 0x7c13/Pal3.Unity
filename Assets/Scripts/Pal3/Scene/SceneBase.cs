@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene
 {
+    using System;
     using System.Collections.Generic;
     using Actor;
     using Core.DataLoader;
@@ -49,6 +50,23 @@ namespace Pal3.Scene
             InitActorData();
         }
 
+        protected bool IsNightScene()
+        {
+            #if PAL3
+            if (ScnFile.SceneInfo.LightMap == 1)
+            #elif PAL3A
+            if (ScnFile.SceneInfo.LightMap == 1 ||
+                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+            #endif
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
         private void InitMeshData()
         {
             var separator = CpkConstants.DirectorySeparator;
@@ -72,7 +90,7 @@ namespace Pal3.Scene
                 SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
             }
             
-            #if UNITY_EDITOR
+            #if RTX_ON
             // Check if light file exists
             if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
             {
