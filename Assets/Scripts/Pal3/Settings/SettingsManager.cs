@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define ENERGY_SAVING_MODE
+//#define ENERGY_SAVING_MODE
 
 namespace Pal3.Settings
 {
