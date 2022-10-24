@@ -356,9 +356,15 @@ namespace Pal3.Scene
                 
                 var lightComponent = lightSource.AddComponent<Light>();
                 
+                #if PAL3
                 lightComponent.color = IsNightScene() ?
                     new Color(100f / 255f, 100f / 255f, 100f / 255f) :
-                    new Color(190f / 255f, 180f / 255f, 160f / 255f);
+                    new Color(200f / 255f, 190f / 255f, 180f / 255f);
+                #elif PAL3A
+                lightComponent.color = IsNightScene() ?
+                    new Color(60f / 255f, 60f / 255f, 100f / 255f) :
+                    new Color(200f / 255f, 200f / 255f, 200f / 255f);
+                #endif
                 
                 lightComponent.type = LightType.Directional;
                 lightComponent.intensity = 1f;

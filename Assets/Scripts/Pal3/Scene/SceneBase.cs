@@ -56,7 +56,8 @@ namespace Pal3.Scene
             if (ScnFile.SceneInfo.LightMap == 1)
             #elif PAL3A
             if (ScnFile.SceneInfo.LightMap == 1 ||
-                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+                ScnFile.SceneInfo.Name.EndsWith("y", StringComparison.OrdinalIgnoreCase) ||
+                ScnFile.SceneInfo.Name.Equals("q11", StringComparison.OrdinalIgnoreCase)) // 蜀山深夜场景
             #endif
             {
                 return true;
