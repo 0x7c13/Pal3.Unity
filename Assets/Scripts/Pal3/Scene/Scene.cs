@@ -321,7 +321,7 @@ namespace Pal3.Scene
                         var lightComponent = lightSource.AddComponent<Light>();
                         lightComponent.type = LightType.Directional;
                         lightComponent.color = lightNode.LightColor;
-                        lightComponent.intensity = 1f;
+                        lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
                         lightComponent.range = 500f;
                         lightComponent.shadows = LightShadows.Soft;
                         _isMainLightInitialized = true;
@@ -353,7 +353,7 @@ namespace Pal3.Scene
                 var lightSource = new GameObject($"LightSource_Default");
                 lightSource.transform.SetParent(_parent.transform);
                 lightSource.transform.rotation = Quaternion.Euler(70f, 0f, 0f);
-                
+
                 var lightComponent = lightSource.AddComponent<Light>();
                 
                 #if PAL3
@@ -367,7 +367,7 @@ namespace Pal3.Scene
                 #endif
                 
                 lightComponent.type = LightType.Directional;
-                lightComponent.intensity = 1f;
+                lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
                 lightComponent.range = 500f;
                 lightComponent.shadows = LightShadows.Soft;
 

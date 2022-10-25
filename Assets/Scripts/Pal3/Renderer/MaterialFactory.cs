@@ -100,6 +100,18 @@ namespace Pal3.Renderer
         {
             Material[] materials = null;
             
+            #if RTX_ON
+            if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
+            {
+                materials = new Material[1];
+                materials[0] = CreateTransparentMaterial(mainTexture, tintColor, transparentThreshold, shadowTexture);
+            }
+            else if (blendFlag == GameBoxBlendFlag.Opaque)
+            {
+                materials = new Material[1];
+                materials[0] = CreateOpaqueMaterial(mainTexture, tintColor, shadowTexture);
+            }
+            #else
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
                 materials = new Material[2];
@@ -134,6 +146,7 @@ namespace Pal3.Renderer
                 materials = new Material[1];
                 materials[0] = CreateOpaqueMaterial(mainTexture, tintColor, shadowTexture);
             }
+            #endif
             
             return materials;
         }
