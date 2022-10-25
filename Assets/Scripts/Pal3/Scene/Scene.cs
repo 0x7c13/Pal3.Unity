@@ -321,7 +321,11 @@ namespace Pal3.Scene
                         var lightComponent = lightSource.AddComponent<Light>();
                         lightComponent.type = LightType.Directional;
                         lightComponent.color = lightNode.LightColor;
+                        #if PAL3
                         lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
+                        #elif PAL3A
+                        lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
+                        #endif
                         lightComponent.range = 500f;
                         lightComponent.shadows = LightShadows.Soft;
                         _isMainLightInitialized = true;
@@ -367,7 +371,11 @@ namespace Pal3.Scene
                 #endif
                 
                 lightComponent.type = LightType.Directional;
+                #if PAL3
                 lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
+                #elif PAL3A
+                lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
+                #endif
                 lightComponent.range = 500f;
                 lightComponent.shadows = LightShadows.Soft;
 

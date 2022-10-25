@@ -33,6 +33,7 @@ namespace Pal3.Renderer
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
         private readonly int _lightAffectShadowPropertyId = Shader.PropertyToID("_LightAffectShadow");
+        private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
         
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
@@ -164,6 +165,7 @@ namespace Pal3.Renderer
                 TRANSPARENT_THRESHOLD);
             #if RTX_ON
             materials[0].SetFloat(_lightAffectShadowPropertyId, 1f);
+            materials[0].SetFloat(_lightIntensityPropertyId, -0.7f);
             #endif
             _materials[index] = materials[0];
             
