@@ -163,9 +163,7 @@ namespace Core.DataReader.Pol
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    normals[i] = GameBoxInterpreter
-                        .ToUnityVertex(reader.ReadVector3(),
-                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
+                    normals[i] = reader.ReadVector3();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {

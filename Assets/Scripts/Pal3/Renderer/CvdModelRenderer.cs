@@ -242,7 +242,6 @@ namespace Pal3.Renderer
                 {
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
                         GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Position));
-                    meshDataBuffer.NormalBuffer[i] = GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Normal);
                     meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv;
                 }
             }
@@ -253,7 +252,6 @@ namespace Pal3.Renderer
                     var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                     Vector3 lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition));
-                    // Ignoring normals here since Unity can help us do the calculation.
                     Vector2 lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
                     meshDataBuffer.UvBuffer[i] = lerpUv;
                 }

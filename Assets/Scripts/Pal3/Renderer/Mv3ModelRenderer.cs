@@ -32,7 +32,8 @@ namespace Pal3.Renderer
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-
+        private readonly int _lightAffectShadowPropertyId = Shader.PropertyToID("_LightAffectShadow");
+        
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
         private VertexAnimationKeyFrame[][] _keyFrames;
@@ -161,6 +162,9 @@ namespace Pal3.Renderer
                 _tintColor,
                 _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
                 TRANSPARENT_THRESHOLD);
+            #if RTX_ON
+            materials[0].SetFloat(_lightAffectShadowPropertyId, 1f);
+            #endif
             _materials[index] = materials[0];
             
             #if PAL3A
@@ -175,19 +179,38 @@ namespace Pal3.Renderer
             
             var meshDataBuffer = new MeshDataBuffer
             {
-                VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length]
+                VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
+                NormalBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
             };
+            
+            for (int face = 0; face < _keyFrames[index][0].Triangles.Length / 3; face++)
+            {
+                int v1 = _keyFrames[index][0].Triangles[face * 3];
+                int v2 = _keyFrames[index][0].Triangles[face * 3 + 1];
+                int v3 = _keyFrames[index][0].Triangles[face * 3 + 2];
+                
+                Vector3 pt1 = _keyFrames[index][0].Vertices[v1];
+                Vector3 pt2 = _keyFrames[index][0].Vertices[v2];
+                Vector3 pt3 = _keyFrames[index][0].Vertices[v3];
+                
+                Vector3 d1 = pt2 - pt1;
+                Vector3 d2 = pt3 - pt1;
 
-            var normals = Array.Empty<Vector3>();
+                Vector3 norm = Vector3.Normalize(Vector3.Cross(d1, d2));
+
+                meshDataBuffer.NormalBuffer[v1] = 
+                    meshDataBuffer.NormalBuffer[v2] = 
+                        meshDataBuffer.NormalBuffer[v3] = norm;
+            }
+            
             Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
-                ref normals,
+                ref meshDataBuffer.NormalBuffer,
                 ref _keyFrames[index][0].Uv,
                 ref _keyFrames[index][0].Uv,
                 ref materials,
                 true);            
-
-            renderMesh.RecalculateNormals();
+            
             renderMesh.RecalculateTangents();
 
             _renderMeshComponents[index] = new RenderMeshComponent
