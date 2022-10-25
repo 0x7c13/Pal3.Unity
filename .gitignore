@@ -76,8 +76,12 @@ crashlytics-build.properties
 /Assets/RealToon
 /Assets/RealToon.meta
 
-# VFX prefabs that are using the 3rd party passets
+# VFX prefabs that are using the 3rd party assets
 /Assets/Resources/Prefabs/VFX/PAL3/*.prefab
 /Assets/Resources/Prefabs/VFX/PAL3/*.meta
 /Assets/Resources/Prefabs/VFX/PAL3A/*.prefab
 /Assets/Resources/Prefabs/VFX/PAL3A/*.meta
+
+# Shaders that are using the 3rd party assets
+/Assets/Resources/Shaders/3rd
+/Assets/Resources/Shaders/3rd.meta
