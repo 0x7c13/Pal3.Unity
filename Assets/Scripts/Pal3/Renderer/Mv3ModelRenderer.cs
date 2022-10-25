@@ -461,5 +461,12 @@ namespace Pal3.Renderer
                 _meshObjects = null;
             }
         }
+        
+        public RenderMeshComponent[] GetRenderMeshComps()
+        {
+            return _renderMeshComponents;
+        }
+
+         
     }
 }
