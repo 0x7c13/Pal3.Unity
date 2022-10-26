@@ -200,11 +200,20 @@ namespace Pal3.Renderer
 
                 Vector3 norm = Vector3.Normalize(Vector3.Cross(d1, d2));
 
-                meshDataBuffer.NormalBuffer[v1] = 
-                    meshDataBuffer.NormalBuffer[v2] = 
-                        meshDataBuffer.NormalBuffer[v3] = norm;
+                if (meshDataBuffer.NormalBuffer[v1] == Vector3.zero)
+                {
+                    meshDataBuffer.NormalBuffer[v1] = norm;
+                }
+                if (meshDataBuffer.NormalBuffer[v2] == Vector3.zero)
+                {
+                    meshDataBuffer.NormalBuffer[v2] = norm;
+                }
+                if (meshDataBuffer.NormalBuffer[v3] == Vector3.zero)
+                {
+                    meshDataBuffer.NormalBuffer[v3] = norm;
+                }
             }
-            
+
             Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,
                 ref meshDataBuffer.NormalBuffer,
@@ -212,7 +221,7 @@ namespace Pal3.Renderer
                 ref _keyFrames[index][0].Uv,
                 ref materials,
                 true);            
-            
+
             renderMesh.RecalculateTangents();
 
             _renderMeshComponents[index] = new RenderMeshComponent
