@@ -126,7 +126,11 @@ namespace Pal3
             // Init Game resource provider
             var resourceProvider = new GameResourceProvider(cpkFileSystem,
                 new TextureLoaderFactory(),
-                new MaterialFactory(),
+                #if RTX_ON
+                new ToonMaterialFactory(),
+                #else
+                new LegacyMaterialFactory(),
+                #endif
                 codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 
