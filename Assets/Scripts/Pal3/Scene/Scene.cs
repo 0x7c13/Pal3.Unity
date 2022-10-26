@@ -132,12 +132,10 @@ namespace Pal3.Scene
 
             RenderSkyBox();
             SetupNavMesh();
-            
             #if RTX_ON
             CreateLightSources();
-            SetupEnvironmentLight();
+            SetupEnvironmentLighting();
             #endif
-            
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -350,7 +348,7 @@ namespace Pal3.Scene
             }
         }
 
-        private void SetupEnvironmentLight()
+        private void SetupEnvironmentLighting()
         {
             if (!_isMainLightInitialized)
             {
@@ -418,6 +416,13 @@ namespace Pal3.Scene
             }
 
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
+
+            // strip lighting for day scenes
+            if (!IsNightScene() && sceneObjectGameObject.GetComponentInChildren<Light>() is {} lightComponent)
+            {
+                Destroy(lightComponent);
+            }
+            
             sceneObjectGameObject.transform.SetParent(_parent.transform);
             _activatedSceneObjects[sceneObject.Info.Id] = sceneObjectGameObject;
         }

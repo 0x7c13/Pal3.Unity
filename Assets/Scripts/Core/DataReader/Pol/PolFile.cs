@@ -28,7 +28,6 @@ namespace Core.DataReader.Pol
     {
         public Vector3[] Positions;
         public Vector3[] Normals;
-        public float[] Radii;
         public Color32[] DiffuseColors;
         public Color32[] SpecularColors;
         public Vector2[][] Uvs;

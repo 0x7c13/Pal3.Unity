@@ -137,7 +137,6 @@ namespace Core.DataReader.Pol
             var positions = new Vector3[numberOfVertices];
             var normals = new Vector3[numberOfVertices];
             var diffuseColors = new Color32[numberOfVertices];
-            var radii = new float[numberOfVertices];
             var specularColors = new Color32[numberOfVertices];
             var uvs = new Vector2[4][];
 
@@ -204,7 +203,6 @@ namespace Core.DataReader.Pol
                 Positions = positions,
                 Normals = normals,
                 DiffuseColors = diffuseColors,
-                Radii = radii,
                 SpecularColors = specularColors,
                 Uvs = uvs,
             };

@@ -73,17 +73,24 @@ namespace Pal3.Effect
                     -1,
                     resourceProvider.GetMaterialFactory().CreateSpriteMaterial()));
                 
-                // Add a point light to the fire fx
-                var lightSource = new GameObject($"LightSource_Point");
-                lightSource.transform.SetParent(_effectGameObject.transform, false);
-                var lightComponent = lightSource.AddComponent<Light>();
-                lightComponent.color = new Color(190f / 255f, 130f / 255f, 100f / 255f);
-                lightComponent.type = LightType.Point;
-                lightComponent.intensity = 1f;
-                lightComponent.range = 50f;
-                lightComponent.shadows = LightShadows.Soft;
-                lightComponent.shadowNearPlane = 0.3f;
+                #if RTX_ON
+                AddLightSource(_effectGameObject.transform);
+                #endif
             }
+        }
+
+        private void AddLightSource(Transform parent)
+        {
+            // Add a point light to the fire fx
+            var lightSource = new GameObject($"LightSource_Point");
+            lightSource.transform.SetParent(parent, false);
+            var lightComponent = lightSource.AddComponent<Light>();
+            lightComponent.color = new Color(190f / 255f, 130f / 255f, 100f / 255f);
+            lightComponent.type = LightType.Point;
+            lightComponent.intensity = 1f;
+            lightComponent.range = 50f;
+            lightComponent.shadows = LightShadows.Soft;
+            lightComponent.shadowNearPlane = 0.3f;
         }
 
         private void OnDisable()
