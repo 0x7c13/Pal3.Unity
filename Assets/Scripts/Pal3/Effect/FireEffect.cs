@@ -74,16 +74,19 @@ namespace Pal3.Effect
                     resourceProvider.GetMaterialFactory().CreateSpriteMaterial()));
                 
                 #if RTX_ON
-                AddLightSource(_effectGameObject.transform);
+                AddLightSource(_effectGameObject.transform,
+                    _billboardRenderer.GetBounds().size.y / 1.618f); // Use the golden ratio for the y offset
                 #endif
             }
         }
 
-        private void AddLightSource(Transform parent)
+        private void AddLightSource(Transform parent, float yOffset)
         {
             // Add a point light to the fire fx
             var lightSource = new GameObject($"LightSource_Point");
             lightSource.transform.SetParent(parent, false);
+            lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
+            
             var lightComponent = lightSource.AddComponent<Light>();
             lightComponent.color = new Color(190f / 255f, 130f / 255f, 100f / 255f);
             lightComponent.type = LightType.Point;
