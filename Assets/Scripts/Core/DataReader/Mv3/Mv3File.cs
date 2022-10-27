@@ -81,13 +81,13 @@ namespace Core.DataReader.Mv3
         public Mv3Attribute[] Attributes;
         public Mv3VertFrame[] Frames;
         public Vector2[] TexCoords;
+        public Vector3[] Normals;
     }
 
     public struct VertexAnimationKeyFrame
     {
         public uint Tick;
         public Vector3[] Vertices;
-        public Vector3[] Normals;
         public int[] Triangles;
         public Vector2[] Uv;
     }

@@ -182,36 +182,8 @@ namespace Pal3.Renderer
             var meshDataBuffer = new MeshDataBuffer
             {
                 VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
-                NormalBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
+                NormalBuffer = mv3Mesh.Normals,
             };
-
-            for (var face = 0; face < _keyFrames[index][0].Triangles.Length / 3; face++)
-            {
-                int v1 = _keyFrames[index][0].Triangles[face * 3];
-                int v2 = _keyFrames[index][0].Triangles[face * 3 + 1];
-                int v3 = _keyFrames[index][0].Triangles[face * 3 + 2];
-
-                Vector3 pt1 = _keyFrames[index][0].Vertices[v1];
-                Vector3 pt2 = _keyFrames[index][0].Vertices[v2];
-                Vector3 pt3 = _keyFrames[index][0].Vertices[v3];
-
-                Vector3 d1 = pt2 - pt1;
-                Vector3 d2 = pt3 - pt1;
-                Vector3 normal = Vector3.Normalize(Vector3.Cross(d1, d2));
-
-                meshDataBuffer.NormalBuffer[v1] += normal;
-                meshDataBuffer.NormalBuffer[v2] += normal;
-                meshDataBuffer.NormalBuffer[v3] += normal;
-            }
-
-            for (var i = 0; i < meshDataBuffer.NormalBuffer.Length; i++)
-            {
-                if (meshDataBuffer.NormalBuffer[i] == Vector3.zero)
-                {
-                    meshDataBuffer.NormalBuffer[i] = new Vector3(0f, 1f, 0f);
-                }
-                meshDataBuffer.NormalBuffer[i] = Vector3.Normalize(meshDataBuffer.NormalBuffer[i]);
-            }
 
             Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
                 ref _keyFrames[index][0].Triangles,

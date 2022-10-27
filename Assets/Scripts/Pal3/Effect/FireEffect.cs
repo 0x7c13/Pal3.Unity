@@ -87,7 +87,7 @@ namespace Pal3.Effect
             lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
             
             var lightComponent = lightSource.AddComponent<Light>();
-            lightComponent.color = new Color(190f / 255f, 130f / 255f, 100f / 255f);
+            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
             lightComponent.type = LightType.Point;
             lightComponent.intensity = 1f;
             lightComponent.range = 50f;
