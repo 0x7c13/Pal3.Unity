@@ -27,11 +27,6 @@ namespace Core.Renderer
             Destroy(_spriteRenderer);
         }
 
-        public Bounds GetBounds()
-        {
-            return _spriteRenderer.bounds;
-        }
-
         public IEnumerator PlaySpriteAnimation(Sprite[] sprites,
             float fps,
             int loopCount,

@@ -74,8 +74,7 @@ namespace Pal3.Effect
                     resourceProvider.GetMaterialFactory().CreateSpriteMaterial()));
                 
                 #if RTX_ON
-                AddLightSource(_effectGameObject.transform,
-                    _billboardRenderer.GetBounds().size.y / 1.618f); // Use the golden ratio for the y offset
+                AddLightSource(_effectGameObject.transform, 0.2f);
                 #endif
             }
         }

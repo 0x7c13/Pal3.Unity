@@ -21,6 +21,7 @@ namespace Pal3.Effect
         private PostProcessLayer _postProcessLayer;
 
         private Bloom _bloom;
+        private AmbientOcclusion _ambientOcclusion;
         private ColorGrading _colorGrading;
         private Vignette _vignette;
         
@@ -33,7 +34,10 @@ namespace Pal3.Effect
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
 
             _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
-            _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual on desktop devices   
+            _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual fidelity on desktop devices   
+
+            _ambientOcclusion = _postProcessVolume.profile.GetSetting<AmbientOcclusion>();
+            _ambientOcclusion.active = Utility.IsDesktopDevice(); // Enable AmbientOcclusion for better visual fidelity on desktop devices   
 
             _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
             _colorGrading.active = false;
@@ -47,6 +51,7 @@ namespace Pal3.Effect
         private void TogglePostProcessLayerWhenNeeded()
         {
             if (_bloom.active ||
+                _ambientOcclusion.active ||
                 _colorGrading.active ||
                 _vignette.active)
             {
