@@ -74,8 +74,9 @@ namespace Core.DataReader.Mv3
             for (var i = 0; i < numberOfMeshes; i++)
             {
                 Mv3Mesh mesh = ReadMesh(reader, codepage);
-                meshes[i] = mesh;
                 meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
+                mesh.Normals = CalculateNormals(meshKeyFrames[i]);
+                meshes[i] = mesh;
             }
 
             return new Mv3File(version,
@@ -85,6 +86,41 @@ namespace Core.DataReader.Mv3
                 materials,
                 meshes,
                 meshKeyFrames);
+        }
+
+        private static Vector3[] CalculateNormals(VertexAnimationKeyFrame[] meshKeyFrame)
+        {
+            Vector3[] normals = new Vector3[meshKeyFrame[0].Vertices.Length];
+            
+            for (var face = 0; face < meshKeyFrame[0].Triangles.Length / 3; face++)
+            {
+                int v1 = meshKeyFrame[0].Triangles[face * 3];
+                int v2 = meshKeyFrame[0].Triangles[face * 3 + 1];
+                int v3 = meshKeyFrame[0].Triangles[face * 3 + 2];
+
+                Vector3 pt1 = meshKeyFrame[0].Vertices[v1];
+                Vector3 pt2 = meshKeyFrame[0].Vertices[v2];
+                Vector3 pt3 = meshKeyFrame[0].Vertices[v3];
+
+                Vector3 d1 = pt2 - pt1;
+                Vector3 d2 = pt3 - pt1;
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(d1, d2));
+
+                normals[v1] += normal;
+                normals[v2] += normal;
+                normals[v3] += normal;
+            }
+
+            for (var i = 0; i < normals.Length; i++)
+            {
+                if (normals[i] == Vector3.zero)
+                {
+                    normals[i] = new Vector3(0f, 1f, 0f);
+                }
+                normals[i] = Vector3.Normalize(normals[i]);
+            }
+
+            return normals;
         }
 
         #if USE_UNSAFE_BINARY_READER

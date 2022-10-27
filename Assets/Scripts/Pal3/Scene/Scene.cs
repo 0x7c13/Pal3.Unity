@@ -260,7 +260,7 @@ namespace Pal3.Scene
                 meshCollider.sharedMesh = new Mesh()
                 {
                     vertices = vertices,
-                    triangles = GameBoxInterpreter.ToUnityTriangles(NavFile.FaceLayers[i].Triangles)
+                    triangles = NavFile.FaceLayers[i].Triangles,
                 };
 
                 /*
@@ -269,6 +269,8 @@ namespace Pal3.Scene
                  * two nav meshes just to be safe (one facing up, one facing down).
                  * TODO: Calculate the normal to see if mesh is facing downwards? Or a blacklist?
                  */
+                Array.Reverse(NavFile.FaceLayers[i].Triangles); // reverse the triangles to flip the mesh
+                
                 var meshColliderInverse = navMesh.AddComponent<MeshCollider>();
                 meshColliderInverse.convex = false;
                 meshColliderInverse.sharedMesh = new Mesh()

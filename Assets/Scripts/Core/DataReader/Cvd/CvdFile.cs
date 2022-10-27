@@ -173,12 +173,12 @@ namespace Core.DataReader.Cvd
     public class CvdAnimationScaleKeyFrame : CvdAnimationKeyFrame
     {
         public Vector3 Scale { get; set; }
-        public GameBoxQuaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
     }
 
     public class CvdAnimationRotationKeyFrame : CvdAnimationKeyFrame
     {
-        public GameBoxQuaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
     }
 
     /// <summary>

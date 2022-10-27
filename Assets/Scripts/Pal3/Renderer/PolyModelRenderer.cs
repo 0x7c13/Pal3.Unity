@@ -80,7 +80,14 @@ namespace Pal3.Renderer
                     {
                         if (string.IsNullOrEmpty(textureName)) continue;
                         if (textureCache.ContainsKey(textureName)) continue;
-                        Texture2D texture2D = textureProvider.GetTexture(textureName);
+                        #if RTX_ON
+                        // not need to load pre-baked shadow texture for lighting enabled scene
+                        Texture2D texture2D = textureName.StartsWith("^l") ? // all shadow texture name starts with ^l
+                            Texture2D.blackTexture :
+                            textureProvider.GetTexture(textureName);
+                        #else
+                        texture2D = textureProvider.GetTexture(textureName);
+                        #endif
                         if (texture2D != null) textureCache[textureName] = texture2D;
                     }
                 }

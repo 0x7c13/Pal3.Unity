@@ -86,33 +86,15 @@ namespace Core.GameBox
                 vector3.y / scale,
                 vector3.z / scale);
         }
-
-        // Since GameBox's rendering pipeline uses different internal axis system
-        // Here we are switching x and y index to minor it back to the Unity axis
-        // for triangles
-        public static (short x, short y, short z) ToUnityTriangle((short x, short y, short z) triangle)
-        {
-            return (triangle.y, triangle.x, triangle.z);
-        }
-
+        
         public static void ToUnityTriangles(List<int> triangles)
         {
-            for (var i = 0; i < triangles.Count; i += 3)
-            {
-                (triangles[i], triangles[i + 1]) = (triangles[i + 1], triangles[i]);
-            }
+            triangles.Reverse();
         }
 
-        public static int[] ToUnityTriangles(ReadOnlySpan<int> triangles)
+        public static void ToUnityTriangles(int[] triangles)
         {
-            var indices = new int[triangles.Length];
-            for (var i = 0; i < triangles.Length; i += 3)
-            {
-                indices[i] = triangles[i + 1];
-                indices[i + 1] = triangles[i];
-                indices[i + 2] = triangles[i + 2];
-            }
-            return indices;
+            Array.Reverse(triangles);
         }
 
         public static bool IsPositionInsideRect(GameBoxRect rect, Vector2Int position)
