@@ -110,17 +110,17 @@ namespace Pal3.Renderer
         private Matrix4x4 GetFrameMatrix(float time, CvdGeometryNode node)
         {
             Vector3 position = GetPosition(time, node.PositionKeyInfos);
-            GameBoxQuaternion rotation = GetRotation(time, node.RotationKeyInfos);
-            (Vector3 scale, GameBoxQuaternion scaleRotation) = GetScale(time, node.ScaleKeyInfos);
+            Quaternion rotation = GetRotation(time, node.RotationKeyInfos);
+            (Vector3 scale, Quaternion scaleRotation) = GetScale(time, node.ScaleKeyInfos);
 
-            Quaternion scalePreRotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleRotation);
+            Quaternion scalePreRotation = scaleRotation;
             Quaternion scaleInverseRotation = Quaternion.Inverse(scalePreRotation);
 
-            return Matrix4x4.Translate(GameBoxInterpreter.CvdPositionToUnityPosition(position))
+            return Matrix4x4.Translate(position)
                    * Matrix4x4.Scale(new Vector3(node.Scale, node.Scale, node.Scale))
-                   * Matrix4x4.Rotate(GameBoxInterpreter.CvdQuaternionToUnityQuaternion(rotation))
+                   * Matrix4x4.Rotate(rotation)
                    * Matrix4x4.Rotate(scalePreRotation)
-                   * Matrix4x4.Scale(GameBoxInterpreter.CvdScaleToUnityScale(scale))
+                   * Matrix4x4.Scale(scale)
                    * Matrix4x4.Rotate(scaleInverseRotation);
         }
 
@@ -181,8 +181,6 @@ namespace Pal3.Renderer
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
 
-                    var triangles = GameBoxInterpreter.ToUnityTriangles(meshSection.Triangles);
-                    
                     Material[] materials = materialFactory.CreateStandardMaterials(
                         textureCache[meshSection.TextureName],
                         shadowTexture: null, // CVD models don't have shadow textures
@@ -193,7 +191,7 @@ namespace Pal3.Renderer
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
                         ref meshDataBuffer.VertexBuffer,
-                        ref triangles,
+                        ref meshSection.Triangles,
                         ref meshDataBuffer.NormalBuffer,
                         ref meshDataBuffer.UvBuffer,
                         ref meshDataBuffer.UvBuffer,
@@ -240,8 +238,7 @@ namespace Pal3.Renderer
             {
                 for (var i = 0; i < frameVertices.Length; i++)
                 {
-                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
-                        GameBoxInterpreter.CvdPositionToUnityPosition(frameVertices[i].Position));
+                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(frameVertices[i].Position);
                     meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv;
                 }
             }
@@ -251,7 +248,7 @@ namespace Pal3.Renderer
                 {
                     var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                     Vector3 lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
-                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(GameBoxInterpreter.CvdPositionToUnityPosition(lerpPosition));
+                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(lerpPosition);
                     Vector2 lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
                     meshDataBuffer.UvBuffer[i] = lerpUv;
                 }
@@ -382,7 +379,7 @@ namespace Pal3.Renderer
             return nodePositionInfo[^1].Position;
         }
 
-        private (Vector3 Scale, GameBoxQuaternion Rotation) GetScale(float time,
+        private (Vector3 Scale, Quaternion Rotation) GetScale(float time,
             CvdAnimationScaleKeyFrame[] nodeScaleInfo)
         {
             if (nodeScaleInfo.Length == 1)
@@ -401,23 +398,10 @@ namespace Pal3.Renderer
                     var influence = (time - fromKeyFrame.Time) /
                                     (toKeyFrame.Time - fromKeyFrame.Time);
                     Quaternion calculatedRotation = Quaternion.Lerp(
-                        new Quaternion(fromKeyFrame.Rotation.X,
-                            fromKeyFrame.Rotation.Y,
-                            fromKeyFrame.Rotation.Z,
-                            fromKeyFrame.Rotation.W),
-                        new Quaternion(toKeyFrame.Rotation.X,
-                            toKeyFrame.Rotation.Y,
-                            toKeyFrame.Rotation.Z,
-                            toKeyFrame.Rotation.W),
+                        fromKeyFrame.Rotation,
+                        toKeyFrame.Rotation,
                         influence);
-                    return (Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence),
-                        new GameBoxQuaternion()
-                        {
-                            X = calculatedRotation.x,
-                            Y = calculatedRotation.y,
-                            Z = calculatedRotation.z,
-                            W = calculatedRotation.w,
-                        });
+                    return (Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence), calculatedRotation);
                 }
             }
 
@@ -425,7 +409,7 @@ namespace Pal3.Renderer
             return (lastKeyFrame.Scale, lastKeyFrame.Rotation);
         }
 
-        private GameBoxQuaternion GetRotation(float time,
+        private Quaternion GetRotation(float time,
             CvdAnimationRotationKeyFrame[] nodeRotationInfo)
         {
             if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].Rotation;
@@ -439,23 +423,10 @@ namespace Pal3.Renderer
                     CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[i];
                     var influence = (time - fromKeyFrame.Time) /
                                     (toKeyFrame.Time - fromKeyFrame.Time);
-                    Quaternion calculatedRotation = Quaternion.Lerp(
-                        new Quaternion(fromKeyFrame.Rotation.X,
-                            fromKeyFrame.Rotation.Y,
-                            fromKeyFrame.Rotation.Z,
-                            fromKeyFrame.Rotation.W),
-                        new Quaternion(toKeyFrame.Rotation.X,
-                            toKeyFrame.Rotation.Y,
-                            toKeyFrame.Rotation.Z,
-                            toKeyFrame.Rotation.W),
+                    return Quaternion.Lerp(
+                        fromKeyFrame.Rotation,
+                        toKeyFrame.Rotation,
                         influence);
-                    return new GameBoxQuaternion()
-                    {
-                        X = calculatedRotation.x,
-                        Y = calculatedRotation.y,
-                        Z = calculatedRotation.z,
-                        W = calculatedRotation.w,
-                    };
                 }
             }
 

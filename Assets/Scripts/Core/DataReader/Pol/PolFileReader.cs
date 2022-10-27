@@ -266,13 +266,13 @@ namespace Core.DataReader.Pol
             for (var i = 0; i < numberOfFaces; i++)
             {
                 var index = i * 3;
-                var x = reader.ReadInt16();
-                var y = reader.ReadInt16();
-                var z = reader.ReadInt16();
-                (triangles[index], triangles[index + 1], triangles[index + 2]) =
-                    GameBoxInterpreter.ToUnityTriangle((x, y, z));
+                triangles[index] = reader.ReadInt16();
+                triangles[index + 1] = reader.ReadInt16();
+                triangles[index + 2] = reader.ReadInt16();
             }
 
+            GameBoxInterpreter.ToUnityTriangles(triangles);
+            
             return new PolTexture()
             {
                 BlendFlag = blendFlag,

@@ -25,8 +25,6 @@ namespace Core.Renderer
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshRenderer.sharedMaterials = materials;
-            //_meshRenderer.receiveShadows = false;
-            //_meshRenderer.lightProbeUsage = LightProbeUsage.Off;
 
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             var mesh = new Mesh();

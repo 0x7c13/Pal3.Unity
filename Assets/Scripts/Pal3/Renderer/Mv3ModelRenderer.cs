@@ -168,7 +168,7 @@ namespace Pal3.Renderer
             materials[0].SetFloat(_lightIntensityPropertyId, -0.7f);
             #endif
             _materials[index] = materials[0];
-            
+
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
             var texturePath = _textureProvider.GetTexturePath(textureName);
@@ -178,40 +178,39 @@ namespace Pal3.Renderer
                 _materials[index].mainTextureScale = new Vector2(1.0f, -1.0f);
             }
             #endif
-            
+
             var meshDataBuffer = new MeshDataBuffer
             {
                 VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
                 NormalBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
             };
-            
-            for (int face = 0; face < _keyFrames[index][0].Triangles.Length / 3; face++)
+
+            for (var face = 0; face < _keyFrames[index][0].Triangles.Length / 3; face++)
             {
                 int v1 = _keyFrames[index][0].Triangles[face * 3];
                 int v2 = _keyFrames[index][0].Triangles[face * 3 + 1];
                 int v3 = _keyFrames[index][0].Triangles[face * 3 + 2];
-                
+
                 Vector3 pt1 = _keyFrames[index][0].Vertices[v1];
                 Vector3 pt2 = _keyFrames[index][0].Vertices[v2];
                 Vector3 pt3 = _keyFrames[index][0].Vertices[v3];
-                
+
                 Vector3 d1 = pt2 - pt1;
                 Vector3 d2 = pt3 - pt1;
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(d1, d2));
 
-                Vector3 norm = Vector3.Normalize(Vector3.Cross(d1, d2));
+                meshDataBuffer.NormalBuffer[v1] += normal;
+                meshDataBuffer.NormalBuffer[v2] += normal;
+                meshDataBuffer.NormalBuffer[v3] += normal;
+            }
 
-                if (meshDataBuffer.NormalBuffer[v1] == Vector3.zero)
+            for (var i = 0; i < meshDataBuffer.NormalBuffer.Length; i++)
+            {
+                if (meshDataBuffer.NormalBuffer[i] == Vector3.zero)
                 {
-                    meshDataBuffer.NormalBuffer[v1] = norm;
+                    meshDataBuffer.NormalBuffer[i] = new Vector3(0f, 1f, 0f);
                 }
-                if (meshDataBuffer.NormalBuffer[v2] == Vector3.zero)
-                {
-                    meshDataBuffer.NormalBuffer[v2] = norm;
-                }
-                if (meshDataBuffer.NormalBuffer[v3] == Vector3.zero)
-                {
-                    meshDataBuffer.NormalBuffer[v3] = norm;
-                }
+                meshDataBuffer.NormalBuffer[i] = Vector3.Normalize(meshDataBuffer.NormalBuffer[i]);
             }
 
             Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,

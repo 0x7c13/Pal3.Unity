@@ -193,7 +193,7 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = positionKey.TcbKey.AnimationKey.Time,
-                            Position = positionKey.Value,
+                            Position = GameBoxInterpreter.CvdPositionToUnityPosition(positionKey.Value),
                         };
                         break;
                     }
@@ -204,7 +204,7 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = positionKey.AnimationKey.Time,
-                            Position = positionKey.Value,
+                            Position = GameBoxInterpreter.CvdPositionToUnityPosition(positionKey.Value),
                         };
                         break;
                     }
@@ -215,7 +215,7 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = positionKey.AnimationKey.Time,
-                            Position = positionKey.Value,
+                            Position = GameBoxInterpreter.CvdPositionToUnityPosition(positionKey.Value),
                         };
                         break;
                     }
@@ -248,13 +248,13 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = rotationKey.TcbKey.AnimationKey.Time,
-                            Rotation = new GameBoxQuaternion()
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(new GameBoxQuaternion()
                             {
                                 X = quaternion.x,
                                 Y = quaternion.y,
                                 Z = quaternion.z,
                                 W = quaternion.w,
-                            }
+                            })
                         };
                         break;
                     }
@@ -265,7 +265,7 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = rotationKey.AnimationKey.Time,
-                            Rotation = rotationKey.Value
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(rotationKey.Value)
                         };
                         break;
                     }
@@ -276,7 +276,7 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = rotationKey.AnimationKey.Time,
-                            Rotation = rotationKey.Value
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(rotationKey.Value)
                         };
                         break;
                     }
@@ -308,8 +308,8 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = scaleKey.TcbKey.AnimationKey.Time,
-                            Scale = scaleKey.Value,
-                            Rotation = scaleKey.Rotation
+                            Scale = GameBoxInterpreter.CvdScaleToUnityScale(scaleKey.Value),
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleKey.Rotation)
                         };
                         break;
                     }
@@ -320,8 +320,8 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = scaleKey.AnimationKey.Time,
-                            Scale = scaleKey.Value,
-                            Rotation = scaleKey.Rotation
+                            Scale = GameBoxInterpreter.CvdScaleToUnityScale(scaleKey.Value),
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleKey.Rotation)
                         };
                         break;
                     }
@@ -332,8 +332,8 @@ namespace Core.DataReader.Cvd
                         {
                             KeyType = type,
                             Time = scaleKey.AnimationKey.Time,
-                            Scale = scaleKey.Value,
-                            Rotation = scaleKey.Rotation
+                            Scale = GameBoxInterpreter.CvdScaleToUnityScale(scaleKey.Value),
+                            Rotation = GameBoxInterpreter.CvdQuaternionToUnityQuaternion(scaleKey.Rotation)
                         };
                         break;
                     }
@@ -363,7 +363,7 @@ namespace Core.DataReader.Cvd
                 {
                     Vector2 uv = reader.ReadVector2();
                     Vector3 normal = reader.ReadVector3();
-                    Vector3 position = reader.ReadVector3();
+                    Vector3 position = GameBoxInterpreter.CvdPositionToUnityPosition(reader.ReadVector3());
 
                     vertices[j] = new CvdVertex()
                     {
@@ -462,7 +462,8 @@ namespace Core.DataReader.Cvd
             List<int> indexBuffer;
 
             (triangles, indexBuffer) = CalculateTriangles(indices);
-
+            GameBoxInterpreter.ToUnityTriangles(triangles);
+            
             for (var i = 0; i < allFrameVertices.Length; i++)
             {
                 var verts = new CvdVertex[indexBuffer.Count];
