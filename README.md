@@ -46,13 +46,13 @@
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
 版本的切换是靠Define symbol实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。
 
-## 截图
-![PAL3 Mac](Screenshots/PAL3_Mac.png?raw=true)
-![PAL3 iOS](Screenshots/PAL3_iOS.png?raw=true)
-![PAL3A Steam Deck](Screenshots/PAL3A_Steam_Deck.png?raw=true)
+## 卡通渲染与光影下的截图
+![PAL3 卡通渲染+光影](Screenshots/PAL3_ToonShading_Lighting.png?raw=true)
+![PAL3A 卡通渲染+光影](Screenshots/PAL3A_ToonShading_Lighting.png?raw=true)
+![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
 
-## iOS演示视频
-https://www.bilibili.com/video/BV1Fu411R7jM
+## 关于特效和卡通渲染
+注意：游戏当前实现的所有特效以及卡通渲染部分使用了Unity Asset Store的资源，所以这部分实现（特效Prefab和Toon shader）没有办法开源。项目启动后默认会使用开源实现的Shader进行渲染（与原始游戏渲染风格一致），特效的话则会不显示。
 
 ## 按键以及操作
 - 鼠标键盘：鼠标左键点击操作人物行走方向（键盘方向键也可以），AD控制镜头旋转，空格与周边附近的物品或者NPC交互。M键打开大地图，U键或ESC键打开剧情选择菜单。
@@ -60,7 +60,7 @@ https://www.bilibili.com/video/BV1Fu411R7jM
 - 触屏：仅在有触摸屏的手持设备上才会启用，虚拟摇杆控制行走，交互键互动。
 
 ## 项目进度以及路线图
-仙剑奇侠传三以及仙剑奇侠传三外传的剧情部分已经全部完成，两部游戏都可以完整的从头玩到尾体验一遍剧情，也可以使用游戏内提供的剧情选择菜单跳转至预设好的剧情时间点。游戏中的迷宫机关，战斗，物品系统，小游戏以及其他的子系统尚未完成，大部分特效也尚未实现，未来的重心将是优先实现迷宫机关，然后实现特效，最后是战斗系统以及相关联的各种子系统。另外主菜单和大部分界面也需要重新设计和实现（毕竟现在还要做手机端的适配）
+仙剑奇侠传三以及仙剑奇侠传三外传的剧情部分已经全部完成，两部游戏都可以完整的从头玩到尾体验一遍剧情，也可以使用游戏内提供的剧情选择菜单跳转至预设好的剧情时间点。游戏中的迷宫机关，战斗，物品系统，小游戏以及其他的子系统尚未完成，未来的重心将是优先实现迷宫机关，最后是战斗系统以及相关联的各种子系统。另外主菜单和大部分界面也需要重新设计和实现（毕竟现在还要做手机端的适配）
 
 ## 如何贡献？
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
