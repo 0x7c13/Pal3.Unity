@@ -86,7 +86,7 @@ namespace Pal3.Renderer
                             Texture2D.blackTexture :
                             textureProvider.GetTexture(textureName);
                         #else
-                        texture2D = textureProvider.GetTexture(textureName);
+                        Texture2D texture2D = textureProvider.GetTexture(textureName);
                         #endif
                         if (texture2D != null) textureCache[textureName] = texture2D;
                     }
