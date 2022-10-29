@@ -164,6 +164,37 @@ namespace Core.Utils
             return finalBounds;
         }
 
+        public static Vector3[] CalculateNormals(Vector3[] vertices, int[] triangles)
+        {
+            Vector3[] normals = new Vector3[vertices.Length];
+            
+            for (var face = 0; face < triangles.Length / 3; face++)
+            {
+                int v1 = triangles[face * 3];
+                int v2 = triangles[face * 3 + 1];
+                int v3 = triangles[face * 3 + 2];
+
+                Vector3 pt1 = vertices[v1];
+                Vector3 pt2 = vertices[v2];
+                Vector3 pt3 = vertices[v3];
+
+                Vector3 d1 = pt2 - pt1;
+                Vector3 d2 = pt3 - pt1;
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(d1, d2));
+
+                normals[v1] += normal;
+                normals[v2] += normal;
+                normals[v3] += normal;
+            }
+
+            for (var i = 0; i < normals.Length; i++)
+            {
+                normals[i] = Vector3.Normalize(normals[i]);
+            }
+
+            return normals;
+        }
+        
         public static void DrawBounds(Bounds b, float duration = 1000)
         {
             var p1 = new Vector3(b.min.x, b.min.y, b.min.z);

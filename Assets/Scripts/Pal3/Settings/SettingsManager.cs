@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-//#define ENERGY_SAVING_MODE
-
 namespace Pal3.Settings
 {
     using System;
@@ -23,11 +21,10 @@ namespace Pal3.Settings
         
         public void ApplyDefaultRenderingSettings()
         {
-            var vSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
-            QualitySettings.vSyncCount = vSyncCount;
+            QualitySettings.vSyncCount = 1;
 
             var monitorRefreshRate = Screen.currentResolution.refreshRate;
-            
+
             Application.targetFrameRate = Application.platform switch
             {
                 RuntimePlatform.WindowsEditor => monitorRefreshRate,
@@ -42,13 +39,6 @@ namespace Pal3.Settings
                 _ => -1,
             };
 
-            #if ENERGY_SAVING_MODE && UNITY_EDITOR
-            if (SystemInfo.batteryStatus == BatteryStatus.Discharging)
-            {
-                Application.targetFrameRate = 45;   
-            }
-            #endif
-            
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             QualitySettings.antiAliasing = 2; // 2xMSAA

@@ -408,12 +408,15 @@ namespace Pal3.Player
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-            var layerIndex = _sceneManager.GetCurrentScene().GetMeshColliders().FirstOrDefault(
-                c => c.Value.Contains(hit.collider)).Key;
+            var layerIndex = _sceneManager.GetCurrentScene()
+                .GetMeshColliders()
+                .FirstOrDefault(_ => _.Value == hit.collider)
+                .Key;
 
             _playerActorMovementController.PortalToPosition(hit.point, layerIndex);
         }
 
+        // Raycast caches to avoid GC
         private readonly RaycastHit[] _raycastHits = new RaycastHit[4];
         private readonly Dictionary<int, Vector3> _tapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
@@ -432,8 +435,7 @@ namespace Pal3.Player
             for (var i = 0; i < hitCount; i++)
             {
                 RaycastHit hit = _raycastHits[i];
-                var layerIndex = meshColliders.FirstOrDefault(
-                    c => c.Value.Contains(hit.collider)).Key;
+                var layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
 
                 Vector2Int tilePosition = tilemap.GetTilePosition(hit.point, layerIndex);
                 if (!tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) continue;
