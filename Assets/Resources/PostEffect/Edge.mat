@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Distortion
-  m_Shader: {fileID: 4800000, guid: f7e63b885435c7141b38da524670a616, type: 3}
+  m_Name: Edge
+  m_Shader: {fileID: 4800000, guid: 2be2b1be347df584cb886a1c1045d2ea, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -72,10 +72,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TimeScale: 1.66
     - _UVSec: 0
-    - _XFactor: 10
-    - _YFactor: 15
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

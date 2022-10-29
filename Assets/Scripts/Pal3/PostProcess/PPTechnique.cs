@@ -11,7 +11,12 @@ namespace Pal3.postprocess
         {
             _material = material;
         }
-        
+
+        public Material GetMaterial()
+        {
+            return _material;
+        }
+
         public abstract void Blit(RenderTexture src, RenderTexture dest);
     }
     
