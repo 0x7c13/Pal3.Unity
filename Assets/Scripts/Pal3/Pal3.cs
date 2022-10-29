@@ -312,6 +312,7 @@ namespace Pal3
             
             DebugLogConsole.AddCommand("state", "Get current game state in commands form.", PrintCurrentGameStateInCommandsForm);
             DebugLogConsole.AddCommand("info", "Get current game info.", PrintCurrentGameInfo);
+            DebugLogConsole.AddCommand<int>("fps", "Set target FPS.", SetTargetFps);
 
             DisableInGameDebugConsoleButtonNavigation();
             
@@ -430,6 +431,11 @@ namespace Pal3
                 .Aggregate("Global vars: ", (current, variable) => current + $"{variable.Key}: {variable.Value} "));
 
             Debug.Log(info.ToString() + '\n');
+        }
+
+        private void SetTargetFps(int targetFps)
+        {
+            Application.targetFrameRate = targetFps;
         }
     }
 }

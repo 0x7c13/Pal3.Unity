@@ -352,9 +352,6 @@ namespace Core.DataReader.Cvd
             var numberOfFrames = reader.ReadInt32();
             var numberOfVertices = reader.ReadInt32();
 
-            //var vertexType = GameBoxVertexType.XYZ | GameBoxVertexType.Normal | GameBoxVertexType.UV0;
-            //var vertexSize = GameBoxVertex.GetSize((uint)vertexType);
-
             var frameVertices = new CvdVertex[numberOfFrames][];
             for (var i = 0; i < numberOfFrames; i++)
             {
@@ -362,7 +359,7 @@ namespace Core.DataReader.Cvd
                 for (var j = 0; j < numberOfVertices; j++)
                 {
                     Vector2 uv = reader.ReadVector2();
-                    Vector3 normal = reader.ReadVector3();
+                    Vector3 normal = GameBoxInterpreter.ToUnityNormal(reader.ReadVector3());
                     Vector3 position = GameBoxInterpreter.CvdPositionToUnityPosition(reader.ReadVector3());
 
                     vertices[j] = new CvdVertex()

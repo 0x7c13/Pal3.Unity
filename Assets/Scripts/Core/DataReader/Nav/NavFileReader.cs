@@ -7,9 +7,11 @@ namespace Core.DataReader.Nav
 {
     using System;
     using System.IO;
+    using System.Linq;
     using Extensions;
     using GameBox;
     using UnityEngine;
+    using Utils;
 
     public static class NavFileReader
     {
@@ -106,7 +108,7 @@ namespace Core.DataReader.Nav
             var vertices = new Vector3[numberOfVertices];
             for (var i = 0; i < numberOfVertices; i++)
             {
-                vertices[i] = reader.ReadVector3();
+                vertices[i] = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
             }
 
             var triangles = new int[numberOfFaces * 3];
@@ -116,6 +118,24 @@ namespace Core.DataReader.Nav
                 triangles[index]     = reader.ReadUInt16();
                 triangles[index + 1] = reader.ReadUInt16();
                 triangles[index + 2] = reader.ReadUInt16();
+            }
+
+            // Some of the nav meshes in the original game are upside down (don't know why),
+            // so we need to flip them if that's the case. You might argue that we can just
+            // make the mesh double sided, but that would cause some other issues (trust me).
+            {
+                Vector3[] normals = Utility.CalculateNormals(vertices, triangles);
+                    
+                // To check if the mesh is upside down, we can simply check if the
+                // the sum of all the normals is negative (Y axis only).
+                double sumOfYNormal = normals.Aggregate<Vector3, double>(0f, (_, normal) => _ + normal.y);
+
+                // If the sum of all the normals is negative, then we need to flip the mesh
+                // by reversing the order of the triangles.
+                if (sumOfYNormal < 0)
+                {
+                    Array.Reverse(triangles);
+                }
             }
 
             return new NavFaceLayer()

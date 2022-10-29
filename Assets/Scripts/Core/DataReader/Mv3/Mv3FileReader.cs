@@ -75,7 +75,7 @@ namespace Core.DataReader.Mv3
             {
                 Mv3Mesh mesh = ReadMesh(reader, codepage);
                 meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
-                mesh.Normals = CalculateNormals(meshKeyFrames[i]);
+                mesh.Normals = Utility.CalculateNormals(meshKeyFrames[i][0].Vertices, meshKeyFrames[i][0].Triangles);
                 meshes[i] = mesh;
             }
 
@@ -86,41 +86,6 @@ namespace Core.DataReader.Mv3
                 materials,
                 meshes,
                 meshKeyFrames);
-        }
-
-        private static Vector3[] CalculateNormals(VertexAnimationKeyFrame[] meshKeyFrame)
-        {
-            Vector3[] normals = new Vector3[meshKeyFrame[0].Vertices.Length];
-            
-            for (var face = 0; face < meshKeyFrame[0].Triangles.Length / 3; face++)
-            {
-                int v1 = meshKeyFrame[0].Triangles[face * 3];
-                int v2 = meshKeyFrame[0].Triangles[face * 3 + 1];
-                int v3 = meshKeyFrame[0].Triangles[face * 3 + 2];
-
-                Vector3 pt1 = meshKeyFrame[0].Vertices[v1];
-                Vector3 pt2 = meshKeyFrame[0].Vertices[v2];
-                Vector3 pt3 = meshKeyFrame[0].Vertices[v3];
-
-                Vector3 d1 = pt2 - pt1;
-                Vector3 d2 = pt3 - pt1;
-                Vector3 normal = Vector3.Normalize(Vector3.Cross(d1, d2));
-
-                normals[v1] += normal;
-                normals[v2] += normal;
-                normals[v3] += normal;
-            }
-
-            for (var i = 0; i < normals.Length; i++)
-            {
-                if (normals[i] == Vector3.zero)
-                {
-                    normals[i] = new Vector3(0f, 1f, 0f);
-                }
-                normals[i] = Vector3.Normalize(normals[i]);
-            }
-
-            return normals;
         }
 
         #if USE_UNSAFE_BINARY_READER
@@ -221,38 +186,28 @@ namespace Core.DataReader.Mv3
         {
             var triangles = new List<int>();
             var texCoords = mv3Mesh.TexCoords;
-            var indexMap = new Dictionary<int, int>();
             var keyFrameInfo = new List<(Vector3 vertex, Vector2 uv)>[mv3Mesh.Frames.Length]
                 .Select(item=>new List<(Vector3 vertex, Vector2 uv)>()).ToArray();
 
+            var triangleIndex = 0;
+            
             for (var i = 0; i < mv3Mesh.Attributes[0].IndexBuffers.Length; i++)
             {
                 Mv3IndexBuffer indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
                 for (var j = 0; j < 3; j++)
                 {
-                    var hash = indexBuffer.TriangleIndex[j] * texCoords.Length + indexBuffer.TexCoordIndex[j];
-                    if (indexMap.ContainsKey(hash))
+                    for (var k = 0; k < mv3Mesh.Frames.Length; k++)
                     {
-                        triangles.Add(indexMap[hash]);
+                        Mv3VertFrame frame = mv3Mesh.Frames[k];
+                        Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
+
+                        keyFrameInfo[k].Add((GameBoxInterpreter
+                            .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
+                                GameBoxInterpreter.GameBoxMv3UnitToUnityUnit),
+                            texCoords[indexBuffer.TexCoordIndex[j]]));
                     }
-                    else
-                    {
-                        var index = indexMap.Keys.Count;
 
-                        for (var k = 0; k < mv3Mesh.Frames.Length; k++)
-                        {
-                            Mv3VertFrame frame = mv3Mesh.Frames[k];
-                            Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
-
-                            keyFrameInfo[k].Add((GameBoxInterpreter
-                                .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
-                                    GameBoxInterpreter.GameBoxMv3UnitToUnityUnit),
-                                texCoords[indexBuffer.TexCoordIndex[j]]));
-                        }
-
-                        indexMap[hash] = index;
-                        triangles.Add(index);
-                    }
+                    triangles.Add(triangleIndex++);
                 }
             }
 

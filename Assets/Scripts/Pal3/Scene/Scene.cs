@@ -49,7 +49,7 @@ namespace Pal3.Scene
         private List<GameObject> _lights = new();
         
         private readonly List<GameObject> _navMeshLayers = new ();
-        private readonly Dictionary<int, MeshCollider[]> _meshColliders = new ();
+        private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
 
         private readonly Dictionary<byte, GameObject> _activatedSceneObjects = new ();
         private readonly Dictionary<byte, GameObject> _actorObjects = new ();
@@ -81,13 +81,10 @@ namespace Pal3.Scene
                 Destroy(lightSource);
             }
 
-            foreach (var meshColliders in _meshColliders.Values)
+            foreach (MeshCollider meshCollider in _meshColliders.Values)
             {
-                foreach (MeshCollider meshCollider in meshColliders)
-                {
-                    Destroy(meshCollider.sharedMesh);
-                    Destroy(meshCollider);
-                }
+                Destroy(meshCollider.sharedMesh);
+                Destroy(meshCollider);
             }
 
             foreach (GameObject navMeshLayer in _navMeshLayers)
@@ -198,7 +195,7 @@ namespace Pal3.Scene
             return _actorObjects;
         }
 
-        public Dictionary<int, MeshCollider[]> GetMeshColliders()
+        public Dictionary<int, MeshCollider> GetMeshColliders()
         {
             return _meshColliders;
         }
@@ -250,37 +247,16 @@ namespace Pal3.Scene
                     layer = LayerMask.NameToLayer("RaycastOnly")
                 };
                 navMesh.transform.SetParent(_parent.transform);
-
-                var vertices = NavFile.FaceLayers[i].Vertices
-                    .Select(v => GameBoxInterpreter.ToUnityVertex(new Vector3(v.x, v.y, v.z),
-                        GameBoxInterpreter.GameBoxUnitToUnityUnit)).ToArray();
-
+                
                 var meshCollider = navMesh.AddComponent<MeshCollider>();
                 meshCollider.convex = false;
                 meshCollider.sharedMesh = new Mesh()
                 {
-                    vertices = vertices,
+                    vertices = NavFile.FaceLayers[i].Vertices,
                     triangles = NavFile.FaceLayers[i].Triangles,
                 };
 
-                /*
-                 * There are some cases where the nav mesh is pointing downwards instead
-                 * of upwards. I am not sure why is that but for now, let's generate
-                 * two nav meshes just to be safe (one facing up, one facing down).
-                 * TODO: Calculate the normal to see if mesh is facing downwards? Or a blacklist?
-                 */
-                Array.Reverse(NavFile.FaceLayers[i].Triangles); // reverse the triangles to flip the mesh
-                
-                var meshColliderInverse = navMesh.AddComponent<MeshCollider>();
-                meshColliderInverse.convex = false;
-                meshColliderInverse.sharedMesh = new Mesh()
-                {
-                    vertices = vertices,
-                    triangles = NavFile.FaceLayers[i].Triangles
-                };
-
-                _meshColliders[i] = new [] { meshCollider, meshColliderInverse };
-
+                _meshColliders[i] = meshCollider;
                 _navMeshLayers.Add(navMesh);
             }
         }

@@ -165,7 +165,7 @@ namespace Pal3.Renderer
                 TRANSPARENT_THRESHOLD);
             #if RTX_ON
             materials[0].SetFloat(_lightAffectShadowPropertyId, 1f);
-            materials[0].SetFloat(_lightIntensityPropertyId, -0.7f);
+            materials[0].SetFloat(_lightIntensityPropertyId, -0.65f);
             #endif
             _materials[index] = materials[0];
 

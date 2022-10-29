@@ -387,27 +387,27 @@ namespace Pal3.Camera
                     _freeToRotate = false;
                     _lookAtPointYOffset = SCENE_STORY_B_ROOM_HEIGHT /
                                           GameBoxInterpreter.GameBoxUnitToUnityUnit;
-                    _camera.nearClipPlane = 0.5f;
+                    _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
                     ApplyDefaultSettings(1);
                     break;
                 case ScnSceneType.StoryA:
                     _freeToRotate = true;
                     _lookAtPointYOffset = 0;
-                    _camera.nearClipPlane = 1f;
+                    _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(0);
                     break;
                 case ScnSceneType.Maze:
                     _freeToRotate = true;
                     _lookAtPointYOffset = 0;
-                    _camera.nearClipPlane = 1f;
+                    _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(0);
                     break;
                 default:
                     _lookAtPointYOffset = 0;
-                    _camera.nearClipPlane = 0.5f;
+                    _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
                     ApplyDefaultSettings(0);
                     break;

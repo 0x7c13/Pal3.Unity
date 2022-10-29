@@ -162,7 +162,7 @@ namespace Core.DataReader.Pol
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    normals[i] = reader.ReadVector3();
+                    normals[i] = GameBoxInterpreter.ToUnityNormal(reader.ReadVector3());
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {
@@ -196,6 +196,9 @@ namespace Core.DataReader.Pol
                     var y = reader.ReadSingle();
                     uvs[3][i] = new Vector2(x, y);
                 }
+                
+                // Quick fix for the missing normals
+                if (normals[i] == Vector3.zero) normals[i] = Vector3.up;
             }
 
             var vertexInfo = new PolVertexInfo()

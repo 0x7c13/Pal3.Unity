@@ -54,7 +54,6 @@ namespace ResourceViewer
         private IList<string> _cvdFiles = new List<string>();
         private IList<string> _mv3Files = new List<string>();
         private IList<string> _mp3Files = new List<string>();
-        private IList<string> _sceFiles = new List<string>();
         private static readonly Random Random = new ();
 
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page,
@@ -80,8 +79,7 @@ namespace ResourceViewer
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
-            _sceFiles = _fileSystem.Search(".sce").Where(_ => !_.Contains(".bak", StringComparison.OrdinalIgnoreCase)).ToList();
-
+            
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
             randomMv3Button.onClick.AddListener(RandMv3);
@@ -280,6 +278,9 @@ namespace ResourceViewer
         #if UNITY_EDITOR
         private void DecompileAllSceScripts()
         {
+            var sceFiles = _fileSystem.Search(".sce")
+                .Where(_ => !_.Contains(".bak", StringComparison.OrdinalIgnoreCase));
+
             var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
             outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}";
 
@@ -288,7 +289,7 @@ namespace ResourceViewer
                 Directory.CreateDirectory(outputFolderPath);
             }
             
-            foreach (var sceFile in _sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
+            foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
         }
         
         private void ExtractAllCpkArchives()
