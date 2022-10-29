@@ -12,6 +12,7 @@ namespace Pal3.postprocess
             UVTest,         // UV测试
             Distortion,     // 扭曲
             Edge,           // 边缘检测 with 后处理卷积
+            Grey,           // 用亮度 ,填充颜色为灰色
             Mosaic,         // 马赛克
             Filter,         // 滤镜 with LUT 
             Sketch,         // 素描
@@ -26,6 +27,7 @@ namespace Pal3.postprocess
         public Material _matUVTest;
         public Material _matDistortion;
         public Material _matEdge;
+        public Material _matGrey;
         public Material _matMosaic;
         public Material _matFilter;
         public Material _matSketch;
@@ -37,6 +39,7 @@ namespace Pal3.postprocess
             _techMap.Add(PostEffectType.UVTest,new PPUVTest(_matUVTest));
             _techMap.Add(PostEffectType.Distortion,new PPDistortion(_matDistortion));
             _techMap.Add(PostEffectType.Edge,new PPDistortion(_matEdge));
+            _techMap.Add(PostEffectType.Grey,new PPDistortion(_matGrey));
             _techMap.Add(PostEffectType.Mosaic,null);
             _techMap.Add(PostEffectType.Filter,null);
             _techMap.Add(PostEffectType.Sketch,null);
