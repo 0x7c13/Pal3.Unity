@@ -7,6 +7,10 @@ Shader "Pal3/postprocess/Distortion"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        
+        _TimeScale ("Time Scale",float) = 4.0
+        _XFactor ("X Factor",float) = 15.0
+        _YFactor("Y Factor",float) = 10.0
     }
     SubShader
     {
@@ -37,6 +41,9 @@ Shader "Pal3/postprocess/Distortion"
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            float _TimeScale;
+            float _XFactor;
+            float _YFactor;
             /*
              https://docs.unity3d.com/462/Documentation/Manual/SL-BuiltinValues.html
              */
@@ -60,15 +67,14 @@ Shader "Pal3/postprocess/Distortion"
             {
                 fixed2 uv = i.uv;
                 float time = _Time.y;
-                const float timeScale = 4.0;
-                const float xFactor = 15.0;
-                const float yFactor = 10.0;
-                uv.x += sin(uv.y * xFactor + time * timeScale) / 400.0;
-                uv.y += cos(uv.x * yFactor + time * timeScale) / 450.0;
+                
+                
+                uv.x += sin(uv.y * _XFactor + time * _TimeScale) / 400.0;
+                uv.y += cos(uv.x * _YFactor + time * _TimeScale) / 450.0;
 
                 //uv.x += sin();
-                uv.x += sin((uv.y+uv.x) * xFactor + time * timeScale) / (180. + (timeScale * sin(time)));
-                uv.y += cos((uv.y+uv.x) * yFactor + time * timeScale) / (200. + (timeScale * sin(time)));
+                uv.x += sin((uv.y+uv.x) * _XFactor + time * _TimeScale) / (180. + (_TimeScale * sin(time)));
+                uv.y += cos((uv.y+uv.x) * _YFactor + time * _TimeScale) / (200. + (_TimeScale * sin(time)));
                             
                 
                 fixed4 col = tex2D(_MainTex, uv);

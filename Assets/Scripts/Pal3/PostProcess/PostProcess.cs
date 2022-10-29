@@ -18,21 +18,26 @@ namespace Pal3.postprocess
         }
         
         public PostEffectType _curPostEffectType = PostEffectType.None;
+        //public Dictionary<PostEffectType, Material> _materialMap = new Dictionary<PostEffectType, Material>();
         private Dictionary<PostEffectType, PPTechnique> _techMap = new Dictionary<PostEffectType, PPTechnique>();
+
+        public Material _matNone;
+        public Material _matUVTest;
+        public Material _matDistortion;
+        public Material _matMosaic;
+        public Material _matFilter;
+        public Material _matSketch;
+        public Material _matCaustics;
+        
         void Start()
         {
             _techMap.Add(PostEffectType.None,null);
-            _techMap.Add(PostEffectType.UVTest,new PPUVTest());
-            _techMap.Add(PostEffectType.Distortion,new PPDistortion());
+            _techMap.Add(PostEffectType.UVTest,new PPUVTest(_matUVTest));
+            _techMap.Add(PostEffectType.Distortion,new PPDistortion(_matDistortion));
             _techMap.Add(PostEffectType.Mosaic,null);
             _techMap.Add(PostEffectType.Filter,null);
             _techMap.Add(PostEffectType.Sketch,null);
             _techMap.Add(PostEffectType.Caustics,null);
-
-            foreach (var tech in _techMap)
-            {
-                tech.Value?.Init();
-            }
         }
 
         void Update()

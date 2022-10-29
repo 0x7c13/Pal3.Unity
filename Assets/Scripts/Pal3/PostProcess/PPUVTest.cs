@@ -6,15 +6,21 @@ namespace Pal3.postprocess
 {
     class PPUVTest : PPTechnique
     {
-        private Material _material = null;
-        public override void Init()
+        public PPUVTest(Material material) : base(material)
         {
-            _material = new Material(Shader.Find("Pal3/postprocess/UVTest"));
         }
+        
+        // private Material _material = null;
+        // public override void Init()
+        // {
+        //     _material = new Material(Shader.Find("Pal3/postprocess/UVTest"));
+        // }
 
         public override void Blit(RenderTexture src, RenderTexture dest)
         {
             Graphics.Blit(src,dest,_material);
         }
+
+        
     }
 }

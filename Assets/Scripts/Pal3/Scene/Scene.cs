@@ -3,7 +3,9 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.Extensions;
 using Pal3.postprocess;
+using UnityEngine.Rendering.PostProcessing;
 
 namespace Pal3.Scene
 {
@@ -146,11 +148,6 @@ namespace Pal3.Scene
             //Debug.LogError($"ActivateSceneObjects: {timer.ElapsedMilliseconds} ms");
             timer.Stop();
             
-            
-            
-            timer.Restart();
-            _mainCamera.gameObject.AddComponent<PostProcess>();
-            timer.Stop();
         }
 
         public ScnSceneInfo GetSceneInfo()

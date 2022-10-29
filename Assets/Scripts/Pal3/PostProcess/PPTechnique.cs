@@ -6,7 +6,12 @@ namespace Pal3.postprocess
 {
     abstract class PPTechnique
     {
-        public abstract void Init();
+        protected Material _material = null;
+        public PPTechnique(Material material)
+        {
+            _material = material;
+        }
+        
         public abstract void Blit(RenderTexture src, RenderTexture dest);
     }
     
