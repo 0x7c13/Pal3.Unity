@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Pal3.postprocess;
+
 namespace Pal3.Scene
 {
     using System;
@@ -142,6 +144,12 @@ namespace Pal3.Scene
 
             ActivateSceneObjects();
             //Debug.LogError($"ActivateSceneObjects: {timer.ElapsedMilliseconds} ms");
+            timer.Stop();
+            
+            
+            
+            timer.Restart();
+            _mainCamera.gameObject.AddComponent<PostProcess>();
             timer.Stop();
         }
 
