@@ -135,7 +135,7 @@ namespace Core.DataReader.Nav
                 if (sumOfYNormal < 0)
                 {
                     Array.Reverse(triangles);
-                }   
+                }
             }
 
             return new NavFaceLayer()

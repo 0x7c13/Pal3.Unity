@@ -189,7 +189,14 @@ namespace Core.Utils
 
             for (var i = 0; i < normals.Length; i++)
             {
-                normals[i] = Vector3.Normalize(normals[i]);
+                if (normals[i] == Vector3.zero)
+                {
+                    normals[i] = Vector3.up;
+                }
+                else
+                {
+                    normals[i] = Vector3.Normalize(normals[i]);
+                }
             }
 
             return normals;

@@ -55,6 +55,14 @@ namespace Core.GameBox
                 scale.y);
         }
 
+        public static Vector3 ToUnityNormal(Vector3 normal)
+        {
+            return new Vector3(
+                -normal.x,
+                normal.y,
+                normal.z);
+        }
+        
         public static Quaternion CvdQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Z, -quaternion.Y, quaternion.W);
