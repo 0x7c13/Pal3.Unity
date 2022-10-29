@@ -60,12 +60,15 @@ Shader "Pal3/postprocess/Distortion"
             {
                 fixed2 uv = i.uv;
                 float time = _Time.y;
-                uv.x += sin(uv.y * 15.0 + time * 2.0) / 800.0;
-                uv.y += cos(uv.x * 10.0 + time * 2.0) / 900.0;
+                const float timeScale = 4.0;
+                const float xFactor = 15.0;
+                const float yFactor = 10.0;
+                uv.x += sin(uv.y * xFactor + time * timeScale) / 400.0;
+                uv.y += cos(uv.x * yFactor + time * timeScale) / 450.0;
 
                 //uv.x += sin();
-                uv.x += sin((uv.y+uv.x) * 15. + time * 2.) / (180. + (2. * sin(time)));
-                uv.y += cos((uv.y+uv.x) * 15. + time * 2.) / (200. + (2. * sin(time)));
+                uv.x += sin((uv.y+uv.x) * xFactor + time * timeScale) / (180. + (timeScale * sin(time)));
+                uv.y += cos((uv.y+uv.x) * yFactor + time * timeScale) / (200. + (timeScale * sin(time)));
                             
                 
                 fixed4 col = tex2D(_MainTex, uv);
