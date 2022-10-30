@@ -261,22 +261,24 @@ namespace Pal3.Scene
         private void SetupEnvironmentLighting()
         {
             Vector3 mainLightPosition = new Vector3(0, 20f, 0);
-            Quaternion mainLightRotation = Quaternion.Euler(70f, 0f, 0f);
+            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ?
+                    Quaternion.Euler(120f, -20f, 0f) :
+                    Quaternion.Euler(70f, 0f, 0f);
             
             // Most in-door scenes have a single spot light source where we can find in the LGT file,
             // which can be used as the main light source for the scene.
-            if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB &&
-                LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
-            {
-                float w = Mathf.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
-                mainLightRotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                {
-                    X = (mainLight.WorldMatrix.m21 - mainLight.WorldMatrix.m12) / (4.0f * w),
-                    Y = (mainLight.WorldMatrix.m02 - mainLight.WorldMatrix.m20) / (4.0f * w),
-                    Z = (mainLight.WorldMatrix.m10 - mainLight.WorldMatrix.m01) / (4.0f * w),
-                    W = w,
-                });
-            }
+            // if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB &&
+            //     LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
+            // {
+            //     float w = Mathf.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
+            //     mainLightRotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+            //     {
+            //         X = (mainLight.WorldMatrix.m21 - mainLight.WorldMatrix.m12) / (4.0f * w),
+            //         Y = (mainLight.WorldMatrix.m02 - mainLight.WorldMatrix.m20) / (4.0f * w),
+            //         Z = (mainLight.WorldMatrix.m10 - mainLight.WorldMatrix.m01) / (4.0f * w),
+            //         W = w,
+            //     });
+            // }
             
             var mainLightGo = new GameObject($"LightSource_Main");
             mainLightGo.transform.SetParent(_parent.transform);
@@ -295,7 +297,7 @@ namespace Pal3.Scene
             _mainLight.color = IsNightScene() ?
                 new Color(100f / 255f, 100f / 255f, 100f / 255f) :
                 new Color(200f / 255f, 190f / 255f, 180f / 255f);
-            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
+            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.75f : 1f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 60f / 255f, 100f / 255f) :
@@ -320,7 +322,7 @@ namespace Pal3.Scene
             var lightComponent = lightSource.AddComponent<Light>();
             lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
             lightComponent.type = LightType.Point;
-            lightComponent.intensity = 1f;
+            lightComponent.intensity = IsNightScene() ? 1f : 1.2f;
             lightComponent.range = 50f;
             lightComponent.shadows = LightShadows.Soft;
             lightComponent.shadowNearPlane = 0.25f;
@@ -372,11 +374,12 @@ namespace Pal3.Scene
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
 
             #if RTX_ON
-            if (sceneObject.GraphicsEffect == GraphicsEffect.Fire && IsNightScene() &&
+            if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
                 sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
                 fireEffect.EffectGameObject != null)
             {
-                AddPointLight(fireEffect.EffectGameObject.transform, 0.1f);
+                var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
+                AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
             }
             #endif
 

@@ -39,47 +39,47 @@ namespace Pal3.MetaData
             $"{FileConstants.EffectScnFolderName}{PathSeparator}";
 
         #if PAL3
-        public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size)>
+        public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size, float lightSourceYOffset)>
             FireEffectInfo = new()
             {
                 {FireEffectType.Type1, new (
                     EffectScnRelativePath + "Fire1" + PathSeparator + "torch{0:00}.tga",
-                    "", 3.3f) },
+                    "", 3.3f, 0.5f) },
                 {FireEffectType.Type2, new (
                     EffectScnRelativePath + "Fire2" + PathSeparator + "{0:00}.tga",
-                    "", 1f) },
+                    "", 1f, 0.2f) },
                 {FireEffectType.Type3, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f) },
+                    $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f, 0.2f) },
                 {FireEffectType.Type4, new (
                     EffectScnRelativePath + "Fire4" + PathSeparator + "{0:00}.tga",
-                    "", 5.8f) },
+                    "", 5.8f, 0.5f) },
                 {FireEffectType.Type5, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{EffectScnRelativePath}Lamp{PathSeparator}lamp.pol", 0.7f) },
+                    $"{EffectScnRelativePath}Lamp{PathSeparator}lamp.pol", 0.7f, 0.2f) },
             };
         #elif PAL3A
-        public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size)>
+        public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size, float lightSourceYOffset)>
             FireEffectInfo = new()
             {
                 {FireEffectType.Type1, new (
                     EffectScnRelativePath + "Fire4" + PathSeparator + "{0:00}.tga",
-                    "", 5.8f) },
+                    "", 5.8f, 0.5f) },
                 {FireEffectType.Type2, new (
                     EffectScnRelativePath + "Fire1" + PathSeparator + "torch{0:00}.tga",
-                    "", 3.3f) },
+                    "", 3.3f, 0.5f) },
                 {FireEffectType.Type3, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{EffectScnRelativePath}Lamp{PathSeparator}lamp.pol", 0.7f) },
+                    $"{EffectScnRelativePath}Lamp{PathSeparator}lamp.pol", 0.7f, 0.2f) },
                 {FireEffectType.Type4, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f) },
+                    $"{EffectScnRelativePath}Candle{PathSeparator}candle.pol", 1f, 0.2f) },
                 {FireEffectType.Type5, new (
                     EffectScnRelativePath + "Fire2" + PathSeparator + "{0:00}.tga",
-                    "", 1f) },
+                    "", 1f, 0.2f) },
                 {FireEffectType.Type6, new (
                     EffectScnRelativePath + "Candle" + PathSeparator + "{0:000}.tga",
-                    "", 1f) },
+                    "", 1f, 0.2f) },
             };
         #endif
 

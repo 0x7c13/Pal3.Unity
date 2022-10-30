@@ -25,7 +25,7 @@ namespace Pal3.Effect
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
             FireEffectType = (FireEffectType)effectParameter;
-            (string TexturePathFormat, string ModelPath, float Size) info = EffectConstants.FireEffectInfo[FireEffectType];
+            (string TexturePathFormat, string ModelPath, float Size, float _) info = EffectConstants.FireEffectInfo[FireEffectType];
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
