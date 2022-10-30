@@ -1,28 +1,42 @@
+/*
+    reference: https://www.shadertoy.com/view/MsKXDh
+*/
 Shader "Pal3/PostEffectDistortion"
 {
     Properties
     {
-        _Blend("Blend Factor", float) = 10
+        _TimeScale ("Time Scale",float) = 4.0
+        _XFactor ("X Factor",float) = 15.0
+        _YFactor("Y Factor",float) = 10.0
     }
     
-  HLSLINCLUDE
-// StdLib.hlsl holds pre-configured vertex shaders (VertDefault), varying structs (VaryingsDefault), and most of the data you need to write common effects.
-      #include "Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl"
-      TEXTURE2D_SAMPLER2D(_MainTex, sampler_MainTex);
-// Lerp the pixel color with the luminance using the _Blend uniform.
-      float _Blend;
-      float4 Frag(VaryingsDefault i) : SV_Target
-      {
-          float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
-// Compute the luminance for the current pixel
-          float luminance = dot(color.rgb, float3(0.2126729, 0.7151522, 0.0721750));
-          color.rgb = lerp(color.rgb, luminance.xxx, _Blend.xxx);
-// Return the result
-          return color;
-      }
-  ENDHLSL
-  SubShader
-  {
+    HLSLINCLUDE
+        #include "Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl"
+        TEXTURE2D_SAMPLER2D(_MainTex, sampler_MainTex);
+
+        float _TimeScale;
+        float _XFactor;
+        float _YFactor;
+
+        float4 Frag(VaryingsDefault i) : SV_Target
+        {
+            float2 uv = i.texcoord;
+            float time = _Time.y;
+            
+            uv.x += sin(uv.y * _XFactor + time * _TimeScale) / 400.0;
+            uv.y += cos(uv.x * _YFactor + time * _TimeScale) / 450.0;
+            
+            // //uv.x += sin();
+            uv.x += sin((uv.y+uv.x) * _XFactor + time * _TimeScale) / (180.0 + (_TimeScale * sin(time)));
+            uv.y += cos((uv.y+uv.x) * _YFactor + time * _TimeScale) / (200.0 + (_TimeScale * sin(time)));
+            
+            float4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex,uv);
+            return col;
+        }
+    ENDHLSL
+     
+    SubShader
+    {
       Cull Off ZWrite Off ZTest Always
       Pass
       {
@@ -31,5 +45,5 @@ Shader "Pal3/PostEffectDistortion"
               #pragma fragment Frag
           ENDHLSL
       }
-  }
+    }
 }

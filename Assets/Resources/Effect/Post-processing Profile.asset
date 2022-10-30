@@ -60,9 +60,15 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
-  blend:
-    overrideState: 1
-    value: 0.5
+  timeScale:
+    overrideState: 0
+    value: 4
+  xFactor:
+    overrideState: 0
+    value: 15
+  yFactor:
+    overrideState: 0
+    value: 10
 --- !u!114 &-804113543285745465
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1440,7 +1446,7 @@ MonoBehaviour:
   - {fileID: -8887095760420704611}
   - {fileID: 455792505896753558}
   - {fileID: -804113543285745465}
-  - {fileID: -806185241644601601}
+  - {fileID: 954549172052332416}
 --- !u!114 &455792505896753558
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1488,3 +1494,28 @@ MonoBehaviour:
   dirtIntensity:
     overrideState: 0
     value: 0
+--- !u!114 &954549172052332416
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4ad18ac69b12845a429aba13929a07, type: 3}
+  m_Name: Distortion
+  m_EditorClassIdentifier: 
+  active: 0
+  enabled:
+    overrideState: 1
+    value: 1
+  timeScale:
+    overrideState: 0
+    value: 4
+  xFactor:
+    overrideState: 0
+    value: 15
+  yFactor:
+    overrideState: 0
+    value: 10
