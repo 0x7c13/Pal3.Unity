@@ -127,9 +127,18 @@ namespace Core.DataReader.Nav
                 Vector3[] normals = Utility.CalculateNormals(vertices, triangles);
                     
                 // To check if the mesh is upside down, we can simply check if the
-                // the sum of all the normals is negative (Y axis only).
-                double sumOfYNormal = normals.Aggregate<Vector3, double>(0f, (_, normal) => _ + normal.y);
-
+                // the sum of all the normals is negative (Y axis only) ignoring sharp edges
+                // like walls and cliffs.
+                double sumOfYNormal = 0f;
+                foreach (Vector3 normal in normals)
+                {
+                    // This is to ignore normals for walls and cliffs.
+                    if (Math.Abs(normal.y) > 0.8f)
+                    {
+                        sumOfYNormal += normal.y;
+                    }
+                }
+                
                 // If the sum of all the normals is negative, then we need to flip the mesh
                 // by reversing the order of the triangles.
                 if (sumOfYNormal < 0)

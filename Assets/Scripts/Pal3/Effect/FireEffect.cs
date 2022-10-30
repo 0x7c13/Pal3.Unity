@@ -15,15 +15,17 @@ namespace Pal3.Effect
 
     public class FireEffect : MonoBehaviour, IEffect
     {
+        public GameObject EffectGameObject { get; private set; }
+        public FireEffectType FireEffectType { get; private set; }
+        
         private Texture2D[] _effectTextures = Array.Empty<Texture2D>();
         private AnimatedBillboardRenderer _billboardRenderer;
         private PolyModelRenderer _sceneObjectRenderer;
-        private GameObject _effectGameObject;
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
-            var fireEffectType = (FireEffectType)effectParameter;
-            (string TexturePathFormat, string ModelPath, float Size) info = EffectConstants.FireEffectInfo[fireEffectType];
+            FireEffectType = (FireEffectType)effectParameter;
+            (string TexturePathFormat, string ModelPath, float Size) info = EffectConstants.FireEffectInfo[FireEffectType];
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
@@ -60,41 +62,21 @@ namespace Pal3.Effect
                     yPosition = _sceneObjectRenderer.GetRendererBounds().max.y;
                 }
 
-                _effectGameObject = new GameObject($"Effect_{GraphicsEffect.Fire.ToString()}");
-                _effectGameObject.transform.localScale =
+                EffectGameObject = new GameObject($"Effect_{GraphicsEffect.Fire.ToString()}_{FireEffectType.ToString()}");
+                EffectGameObject.transform.localScale =
                     new Vector3(info.Size, info.Size, info.Size);
-                _effectGameObject.transform.SetParent(gameObject.transform);
-                _effectGameObject.transform.position = new Vector3(parentPosition.x,
+                EffectGameObject.transform.SetParent(gameObject.transform);
+                EffectGameObject.transform.position = new Vector3(parentPosition.x,
                     yPosition,
                     parentPosition.z);
-                _billboardRenderer = _effectGameObject.AddComponent<AnimatedBillboardRenderer>();
+                _billboardRenderer = EffectGameObject.AddComponent<AnimatedBillboardRenderer>();
                 StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
                     fps,
                     -1,
                     resourceProvider.GetMaterialFactory().CreateSpriteMaterial()));
-                
-                #if RTX_ON
-                AddLightSource(_effectGameObject.transform, 0.2f);
-                #endif
             }
         }
-
-        private void AddLightSource(Transform parent, float yOffset)
-        {
-            // Add a point light to the fire fx
-            var lightSource = new GameObject($"LightSource_Point");
-            lightSource.transform.SetParent(parent, false);
-            lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
-            
-            var lightComponent = lightSource.AddComponent<Light>();
-            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
-            lightComponent.type = LightType.Point;
-            lightComponent.intensity = 1f;
-            lightComponent.range = 50f;
-            lightComponent.shadows = LightShadows.Soft;
-            lightComponent.shadowNearPlane = 0.3f;
-        }
-
+        
         private void OnDisable()
         {
             if (_sceneObjectRenderer != null)
@@ -107,9 +89,9 @@ namespace Pal3.Effect
                 Destroy(_billboardRenderer);
             }
 
-            if (_effectGameObject != null)
+            if (EffectGameObject != null)
             {
-                Destroy(_effectGameObject);
+                Destroy(EffectGameObject);
             }
         }
     }
