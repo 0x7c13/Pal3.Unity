@@ -3,11 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using System.IO;
-using Pal3.Renderer;
-using ResourceViewer;
-using UnityEngine.Rendering.PostProcessing;
-
 namespace Editor
 {
     using System;
@@ -34,30 +29,7 @@ namespace Editor
             AddSymbol("PAL3A");
             ApplyPlayerSettingsForVariant("PAL3A");
         }
-
-
-        [MenuItem("Pal3/ExportMesh")]
-        public static void ExportMesh()
-        {
-            if (UnityEditor.Selection.count > 0)
-            {
-                var go = UnityEditor.Selection.gameObjects[0];
-                var modelRenderer = go.GetComponent<Mv3ModelRenderer>();
-                if (modelRenderer != null)
-                {
-                    var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
-                    outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}";
-
-                    if (!Directory.Exists(outputFolderPath))
-                    {
-                        Directory.CreateDirectory(outputFolderPath);
-                    }
-                    
-                    WaveFrontObjHelper.Write(outputFolderPath,go.name,modelRenderer,true,true);          
-                }
-            }
-        }
-
+        
         private static BuildTargetGroup[] GetAllSupportedTargetGroups()
         {
             return new[]

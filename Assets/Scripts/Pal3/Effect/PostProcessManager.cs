@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Pal3.posteffect;
-
 namespace Pal3.Effect
 {
     using System;
@@ -12,6 +10,7 @@ namespace Pal3.Effect
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Utils;
+    using PostProcessing;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
@@ -55,8 +54,6 @@ namespace Pal3.Effect
             _distortion = _postProcessVolume.profile.GetSetting<Distortion>();
             _distortion.active = false;
 
-            //_postProcessVolume.profile.AddSettings();
-
             TogglePostProcessLayerWhenNeeded();
         }
 
@@ -65,7 +62,8 @@ namespace Pal3.Effect
             if (_bloom.active ||
                 _ambientOcclusion.active ||
                 _colorGrading.active ||
-                _vignette.active)
+                _vignette.active ||
+                _distortion.active)
             {
                 _postProcessLayer.enabled = true;
             }
@@ -94,7 +92,7 @@ namespace Pal3.Effect
         {
             switch (command.Mode)
             {
-                // Disable all post-processing effects
+                // Disable all post-processing effects used by the game
                 case -1:
                 {
                     _colorGrading.active = false;
@@ -102,16 +100,20 @@ namespace Pal3.Effect
                     _distortion.active = false;
                     break;
                 }
+                // Distortion effect
+                case 0:
+                {
+                    _distortion.active = true;
+                    _colorGrading.active = false;
+                    _vignette.active = false;
+                    break;
+                }
                 // Vintage + color filter effect
                 case 1:
                 {
                     _colorGrading.active = true;
                     _vignette.active = true;
-                    break;
-                }
-                case 2:
-                {
-                    _distortion.active = true;
+                    _distortion.active = false;
                     break;
                 }
             }

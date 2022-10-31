@@ -21,12 +21,11 @@ Shader "Pal3/PostEffectDistortion"
         float4 Frag(VaryingsDefault i) : SV_Target
         {
             float2 uv = i.texcoord;
-            float time = _Time.y;
+            const float time = _Time.y;
             
             uv.x += sin(uv.y * _XFactor + time * _TimeScale) / 400.0;
             uv.y += cos(uv.x * _YFactor + time * _TimeScale) / 450.0;
-            
-            // //uv.x += sin();
+
             uv.x += sin((uv.y+uv.x) * _XFactor + time * _TimeScale) / (180.0 + (_TimeScale * sin(time)));
             uv.y += cos((uv.y+uv.x) * _YFactor + time * _TimeScale) / (200.0 + (_TimeScale * sin(time)));
             
