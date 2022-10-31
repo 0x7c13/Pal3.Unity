@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Effect
+namespace Pal3.Effect.PostProcessing
 {
     using System;
     using Command;
@@ -24,7 +24,8 @@ namespace Pal3.Effect
         private AmbientOcclusion _ambientOcclusion;
         private ColorGrading _colorGrading;
         private Vignette _vignette;
-        
+        private Distortion _distortion;
+
         private int _currentAppliedEffectMode = -1;
         
         public void Init(PostProcessVolume volume,
@@ -49,6 +50,9 @@ namespace Pal3.Effect
             _vignette = _postProcessVolume.profile.GetSetting<Vignette>();
             _vignette.active = false;
 
+            _distortion = _postProcessVolume.profile.GetSetting<Distortion>();
+            _distortion.active = false;
+
             TogglePostProcessLayerWhenNeeded();
         }
 
@@ -57,7 +61,8 @@ namespace Pal3.Effect
             if (_bloom.active ||
                 _ambientOcclusion.active ||
                 _colorGrading.active ||
-                _vignette.active)
+                _vignette.active ||
+                _distortion.active)
             {
                 _postProcessLayer.enabled = true;
             }
@@ -86,9 +91,18 @@ namespace Pal3.Effect
         {
             switch (command.Mode)
             {
-                // Disable all post-processing effects
+                // Disable all post-processing effects used by the game
                 case -1:
                 {
+                    _colorGrading.active = false;
+                    _vignette.active = false;
+                    _distortion.active = false;
+                    break;
+                }
+                // Distortion effect
+                case 0:
+                {
+                    _distortion.active = true;
                     _colorGrading.active = false;
                     _vignette.active = false;
                     break;
@@ -98,6 +112,7 @@ namespace Pal3.Effect
                 {
                     _colorGrading.active = true;
                     _vignette.active = true;
+                    _distortion.active = false;
                     break;
                 }
             }

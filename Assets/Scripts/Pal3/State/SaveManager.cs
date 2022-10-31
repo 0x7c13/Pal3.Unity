@@ -17,6 +17,7 @@ namespace Pal3.State
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Effect;
+    using Effect.PostProcessing;
     using Feature;
     using MetaData;
     using Player;
