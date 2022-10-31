@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 311849591}
   - component: {fileID: 311849595}
   - component: {fileID: 7927220425085558669}
+  - component: {fileID: 7182582183477641040}
   m_Layer: 0
   m_Name: GameCamera
   m_TagString: MainCamera
@@ -343,7 +344,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311849590}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
   m_Name: 
@@ -396,6 +397,28 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &7182582183477641040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311849590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc8c79fc72d57f4c81d290629308d81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _curPostEffectType: 0
+  _matNone: {fileID: 0}
+  _matUVTest: {fileID: 2100000, guid: 886f15f663bbc6845955434091a525c0, type: 2}
+  _matDistortion: {fileID: 2100000, guid: a03ace55a028ee546b539f9ff272e648, type: 2}
+  _matEdge: {fileID: 2100000, guid: c2d0ca7b4720083458b569f126f7d87b, type: 2}
+  _matGrey: {fileID: 2100000, guid: e92d570c618dc7141a4b47d90d4ce4eb, type: 2}
+  _matMosaic: {fileID: 0}
+  _matFilter: {fileID: 0}
+  _matSketch: {fileID: 0}
+  _matCaustics: {fileID: 0}
 --- !u!1 &768200630232143376
 GameObject:
   m_ObjectHideFlags: 0
@@ -4365,7 +4388,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled
