@@ -29,7 +29,7 @@ namespace Editor
             AddSymbol("PAL3A");
             ApplyPlayerSettingsForVariant("PAL3A");
         }
-        
+
         private static BuildTargetGroup[] GetAllSupportedTargetGroups()
         {
             return new[]
@@ -39,7 +39,7 @@ namespace Editor
                 BuildTargetGroup.iOS,
             };
         }
-        
+
         private static NamedBuildTarget[] GetAllSupportedNamedBuildTargets()
         {
             return new[]
@@ -49,7 +49,7 @@ namespace Editor
                 NamedBuildTarget.iOS,
             };
         }
-        
+
         private static void ApplyPlayerSettingsForVariant(string appName)
         {
             PlayerSettings.productName = appName;

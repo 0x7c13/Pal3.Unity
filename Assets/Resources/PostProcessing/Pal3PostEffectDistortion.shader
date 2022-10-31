@@ -1,6 +1,12 @@
+// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2022, Jiaqi Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ---------------------------------------------------------------------------------------------
+
 /*
     reference: https://www.shadertoy.com/view/MsKXDh
 */
+
 Shader "Pal3/PostEffectDistortion"
 {
     Properties

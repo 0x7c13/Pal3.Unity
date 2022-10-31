@@ -3,14 +3,13 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Effect
+namespace Pal3.Effect.PostProcessing
 {
     using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Utils;
-    using PostProcessing;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 

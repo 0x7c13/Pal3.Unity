@@ -34,7 +34,7 @@ namespace Pal3
     using UnityEngine.UI;
     using UnityEngine.Video;
     using Video;
-    using PostProcessManager = Effect.PostProcessManager;
+    using PostProcessManager = Effect.PostProcessing.PostProcessManager;
 
     #if PAL3
     using MiniGame;
