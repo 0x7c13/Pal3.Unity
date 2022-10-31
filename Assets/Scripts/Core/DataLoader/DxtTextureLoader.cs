@@ -32,7 +32,6 @@ namespace Core.DataLoader
 
 			DxtHeader header = DxtHeader.ReadHeader(reader);
 			var format = header.DxtPixelFormat.Format;
-			hasAlphaChannel = true;
 
 			_width = header.Width;
 			_height = header.Height;
@@ -40,9 +39,11 @@ namespace Core.DataLoader
 			switch (format)
 			{
 				case "DXT1":
+					hasAlphaChannel = false;
 					LoadDxt1Texture(data);
 					break;
 				case "DXT3":
+					hasAlphaChannel = true;
 					LoadDxt3Texture(data);
 					break;
 				case "DXT5":

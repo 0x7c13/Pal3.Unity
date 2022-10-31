@@ -11,17 +11,17 @@ namespace Pal3.Renderer
     public interface IMaterialFactory
     {
         /// <summary>
-        /// Create a material for effect sprite.
+        /// Create a material for effect sprite without alpha channel.
         /// </summary>
         /// <returns>Material</returns>
-        public Material CreateSpriteMaterial();
+        public Material CreateOpaqueSpriteMaterial();
         
         /// <summary>
-        /// Create a material for effect sprite.
+        /// Create a material for effect sprite without alpha channel.
         /// </summary>
         /// <param name="texture">Texture</param>
         /// <returns>Material</returns>
-        public Material CreateSpriteMaterial(Texture2D texture);
+        public Material CreateOpaqueSpriteMaterial(Texture2D texture);
 
         /// <summary>
         /// Create standard materials.

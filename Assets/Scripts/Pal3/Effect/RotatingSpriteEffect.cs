@@ -26,7 +26,7 @@ namespace Pal3.Effect
         {
             _rotationSpeed = rotationSpeed;
             
-            Texture2D texture = resourceProvider.GetEffectTexture(textureName);
+            Texture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
 
             _root = new GameObject($"RotatingSpriteEffect_{textureName}");
             _root.transform.SetParent(transform, false);
@@ -36,11 +36,15 @@ namespace Pal3.Effect
             _spriteRenderer.sprite = Sprite.Create(texture,
                 new Rect(0, 0, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f));
-            
-            _material = resourceProvider.GetMaterialFactory().CreateSpriteMaterial(texture);
-            _spriteRenderer.sharedMaterial = _material;
 
-            _root.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            if (!hasAlphaChannel)
+            {
+                _material = resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial(texture);
+                _spriteRenderer.sharedMaterial = _material;                
+            }
+
+            Quaternion parentRotation = gameObject.transform.rotation;
+            _root.transform.localRotation = Quaternion.Euler(parentRotation.x + 90f, 0f, 0f);
             _root.transform.localScale = scale;
 
             _animation = StartCoroutine(Animate());

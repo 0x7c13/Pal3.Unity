@@ -17,12 +17,12 @@ namespace Pal3.Renderer
         
         private readonly Dictionary<string, Shader> _shaders = new ();
         
-        public Material CreateSpriteMaterial()
+        public Material CreateOpaqueSpriteMaterial()
         {
             return new Material(GetShader(SPRITE_SHADER_PATH));
         }
         
-        public Material CreateSpriteMaterial(Texture2D texture)
+        public Material CreateOpaqueSpriteMaterial(Texture2D texture)
         {
             var material = new Material(GetShader(SPRITE_SHADER_PATH));
             material.SetTexture(SpriteMainTexPropertyId, texture);

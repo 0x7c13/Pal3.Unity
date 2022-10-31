@@ -263,7 +263,7 @@ namespace Pal3.Scene
             Vector3 mainLightPosition = new Vector3(0, 20f, 0);
             Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ?
                     Quaternion.Euler(120f, -20f, 0f) :
-                    Quaternion.Euler(70f, 0f, 0f);
+                    Quaternion.Euler(70f, -30f, 0f);
 
             if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB && IsNightScene())
             {

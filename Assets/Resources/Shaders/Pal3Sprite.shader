@@ -11,7 +11,7 @@ Shader "Pal3/Sprite"
         
         Pass
         {
-            Blend SrcAlpha One 
+            Blend SrcAlpha One
             ZWrite Off
             
             CGPROGRAM

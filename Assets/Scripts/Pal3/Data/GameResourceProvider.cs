@@ -395,7 +395,7 @@ namespace Pal3.Data
             return textures;
         }
 
-        public Texture2D GetEffectTexture(string name)
+        public Texture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
             var separator = CpkConstants.DirectorySeparator;
 
@@ -404,7 +404,7 @@ namespace Pal3.Data
                 $"{FileConstants.EffectFolderName}{separator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
-            return textureProvider.GetTexture(name);
+            return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
 
         public Sprite[] GetEmojiSprites(ActorEmojiType emojiType)
@@ -496,7 +496,7 @@ namespace Pal3.Data
                                 $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}.");
         }
 
-        public Texture2D[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
+        public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             var separator = CpkConstants.DirectorySeparator;
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(
@@ -505,18 +505,18 @@ namespace Pal3.Data
             if (effect == GraphicsEffect.Fire)
             {
                 var numberOfFrames = EffectConstants.EffectAnimationInfo[effect].NumberOfFrames;
-                var textures = new Texture2D[numberOfFrames];
+                var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
                     var textureNameFormat = Utility.GetFileName(texturePathFormat, separator);
-                    Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1));
-                    textures[i] = texture;
+                    Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
+                    textures[i] = (texture, hasAlphaChannel);
                 }
 
                 return textures;
             }
 
-            return Array.Empty<Texture2D>();
+            return Array.Empty<(Texture2D, bool)>();
         }
         
         private string GetVfxPrefabPath(int effectGroupId)
