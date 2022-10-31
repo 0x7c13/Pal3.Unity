@@ -264,6 +264,11 @@ namespace Pal3.Scene
             Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ?
                     Quaternion.Euler(120f, -20f, 0f) :
                     Quaternion.Euler(70f, 0f, 0f);
+
+            if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB && IsNightScene())
+            {
+                mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
+            }
             
             // Most in-door scenes have a single spot light source where we can find in the LGT file,
             // which can be used as the main light source for the scene.
