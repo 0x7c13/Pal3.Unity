@@ -12,6 +12,13 @@ namespace Core.Renderer
     {
         private Skybox _skybox;
 
+        private static readonly int RightTexturePropertyID = Shader.PropertyToID("_RightTex");
+        private static readonly int BackTexturePropertyID = Shader.PropertyToID("_BackTex");
+        private static readonly int LeftTexturePropertyID = Shader.PropertyToID("_LeftTex");
+        private static readonly int FrontTexturePropertyID = Shader.PropertyToID("_FrontTex");
+        private static readonly int UpTexturePropertyID = Shader.PropertyToID("_UpTex");
+        private static readonly int DownTexturePropertyID = Shader.PropertyToID("_DownTex");
+
         public void Render(Texture2D[] textures)
         {
             var mainCamera = GetComponent<Camera>();
@@ -32,12 +39,12 @@ namespace Core.Renderer
         private static Material CreateSkyboxMaterial(Texture2D[] textures)
         {
             var material = new Material(Shader.Find("Skybox/6 Sided"));
-            material.SetTexture("_RightTex", textures[0]);
-            material.SetTexture("_BackTex", textures[1]);
-            material.SetTexture("_LeftTex", textures[2]);
-            material.SetTexture("_FrontTex", textures[3]);
-            material.SetTexture("_UpTex", textures[4]);
-            material.SetTexture("_DownTex", textures[5]);
+            material.SetTexture(RightTexturePropertyID, textures[0]);
+            material.SetTexture(BackTexturePropertyID, textures[1]);
+            material.SetTexture(LeftTexturePropertyID, textures[2]);
+            material.SetTexture(FrontTexturePropertyID, textures[3]);
+            material.SetTexture(UpTexturePropertyID, textures[4]);
+            material.SetTexture(DownTexturePropertyID, textures[5]);
             return material;
         }
     }

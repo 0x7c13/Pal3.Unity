@@ -125,16 +125,17 @@ namespace Core.DataReader.Nav
             // make the mesh double sided, but that would cause some other issues (trust me).
             {
                 Vector3[] normals = Utility.CalculateNormals(vertices, triangles);
-                    
-                // To check if the mesh is upside down, we can simply check if the
-                // the sum of all the normals is negative (Y axis only).
-                double sumOfYNormal = normals.Aggregate<Vector3, double>(0f, (_, normal) => _ + normal.y);
-
-                // If the sum of all the normals is negative, then we need to flip the mesh
-                // by reversing the order of the triangles.
-                if (sumOfYNormal < 0)
+                
+                for (var i = 0; i < numberOfFaces; i++)
                 {
-                    Array.Reverse(triangles);
+                    var index = i * 3;
+                    if (normals[triangles[index]].y +
+                        normals[triangles[index + 1]].y +
+                        normals[triangles[index + 2]].y < 0)
+                    {
+                        // Change the winding order of the face.
+                        (triangles[index], triangles[index + 1]) = (triangles[index + 1], triangles[index]); 
+                    }
                 }
             }
 

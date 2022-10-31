@@ -13,18 +13,16 @@ namespace Pal3.Scene
     using Command;
     using Command.SceCommands;
     using Core.Animation;
-    using Core.DataReader.Lgt;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
     using Data;
-    using Dev;
+    using Effect;
     using MetaData;
     using Renderer;
     using SceneObjects;
     using UnityEngine;
-    using UnityEngine.Rendering;
     using Debug = UnityEngine.Debug;
 
     public class Scene : SceneBase,
@@ -40,13 +38,18 @@ namespace Pal3.Scene
         ICommandExecutor<ActorLookAtActorCommand>
     {
         private const float SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE = .2f;
+        private const int MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS = 3;
 
+        private static int _lightCullingMask;
+        
         private Camera _mainCamera;
         private SkyBoxRenderer _skyBoxRenderer;
 
         private GameObject _parent;
         private GameObject _mesh;
-        private List<GameObject> _lights = new();
+        
+        private Light _mainLight;
+        private readonly List<Light> _pointLights = new();
         
         private readonly List<GameObject> _navMeshLayers = new ();
         private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
@@ -57,12 +60,12 @@ namespace Pal3.Scene
         private GameResourceProvider _resourceProvider;
         private Tilemap _tilemap;
 
-        private bool _isMainLightInitialized;
-
         public void Init(GameResourceProvider resourceProvider, Camera mainCamera)
         {
             _resourceProvider = resourceProvider;
             _mainCamera = mainCamera;
+            _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
+                                (1 << LayerMask.NameToLayer("VFX"));
         }
 
         private void OnEnable()
@@ -75,11 +78,6 @@ namespace Pal3.Scene
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
             Destroy(_mesh);
-            
-            foreach (GameObject lightSource in _lights)
-            {
-                Destroy(lightSource);
-            }
 
             foreach (MeshCollider meshCollider in _meshColliders.Values)
             {
@@ -130,7 +128,6 @@ namespace Pal3.Scene
             RenderSkyBox();
             SetupNavMesh();
             #if RTX_ON
-            CreateLightSources();
             SetupEnvironmentLighting();
             #endif
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
@@ -261,109 +258,95 @@ namespace Pal3.Scene
             }
         }
 
-        private void CreateLightSources()
-        {
-            if (LgtFile == null) return;
-
-            _lights = new List<GameObject>();
-
-            foreach (LightNode lightNode in LgtFile.LightNodes)
-            {
-                var lightSource = new GameObject($"LightSource_{lightNode.LightType}");
-                lightSource.transform.SetParent(_parent.transform);
-
-                // Attach LightNode to the GameObject for better debuggability
-                #if UNITY_EDITOR
-                var materialInfoPresenter = lightSource.AddComponent<LightSourceInfoPresenter>();
-                materialInfoPresenter.LightNode = lightNode;
-                #endif
-
-                switch (lightNode.LightType)
-                {
-                    // case GameBoxLightType.Omni:
-                    //     lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                    //     break;
-                    case GameBoxLightType.Spot:
-                    {
-                        lightSource.transform.position = GameBoxInterpreter.ToUnityPosition(lightNode.WorldMatrix.MultiplyPoint(Vector3.zero));
-                        float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                        lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                        {
-                            X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                            Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                            Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                            W = w,
-                        });
-                        var lightComponent = lightSource.AddComponent<Light>();
-                        lightComponent.type = LightType.Directional;
-                        lightComponent.color = lightNode.LightColor;
-                        #if PAL3
-                        lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
-                        #elif PAL3A
-                        lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
-                        #endif
-                        lightComponent.range = 500f;
-                        lightComponent.shadows = LightShadows.Soft;
-                        _isMainLightInitialized = true;
-                        RenderSettings.sun = lightComponent;
-                        break;
-                    }
-                    // case GameBoxLightType.Directional:
-                    // {
-                    //     float w = Mathf.Sqrt(1.0f + lightNode.WorldMatrix.m00 + lightNode.WorldMatrix.m11 + lightNode.WorldMatrix.m22) / 2.0f;
-                    //     lightSource.transform.rotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-                    //     {
-                    //         X = (lightNode.WorldMatrix.m21 - lightNode.WorldMatrix.m12) / (4.0f * w),
-                    //         Y = (lightNode.WorldMatrix.m02 - lightNode.WorldMatrix.m20) / (4.0f * w),
-                    //         Z = (lightNode.WorldMatrix.m10 - lightNode.WorldMatrix.m01) / (4.0f * w),
-                    //         W = w,
-                    //     });
-                    //     break;
-                    // }
-                }
-
-                _lights.Add(lightSource);
-            }
-        }
-
         private void SetupEnvironmentLighting()
         {
-            if (!_isMainLightInitialized)
+            Vector3 mainLightPosition = new Vector3(0, 20f, 0);
+            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ?
+                    Quaternion.Euler(120f, -20f, 0f) :
+                    Quaternion.Euler(70f, 0f, 0f);
+
+            if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB && IsNightScene())
             {
-                var lightSource = new GameObject($"LightSource_Default");
-                lightSource.transform.SetParent(_parent.transform);
-                lightSource.transform.rotation = Quaternion.Euler(70f, 0f, 0f);
-
-                var lightComponent = lightSource.AddComponent<Light>();
-                
-                #if PAL3
-                lightComponent.color = IsNightScene() ?
-                    new Color(100f / 255f, 100f / 255f, 100f / 255f) :
-                    new Color(200f / 255f, 190f / 255f, 180f / 255f);
-                #elif PAL3A
-                lightComponent.color = IsNightScene() ?
-                    new Color(60f / 255f, 60f / 255f, 100f / 255f) :
-                    new Color(200f / 255f, 200f / 255f, 200f / 255f);
-                #endif
-                
-                lightComponent.type = LightType.Directional;
-                #if PAL3
-                lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.8f : 1f;
-                #elif PAL3A
-                lightComponent.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
-                #endif
-                lightComponent.range = 500f;
-                lightComponent.shadows = LightShadows.Soft;
-
-                RenderSettings.sun = lightComponent;
+                mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
             }
             
+            // Most in-door scenes have a single spot light source where we can find in the LGT file,
+            // which can be used as the main light source for the scene.
+            // if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB &&
+            //     LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
+            // {
+            //     float w = Mathf.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
+            //     mainLightRotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
+            //     {
+            //         X = (mainLight.WorldMatrix.m21 - mainLight.WorldMatrix.m12) / (4.0f * w),
+            //         Y = (mainLight.WorldMatrix.m02 - mainLight.WorldMatrix.m20) / (4.0f * w),
+            //         Z = (mainLight.WorldMatrix.m10 - mainLight.WorldMatrix.m01) / (4.0f * w),
+            //         W = w,
+            //     });
+            // }
+            
+            var mainLightGo = new GameObject($"LightSource_Main");
+            mainLightGo.transform.SetParent(_parent.transform);
+            mainLightGo.transform.position = mainLightPosition;
+            mainLightGo.transform.rotation = mainLightRotation;
+
+            _mainLight = mainLightGo.AddComponent<Light>();
+            _mainLight.type = LightType.Directional;
+            _mainLight.range = 500f;
+            _mainLight.shadows = LightShadows.Soft;
+            _mainLight.cullingMask = _lightCullingMask;
+            
+            RenderSettings.sun = _mainLight;
+            
+            #if PAL3
+            _mainLight.color = IsNightScene() ?
+                new Color(100f / 255f, 100f / 255f, 100f / 255f) :
+                new Color(200f / 255f, 190f / 255f, 180f / 255f);
+            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.75f : 1f;
+            #elif PAL3A
+            _mainLight.color = IsNightScene() ?
+                new Color(60f / 255f, 60f / 255f, 100f / 255f) :
+                new Color(200f / 255f, 200f / 255f, 200f / 255f);
+            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
+            #endif
+            
+            // Ambient light
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = IsNightScene() ?
                 new Color( 60f/ 255f, 70f / 255f, 100f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 180f / 255f);
         }
         
+        private void AddPointLight(Transform parent, float yOffset)
+        {
+            // Add a point light to the fire fx
+            var lightSource = new GameObject($"LightSource_Point");
+            lightSource.transform.SetParent(parent, false);
+            lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
+            
+            var lightComponent = lightSource.AddComponent<Light>();
+            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
+            lightComponent.type = LightType.Point;
+            lightComponent.intensity = IsNightScene() ? 1f : 1.2f;
+            lightComponent.range = 50f;
+            lightComponent.shadows = LightShadows.Soft;
+            lightComponent.shadowNearPlane = 0.25f;
+            lightComponent.cullingMask = _lightCullingMask;
+            
+            _pointLights.Add(lightComponent);
+            StripPointLightShadowsIfNecessary();
+        }
+        
+        private void StripPointLightShadowsIfNecessary()
+        {
+            var disableShadows = _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
+            
+            foreach (Light pointLight in _pointLights)
+            {
+                pointLight.shadows = disableShadows ? LightShadows.None : LightShadows.Soft;
+            }
+        }
+
         private void ActivateSceneObjects()
         {
             foreach (SceneObject sceneObject in SceneObjects.Values.Where(s => s.Info.Active == 1))
@@ -395,12 +378,16 @@ namespace Pal3.Scene
 
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
 
-            // strip lighting for day scenes
-            if (!IsNightScene() && sceneObjectGameObject.GetComponentInChildren<Light>() is {} lightComponent)
+            #if RTX_ON
+            if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
+                sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
+                fireEffect.EffectGameObject != null)
             {
-                Destroy(lightComponent);
+                var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
+                AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
             }
-            
+            #endif
+
             sceneObjectGameObject.transform.SetParent(_parent.transform);
             _activatedSceneObjects[sceneObject.Info.Id] = sceneObjectGameObject;
         }
@@ -409,6 +396,15 @@ namespace Pal3.Scene
         {
             if (!_activatedSceneObjects.ContainsKey(id)) return;
             _activatedSceneObjects.Remove(id, out GameObject sceneObject);
+            
+            #if RTX_ON
+            if (sceneObject.GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
+            {
+                _pointLights.Remove(pointLight);
+                StripPointLightShadowsIfNecessary();
+            }
+            #endif
+            
             Destroy(sceneObject);
         }
 
@@ -573,7 +569,7 @@ namespace Pal3.Scene
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
-        
+
         #if PAL3A
         public void Execute(FengYaSongCommand command)
         {

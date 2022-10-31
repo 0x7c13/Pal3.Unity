@@ -40,8 +40,12 @@ namespace Pal3.Effect
             _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual fidelity on desktop devices   
 
             _ambientOcclusion = _postProcessVolume.profile.GetSetting<AmbientOcclusion>();
+            #if RTX_ON
             _ambientOcclusion.active = Utility.IsDesktopDevice(); // Enable AmbientOcclusion for better visual fidelity on desktop devices   
-
+            #else
+            _ambientOcclusion.active = false;
+            #endif
+            
             _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
             _colorGrading.active = false;
 
