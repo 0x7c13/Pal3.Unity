@@ -28,10 +28,18 @@ namespace Pal3.Effect.PostProcessing
         private static readonly int TimeScalePropertyId = Shader.PropertyToID("_TimeScale");
         private static readonly int XFactorPropertyId = Shader.PropertyToID("_XFactor");
         private static readonly int YFactorPropertyId = Shader.PropertyToID("_YFactor");
+
+        private Shader _distortionShader;
         
+        public override void Init()
+        {
+            _distortionShader = Shader.Find("Pal3/PostEffectDistortion");
+            base.Init();
+        }
+
         public override void Render(PostProcessRenderContext context)
         {
-            var sheet = context.propertySheets.Get(Shader.Find("Pal3/PostEffectDistortion"));
+            PropertySheet sheet = context.propertySheets.Get(_distortionShader);
             sheet.properties.SetFloat(TimeScalePropertyId, settings.timeScale);
             sheet.properties.SetFloat(XFactorPropertyId, settings.xFactor);
             sheet.properties.SetFloat(YFactorPropertyId, settings.yFactor);
