@@ -35,7 +35,7 @@ namespace Pal3.Effect.PostProcessing
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
 
             _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
-            #if RTX_ON && !UNITY_ANDROID
+            #if RTX_ON
             _bloom.active = false; // Pointless when lighting is on
             #else
             _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual fidelity on desktop devices   
