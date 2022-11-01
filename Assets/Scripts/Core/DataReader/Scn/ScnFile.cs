@@ -168,6 +168,11 @@ namespace Core.DataReader.Scn
                    string.Equals(modelAName, modelBName, StringComparison.OrdinalIgnoreCase);
             #endif
         }
+
+        public override string ToString()
+        {
+            return $"{CityName.ToLower()}_{Name.ToLower()}_{LightMap}";
+        }
     }
 
     [System.Serializable]

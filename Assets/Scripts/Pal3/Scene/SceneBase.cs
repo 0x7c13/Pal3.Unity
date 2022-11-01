@@ -28,7 +28,7 @@ namespace Pal3.Scene
         protected Tilemap Tilemap;
         protected ScnFile ScnFile;
         protected NavFile NavFile;
-        protected LgtFile LgtFile;
+        //protected LgtFile LgtFile;
 
         protected (PolFile PolFile, ITextureResourceProvider TextureProvider) ScenePolyMesh;
         protected (CvdFile CvdFile, ITextureResourceProvider TextureProvider)? SceneCvdMesh;
@@ -93,10 +93,10 @@ namespace Pal3.Scene
             
             #if RTX_ON
             // Check if light file exists
-            if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
-            {
-                LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
-            }
+            // if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
+            // {
+            //     LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
+            // }
             #endif
         }
 

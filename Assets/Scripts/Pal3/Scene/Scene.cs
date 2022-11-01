@@ -295,26 +295,40 @@ namespace Pal3.Scene
             _mainLight.range = 500f;
             _mainLight.shadows = LightShadows.Soft;
             _mainLight.cullingMask = _lightCullingMask;
-            
             RenderSettings.sun = _mainLight;
             
             #if PAL3
             _mainLight.color = IsNightScene() ?
-                new Color(100f / 255f, 100f / 255f, 100f / 255f) :
-                new Color(200f / 255f, 190f / 255f, 180f / 255f);
-            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.75f : 1f;
+                new Color(60f / 255f, 80f / 255f, 170f / 255f) :
+                new Color(220f / 255f, 210f / 255f, 200f / 255f);
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB) ? 0.75f : 1f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
-                new Color(60f / 255f, 60f / 255f, 100f / 255f) :
+                new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 200f / 255f);
-            _mainLight.intensity = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ? 0.65f : 1f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB) ? 0.65f : 1f;
             #endif
             
             // Ambient light
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = IsNightScene() ?
-                new Color( 60f/ 255f, 70f / 255f, 100f / 255f) :
+                new Color( 90f/ 255f, 100f / 255f, 130f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 180f / 255f);
+            
+            // Apply lighting override
+            var sceneName = ScnFile.SceneInfo.ToString();
+            if (LightingConstants.MainLightColorInfoGlobal.ContainsKey(ScnFile.SceneInfo.CityName))
+            {
+                _mainLight.color = LightingConstants.MainLightColorInfoGlobal[ScnFile.SceneInfo.CityName];
+            }
+            if (LightingConstants.MainLightColorInfo.ContainsKey(sceneName))
+            {
+                _mainLight.color = LightingConstants.MainLightColorInfo[sceneName];
+            }
+            if (LightingConstants.MainLightRotationInfo.ContainsKey(sceneName))
+            {
+                _mainLight.transform.rotation = LightingConstants.MainLightRotationInfo[sceneName];
+            }
         }
         
         private void AddPointLight(Transform parent, float yOffset)
@@ -339,7 +353,7 @@ namespace Pal3.Scene
         
         private void StripPointLightShadowsIfNecessary()
         {
-            var disableShadows = _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
+            var disableShadows = !IsNightScene() || _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
             
             foreach (Light pointLight in _pointLights)
             {

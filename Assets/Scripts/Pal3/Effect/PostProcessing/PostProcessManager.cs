@@ -103,8 +103,6 @@ namespace Pal3.Effect.PostProcessing
                 case 0:
                 {
                     _distortion.active = true;
-                    _colorGrading.active = false;
-                    _vignette.active = false;
                     break;
                 }
                 // Vintage + color filter effect
@@ -112,7 +110,6 @@ namespace Pal3.Effect.PostProcessing
                 {
                     _colorGrading.active = true;
                     _vignette.active = true;
-                    _distortion.active = false;
                     break;
                 }
             }

@@ -419,7 +419,7 @@ namespace Pal3
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
-            info.Append($"Current scene: {currentSceneInfo.CityName} {currentSceneInfo.Name}\n");
+            info.Append($"Current scene: {currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
