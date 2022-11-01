@@ -36,6 +36,7 @@ namespace Pal3.MetaData
             { "q02_n14_0", new Color(75f / 255f, 75f / 255f, 75f / 255f) },      // 地牢1
             { "q02_n16_0", new Color(30f / 255f, 30f / 255f, 30f / 255f) },      // 地牢2
             { "q07_q07a_1", new Color(120f / 255f, 50f / 255f, 30f / 255f) },    // 安宁村黄昏
+            { "m06_4_-1", new Color(0f / 255f, 0f / 255f, 80f / 255f) },         // 蓬莱密道
         };
         #elif PAL3A
         public static readonly Dictionary<string, Color> MainLightColorInfo = new()
