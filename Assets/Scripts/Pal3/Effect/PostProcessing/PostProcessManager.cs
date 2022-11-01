@@ -35,14 +35,14 @@ namespace Pal3.Effect.PostProcessing
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
 
             _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
-            #if RTX_ON
+            #if RTX_ON && !UNITY_ANDROID
             _bloom.active = false; // Pointless when lighting is on
             #else
             _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual fidelity on desktop devices   
             #endif
 
             _ambientOcclusion = _postProcessVolume.profile.GetSetting<AmbientOcclusion>();
-            #if RTX_ON
+            #if RTX_ON && !UNITY_ANDROID // AO not working well with OpenGL on Android
             _ambientOcclusion.active = Utility.IsDesktopDevice(); // Enable AmbientOcclusion for better visual fidelity on desktop devices   
             #else
             _ambientOcclusion.active = false; // Pointless when lighting is off
