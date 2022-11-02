@@ -21,6 +21,7 @@ namespace Pal3.Effect
         private (Texture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(Texture2D texture, bool hasAlphaChannel)>();
         private AnimatedBillboardRenderer _billboardRenderer;
         private PolyModelRenderer _sceneObjectRenderer;
+        private Material _spriteMaterial;
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
@@ -71,13 +72,14 @@ namespace Pal3.Effect
                     parentPosition.z);
                 
                 _billboardRenderer = EffectGameObject.AddComponent<AnimatedBillboardRenderer>();
-                Material spriteMaterial = _effectTextures[0].hasAlphaChannel
+                _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
                     : resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial();
+                
                 StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
                     fps,
                     -1,
-                    spriteMaterial));
+                    _spriteMaterial));
             }
         }
         
@@ -96,6 +98,11 @@ namespace Pal3.Effect
             if (EffectGameObject != null)
             {
                 Destroy(EffectGameObject);
+            }
+
+            if (_spriteMaterial != null)
+            {
+                Destroy(_spriteMaterial);
             }
         }
     }

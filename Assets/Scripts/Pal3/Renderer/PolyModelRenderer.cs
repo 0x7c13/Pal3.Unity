@@ -82,14 +82,12 @@ namespace Pal3.Renderer
                         if (textureCache.ContainsKey(textureName)) continue;
                         #if RTX_ON
                         // No need to load pre-baked shadow texture for lighting enabled scene
-                        // Note: all shadow texture name starts with "^l"
-                        Texture2D texture2D = textureName.StartsWith("^l", StringComparison.OrdinalIgnoreCase) ?
-                            Texture2D.blackTexture :
-                            textureProvider.GetTexture(textureName);
+                        // Note: all shadow texture name starts with "^"
+                        Texture2D texture2D = textureName.StartsWith("^") ? null : textureProvider.GetTexture(textureName);
                         #else
                         Texture2D texture2D = textureProvider.GetTexture(textureName);
                         #endif
-                        if (texture2D != null) textureCache[textureName] = texture2D;
+                        textureCache[textureName] = texture2D;
                     }
                 }
             }
