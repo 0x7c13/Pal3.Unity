@@ -52,6 +52,7 @@ namespace Pal3.MetaData
         {
             { "q01_yn01a_1", Quaternion.Euler(130f, 40f, 0f) },    // 重楼当剑
             { "q07_q07a_1", Quaternion.Euler(145f, 50f, 0f) },     // 安宁村黄昏
+            { "m06_1_-1", Quaternion.Euler(30f, -50f, 0f) },       // 蓬莱码头
         };
         #elif PAL3A
         public static readonly Dictionary<string, Quaternion> MainLightRotationInfo = new()
