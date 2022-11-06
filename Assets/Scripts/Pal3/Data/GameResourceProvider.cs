@@ -504,7 +504,7 @@ namespace Pal3.Data
 
             if (effect == GraphicsEffect.Fire)
             {
-                var numberOfFrames = EffectConstants.EffectAnimationInfo[effect].NumberOfFrames;
+                var numberOfFrames = EffectConstants.AnimatedFireEffectFrameCount;
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {

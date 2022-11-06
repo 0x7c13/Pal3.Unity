@@ -55,7 +55,7 @@ namespace Pal3.UI
                 $"{GameConstants.ContactInfo}\n" +
                 $"Version: Alpha v{Application.version}\n";
 
-            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{1:0.} fps";
+            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2})";
 
             _fpsCounter = GetComponent<FpsCounter>();
 
@@ -76,7 +76,11 @@ namespace Pal3.UI
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
                 _heapSizeLastQueryTime = currentTime;
             }
-            _debugInfo.SetText(_debugInfoStringFormat, _heapSize, Mathf.Ceil(_fpsCounter.GetFps()));
+            _debugInfo.SetText(_debugInfoStringFormat,
+                _heapSize,
+                Screen.width,
+                Screen.height,
+                Mathf.Ceil(_fpsCounter.GetFps()));
         }
 
         private IEnumerator AnimateNoteUI()

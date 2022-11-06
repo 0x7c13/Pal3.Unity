@@ -52,9 +52,7 @@ namespace Pal3.Effect
                         new Vector2(0.5f, 0f));
                     sprites[i] = sprite;
                 }
-
-                var fps = EffectConstants.EffectAnimationInfo[GraphicsEffect.Fire].Fps;
-
+                
                 Vector3 parentPosition = transform.position;
 
                 var yPosition = parentPosition.y;
@@ -77,7 +75,7 @@ namespace Pal3.Effect
                     : resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial();
                 
                 StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
-                    fps,
+                    EffectConstants.AnimatedFireEffectFrameRate,
                     -1,
                     _spriteMaterial));
             }

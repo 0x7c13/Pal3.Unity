@@ -53,7 +53,11 @@ namespace Pal3.Effect
         
         public void Execute(EffectPreLoadCommand command)
         {
+            // In PAL3A, PreLoad command is always issued right before the effect is played.
+            // So it is pointless to pre-load the effect here for PAL3A.
+            #if PAL3
             StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
+            #endif
         }
         
         public void Execute(EffectSetPositionCommand command)

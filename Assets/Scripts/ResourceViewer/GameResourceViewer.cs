@@ -86,7 +86,7 @@ namespace ResourceViewer
             randomMp3Button.onClick.AddListener(RandMp3);
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
-            DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol or .mv3).", Load);
+            DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
             #if UNITY_EDITOR
             DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
             DebugLogConsole.AddCommand("ExtractAllCpkArchives", "Extract all .cpk archives into the output directory.", ExtractAllCpkArchives);

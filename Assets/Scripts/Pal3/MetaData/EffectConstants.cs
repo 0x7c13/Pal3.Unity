@@ -32,6 +32,10 @@ namespace Pal3.MetaData
 
     public static class EffectConstants
     {
+        public const int AnimatedFireEffectFrameCount = 16;
+        
+        public const int AnimatedFireEffectFrameRate = 10;
+        
         private static readonly char PathSeparator = CpkConstants.DirectorySeparator;
 
         private static readonly string EffectScnRelativePath =
@@ -82,16 +86,7 @@ namespace Pal3.MetaData
                     "", 1f, 0.6f) },
             };
         #endif
-
-        public static readonly Dictionary<GraphicsEffect, (int NumberOfFrames, int Fps)> EffectAnimationInfo = new()
-        {
-            {GraphicsEffect.PoisonFog, new (0, 0) },
-            {GraphicsEffect.Portal, new (0, 0)},
-            {GraphicsEffect.SavePoint, new (0, 0)},
-            {GraphicsEffect.Fire, new (16, 10)},
-            {GraphicsEffect.Combat, new (0, 0)},
-        };
-
+        
         #if PAL3
         // Effect group id to sfx mapping
         public static readonly Dictionary<int, string> EffectSfxInfo = new()
@@ -115,6 +110,20 @@ namespace Pal3.MetaData
         #elif PAL3A
         public static readonly Dictionary<int, string> EffectSfxInfo = new()
         {
+            { 91,  "WD156" },
+            { 174, "WD308" },
+            { 175, "WD051" },
+            { 176, "WD051" },
+            { 178, "WD032" },
+            { 179, "WD497" },
+            { 181, "WD018" },
+            { 182, "WD018" },
+            { 257, "WD008" },
+            { 281, "WD159" },
+            { 285, "WD422" },
+            { 328, "WD532" },
+            { 388, "WD165" },
+            { 389, "WD165" },
         };
         #endif
     }
