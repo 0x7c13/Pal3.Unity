@@ -163,12 +163,6 @@ namespace Pal3.Renderer
                         UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
                     };
                     
-                    // Assign normals only once since it won't change during animation
-                    for (var j = 0; j < meshDataBuffer.NormalBuffer.Length; j++)
-                    {
-                        meshDataBuffer.NormalBuffer[j] = meshSection.FrameVertices[frameIndex][j].Normal;
-                    }
-
                     UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,
                         frameIndex,
@@ -204,6 +198,9 @@ namespace Pal3.Renderer
                         ref materials,
                         true);
 
+                    renderMesh.RecalculateNormals();
+                    renderMesh.RecalculateTangents();
+                    
                     nodeMeshes.Item2[i] = new RenderMeshComponent
                     {
                         Mesh = renderMesh,

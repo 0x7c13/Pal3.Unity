@@ -362,6 +362,9 @@ namespace Core.DataReader.Cvd
                     Vector3 normal = GameBoxInterpreter.ToUnityNormal(reader.ReadVector3());
                     Vector3 position = GameBoxInterpreter.CvdPositionToUnityPosition(reader.ReadVector3());
 
+                    // Quick fix for the missing/wrong normals
+                    if (normal == Vector3.zero) normal = Vector3.up;
+                    
                     vertices[j] = new CvdVertex()
                     {
                         Normal = normal,
@@ -455,10 +458,9 @@ namespace Core.DataReader.Cvd
             }
 
             var frameVertices = new CvdVertex[allFrameVertices.Length][];
-            List<int> triangles;
-            List<int> indexBuffer;
 
-            (triangles, indexBuffer) = CalculateTriangles(indices);
+            (List<int> triangles, List<int> indexBuffer) = CalculateTriangles(indices);
+            
             GameBoxInterpreter.ToUnityTriangles(triangles);
             
             for (var i = 0; i < allFrameVertices.Length; i++)
@@ -491,7 +493,7 @@ namespace Core.DataReader.Cvd
         {
             var indexBuffer = new List<int>();
             var triangles = new List<int>();
-            var indexMap = new Dictionary<int, int>();
+            var index = 0;
 
             for (var j = 0; j < allIndices.Length; j++)
             {
@@ -504,17 +506,8 @@ namespace Core.DataReader.Cvd
 
                 for (var k = 0; k < 3; k++)
                 {
-                    if (indexMap.ContainsKey(indices[k]))
-                    {
-                        triangles.Add(indexMap[indices[k]]);
-                    }
-                    else
-                    {
-                        var index = indexBuffer.Count;
-                        indexBuffer.Add(indices[k]);
-                        indexMap[indices[k]] = index;
-                        triangles.Add(index);
-                    }
+                    indexBuffer.Add(indices[k]);
+                    triangles.Add(index++);
                 }
             }
 

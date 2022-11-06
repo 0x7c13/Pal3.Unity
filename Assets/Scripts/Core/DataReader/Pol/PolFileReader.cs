@@ -197,7 +197,7 @@ namespace Core.DataReader.Pol
                     uvs[3][i] = new Vector2(x, y);
                 }
                 
-                // Quick fix for the missing normals
+                // Quick fix for the missing/wrong normals
                 if (normals[i] == Vector3.zero) normals[i] = Vector3.up;
             }
 
