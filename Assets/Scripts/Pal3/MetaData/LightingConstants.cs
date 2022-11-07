@@ -24,6 +24,7 @@ namespace Pal3.MetaData
         public static readonly Dictionary<string, Color> MainLightColorInfoGlobal = new()
         {
             { "m02", new Color(10f / 255f, 30f / 255f, 60f / 255f) },       // 地脉门户
+            { "m15", new Color(80f / 255f, 130f / 255f, 200f / 255f) },     // 月光城
         };
         #endif
         

@@ -67,6 +67,9 @@ namespace Pal3.Effect
 
             #if PAL3
             if (effectParameter == 275) // 重楼创建的用来禁锢雪见/龙葵的法阵特效
+            #elif PAL3A
+            if (effectParameter == 344) // 重盘古元灵特效
+            #endif
             {
                 Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
                 if (vfxPrefab != null)
@@ -75,7 +78,6 @@ namespace Pal3.Effect
                     _effect.name = "VFX_" + effectParameter;
                 }
             }
-            #endif
         }
         
         private void OnDisable()

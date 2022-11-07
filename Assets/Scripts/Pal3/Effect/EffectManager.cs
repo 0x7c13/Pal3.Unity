@@ -126,7 +126,7 @@ namespace Pal3.Effect
             var actorId = effectAttachToActorCommand.ActorId;
             switch (effectPlayCommand.EffectGroupId)
             {
-                // 南宫煌形态切换为狼形态特效
+                // 南宫煌切换为狼妖形态特效
                 case 164:
                 {
                     Actor actor = currentScene.GetActor((byte)actorId);
@@ -139,7 +139,7 @@ namespace Pal3.Effect
                     }
                     break;
                 }
-                // 南宫煌形态切换为人形态特效
+                // 南宫煌切换为人形态特效
                 case 315:
                 {
                     Actor actor = currentScene.GetActor((byte)actorId);
