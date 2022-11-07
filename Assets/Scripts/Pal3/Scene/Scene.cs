@@ -383,6 +383,11 @@ namespace Pal3.Scene
         private void ActivateSceneObject(SceneObject sceneObject)
         {
             if (_activatedSceneObjects.ContainsKey(sceneObject.Info.Id)) return;
+            
+            // TODO: Remove once implemented
+            if (sceneObject.Info.Type is ScnSceneObjectType.Collectable
+                or ScnSceneObjectType.Chest
+                or ScnSceneObjectType.RareChest) return;
 
             Color tintColor = Color.white;
             if (IsNightScene())
