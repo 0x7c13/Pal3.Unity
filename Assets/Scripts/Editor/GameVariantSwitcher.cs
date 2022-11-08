@@ -17,45 +17,25 @@ namespace Editor
         [MenuItem("Pal3/Switch Variant/PAL3")]
         public static void SwitchToPal3()
         {
-            RemoveSymbol("PAL3A");
-            AddSymbol("PAL3");
+            EditorHelper.RemoveSymbol("PAL3A");
+            EditorHelper.AddSymbol("PAL3");
             ApplyPlayerSettingsForVariant("PAL3");
         }
 
         [MenuItem("Pal3/Switch Variant/PAL3A")]
         public static void SwitchToPal3A()
         {
-            RemoveSymbol("PAL3");
-            AddSymbol("PAL3A");
+            EditorHelper.RemoveSymbol("PAL3");
+            EditorHelper.AddSymbol("PAL3A");
             ApplyPlayerSettingsForVariant("PAL3A");
         }
-
-        private static BuildTargetGroup[] GetAllSupportedTargetGroups()
-        {
-            return new[]
-            {
-                BuildTargetGroup.Android,
-                BuildTargetGroup.Standalone,
-                BuildTargetGroup.iOS,
-            };
-        }
-
-        private static NamedBuildTarget[] GetAllSupportedNamedBuildTargets()
-        {
-            return new[]
-            {
-                NamedBuildTarget.Android,
-                NamedBuildTarget.Standalone,
-                NamedBuildTarget.iOS,
-            };
-        }
-
+        
         private static void ApplyPlayerSettingsForVariant(string appName)
         {
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
 
-            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
+            foreach (BuildTargetGroup targetGroup in EditorHelper.GetAllSupportedTargetGroups())
             {
                 PlayerSettings.SetApplicationIdentifier(targetGroup,
                     $"{GameConstants.AppIdentifierPrefix}.{appName}");
@@ -65,7 +45,7 @@ namespace Editor
             var gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
             
-            foreach (NamedBuildTarget buildTarget in GetAllSupportedNamedBuildTargets())
+            foreach (NamedBuildTarget buildTarget in EditorHelper.GetAllSupportedNamedBuildTargets())
             {
                 // Set app icon
                 var iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
@@ -84,36 +64,6 @@ namespace Editor
             }   
 
             AssetDatabase.SaveAssets();
-        }
-
-        private static void AddSymbol(string symbolToAdd)
-        {
-            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
-            {
-                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-                var allDefines = defines.Split(';').ToList();
-                if (!allDefines.Any(_ => string.Equals(_, symbolToAdd)))
-                {
-                    allDefines.Add(symbolToAdd);
-                }
-                allDefines.Sort();
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,
-                    string.Join(";", allDefines.ToArray()));
-            }
-        }
-
-        private static void RemoveSymbol(string symbolToDelete)
-        {
-            foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
-            {
-                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-                var allDefines = defines.Split(';').ToList();
-                var newDefines = allDefines
-                    .Where(_ => !string.Equals(_, symbolToDelete)).ToList();
-                newDefines.Sort();
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,
-                    string.Join(";", newDefines.ToArray()));
-            }
         }
     }
 }
