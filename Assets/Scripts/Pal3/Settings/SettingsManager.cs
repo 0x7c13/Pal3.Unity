@@ -21,9 +21,13 @@ namespace Pal3.Settings
         
         public void ApplyDefaultRenderingSettings()
         {
-            QualitySettings.vSyncCount = 1;
+            //QualitySettings.vSyncCount = 1;
 
+            #if UNITY_2022_1_OR_NEWER
+            var monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            #else
             var monitorRefreshRate = Screen.currentResolution.refreshRate;
+            #endif
 
             Application.targetFrameRate = Application.platform switch
             {

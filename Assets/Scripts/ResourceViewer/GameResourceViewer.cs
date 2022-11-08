@@ -68,7 +68,11 @@ namespace ResourceViewer
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
 
-            Application.targetFrameRate = Screen.currentResolution.refreshRate;
+            #if UNITY_2022_1_OR_NEWER
+            var monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            #else
+            var monitorRefreshRate = Screen.currentResolution.refreshRate;
+            #endif
 
             if (Application.platform is RuntimePlatform.IPhonePlayer or RuntimePlatform.Android)
             {

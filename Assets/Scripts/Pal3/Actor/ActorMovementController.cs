@@ -209,7 +209,7 @@ namespace Pal3.Actor
         {
             _isDuringCollision = false;
 
-            if (_actionController.GetRigidBody() is { } actorRigidbody)
+            if (_actionController.GetRigidBody() is { isKinematic: false } actorRigidbody)
             {
                 actorRigidbody.velocity = Vector3.zero;
             }
