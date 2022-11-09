@@ -593,8 +593,6 @@ namespace Pal3.Data
                                   $"{actorAction.ActionFileName}";
 
                     _ = GetMv3(mv3File); // Call GetMv3 to cache the mv3 file.
-                    
-                    Debug.LogError(mv3File);
                 }
             }
         }
