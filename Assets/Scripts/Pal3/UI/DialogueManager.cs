@@ -238,10 +238,9 @@ namespace Pal3.UI
             bool isAvatarPresented = false;
             
             if (avatarCommand != null &&
-                _sceneManager.GetCurrentScene().GetActor((byte) avatarCommand.ActorId) is { } actor)
+                _sceneManager.GetCurrentScene().GetActor((byte) avatarCommand.ActorId) is { } actor &&
+                _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName) is { } avatarSprite)
             {
-                Sprite avatarSprite = _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName);
-
                 isRightAligned = avatarCommand.RightAligned == 1;
 
                 if (isRightAligned)
@@ -309,7 +308,9 @@ namespace Pal3.UI
 
             _avatarImageLeft.color = new Color(0f, 0f, 0f, 0f);
             _avatarImageRight.color = new Color(0f, 0f, 0f, 0f);
-
+            _avatarImageLeft.sprite = null;
+            _avatarImageRight.sprite = null;
+            
             _dialogueSelectionButtonsCanvas.enabled = false;
 
             foreach (GameObject button in _selectionButtons)

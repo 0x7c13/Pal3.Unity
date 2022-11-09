@@ -35,8 +35,8 @@ namespace Pal3.MetaData
         public const int AnimatedFireEffectFrameCount = 16;
         
         public const int AnimatedFireEffectFrameRate = 10;
-        
-        private static readonly char PathSeparator = CpkConstants.DirectorySeparator;
+
+        private const char PathSeparator = CpkConstants.DirectorySeparator;
 
         private static readonly string EffectScnRelativePath =
             $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +

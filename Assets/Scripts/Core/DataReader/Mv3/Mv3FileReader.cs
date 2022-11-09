@@ -70,13 +70,9 @@ namespace Core.DataReader.Mv3
             }
 
             var meshes = new Mv3Mesh[numberOfMeshes];
-            var meshKeyFrames = new VertexAnimationKeyFrame[numberOfMeshes][];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                Mv3Mesh mesh = ReadMesh(reader, codepage);
-                meshKeyFrames[i] = CalculateKeyFrameVertices(mesh);
-                mesh.Normals = Utility.CalculateNormals(meshKeyFrames[i][0].Vertices, meshKeyFrames[i][0].Triangles);
-                meshes[i] = mesh;
+                meshes[i] = ReadMesh(reader, codepage);
             }
 
             return new Mv3File(version,
@@ -84,8 +80,7 @@ namespace Core.DataReader.Mv3
                 animationEvents,
                 tagNodes,
                 materials,
-                meshes,
-                meshKeyFrames);
+                meshes);
         }
 
         #if USE_UNSAFE_BINARY_READER
@@ -128,7 +123,7 @@ namespace Core.DataReader.Mv3
             Vector2[] texCoords;
             if (numberOfTexCoords == 0)
             {
-                texCoords = new Vector2[] {new (0f, 0f)};
+                texCoords = new Vector2[] { new (0f, 0f) };
                 Debug.LogWarning("numberOfTexCoords == 0");
             }
             else
@@ -171,61 +166,66 @@ namespace Core.DataReader.Mv3
                     Commands = commands,
                 };
             }
-
-            return new Mv3Mesh()
-            {
-                Name = name,
-                BoundBox = boundBox,
-                Attributes = attributes,
-                Frames = frames,
-                TexCoords = texCoords,
-            };
+            
+            return GetMv3Mesh(name, boundBox, attributes, frames, texCoords);
         }
 
-        private static VertexAnimationKeyFrame[] CalculateKeyFrameVertices(Mv3Mesh mv3Mesh)
+        private static Mv3Mesh GetMv3Mesh(string name,
+            GameBoxAABBox boundBox,
+            Mv3Attribute[] attributes,
+            Mv3VertFrame[] vertFrames,
+            Vector2[] texCoords)
         {
-            var triangles = new List<int>();
-            var texCoords = mv3Mesh.TexCoords;
-            var keyFrameInfo = new List<(Vector3 vertex, Vector2 uv)>[mv3Mesh.Frames.Length]
-                .Select(item=>new List<(Vector3 vertex, Vector2 uv)>()).ToArray();
+            var triangles = new int[attributes[0].IndexBuffers.Length * 3];
+            var keyFrameVertices = new List<Vector3>[vertFrames.Length]
+                .Select(item=>new List<Vector3>()).ToArray();
+            var uvs = new Vector2[attributes[0].IndexBuffers.Length * 3];
 
             var triangleIndex = 0;
             
-            for (var i = 0; i < mv3Mesh.Attributes[0].IndexBuffers.Length; i++)
+            for (var i = 0; i < attributes[0].IndexBuffers.Length; i++)
             {
-                Mv3IndexBuffer indexBuffer = mv3Mesh.Attributes[0].IndexBuffers[i];
+                Mv3IndexBuffer indexBuffer = attributes[0].IndexBuffers[i];
                 for (var j = 0; j < 3; j++)
                 {
-                    for (var k = 0; k < mv3Mesh.Frames.Length; k++)
+                    for (var k = 0; k < vertFrames.Length; k++)
                     {
-                        Mv3VertFrame frame = mv3Mesh.Frames[k];
+                        Mv3VertFrame frame = vertFrames[k];
                         Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
 
-                        keyFrameInfo[k].Add((GameBoxInterpreter
+                        keyFrameVertices[k].Add((GameBoxInterpreter
                             .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
-                                GameBoxInterpreter.GameBoxMv3UnitToUnityUnit),
-                            texCoords[indexBuffer.TexCoordIndex[j]]));
+                                GameBoxInterpreter.GameBoxMv3UnitToUnityUnit)));
                     }
 
-                    triangles.Add(triangleIndex++);
+                    uvs[triangleIndex] = texCoords[indexBuffer.TexCoordIndex[j]];
+                    triangles[triangleIndex] = triangleIndex;
+                    triangleIndex++;
                 }
             }
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
 
-            var animationKeyFrames = new VertexAnimationKeyFrame[mv3Mesh.Frames.Length];
+            var animationKeyFrames = new VertexAnimationKeyFrame[vertFrames.Length];
             for (var i = 0; i < animationKeyFrames.Length; i++)
             {
                 animationKeyFrames[i] = new VertexAnimationKeyFrame()
                 {
-                    Tick = mv3Mesh.Frames[i].Tick,
-                    Vertices = keyFrameInfo[i].Select(f => f.vertex).ToArray(),
-                    Triangles = triangles.ToArray(),
-                    Uv = keyFrameInfo[i].Select(f => f.uv).ToArray(),
+                    Tick = vertFrames[i].Tick,
+                    Vertices = keyFrameVertices[i].ToArray(),
                 };
             }
-
-            return animationKeyFrames;
+            
+            return new Mv3Mesh
+            {
+                Name = name,
+                BoundBox = boundBox,
+                Attributes = attributes,
+                Triangles = triangles,
+                Uvs = uvs,
+                Normals = Utility.CalculateNormals(animationKeyFrames[0].Vertices, triangles),
+                KeyFrames = animationKeyFrames,
+            };
         }
 
         #if USE_UNSAFE_BINARY_READER

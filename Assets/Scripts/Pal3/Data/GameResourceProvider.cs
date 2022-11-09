@@ -42,6 +42,8 @@ namespace Pal3.Data
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
 
+        private const char PathSeparator = CpkConstants.DirectorySeparator;
+
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly IMaterialFactory _materialFactory;
@@ -134,7 +136,7 @@ namespace Pal3.Data
             if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
             var polData = _fileSystem.ReadAllBytes(polFilePath);
             PolFile polFile = PolFileReader.Read(polData, _codepage);
-            var relativePath = Utility.GetDirectoryName(polFilePath, CpkConstants.DirectorySeparator);
+            var relativePath = Utility.GetDirectoryName(polFilePath, PathSeparator);
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _polCache[polFilePath] = (polFile, textureProvider);
             return (polFile, textureProvider);
@@ -146,7 +148,7 @@ namespace Pal3.Data
             if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
             var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
             CvdFile cvdFile = CvdFileReader.Read(cvdData, _codepage);
-            var relativePath = Utility.GetDirectoryName(cvdFilePath, CpkConstants.DirectorySeparator);
+            var relativePath = Utility.GetDirectoryName(cvdFilePath, PathSeparator);
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
             return (cvdFile, textureProvider);
@@ -158,7 +160,7 @@ namespace Pal3.Data
             if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
             var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
             Mv3File mv3File = Mv3FileReader.Read(mv3Data, _codepage);
-            var relativePath = Utility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparator);
+            var relativePath = Utility.GetDirectoryName(mv3FilePath, PathSeparator);
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
@@ -171,13 +173,12 @@ namespace Pal3.Data
 
         public NavFile GetNav(string sceneFileName, string sceneName)
         {
-            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}" +
-                              $"{sceneName}{separator}{sceneName}.nav";
+            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}" +
+                              $"{sceneName}{PathSeparator}{sceneName}.nav";
             #elif PAL3A
-            var navFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{separator}SCN{separator}" +
-                              $"{sceneFileName}{separator}{sceneName}{separator}{sceneName}.nav";
+            var navFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{PathSeparator}SCN{PathSeparator}" +
+                              $"{sceneFileName}{PathSeparator}{sceneName}{PathSeparator}{sceneName}.nav";
             #endif
 
             using var navFileStream = new MemoryStream(_fileSystem.ReadAllBytes(navFilePath));
@@ -186,12 +187,11 @@ namespace Pal3.Data
 
         public ScnFile GetScn(string sceneFileName, string sceneName)
         {
-            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}{sceneName}.scn";
+            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneName}.scn";
             #elif PAL3A
-            var scnFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{separator}SCN{separator}" +
-                              $"{sceneFileName}{separator}{sceneFileName}_{sceneName}.scn";
+            var scnFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{PathSeparator}SCN{PathSeparator}" +
+                              $"{sceneFileName}{PathSeparator}{sceneFileName}_{sceneName}.scn";
             #endif
             using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
             return ScnFileReader.Read(scnFileStream, _codepage);
@@ -199,11 +199,10 @@ namespace Pal3.Data
 
         public SceFile GetSceneSce(string sceneFileName)
         {
-            var separator = CpkConstants.DirectorySeparator;
             #if PAL3
-            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{separator}{sceneFileName}.sce";
+            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneFileName}.sce";
             #elif PAL3A
-            var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{separator}Sce{separator}{sceneFileName}.sce";
+            var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{PathSeparator}Sce{PathSeparator}{sceneFileName}.sce";
             #endif
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(sceFilePath));
             return SceFileReader.Read(sceFileStream, _codepage);
@@ -230,10 +229,12 @@ namespace Pal3.Data
         /// <returns>Mp3 file path in cache folder</returns>
         public string GetMp3FilePathInCacheFolder(string musicFileVirtualPath)
         {
-            return Application.persistentDataPath + Path.DirectorySeparatorChar + CACHE_FOLDER_NAME
-                            +  Path.DirectorySeparatorChar + musicFileVirtualPath.Replace(
-                                    CpkConstants.DirectorySeparator, Path.DirectorySeparatorChar)
-                                .Replace(CpkConstants.FileExtension, string.Empty);
+            return Application.persistentDataPath 
+                   + Path.DirectorySeparatorChar
+                   + CACHE_FOLDER_NAME
+                   + Path.DirectorySeparatorChar
+                   + musicFileVirtualPath.Replace(PathSeparator, Path.DirectorySeparatorChar)
+                   .Replace(CpkConstants.FileExtension, string.Empty);
         }
 
         /// <summary>
@@ -315,11 +316,9 @@ namespace Pal3.Data
 
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var roleAvatarTextureRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.ActorFolderName}{separator}{actorName}{separator}";
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.ActorFolderName}{PathSeparator}{actorName}{PathSeparator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
@@ -332,7 +331,7 @@ namespace Pal3.Data
             if (_spriteCache.ContainsKey(cacheKey))
             {
                 Sprite sprite = _spriteCache[cacheKey];
-                if (sprite.texture != null) return sprite;
+                if (sprite != null && sprite.texture != null) return sprite;
             }
 
             Texture2D texture = GetActorAvatarTexture(
@@ -349,11 +348,9 @@ namespace Pal3.Data
 
         private Texture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var emojiSpriteSheetRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.UIFolderName}{separator}{FileConstants.EmojiFolderName}{separator}";
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.EmojiFolderName}{PathSeparator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
@@ -361,11 +358,9 @@ namespace Pal3.Data
 
         public Texture2D GetCaptionTexture(string name)
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var captionTextureRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.CaptionFolderName}{separator}";
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.CaptionFolderName}{PathSeparator}";
 
             // No need to cache caption texture since it is a one time thing
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(captionTextureRelativePath, useCache: false);
@@ -374,18 +369,16 @@ namespace Pal3.Data
 
         public Texture2D[] GetSkyBoxTextures(int skyBoxId)
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var relativePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetDirectoryName(relativePath, separator));
+                Utility.GetDirectoryName(relativePath, PathSeparator));
 
             var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < SceneConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = Utility.GetFileName(
-                    string.Format(SceneConstants.SkyBoxTexturePathFormat[i], skyBoxId), separator);
+                    string.Format(SceneConstants.SkyBoxTexturePathFormat[i], skyBoxId), PathSeparator);
                 Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
@@ -397,11 +390,9 @@ namespace Pal3.Data
 
         public Texture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var effectFolderRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.EffectFolderName}{separator}";
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.EffectFolderName}{PathSeparator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
@@ -422,7 +413,7 @@ namespace Pal3.Data
                 if (_spriteCache.ContainsKey(cacheKey))
                 {
                     Sprite sprite = _spriteCache[cacheKey];
-                    if (sprite.texture != null)
+                    if (sprite != null && sprite.texture != null)
                     {
                         sprites[i] = sprite;
                         continue;
@@ -470,10 +461,7 @@ namespace Pal3.Data
 
         public string GetVideoFilePath(string videoName)
         {
-            var rootPath = _fileSystem.GetRootPath();
-            var separator = Path.DirectorySeparatorChar;
-
-            var videoFolder = $"{rootPath}{FileConstants.MovieFolderName}{separator}";
+            var videoFolder = $"{_fileSystem.GetRootPath()}{FileConstants.MovieFolderName}{Path.DirectorySeparatorChar}";
 
             if (!Directory.Exists(videoFolder))
             {
@@ -498,9 +486,8 @@ namespace Pal3.Data
 
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
-            var separator = CpkConstants.DirectorySeparator;
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetDirectoryName(texturePathFormat, separator));
+                Utility.GetDirectoryName(texturePathFormat, PathSeparator));
 
             if (effect == GraphicsEffect.Fire)
             {
@@ -508,7 +495,7 @@ namespace Pal3.Data
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
-                    var textureNameFormat = Utility.GetFileName(texturePathFormat, separator);
+                    var textureNameFormat = Utility.GetFileName(texturePathFormat, PathSeparator);
                     Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }
@@ -567,15 +554,49 @@ namespace Pal3.Data
 
         public Texture2D GetCursorTexture()
         {
-            var separator = CpkConstants.DirectorySeparator;
-
             var cursorSpriteRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                $"{FileConstants.UIFolderName}{separator}{FileConstants.CursorFolderName}{separator}";
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.CursorFolderName}{PathSeparator}";
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(cursorSpriteRelativePath);
             Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
+        }
+
+        /// <summary>
+        /// To warm up the main actor action cache to reduce gameplay shutters.
+        /// </summary>
+        public void PreLoadMainActorMv3()
+        {
+            var cachedActions = new HashSet<string>()
+            {
+                ActorConstants.ActionNames[ActorActionType.Stand],
+                ActorConstants.ActionNames[ActorActionType.Walk],
+                ActorConstants.ActionNames[ActorActionType.Run],
+                ActorConstants.ActionNames[ActorActionType.Back],
+            };
+            
+            foreach (var name in ActorConstants.MainActorNameMap.Values)
+            {
+                var actorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                                           $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}{name}.ini";
+
+                ActorConfigFile actorConfig = GetActorConfig(actorConfigFile);
+
+                foreach (ActorAction actorAction in actorConfig.ActorActions)
+                {
+                    // Cache known actions only.
+                    if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
+                    
+                    var mv3File = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                                  $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}" +
+                                  $"{actorAction.ActionFileName}";
+
+                    _ = GetMv3(mv3File); // Call GetMv3 to cache the mv3 file.
+                    
+                    Debug.LogError(mv3File);
+                }
+            }
         }
         
         private string _currentSceneCityName;
@@ -593,21 +614,35 @@ namespace Pal3.Data
             {
                 // Clean up cache after exiting current scene block
                 _textureCache?.DisposeAll();
+
+                foreach (Sprite sprite in _spriteCache.Values)
+                {
+                    Object.Destroy(sprite);
+                }
                 _spriteCache.Clear();
 
-                // TODO: Have a better way to manage the lifecycle of pol, mv3, cvd data.
-                // _polCache.Clear();
-                // _mv3Cache.Clear();
-                // _cvdCache.Clear();
-                
+                _polCache.Clear();
+                _cvdCache.Clear();
+
+                // Dispose non-main actor mv3 files
+                // All main actor names start with "1"
+                var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
+                var mv3FilesToDispose = _mv3Cache.Keys
+                    .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
+                    .ToArray();
+                foreach (var mv3File in mv3FilesToDispose)
+                {
+                    _mv3Cache.Remove(mv3File);
+                }
+
                 // clear all vfx prefabs in cache
                 _vfxEffectPrefabCache.Clear();
 
-                // Unloads assets that are not used (textures etc.)
-                Resources.UnloadUnusedAssets();
-
                 _currentSceneCityName = newSceneCityName;
             }
+            
+            // Unloads assets that are not used (textures etc.)
+            Resources.UnloadUnusedAssets();
         }
     }
 }

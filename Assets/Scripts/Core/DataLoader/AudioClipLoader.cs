@@ -36,6 +36,9 @@ namespace Core.DataLoader
             {
                 try
                 {
+                    // Stream audio to avoid loading the entire AudioClip into memory at once,
+                    // which can cause frame drops and stuttering during gameplay.
+                    ((DownloadHandlerAudioClip) request.downloadHandler).streamAudio = true;
                     AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
                     callback?.Invoke(audioClip);
                 }

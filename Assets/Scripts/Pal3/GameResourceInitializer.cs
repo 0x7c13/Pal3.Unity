@@ -134,6 +134,9 @@ namespace Pal3
                 codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 
+            // Cache warm up
+            resourceProvider.PreLoadMainActorMv3();
+
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;

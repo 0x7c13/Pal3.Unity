@@ -79,17 +79,16 @@ namespace Core.DataReader.Mv3
         public string Name; // 64 chars max
         public GameBoxAABBox BoundBox;
         public Mv3Attribute[] Attributes;
-        public Mv3VertFrame[] Frames;
-        public Vector2[] TexCoords;
         public Vector3[] Normals;
+        public int[] Triangles;
+        public Vector2[] Uvs;
+        public VertexAnimationKeyFrame[] KeyFrames;
     }
 
     public struct VertexAnimationKeyFrame
     {
         public uint Tick;
         public Vector3[] Vertices;
-        public int[] Triangles;
-        public Vector2[] Uv;
     }
 
     /// <summary>
@@ -103,15 +102,13 @@ namespace Core.DataReader.Mv3
         public Mv3TagNode[] TagNodes { get; }
         public Mv3Material[] Materials { get; }
         public Mv3Mesh[] Meshes { get; }
-        public VertexAnimationKeyFrame[][] MeshKeyFrames { get; }
-
+        
         public Mv3File(int version,
             uint duration,
             Mv3AnimationEvent[] animationEvents,
             Mv3TagNode[] tagNodes,
             Mv3Material[] materials,
-            Mv3Mesh[] meshes,
-            VertexAnimationKeyFrame[][] meshKeyFrames)
+            Mv3Mesh[] meshes)
         {
             Version = version;
             Duration = duration;
@@ -119,7 +116,6 @@ namespace Core.DataReader.Mv3
             TagNodes = tagNodes;
             Materials = materials;
             Meshes = meshes;
-            MeshKeyFrames = meshKeyFrames;
         }
     }
 }

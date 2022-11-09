@@ -207,8 +207,7 @@ namespace Pal3.MetaData
 
         public const string MonsterIdleAction = "z0";
         public const string MonsterWalkAction = "z4";
-
-
+        
         #if PAL3
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
         {

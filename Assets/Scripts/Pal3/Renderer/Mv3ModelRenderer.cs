@@ -32,12 +32,10 @@ namespace Pal3.Renderer
         private const float TIME_TO_TICK_SCALE = 5000f;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        private readonly int _lightAffectShadowPropertyId = Shader.PropertyToID("_LightAffectShadow");
         private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
-        private VertexAnimationKeyFrame[][] _keyFrames;
         private Texture2D[] _textures;
         private Material[] _materials;
         private GameBoxMaterial[] _gbMaterials;
@@ -52,9 +50,10 @@ namespace Pal3.Renderer
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
 
+        private Mv3Mesh[] _meshes;
+        private int _meshCount;
         private uint[][] _frameTicks;
         private uint _duration;
-        private int _meshCount;
         private RenderMeshComponent[] _renderMeshComponents;
         private WaitForSeconds _animationDelay;
 
@@ -79,6 +78,7 @@ namespace Pal3.Renderer
 
             _events = mv3File.AnimationEvents;
             _duration = mv3File.Duration;
+            _meshes = mv3File.Meshes;
             _meshCount = mv3File.Meshes.Length;
 
             _renderMeshComponents = new RenderMeshComponent[_meshCount];
@@ -89,7 +89,6 @@ namespace Pal3.Renderer
             _animationName = new string[_meshCount];
             _frameTicks = new uint[_meshCount][];
             _meshObjects = new GameObject[_meshCount];
-            _keyFrames = mv3File.MeshKeyFrames;
             _tagNodesInfo = mv3File.TagNodes;
             _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
 
@@ -143,7 +142,7 @@ namespace Pal3.Renderer
             _textures[index] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[index]= hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
-            _frameTicks[index] = _keyFrames[index].Select(f => f.Tick).ToArray();
+            _frameTicks[index] = mv3Mesh.KeyFrames.Select(f => f.Tick).ToArray();
             _meshObjects[index] = new GameObject(mv3Mesh.Name);
 
             // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
@@ -164,8 +163,7 @@ namespace Pal3.Renderer
                 _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
                 TRANSPARENT_THRESHOLD);
             #if RTX_ON
-            materials[0].SetFloat(_lightAffectShadowPropertyId, 1f);
-            materials[0].SetFloat(_lightIntensityPropertyId, -0.55f);
+            materials[0].SetFloat(_lightIntensityPropertyId, -0.5f);
             #endif
             _materials[index] = materials[0];
 
@@ -181,15 +179,15 @@ namespace Pal3.Renderer
 
             var meshDataBuffer = new MeshDataBuffer
             {
-                VertexBuffer = new Vector3[_keyFrames[index][0].Vertices.Length],
+                VertexBuffer = new Vector3[mv3Mesh.KeyFrames[0].Vertices.Length],
                 NormalBuffer = mv3Mesh.Normals,
             };
 
-            Mesh renderMesh = meshRenderer.Render(ref _keyFrames[index][0].Vertices,
-                ref _keyFrames[index][0].Triangles,
+            Mesh renderMesh = meshRenderer.Render(ref mv3Mesh.KeyFrames[0].Vertices,
+                ref mv3Mesh.Triangles,
                 ref meshDataBuffer.NormalBuffer,
-                ref _keyFrames[index][0].Uv,
-                ref _keyFrames[index][0].Uv,
+                ref mv3Mesh.Uvs,
+                ref mv3Mesh.Uvs,
                 ref materials,
                 true);            
 
@@ -207,7 +205,7 @@ namespace Pal3.Renderer
 
         public void PlayAnimation(int loopCount = -1, float fps = -1f)
         {
-            if (_keyFrames == null || _keyFrames.Length == 0)
+            if (_renderMeshComponents == null)
             {
                 throw new Exception("Animation not initialized.");
             }
@@ -374,8 +372,8 @@ namespace Pal3.Renderer
                     var vertices = meshComponent.MeshDataBuffer.VertexBuffer;
                     for (var j = 0; j < vertices.Length; j++)
                     {
-                        vertices[j] = Vector3.Lerp(_keyFrames[i][currentFrameIndex].Vertices[j],
-                            _keyFrames[i][nextFrameIndex].Vertices[j], influence);
+                        vertices[j] = Vector3.Lerp(_meshes[i].KeyFrames[currentFrameIndex].Vertices[j],
+                            _meshes[i].KeyFrames[nextFrameIndex].Vertices[j], influence);
                     }
 
                     meshComponent.Mesh.SetVertices(vertices);
