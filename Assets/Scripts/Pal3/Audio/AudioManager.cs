@@ -160,10 +160,8 @@ namespace Pal3.Audio
 
             AudioClip sfxAudioClip = null;
 
-            yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, audioClip =>
-            {
-                sfxAudioClip = audioClip;
-            });
+            yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, streamAudio: false,
+                audioClip => { sfxAudioClip = audioClip; });
             
             if (parent == null ||
                 cancellationToken.IsCancellationRequested ||
@@ -234,10 +232,8 @@ namespace Pal3.Audio
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
             
             AudioClip musicClip = null;
-            yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, audioClip =>
-            {
-                musicClip = audioClip;
-            });
+            yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, streamAudio: true,
+                audioClip => { musicClip = audioClip; });
             
             // We need to check if current music clip is the same as the one we are trying to play,
             // since we are using coroutine to load and play music, there is a chance that the music

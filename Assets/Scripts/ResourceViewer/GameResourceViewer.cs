@@ -370,7 +370,7 @@ namespace ResourceViewer
         private IEnumerator LoadMp3AudioClip(string fileVirtualPath, string writePath)
         {
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(fileVirtualPath, writePath);
-            yield return _resourceProvider.LoadAudioClip(writePath, AudioType.MPEG, audioClip =>
+            yield return _resourceProvider.LoadAudioClip(writePath, AudioType.MPEG, streamAudio: true, audioClip =>
             {
                 if (audioSource.isPlaying)
                 {

@@ -17,9 +17,10 @@ namespace Core.DataLoader
         /// </summary>
         /// <param name="filePath">Audio file path</param>
         /// <param name="audioType">Audio type</param>
+        /// <param name="streamAudio">Create streaming AudioClip</param>
         /// <param name="callback">AudioClip callback invoker</param>
         /// <returns>IEnumerator</returns>
-        public static IEnumerator LoadAudioClip(string filePath, AudioType audioType, Action<AudioClip> callback)
+        public static IEnumerator LoadAudioClip(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
         {
             if (filePath.StartsWith("/")) filePath = filePath[1..];
 
@@ -38,7 +39,8 @@ namespace Core.DataLoader
                 {
                     // Stream audio to avoid loading the entire AudioClip into memory at once,
                     // which can cause frame drops and stuttering during gameplay.
-                    ((DownloadHandlerAudioClip) request.downloadHandler).streamAudio = true;
+                    ((DownloadHandlerAudioClip) request.downloadHandler).streamAudio = streamAudio;
+                    
                     AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
                     callback?.Invoke(audioClip);
                 }

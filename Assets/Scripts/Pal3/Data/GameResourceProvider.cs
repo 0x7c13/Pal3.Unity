@@ -289,7 +289,7 @@ namespace Pal3.Data
             return sfxFilePath;
         }
         
-        public IEnumerator LoadAudioClip(string filePath, AudioType audioType, Action<AudioClip> callback)
+        public IEnumerator LoadAudioClip(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
         {
             var fileName = Path.GetFileName(filePath);
             var shouldCache = _audioClipCacheList.Contains(fileName);
@@ -303,7 +303,7 @@ namespace Pal3.Data
                 }
             }
             
-            yield return AudioClipLoader.LoadAudioClip(filePath, audioType, audioClip =>
+            yield return AudioClipLoader.LoadAudioClip(filePath, audioType, streamAudio, audioClip =>
             {
                 if (shouldCache && audioClip != null)
                 {
