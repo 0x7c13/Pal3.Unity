@@ -14,20 +14,34 @@ namespace Editor
 
     public static class GameVariantSwitcher
     {
-        [MenuItem("Pal3/Switch Variant/PAL3")]
+        [MenuItem("Pal3/Switch Variant/PAL3", priority = 1)]
         public static void SwitchToPal3()
         {
-            EditorHelper.RemoveSymbol("PAL3A");
-            EditorHelper.AddSymbol("PAL3");
+            SymbolsHelper.RemoveSymbol("PAL3A");
+            SymbolsHelper.AddSymbol("PAL3");
             ApplyPlayerSettingsForVariant("PAL3");
+            AssetDatabase.SaveAssets();
+        }
+        
+        [MenuItem("Pal3/Switch Variant/PAL3", true)]
+        static bool ValidateSwitchToPal3()
+        {
+            return !SymbolsHelper.HasSymbol("PAL3");
         }
 
-        [MenuItem("Pal3/Switch Variant/PAL3A")]
+        [MenuItem("Pal3/Switch Variant/PAL3A", priority = 2)]
         public static void SwitchToPal3A()
         {
-            EditorHelper.RemoveSymbol("PAL3");
-            EditorHelper.AddSymbol("PAL3A");
+            SymbolsHelper.RemoveSymbol("PAL3");
+            SymbolsHelper.AddSymbol("PAL3A");
             ApplyPlayerSettingsForVariant("PAL3A");
+            AssetDatabase.SaveAssets();
+        }
+        
+        [MenuItem("Pal3/Switch Variant/PAL3A", true)]
+        static bool ValidateSwitchToPal3A()
+        {
+            return !SymbolsHelper.HasSymbol("PAL3A");
         }
         
         private static void ApplyPlayerSettingsForVariant(string appName)
@@ -35,7 +49,7 @@ namespace Editor
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
 
-            foreach (BuildTargetGroup targetGroup in EditorHelper.GetAllSupportedTargetGroups())
+            foreach (BuildTargetGroup targetGroup in SymbolsHelper.GetAllSupportedTargetGroups())
             {
                 PlayerSettings.SetApplicationIdentifier(targetGroup,
                     $"{GameConstants.AppIdentifierPrefix}.{appName}");
@@ -45,7 +59,7 @@ namespace Editor
             var gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
             
-            foreach (NamedBuildTarget buildTarget in EditorHelper.GetAllSupportedNamedBuildTargets())
+            foreach (NamedBuildTarget buildTarget in SymbolsHelper.GetAllSupportedNamedBuildTargets())
             {
                 // Set app icon
                 var iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
@@ -61,9 +75,7 @@ namespace Editor
                             PlayerSettings.GetIconSizes(buildTarget, IconKind.Store).Length).ToArray(),
                         IconKind.Store);
                 }
-            }   
-
-            AssetDatabase.SaveAssets();
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Editor
     using UnityEditor;
     using UnityEditor.Build;
 
-    public static class EditorHelper
+    public static class SymbolsHelper
     {
         public static BuildTargetGroup[] GetAllSupportedTargetGroups()
         {
@@ -29,6 +29,14 @@ namespace Editor
                 NamedBuildTarget.Standalone,
                 NamedBuildTarget.iOS,
             };
+        }
+
+        public static bool HasSymbol(string symbol)
+        {
+            return GetAllSupportedTargetGroups()
+                .Select(PlayerSettings.GetScriptingDefineSymbolsForGroup)
+                .Select(defines => defines.Split(';').ToList())
+                .All(allDefines => allDefines.Contains(symbol));
         }
         
         public static void AddSymbol(string symbolToAdd)

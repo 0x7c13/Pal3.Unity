@@ -13,22 +13,27 @@ namespace Editor
         [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Enable")]
         public static void EnableRealtimeLightingAndShadow()
         {
-            if (Resources.Load<Material>("Materials/Toon") != null)
-            {
-                EditorHelper.AddSymbol("RTX_ON");
-                AssetDatabase.SaveAssets();
-            }
-            else
-            {
-                Debug.LogError("Failed to enable realtime lighting and shadow since RealToon material was not found.");
-            }
+            SymbolsHelper.AddSymbol("RTX_ON");
+            AssetDatabase.SaveAssets();
+        }
+        
+        [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Enable", true)]
+        static bool ValidateEnableRealtimeLightingAndShadow()
+        {
+            return Resources.Load<Material>("Materials/Toon") != null && !SymbolsHelper.HasSymbol("RTX_ON");
         }
 
         [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Disable")]
         public static void DisableRealtimeLightingAndShadow()
         {
-            EditorHelper.RemoveSymbol("RTX_ON");
+            SymbolsHelper.RemoveSymbol("RTX_ON");
             AssetDatabase.SaveAssets();
+        }
+        
+        [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Disable", true)]
+        static bool ValidateDisableRealtimeLightingAndShadow()
+        {
+            return Resources.Load<Material>("Materials/Toon") != null && SymbolsHelper.HasSymbol("RTX_ON");
         }
     }
 }
