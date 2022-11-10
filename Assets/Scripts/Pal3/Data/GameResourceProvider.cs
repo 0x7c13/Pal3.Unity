@@ -17,6 +17,7 @@ namespace Pal3.Data
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
+    using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Lgt;
     using Core.DataReader.Mv3;
@@ -47,6 +48,8 @@ namespace Pal3.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly IMaterialFactory _materialFactory;
+        
+        private readonly GdbFile _gameDatabase;
         private readonly int _codepage;
         
         private TextureCache _textureCache;
@@ -89,6 +92,13 @@ namespace Pal3.Data
             _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
             _materialFactory = materialFactory ?? throw new ArgumentNullException(nameof(materialFactory));
             _codepage = codepage;
+            
+            var gdbFilePath =
+                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                $"{FileConstants.CombatDataFolderName}{PathSeparator}{GameConstants.AppName}_Softstar.gdb";
+
+            _gameDatabase = GdbFileReader.Read(_fileSystem.ReadAllBytes(gdbFilePath), codepage);
+                
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

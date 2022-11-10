@@ -26,6 +26,8 @@ namespace Pal3.MetaData
         #endif
 
         public const string UIFolderName = "ui";
+        
+        public const string CombatDataFolderName = "cbdata";
 
         public const string CaptionFolderName = "caption";
 

@@ -10,12 +10,12 @@ namespace Core.DataReader.Gdb
 
     public static class GdbFileReader
     {
-        public static void Read(byte[] data, int codepage)
+        public static GdbFile Read(byte[] data, int codepage)
         {
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
 
-            var headerStr = reader.ReadString(128, codepage);
+            _ = reader.ReadString(128, codepage); // header string
 
             uint actorDataOffset = reader.ReadUInt32();
             int numOfActors = reader.ReadInt32();
@@ -31,10 +31,12 @@ namespace Core.DataReader.Gdb
 
             reader.BaseStream.Position = itemDataOffset;
             var gameItems = new GameItem[numOfItems];
-            for (int i = 0; i < numOfItems; i++)
+            for (var i = 0; i < numOfItems; i++)
             {
                 gameItems[i] = ReadGameItem(reader, codepage);
             }
+
+            return new GdbFile(gameItems);
         }
         
         public static GameItem ReadGameItem(BinaryReader reader, int codepage)
