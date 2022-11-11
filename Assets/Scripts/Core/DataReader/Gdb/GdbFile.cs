@@ -5,6 +5,8 @@
 
 namespace Core.DataReader.Gdb
 {
+    using System.Collections.Generic;
+
     public enum WuLingType
     {
         Water,    // 水
@@ -29,6 +31,9 @@ namespace Core.DataReader.Gdb
         Wearable,      // 可穿戴
         Weapon,        // 武器
         Corpse,        // 尸块
+        #if PAL3A
+        Blueprint,     // 蓝图（梦溪杂录，美食方）
+        #endif
     }
 
     public enum WeaponType
@@ -134,9 +139,9 @@ namespace Core.DataReader.Gdb
     // Pal3 Game Database file
     public class GdbFile
     {
-        public GameItem[] GameItems { get; }
+        public Dictionary<int, GameItem> GameItems { get; } // Game item Id -> Game item
 
-        public GdbFile(GameItem[] gameItems)
+        public GdbFile(Dictionary<int, GameItem> gameItems)
         {
             GameItems = gameItems;
         }

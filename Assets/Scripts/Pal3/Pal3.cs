@@ -117,6 +117,7 @@ namespace Pal3
         private CameraManager _cameraManager;
         private AudioManager _audioManager;
         private PlayerManager _playerManager;
+        private InventoryManager _inventoryManager;
         private DialogueManager _dialogueManager;
         private PostProcessManager _postProcessManager;
         private EffectManager _effectManager;
@@ -170,6 +171,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_sceneManager);
             _playerManager = new PlayerManager();
             ServiceLocator.Instance.Register(_playerManager);
+            _inventoryManager = new InventoryManager(_gameResourceProvider, _gameStateManager);
+            ServiceLocator.Instance.Register(_inventoryManager);
             _teamManager = new TeamManager(_playerManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
             _touchControlUIManager = new TouchControlUIManager(touchControlUI,
@@ -332,6 +335,7 @@ namespace Pal3
             _gameStateManager.Dispose();
             _scriptManager.Dispose();
             _playerManager.Dispose();
+            _inventoryManager.Dispose();
             _teamManager.Dispose();
             _sceneManager.Dispose();
             _touchControlUIManager.Dispose();
@@ -419,17 +423,21 @@ namespace Pal3
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
-            info.Append($"Current scene: {currentSceneInfo.ToString()}\n");
+            info.Append($"----- Scene info -----\n" +
+                        $"{currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
                 .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
 
-            info.Append($"Player actor current nav layer: {playerActorMovementController.GetCurrentLayerIndex()} " +
-                        $"tile position: {playerActorMovementController.GetTilePosition()}\n");
+            info.Append($"----- Player info -----\n" +
+                        $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +
+                        $"Tile position: {playerActorMovementController.GetTilePosition()}\n");
 
             info.Append(_scriptManager.GetGlobalVariables()
-                .Aggregate("Global vars: ", (current, variable) => current + $"{variable.Key}: {variable.Value} "));
+                .Aggregate("----- Variables info -----\n", (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
 
+            info.Append(_inventoryManager);
+            
             Debug.Log(info.ToString() + '\n');
         }
 

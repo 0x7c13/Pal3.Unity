@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Gdb
 {
+    using System.Collections.Generic;
     using System.IO;
     using Extensions;
 
@@ -30,10 +31,11 @@ namespace Core.DataReader.Gdb
             int numOfCombos = reader.ReadInt32();
 
             reader.BaseStream.Position = itemDataOffset;
-            var gameItems = new GameItem[numOfItems];
+            var gameItems = new Dictionary<int, GameItem>();
             for (var i = 0; i < numOfItems; i++)
             {
-                gameItems[i] = ReadGameItem(reader, codepage);
+                GameItem item = ReadGameItem(reader, codepage);
+                gameItems[(int) item.Id] = item;
             }
 
             return new GdbFile(gameItems);

@@ -5,6 +5,8 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Command;
+    using Command.SceCommands;
     using Core.DataReader.Scn;
 
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
@@ -24,7 +26,20 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact()
         {
-            // TODO: Impl
+            if ((int) Info.Parameters[0] != 0) // Game item
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand((int)Info.Parameters[0], 1));
+            }
+            else if ((int) Info.Parameters[1] != 0 && (int) Info.Parameters[1] != 1)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand((int)Info.Parameters[1]));
+            }
+            else if ((int) Info.Parameters[2] != 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand((int)Info.Parameters[2]));
+            }
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
         }
     }
 }

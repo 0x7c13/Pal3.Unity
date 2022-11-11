@@ -232,6 +232,11 @@ namespace Pal3.Data
             return SceFileReader.Read(sceFileStream, _codepage);
         }
 
+        public Dictionary<int, GameItem> GetGameItems()
+        {
+            return _gameDatabase.GameItems;
+        }
+        
         /// <summary>
         /// Get music file path in cache folder.
         /// </summary>

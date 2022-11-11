@@ -386,20 +386,19 @@ namespace Pal3.Script
             var playerReactedInTime = dialogueManager.PlayerReactedInTimeForLimitTimeDialogue() ? 1 : 0;
             SetVariableValue(command.Variable, playerReactedInTime);
         }
-
-        // TODO: Impl
+        
         public void Execute(ScriptCheckIfPlayerHaveItemCommand command)
         {
             if (!_isExecuting) return;
-            var haveItem = true;
+            var haveItem = ServiceLocator.Instance.Get<InventoryManager>().HaveItem(command.ItemId);
             SetVarValueBasedOnOperationResult(haveItem);
         }
 
         public void Execute(ScriptCheckIfActorInTeamCommand command)
         {
             if (!_isExecuting) return;
-            var teamManager = ServiceLocator.Instance.Get<TeamManager>();
-            SetVarValueBasedOnOperationResult(teamManager.IsActorInTeam((PlayerActorId) command.ActorId));
+            var isActorInTeam = ServiceLocator.Instance.Get<TeamManager>().IsActorInTeam((PlayerActorId) command.ActorId);
+            SetVarValueBasedOnOperationResult(isActorInTeam);
         }
 
         // TODO: Impl
@@ -409,34 +408,33 @@ namespace Pal3.Script
             var switchIsOn = 1;
             SetVariableValue(command.Variable, switchIsOn);
         }
-
-        // TODO: Impl
+        
         public void Execute(ScriptGetMoneyCommand command)
         {
             if (!_isExecuting) return;
-            var totalMoney = 30000;
+            var totalMoney = ServiceLocator.Instance.Get<InventoryManager>().GetTotalMoney();
             SetVariableValue(command.Variable, totalMoney);
         }
 
         public void Execute(ScriptGetFavorCommand command)
         {
             if (!_isExecuting) return;
-            var favorManager = ServiceLocator.Instance.Get<FavorManager>();
-            SetVariableValue(command.Variable, favorManager.GetFavorByActor(command.ActorId));
+            var favor = ServiceLocator.Instance.Get<FavorManager>().GetFavorByActor(command.ActorId);
+            SetVariableValue(command.Variable, favor);
         }
 
         public void Execute(ScriptVarSetMostFavorableActorIdCommand command)
         {
             if (!_isExecuting) return;
-            var favorManager = ServiceLocator.Instance.Get<FavorManager>();
-            SetVariableValue(command.Variable, favorManager.GetMostFavorableActorId());
+            var mostFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetMostFavorableActorId();
+            SetVariableValue(command.Variable, mostFavorableActorId);
         }
 
         public void Execute(ScriptVarSetLeastFavorableActorIdCommand command)
         {
             if (!_isExecuting) return;
-            var favorManager = ServiceLocator.Instance.Get<FavorManager>();
-            SetVariableValue(command.Variable, favorManager.GetLeastFavorableActorId());
+            var leastFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetLeastFavorableActorId();
+            SetVariableValue(command.Variable, leastFavorableActorId);
         }
 
         // TODO: Impl
