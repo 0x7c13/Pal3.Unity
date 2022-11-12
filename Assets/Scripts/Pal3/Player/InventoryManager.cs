@@ -23,8 +23,7 @@ namespace Pal3.Player
         ICommandExecutor<InventoryAddMoneyCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const int MoneyID = 0;
-        private const int InitialMoney = 7777; // 启动资金 :)
+        private const int MoneyItemID = 0;
 
         private readonly GameStateManager _gameStateManager;
         
@@ -37,7 +36,7 @@ namespace Pal3.Player
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _ = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _gameItemsInfo = resourceProvider.GetGameItems();
-            _items[MoneyID] = InitialMoney;
+            _items[MoneyItemID] = 0; // init money
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -51,9 +50,9 @@ namespace Pal3.Player
             var sb = new StringBuilder();
             
             sb.Append("----- Inventory info -----\n");
-            sb.Append($"Total money: {_items[MoneyID]}\n");
+            sb.Append($"Total money: {_items[MoneyItemID]}\n");
             
-            foreach (var (id, count) in _items.Where(_ => _.Key != MoneyID))
+            foreach (var (id, count) in _items.Where(_ => _.Key != MoneyItemID))
             {
                 sb.Append($"{_gameItemsInfo[id].Name}({id}) x {count} [{_gameItemsInfo[id].Type}]\n");
             }
@@ -77,7 +76,12 @@ namespace Pal3.Player
         
         public int GetTotalMoney()
         {
-            return _items[MoneyID];
+            return _items[MoneyItemID];
+        }
+        
+        public IEnumerable<KeyValuePair<int, int>> GetAllItems()
+        {
+            return _items.Where(_ => _.Key != MoneyItemID);
         }
 
         public void Execute(InventoryAddItemCommand command)
@@ -129,13 +133,13 @@ namespace Pal3.Player
 
         public void Execute(InventoryAddMoneyCommand command)
         {
-            _items[MoneyID] += command.ChangeAmount;
+            _items[MoneyItemID] += command.ChangeAmount;
 
-            if (_items[MoneyID] < 0) _items[MoneyID] = 0;
+            if (_items[MoneyItemID] < 0) _items[MoneyItemID] = 0;
 
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
-                if (_items[MoneyID] == 0)
+                if (_items[MoneyItemID] == 0)
                 {
                     CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa007", 1));
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去全部文钱"));
@@ -152,13 +156,13 @@ namespace Pal3.Player
                 }
             }
             
-            Debug.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MoneyID]}");
+            Debug.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MoneyItemID]}");
         }
 
         public void Execute(ResetGameStateCommand command)
         {
             _items.Clear();
-            _items[MoneyID] = InitialMoney;
+            _items[MoneyItemID] = 0; // reset money
         }
     }
 }

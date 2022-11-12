@@ -27,7 +27,7 @@ namespace Pal3.Effect.PostProcessing
         private Distortion _distortion;
 
         private int _currentAppliedEffectMode = -1;
-        
+
         public void Init(PostProcessVolume volume,
             PostProcessLayer postProcessLayer)
         {
@@ -47,7 +47,7 @@ namespace Pal3.Effect.PostProcessing
             #else
             _ambientOcclusion.active = false; // Pointless when lighting is off
             #endif
-            
+
             _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
             _colorGrading.active = false;
 
@@ -90,7 +90,7 @@ namespace Pal3.Effect.PostProcessing
         {
             return _currentAppliedEffectMode;
         }
-        
+
         public void Execute(EffectSetScreenEffectCommand command)
         {
             switch (command.Mode)

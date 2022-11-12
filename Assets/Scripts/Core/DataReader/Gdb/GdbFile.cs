@@ -28,7 +28,7 @@ namespace Core.DataReader.Gdb
         Cloth,         // 衣服
         Hat,           // 帽子
         Shoes,         // 鞋子
-        Wearable,      // 可穿戴
+        Wearable,      // 饰品
         Weapon,        // 武器
         Corpse,        // 尸块
         #if PAL3A

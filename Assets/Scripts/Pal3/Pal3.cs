@@ -283,6 +283,7 @@ namespace Pal3
             _saveManager = new SaveManager(_sceneManager,
                 _playerManager,
                 _teamManager,
+                _inventoryManager,
                 _bigMapManager,
                 _scriptManager,
                 _favorManager,

@@ -747,6 +747,12 @@ namespace Pal3.Player
             {
                 _playerActorLastKnownSceneState.RemoveAt(0);
             }
+
+            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
+            {
+                // Temporarily disable player input (will resume once scene is loaded)
+                _inputActions.Disable();  
+            }
         }
         
         public void Execute(ScenePostLoadingNotification notification)
@@ -783,6 +789,17 @@ namespace Pal3.Player
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
+
+            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
+            {
+                // Re-enable player input with a small delay
+                Invoke(nameof(EnablePlayerInputs), 0.2f);
+            }
+        }
+
+        private void EnablePlayerInputs()
+        {
+            _inputActions.Enable();
         }
         
         public void Execute(ResetGameStateCommand command)

@@ -135,9 +135,9 @@ namespace Core.DataReader.Scn
     {
         public string CityName;         // char[32] 关名称
         public string Name;             // char[32] 区块名称
-        public string Model;            // char[32]
+        public string Model;            // char[32] 模型名称
         public ScnSceneType SceneType;
-        public int LightMap;           // 0日景灯光, 1夜景灯光, -1不知道是什么意思(比如M01)
+        public int LightMap;            // 0日景灯光, 1夜景灯光, -1无灯光？(比如M01)
         public uint SkyBox;
         public uint[] Reserved;         // 6 DWORDs
 

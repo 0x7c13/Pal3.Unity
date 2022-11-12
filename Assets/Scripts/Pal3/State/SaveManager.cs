@@ -38,6 +38,7 @@ namespace Pal3.State
         private readonly SceneManager _sceneManager;
         private readonly PlayerManager _playerManager;
         private readonly TeamManager _teamManager;
+        private readonly InventoryManager _inventoryManager;
         private readonly BigMapManager _bigMapManager;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
@@ -50,6 +51,7 @@ namespace Pal3.State
         public SaveManager(SceneManager sceneManager,
             PlayerManager playerManager,
             TeamManager teamManager,
+            InventoryManager inventoryManager,
             BigMapManager bigMapManager,
             ScriptManager scriptManager,
             FavorManager favorManager,
@@ -60,6 +62,7 @@ namespace Pal3.State
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
             _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
+            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _bigMapManager = bigMapManager != null ? bigMapManager : throw new ArgumentNullException(nameof(bigMapManager));
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _favorManager = favorManager ?? throw new ArgumentNullException(nameof(favorManager));
@@ -188,6 +191,11 @@ namespace Pal3.State
                     .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
                                 !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
                     .Select(_ => new ActorActivateCommand(_.Key, 0)));
+                
+                // Save inventory state
+                commands.Add(new InventoryAddMoneyCommand(_inventoryManager.GetTotalMoney()));
+                commands.AddRange(_inventoryManager.GetAllItems()
+                    .Select(item => new InventoryAddItemCommand(item.Key, item.Value)));
             }
 
             #if PAL3
