@@ -99,11 +99,7 @@ namespace Pal3.Player
 
             var itemName = _gameItemsInfo[command.ItemId].Name;
             
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{itemName}"));   
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{itemName}"));   
             
             Debug.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
@@ -112,9 +108,9 @@ namespace Pal3.Player
         {
             if (!_gameItemsInfo.ContainsKey(command.ItemId)) return;
             if (!_items.ContainsKey(command.ItemId)) return;
-            
+
             _items[command.ItemId] -= 1;
-            
+
             if (_items[command.ItemId] <= 0)
             {
                 _items.Remove(command.ItemId);
@@ -122,12 +118,8 @@ namespace Pal3.Player
 
             var itemName = _gameItemsInfo[command.ItemId].Name;
 
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa007", 1));
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
-            }
-            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
+
             Debug.LogWarning($"Remove item: {itemName}({command.ItemId})");
         }
 
@@ -137,25 +129,19 @@ namespace Pal3.Player
 
             if (_items[MoneyItemID] < 0) _items[MoneyItemID] = 0;
 
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
+            if (_items[MoneyItemID] == 0)
             {
-                if (_items[MoneyItemID] == 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa007", 1));
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去全部文钱"));
-                }
-                else if (command.ChangeAmount > 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{command.ChangeAmount}文钱"));
-                }
-                else if (command.ChangeAmount < 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa007", 1));
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
-                }
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去全部文钱"));
             }
-            
+            else if (command.ChangeAmount > 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{command.ChangeAmount}文钱"));
+            }
+            else if (command.ChangeAmount < 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
+            }
+
             Debug.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MoneyItemID]}");
         }
 

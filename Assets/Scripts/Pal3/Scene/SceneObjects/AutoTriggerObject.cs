@@ -36,7 +36,7 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 
-    public class AutoTriggerObjectController : MonoBehaviour,
+    internal class AutoTriggerObjectController : MonoBehaviour,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>,
         ICommandExecutor<ScriptFinishedRunningNotification>
     {

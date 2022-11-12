@@ -58,7 +58,7 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 
-    public class InvestigationTriggerController : MonoBehaviour
+    internal class InvestigationTriggerController : MonoBehaviour
     {
         private InvestigationTriggerObject _investigationTriggerBox;
         private Bounds _bounds;

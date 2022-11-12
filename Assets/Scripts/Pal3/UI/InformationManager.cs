@@ -7,7 +7,9 @@ namespace Pal3.UI
 {
     using System;
     using System.Collections;
+    using System.Linq;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
     using Core.Utils;
@@ -18,7 +20,8 @@ namespace Pal3.UI
     [RequireComponent(typeof(FpsCounter))]
     public sealed class InformationManager : MonoBehaviour,
         ICommandExecutor<UIDisplayNoteCommand>,
-        ICommandExecutor<UIShowDealerMenuCommand>
+        ICommandExecutor<UIShowDealerMenuCommand>,
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>
     {
         private const float NOTE_LAST_TIME_IN_SECONDS = 2f;
         private const float NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS = 1f;
@@ -33,6 +36,8 @@ namespace Pal3.UI
 
         private double _heapSizeLastQueryTime;
         private float _heapSize;
+
+        private bool _isNoteShowingEnabled = true;
 
         public void Init(CanvasGroup noteCanvasGroup, TextMeshProUGUI noteText, TextMeshProUGUI debugInfo)
         {
@@ -96,11 +101,45 @@ namespace Pal3.UI
             _noteCanvasGroup.alpha = 0f;
         }
 
+        public void EnableNoteDisplay(bool enable)
+        {
+            _isNoteShowingEnabled = enable;
+        }
+        
         public void Execute(UIDisplayNoteCommand command)
         {
-            if (_noteAnimation != null) StopCoroutine(_noteAnimation);
-            _noteText.text = command.Note;
+            if (!_isNoteShowingEnabled) return;
+            
+            if (_noteCanvasGroup.alpha > 0f)
+            {
+                var currentText = _noteText.text;
+                if (_noteAnimation != null)
+                {
+                    StopCoroutine(_noteAnimation);   
+                }
+
+                if (!string.Equals(currentText, command.Note) &&
+                    !string.Equals(currentText.Split('\n').Last(), command.Note))
+                {
+                    _noteText.text = currentText + '\n' + command.Note;
+                }
+            }
+            else
+            {
+                _noteText.text = command.Note;
+            }
+            
             _noteAnimation = StartCoroutine(AnimateNoteUI());
+        }
+        
+        public void Execute(SceneLeavingCurrentSceneNotification command)
+        {
+            if (_noteAnimation != null)
+            {
+                StopCoroutine(_noteAnimation);   
+            }
+            _noteCanvasGroup.alpha = 0f;
+            _noteText.text = string.Empty;
         }
 
         // TODO: Remove this

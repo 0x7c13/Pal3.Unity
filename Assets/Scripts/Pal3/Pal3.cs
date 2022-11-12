@@ -307,6 +307,7 @@ namespace Pal3
                 _gameStateManager,
                 _scriptManager,
                 _saveManager,
+                _informationManager,
                 storySelectionCanvasGroup,
                 storySelectionButtonPrefab);
             ServiceLocator.Instance.Register(_storySelector);

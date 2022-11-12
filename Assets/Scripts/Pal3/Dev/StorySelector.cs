@@ -39,6 +39,7 @@ namespace Pal3.Dev
         private GameStateManager _gameStateManager;
         private SceneManager _sceneManager;
         private SaveManager _saveManager;
+        private InformationManager _informationManager;
         private CanvasGroup _storySelectorCanvas;
         private GameObject _storySelectorButtonPrefab;
 
@@ -1872,6 +1873,7 @@ namespace Pal3.Dev
             GameStateManager gameStateManager,
             ScriptManager scriptManager,
             SaveManager saveManager,
+            InformationManager informationManager,
             CanvasGroup storySelectorCanvas,
             GameObject storySelectorButtonPrefab)
         {
@@ -1882,6 +1884,7 @@ namespace Pal3.Dev
             _playerInputActions = inputManager.GetPlayerInputActions();
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
+            _informationManager = informationManager != null ? informationManager : throw new ArgumentNullException(nameof(informationManager));
             _storySelectorCanvas = storySelectorCanvas != null ? storySelectorCanvas : throw new ArgumentNullException(nameof(storySelectorCanvas));
             _storySelectorButtonPrefab = storySelectorButtonPrefab != null ? storySelectorButtonPrefab : throw new ArgumentNullException(nameof(storySelectorButtonPrefab));
 
@@ -2063,6 +2066,8 @@ namespace Pal3.Dev
         
         private void ExecuteCommandsFromSaveFile(string commands)
         {
+            _informationManager.EnableNoteDisplay(false);
+            
             foreach (var command in commands.Split('\n'))
             {
                 if (string.IsNullOrEmpty(command)) continue;
@@ -2085,6 +2090,8 @@ namespace Pal3.Dev
                     DebugLogConsole.ExecuteCommand(command);
                 }
             }
+            
+            _informationManager.EnableNoteDisplay(true);
         }
 
         public void Hide()

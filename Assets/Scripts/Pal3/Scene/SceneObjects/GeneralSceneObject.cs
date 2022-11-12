@@ -12,8 +12,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
     [ScnSceneObject(ScnSceneObjectType.Knockdownable)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
-    [ScnSceneObject(ScnSceneObjectType.Chest)]
-    [ScnSceneObject(ScnSceneObjectType.RareChest)]
     [ScnSceneObject(ScnSceneObjectType.Trap)]
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
