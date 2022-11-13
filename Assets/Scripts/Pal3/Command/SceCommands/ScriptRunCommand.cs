@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(16, "调用另一段脚本，" +
                     "参数：脚本ID")]
     public class ScriptRunCommand : ICommand

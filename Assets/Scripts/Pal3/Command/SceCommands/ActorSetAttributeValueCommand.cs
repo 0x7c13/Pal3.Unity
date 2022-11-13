@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(41, "设置角色属性值" +
                     "参数：属性值ID，属性值类型，数值")]
     public class ActorSetAttributeValueCommand : ICommand

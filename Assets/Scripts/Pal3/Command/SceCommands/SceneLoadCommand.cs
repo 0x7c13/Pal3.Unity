@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(63, "切换场景，" +
                     "参数：场景关（文件）名称，场景区块名称")]
     public class SceneLoadCommand : ICommand

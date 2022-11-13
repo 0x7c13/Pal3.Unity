@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(9, "A!=B? A NOT Equal B?")]
     public class ScriptVarNotEqualToCommand : ICommand
     {

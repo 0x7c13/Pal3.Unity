@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(184, "更改角色透明度，" +
                      "参数：角色ID，透明度(0-1f)")]
     public class ActorChangeTransparencyCommand : ICommand

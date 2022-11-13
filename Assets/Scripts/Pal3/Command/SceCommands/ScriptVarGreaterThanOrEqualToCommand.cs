@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(10, "A>=B? A Greater or Equal B?",  parameterFlag: 0b0001)]
     public class ScriptVarGreaterThanOrEqualToCommand : ICommand
     {
@@ -18,6 +19,7 @@ namespace Pal3.Command.SceCommands
         public int Value { get; }
     }
 
+    [AvailableInConsole]
     [SceCommand(10, "A>=B? A Greater or Equal B?", parameterFlag: 0b0011)]
     public class ScriptCompareUserVarGreaterThanOrEqualToCommand : ICommand
     {

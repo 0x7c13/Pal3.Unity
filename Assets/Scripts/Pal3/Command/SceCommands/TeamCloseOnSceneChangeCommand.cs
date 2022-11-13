@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(212, "出情节关时队伍合并")]
     public class TeamCloseOnSceneChangeCommand : ICommand
     {

@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(113, "使当前场景进入<当铺&刺使府夜间特殊战斗关>状态")]
     public class MiniGameStartHideFightCommand : ICommand
     {

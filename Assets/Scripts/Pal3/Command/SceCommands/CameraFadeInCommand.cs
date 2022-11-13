@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(70, "屏幕淡入")]
     public class CameraFadeInCommand : ICommand
     {

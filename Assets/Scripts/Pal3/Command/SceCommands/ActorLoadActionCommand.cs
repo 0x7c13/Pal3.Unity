@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(150, "使角色加载一个动作，" +
                     "参数：角色ID，动作编号")]
     public class ActorLoadActionCommand : ICommand

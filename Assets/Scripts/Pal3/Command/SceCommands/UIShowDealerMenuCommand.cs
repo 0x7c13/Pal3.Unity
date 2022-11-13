@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(100, "调用买卖系统，" +
                      "参数：商店数据文件名")]
     public class UIShowDealerMenuCommand : ICommand

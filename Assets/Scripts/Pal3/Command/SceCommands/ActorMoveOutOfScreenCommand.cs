@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(201, "使角色向指定位置走,直到走出屏幕（不一定走到指定的点），" +
                     "参数：角色ID，TileMap中X坐标，TileMap中Z坐标，运动模式（0走，1跑）")]
     public class ActorMoveOutOfScreenCommand : ICommand

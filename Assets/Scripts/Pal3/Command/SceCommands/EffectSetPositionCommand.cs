@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(142, "设置特效位置，" +
                      "参数：X，Y，Z")]
     public class EffectSetPositionCommand : ICommand

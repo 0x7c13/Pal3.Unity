@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(115, "播放动画")]
     public class PlayVideoCommand : ICommand
     {

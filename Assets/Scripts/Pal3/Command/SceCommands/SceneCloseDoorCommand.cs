@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(187, "播放门关闭的动画")]
     public class SceneCloseDoorCommand : ICommand
     {

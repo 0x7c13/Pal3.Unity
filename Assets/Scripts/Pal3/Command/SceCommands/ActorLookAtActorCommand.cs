@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(209, "设定一个角色面向另一个角色（的位置），" +
                      "参数：被设置的角色的ID，面向的角色的ID")]
     public class ActorLookAtActorCommand : ICommand

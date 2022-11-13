@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(118, "摇晃镜头（模拟地震）效果，" +
                      "参数：持续时间，振幅")]
     public class CameraShakeEffectCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(109, "打开或关闭魔剑养成功能，" +
                      "参数：0关闭1打开")]
     public class FeatureEnableSwordPurifyingCommand : ICommand

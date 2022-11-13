@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(174, "镜头朝向固定点左右Orbit" +
                         "参数：目标Yaw，Pitch，目标镜头距离，运动时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
     

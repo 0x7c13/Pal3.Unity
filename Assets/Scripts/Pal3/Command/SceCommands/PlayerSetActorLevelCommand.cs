@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(145, "设置目标角色等级（所有当前角色等级的平均值+增加值），" +
                     "参数：角色ID，等级增加值")]
     public class PlayerSetActorLevelCommand : ICommand
@@ -20,6 +21,7 @@ namespace Pal3.Command.SceCommands
         public int LevelIncrease { get; }
     }
     #elif PAL3A
+    [AvailableInConsole]
     [SceCommand(145, "设置目标角色等级（所有当前角色等级的平均值+增加值），" +
                      "参数：角色ID，等级增加值")]
     public class PlayerSetActorLevelCommand : ICommand

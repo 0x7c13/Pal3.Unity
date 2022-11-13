@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(176, "???")]
     public class UnknownCommand176 : ICommand
     {

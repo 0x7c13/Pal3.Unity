@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(21, "瞬间移动角色到TileMap中该点，" +
                     "参数：角色ID，TileMap中X坐标，TileMap中Z坐标")]
     public class ActorSetTilePositionCommand : ICommand

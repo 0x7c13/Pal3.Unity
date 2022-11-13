@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(163, "设置某个物件出现或隐藏，" +
                     "参数：场景名，物件ID，是否出现（0隐藏，1出现）")]
     public class SceneActivateObject2Command : ICommand

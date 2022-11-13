@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(147, "退出游戏到主菜单")]
     public class GameSwitchToMainMenuCommand : ICommand
     {

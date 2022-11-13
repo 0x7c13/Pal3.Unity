@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(170, "完成主线或支线任务，" +
                      "参数：任务ID")]
     public class TaskCompleteCommand : ICommand

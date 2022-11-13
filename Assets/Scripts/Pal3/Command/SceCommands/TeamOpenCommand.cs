@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(25, "玩家队伍散开")]
     public class TeamOpenCommand : ICommand
     {

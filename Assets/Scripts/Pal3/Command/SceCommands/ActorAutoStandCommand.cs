@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(207, "指定角色是否在PerformAction指令完成后自动切换成站立的动作，" +
                      "参数：角色ID，是否自动站立（1是0否）")]
     public class ActorAutoStandCommand : ICommand

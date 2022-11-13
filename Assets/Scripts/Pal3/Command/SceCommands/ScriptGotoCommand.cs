@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(3, "使脚本跳转到指定位置，" +
                     "参数：标号")]
     public class ScriptGotoCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(17, "给变量随机赋值一个正整数，" +
                     "参数：输出变量，随机值上限（最大值）；输出0到最大值之间的一个整数")]
     public class ScriptVarSetRandomValueCommand : ICommand

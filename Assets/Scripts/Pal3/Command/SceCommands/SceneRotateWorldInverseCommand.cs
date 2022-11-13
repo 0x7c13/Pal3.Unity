@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(128, "反方向旋转整个场景，" +
                     "参数：X，Y，Z")]
     public class SceneRotateWorldInverseCommand : ICommand

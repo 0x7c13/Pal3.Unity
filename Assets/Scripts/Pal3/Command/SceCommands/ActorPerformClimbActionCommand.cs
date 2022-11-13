@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(74, "使当前玩家操纵角色攀爬场景物品，" +
                     "参数：场景物品ID，向上或向下（1上0下）")]
     public class ActorPerformClimbActionCommand : ICommand

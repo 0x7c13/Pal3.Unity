@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(167, "雷电特效???")]
     public class UnknownCommand167 : ICommand
     {

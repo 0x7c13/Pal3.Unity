@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(144, "在角色位置播放特效，" +
                      "参数：角色ID")]
     public class EffectAttachToActorCommand : ICommand

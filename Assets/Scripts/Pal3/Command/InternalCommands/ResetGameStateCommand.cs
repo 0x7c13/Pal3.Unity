@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.InternalCommands
 {
+    [AvailableInConsole]
     public class ResetGameStateCommand : ICommand
     {
         public ResetGameStateCommand() {}

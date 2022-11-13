@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(13, "给变量赋值，Var <== Value，" +
                     "参数：变量名（ID），值")]
     public class ScriptVarSetValueCommand : ICommand

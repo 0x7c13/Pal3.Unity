@@ -7,6 +7,7 @@ namespace Pal3.Command.InternalCommands
 {
     using UnityEngine;
 
+    [AvailableInConsole]
     public class PlayerActorClimbObjectCommand : ICommand
     {
         public PlayerActorClimbObjectCommand(int objectId,

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(79, "播放音效，" +
                     "参数：音效名，循环次数（0表示开始无限循环，-1表示结束循环）")]
     public class PlaySfxCommand : ICommand

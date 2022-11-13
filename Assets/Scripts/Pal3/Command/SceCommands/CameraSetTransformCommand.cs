@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(36, "设置镜头参数，" +
                     "参数：Yaw，Pitch，Distance，X，Y，Z")]
     public class CameraSetTransformCommand : ICommand

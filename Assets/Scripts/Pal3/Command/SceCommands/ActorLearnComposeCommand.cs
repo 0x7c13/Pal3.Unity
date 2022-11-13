@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(111, "选择同伴学会合成术，" +
                      "参数：合成出的物品的数据库ID")]
     public class ActorLearnComposeCommand : ICommand

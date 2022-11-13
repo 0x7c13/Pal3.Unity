@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(110, "打开或关闭降妖谱功能，" +
                      "参数：0关闭，1打开")]
     public class FeatureEnableJusticeBookCommand : ICommand

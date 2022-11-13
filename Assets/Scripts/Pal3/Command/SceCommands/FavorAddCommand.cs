@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(43, "增减好感增，" +
                     "参数：角色ID，增减值")]
     public class FavorAddCommand : ICommand

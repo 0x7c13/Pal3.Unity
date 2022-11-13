@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(153, "瞬间回满全队精气神")]
     public class StatusSetFullToAllCommand : ICommand
     {

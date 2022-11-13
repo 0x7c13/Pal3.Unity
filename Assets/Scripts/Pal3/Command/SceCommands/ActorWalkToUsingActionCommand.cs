@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(179, "查找一个到TileMap上（X，Z）的路径，并使角色按此路径走动，" +
                     "参数：角色ID，TileMap中X坐标，TileMap中Z坐标，动作名")]
     public class ActorWalkToUsingActionCommand : ICommand

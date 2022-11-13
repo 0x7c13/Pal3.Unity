@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(136, "角色淡入")]
     public class ActorFadeInCommand : ICommand
     {

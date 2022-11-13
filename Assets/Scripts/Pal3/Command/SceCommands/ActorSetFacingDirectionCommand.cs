@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(23, "瞬间使角色面向的方向改变，" +
                     "参数：角色ID，方向（方向值为0-7）")]
     public class ActorSetFacingDirectionCommand : ICommand

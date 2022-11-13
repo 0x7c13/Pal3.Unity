@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(49, "取出当前金钱数并赋值给变量，" +
                     "参数：变量名")]
     public class ScriptGetMoneyCommand : ICommand

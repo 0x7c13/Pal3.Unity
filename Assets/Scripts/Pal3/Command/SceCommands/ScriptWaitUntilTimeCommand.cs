@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(1, "脚本在一定时间后才执行下一条指令（不影响游戏系统和其它脚本的执行），" +
                    "参数：time（秒）")]
     public class ScriptWaitUntilTimeCommand : ICommand

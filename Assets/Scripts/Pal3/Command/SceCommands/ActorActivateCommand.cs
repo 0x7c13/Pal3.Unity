@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(28, "设置角色是否激活，" +
                     "参数：角色ID，是否激活（1是0否）")]
     public class ActorActivateCommand : ICommand

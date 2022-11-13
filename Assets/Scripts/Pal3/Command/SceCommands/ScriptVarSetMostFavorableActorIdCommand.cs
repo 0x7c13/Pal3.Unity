@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(52, "取得主角对谁的好感最高，" +
                     "参数：变量名")]
     public class ScriptVarSetMostFavorableActorIdCommand : ICommand

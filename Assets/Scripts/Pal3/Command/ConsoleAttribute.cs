@@ -3,12 +3,16 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Command.SceCommands
+namespace Pal3.Command
 {
-    [AvailableInConsole]
-    [SceCommand(83, "设置战斗为必败")]
-    public class CombatSetUnwinnableCommand : ICommand
+    using System;
+
+    /// <summary>
+    /// Attribute for enabling the command in console.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class AvailableInConsoleAttribute : Attribute
     {
-        public CombatSetUnwinnableCommand() {}
+        public AvailableInConsoleAttribute() { }
     }
 }

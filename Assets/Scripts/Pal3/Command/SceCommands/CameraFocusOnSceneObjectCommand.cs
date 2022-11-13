@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(251, "设置摄像机锁定场景物品，" +
                     "参数：物品ID")]
     public class CameraFocusOnSceneObjectCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(250, "取消镜头锁定")]
     public class CameraFreeCommand : ICommand
     {

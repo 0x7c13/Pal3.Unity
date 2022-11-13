@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(19, "判断变量是否在两个数之间并赋值给临时变量，" +
                     "参数：变量名，min，max，说明：X>=min并且X<=max?")]
     public class ScriptVarInBetweenCommand : ICommand

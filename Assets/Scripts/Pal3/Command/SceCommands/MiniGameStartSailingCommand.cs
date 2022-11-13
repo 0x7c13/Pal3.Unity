@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(127, "进入行船游戏")]
     public class MiniGameStartSailingCommand : ICommand
     {

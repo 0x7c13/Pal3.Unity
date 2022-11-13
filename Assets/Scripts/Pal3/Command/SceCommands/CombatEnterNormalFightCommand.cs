@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(73, "进入普通战斗")]
     public class CombatEnterNormalFightCommand : ICommand
     {

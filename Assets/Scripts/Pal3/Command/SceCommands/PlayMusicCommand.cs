@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(133, "播放剧情音乐")]
     public class PlayMusicCommand : ICommand
     {

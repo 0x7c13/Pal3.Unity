@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(195, "进入Boss战斗？")]
     public class UnknownCommand195 : ICommand
     {

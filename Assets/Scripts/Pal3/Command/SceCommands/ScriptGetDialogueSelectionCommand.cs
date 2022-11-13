@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(66, "取得选择结果并赋值给变量，" +
                     "参数：变量名")]
     public class ScriptGetDialogueSelectionCommand : ICommand

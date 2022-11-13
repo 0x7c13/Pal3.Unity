@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(67, "渲染人物头像立绘，" +
                     "参数：角色ID，头像图片编号，问或答（0头像在左，1头像在右）")]
     public class DialogueRenderActorAvatarCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(20, "查找一个到TileMap上（X，Z）的路径，并使角色按此路径移动，" +
                     "参数：角色ID，TileMap中X坐标，TileMap中Z坐标，运动模式（0走，1跑，2后退）")]
     public class ActorPathToCommand : ICommand

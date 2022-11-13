@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(117, "旋转整个场景，" +
                     "参数：X，Y，Z")]
     public class SceneRotateWorldCommand : ICommand
@@ -22,6 +23,7 @@ namespace Pal3.Command.SceCommands
         public int Z { get; }
     }
     #elif PAL3A
+    [AvailableInConsole]
     [SceCommand(117, "旋转整个场景，" +
                      "参数：X，Y，Z")]
     public class SceneRotateWorldCommand : ICommand

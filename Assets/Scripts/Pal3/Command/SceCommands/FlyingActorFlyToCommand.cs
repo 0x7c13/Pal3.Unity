@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     #if PAL3
     [SceCommand(89, "让花盈飞到某空间点" +
                     "参数：X，Y，Z")]

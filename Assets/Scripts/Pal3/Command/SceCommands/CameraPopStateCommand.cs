@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(39, "取出镜头状态")]
     public class CameraPopStateCommand : ICommand
     {

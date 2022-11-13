@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(51, "某个主角学会新特技，" +
                     "参数：主角ID，特技ID")]
     public class ActorAddSkillCommand : ICommand

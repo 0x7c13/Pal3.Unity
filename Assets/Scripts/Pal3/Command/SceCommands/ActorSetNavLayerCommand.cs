@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(203, "设置角色所在的地层，" +
                      "参数：ID，层数（0或1）")]
     public class ActorSetNavLayerCommand : ICommand

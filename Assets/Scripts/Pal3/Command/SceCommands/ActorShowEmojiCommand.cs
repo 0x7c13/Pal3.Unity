@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(72, "在角色头顶出现表情符号，" +
                     "参数：角色ID，表情编号ID")]
     public class ActorShowEmojiCommand : ICommand

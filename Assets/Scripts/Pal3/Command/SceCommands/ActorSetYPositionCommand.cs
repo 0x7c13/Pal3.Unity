@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(178, "给角色设置Y坐标" +
                      "参数：角色ID，Y坐标")]
     public class ActorSetYPositionCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(6, "A>B?, A Greater than B?")]
     public class ScriptVarGreaterThanCommand : ICommand
     {

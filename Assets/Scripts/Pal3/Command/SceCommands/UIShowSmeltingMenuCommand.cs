@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(146, "打开冶炼菜单")]
     public class UIShowSmeltingMenuCommand : ICommand
     {

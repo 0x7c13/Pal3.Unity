@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(31, "设置摄像机锁定一个定点，" +
                     "参数：LookAtX,LookAtY,LookAtZ")]
     public class CameraFocusOnPositionCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(46, "增加物品，" +
                     "参数：物品ID，个数")]
     public class InventoryAddItemCommand : ICommand

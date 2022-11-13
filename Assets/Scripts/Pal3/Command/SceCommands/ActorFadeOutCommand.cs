@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(135, "角色淡出")]
     public class ActorFadeOutCommand : ICommand
     {

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(87, "播放门打开的动画")]
     public class SceneOpenDoorCommand : ICommand
     {

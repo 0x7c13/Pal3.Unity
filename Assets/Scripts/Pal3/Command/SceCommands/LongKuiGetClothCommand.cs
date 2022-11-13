@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(149, "把背包里所获的的服装给龙葵，" +
                     "参数：服装ID变量")]
     public class LongKuiGetClothCommand : ICommand

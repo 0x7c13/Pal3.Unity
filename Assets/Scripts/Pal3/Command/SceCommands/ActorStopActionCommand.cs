@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(221, "ActorPerformActionCommand的循环次数为-1或-2时需要用此命令结束，" +
                     "参数：角色ID")]
     public class ActorStopActionCommand : ICommand

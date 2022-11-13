@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(116, "给角色更换纹理贴图" +
                     "参数：角色ID，贴图名")]
     public class ActorChangeTextureCommand : ICommand

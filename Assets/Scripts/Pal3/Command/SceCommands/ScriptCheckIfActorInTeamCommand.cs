@@ -7,6 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     using System;
 
+    [AvailableInConsole]
     [SceCommand(137, "检测角色是否在队伍里并设置给变量，" +
                      "参数：角色ID")]
     public class ScriptCheckIfActorInTeamCommand : ICommand

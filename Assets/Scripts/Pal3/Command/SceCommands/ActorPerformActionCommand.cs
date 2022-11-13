@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(22, "使角色执行一个动作，" +
                     "参数：角色ID，动作编号，播放次数（-1表示一直循环播放,-2表示播放一次后保持）")]
     public class ActorPerformActionCommand : ICommand

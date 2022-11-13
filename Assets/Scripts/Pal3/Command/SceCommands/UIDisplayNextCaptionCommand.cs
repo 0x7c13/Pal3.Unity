@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(183, "显示全屏字幕（例如显示诗句等），" +
                     "参数：字幕序号（对应美术图片，每个字幕一个图片），列数")]
     public class UIDisplayNextCaptionCommand : ICommand

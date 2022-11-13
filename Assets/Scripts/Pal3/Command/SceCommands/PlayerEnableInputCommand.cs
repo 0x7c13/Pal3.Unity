@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(27, "是否允许玩家控制当前主角，" +
                     "参数：0不可以，1可以")]
     public class PlayerEnableInputCommand : ICommand

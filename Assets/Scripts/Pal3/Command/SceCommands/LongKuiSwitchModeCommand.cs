@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(42, "设置龙葵形象，" +
                     "参数：0人，1鬼")]
     public class LongKuiSwitchModeCommand : ICommand

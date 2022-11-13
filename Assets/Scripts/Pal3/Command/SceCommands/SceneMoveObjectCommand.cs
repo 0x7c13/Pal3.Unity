@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(90, "移动场景物体到某处，" +
                     "参数：物件ID，XOffset，YOffset，ZOffset，动画时间")]
     public class SceneMoveObjectCommand : ICommand

@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3
+    [AvailableInConsole]
     [SceCommand(103, "进入当铺经营游戏，" +
                      "参数：当铺经营脚本ID")]
     public class MiniGameStartPawnshopCommand : ICommand

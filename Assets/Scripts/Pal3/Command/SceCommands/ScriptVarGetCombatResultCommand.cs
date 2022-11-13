@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(132, "取得战斗结果（0输1赢）并赋值给变量，" +
                      "参数：变量名")]
     public class ScriptVarGetCombatResultCommand : ICommand

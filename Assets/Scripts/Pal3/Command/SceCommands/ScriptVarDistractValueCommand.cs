@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(130, "变量A减去B，如果减去后A小于零则A取反，" +
                     "参数：变量名A，变量名B")]
     public class ScriptVarDistractValueCommand : ICommand

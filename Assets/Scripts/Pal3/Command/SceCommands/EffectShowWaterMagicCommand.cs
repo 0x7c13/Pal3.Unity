@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(152, "在玩家角色周身渲染水特效，" +
                      "参数：0关闭，1开启")]
     public class EffectShowWaterMagicCommand : ICommand

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(11, "A<=B? A Less than or Equal B?")]
     public class ScriptVarLessThanOrEqualToCommand : ICommand
     {

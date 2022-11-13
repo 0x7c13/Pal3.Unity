@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(30, "设置摄像机锁定角色，" +
                     "参数：角色ID")]
     public class CameraFocusOnActorCommand : ICommand

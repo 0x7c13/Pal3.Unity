@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(160, "PAL3A捉鬼（龙葵）游戏")]
     public class MiniGameStartGhostHuntingCommand : ICommand
     {

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(208, "角色向后平移，" +
                      "参数：角色ID，距离")]
     public class ActorMoveBackwardsCommand : ICommand

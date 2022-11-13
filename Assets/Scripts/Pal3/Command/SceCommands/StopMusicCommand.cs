@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(134, "停止剧情音乐")]
     public class StopMusicCommand : ICommand
     {

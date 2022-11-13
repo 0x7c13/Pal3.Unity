@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(8, "A==B? A Equal to B?")]
     public class ScriptVarEqualToCommand : ICommand
     {

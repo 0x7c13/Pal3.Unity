@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(78, "检查玩家是否拥有某个物品，" +
                     "参数：该物品的数据库ID，此命令结果影响标志变量（类似VarEqualTo）")]
     public class ScriptCheckIfPlayerHaveItemCommand : ICommand

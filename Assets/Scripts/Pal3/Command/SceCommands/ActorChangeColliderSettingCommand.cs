@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(205, "设置某个角色是否可以重叠（关闭碰撞）," +
                      "参数：角色ID，是否可重叠(1可0不可)")]
     public class ActorChangeColliderSettingCommand : ICommand

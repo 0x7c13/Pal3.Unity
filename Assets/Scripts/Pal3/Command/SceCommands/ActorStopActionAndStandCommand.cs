@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(71, "使角色结束当前行为，并站立在当前位置，" +
                      "参数：角色ID")]
     public class ActorStopActionAndStandCommand : ICommand

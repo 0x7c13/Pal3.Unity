@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(124, "与指定场景物品交互，" +
                      "参数：场景物品ID")]
     public class PlayerInteractWithObjectCommand : ICommand

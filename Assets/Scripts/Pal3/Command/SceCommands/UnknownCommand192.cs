@@ -6,6 +6,7 @@
 namespace Pal3.Command.SceCommands
 {
     #if PAL3A
+    [AvailableInConsole]
     [SceCommand(192, "南宫煌以变身状态下进入Boss战斗？")]
     public class UnknownCommand192 : ICommand
     {

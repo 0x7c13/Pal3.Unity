@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(53, "取得主角对谁的好感最低，" +
                     "参数：变量名")]
     public class ScriptVarSetLeastFavorableActorIdCommand : ICommand

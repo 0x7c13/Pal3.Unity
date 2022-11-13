@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(206, "指定角色的缩放系数，" +
                     "参数：角色ID，缩放系数")]
     public class ActorChangeScaleCommand : ICommand

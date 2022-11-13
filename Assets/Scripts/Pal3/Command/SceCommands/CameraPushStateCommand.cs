@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(38, "保存镜头状态")]
     public class CameraPushStateCommand : ICommand
     {

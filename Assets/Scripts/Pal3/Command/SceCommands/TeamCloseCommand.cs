@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(26, "玩家队伍合并")]
     public class TeamCloseCommand : ICommand
     {

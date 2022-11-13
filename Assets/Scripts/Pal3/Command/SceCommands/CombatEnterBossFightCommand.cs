@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(80, "进入Boss战")]
     public class CombatEnterBossFightCommand : ICommand
     {

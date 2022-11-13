@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(2, "设置脚本运行模式，" +
                    "参数：1为单步运行，2为连续执行")]
     public class ScriptChangeExecutionModeCommand : ICommand

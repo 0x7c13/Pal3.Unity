@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(62, "显示对话，等待用户确定后脚本继续")]
     public class DialogueRenderTextCommand : ICommand
     {

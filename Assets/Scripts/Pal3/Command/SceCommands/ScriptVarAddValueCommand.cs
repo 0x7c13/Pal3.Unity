@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(14, "给变量增加值，Var += Value，" +
                     "参数：变量名（ID），值")]
     public class ScriptVarAddValueCommand : ICommand

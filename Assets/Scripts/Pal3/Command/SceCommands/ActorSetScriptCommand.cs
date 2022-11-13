@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(29, "设置角色的对话脚本，" +
                     "参数：角色ID，脚本ID")]
     public class ActorSetScriptCommand : ICommand

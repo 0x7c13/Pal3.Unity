@@ -9,9 +9,8 @@ namespace Editor.SourceGenerator
     using System.Linq;
     using System.Reflection;
     using Base;
-    using Pal3.Command.SceCommands;
     using IngameDebugConsole;
-    using Pal3.Command.InternalCommands;
+    using Pal3.Command;
     using UnityEngine;
 
     /// <summary>
@@ -53,8 +52,6 @@ namespace Editor.SourceGenerator
 
             for (var i = 0; i < commands.Length; i++)
             {
-                //if (!IsCommandAvailableInConsole(commands[i])) continue;
-
                 var commandName = commands[i].Name.Replace("Command", string.Empty);
                 var properties = commands[i].GetProperties();
 
@@ -95,9 +92,7 @@ namespace Editor.SourceGenerator
 
         private static bool IsCommandAvailableInConsole(Type command)
         {
-            if (command == typeof(ResetGameStateCommand)) return true;
-            return command.GetCustomAttributes()
-                .Any(attribute => attribute is SceCommandAttribute {IsAvailableInConsole: true});
+            return command.GetCustomAttributes().Any(attribute => attribute is AvailableInConsoleAttribute);
         }
     }
 }

@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    [AvailableInConsole]
     [SceCommand(24, "转动角色面向的方向，" +
                     "参数：角色ID，转过多少角度（-360~360）")]
     public class ActorRotateFacingCommand : ICommand
