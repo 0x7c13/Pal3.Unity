@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Data;
@@ -88,6 +89,7 @@ namespace Pal3.Scene.SceneObjects
         public void AfterAnimationSteps()
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_chestObject.Info.Id, 0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_chestObject.Info.Id, false));
         }
     }
 }

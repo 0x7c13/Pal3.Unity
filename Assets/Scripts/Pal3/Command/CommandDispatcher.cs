@@ -7,6 +7,7 @@ namespace Pal3.Command
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using UnityEngine;
 
@@ -36,7 +37,9 @@ namespace Pal3.Command
         public void Dispatch<T>(T command) where T : TCommand
         {
             var executed = false;
-            foreach (var commandExecutor in _commandExecutorRegistry.GetRegisteredExecutors<T>())
+            // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
+            var executors = _commandExecutorRegistry.GetRegisteredExecutors<T>().ToList();
+            foreach (var commandExecutor in executors)
             {
                 commandExecutor.Execute(command);
                 executed = true;
@@ -56,7 +59,9 @@ namespace Pal3.Command
             Type commandExecutorType = typeof(ICommandExecutor<>).MakeGenericType(command.GetType());
 
             var executed = false;
-            foreach (var commandExecutor in _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType))
+            // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
+            var executors = _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType).ToList();
+            foreach (var commandExecutor in executors)
             {
                 if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)
                 {

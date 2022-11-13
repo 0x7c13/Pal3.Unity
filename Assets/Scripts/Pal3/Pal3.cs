@@ -111,6 +111,7 @@ namespace Pal3
         private PlayerInputActions _inputActions;
         private InputManager _inputManager;
         private GameStateManager _gameStateManager;
+        private SceneStateManager _sceneStateManager;
         private ScriptManager _scriptManager;
         private VideoManager _videoManager;
         private SceneManager _sceneManager;
@@ -167,7 +168,9 @@ namespace Pal3
             ServiceLocator.Instance.Register(_scriptManager);
             _gameStateManager = new GameStateManager(_inputManager, _scriptManager);
             ServiceLocator.Instance.Register(_gameStateManager);
-            _sceneManager = new SceneManager(_gameResourceProvider, _scriptManager, mainCamera);
+            _sceneStateManager = new SceneStateManager();
+            ServiceLocator.Instance.Register(_sceneStateManager);
+            _sceneManager = new SceneManager(_gameResourceProvider, _sceneStateManager, _scriptManager, mainCamera);
             ServiceLocator.Instance.Register(_sceneManager);
             _playerManager = new PlayerManager();
             ServiceLocator.Instance.Register(_playerManager);
@@ -284,6 +287,7 @@ namespace Pal3
                 _playerManager,
                 _teamManager,
                 _inventoryManager,
+                _sceneStateManager,
                 _bigMapManager,
                 _scriptManager,
                 _favorManager,
@@ -335,6 +339,7 @@ namespace Pal3
             _inputManager.Dispose();
             _inputActions.Dispose();
             _gameStateManager.Dispose();
+            _sceneStateManager.Dispose();
             _scriptManager.Dispose();
             _playerManager.Dispose();
             _inventoryManager.Dispose();

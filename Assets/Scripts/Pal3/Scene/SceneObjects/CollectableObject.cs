@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
 
@@ -45,6 +46,7 @@ namespace Pal3.Scene.SceneObjects
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, false));
         }
     }
 }

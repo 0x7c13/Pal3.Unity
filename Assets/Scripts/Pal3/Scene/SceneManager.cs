@@ -25,14 +25,19 @@ namespace Pal3.Scene
     {
         private readonly Camera _mainCamera;
         private readonly GameResourceProvider _resourceProvider;
+        private readonly SceneStateManager _sceneStateManager;
         private readonly ScriptManager _scriptManager;
 
         private GameObject _currentSceneRoot;
         private Scene _currentScene;
 
-        public SceneManager(GameResourceProvider resourceProvider, ScriptManager scriptManager, Camera mainCamera)
+        public SceneManager(GameResourceProvider resourceProvider,
+            SceneStateManager sceneStateManager,
+            ScriptManager scriptManager,
+            Camera mainCamera)
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _sceneStateManager = sceneStateManager ?? throw new ArgumentNullException(nameof(sceneStateManager));
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -68,7 +73,7 @@ namespace Pal3.Scene
             _currentSceneRoot = new GameObject($"Scene_{sceneFileName}_{sceneName}");
             _currentSceneRoot.transform.SetParent(null);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
-            _currentScene.Init(_resourceProvider, _mainCamera);
+            _currentScene.Init(_resourceProvider, _sceneStateManager, _mainCamera);
             _currentScene.Load(scnFile, _currentSceneRoot);
 
             // Add scene script

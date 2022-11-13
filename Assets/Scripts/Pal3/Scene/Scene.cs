@@ -11,6 +11,7 @@ namespace Pal3.Scene
     using System.Linq;
     using Actor;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
     using Core.DataReader.Scn;
@@ -30,6 +31,8 @@ namespace Pal3.Scene
         ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
+        ICommandExecutor<SceneChangeObjectActivationStateCommand>,
+        ICommandExecutor<SceneObjectDoNotLoadFromSaveStateCommand>,
         #if PAL3A
         ICommandExecutor<FengYaSongCommand>,
         ICommandExecutor<SceneCloseDoorCommand>,
@@ -41,9 +44,6 @@ namespace Pal3.Scene
         private const int MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS = 3;
 
         private static int _lightCullingMask;
-        
-        private Camera _mainCamera;
-        private SkyBoxRenderer _skyBoxRenderer;
 
         private GameObject _parent;
         private GameObject _mesh;
@@ -58,11 +58,17 @@ namespace Pal3.Scene
         private readonly Dictionary<byte, GameObject> _actorObjects = new ();
 
         private GameResourceProvider _resourceProvider;
+        private SceneStateManager _sceneStateManager;
+        private Camera _mainCamera;
+        private SkyBoxRenderer _skyBoxRenderer;
+        
         private Tilemap _tilemap;
+        private readonly HashSet<int> _sceneObjectsIgnoringSaveState = new ();
 
-        public void Init(GameResourceProvider resourceProvider, Camera mainCamera)
+        public void Init(GameResourceProvider resourceProvider, SceneStateManager sceneStateManager, Camera mainCamera)
         {
             _resourceProvider = resourceProvider;
+            _sceneStateManager = sceneStateManager;
             _mainCamera = mainCamera;
             _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
                                 (1 << LayerMask.NameToLayer("VFX"));
@@ -363,9 +369,30 @@ namespace Pal3.Scene
 
         private void ActivateSceneObjects()
         {
-            foreach (SceneObject sceneObject in SceneObjects.Values.Where(s => s.Info.Active == 1))
+            foreach (SceneObject sceneObject in SceneObjects.Values)
             {
-                ActivateSceneObject(sceneObject);
+                if (_sceneObjectsIgnoringSaveState.Contains(sceneObject.Info.Id) &&
+                    sceneObject.Info.Active == 1)
+                {
+                    ActivateSceneObject(sceneObject);
+                }
+                else
+                {
+                    SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.Name,
+                        ScnFile.SceneInfo.LightMap,
+                        sceneObject.Info.Id);
+
+                    if (objectState == SceneObjectActivationState.Enabled)
+                    {
+                        ActivateSceneObject(sceneObject);   
+                    }
+                    else if (objectState == SceneObjectActivationState.Unknown &&
+                             sceneObject.Info.Active == 1)
+                    {
+                        ActivateSceneObject(sceneObject);   
+                    }
+                }
             }
         }
 
@@ -487,7 +514,16 @@ namespace Pal3.Scene
 
             if (command.IsActive == 1)
             {
-                ActivateSceneObject(sceneObject);
+                SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(
+                    ScnFile.SceneInfo.CityName,
+                    ScnFile.SceneInfo.Name,
+                    ScnFile.SceneInfo.LightMap,
+                    sceneObject.Info.Id);
+
+                if (objectState != SceneObjectActivationState.Disabled)
+                {
+                    ActivateSceneObject(sceneObject);   
+                }
             }
             else
             {
@@ -548,6 +584,22 @@ namespace Pal3.Scene
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
+        }
+        
+        public void Execute(SceneChangeObjectActivationStateCommand command)
+        {
+            _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
+                _sceneStateManager.GetSceneObjectHashName(
+                    ScnFile.SceneInfo.CityName,
+                    ScnFile.SceneInfo.Name,
+                    ScnFile.SceneInfo.LightMap,
+                    command.ObjectId),
+                command.IsEnabled));
+        }
+        
+        public void Execute(SceneObjectDoNotLoadFromSaveStateCommand command)
+        {
+            _sceneObjectsIgnoringSaveState.Add(command.ObjectId);
         }
         
         #if PAL3A

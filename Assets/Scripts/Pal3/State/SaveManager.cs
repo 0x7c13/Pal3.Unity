@@ -39,6 +39,7 @@ namespace Pal3.State
         private readonly PlayerManager _playerManager;
         private readonly TeamManager _teamManager;
         private readonly InventoryManager _inventoryManager;
+        private readonly SceneStateManager _sceneStateManager;
         private readonly BigMapManager _bigMapManager;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
@@ -52,6 +53,7 @@ namespace Pal3.State
             PlayerManager playerManager,
             TeamManager teamManager,
             InventoryManager inventoryManager,
+            SceneStateManager sceneStateManager,
             BigMapManager bigMapManager,
             ScriptManager scriptManager,
             FavorManager favorManager,
@@ -63,6 +65,7 @@ namespace Pal3.State
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
             _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
+            _sceneStateManager = sceneStateManager ?? throw new ArgumentNullException(nameof(sceneStateManager));
             _bigMapManager = bigMapManager != null ? bigMapManager : throw new ArgumentNullException(nameof(bigMapManager));
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _favorManager = favorManager ?? throw new ArgumentNullException(nameof(favorManager));
@@ -141,6 +144,34 @@ namespace Pal3.State
                 commands.Add(new PlayMusicCommand(currentScriptMusic, 0));
             }
             
+            // Save team state
+            commands.AddRange(_teamManager.GetActorsInTeam()
+                .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
+            
+            // Save favor info
+            commands.AddRange(_favorManager.GetAllActorFavorInfo()
+                .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
+            
+            // Save big map region activation state
+            commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
+                .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
+
+            // Save inventory state
+            commands.Add(new InventoryAddMoneyCommand(_inventoryManager.GetTotalMoney()));
+            commands.AddRange(_inventoryManager.GetAllItems()
+                .Select(item => new InventoryAddItemCommand(item.Key, item.Value)));
+            
+            // Save scene object activation state
+            commands.AddRange(_sceneStateManager.GetSceneObjectActivationStates()
+                .Select(state => new SceneChangeGlobalObjectActivationStateCommand(state.Key, state.Value)));
+            
+            // Save current applied screen effect state
+            var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
+            if (currentEffectMode != -1)
+            {
+                commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));   
+            }
+            
             // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()
             {
@@ -156,16 +187,8 @@ namespace Pal3.State
                     -(int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
 
-            // Save team state
-            commands.AddRange(_teamManager.GetActorsInTeam()
-                .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
-
             if (saveLevel == SaveLevel.Full)
             {
-                // Save favor info
-                commands.AddRange(_favorManager.GetAllActorFavorInfo()
-                    .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
-
                 // Save scene object activation state changed by the script
                 var allSceneObjects = currentScene.GetAllSceneObjects();
                 var allActivatedSceneObjects = currentScene.GetAllActivatedSceneObjects();
@@ -191,11 +214,6 @@ namespace Pal3.State
                     .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
                                 !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
                     .Select(_ => new ActorActivateCommand(_.Key, 0)));
-                
-                // Save inventory state
-                commands.Add(new InventoryAddMoneyCommand(_inventoryManager.GetTotalMoney()));
-                commands.AddRange(_inventoryManager.GetAllItems()
-                    .Select(item => new InventoryAddItemCommand(item.Key, item.Value)));
             }
 
             #if PAL3
@@ -229,17 +247,6 @@ namespace Pal3.State
                 commands.Add(new ActorRotateFacingCommand((int)PlayerActorId.HuaYing, -rotationInDegrees));
             }
             #endif
-            
-            // Save big map region activation state
-            commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
-                .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
-
-            // Save current applied screen effect state
-            var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
-            if (currentEffectMode != -1)
-            {
-                commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));   
-            }
 
             // Save current applied camera settings
             var defaultCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
