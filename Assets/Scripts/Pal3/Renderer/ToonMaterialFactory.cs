@@ -5,7 +5,6 @@
 
 namespace Pal3.Renderer
 {
-    using System.Collections.Generic;
     using Core.GameBox;
     using UnityEngine;
 
@@ -13,9 +12,8 @@ namespace Pal3.Renderer
     {
         // Toon material uniforms
         private static readonly int CutoutPropertyId = Shader.PropertyToID("_Cutout");
+        private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
         
-        private static readonly Dictionary<string, Shader> Shaders = new ();
-
         private readonly Material _toonMaterial;
         private readonly Shader _toonShader;
         
@@ -38,11 +36,11 @@ namespace Pal3.Renderer
 
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
+            RendererType rendererType,
             Texture2D mainTexture,
             Texture2D shadowTexture,
             Color tintColor,
-            GameBoxBlendFlag blendFlag,
-            float transparentThreshold)
+            GameBoxBlendFlag blendFlag)
         {
             Material[] materials = null;
 
@@ -56,8 +54,28 @@ namespace Pal3.Renderer
                 materials = new Material[1];
                 materials[0] = CreateOpaqueMaterial(mainTexture);
             }
+
+            if (materials != null && rendererType == RendererType.Mv3)
+            {
+                // This is to make the shadow on actor lighter
+                materials[0].SetFloat(_lightIntensityPropertyId, -0.5f);
+            }
             
             return materials;
+        }
+        
+        public void UpdateMaterial(Material material, Texture2D newMainTexture, GameBoxBlendFlag blendFlag)
+        {
+            material.mainTexture = newMainTexture;
+            
+            if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
+            {
+                material.SetFloat(CutoutPropertyId, 0.3f);
+            }
+            else if (blendFlag == GameBoxBlendFlag.Opaque)
+            {
+                material.SetFloat(CutoutPropertyId, 0f);
+            }
         }
         
         private Material CreateTransparentMaterial(Texture2D mainTexture)

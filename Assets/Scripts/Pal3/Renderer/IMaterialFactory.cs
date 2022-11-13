@@ -26,18 +26,18 @@ namespace Pal3.Renderer
         /// <summary>
         /// Create standard materials.
         /// </summary>
+        /// <param name="rendererType">Renderer type</param>
         /// <param name="mainTexture">Main texture</param>
         /// <param name="shadowTexture">Shadow texture</param>
         /// <param name="tintColor">Tint color</param>
         /// <param name="blendFlag">Blend flag</param>
-        /// <param name="transparentThreshold">Transparent threshold</param>
         /// <returns>Materials</returns>
         public Material[] CreateStandardMaterials(
+            RendererType rendererType,
             Texture2D mainTexture,
             Texture2D shadowTexture,
             Color tintColor,
-            GameBoxBlendFlag blendFlag,
-            float transparentThreshold);
+            GameBoxBlendFlag blendFlag);
 
         /// <summary>
         /// Create material for water surface
@@ -49,5 +49,15 @@ namespace Pal3.Renderer
         public Material CreateWaterMaterial(Texture2D mainTexture,
             Texture2D shadowTexture,
             float alpha);
+
+        /// <summary>
+        /// Update existing material with new texture.
+        /// </summary>
+        /// <param name="material">Material</param>
+        /// <param name="newMainTexture">New main texture</param>
+        /// <param name="blendFlag">Blend flag</param>
+        public void UpdateMaterial(Material material,
+            Texture2D newMainTexture,
+            GameBoxBlendFlag blendFlag);
     }
 }

@@ -32,6 +32,8 @@ namespace Pal3.Renderer
         private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
         private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
         
+        private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
+        
         /// <inheritdoc/>
         public Material CreateWaterMaterial(Texture2D mainTexture, 
             Texture2D shadowTexture, 
@@ -54,14 +56,21 @@ namespace Pal3.Renderer
 
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
+            RendererType rendererType,
             Texture2D mainTexture,
             Texture2D shadowTexture,
             Color tintColor,
-            GameBoxBlendFlag blendFlag,
-            float transparentThreshold)
+            GameBoxBlendFlag blendFlag)
         {
             Material[] materials = null;
-            
+
+            float transparentThreshold = DEFAULT_TRANSPARENT_THRESHOLD;
+
+            if (shadowTexture == null && rendererType == RendererType.Pol)
+            {
+                transparentThreshold = 1.0f;
+            }
+
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
                 materials = new Material[2];
@@ -98,6 +107,22 @@ namespace Pal3.Renderer
             }
 
             return materials;
+        }
+        
+        public void UpdateMaterial(Material material,
+            Texture2D newMainTexture,
+            GameBoxBlendFlag blendFlag)
+        {
+            material.mainTexture = newMainTexture;
+            
+            if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
+            {
+                material.SetFloat(TransparentThresholdPropertyId, DEFAULT_TRANSPARENT_THRESHOLD);
+            }
+            else if (blendFlag == GameBoxBlendFlag.Opaque)
+            {
+                material.SetFloat(TransparentThresholdPropertyId, 0f);
+            }
         }
         
         private Material CreateTransparentMaterial(Texture2D mainTexture,

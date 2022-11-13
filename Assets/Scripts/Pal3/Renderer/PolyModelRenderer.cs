@@ -25,9 +25,6 @@ namespace Pal3.Renderer
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION = ".dds";
         private const int ANIMATED_WATER_ANIMATION_FRAMES = 30;
         private const float ANIMATED_WATER_ANIMATION_FPS = 20f;
-        
-        private const float TRANSPARENT_THRESHOLD_WITHOUT_SHADOW = 1.0f;
-        private const float TRANSPARENT_THRESHOLD_WITH_SHADOW = 0.9f;
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
@@ -148,11 +145,11 @@ namespace Pal3.Renderer
                     else
                     {
                         materials = _materialFactory.CreateStandardMaterials(
+                            RendererType.Pol,
                             textures[0].texture,
                             shadowTexture: null,
                             _tintColor,
-                            blendFlag,
-                            TRANSPARENT_THRESHOLD_WITHOUT_SHADOW);
+                            blendFlag);
                     }
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
@@ -184,11 +181,11 @@ namespace Pal3.Renderer
                     else
                     {
                         materials = _materialFactory.CreateStandardMaterials(
+                            RendererType.Pol,
                             textures[1].texture,
                             textures[0].texture,
                             _tintColor,
-                            blendFlag,
-                            TRANSPARENT_THRESHOLD_WITH_SHADOW);
+                            blendFlag);
                     }
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,

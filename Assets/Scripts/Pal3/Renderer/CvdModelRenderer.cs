@@ -31,8 +31,6 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
         
-        private const float TRANSPARENT_THRESHOLD = 1.0f;
-
         public void Init(CvdFile cvdFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
@@ -182,11 +180,11 @@ namespace Pal3.Renderer
                     #endif
 
                     Material[] materials = materialFactory.CreateStandardMaterials(
+                        RendererType.Cvd,
                         textureCache[meshSection.TextureName],
                         shadowTexture: null, // CVD models don't have shadow textures
                         _tintColor,
-                        meshSection.BlendFlag,
-                        TRANSPARENT_THRESHOLD);
+                        meshSection.BlendFlag);
                     
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(

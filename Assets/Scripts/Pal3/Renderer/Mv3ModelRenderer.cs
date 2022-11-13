@@ -25,18 +25,14 @@ namespace Pal3.Renderer
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
-        private const float TRANSPARENT_THRESHOLD = 0.9f;
-        
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
         private const float TIME_TO_TICK_SCALE = 5000f;
-        
-        private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
         private Texture2D[] _textures;
-        private Material[] _materials;
+        private Material[][] _materials;
         private GameBoxMaterial[] _gbMaterials;
         private Mv3AnimationEvent[] _events;
         private bool[] _textureHasAlphaChannel;
@@ -84,7 +80,7 @@ namespace Pal3.Renderer
             _gbMaterials = new GameBoxMaterial[_meshCount];
             _textures = new Texture2D[_meshCount];
             _textureHasAlphaChannel = new bool[_meshCount];
-            _materials = new Material[_meshCount];
+            _materials = new Material[_meshCount][];
             _animationName = new string[_meshCount];
             _frameTicks = new uint[_meshCount][];
             _meshObjects = new GameObject[_meshCount];
@@ -156,15 +152,13 @@ namespace Pal3.Renderer
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
             
             Material[] materials = _materialFactory.CreateStandardMaterials(
+                RendererType.Mv3,
                 _textures[index],
                 shadowTexture: null, // MV3 models don't have shadow textures
                 _tintColor,
-                _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
-                TRANSPARENT_THRESHOLD);
-            #if RTX_ON
-            materials[0].SetFloat(_lightIntensityPropertyId, -0.5f);
-            #endif
-            _materials[index] = materials[0];
+                _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
+
+            _materials[index] = materials;
 
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
@@ -172,7 +166,7 @@ namespace Pal3.Renderer
             if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Any(_ =>
                     string.Equals(_, texturePath, StringComparison.OrdinalIgnoreCase)))
             {
-                _materials[index].mainTextureScale = new Vector2(1.0f, -1.0f);
+                _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
             }
             #endif
 
@@ -187,7 +181,7 @@ namespace Pal3.Renderer
                 ref meshDataBuffer.NormalBuffer,
                 ref mv3Mesh.Uvs,
                 ref mv3Mesh.Uvs,
-                ref materials,
+                ref _materials[index],
                 true);            
 
             renderMesh.RecalculateTangents();
@@ -221,17 +215,14 @@ namespace Pal3.Renderer
         public void ChangeTexture(string textureName)
         {
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
-
-            // Change the texture for the first sub-mesh only
+            
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
-
-            _materials = _materialFactory.CreateStandardMaterials(
-                _textures[0],
-                shadowTexture: null, // MV3 models don't have shadow textures
-                _tintColor,
-                _textureHasAlphaChannel[0] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
-                TRANSPARENT_THRESHOLD);
+            
+            // Change the texture for the first sub-mesh only
+            _materialFactory.UpdateMaterial(_materials[0][0], _textures[0], _textureHasAlphaChannel[0] ?
+                GameBoxBlendFlag.AlphaBlend :
+                GameBoxBlendFlag.Opaque);
         }
 
         public void PauseAnimation()
