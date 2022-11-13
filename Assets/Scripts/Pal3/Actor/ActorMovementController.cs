@@ -43,6 +43,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorSetNavLayerCommand>
     {
         private const float MAX_CROSS_LAYER_Y_DIFFERENTIAL = 2f;
+        private const float DEFAULT_ROTATION_SPEED = 20f;
 
         private Actor _actor;
         private Tilemap _tilemap;
@@ -305,10 +306,8 @@ namespace Pal3.Actor
             Transform currentTransform = transform;
             Vector3 currentPosition = currentTransform.position;
 
-            // TODO: Use speed info from datascript\scene.txt file
-            //var speed = _actor.Info.Speed == 0 ? 2f : _actor.Info.Speed;
-            var moveSpeed = movementMode == 1 ? 11f : 5f;
-            var rotationSpeed = 20f;
+            // TODO: Use speed info from datascript\scene.txt file when _actor.Info.Speed == 0
+            var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == 1 ? 11f : 5f) : _actor.Info.Speed / 11f;
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 
@@ -336,7 +335,7 @@ namespace Pal3.Actor
             else
             {
                 currentTransform.forward = Vector3.RotateTowards(currentTransform.forward,
-                    moveDirection, rotationSpeed * Time.deltaTime, 0.0f);
+                    moveDirection, DEFAULT_ROTATION_SPEED * Time.deltaTime, 0.0f);
             }
 
             currentTransform.position = new Vector3(
