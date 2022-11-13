@@ -14,7 +14,6 @@ namespace Pal3.Player
     using Command.SceCommands;
     using Core.DataReader.Gdb;
     using Data;
-    using State;
     using UnityEngine;
 
     public sealed class InventoryManager : IDisposable,
@@ -25,15 +24,11 @@ namespace Pal3.Player
     {
         private const int MoneyItemID = 0;
 
-        private readonly GameStateManager _gameStateManager;
-        
         private readonly Dictionary<int, GameItem>  _gameItemsInfo;
         private readonly Dictionary<int, int> _items = new ();
 
-        public InventoryManager(GameResourceProvider resourceProvider,
-            GameStateManager gameStateManager)
+        public InventoryManager(GameResourceProvider resourceProvider)
         {
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _ = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _gameItemsInfo = resourceProvider.GetGameItems();
             _items[MoneyItemID] = 0; // init money

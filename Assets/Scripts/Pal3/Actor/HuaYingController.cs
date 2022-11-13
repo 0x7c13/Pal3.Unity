@@ -131,7 +131,6 @@ namespace Pal3.Actor
                 transform.position = Vector3.MoveTowards(transform.position,
                     myNewPosition,
                     Time.deltaTime * FLY_SPEED);
-                transform.LookAt(new Vector3(myNewPosition.x, transform.position.y, myNewPosition.z));
             }
 
             if (distanceToNewPosition < ROTATION_SYNCING_DISTANCE)
@@ -139,6 +138,10 @@ namespace Pal3.Actor
                 Vector3 newRotation= Vector3.RotateTowards(transform.forward,
                     _target.transform.forward, ROTATION_SPEED * Time.deltaTime, 0.0f);
                 transform.rotation = Quaternion.LookRotation(newRotation);
+            }
+            else
+            {
+                transform.LookAt(new Vector3(myNewPosition.x, transform.position.y, myNewPosition.z));
             }
         }
 

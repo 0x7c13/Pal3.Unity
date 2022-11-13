@@ -171,7 +171,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_sceneManager);
             _playerManager = new PlayerManager();
             ServiceLocator.Instance.Register(_playerManager);
-            _inventoryManager = new InventoryManager(_gameResourceProvider, _gameStateManager);
+            _inventoryManager = new InventoryManager(_gameResourceProvider);
             ServiceLocator.Instance.Register(_inventoryManager);
             _teamManager = new TeamManager(_playerManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
