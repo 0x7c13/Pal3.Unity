@@ -163,7 +163,7 @@ namespace Pal3.State
             
             // Save scene object activation state
             commands.AddRange(_sceneStateManager.GetSceneObjectActivationStates()
-                .Select(state => new SceneChangeGlobalObjectActivationStateCommand(state.Key, state.Value)));
+                .Select(state => new SceneChangeGlobalObjectActivationStateCommand(state.Key, state.Value ? 1 : 0)));
             
             // Save current applied screen effect state
             var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();

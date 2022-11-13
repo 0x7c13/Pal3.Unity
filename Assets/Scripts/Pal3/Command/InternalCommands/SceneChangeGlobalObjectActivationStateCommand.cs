@@ -9,13 +9,13 @@ namespace Pal3.Command.InternalCommands
     public class SceneChangeGlobalObjectActivationStateCommand : ICommand
     {
         public SceneChangeGlobalObjectActivationStateCommand(string sceneObjectHashName,
-            bool isEnabled)
+            int isActive)
         {
             SceneObjectHashName = sceneObjectHashName;
-            IsEnabled = isEnabled;
+            IsActive = isActive;
         }
 
         public string SceneObjectHashName { get; }
-        public bool IsEnabled { get; }
+        public int IsActive { get; }
     }
 }

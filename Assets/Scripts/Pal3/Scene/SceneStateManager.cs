@@ -63,7 +63,7 @@ namespace Pal3.Scene
         
         public void Execute(SceneChangeGlobalObjectActivationStateCommand command)
         {
-            _sceneObjectActivationStates[command.SceneObjectHashName] = command.IsEnabled;
+            _sceneObjectActivationStates[command.SceneObjectHashName] = command.IsActive != 0;
         }
 
         public void Execute(ResetGameStateCommand command)

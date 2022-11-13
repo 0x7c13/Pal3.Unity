@@ -30,8 +30,7 @@ namespace Pal3.Renderer
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
         private const float TIME_TO_TICK_SCALE = 5000f;
-
-        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+        
         private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
 
         private ITextureResourceProvider _textureProvider;
@@ -225,8 +224,14 @@ namespace Pal3.Renderer
 
             // Change the texture for the first sub-mesh only
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
-            _materials[0].SetTexture(_mainTexturePropertyId, _textures[0]);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
+
+            _materials = _materialFactory.CreateStandardMaterials(
+                _textures[0],
+                shadowTexture: null, // MV3 models don't have shadow textures
+                _tintColor,
+                _textureHasAlphaChannel[0] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
+                TRANSPARENT_THRESHOLD);
         }
 
         public void PauseAnimation()

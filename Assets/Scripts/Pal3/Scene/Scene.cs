@@ -34,6 +34,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneChangeObjectActivationStateCommand>,
         ICommandExecutor<SceneObjectDoNotLoadFromSaveStateCommand>,
         #if PAL3A
+        ICommandExecutor<SceneActivateObject2Command>,
         ICommandExecutor<FengYaSongCommand>,
         ICommandExecutor<SceneCloseDoorCommand>,
         #endif
@@ -594,32 +595,14 @@ namespace Pal3.Scene
                     ScnFile.SceneInfo.Name,
                     ScnFile.SceneInfo.LightMap,
                     command.ObjectId),
-                command.IsEnabled));
+                command.IsActive));
         }
-        
+
         public void Execute(SceneObjectDoNotLoadFromSaveStateCommand command)
         {
             _sceneObjectsIgnoringSaveState.Add(command.ObjectId);
         }
         
-        #if PAL3A
-        public void Execute(SceneCloseDoorCommand command)
-        {
-            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
-            {
-                GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
-                {
-                    cvdMeshRenderer.PlayAnimation(timeScale: -1, loopCount: 1);
-                }
-            }
-            else
-            {
-                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
-            }
-        }
-        #endif
-
         public void Execute(SceneMoveObjectCommand command)
         {
             if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
@@ -635,8 +618,40 @@ namespace Pal3.Scene
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
-
+        
         #if PAL3A
+        public void Execute(SceneActivateObject2Command command)
+        {
+            var sceneObjectHashName = _sceneStateManager.GetSceneObjectHashName(
+                ScnFile.SceneInfo.CityName,
+                command.SceneName,
+                ScnFile.SceneInfo.LightMap,
+                command.ObjectId);
+
+            if (!_sceneStateManager.GetSceneObjectActivationStates().ContainsKey(sceneObjectHashName))
+            {
+                _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
+                    sceneObjectHashName,
+                    command.IsActive));     
+            }
+        }
+        
+        public void Execute(SceneCloseDoorCommand command)
+        {
+            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            {
+                GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                {
+                    cvdMeshRenderer.PlayAnimation(timeScale: -1, loopCount: 1);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+            }
+        }
+
         public void Execute(FengYaSongCommand command)
         {
             switch (command.ModelType)

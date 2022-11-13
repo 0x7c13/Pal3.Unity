@@ -9,13 +9,13 @@ namespace Pal3.Command.InternalCommands
     public class SceneChangeObjectActivationStateCommand : ICommand
     {
         public SceneChangeObjectActivationStateCommand(int objectId,
-            bool isEnabled)
+            int isActive)
         {
             ObjectId = objectId;
-            IsEnabled = isEnabled;
+            IsActive = isActive;
         }
         
         public int ObjectId { get; }
-        public bool IsEnabled { get; }
+        public int IsActive { get; }
     }
 }

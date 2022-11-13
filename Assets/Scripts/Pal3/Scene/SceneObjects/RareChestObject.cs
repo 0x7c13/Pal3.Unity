@@ -83,7 +83,7 @@ namespace Pal3.Scene.SceneObjects
         public void AfterAnimationSteps()
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_rareChestObject.Info.Id, 0));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_rareChestObject.Info.Id, false));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_rareChestObject.Info.Id, 0));
         }
     }
 }
