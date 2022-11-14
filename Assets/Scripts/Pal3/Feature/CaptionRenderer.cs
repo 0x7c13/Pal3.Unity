@@ -19,8 +19,10 @@ namespace Pal3.Feature
     using UnityEngine.UI;
 
     public sealed class CaptionRenderer : MonoBehaviour,
-        ICommandExecutor<UIDisplayCaptionCommand>,
-        ICommandExecutor<UIDisplayNextCaptionCommand>
+        #if PAL3A
+        ICommandExecutor<UIDisplayNextCaptionCommand>,
+        #endif
+        ICommandExecutor<UIDisplayCaptionCommand>
     {
         private const float CAPTION_ANIMATION_DURATION = 10f;
 
@@ -94,9 +96,11 @@ namespace Pal3.Feature
             StartCoroutine(AnimateCaption(command.TextureName));
         }
         
+        #if PAL3A
         public void Execute(UIDisplayNextCaptionCommand command)
         {
             StartCoroutine(AnimateCaption(command.TextureName));
         }
+        #endif
     }
 }
