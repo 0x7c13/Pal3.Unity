@@ -352,6 +352,32 @@ namespace Pal3.Player
             var nearestInteractableDistance = float.MaxValue;
             Action interactionAction = null;
 
+            foreach (var sceneObjectInfo in
+                     _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
+            {
+                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectInfo.Key);
+
+                if (sceneObject.Info.Type != ScnSceneObjectType.Climbable &&
+                    sceneObject.Info.OnLayer != currentLayerIndex) continue;
+
+                Vector3 sceneObjectPosition = sceneObjectInfo.Value.transform.position;
+                var distance = Vector2.Distance(new Vector2(position.x, position.z),
+                    new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
+
+                if (sceneObject.IsInteractable(distance) && distance < nearestInteractableDistance)
+                {
+                    nearestInteractableDistance = distance;
+                    interactionAction = sceneObject.Interact;
+                }
+            }
+
+            // Scene object interaction have higher priority than actor interaction
+            if (interactionAction != null)
+            {
+                interactionAction.Invoke();
+                return;
+            }
+            
             foreach (var actorInfo in _sceneManager.GetCurrentScene().GetAllActorGameObjects())
             {
                 var actorController = actorInfo.Value.GetComponent<ActorController>();
@@ -379,26 +405,7 @@ namespace Pal3.Player
                     };
                 }
             }
-
-            foreach (var sceneObjectInfo in
-                     _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
-            {
-                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectInfo.Key);
-
-                if (sceneObject.Info.Type != ScnSceneObjectType.Climbable &&
-                    sceneObject.Info.OnLayer != currentLayerIndex) continue;
-
-                Vector3 sceneObjectPosition = sceneObjectInfo.Value.transform.position;
-                var distance = Vector2.Distance(new Vector2(position.x, position.z),
-                    new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
-
-                if (sceneObject.IsInteractable(distance) && distance < nearestInteractableDistance)
-                {
-                    nearestInteractableDistance = distance;
-                    interactionAction = sceneObject.Interact;
-                }
-            }
-
+            
             interactionAction?.Invoke();
         }
 
