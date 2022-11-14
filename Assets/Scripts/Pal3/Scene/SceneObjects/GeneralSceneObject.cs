@@ -27,7 +27,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
     [ScnSceneObject(ScnSceneObjectType.Billboard)]
     [ScnSceneObject(ScnSceneObjectType.WindBlower)]

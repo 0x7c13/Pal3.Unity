@@ -65,6 +65,18 @@ namespace Pal3.Renderer
             return bounds;
         }
 
+        public Bounds GetMeshBounds()
+        {
+            var bounds = new Bounds(Vector3.zero, Vector3.one);
+
+            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            {
+                bounds.Encapsulate(meshRenderer.GetMeshBounds());
+            }
+
+            return bounds;
+        }
+
         private Dictionary<string, Texture2D> BuildTextureCache(PolFile polFile,
             ITextureResourceProvider textureProvider)
         {

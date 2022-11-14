@@ -7,12 +7,12 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using Core.DataReader.Scn;
-    using Core.Utils;
     using Data;
     using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Collidable)]
+    [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public class CollidableObject : SceneObject
     {
         public CollidableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
