@@ -265,12 +265,12 @@ namespace Pal3.Renderer
             return _meshObjects != null;
         }
 
-        public Bounds GetWorldBounds()
+        public Bounds GetRendererBounds()
         {
             return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetRendererBounds()));
         }
 
-        public Bounds GetLocalBounds()
+        public Bounds GetMeshBounds()
         {
             return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetMeshBounds()));
         }

@@ -52,7 +52,7 @@ namespace Core.DataReader.Scn
     {
         AutoTrigger                   =  0,   // 自动触发点
         Shakeable                     =  1,   // 碰到后摇晃的物品
-        Knockdownable                 =  2,   // 碰到后翻倒的物品
+        Collidable                    =  2,   // 碰到后翻倒的物品
         Arrow                         =  3,   // 飞箭类 (JG06霹雳堂总舵飞剑)
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)

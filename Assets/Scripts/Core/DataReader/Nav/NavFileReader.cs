@@ -43,7 +43,7 @@ namespace Core.DataReader.Nav
             var faceLayers = new NavFaceLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
-                faceLayers[i] = ReadFaceLayer(reader, version);
+                faceLayers[i] = ReadFaceLayer(reader);
             }
 
             return new NavFile(tileLayers, faceLayers);
@@ -52,6 +52,7 @@ namespace Core.DataReader.Nav
         private static NavTileLayer ReadTileLayer(BinaryReader reader, byte version)
         {
             var portals = Array.Empty<GameBoxRect>();
+            
             if (version == 2)
             {
                 portals = new GameBoxRect[8];
@@ -101,7 +102,7 @@ namespace Core.DataReader.Nav
             };
         }
 
-        private static NavFaceLayer ReadFaceLayer(BinaryReader reader, byte version)
+        private static NavFaceLayer ReadFaceLayer(BinaryReader reader)
         {
             var numberOfVertices = reader.ReadUInt16();
             var numberOfFaces = reader.ReadUInt16();
@@ -129,11 +130,13 @@ namespace Core.DataReader.Nav
                 for (var i = 0; i < numberOfFaces; i++)
                 {
                     var index = i * 3;
+                    
+                    // Determine if the face is pointing downwards.
                     if (normals[triangles[index]].y +
                         normals[triangles[index + 1]].y +
                         normals[triangles[index + 2]].y < 0)
                     {
-                        // Change the winding order of the face.
+                        // Change the winding order of the face to make it point upwards.
                         (triangles[index], triangles[index + 1]) = (triangles[index + 1], triangles[index]); 
                     }
                 }

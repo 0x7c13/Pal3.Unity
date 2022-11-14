@@ -52,8 +52,8 @@ namespace Pal3.Actor
         private Mv3ModelRenderer _mv3AnimationRenderer;
         private WaitUntilCanceled _animationLoopPointWaiter;
 
-        private Bounds _worldBounds;
-        private Bounds _localBounds;
+        private Bounds _rendererBounds;
+        private Bounds _meshBounds;
 
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
@@ -185,8 +185,8 @@ namespace Pal3.Actor
             _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
             _mv3AnimationRenderer.PlayAnimation(loopCount);
 
-            _worldBounds = _mv3AnimationRenderer.GetWorldBounds();
-            _localBounds = _mv3AnimationRenderer.GetLocalBounds();
+            _rendererBounds = _mv3AnimationRenderer.GetRendererBounds();
+            _meshBounds = _mv3AnimationRenderer.GetMeshBounds();
 
             ActorActionType action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
@@ -234,7 +234,7 @@ namespace Pal3.Actor
                 _collider = gameObject.AddComponent<CapsuleCollider>();
             }
 
-            Bounds bounds = GetLocalBounds();
+            Bounds bounds = GetMeshBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
             _collider.radius = bounds.size.x * 0.35f;
@@ -317,26 +317,26 @@ namespace Pal3.Actor
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {
                 return new Vector3(parentPosition.x,
-                    parentPosition.y + _localBounds.size.y,
+                    parentPosition.y + _meshBounds.size.y,
                     parentPosition.z);
             }
             
             return new Vector3(parentPosition.x,
                 parentPosition.y +
-                _mv3AnimationRenderer.GetLocalBounds().size.y,
+                _mv3AnimationRenderer.GetMeshBounds().size.y,
                 parentPosition.z);
         }
         
-        public Bounds GetWorldBounds()
+        public Bounds GetRendererBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _worldBounds :
-                _mv3AnimationRenderer.GetWorldBounds();
+            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _rendererBounds :
+                _mv3AnimationRenderer.GetRendererBounds();
         }
 
-        public Bounds GetLocalBounds()
+        public Bounds GetMeshBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _localBounds :
-                _mv3AnimationRenderer.GetLocalBounds();
+            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _meshBounds :
+                _mv3AnimationRenderer.GetMeshBounds();
         }
 
         private void AnimationLoopPointReached(object _, int loopCount)

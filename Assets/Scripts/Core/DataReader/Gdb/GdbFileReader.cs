@@ -41,7 +41,7 @@ namespace Core.DataReader.Gdb
             return new GdbFile(gameItems);
         }
         
-        public static GameItem ReadGameItem(BinaryReader reader, int codepage)
+        private static GameItem ReadGameItem(BinaryReader reader, int codepage)
         {
             return new GameItem
             {
@@ -59,7 +59,8 @@ namespace Core.DataReader.Gdb
                 SpecialType = (SpecialType) reader.ReadByte(),
                 TargetRangeType = (TargetRangeType) reader.ReadByte(),
                 PlaceOfUseType = (PlaceOfUseType) reader.ReadByte(),
-                AttributeImpactType = reader.ReadBytes(13),
+                AttributeImpactType = reader.ReadBytes(12),
+                Unknown = reader.ReadByte(),
                 AttributeImpactValue = reader.ReadInt16Array(12),
                 FightStateImpactType = reader.ReadBytes(32),
                 FightStateImpactValue = reader.ReadInt16Array(32),

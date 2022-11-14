@@ -55,7 +55,7 @@ namespace Pal3.Renderer
 
         public Bounds GetRendererBounds()
         {
-            var bounds = new Bounds (transform.position, Vector3.one);
+            var bounds = new Bounds(transform.position, Vector3.one);
 
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {

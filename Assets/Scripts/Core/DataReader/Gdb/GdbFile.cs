@@ -113,6 +113,7 @@ namespace Core.DataReader.Gdb
         public PlaceOfUseType PlaceOfUseType;   // 使用地点类型
         
         public byte[] AttributeImpactType;      // 角色属性影响类型 (0绝对值，1百分比值，2恢复到上限，3增加上限值)
+        public byte Unknown;                    // 未知属性，不知道是什么
         public short[] AttributeImpactValue;    // 角色属性影响值
 
         public byte[] FightStateImpactType;     // 战斗状态影响类型（0不影响，1增加，2解除）

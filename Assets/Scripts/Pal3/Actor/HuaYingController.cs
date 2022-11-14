@@ -104,7 +104,7 @@ namespace Pal3.Actor
 
             if (_targetHeight == 0f)
             {
-                _targetHeight = _targetActorActionController.GetLocalBounds().size.y;
+                _targetHeight = _targetActorActionController.GetMeshBounds().size.y;
                 transform.position = GetTargetStayPosition();
             }
 

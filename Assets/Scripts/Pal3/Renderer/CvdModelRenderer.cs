@@ -67,6 +67,42 @@ namespace Pal3.Renderer
             return _animationDuration;
         }
 
+        public Bounds GetRendererBounds()
+        {
+            var bounds = new Bounds(transform.position, Vector3.one);
+
+            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
+            {
+                if (node.IsGeometryNode)
+                {
+                    foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                    {
+                        bounds.Encapsulate(meshComponent.MeshRenderer.GetRendererBounds());
+                    }   
+                }
+            }
+
+            return bounds;
+        }
+        
+        public Bounds GetMeshBounds()
+        {
+            var bounds = new Bounds(Vector3.zero, Vector3.one);
+        
+            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
+            {
+                if (node.IsGeometryNode)
+                {
+                    foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                    {
+                        bounds.Encapsulate(meshComponent.MeshRenderer.GetMeshBounds());
+                    }   
+                }
+            }
+        
+            return bounds;
+        }
+        
         private void BuildTextureCache(CvdGeometryNode node,
             ITextureResourceProvider textureProvider,
             Dictionary<string, Texture2D> textureCache)
@@ -198,6 +234,7 @@ namespace Pal3.Renderer
 
                     renderMesh.RecalculateNormals();
                     renderMesh.RecalculateTangents();
+                    renderMesh.RecalculateBounds();
                     
                     nodeMeshes.Item2[i] = new RenderMeshComponent
                     {
@@ -449,6 +486,7 @@ namespace Pal3.Renderer
         private void Dispose()
         {
             StopAnimation();
+            
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 Destroy(meshRenderer.gameObject);

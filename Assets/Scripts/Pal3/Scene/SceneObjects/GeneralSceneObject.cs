@@ -6,11 +6,12 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Core.DataReader.Scn;
+    using Data;
+    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.ImpulsiveMechanism)]
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
-    [ScnSceneObject(ScnSceneObjectType.Knockdownable)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.Trap)]
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
@@ -49,5 +50,23 @@ namespace Pal3.Scene.SceneObjects
             : base(objectInfo, sceneInfo)
         {
         }
+        
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        {
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            // Don't cast shadow on the map entrance/exit indicator.
+            // Those indicators are general objects which have Info.Parameters[0] set to 1
+            if (Info.Type == ScnSceneObjectType.General && (int) Info.Parameters[0] == 1)
+            {
+                foreach (MeshRenderer meshRenderer in sceneGameObject.GetComponentsInChildren<MeshRenderer>())
+                {
+                    meshRenderer.receiveShadows = false;
+                }
+            }
+            
+            return sceneGameObject;
+        }
+
     }
 }
