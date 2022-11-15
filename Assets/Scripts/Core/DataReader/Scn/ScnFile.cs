@@ -304,12 +304,13 @@ namespace Core.DataReader.Scn
             24 以拣起的道具
                 [0]:得到物品的数据库ID
         */
-        #if PAL3
-        public int[] Parameters;
-        #elif PAL3A
-        public float[] Parameters;
-        #endif
 
+        public int[] Parameters;
+
+        #if PAL3A
+        public byte[] Unknown1;
+        #endif
+        
         // 触发条件
         public ushort NeedSpecialAction;   // 对应特殊行走技能,0xFF为无此条件
         public ushort NeedItem;            // 需要物品,0xFF为无此条件
@@ -319,7 +320,12 @@ namespace Core.DataReader.Scn
         public ushort NeedAllOpen;         // 场景中所有需检测的机关都为开
         public string FailedMessage;       // char[16] 失败提示字符串名称
 
+        #if PAL3A
+        public byte[] Unknown2; // PAL3A
+        #endif
+        
         public uint ScriptId;
+
         public ScnPath Path;
 
         // 触发结果
@@ -339,9 +345,6 @@ namespace Core.DataReader.Scn
         public uint ScriptChangeActive;
         public uint ScriptMoved;
         public uint[] Reserved;            // 52 DWORDs
-
-        public byte[] Unknown1;
-        public byte[] Unknown2;
     }
 
     /// <summary>

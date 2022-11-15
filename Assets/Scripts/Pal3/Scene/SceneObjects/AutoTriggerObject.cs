@@ -15,6 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using Effect;
     using MetaData;
+    using Renderer;
     using Script;
     using UnityEngine;
 
@@ -83,9 +84,28 @@ namespace Pal3.Scene.SceneObjects
             //                    $"| {actorMovementController.GetCurrentLayerIndex()}_{playerActorTilePosition}");
             // }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunCommand((int)_autoTrigger.Info.ScriptId));
             _isScriptRunningInProgress = true;
+            
+            // Play door open animation if it's a door
+            if (_autoTrigger.Info.Type == ScnSceneObjectType.Door &&
+                GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
+                var timeScale = 2f; // Make the animation 2X faster for better user experience
+                float animationDuration = cvdModelRenderer.GetAnimationDuration(timeScale);
+                cvdModelRenderer.PlayAnimation(timeScale: timeScale, loopCount: 1);
+                Invoke(nameof(OnAnimationFinished), animationDuration);
+            }
+            else // Execute script directly for other auto triggers
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)_autoTrigger.Info.ScriptId));
+            }
+        }
+        
+        private void OnAnimationFinished()
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)_autoTrigger.Info.ScriptId));
         }
 
         public void Execute(PlayerActorTilePositionUpdatedNotification notification)

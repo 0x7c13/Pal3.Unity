@@ -19,6 +19,7 @@ namespace Pal3.Actor
     {
         private const float FLY_SPEED = 144f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
+        private const float MAX_TARGET_DISTANCE = 10f;
         
         private Actor _actor;
         private ActorActionController _actionController;
@@ -43,11 +44,10 @@ namespace Pal3.Actor
         {
             Vector3 targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
             
-            if (Vector3.Distance(transform.position, PlayerActorNpcInfo.InitPosition) < float.Epsilon)
+            // In case the target position is too far away
+            if (Vector3.Distance(transform.position, targetPosition) > MAX_TARGET_DISTANCE)
             {
-                transform.position = targetPosition;
-                _actionController.PerformAction(_actor.GetIdleAction());
-                return;
+                transform.position = (targetPosition - transform.position).normalized * MAX_TARGET_DISTANCE + targetPosition;
             }
 
             var waiter = new WaitUntilCanceled(this);

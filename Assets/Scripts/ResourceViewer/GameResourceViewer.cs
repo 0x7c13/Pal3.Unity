@@ -337,14 +337,17 @@ namespace ResourceViewer
 
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
+                    var currentPosition = scriptDataReader.BaseStream.Position;
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
                     
                     ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
 
-                    output.Append($"{scriptDataReader.BaseStream.Position} {command.GetType().Name.Replace("Command", "")} " +
+                    output.Append($"{currentPosition} {command.GetType().Name.Replace("Command", "")} " +
                                   $"{JsonConvert.SerializeObject(command)}\n");
                 }
+                
+                output.Append($"{scriptDataReader.BaseStream.Length} __END__\n");
             }
 
             var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparator) + 1).Replace(".sce", "");

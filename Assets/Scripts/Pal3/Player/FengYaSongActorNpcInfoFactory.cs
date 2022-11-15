@@ -13,9 +13,9 @@ namespace Pal3.Player
     using Core.DataReader.Scn;
     using MetaData;
 
-    public class FengYaSongActorNpcInfo
+    public class FengYaSongActorNpcInfoFactory
     {
-        public static ScnNpcInfo Get(FengYaSongActorId actorId)
+        public static ScnNpcInfo Create(FengYaSongActorId actorId)
         {
             return new ScnNpcInfo
             {
@@ -27,9 +27,9 @@ namespace Pal3.Player
             };
         }
         
-        public static IEnumerable<ScnNpcInfo> GetAll()
+        public static IEnumerable<ScnNpcInfo> CreateAll()
         {
-            return from actorId in (FengYaSongActorId[]) Enum.GetValues(typeof(FengYaSongActorId)) select Get(actorId);
+            return from actorId in (FengYaSongActorId[]) Enum.GetValues(typeof(FengYaSongActorId)) select Create(actorId);
         }
     }
 }

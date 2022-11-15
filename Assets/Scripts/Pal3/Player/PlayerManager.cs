@@ -20,6 +20,7 @@ namespace Pal3.Player
         ICommandExecutor<ActorChangeScaleCommand>,
         ICommandExecutor<ActorChangeTextureCommand>,
         ICommandExecutor<ActorSetTilePositionCommand>,
+        ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorChangeColliderSettingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
@@ -148,6 +149,15 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(ActorSetWorldPositionCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetWorldPositionCommand((int)_playerActor, command.XPosition, command.ZPosition));
+            }
+        }
+        
         public void Execute(ActorChangeColliderSettingCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)

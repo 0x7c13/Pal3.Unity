@@ -34,7 +34,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
         
-        public override bool IsInteractable(float distance)
+        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
         {
             return !_isOpened && distance < MAX_INTERACTION_DISTANCE;
         }
@@ -62,16 +62,16 @@ namespace Pal3.Scene.SceneObjects
             
             for (int i = 0; i < 4; i++)
             {
-                if ((int) _chestObject.Info.Parameters[i] != 0)
+                if (_chestObject.Info.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand((int)_chestObject.Info.Parameters[i], 1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(_chestObject.Info.Parameters[i], 1));
                 }
             }
             
             #if PAL3A
-            if ((int) _chestObject.Info.Parameters[5] != 0) // money
+            if (_chestObject.Info.Parameters[5] != 0) // money
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand((int)_chestObject.Info.Parameters[5]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(_chestObject.Info.Parameters[5]));
             }
             #endif
 
@@ -83,10 +83,10 @@ namespace Pal3.Scene.SceneObjects
                 cvdModelRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
             }
             
-            Invoke(nameof(AfterAnimationSteps), animationDuration);
+            Invoke(nameof(OnAnimationFinished), animationDuration);
         }
 
-        public void AfterAnimationSteps()
+        public void OnAnimationFinished()
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_chestObject.Info.Id, 0));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_chestObject.Info.Id, 0));

@@ -576,7 +576,8 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
             {
                 GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
+                    cvdMeshRenderer.GetCurrentTime() == 0f)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
                 }
@@ -641,7 +642,8 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
             {
                 GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
+                    cvdMeshRenderer.GetCurrentTime() != 0f)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: -1, loopCount: 1);
                 }

@@ -5,7 +5,9 @@
 
 namespace Core.DataReader.Scn
 {
+    using System;
     using System.IO;
+    using System.Linq;
     using Extensions;
     using GameBox;
     using UnityEngine;
@@ -194,8 +196,8 @@ namespace Core.DataReader.Scn
                 OnLayer = reader.ReadByte(),
                 WuLing = reader.ReadByte(),
                 
-                Parameters = reader.ReadSingleArray(6),
-                
+                Parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32),
+
                 // TODO
                 Unknown1 = reader.ReadBytes(4),
 

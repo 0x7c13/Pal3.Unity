@@ -11,7 +11,6 @@ namespace Pal3.Renderer
     using System.Threading;
     using Core.DataLoader;
     using Core.DataReader.Cvd;
-    using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
     using Dev;
@@ -27,6 +26,7 @@ namespace Pal3.Renderer
 
         private Color _tintColor;
 
+        private float _currentTime;
         private float _animationDuration;
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
@@ -35,10 +35,11 @@ namespace Pal3.Renderer
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
             Color tintColor,
-            float time)
+            float initTime)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;
+            _currentTime = initTime;
 
             foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
@@ -51,7 +52,7 @@ namespace Pal3.Renderer
             {
                 var hashKey = $"{i}";
                 RenderMeshInternal(
-                    time,
+                    initTime,
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,
@@ -62,9 +63,14 @@ namespace Pal3.Renderer
             root.transform.SetParent(gameObject.transform, false);
         }
 
-        public float GetAnimationDuration()
+        public float GetCurrentTime()
         {
-            return _animationDuration;
+            return _currentTime;
+        }
+        
+        public float GetAnimationDuration(float timeScale = 1f)
+        {
+            return _animationDuration / Mathf.Abs(timeScale);
         }
 
         public Bounds GetRendererBounds()
@@ -159,7 +165,7 @@ namespace Pal3.Renderer
         }
 
         private void RenderMeshInternal(
-            float time,
+            float initTime,
             string meshName,
             CvdGeometryNode node,
             Dictionary<string, Texture2D> textureCache,
@@ -173,13 +179,13 @@ namespace Pal3.Renderer
             {
                 var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
 
-                var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
-                Matrix4x4 frameMatrix = GetFrameMatrix(time, node);
+                var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, initTime);
+                Matrix4x4 frameMatrix = GetFrameMatrix(initTime, node);
 
                 var influence = 0f;
-                if (time > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
+                if (initTime > Mathf.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
                 {
-                    influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
+                    influence = (initTime - node.Mesh.AnimationTimeKeys[frameIndex]) /
                                 (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
@@ -252,7 +258,7 @@ namespace Pal3.Renderer
             for (var i = 0; i < node.Children.Length; i++)
             {
                 var childMeshName = $"{meshName}-{i}";
-                RenderMeshInternal(time,
+                RenderMeshInternal(initTime,
                     childMeshName,
                     node.Children[i],
                     textureCache,
@@ -292,6 +298,8 @@ namespace Pal3.Renderer
 
         private void UpdateMesh(float time)
         {
+            _currentTime = time;
+            
             foreach ((CvdGeometryNode node, var renderMeshComponents) in _renderers)
             {
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);

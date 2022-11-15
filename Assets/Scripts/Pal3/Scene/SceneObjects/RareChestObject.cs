@@ -34,7 +34,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
         
-        public override bool IsInteractable(float distance)
+        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
         {
             return !_isOpened && distance < MAX_INTERACTION_DISTANCE;
         }
@@ -63,9 +63,9 @@ namespace Pal3.Scene.SceneObjects
             
             for (int i = 0; i < 6; i++)
             {
-                if ((int) _rareChestObject.Info.Parameters[i] != 0)
+                if (_rareChestObject.Info.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand((int)_rareChestObject.Info.Parameters[i], 1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(_rareChestObject.Info.Parameters[i], 1));
                 }
             }
 
@@ -77,10 +77,10 @@ namespace Pal3.Scene.SceneObjects
                 cvdModelRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
             }
             
-            Invoke(nameof(AfterAnimationSteps), animationDuration);
+            Invoke(nameof(OnAnimationFinished), animationDuration);
         }
 
-        public void AfterAnimationSteps()
+        public void OnAnimationFinished()
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_rareChestObject.Info.Id, 0));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_rareChestObject.Info.Id, 0));

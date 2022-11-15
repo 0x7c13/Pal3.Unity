@@ -50,10 +50,10 @@ namespace Pal3.Player
         private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
         private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;
 
-        private Vector2 _lastInputTapPosition;
-        private Vector3 _lastKnownPosition;
-        private Vector2Int _lastKnownTilePosition;
-        private int _lastKnownLayerIndex;
+        private Vector2? _lastInputTapPosition;
+        private Vector3? _lastKnownPosition;
+        private Vector2Int? _lastKnownTilePosition;
+        private int? _lastKnownLayerIndex;
         private string _lastKnownPlayerActorAction = string.Empty;
         #if PAL3
         private int _longKuiLastKnownMode = 0;
@@ -162,9 +162,10 @@ namespace Pal3.Player
             var sfxPrefix = movementAction == ActorActionType.Walk ? "we021" : "we022";
 
             Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
-            if (tileMap.IsTilePositionInsideTileMap(_lastKnownTilePosition, _lastKnownLayerIndex))
+            if ((_lastKnownTilePosition.HasValue && _lastKnownLayerIndex.HasValue) &&
+                tileMap.IsTilePositionInsideTileMap(_lastKnownTilePosition.Value, _lastKnownLayerIndex.Value))
             {
-                NavTile tile = tileMap.GetTile(_lastKnownTilePosition, _lastKnownLayerIndex);
+                NavTile tile = tileMap.GetTile(_lastKnownTilePosition.Value, _lastKnownLayerIndex.Value);
             
                 return tile.FloorKind switch
                 {
@@ -225,9 +226,16 @@ namespace Pal3.Player
             }
         }
 
-        public Vector3 GetPlayerActorLastKnownPosition()
+        public bool TryGetPlayerActorLastKnownPosition(out Vector3 position)
         {
-            return _lastKnownPosition;
+            if (_lastKnownPosition.HasValue)
+            {
+                position = _lastKnownPosition.Value;
+                return true;
+            }
+
+            position = Vector3.zero;
+            return false;
         }
 
         private void ReadInputAndMovePlayerIfNeeded()
@@ -347,6 +355,7 @@ namespace Pal3.Player
         private void InteractWithNearestInteractable()
         {
             Vector3 position = _playerActorMovementController.GetWorldPosition();
+            Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             var nearestInteractableDistance = float.MaxValue;
@@ -364,7 +373,7 @@ namespace Pal3.Player
                 var distance = Vector2.Distance(new Vector2(position.x, position.z),
                     new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
 
-                if (sceneObject.IsInteractable(distance) && distance < nearestInteractableDistance)
+                if (sceneObject.IsInteractable(distance, tilePosition) && distance < nearestInteractableDistance)
                 {
                     nearestInteractableDistance = distance;
                     interactionAction = sceneObject.Interact;
@@ -411,7 +420,9 @@ namespace Pal3.Player
 
         private void PortalToTapPosition()
         {
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition);
+            if (!_lastInputTapPosition.HasValue) return;
+            
+            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
@@ -428,10 +439,12 @@ namespace Pal3.Player
         private readonly Dictionary<int, Vector3> _tapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
         {
+            if (!_lastInputTapPosition.HasValue) return;
+            
             Scene currentScene = _sceneManager.GetCurrentScene();
             var meshColliders = currentScene.GetMeshColliders();
 
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition);
+            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
 
             var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
             if (hitCount == 0) return;
@@ -661,8 +674,8 @@ namespace Pal3.Player
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
 
-            _lastKnownPosition = Vector3.zero;
-            _lastKnownTilePosition = Vector2Int.zero;
+            _lastKnownPosition = null;
+            _lastKnownTilePosition = null;
             _lastKnownPlayerActorAction = string.Empty;
             
             _playerActor = _sceneManager.GetCurrentScene()
@@ -704,8 +717,8 @@ namespace Pal3.Player
                     _playerActorActionController.PerformAction(ActorActionType.Stand);
                 }
 
-                _lastKnownPosition = Vector3.zero;
-                _lastKnownTilePosition = Vector2Int.zero;
+                _lastKnownPosition = null;
+                _lastKnownTilePosition = null;
             }
         }
 
@@ -815,10 +828,10 @@ namespace Pal3.Player
         
             _currentMovementSfxAudioName = string.Empty;
 
-            _lastInputTapPosition = default;
-            _lastKnownPosition = default;
-            _lastKnownTilePosition = default;
-            _lastKnownLayerIndex = 0;
+            _lastInputTapPosition = null;
+            _lastKnownPosition = null;
+            _lastKnownTilePosition = null;
+            _lastKnownLayerIndex = null;
             _lastKnownPlayerActorAction = string.Empty;
         
             #if PAL3

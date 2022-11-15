@@ -43,7 +43,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
             
-            if ((int)objectInfo.Parameters[1] == 1 && ModelType == SceneObjectModelType.CvdModel)
+            if (objectInfo.Parameters[1] == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
                 // Dead object
                 return GraphicsEffect.None;
@@ -106,6 +106,7 @@ namespace Pal3.Scene.SceneObjects
                 var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
 
                 var initTime = 0f;
+                
                 // if (Info.Type == ScnSceneObjectType.Switch &&
                 //     Info.Parameters[0] == 1 &&
                 //     Info.Parameters[1] == 1)
@@ -150,7 +151,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public virtual bool IsInteractable(float distance)
+        public virtual bool IsInteractable(float distance, Vector2Int actorTilePosition)
         {
             return false;
         }

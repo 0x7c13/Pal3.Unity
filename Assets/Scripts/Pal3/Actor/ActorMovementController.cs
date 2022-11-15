@@ -31,6 +31,7 @@ namespace Pal3.Actor
 
     public class ActorMovementController : MonoBehaviour,
         ICommandExecutor<ActorSetTilePositionCommand>,
+        ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorPathToCommand>,
         #if PAL3A
         ICommandExecutor<ActorWalkToUsingActionCommand>,
@@ -343,8 +344,8 @@ namespace Pal3.Actor
                 newYPosition,
                 newPosition.z);
 
-            if (Math.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
-                Math.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
+            if (Mathf.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
+                Mathf.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
             {
                 return MovementResult.Completed;
             }
@@ -530,6 +531,25 @@ namespace Pal3.Actor
             SetupPath(wayPoints, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
+        public void Execute(ActorSetWorldPositionCommand command)
+        {
+            if (_actor.Info.Id != command.ActorId) return;
+            
+            Vector2Int tilePosition = _tilemap.GetTilePosition(new Vector3(command.XPosition, 0f, command.ZPosition), _currentLayerIndex);
+            if (_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
+            {
+                Execute(new ActorSetTilePositionCommand(command.ActorId, tilePosition.x, tilePosition.y));
+            }
+            else // Try next layer
+            {
+                tilePosition = _tilemap.GetTilePosition(new Vector3(command.XPosition, 0f, command.ZPosition), (_currentLayerIndex + 1) % 2);
+                if (_tilemap.IsTilePositionInsideTileMap(tilePosition, (_currentLayerIndex + 1) % 2))
+                {
+                    Execute(new ActorSetTilePositionCommand(command.ActorId, tilePosition.x, tilePosition.y));
+                }
+            }
+        }
+        
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
@@ -550,6 +570,12 @@ namespace Pal3.Actor
             }
 
             transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);
+            
+            // Cancel current action if any
+            if (_actionController.GetCurrentAction() != string.Empty)
+            {
+                _actionController.PerformAction(_actor.GetIdleAction());   
+            }
         }
 
         public void Execute(ActorPathToCommand command)

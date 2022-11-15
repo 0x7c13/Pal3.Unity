@@ -144,9 +144,14 @@ namespace Pal3.Camera
 
             if (_cameraAnimationInProgress) return;
 
-            _lastLookAtPoint = _lookAtGameObject != null ?
-                    _lookAtGameObject.transform.position :
-                    _gamePlayController.GetPlayerActorLastKnownPosition();
+            if (_lookAtGameObject != null)
+            {
+                _lastLookAtPoint = _lookAtGameObject.transform.position;
+            }
+            else if (_gamePlayController.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            {
+                _lastLookAtPoint = playerActorPosition;
+            }
 
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             Vector3 targetPosition = _lastLookAtPoint + _cameraOffset;
@@ -459,8 +464,12 @@ namespace Pal3.Camera
         public void Execute(CameraSetDefaultTransformCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
-            _lastLookAtPoint = _gamePlayController.GetPlayerActorLastKnownPosition();
+
+            if (_gamePlayController.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            {
+                _lastLookAtPoint = playerActorPosition;
+            }
+
             ApplyDefaultSettings(command.Option);
             _currentAppliedDefaultTransformOption = command.Option;
             _free = true;

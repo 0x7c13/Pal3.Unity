@@ -124,7 +124,7 @@ namespace Pal3.Scene
                 Actors[npcInfo.Id] = new Actor(_resourceProvider, npcInfo);
             }
 
-            foreach (ScnNpcInfo playerInfo in PlayerActorNpcInfo.GetAll())
+            foreach (ScnNpcInfo playerInfo in PlayerActorNpcInfoFactory.CreateAll())
             {
                 if (!Actors.ContainsKey(playerInfo.Id))
                 {
@@ -133,7 +133,7 @@ namespace Pal3.Scene
             }
 
             #if PAL3A
-            foreach (ScnNpcInfo fengYaSongInfo in FengYaSongActorNpcInfo.GetAll())
+            foreach (ScnNpcInfo fengYaSongInfo in FengYaSongActorNpcInfoFactory.CreateAll())
             {
                 if (!Actors.ContainsKey(fengYaSongInfo.Id))
                 {

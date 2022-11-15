@@ -13,11 +13,12 @@ namespace Pal3.Player
     using MetaData;
     using UnityEngine;
 
-    public static class PlayerActorNpcInfo
+    public static class PlayerActorNpcInfoFactory
     {
-        public static readonly Vector3 InitPosition = new Vector3(777f, 777f, 777f);
+        // This is a position that is far away from the camera to prevent glitches.
+        private static readonly Vector3 InitPosition = new (777f, 777f, 777f);
         
-        public static ScnNpcInfo Get(PlayerActorId actorId)
+        public static ScnNpcInfo Create(PlayerActorId actorId)
         {
             Vector3 initPosition = GameBoxInterpreter.ToGameBoxPosition(InitPosition);
             return new ScnNpcInfo
@@ -33,9 +34,9 @@ namespace Pal3.Player
             };
         }
 
-        public static IEnumerable<ScnNpcInfo> GetAll()
+        public static IEnumerable<ScnNpcInfo> CreateAll()
         {
-            return from actorId in (PlayerActorId[]) Enum.GetValues(typeof(PlayerActorId)) select Get(actorId);
+            return from actorId in (PlayerActorId[]) Enum.GetValues(typeof(PlayerActorId)) select Create(actorId);
         }
     }
 }

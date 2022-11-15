@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
     public class CollectableObject : SceneObject
@@ -22,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override bool IsInteractable(float distance)
+        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
         {
             return !_isCollected && distance < MAX_INTERACTION_DISTANCE;
         }
@@ -31,17 +32,17 @@ namespace Pal3.Scene.SceneObjects
         {
             _isCollected = true;
             
-            if ((int) Info.Parameters[0] != 0) // Game item
+            if (Info.Parameters[0] != 0) // Game item
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand((int)Info.Parameters[0], 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[0], 1));
             }
-            else if ((int) Info.Parameters[1] != 0 && (int) Info.Parameters[1] != 1)
+            else if (Info.Parameters[1] != 0 && Info.Parameters[1] != 1)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand((int)Info.Parameters[1]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[1]));
             }
-            else if ((int) Info.Parameters[2] != 0)
+            else if (Info.Parameters[2] != 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand((int)Info.Parameters[2]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[2]));
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));

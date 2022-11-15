@@ -282,8 +282,8 @@ namespace Core.Algorithm.PathFinding
             int x1 = end.X;
             int y1 = end.Y;
 
-            int dx = Math.Abs(x1 - x0);
-            int dy = Math.Abs(y1 - y0);
+            int dx = Mathf.Abs(x1 - x0);
+            int dy = Mathf.Abs(y1 - y0);
             int sx = x0 < x1 ? 1 : -1;
             int sy = y0 < y1 ? 1 : -1;
             int err = dx - dy;
