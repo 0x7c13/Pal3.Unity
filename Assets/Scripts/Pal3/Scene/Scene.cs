@@ -32,7 +32,6 @@ namespace Pal3.Scene
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
         ICommandExecutor<SceneChangeObjectActivationStateCommand>,
-        ICommandExecutor<SceneObjectDoNotLoadFromSaveStateCommand>,
         #if PAL3A
         ICommandExecutor<SceneActivateObject2Command>,
         ICommandExecutor<FengYaSongCommand>,
@@ -64,7 +63,6 @@ namespace Pal3.Scene
         private SkyBoxRenderer _skyBoxRenderer;
         
         private Tilemap _tilemap;
-        private readonly HashSet<int> _sceneObjectsIgnoringSaveState = new ();
 
         public void Init(GameResourceProvider resourceProvider, SceneStateManager sceneStateManager, Camera mainCamera)
         {
@@ -372,27 +370,19 @@ namespace Pal3.Scene
         {
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
-                if (_sceneObjectsIgnoringSaveState.Contains(sceneObject.Info.Id) &&
-                    sceneObject.Info.Active == 1)
+                SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                    ScnFile.SceneInfo.Name,
+                    ScnFile.SceneInfo.LightMap,
+                    sceneObject.Info.Id);
+
+                if (objectState == SceneObjectActivationState.Enabled)
                 {
                     ActivateSceneObject(sceneObject);
                 }
-                else
+                else if (objectState == SceneObjectActivationState.Unknown &&
+                         sceneObject.Info.Active == 1)
                 {
-                    SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
-                        ScnFile.SceneInfo.Name,
-                        ScnFile.SceneInfo.LightMap,
-                        sceneObject.Info.Id);
-
-                    if (objectState == SceneObjectActivationState.Enabled)
-                    {
-                        ActivateSceneObject(sceneObject);   
-                    }
-                    else if (objectState == SceneObjectActivationState.Unknown &&
-                             sceneObject.Info.Active == 1)
-                    {
-                        ActivateSceneObject(sceneObject);   
-                    }
+                    ActivateSceneObject(sceneObject);   
                 }
             }
         }
@@ -599,11 +589,6 @@ namespace Pal3.Scene
                 command.IsActive));
         }
 
-        public void Execute(SceneObjectDoNotLoadFromSaveStateCommand command)
-        {
-            _sceneObjectsIgnoringSaveState.Add(command.ObjectId);
-        }
-        
         public void Execute(SceneMoveObjectCommand command)
         {
             if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
