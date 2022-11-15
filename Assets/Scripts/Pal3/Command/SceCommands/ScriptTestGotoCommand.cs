@@ -7,7 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(12, "如果当前计算值为false的话就使脚本跳转至Offset处运行，" +
-                    "参数：当前运行脚本的offset")]
+                    "参数：当前运行脚本的数据offset偏移值位置")]
     public class ScriptTestGotoCommand : ICommand
     {
         public ScriptTestGotoCommand(int offset)

@@ -8,19 +8,19 @@ namespace Pal3.Command.SceCommands
     #if PAL3A
     [AvailableInConsole]
     [SceCommand(178, "给角色设置Y坐标" +
-                     "参数：角色ID，Y坐标")]
+                     "参数：角色ID，Y坐标（原GameBox引擎下的Y坐标单位）")]
     public class ActorSetYPositionCommand : ICommand
     {
         public ActorSetYPositionCommand(
             int actorId,
-            float yPosition)
+            float gameBoxYPosition)
         {
             ActorId = actorId;
-            YPosition = yPosition;
+            GameBoxYPosition = gameBoxYPosition;
         }
 
         public int ActorId { get; }
-        public float YPosition { get; }
+        public float GameBoxYPosition { get; }
     }
     #endif
 }

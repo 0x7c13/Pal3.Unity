@@ -5,10 +5,12 @@
 
 namespace Pal3.Command.SceCommands
 {
+    #if PAL3
     [AvailableInConsole]
     [SceCommand(159, "初始化神树之花")]
     public class SceneInitDivineTreeFlowerCommand : ICommand
     {
         public SceneInitDivineTreeFlowerCommand() {}
     }
+    #endif
 }

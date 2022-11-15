@@ -8,19 +8,19 @@ namespace Pal3.Command.SceCommands
     #if PAL3
     [AvailableInConsole]
     [SceCommand(117, "旋转整个场景，" +
-                    "参数：X，Y，Z")]
+                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     public class SceneRotateWorldCommand : ICommand
     {
-        public SceneRotateWorldCommand(int x, int y, int z)
+        public SceneRotateWorldCommand(int gameBoxXPosition, int gameBoxYPosition, int gameBoxZPosition)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
-        public int X { get; }
-        public int Y { get; }
-        public int Z { get; }
+        public int GameBoxXPosition { get; }
+        public int GameBoxYPosition { get; }
+        public int GameBoxZPosition { get; }
     }
     #elif PAL3A
     [AvailableInConsole]
@@ -28,20 +28,20 @@ namespace Pal3.Command.SceCommands
                      "参数：X，Y，Z")]
     public class SceneRotateWorldCommand : ICommand
     {
-        public SceneRotateWorldCommand(int unknown1, int unknown2, int x, int y, int z)
+        public SceneRotateWorldCommand(int unknown1, int unknown2, int gameBoxXPosition, int gameBoxYPosition, int gameBoxZPosition)
         {
             Unknown1 = unknown1;
             Unknown2 = unknown2;
-            X = x;
-            Y = y;
-            Z = z;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
         public int Unknown1 { get; }
         public int Unknown2 { get; }
-        public int X { get; }
-        public int Y { get; }
-        public int Z { get; }
+        public int GameBoxXPosition { get; }
+        public int GameBoxYPosition { get; }
+        public int GameBoxZPosition { get; }
     }
     #endif
 }

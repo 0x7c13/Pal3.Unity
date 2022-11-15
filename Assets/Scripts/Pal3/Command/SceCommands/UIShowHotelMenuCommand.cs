@@ -10,7 +10,10 @@ namespace Pal3.Command.SceCommands
                     "参数：客栈脚本文件名，可以入住脚本ID，不可以入住脚本ID，住宿脚本ID")]
     public class UIShowHotelMenuCommand : ICommand
     {
-        public UIShowHotelMenuCommand(string hotelScriptName, int canRestScriptId, int cannotRestScriptId, int afterRestScriptId)
+        public UIShowHotelMenuCommand(string hotelScriptName,
+            int canRestScriptId,
+            int cannotRestScriptId,
+            int afterRestScriptId)
         {
             HotelScriptName = hotelScriptName;
             CanRestScriptId = canRestScriptId;

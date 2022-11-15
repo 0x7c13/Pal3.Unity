@@ -6,19 +6,19 @@
 namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
-    [SceCommand(31, "设置摄像机锁定一个定点，" +
-                    "参数：LookAtX,LookAtY,LookAtZ")]
+    [SceCommand(31, "设置摄像机视角锁定一个定点，" +
+                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     public class CameraFocusOnPositionCommand : ICommand
     {
-        public CameraFocusOnPositionCommand(float lookAtX, float lookAtY, float lookAtZ)
+        public CameraFocusOnPositionCommand(float gameBoxXPosition, float gameBoxYPosition, float gameBoxZPosition)
         {
-            LookAtX = lookAtX;
-            LookAtY = lookAtY;
-            LookAtZ = lookAtZ;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
-        public float LookAtX { get; }
-        public float LookAtY { get; }
-        public float LookAtZ { get; }
+        public float GameBoxXPosition { get; }
+        public float GameBoxYPosition { get; }
+        public float GameBoxZPosition { get; }
     }
 }

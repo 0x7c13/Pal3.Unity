@@ -31,9 +31,7 @@ namespace Core.DataReader.Gdb
         Wearable,      // 饰品
         Weapon,        // 武器
         Corpse,        // 尸块
-        #if PAL3A
         Blueprint,     // 蓝图（梦溪杂录，美食方）
-        #endif
     }
 
     public enum WeaponType

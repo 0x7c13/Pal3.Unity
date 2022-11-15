@@ -610,7 +610,7 @@ namespace Pal3.Scene
             {
                 GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
                 Vector3 offset = GameBoxInterpreter.ToUnityPosition(
-                    new Vector3(command.XOffset, command.YOffset, command.ZOffset));
+                    new Vector3(command.GameBoxXOffset, command.GameBoxYOffset, command.GameBoxZOffset));
                 Vector3 toPosition = sceneObject.transform.position + offset;
                 StartCoroutine(AnimationHelper.MoveTransform(sceneObject.transform, toPosition, command.Duration));
             }

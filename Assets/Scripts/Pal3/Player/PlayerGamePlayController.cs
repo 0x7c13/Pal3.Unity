@@ -739,7 +739,7 @@ namespace Pal3.Player
                     .GetCurrentLayerIndex();
                 
                 _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
-                    new Vector2Int(command.TileXPosition,command.TileZPosition), currentLayerIndex);
+                    new Vector2Int(command.TileXPosition,command.TileYPosition), currentLayerIndex);
             }
         }
 

@@ -7,22 +7,22 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(179, "查找一个到TileMap上（X，Z）的路径，并使角色按此路径走动，" +
-                    "参数：角色ID，TileMap中X坐标，TileMap中Z坐标，动作名")]
+    [SceCommand(179, "查找一个到TileMap上（X，Y）的路径，并使角色按此路径走动，" +
+                    "参数：角色ID，TileMap中X坐标，TileMap中Y坐标，动作名")]
     public class ActorWalkToUsingActionCommand : ICommand
     {
-        public ActorWalkToUsingActionCommand(int actorId, int tileX, int tileZ, string action)
+        public ActorWalkToUsingActionCommand(int actorId, int tileXPosition, int tileYPosition, string action)
         {
             ActorId = actorId;
-            TileX = tileX;
-            TileZ = tileZ;
+            TileXPosition = tileXPosition;
+            TileYPosition = tileYPosition;
             Action = action;
         }
 
         // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
         public int ActorId { get; }
-        public int TileX { get; }
-        public int TileZ { get; }
+        public int TileXPosition { get; }
+        public int TileYPosition { get; }
         public string Action { get; }
     }
     #endif

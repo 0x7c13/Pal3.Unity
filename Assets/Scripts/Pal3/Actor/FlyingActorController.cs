@@ -42,7 +42,10 @@ namespace Pal3.Actor
 
         public void Execute(FlyingActorFlyToCommand command)
         {
-            Vector3 targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+            Vector3 targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                command.GameBoxXPosition,
+                command.GameBoxYPosition,
+                command.GameBoxZPosition));
             
             // In case the target position is too far away
             if (Vector3.Distance(transform.position, targetPosition) > MAX_TARGET_DISTANCE)

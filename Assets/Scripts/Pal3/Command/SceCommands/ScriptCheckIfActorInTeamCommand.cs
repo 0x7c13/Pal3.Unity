@@ -5,8 +5,6 @@
 
 namespace Pal3.Command.SceCommands
 {
-    using System;
-
     [AvailableInConsole]
     [SceCommand(137, "检测角色是否在队伍里并设置给变量，" +
                      "参数：角色ID")]
@@ -14,11 +12,6 @@ namespace Pal3.Command.SceCommands
     {
         public ScriptCheckIfActorInTeamCommand(int actorId)
         {
-            if (actorId == -1)
-            {
-                throw new Exception("ActorId should no be -1 for SceCommand 29");
-            }
-
             ActorId = actorId;
         }
 

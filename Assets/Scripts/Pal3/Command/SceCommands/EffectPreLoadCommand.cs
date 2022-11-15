@@ -6,8 +6,8 @@
 namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
-    [SceCommand(148, "预加载特效Group，" +
-                     "参数：特效GroupID")]
+    [SceCommand(148, "预加载VFX特效Group，" +
+                     "参数：VFX特效GroupID")]
     public class EffectPreLoadCommand : ICommand
     {
         public EffectPreLoadCommand(int effectGroupId)

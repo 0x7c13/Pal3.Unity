@@ -481,14 +481,16 @@ namespace Pal3.Camera
             
             _lookAtGameObject = null;
 
-            Vector3 cameraPosition = GameBoxInterpreter.ToUnityPosition(
-                new Vector3(command.X, command.Y, command.Z));
+            Vector3 cameraPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                command.GameBoxXPosition,
+                command.GameBoxYPosition,
+                command.GameBoxZPosition));
             Transform cameraTransform = _camera.transform;
             cameraTransform.position = cameraPosition;
             cameraTransform.rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
 
             _lastLookAtPoint = cameraTransform.position + cameraTransform.forward *
-                (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+                (command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
 
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
@@ -662,14 +664,14 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled(this);
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-                var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var distance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
                 StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
             #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                var distance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var distance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
                 StartCoroutine(Push(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -691,14 +693,20 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled(this);
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-                Vector3 position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+                Vector3 position = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                    command.GameBoxXPosition,
+                    command.GameBoxYPosition,
+                    command.GameBoxZPosition));
                 StartCoroutine(Move(position, command.Duration, command.Mode, waiter));
             }
             #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Vector3 position = GameBoxInterpreter.ToUnityPosition(new Vector3(command.X, command.Y, command.Z));
+                Vector3 position = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                    command.GameBoxXPosition,
+                    command.GameBoxYPosition,
+                    command.GameBoxZPosition));
                 StartCoroutine(Move(position,
                     command.Duration,
                     command.Mode,

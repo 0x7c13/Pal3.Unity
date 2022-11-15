@@ -5,6 +5,7 @@
 
 namespace Pal3.Command.SceCommands
 {
+    #if PAL3
     [AvailableInConsole]
     [SceCommand(138, "打开或关闭魔剑技功能，" +
                      "参数：0关闭，1打开")]
@@ -17,4 +18,5 @@ namespace Pal3.Command.SceCommands
 
         public int Enable { get; }
     }
+    #endif
 }

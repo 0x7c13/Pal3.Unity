@@ -145,7 +145,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorSetTilePositionCommand((int)_playerActor, command.TileXPosition, command.TileZPosition));
+                    new ActorSetTilePositionCommand((int)_playerActor, command.TileXPosition, command.TileYPosition));
             }
         }
 
@@ -199,7 +199,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPathToCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
+                    new ActorPathToCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }
         }
         
@@ -209,7 +209,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorWalkToUsingActionCommand((int)_playerActor, command.TileX, command.TileZ, command.Action));
+                    new ActorWalkToUsingActionCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Action));
             }
         }
         #endif
@@ -219,7 +219,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorMoveToCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
+                    new ActorMoveToCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }
         }
         
@@ -228,7 +228,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorMoveOutOfScreenCommand((int)_playerActor, command.TileX, command.TileZ, command.Mode));
+                    new ActorMoveOutOfScreenCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }
         }
 
@@ -237,7 +237,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorMoveBackwardsCommand((int)_playerActor, command.Distance));
+                    new ActorMoveBackwardsCommand((int)_playerActor, command.GameBoxDistance));
             }
         }
 
@@ -358,7 +358,7 @@ namespace Pal3.Player
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorSetYPositionCommand((int)_playerActor, command.YPosition));
+                    new ActorSetYPositionCommand((int)_playerActor, command.GameBoxYPosition));
             }
         }
         #endif

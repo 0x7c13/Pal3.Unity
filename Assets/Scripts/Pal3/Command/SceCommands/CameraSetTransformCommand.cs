@@ -7,24 +7,29 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(36, "设置镜头参数，" +
-                    "参数：Yaw，Pitch，Distance，X，Y，Z")]
+                    "参数：Yaw，Pitch，Distance（原GameBox引擎下的距离单位），原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     public class CameraSetTransformCommand : ICommand
     {
-        public CameraSetTransformCommand(float yaw, float pitch, float distance, float x, float y, float z)
+        public CameraSetTransformCommand(float yaw,
+            float pitch,
+            float gameBoxDistance,
+            float gameBoxXPosition,
+            float gameBoxYPosition,
+            float gameBoxZPosition)
         {
             Yaw = yaw;
             Pitch = pitch;
-            Distance = distance;
-            X = x;
-            Y = y;
-            Z = z;
+            GameBoxDistance = gameBoxDistance;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
         public float Yaw { get; }
         public float Pitch { get; }
-        public float Distance { get; }
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
+        public float GameBoxDistance { get; }
+        public float GameBoxXPosition { get; }
+        public float GameBoxYPosition { get; }
+        public float GameBoxZPosition { get; }
     }
 }

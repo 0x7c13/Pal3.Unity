@@ -7,7 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(3, "使脚本跳转到指定位置，" +
-                    "参数：标号")]
+                    "参数：脚本数据offset偏移值位置")]
     public class ScriptGotoCommand : ICommand
     {
         public ScriptGotoCommand(int offset)

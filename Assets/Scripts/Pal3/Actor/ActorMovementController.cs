@@ -555,7 +555,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             CancelCurrentMovement();
 
-            var tilePosition = new Vector2Int(command.TileXPosition, command.TileZPosition);
+            var tilePosition = new Vector2Int(command.TileXPosition, command.TileYPosition);
 
             // Check if position at current layer exists,
             // if not, auto switch to next layer (if tile at next layer is walkable)
@@ -584,7 +584,7 @@ namespace Pal3.Actor
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
-            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
+            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
         
@@ -595,7 +595,7 @@ namespace Pal3.Actor
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
-            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileX, command.TileZ),
+            StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 mode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
         }
         #endif
@@ -603,13 +603,13 @@ namespace Pal3.Actor
         public void Execute(ActorMoveToCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            MoveToTilePosition(new Vector2Int(command.TileX, command.TileZ), command.Mode);
+            MoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition), command.Mode);
         }
 
         public void Execute(ActorMoveBackwardsCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            var moveDistance = command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+            var moveDistance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
             Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
             MoveTo(newPosition, 2);
         }
@@ -623,7 +623,7 @@ namespace Pal3.Actor
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
 
             StartCoroutine(FindPathAndMoveToTilePosition(
-                new Vector2Int(command.TileX, command.TileZ),
+                new Vector2Int(command.TileXPosition, command.TileYPosition),
                 command.Mode,
                 EndOfPathActionType.DisposeSelf,
                 _movementCts.Token,

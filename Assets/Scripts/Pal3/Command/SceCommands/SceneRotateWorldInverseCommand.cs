@@ -7,18 +7,18 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(128, "反方向旋转整个场景，" +
-                    "参数：X，Y，Z")]
+                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     public class SceneRotateWorldInverseCommand : ICommand
     {
-        public SceneRotateWorldInverseCommand(int x, int y, int z)
+        public SceneRotateWorldInverseCommand(int gameBoxXPosition, int gameBoxYPosition, int gameBoxZPosition)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
-        public int X { get; }
-        public int Y { get; }
-        public int Z { get; }
+        public int GameBoxXPosition { get; }
+        public int GameBoxYPosition { get; }
+        public int GameBoxZPosition { get; }
     }
 }

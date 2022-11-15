@@ -8,22 +8,22 @@ namespace Pal3.Command.SceCommands
     [AvailableInConsole]
     #if PAL3
     [SceCommand(89, "让花盈飞到某空间点" +
-                    "参数：X，Y，Z")]
+                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     #elif PAL3A
     [SceCommand(89, "让桃子飞到某空间点" +
-                    "参数：X，Y，Z")]
+                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     #endif
     public class FlyingActorFlyToCommand : ICommand
     {
-        public FlyingActorFlyToCommand(float x, float y, float z)
+        public FlyingActorFlyToCommand(float gameBoxXPosition, float gameBoxYPosition, float gameBoxZPosition)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
+        public float GameBoxXPosition { get; }
+        public float GameBoxYPosition { get; }
+        public float GameBoxZPosition { get; }
     }
 }

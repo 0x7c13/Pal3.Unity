@@ -7,21 +7,21 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(154, "控制引路蜂飞向指定位置" +
-                     "参数：Nav层，TileMap中X坐标，TileMap中Z坐标")]
+                     "参数：Nav层，TileMap中X坐标，TileMap中Y坐标")]
     public class NavigationBeeFlyToCommand : ICommand
     {
         public NavigationBeeFlyToCommand(
             int navLayerIndex,
             int tileXPosition,
-            int tileZPosition)
+            int tileYPosition)
         {
             NavLayerIndex = navLayerIndex;
             TileXPosition = tileXPosition;
-            TileZPosition = tileZPosition;
+            TileYPosition = tileYPosition;
         }
         
         public int NavLayerIndex { get; }
         public int TileXPosition { get; }
-        public int TileZPosition { get; }
+        public int TileYPosition { get; }
     }
 }
