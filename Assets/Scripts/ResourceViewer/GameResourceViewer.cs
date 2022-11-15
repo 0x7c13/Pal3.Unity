@@ -78,6 +78,11 @@ namespace ResourceViewer
             {
                 DebugLogManager.Instance.PopupEnabled = true;
             }
+            
+            #if RTX_ON
+            RenderSettings.ambientIntensity = 1f;
+            RenderSettings.ambientLight = Color.white;
+            #endif
 
             _polFiles = _fileSystem.Search(".pol").ToList();
             _cvdFiles = _fileSystem.Search(".cvd").ToList();

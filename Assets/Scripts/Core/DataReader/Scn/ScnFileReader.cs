@@ -47,16 +47,7 @@ namespace Core.DataReader.Scn
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
-                ScnNpcInfo npcInfo = ReadNpcInfo(reader, codepage);
-                if (npcInfo.Unknown1[0] != 0 ||
-                    npcInfo.Unknown1[1] != 0 ||
-                    npcInfo.Unknown2[0] != 0 ||
-                    npcInfo.Unknown2[1] != 0 ||
-                    npcInfo.Unknown2[2] != 0)
-                {
-                    Debug.LogError($"Unknown byte has value for ActorId: {npcInfo.Id} Name: {npcInfo.Name}");
-                }
-                npcInfos[i] = npcInfo;
+                npcInfos[i] = ReadNpcInfo(reader, codepage);
             }
 
             reader.BaseStream.Seek(objectDataOffset, SeekOrigin.Begin);
@@ -77,11 +68,9 @@ namespace Core.DataReader.Scn
                 Id = reader.ReadByte(),
                 Kind = (ScnActorKind)reader.ReadByte(),
                 Name = reader.ReadString(32, codepage),
-                Texture = reader.ReadString(32, codepage),
-                Unknown1 = reader.ReadBytes(2),
+                Texture = reader.ReadString(34, codepage),
                 FacingDirection = reader.ReadSingle(),
-                OnLayer = reader.ReadByte(),
-                Unknown2 = reader.ReadBytes(3),
+                OnLayer = reader.ReadInt32(),
                 PositionX = reader.ReadSingle(),
                 PositionZ = reader.ReadSingle(),
                 InitActive = reader.ReadInt32(),

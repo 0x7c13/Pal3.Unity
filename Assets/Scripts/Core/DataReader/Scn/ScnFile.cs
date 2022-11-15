@@ -192,19 +192,13 @@ namespace Core.DataReader.Scn
         // char[32] Npc名字
         public string Name;
 
-        // char[32] 贴图编号
+        // char[34] 贴图编号 （无用）
         public string Texture;
-
-        // 2 bytes unknown data
-        public byte[] Unknown1;
-
+        
         // 人物初始朝向
         public float FacingDirection;
 
-        public byte OnLayer;
-
-        // 3 bytes unknown data
-        public byte[] Unknown2;
+        public int OnLayer;
 
         // 初始位置
         public float PositionX;
