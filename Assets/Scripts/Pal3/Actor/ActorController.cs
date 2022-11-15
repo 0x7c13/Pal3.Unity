@@ -6,7 +6,6 @@
 namespace Pal3.Actor
 {
     using System.Collections;
-    using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -132,15 +131,15 @@ namespace Pal3.Actor
                 }
             }
 
-            if (_currentBehaviour == ScnActorBehaviour.PathFollow)
+            if (_currentBehaviour == ScnActorBehaviour.PathFollow &&
+                _actor.Info.Path.NumberOfWaypoints > 0)
             {
-                var waypoints = _actor.Info.Path.Waypoints
-                    .Where(p => p != Vector3.zero)
-                    .Select(waypoint => GameBoxInterpreter.ToUnityPosition(waypoint)).ToArray();
-                if (waypoints.Length > 0)
+                var waypoints = new Vector3[_actor.Info.Path.NumberOfWaypoints];
+                for (var i = 0; i < _actor.Info.Path.NumberOfWaypoints; i++)
                 {
-                    _movementController.SetupPath(waypoints, 0, EndOfPathActionType.Reverse, ignoreObstacle: true);   
+                    waypoints[i] = GameBoxInterpreter.ToUnityPosition(_actor.Info.Path.Waypoints[i]);
                 }
+                _movementController.SetupPath(waypoints, 0, EndOfPathActionType.Reverse, ignoreObstacle: true);
             }
         }
 
