@@ -87,11 +87,14 @@ namespace Pal3.Scene.SceneObjects
             _isScriptRunningInProgress = true;
             
             // Play door open animation if it's a door
+            // There are doors controlled by the script for the behaviour & animation which have
+            // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
             if (_autoTrigger.Info.Type == ScnSceneObjectType.Door &&
+                _autoTrigger.Info.Parameters[0] == 0 &&
                 GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
-                var timeScale = 2f; // Make the animation 2X faster for better user experience
+                var timeScale = 2.5f; // Make the animation 2.5X faster for better user experience
                 float animationDuration = cvdModelRenderer.GetAnimationDuration(timeScale);
                 cvdModelRenderer.PlayAnimation(timeScale: timeScale, loopCount: 1);
                 Invoke(nameof(OnAnimationFinished), animationDuration);
