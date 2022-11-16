@@ -10,7 +10,6 @@ namespace Pal3.Actor
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
-    using Player;
     using Script.Waiter;
     using UnityEngine;
 

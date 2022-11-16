@@ -111,10 +111,7 @@ namespace Pal3.Actor
                 {
                     case ScnActorBehaviour.None:
                         _currentBehaviour = ScnActorBehaviour.None;
-                        _actionController.PerformAction(_actor.Info.Kind != ScnActorKind.HotelManager &&
-                                                        _actor.Info.Kind != ScnActorKind.StoryNpc
-                            ? _actor.GetInitAction()
-                            : _actor.GetIdleAction());
+                        _actionController.PerformAction(_actor.GetIdleAction());
                         break;
                     case ScnActorBehaviour.Hold:
                         _currentBehaviour = ScnActorBehaviour.Hold;
@@ -137,7 +134,7 @@ namespace Pal3.Actor
                 var waypoints = new Vector3[_actor.Info.Path.NumberOfWaypoints];
                 for (var i = 0; i < _actor.Info.Path.NumberOfWaypoints; i++)
                 {
-                    waypoints[i] = GameBoxInterpreter.ToUnityPosition(_actor.Info.Path.Waypoints[i]);
+                    waypoints[i] = GameBoxInterpreter.ToUnityPosition(_actor.Info.Path.GameBoxWaypoints[i]);
                 }
                 _movementController.SetupPath(waypoints, 0, EndOfPathActionType.Reverse, ignoreObstacle: true);
             }

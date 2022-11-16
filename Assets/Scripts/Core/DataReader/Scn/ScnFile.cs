@@ -128,7 +128,7 @@ namespace Core.DataReader.Scn
     public struct ScnPath
     {
         public int NumberOfWaypoints;
-        public Vector3[] Waypoints;     // Max of 16 waypoints
+        public Vector3[] GameBoxWaypoints;   // 原GameBox引擎坐标系下的路径点（X, Y, Z）数组。固定数组长度为16.
     }
 
     public struct ScnSceneInfo
@@ -200,9 +200,9 @@ namespace Core.DataReader.Scn
 
         public int OnLayer;
 
-        // 初始位置
-        public float PositionX;
-        public float PositionZ;
+        // 原GameBox引擎下的初始位置（X，Z）
+        public float GameBoxXPosition;
+        public float GameBoxZPosition;
 
         // 初始是否可见
         public int InitActive;
@@ -214,8 +214,9 @@ namespace Core.DataReader.Scn
         public uint ScriptId;
 
         // 初始Y坐标,只有在 InitBehaviour == Hold
-        // 的时候 PositionY 和 InitAction 才有用
-        public float PositionY;
+        // 的时候 GameBoxYPosition 和 InitAction 才有用
+        public float GameBoxYPosition; // 原GameBox引擎下的Y坐标
+        
         // chars[16] 初始动作
         public string InitAction;
 
@@ -245,7 +246,7 @@ namespace Core.DataReader.Scn
         // 是否激活 (不激活相当于没这个物体)
         public byte Active;
 
-        // 可触发次数 (0表示不可触发,0xFF表示无限触发)
+        // 可触发次数 (0表示不可触发，1表示只能触发一次（收集类道具），0xFF表示无限触发)
         public byte Times;
 
         // 开关状态 (0代表关, 1代表开)
@@ -254,14 +255,19 @@ namespace Core.DataReader.Scn
         // char[32] 物品名称,对应美术模型,带扩展名
         public string Name;
 
-        // 触发标志,0x01地砖自动触发,0x02模型OBB调查触发
-        public ushort TriggerType;
+        // 触发类型，1地砖自动触发，2模型调查触发
+        public byte TriggerType;
 
         // 是否产生阻挡
-        public ushort NonBlocking;
+        public byte NonBlocking;
 
-        // 模型位置
-        public Vector3 Position;
+        // Empty bytes between the memory addresses to align the data in memory.
+        // TriggerType and NonBlocking takes 2 bytes in memory, thus we need to add 2 bytes here
+        // to align the data in memory (4 bytes).
+        internal byte[] PaddingBytes;
+
+        // 原GameBox引擎下的模型位置
+        public Vector3 GameBoxPosition;
 
         // 渲染模型的时候转动多少角度(绕Y轴)
         public float YRotation;
@@ -302,7 +308,7 @@ namespace Core.DataReader.Scn
         public int[] Parameters;
 
         #if PAL3A
-        public byte[] Unknown1;
+        public uint Unknown1; // always 0
         #endif
         
         // 触发条件
@@ -315,7 +321,7 @@ namespace Core.DataReader.Scn
         public string FailedMessage;       // char[16] 失败提示字符串名称
 
         #if PAL3A
-        public byte[] Unknown2; // PAL3A
+        public uint Unknown2;
         #endif
         
         public uint ScriptId;
@@ -323,22 +329,29 @@ namespace Core.DataReader.Scn
         public ScnPath Path;
 
         // 触发结果
-        public ushort LinkedObject;        // 触发其它机关的编号;
+        public ushort LinkedObjectId;        // 触发其它机关的编号;
 
         // 与场景的某个开关相关
         public string DependentSceneName;  // char[32]
-        public ushort DependentId;
+        public ushort DependentObjectId;
 
         public GameBoxAABBox BoundBox;
         public float XRotation;            // 绕X轴旋转
+        #if PAL3A
         public float ZRotation;            // 绕Z轴旋转
-        public string SfxName;             // char[8] 特效参数
+        #endif
+        public string SfxName;             // 音效文件名
         
         public uint EffectModelType;
 
         public uint ScriptChangeActive;
         public uint ScriptMoved;
-        public uint[] Reserved;            // 52 DWORDs
+        
+        #if PAL3A
+        public uint Unknown3;
+        #endif
+        
+        public uint[] Reserved;            // PAL3: 52 DWORDs PAL3A: 44 DWORDs
     }
 
     /// <summary>

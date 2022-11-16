@@ -56,11 +56,11 @@ namespace Core.DataReader.Gdb
                 MainActorCanUse = reader.ReadBytes(5),
                 WuLing = reader.ReadBytes(5),
                 AncientValue = reader.ReadInt32(),
-                SpecialType = (SpecialType) reader.ReadByte(),
-                TargetRangeType = (TargetRangeType) reader.ReadByte(),
-                PlaceOfUseType = (PlaceOfUseType) reader.ReadByte(),
-                AttributeImpactType = reader.ReadBytes(12),
-                Unknown = reader.ReadByte(),
+                SpecialType = (SpecialType) reader.ReadByte(), // ----------------| 1
+                TargetRangeType = (TargetRangeType) reader.ReadByte(), // --------| 2
+                PlaceOfUseType = (PlaceOfUseType) reader.ReadByte(), // ----------| 3
+                AttributeImpactType = reader.ReadBytes(12), 
+                PaddingByte = reader.ReadByte(), // ------------------------------| ^ to complete 4-byte alignment
                 AttributeImpactValue = reader.ReadInt16Array(12),
                 FightStateImpactType = reader.ReadBytes(32),
                 FightStateImpactValue = reader.ReadInt16Array(32),

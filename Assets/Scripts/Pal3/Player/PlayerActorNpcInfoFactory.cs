@@ -16,11 +16,12 @@ namespace Pal3.Player
     public static class PlayerActorNpcInfoFactory
     {
         // This is a position that is far away from the camera to prevent glitches.
-        private static readonly Vector3 InitPosition = new (777f, 777f, 777f);
+        private static readonly Vector3 InitPosition = new (777f, 777f, 777f); // Unity position
         
         public static ScnNpcInfo Create(PlayerActorId actorId)
         {
-            Vector3 initPosition = GameBoxInterpreter.ToGameBoxPosition(InitPosition);
+            Vector3 gameBoxInitPosition = GameBoxInterpreter.ToGameBoxPosition(InitPosition);
+            
             return new ScnNpcInfo
             {
                 Id = (byte)actorId,
@@ -28,9 +29,9 @@ namespace Pal3.Player
                 Kind = ScnActorKind.MainActor,
                 InitActive = 0,
                 InitAction = ActorConstants.ActionNames[ActorActionType.Stand],
-                PositionX = initPosition.x,
-                PositionY = initPosition.y,
-                PositionZ = initPosition.z,
+                GameBoxXPosition = gameBoxInitPosition.x,
+                GameBoxYPosition = gameBoxInitPosition.y,
+                GameBoxZPosition = gameBoxInitPosition.z,
             };
         }
 

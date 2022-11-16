@@ -69,8 +69,10 @@ namespace Pal3.Actor
             _currentLayerIndex = actor.Info.OnLayer;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
-            Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(actor.Info.PositionX,
-                actor.Info.PositionY, actor.Info.PositionZ));
+            Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                actor.Info.GameBoxXPosition,
+                actor.Info.GameBoxYPosition,
+                actor.Info.GameBoxZPosition));
 
             Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
             if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&

@@ -126,7 +126,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            sceneGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.Position);
+            sceneGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.GameBoxPosition);
             #if PAL3
             sceneGameObject.transform.rotation =
                 Quaternion.Euler(Info.XRotation, -Info.YRotation, 0f);

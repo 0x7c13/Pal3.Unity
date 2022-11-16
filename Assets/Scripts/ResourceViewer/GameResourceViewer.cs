@@ -11,6 +11,7 @@ namespace ResourceViewer
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -303,15 +304,37 @@ namespace ResourceViewer
         
         private void ExtractAllCpkArchives()
         {
-            var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解压后导出目录", "", "");
+            var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
             outputFolderPath += Path.DirectorySeparatorChar;
 
             if (!Directory.Exists(outputFolderPath))
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
+
+            consoleTextUI.text = "正在解包全部CPK文件，请稍等...";
+            StartCoroutine(ExtractAllCpkArchivesInternal(outputFolderPath));
+        }
+
+        private IEnumerator ExtractAllCpkArchivesInternal(string outputFolderPath)
+        {
+            var workerThread = new Thread(() =>
+            {
+                _fileSystem.ExtractTo(outputFolderPath);
+            })
+            {
+                IsBackground = true,
+                Priority = System.Threading.ThreadPriority.Highest
+            };
             
-            _fileSystem.ExtractTo(outputFolderPath);
+            workerThread.Start();
+
+            while (workerThread.IsAlive)
+            {
+                yield return null;
+            }
+            
+            consoleTextUI.text = "全部CPK文件已解包完成！";
         }
         #endif
 

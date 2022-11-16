@@ -71,12 +71,12 @@ namespace Core.DataReader.Scn
                 Texture = reader.ReadString(34, codepage),
                 FacingDirection = reader.ReadSingle(),
                 OnLayer = reader.ReadInt32(),
-                PositionX = reader.ReadSingle(),
-                PositionZ = reader.ReadSingle(),
+                GameBoxXPosition = reader.ReadSingle(),
+                GameBoxZPosition = reader.ReadSingle(),
                 InitActive = reader.ReadInt32(),
                 InitBehaviour = (ScnActorBehaviour) reader.ReadInt32(),
                 ScriptId = reader.ReadUInt32(),
-                PositionY = reader.ReadSingle(),
+                GameBoxYPosition = reader.ReadSingle(),
                 InitAction = reader.ReadString(16, codepage),
                 MonsterId = reader.ReadUInt32Array(3),
                 MonsterNumber = reader.ReadUInt16(),
@@ -84,7 +84,7 @@ namespace Core.DataReader.Scn
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),
-                    Waypoints = reader.ReadVector3Array(16)
+                    GameBoxWaypoints = reader.ReadVector3Array(16)
                 },
                 NoTurn = reader.ReadUInt32(),
                 LoopAction = reader.ReadUInt32(),
@@ -104,10 +104,12 @@ namespace Core.DataReader.Scn
                 Switch = reader.ReadByte(),
 
                 Name = reader.ReadString(32, codepage),
-                TriggerType = reader.ReadUInt16(),
-                NonBlocking = reader.ReadUInt16(),
-
-                Position = reader.ReadVector3(),
+                
+                TriggerType = reader.ReadByte(), // -------------| 1
+                NonBlocking = reader.ReadByte(), // -------------| 2
+                PaddingBytes = reader.ReadBytes(2), // ----------| ^ to complete 4-byte alignment
+                
+                GameBoxPosition = reader.ReadVector3(),
                 YRotation = reader.ReadSingle(),
                 TileMapTriggerRect = new GameBoxRect()
                 {
@@ -136,12 +138,12 @@ namespace Core.DataReader.Scn
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),
-                    Waypoints = reader.ReadVector3Array(16)
+                    GameBoxWaypoints = reader.ReadVector3Array(16)
                 },
 
-                LinkedObject = reader.ReadUInt16(),
+                LinkedObjectId = reader.ReadUInt16(),
                 DependentSceneName = reader.ReadString(32, codepage),
-                DependentId = reader.ReadUInt16(),
+                DependentObjectId = reader.ReadUInt16(),
 
                 BoundBox = new GameBoxAABBox()
                 {
@@ -150,7 +152,7 @@ namespace Core.DataReader.Scn
                 },
 
                 XRotation = reader.ReadSingle(),
-                SfxName = reader.ReadString(8, codepage),
+                SfxName = reader.ReadAsciiString(8),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),
@@ -167,10 +169,11 @@ namespace Core.DataReader.Scn
                 Switch = reader.ReadByte(),
 
                 Name = reader.ReadString(32, codepage),
-                TriggerType = reader.ReadUInt16(),
-                NonBlocking = reader.ReadUInt16(),
-
-                Position = reader.ReadVector3(),
+                TriggerType = reader.ReadByte(), // -------------| 1
+                NonBlocking = reader.ReadByte(), // -------------| 2
+                PaddingBytes = reader.ReadBytes(2), // ----------| ^ to complete 4-byte alignment
+                
+                GameBoxPosition = reader.ReadVector3(),
                 YRotation = reader.ReadSingle(),
                 TileMapTriggerRect = new GameBoxRect()
                 {
@@ -187,8 +190,7 @@ namespace Core.DataReader.Scn
                 
                 Parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32),
 
-                // TODO
-                Unknown1 = reader.ReadBytes(4),
+                Unknown1 = reader.ReadUInt32(), // TODO
 
                 NeedSpecialAction = reader.ReadUInt16(),
                 NeedItem = reader.ReadUInt16(),
@@ -198,19 +200,19 @@ namespace Core.DataReader.Scn
                 NeedAllOpen = reader.ReadUInt16(),
                 FailedMessage = reader.ReadString(16, codepage),
 
-                // TODO
-                Unknown2 = reader.ReadBytes(4),
+                Unknown2 = reader.ReadUInt32(), // TODO
+                
                 ScriptId = reader.ReadUInt32(),
 
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),
-                    Waypoints = reader.ReadVector3Array(16)
+                    GameBoxWaypoints = reader.ReadVector3Array(16)
                 },
 
-                LinkedObject = reader.ReadUInt16(),
+                LinkedObjectId = reader.ReadUInt16(),
                 DependentSceneName = reader.ReadString(32, codepage),
-                DependentId = reader.ReadUInt16(),
+                DependentObjectId = reader.ReadUInt16(),
 
                 BoundBox = new GameBoxAABBox()
                 {
@@ -220,13 +222,15 @@ namespace Core.DataReader.Scn
 
                 XRotation = reader.ReadSingle(),
                 ZRotation = reader.ReadSingle(),
-                SfxName = reader.ReadString(8, codepage),
+                SfxName = reader.ReadAsciiString(8),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),
                 ScriptMoved = reader.ReadUInt32(),
 
-                Reserved = reader.ReadUInt32Array(45)
+                Unknown3 = reader.ReadUInt32(), // TODO
+                
+                Reserved = reader.ReadUInt32Array(44)
             };
             #endif
         }
