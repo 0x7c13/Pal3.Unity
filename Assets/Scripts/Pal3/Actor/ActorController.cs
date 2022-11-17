@@ -169,13 +169,39 @@ namespace Pal3.Actor
         public void Execute(ActorSetFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+            
+            if (command.Direction is >= 0 and < 8)
+            {
+                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);   
+            }
+            else
+            {
+                // Note: in the original game scripts, this command is sometimes misused to set the facing direction.
+                // Instead of calling ActorRotateFacingCommand, there are places where the script calls
+                // ActorSetFacingDirectionCommand. In this case, the direction parameter is actually the degrees
+                // to rotate. Thus we need to handle this case here.
+                int degrees = command.Direction;
+                Execute(new ActorRotateFacingCommand(command.ActorId, degrees));
+            }
         }
 
         public void Execute(ActorRotateFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+            
+            if (command.Direction is >= 0 and < 8)
+            {
+                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+            }
+            else
+            {
+                // Note: in the original game scripts, this command is sometimes misused to set the facing direction.
+                // Instead of calling ActorRotateFacingCommand, there are places where the script calls
+                // ActorRotateFacingDirectionCommand. In this case, the direction parameter is actually the degrees
+                // to rotate. Thus we need to handle this case here.
+                int degrees = command.Direction;
+                Execute(new ActorRotateFacingCommand(command.ActorId, degrees));
+            }
         }
 
         public void Execute(ActorSetScriptCommand command)
