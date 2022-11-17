@@ -10,17 +10,14 @@ namespace Core.GameBox
     using UnityEngine;
 
     /// <summary>
-    /// Used to convert GameBox specific rendering related metadata to Unity standard.
+    /// Interpreter/convertor to convert GameBox specific rendering related metrics to Unity standard units that fits
+    /// well with the engine and editor.
     /// </summary>
     public static class GameBoxInterpreter
     {
         public const float GameBoxUnitToUnityUnit = 20f;
-        public const float GameBoxCvdUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
-
-        // Since GameBox's rendering pipeline uses different internal axis system.
-        // Here we are flipping the x here to minor it back to the Unity axis.
-        // Also we want to scale it to proper unity unit.
+        
         public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
         {
             return ToUnityVector3(vertex, scale);
@@ -31,6 +28,26 @@ namespace Core.GameBox
             return ToUnityVector3(position, scale);
         }
 
+        public static float ToUnityDistance(float gameBoxDistance)
+        {
+            return gameBoxDistance / GameBoxUnitToUnityUnit;
+        }
+        
+        public static float ToUnityXPosition(float gameBoxXPosition)
+        {
+            return -gameBoxXPosition / GameBoxUnitToUnityUnit;
+        }
+        
+        public static float ToUnityYPosition(float gameBoxYPosition)
+        {
+            return gameBoxYPosition / GameBoxUnitToUnityUnit;
+        }
+        
+        public static float ToUnityZPosition(float gameBoxZPosition)
+        {
+            return gameBoxZPosition / GameBoxUnitToUnityUnit;
+        }
+
         public static Vector3 ToGameBoxPosition(Vector3 position, float scale = GameBoxUnitToUnityUnit)
         {
             return new Vector3(
@@ -39,7 +56,7 @@ namespace Core.GameBox
                 position.z * scale);
         }
 
-        public static Vector3 CvdPositionToUnityPosition(Vector3 cvdPosition, float scale = GameBoxCvdUnitToUnityUnit)
+        public static Vector3 CvdPositionToUnityPosition(Vector3 cvdPosition, float scale = GameBoxUnitToUnityUnit)
         {
             return new Vector3(
                 -cvdPosition.x / scale,
@@ -87,6 +104,9 @@ namespace Core.GameBox
             return Quaternion.Euler(pitch - 180, yaw, roll -180);
         }
 
+        // Since GameBox engine uses different internal axis system.
+        // Here we are flipping the x here to minor it back to the Unity axis.
+        // Also we want to scale it to proper unity unit.
         private static Vector3 ToUnityVector3(Vector3 vector3, float scale)
         {
             return new Vector3(
@@ -94,7 +114,7 @@ namespace Core.GameBox
                 vector3.y / scale,
                 vector3.z / scale);
         }
-        
+
         public static void ToUnityTriangles(List<int> triangles)
         {
             triangles.Reverse();

@@ -80,7 +80,7 @@ namespace Pal3.Actor
                 if (tile.IsWalkable())
                 {
                     transform.position = new Vector3(initPosition.x,
-                        tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                        GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
                         initPosition.z);
                 }
                 else
@@ -175,7 +175,7 @@ namespace Pal3.Actor
                     else
                     {
                         var adjustedPosition = new Vector3(currentPosition.x,
-                            tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                            GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
                             currentPosition.z);
                         transform.position = adjustedPosition;
                     }
@@ -239,7 +239,7 @@ namespace Pal3.Actor
                 SetNavLayer(layerIndex);
                 transform.position = new Vector3(
                     position.x,
-                    tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                    GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
                     position.z);
 
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
@@ -353,7 +353,7 @@ namespace Pal3.Actor
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())
             {
-                newYPosition = tileAtCurrentLayer.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                newYPosition = GameBoxInterpreter.ToUnityYPosition(tileAtCurrentLayer.GameBoxYPosition);
                 return true;
             }
 
@@ -365,7 +365,7 @@ namespace Pal3.Actor
             if (_tilemap.TryGetTile(newPosition, nextLayer, out NavTile tileAtNextLayer) &&
                 tileAtNextLayer.IsWalkable())
             {
-                var yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var yPositionAtNextLayer = GameBoxInterpreter.ToUnityYPosition(tileAtNextLayer.GameBoxYPosition);
                 
                 if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_CROSS_LAYER_Y_DIFFERENTIAL)
                 {
@@ -605,7 +605,7 @@ namespace Pal3.Actor
         public void Execute(ActorMoveBackwardsCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            var moveDistance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+            var moveDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
             MoveTo(newPosition, 2);
         }

@@ -16,7 +16,7 @@ namespace Pal3.Actor
     public class FlyingActorController : MonoBehaviour,
         ICommandExecutor<FlyingActorFlyToCommand>
     {
-        private const float FLY_SPEED = 144f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+        private const float FLY_SPEED = 7.5f;
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         private const float MAX_TARGET_DISTANCE = 10f;
         

@@ -199,7 +199,7 @@ namespace Pal3.Actor
             if (command.ActorId != _actor.Info.Id) return;
             Vector3 oldPosition = transform.position;
             transform.position = new Vector3(oldPosition.x,
-                command.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                GameBoxInterpreter.ToUnityYPosition(command.GameBoxYPosition),
                 oldPosition.z);
         }
         #endif

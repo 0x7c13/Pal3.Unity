@@ -53,7 +53,9 @@ namespace Pal3.Camera
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
-        private const float SCENE_STORY_B_ROOM_HEIGHT = 32f;
+        private const float SCENE_STORY_B_ROOM_FLOOR_HEIGHT = 1.6f;
+        private const float CAMERA_DEFAULT_DISTANCE = 46f;
+        private const float CAMERA_SCENE_STORY_B_DISTANCE = 34f;
         private const float CAMERA_ROTATION_SPEED_KEY_PRESS = 120f;
         private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
@@ -336,8 +338,8 @@ namespace Pal3.Camera
             _cameraAnimationInProgress = true;
             Vector3 oldPosition = _camera.transform.position;
             var oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
-            Vector3 cameraDirection = (oldPosition - _lastLookAtPoint).normalized;
-            Vector3 newPosition = oldPosition + cameraDirection * (distance - oldDistance);
+            Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
+            Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
             Transform cameraTransform = _camera.transform;
             
             yield return AnimationHelper.MoveTransform(cameraTransform,
@@ -390,8 +392,7 @@ namespace Pal3.Camera
             {
                 case ScnSceneType.StoryB:
                     _freeToRotate = false;
-                    _lookAtPointYOffset = SCENE_STORY_B_ROOM_HEIGHT /
-                                          GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                    _lookAtPointYOffset = SCENE_STORY_B_ROOM_FLOOR_HEIGHT;
                     _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
                     ApplyDefaultSettings(1);
@@ -423,39 +424,45 @@ namespace Pal3.Camera
 
         private void ApplyDefaultSettings(int option)
         {
-            Quaternion rotation;
-            float distance = 688.0f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-
+            float cameraDistance;
+            Quaternion cameraRotation;
+            float cameraFov;
+            
             switch (option)
             {
                 case 0:
-                    _camera.fieldOfView = HorizontalToVerticalFov(26.0f, 4f/3f);
-                    distance = 1000 / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-                    rotation = GameBoxInterpreter.ToUnityRotation(-30.37f, -52.65f, 0f);
+                    cameraFov = HorizontalToVerticalFov(26.0f, 4f/3f);
+                    cameraDistance = CAMERA_DEFAULT_DISTANCE;
+                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-30.37f, -52.65f, 0f);
                     break;
                 case 1:
-                    _camera.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    rotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 33.24f, 0f);
+                    cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
+                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 33.24f, 0f);
                     break;
                 case 2:
-                    _camera.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    rotation = GameBoxInterpreter.ToUnityRotation(-19.48f, -33.24f, 0f);
+                    cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
+                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, -33.24f, 0f);
                     break;
                 case 3:
-                    _camera.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    rotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 0f, 0f);
+                    cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
+                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 0f, 0f);
                     break;
                 default:
                     return;
             }
 
+            _camera.fieldOfView = cameraFov;
+
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
 
-            Vector3 cameraDirection = (rotation * Vector3.forward).normalized;
-            Vector3 cameraPosition = _lastLookAtPoint + cameraDirection * -distance + yOffset;
+            Vector3 cameraFacingDirection = (cameraRotation * Vector3.forward).normalized;
+            Vector3 cameraPosition = _lastLookAtPoint + cameraFacingDirection * -cameraDistance + yOffset;
 
             Transform cameraTransform = _camera.transform;
-            cameraTransform.rotation = rotation;
+            cameraTransform.rotation = cameraRotation;
             cameraTransform.position = cameraPosition;
 
             _cameraOffset = cameraTransform.position - _lastLookAtPoint;
@@ -489,8 +496,8 @@ namespace Pal3.Camera
             cameraTransform.position = cameraPosition;
             cameraTransform.rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
 
-            _lastLookAtPoint = cameraTransform.position + cameraTransform.forward *
-                (command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+            _lastLookAtPoint = cameraTransform.position +
+                               cameraTransform.forward * GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
 
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
@@ -513,8 +520,7 @@ namespace Pal3.Camera
             
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            StartCoroutine(Shake(command.Duration,
-                command.Amplitude / GameBoxInterpreter.GameBoxUnitToUnityUnit, waiter));
+            StartCoroutine(Shake(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
         }
 
         public void Execute(CameraOrbitCommand command)
@@ -562,7 +568,7 @@ namespace Pal3.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             
             var oldDistance = _cameraOffset.magnitude;
-            var newDistance = (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             var distanceDelta = newDistance - oldDistance;
             
             if (command.Synchronous == 1)
@@ -592,7 +598,7 @@ namespace Pal3.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             
             var oldDistance = _cameraOffset.magnitude;
-            var newDistance = (command.Distance / GameBoxInterpreter.GameBoxUnitToUnityUnit);
+            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             var distanceDelta = newDistance - oldDistance;
             
             if (command.Synchronous == 1)
@@ -664,14 +670,14 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled(this);
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-                var distance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
                 StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
             #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                var distance = command.GameBoxDistance / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
                 StartCoroutine(Push(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
