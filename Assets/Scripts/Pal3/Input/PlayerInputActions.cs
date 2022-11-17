@@ -172,6 +172,24 @@ namespace Pal3.Input
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchToPreviousPlayerActor"",
+                    ""type"": ""Button"",
+                    ""id"": ""6270dea5-1f3b-4769-921d-cdf592367ba9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchToNextPlayerActor"",
+                    ""type"": ""Button"",
+                    ""id"": ""a350c9fa-4040-4a4d-b407-9e9a93ee1ec3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -502,6 +520,39 @@ namespace Pal3.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ToggleBigMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c4ae24e-2744-4423-bd5b-eec9eb539fb0"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchToPreviousPlayerActor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2cd48e88-fdd1-49c2-9be2-0157b27fac6e"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchToNextPlayerActor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b0aec67f-4bb7-4d1b-b205-30dd16894caf"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchToNextPlayerActor"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1215,6 +1266,8 @@ namespace Pal3.Input
             m_Gameplay_Touch0Start = m_Gameplay.FindAction("Touch0Start", throwIfNotFound: true);
             m_Gameplay_ToggleStorySelector = m_Gameplay.FindAction("ToggleStorySelector", throwIfNotFound: true);
             m_Gameplay_ToggleBigMap = m_Gameplay.FindAction("ToggleBigMap", throwIfNotFound: true);
+            m_Gameplay_SwitchToPreviousPlayerActor = m_Gameplay.FindAction("SwitchToPreviousPlayerActor", throwIfNotFound: true);
+            m_Gameplay_SwitchToNextPlayerActor = m_Gameplay.FindAction("SwitchToNextPlayerActor", throwIfNotFound: true);
             // Cutscene
             m_Cutscene = asset.FindActionMap("Cutscene", throwIfNotFound: true);
             m_Cutscene_Continue = m_Cutscene.FindAction("Continue", throwIfNotFound: true);
@@ -1311,6 +1364,8 @@ namespace Pal3.Input
         private readonly InputAction m_Gameplay_Touch0Start;
         private readonly InputAction m_Gameplay_ToggleStorySelector;
         private readonly InputAction m_Gameplay_ToggleBigMap;
+        private readonly InputAction m_Gameplay_SwitchToPreviousPlayerActor;
+        private readonly InputAction m_Gameplay_SwitchToNextPlayerActor;
         public struct GameplayActions
         {
             private @PlayerInputActions m_Wrapper;
@@ -1331,6 +1386,8 @@ namespace Pal3.Input
             public InputAction @Touch0Start => m_Wrapper.m_Gameplay_Touch0Start;
             public InputAction @ToggleStorySelector => m_Wrapper.m_Gameplay_ToggleStorySelector;
             public InputAction @ToggleBigMap => m_Wrapper.m_Gameplay_ToggleBigMap;
+            public InputAction @SwitchToPreviousPlayerActor => m_Wrapper.m_Gameplay_SwitchToPreviousPlayerActor;
+            public InputAction @SwitchToNextPlayerActor => m_Wrapper.m_Gameplay_SwitchToNextPlayerActor;
             public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1388,6 +1445,12 @@ namespace Pal3.Input
                     @ToggleBigMap.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnToggleBigMap;
                     @ToggleBigMap.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnToggleBigMap;
                     @ToggleBigMap.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnToggleBigMap;
+                    @SwitchToPreviousPlayerActor.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToPreviousPlayerActor;
+                    @SwitchToPreviousPlayerActor.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToPreviousPlayerActor;
+                    @SwitchToPreviousPlayerActor.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToPreviousPlayerActor;
+                    @SwitchToNextPlayerActor.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToNextPlayerActor;
+                    @SwitchToNextPlayerActor.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToNextPlayerActor;
+                    @SwitchToNextPlayerActor.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnSwitchToNextPlayerActor;
                 }
                 m_Wrapper.m_GameplayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -1440,6 +1503,12 @@ namespace Pal3.Input
                     @ToggleBigMap.started += instance.OnToggleBigMap;
                     @ToggleBigMap.performed += instance.OnToggleBigMap;
                     @ToggleBigMap.canceled += instance.OnToggleBigMap;
+                    @SwitchToPreviousPlayerActor.started += instance.OnSwitchToPreviousPlayerActor;
+                    @SwitchToPreviousPlayerActor.performed += instance.OnSwitchToPreviousPlayerActor;
+                    @SwitchToPreviousPlayerActor.canceled += instance.OnSwitchToPreviousPlayerActor;
+                    @SwitchToNextPlayerActor.started += instance.OnSwitchToNextPlayerActor;
+                    @SwitchToNextPlayerActor.performed += instance.OnSwitchToNextPlayerActor;
+                    @SwitchToNextPlayerActor.canceled += instance.OnSwitchToNextPlayerActor;
                 }
             }
         }
@@ -1657,6 +1726,8 @@ namespace Pal3.Input
             void OnTouch0Start(InputAction.CallbackContext context);
             void OnToggleStorySelector(InputAction.CallbackContext context);
             void OnToggleBigMap(InputAction.CallbackContext context);
+            void OnSwitchToPreviousPlayerActor(InputAction.CallbackContext context);
+            void OnSwitchToNextPlayerActor(InputAction.CallbackContext context);
         }
         public interface ICutsceneActions
         {

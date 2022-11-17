@@ -18,11 +18,12 @@ namespace Pal3.Actor
     public sealed class HuaYingController : FlyingActorController,
         ICommandExecutor<HuaYingSwitchBehaviourModeCommand>
     {
-        private const float FLY_SPEED = 144f / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+        private const float MAX_FLY_SPEED = 11f;
         private const float ROTATION_SPEED = 10f;
         private const float ROTATION_SYNCING_DISTANCE = 2f;
         private const float FOLLOW_TARGET_MIN_DISTANCE = 1f;
-        private const float FOLLOW_TARGET_MAX_DISTANCE = 6f;
+        private const float FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE = 6f;
+        private const float FOLLOW_TARGET_MAX_DISTANCE = 10f;
         private const float FOLLOW_TARGET_X_OFFSET = -0.8f;
         private const float FOLLOW_TARGET_Y_OFFSET = -0.8f;
 
@@ -117,20 +118,25 @@ namespace Pal3.Actor
             }
             else
             {
-                if (Vector3.Distance(myNewPosition, transform.position) < FOLLOW_TARGET_MAX_DISTANCE)
-                {
-                    _actorActionController.PerformAction(_actor.GetMovementAction(0));
-                }
-                else
+                // Set max distance to follow target if it's too far away
+                var distanceToTarget = Vector3.Distance(myNewPosition, transform.position);
+                if (distanceToTarget > FOLLOW_TARGET_MAX_DISTANCE)
                 {
                     transform.position = (transform.position - myNewPosition).normalized * FOLLOW_TARGET_MAX_DISTANCE +
                                          myNewPosition;
-                    _actorActionController.PerformAction(_actor.GetMovementAction(1));
                 }
                 
+                // Increase fly speed if the distance is greater than a threshold
+                var flySpeed = distanceToTarget > FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE ? MaxFlySpeed : DefaultFlySpeed;
+
+                _actorActionController.PerformAction(
+                    Vector3.Distance(myNewPosition, transform.position) < FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE - 1f
+                        ? _actor.GetMovementAction(0)
+                        : _actor.GetMovementAction(1));
+
                 transform.position = Vector3.MoveTowards(transform.position,
                     myNewPosition,
-                    Time.deltaTime * FLY_SPEED);
+                    Time.deltaTime * flySpeed);
             }
 
             if (distanceToNewPosition < ROTATION_SYNCING_DISTANCE)

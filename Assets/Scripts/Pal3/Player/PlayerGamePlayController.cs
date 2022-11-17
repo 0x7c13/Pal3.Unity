@@ -41,6 +41,7 @@ namespace Pal3.Player
     {
         private GameStateManager _gameStateManager;
         private PlayerManager _playerManager;
+        private TeamManager _teamManager;
         private PlayerInputActions _inputActions;
         private SceneManager _sceneManager;
         private Camera _camera;
@@ -59,7 +60,8 @@ namespace Pal3.Player
         private int _longKuiLastKnownMode = 0;
         #endif
         
-        private GameObject _playerActor;
+        private Actor _playerActor;
+        private GameObject _playerActorGameObject;
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
@@ -72,12 +74,14 @@ namespace Pal3.Player
 
         public void Init(GameStateManager gameStateManager,
             PlayerManager playerManager,
+            TeamManager teamManager,
             PlayerInputActions inputActions,
             SceneManager sceneManager,
             Camera mainCamera)
         {
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
+            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
             _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _camera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
@@ -88,6 +92,8 @@ namespace Pal3.Player
             _inputActions.Gameplay.PortalTo.performed += PortalToPerformed;
             _inputActions.Gameplay.Interact.performed += InteractionPerformed;
             _inputActions.Gameplay.Movement.canceled += MovementCanceled;
+            _inputActions.Gameplay.SwitchToPreviousPlayerActor.performed += SwitchToPreviousPlayerActorPerformed;
+            _inputActions.Gameplay.SwitchToNextPlayerActor.performed += SwitchToNextPlayerActorPerformed;
         }
 
         private void OnEnable()
@@ -103,12 +109,14 @@ namespace Pal3.Player
             _inputActions.Gameplay.PortalTo.performed -= PortalToPerformed;
             _inputActions.Gameplay.Interact.performed -= InteractionPerformed;
             _inputActions.Gameplay.Movement.canceled -= MovementCanceled;
+            _inputActions.Gameplay.SwitchToPreviousPlayerActor.performed -= SwitchToPreviousPlayerActorPerformed;
+            _inputActions.Gameplay.SwitchToNextPlayerActor.performed -= SwitchToNextPlayerActorPerformed;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         private void Update()
         {
-            if (_playerActor == null) return;
+            if (_playerActorGameObject == null) return;
             
             var isPlayerInControl = false;
 
@@ -122,7 +130,7 @@ namespace Pal3.Player
 
             var shouldUpdatePlayerActorMovementSfx = false;
             
-            Vector3 position = _playerActor.transform.position;
+            Vector3 position = _playerActorGameObject.transform.position;
             var layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             if (!(position == _lastKnownPosition && layerIndex == _lastKnownLayerIndex))
@@ -205,14 +213,14 @@ namespace Pal3.Player
             if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActor,
+                    new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
                         PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
                         disposeSource: false));
             }
             else
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new AttachSfxToGameObjectRequest(_playerActor,
+                    new AttachSfxToGameObjectRequest(_playerActorGameObject,
                         newMovementSfxAudioFileName,
                         PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
                         loopCount: -1,
@@ -263,7 +271,7 @@ namespace Pal3.Player
         /// <returns>MovementResult</returns>
         private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, int movementMode)
         {
-            Vector3 playerActorPosition = _playerActor.transform.position;
+            Vector3 playerActorPosition = _playerActorGameObject.transform.position;
             MovementResult result = _playerActorMovementController.MoveTowards(
                 playerActorPosition + inputDirection, movementMode);
 
@@ -340,14 +348,61 @@ namespace Pal3.Player
             _lastInputTapPosition = ctx.ReadValue<Vector2>();
         }
 
-        private void InteractionPerformed(InputAction.CallbackContext ctx)
+        private void InteractionPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() || !_playerManager.IsPlayerInputEnabled())
+            if (!_playerManager.IsPlayerActorControlEnabled() ||
+                !_playerManager.IsPlayerInputEnabled())
             {
                 return;
             }
 
             InteractWithNearestInteractable();
+        }
+        
+        private void SwitchToNextPlayerActorPerformed(InputAction.CallbackContext _)
+        {
+            if (!_playerManager.IsPlayerActorControlEnabled() ||
+                !_playerManager.IsPlayerInputEnabled() ||
+                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
+            {
+                return;
+            }
+
+            var actorsInTeam = _teamManager.GetActorsInTeam();
+            if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
+            
+            var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
+            int nextPlayerActorId = _playerActor.Info.Id;
+            do
+            {
+                nextPlayerActorId = (nextPlayerActorId + 1) % playerActorIdLength;
+            } while (!actorsInTeam.Contains((PlayerActorId) nextPlayerActorId));
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(nextPlayerActorId));
+        }
+
+        private void SwitchToPreviousPlayerActorPerformed(InputAction.CallbackContext _)
+        {
+            if (!_playerManager.IsPlayerActorControlEnabled() ||
+                !_playerManager.IsPlayerInputEnabled() ||
+                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
+            {
+                return;
+            }
+            
+            var actorsInTeam = _teamManager.GetActorsInTeam();
+            if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
+            
+            var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
+            int previousPlayerActorId = _playerActor.Info.Id;
+            do
+            {
+                previousPlayerActorId = (previousPlayerActorId - 1) >= 0
+                    ? (previousPlayerActorId - 1) % playerActorIdLength
+                    : playerActorIdLength - 1;
+            } while (!actorsInTeam.Contains((PlayerActorId) previousPlayerActorId));
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(previousPlayerActorId));
         }
 
         private void InteractWithNearestInteractable()
@@ -509,7 +564,7 @@ namespace Pal3.Player
             var climbableHeight = climbableObject.GetComponentInChildren<StaticMeshRenderer>()
                                       .GetRendererBounds().max.y / 2f; // Half is enough for the animation
 
-            Vector3 playerCurrentPosition = _playerActor.transform.position;
+            Vector3 playerCurrentPosition = _playerActorGameObject.transform.position;
             if (command.ClimbUp == 1)
             {
                 lowerPosition.y = playerCurrentPosition.y;
@@ -588,7 +643,7 @@ namespace Pal3.Player
             upperPosition.y = upperStandingPosition.y;
             lowerPosition.y = lowerStandingPosition.y;
 
-            Vector3 playerActorPosition = _playerActor.transform.position;
+            Vector3 playerActorPosition = _playerActorGameObject.transform.position;
             var climbUp = Mathf.Abs(playerActorPosition.y - lowerPosition.y) <
                               Mathf.Abs(playerActorPosition.y - upperPosition.y);
 
@@ -623,11 +678,11 @@ namespace Pal3.Player
             _playerActorActionController.PerformAction(
                 climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown, true, 1);
 
-            _playerActor.transform.position = new Vector3(lowerPosition.x,
-                _playerActor.transform.position.y, lowerPosition.z);
+            _playerActorGameObject.transform.position = new Vector3(lowerPosition.x,
+                _playerActorGameObject.transform.position.y, lowerPosition.z);
 
             var objectRotationY = climbableObject.transform.rotation.eulerAngles.y;
-            _playerActor.transform.rotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
+            _playerActorGameObject.transform.rotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
 
             if (climbUp)
             {
@@ -636,7 +691,7 @@ namespace Pal3.Player
                 {
                     var delta = Time.deltaTime * ActorConstants.ActorClimbSpeed;
                     currentHeight += delta;
-                    _playerActor.transform.position += new Vector3(0f, delta, 0f);
+                    _playerActorGameObject.transform.position += new Vector3(0f, delta, 0f);
                     yield return null;
                 }
 
@@ -644,7 +699,7 @@ namespace Pal3.Player
                 {
                     _playerActorMovementController.SetNavLayer(upperLayer);
                     yield return _playerActorMovementController.MoveDirectlyTo(upperStandingPosition, 0);
-                    _playerActor.transform.position = upperStandingPosition;
+                    _playerActorGameObject.transform.position = upperStandingPosition;
                 }
             }
             else
@@ -654,7 +709,7 @@ namespace Pal3.Player
                 {
                     var delta = Time.deltaTime * ActorConstants.ActorClimbSpeed;
                     currentHeight -= delta;
-                    _playerActor.transform.position -= new Vector3(0f, delta, 0f);
+                    _playerActorGameObject.transform.position -= new Vector3(0f, delta, 0f);
                     yield return null;
                 }
 
@@ -662,7 +717,7 @@ namespace Pal3.Player
                 {
                     _playerActorMovementController.SetNavLayer(lowerLayer);
                     yield return _playerActorMovementController.MoveDirectlyTo(lowerStandingPosition, 0);
-                    _playerActor.transform.position = lowerStandingPosition;
+                    _playerActorGameObject.transform.position = lowerStandingPosition;
                 }
             }
 
@@ -673,29 +728,67 @@ namespace Pal3.Player
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
 
+            // Check if actor is player actor.
+            if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
+            {
+                Debug.LogError($"Cannot enable player control for actor {command.ActorId} " +
+                               $"since actor is not player actor.");
+                return;
+            }
+            
+            // Stop & dispose current player actor movement sfx
+            if (_playerActorGameObject != null)
+            {
+                _currentMovementSfxAudioName = string.Empty;
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
+                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        disposeSource: true));
+            }
+
+            Vector3? lastActivePlayerActorPosition = null;
+            Quaternion? lastActivePlayerActorRotation = null;
+            
+            // Deactivate current player actor
+            if (_playerActorGameObject != null &&
+                _playerActor.Info.Id != command.ActorId &&
+                _playerActorController != null &&
+                _playerActorController.IsActive)
+            {
+                lastActivePlayerActorPosition = _playerActorGameObject.transform.position;
+                lastActivePlayerActorRotation = _playerActorGameObject.transform.rotation;
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 0));
+            }
+
+            // Set target actor as player actor
+            _playerActor = _sceneManager.GetCurrentScene().GetActor((byte) command.ActorId);
+            _playerActorGameObject = _sceneManager.GetCurrentScene()
+                .GetActorGameObject((byte) command.ActorId);
+            _playerActorController = _playerActorGameObject.GetComponent<ActorController>();
+            _playerActorActionController = _playerActorGameObject.GetComponent<ActorActionController>();
+            _playerActorMovementController = _playerActorGameObject.GetComponent<ActorMovementController>();
+            
+            // Just to make sure the new actor is activated
+            if (!_playerActorController.IsActive)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 1));
+                
+                // Inherent position
+                if (lastActivePlayerActorPosition.HasValue)
+                {
+                    _playerActorGameObject.transform.position = lastActivePlayerActorPosition.Value;
+                }
+                // Inherent rotation
+                if (lastActivePlayerActorRotation.HasValue)
+                {
+                    _playerActorGameObject.transform.rotation = lastActivePlayerActorRotation.Value;
+                }
+            }
+            
+            // Reset known states
             _lastKnownPosition = null;
             _lastKnownTilePosition = null;
             _lastKnownPlayerActorAction = string.Empty;
-            
-            _playerActor = _sceneManager.GetCurrentScene()
-                .GetActorGameObject((byte) command.ActorId);
-            _playerActorController = _playerActor.GetComponent<ActorController>();
-            _playerActorActionController = _playerActor.GetComponent<ActorActionController>();
-            _playerActorMovementController = _playerActor.GetComponent<ActorMovementController>();
-
-            // Stop current player actor movement sfx
-            _currentMovementSfxAudioName = string.Empty;
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new StopSfxPlayingAtGameObjectRequest(_playerActor,
-                    PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
-                    disposeSource: false));
-
-            // Just to make sure actor is activated
-            if (_playerManager.IsPlayerInputEnabled() &&
-                !_playerActorController.IsActive)
-            {
-                _playerActorController.IsActive = true;
-            }
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -747,11 +840,11 @@ namespace Pal3.Player
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
             // Stop current player actor movement sfx
-            if (_playerActor != null)
+            if (_playerActorGameObject != null)
             {
                 _currentMovementSfxAudioName = string.Empty;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActor,
+                    new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
                         PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
                         disposeSource: true));   
             }
@@ -760,7 +853,7 @@ namespace Pal3.Player
                 currentScene.GetSceneInfo(),
                 _playerActorMovementController.GetCurrentLayerIndex(),
                 _playerActorMovementController.GetTilePosition(),
-                _playerActor.transform.forward));
+                _playerActorGameObject.transform.forward));
             
             if (_playerActorLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
             {
@@ -773,7 +866,7 @@ namespace Pal3.Player
                 _inputActions.Disable();  
             }
         }
-        
+
         public void Execute(ScenePostLoadingNotification notification)
         {
             var playerActorId = (int)_playerManager.GetPlayerActor();
@@ -838,6 +931,7 @@ namespace Pal3.Player
             #endif
             
             _playerActor = null;
+            _playerActorGameObject = null;
             _playerActorController = null;
             _playerActorActionController = null;
             _playerActorMovementController = null;

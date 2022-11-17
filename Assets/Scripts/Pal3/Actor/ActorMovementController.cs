@@ -158,7 +158,9 @@ namespace Pal3.Actor
             // Also we need to adjust Y position based on tile information
             // during the collision since we are locking Y movement for the
             // player actor's rigidbody.
-            if (_isDuringCollision && _actionController.GetRigidBody() is {isKinematic: false})
+            if (!_isDuringCollision) return;
+            Rigidbody rigidBody = _actionController.GetRigidBody();
+            if (rigidBody != null && !rigidBody.isKinematic)
             {
                 Vector3 currentPosition = transform.position;
 
@@ -245,7 +247,7 @@ namespace Pal3.Actor
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
                 Debug.LogWarning($"Portal to: {position}, " +
                                  $"layer: {layerIndex}, " +
-                                 $"tile: {tilePosition} DistanceToNearByObstacle: {tile.DistanceToNearestObstacle}, FloorKind: {tile.FloorKind}");
+                                 $"tile: {tilePosition} DistanceToNearestObstacle: {tile.DistanceToNearestObstacle}, FloorKind: {tile.FloorKind}");
             }
         }
 
@@ -650,6 +652,7 @@ namespace Pal3.Actor
                 _movementCts?.Cancel();
                 _movementCts = new CancellationTokenSource();
                 _currentPath.Clear();
+                _isDuringCollision = false;
             }
         }
     }

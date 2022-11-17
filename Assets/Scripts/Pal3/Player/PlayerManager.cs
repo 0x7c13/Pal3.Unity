@@ -9,6 +9,7 @@ namespace Pal3.Player
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Scn;
     using MetaData;
 
     public sealed class PlayerManager : IDisposable,
@@ -50,6 +51,7 @@ namespace Pal3.Player
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<EffectAttachToActorCommand>,
+        ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private PlayerActorId _playerActor = 0;
@@ -327,7 +329,7 @@ namespace Pal3.Player
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorEnablePlayerControlCommand((int)_playerActor));
             }
-            else
+            else if (Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
                 _playerActor = (PlayerActorId)command.ActorId;
                 _playerActorControlEnabled = true;
@@ -381,6 +383,16 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(ScenePreLoadingNotification command)
+        {
+            // Need to set main actor as player actor for non-maze scenes
+            if (command.NewSceneInfo.SceneType != ScnSceneType.Maze &&
+                _playerActor != 0)
+            {
+                _playerActor = 0;
+            }
+        }
+        
         public void Execute(ResetGameStateCommand command)
         {
             _playerActor = 0;

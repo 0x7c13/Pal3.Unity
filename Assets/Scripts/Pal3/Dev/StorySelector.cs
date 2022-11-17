@@ -63,6 +63,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 77 175
+                TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
             {"渝州-去唐家堡找雪见", @"
                 ScriptVarSetValue -32768 10401

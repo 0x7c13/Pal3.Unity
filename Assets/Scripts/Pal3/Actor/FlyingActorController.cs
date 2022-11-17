@@ -16,7 +16,9 @@ namespace Pal3.Actor
     public class FlyingActorController : MonoBehaviour,
         ICommandExecutor<FlyingActorFlyToCommand>
     {
-        private const float FLY_SPEED = 7.5f;
+        public const float DefaultFlySpeed = 7.5f;
+        public const float MaxFlySpeed = 11f;
+        
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         private const float MAX_TARGET_DISTANCE = 10f;
         
@@ -56,7 +58,7 @@ namespace Pal3.Actor
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             
             var distance = (targetPosition - transform.position).magnitude;
-            var duration = distance / FLY_SPEED;
+            var duration = distance / DefaultFlySpeed;
 
             _actionController.PerformAction(distance < FLYING_MOVEMENT_MODE_SWITCH_DISTANCE
                 ? _actor.GetMovementAction(0)

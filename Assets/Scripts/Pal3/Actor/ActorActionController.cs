@@ -346,7 +346,7 @@ namespace Pal3.Actor
                 _animationLoopPointWaiter?.CancelWait();
             }
 
-            if (_autoStand)
+            if (_autoStand && _mv3AnimationRenderer.IsVisible())
             {
                 if (loopCount is 0 ||
                     (loopCount is -2 && !_mv3AnimationRenderer.IsActionInHoldState()))
@@ -451,7 +451,7 @@ namespace Pal3.Actor
                 _mv3AnimationRenderer.PauseAnimation();
                 _animationLoopPointWaiter?.CancelWait();
 
-                if (_autoStand)
+                if (_autoStand && _mv3AnimationRenderer.IsVisible())
                 {
                     PerformAction(_actor.GetIdleAction());
                 }

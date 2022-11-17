@@ -212,6 +212,7 @@ namespace Pal3
             _playerGamePlayController = gameObject.AddComponent<PlayerGamePlayController>();
             _playerGamePlayController.Init(_gameStateManager,
                 _playerManager,
+                _teamManager,
                 _inputActions,
                 _sceneManager,
                 mainCamera);
@@ -440,6 +441,9 @@ namespace Pal3
                         $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +
                         $"Tile position: {playerActorMovementController.GetTilePosition()}\n");
 
+            info.Append("----- Team info -----\n" +
+                        $"Actors in team: {string.Join(", ", _teamManager.GetActorsInTeam().Select(_ => _.ToString()))}\n");
+            
             info.Append(_scriptManager.GetGlobalVariables()
                 .Aggregate("----- Variables info -----\n", (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
 

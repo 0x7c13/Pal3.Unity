@@ -11,7 +11,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2022.2.0b14-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2022.2.0b15-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
