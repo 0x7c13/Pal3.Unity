@@ -152,7 +152,7 @@ namespace Core.DataReader.Scn
                 },
 
                 XRotation = reader.ReadSingle(),
-                SfxName = reader.ReadAsciiString(8),
+                SfxName = reader.ReadString(8, codepage),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),
@@ -222,7 +222,7 @@ namespace Core.DataReader.Scn
 
                 XRotation = reader.ReadSingle(),
                 ZRotation = reader.ReadSingle(),
-                SfxName = reader.ReadAsciiString(8),
+                SfxName = reader.ReadString(8, codepage),
                 EffectModelType = reader.ReadUInt32(),
 
                 ScriptChangeActive = reader.ReadUInt32(),

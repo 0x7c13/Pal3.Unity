@@ -50,7 +50,7 @@ namespace Pal3.Scene
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             var position = new Vector3(
                 currentLayer.Min.x + (tilePosition.x + 1/2f) * NavigationConstants.NavTileSize,
-                isInside ? GetTile(tilePosition, layerIndex).Y : 0f,
+                isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
                 currentLayer.Min.z + (tilePosition.y + 1/2f) * NavigationConstants.NavTileSize);
             return GameBoxInterpreter.ToUnityPosition(position);
         }
@@ -64,14 +64,16 @@ namespace Pal3.Scene
                 (int) ((gameBoxPosition.z - currentLayer.Min.z) / NavigationConstants.NavTileSize));
         }
 
-        public NavTile GetTile(Vector3 position, int layerIndex)
+        public bool TryGetTile(Vector3 position, int layerIndex, out NavTile tile)
         {
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            tile = default;
             Vector2Int tilePosition = GetTilePosition(position, layerIndex);
-            return currentLayer.Tiles[tilePosition.x + tilePosition.y * currentLayer.Width];
+            if (!IsTilePositionInsideTileMap(tilePosition, layerIndex)) return false;
+            tile = GetTile(tilePosition, layerIndex);
+            return true;
         }
 
-        public NavTile GetTile(Vector2Int position, int layerIndex)
+        private NavTile GetTile(Vector2Int position, int layerIndex)
         {
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
@@ -120,10 +122,8 @@ namespace Pal3.Scene
                     Vector2Int.Distance(to, position) > 1 &&
                     obstacles.Contains(position)) return true;
                 var index = position.x + position.y * currentLayer.Width;
-                // Setting <=1 here to exclude tiles right next to the obstacles to give turning
-                // space for the actor to move along the path Lazy theta* produces.
-                // Also this makes the path more natural as well.
-                return currentLayer.Tiles[index].Distance <= 1;
+                
+                return !currentLayer.Tiles[index].IsWalkable();
             }
 
             int GetDistanceCost(Vector2Int fromTile, Vector2Int toTile)
@@ -173,7 +173,7 @@ namespace Pal3.Scene
         // Add some weights to the tiles near obstacle.
         private int GetTileExtraWeight(NavTile tile)
         {
-            return tile.Distance switch
+            return tile.DistanceToNearestObstacle switch
             {
                 1 => 20,
                 2 => 10,

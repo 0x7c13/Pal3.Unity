@@ -85,10 +85,11 @@ namespace Core.DataReader.Nav
             {
                 tiles[i] = new NavTile
                 {
-                    Y = reader.ReadSingle(),
-                    Distance = reader.ReadUInt16(),
-                    FloorKind = (NavFloorKind) reader.ReadUInt16()
+                    GameBoxYPosition = reader.ReadSingle(),
+                    DistanceToNearestObstacle = reader.ReadByte(), //---| 1
+                    FloorKind = (NavFloorKind) reader.ReadByte()  //----| 2
                 };
+                _ = reader.ReadBytes(2); //-----------------------------| ^ to complete 4-byte alignment
             }
 
             return new NavTileLayer()

@@ -73,25 +73,23 @@ namespace Pal3.Actor
                 actor.Info.GameBoxXPosition,
                 actor.Info.GameBoxYPosition,
                 actor.Info.GameBoxZPosition));
-
-            Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
+            
             if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
-                _tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
+                _tilemap.TryGetTile(initPosition, _currentLayerIndex, out NavTile tile))
             {
-                NavTile tile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
-
                 if (tile.IsWalkable())
                 {
                     transform.position = new Vector3(initPosition.x,
-                        tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                        tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
                         initPosition.z);
                 }
                 else
                 {
+                    Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
                     // Snap to the nearest adjacent tile if exists
-                    var nextToWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
+                    var hasAdjacentWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
                         _currentLayerIndex, out Vector2Int nearestTile);
-                    transform.position = nextToWalkableTile ?
+                    transform.position = hasAdjacentWalkableTile ?
                         _tilemap.GetWorldPosition(nearestTile, _currentLayerIndex) :
                         initPosition;
                 }
@@ -163,22 +161,21 @@ namespace Pal3.Actor
             if (_isDuringCollision && _actionController.GetRigidBody() is {isKinematic: false})
             {
                 Vector3 currentPosition = transform.position;
-                Vector2Int tilePosition = _tilemap.GetTilePosition(currentPosition, _currentLayerIndex);
-                if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
+
+                if (!_tilemap.TryGetTile(currentPosition, _currentLayerIndex, out NavTile tile))
                 {
                     transform.position = _lastKnownValidPositionWhenCollisionEnter;
                 }
                 else
                 {
-                    NavTile currentTile = _tilemap.GetTile(tilePosition, _currentLayerIndex);
-                    if (!currentTile.IsWalkable())
+                    if (!tile.IsWalkable())
                     {
                         transform.position = _lastKnownValidPositionWhenCollisionEnter;
                     }
                     else
                     {
                         var adjustedPosition = new Vector3(currentPosition.x,
-                            currentTile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                            tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
                             currentPosition.z);
                         transform.position = adjustedPosition;
                     }
@@ -193,8 +190,7 @@ namespace Pal3.Actor
             Vector3 currentActorPosition = transform.position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
             
-            if (_tilemap.IsTilePositionInsideTileMap(currentTilePosition, _currentLayerIndex) &&
-                _tilemap.GetTile(currentActorPosition, _currentLayerIndex).IsWalkable())
+            if (_tilemap.TryGetTile(currentActorPosition, _currentLayerIndex, out NavTile tile) && tile.IsWalkable())
             {
                 _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
             }
@@ -236,16 +232,20 @@ namespace Pal3.Actor
 
         public void PortalToPosition(Vector3 position, int layerIndex)
         {
-            if (IsNotObstacleAtLayer(position, layerIndex, out var yPosition))
+            if (_tilemap.TryGetTile(position, layerIndex, out NavTile tile) && tile.IsWalkable())
             {
                 _currentPath?.Clear();
                 _actionController.PerformAction(_actor.GetIdleAction());
                 SetNavLayer(layerIndex);
-                transform.position = new Vector3(position.x, yPosition, position.z);
+                transform.position = new Vector3(
+                    position.x,
+                    tile.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit,
+                    position.z);
 
-                Debug.Log($"Portal to: " +
-                          $"Layer: {GetCurrentLayerIndex()} " +
-                          $"Tile position: {_tilemap.GetTilePosition(position, layerIndex)}");
+                Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
+                Debug.LogWarning($"Portal to: {position}, " +
+                                 $"layer: {layerIndex}, " +
+                                 $"tile: {tilePosition} DistanceToNearByObstacle: {tile.DistanceToNearestObstacle}, FloorKind: {tile.FloorKind}");
             }
         }
 
@@ -255,7 +255,8 @@ namespace Pal3.Actor
             var targetPositionFound = false;
             if (tapPoints.ContainsKey(_currentLayerIndex))
             {
-                if (IsNotObstacleAtLayer(tapPoints[_currentLayerIndex], _currentLayerIndex, out _))
+                if (_tilemap.TryGetTile(tapPoints[_currentLayerIndex], _currentLayerIndex, out NavTile tile) &&
+                    tile.IsWalkable())
                 {
                     targetPosition = tapPoints[_currentLayerIndex];
                     targetPositionFound = true;
@@ -291,17 +292,6 @@ namespace Pal3.Actor
             // Check nearby 8 directions
             return Enum.GetValues(typeof(Direction)).Cast<Direction>().Any(direction =>
                 _tilemap.IsInsidePortalArea(tilePosition + DirectionUtils.ToVector2Int(direction), layerIndex));
-        }
-
-        private bool IsNotObstacleAtLayer(Vector3 position, int layerIndex, out float y)
-        {
-            y = 0;
-            Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
-            if (!_tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) return false;
-            NavTile tile = _tilemap.GetTile(tilePosition, layerIndex);
-            if (!tile.IsWalkable()) return false;
-            y = tile.Y / GameBoxInterpreter.GameBoxUnitToUnityUnit;
-            return true;
         }
 
         public MovementResult MoveTowards(Vector3 targetPosition, int movementMode, bool ignoreObstacle = false)
@@ -360,9 +350,10 @@ namespace Pal3.Actor
             newYPosition = 0f;
 
             // New position is not blocked at current layer
-            if (IsNotObstacleAtLayer(newPosition, _currentLayerIndex, out var currentLayerY))
+            if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
+                tileAtCurrentLayer.IsWalkable())
             {
-                newYPosition = currentLayerY;
+                newYPosition = tileAtCurrentLayer.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit;
                 return true;
             }
 
@@ -371,16 +362,19 @@ namespace Pal3.Actor
             var nextLayer = (_currentLayerIndex + 1) % 2;
 
             // New position is not blocked at next layer and y offset is within range
-            if (IsNotObstacleAtLayer(newPosition, nextLayer, out var nextLayerY))
+            if (_tilemap.TryGetTile(newPosition, nextLayer, out NavTile tileAtNextLayer) &&
+                tileAtNextLayer.IsWalkable())
             {
-                if (Mathf.Abs(currentPosition.y - nextLayerY) > MAX_CROSS_LAYER_Y_DIFFERENTIAL)
+                var yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                
+                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_CROSS_LAYER_Y_DIFFERENTIAL)
                 {
                     return false;
                 }
 
                 // Switching layer
                 SetNavLayer(nextLayer);
-                newYPosition = nextLayerY;
+                newYPosition = yPositionAtNextLayer;
                 return true;
             }
 
@@ -469,12 +463,12 @@ namespace Pal3.Actor
             string specialAction = default)
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
-            Vector2Int fromTile = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+            Vector2Int fromTilePosition = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
             var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Info.Id});
 
             var pathFindingThread = new Thread(() =>
             {
-                path = _tilemap.FindPathToTilePositionThreadSafe(fromTile,
+                path = _tilemap.FindPathToTilePositionThreadSafe(fromTilePosition,
                     new Vector2Int(position.x, position.y), _currentLayerIndex, obstacles);
             })
             {
@@ -504,7 +498,7 @@ namespace Pal3.Actor
                 else
                 {
                     _movementWaiter?.CancelWait();
-                    Debug.LogError($"Failed to find path to tile position: {position}");
+                    Debug.LogError($"Failed to find path from tile position {fromTilePosition} to tile position: {position}");
                 }
                 yield break;
             }

@@ -162,11 +162,9 @@ namespace Pal3.Player
             var sfxPrefix = movementAction == ActorActionType.Walk ? "we021" : "we022";
 
             Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
-            if ((_lastKnownTilePosition.HasValue && _lastKnownLayerIndex.HasValue) &&
-                tileMap.IsTilePositionInsideTileMap(_lastKnownTilePosition.Value, _lastKnownLayerIndex.Value))
+            if ((_lastKnownPosition.HasValue && _lastKnownLayerIndex.HasValue) &&
+                tileMap.TryGetTile(_lastKnownPosition.Value, _lastKnownLayerIndex.Value, out NavTile tile))
             {
-                NavTile tile = tileMap.GetTile(_lastKnownTilePosition.Value, _lastKnownLayerIndex.Value);
-            
                 return tile.FloorKind switch
                 {
                     NavFloorKind.Grass => sfxPrefix + 'b',
@@ -456,11 +454,12 @@ namespace Pal3.Player
             {
                 RaycastHit hit = _raycastHits[i];
                 var layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
-
-                Vector2Int tilePosition = tilemap.GetTilePosition(hit.point, layerIndex);
-                if (!tilemap.IsTilePositionInsideTileMap(tilePosition, layerIndex)) continue;
-                //if (!tilemap.GetTile(tilePosition, layerIndex).IsWalkable()) continue;
-
+                
+                if (!tilemap.TryGetTile(hit.point, layerIndex, out NavTile _))
+                {
+                    continue;
+                }
+                
                 Vector3 cameraPosition = _camera.transform.position;
                 var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
 

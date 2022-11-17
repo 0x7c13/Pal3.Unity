@@ -94,10 +94,11 @@ namespace Pal3.Scene.SceneObjects
                 GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
-                var timeScale = 2.5f; // Make the animation 2.5X faster for better user experience
+                var timeScale = 2f; // Make the animation 2X faster for better user experience
                 float animationDuration = cvdModelRenderer.GetAnimationDuration(timeScale);
                 cvdModelRenderer.PlayAnimation(timeScale: timeScale, loopCount: 1);
-                Invoke(nameof(OnAnimationFinished), animationDuration);
+                // Don't wait for the whole door animation to finish, just wait for 60% of it (good enough).
+                Invoke(nameof(OnAnimationFinished), animationDuration * 0.6f);
             }
             else // Execute script directly for other auto triggers
             {
