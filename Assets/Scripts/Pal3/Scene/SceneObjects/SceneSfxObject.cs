@@ -30,16 +30,13 @@ namespace Pal3.Scene.SceneObjects
             GameObject sceneGameObject = base.Activate(gameResourceProvider, tintColor);
 
             // We want some random delay before playing the scene sfx
-            // since there might be more than one audio source in the scene
-            // playing the exact same audio sfx, which will cause "Comb filter" effect.
-            var startDelay = Random.Range(0f, 1f);
+            // since there might be more than one audio source in the current scene
+            // playing the exact same audio sfx, which could potentially cause unwanted
+            // "Comb filter" effect.
+            float startDelay = Random.Range(0f, 1f);
 
-            var interval = 0f;
-            if (Info.Parameters[0] > 0)
-            {
-                interval = ((float) Info.Parameters[0]) / 1000f;
-            }
-            
+            float interval = Info.Parameters[0] > 0 ? Info.Parameters[0] / 1000f : 0f;
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new AttachSfxToGameObjectRequest(sceneGameObject,
                     SfxName,

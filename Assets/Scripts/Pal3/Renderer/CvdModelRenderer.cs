@@ -67,6 +67,11 @@ namespace Pal3.Renderer
         {
             return _currentTime;
         }
+
+        public void SetCurrentTime(float time)
+        {
+            UpdateMesh(time);
+        }
         
         public float GetAnimationDuration(float timeScale = 1f)
         {

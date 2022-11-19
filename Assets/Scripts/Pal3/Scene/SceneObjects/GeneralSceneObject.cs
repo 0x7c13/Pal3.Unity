@@ -19,7 +19,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.WaterSurfaceMechanism)]
     [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
     [ScnSceneObject(ScnSceneObjectType.ElevatorSwitch)]
-    [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
     [ScnSceneObject(ScnSceneObjectType.Elevator)]
     [ScnSceneObject(ScnSceneObjectType.ElevatorPedal)]
     [ScnSceneObject(ScnSceneObjectType.RotatingStoneBeam)]
@@ -66,6 +65,5 @@ namespace Pal3.Scene.SceneObjects
             
             return sceneGameObject;
         }
-
     }
 }

@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Renderer;
     using Data;
     using MetaData;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
@@ -50,7 +51,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerInteractionTriggeredNotification());
+                new GameStateChangeRequest(GameState.Cutscene));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -60,33 +61,33 @@ namespace Pal3.Scene.SceneObjects
 
     internal class InvestigationTriggerController : MonoBehaviour
     {
-        private InvestigationTriggerObject _investigationTriggerBox;
+        private InvestigationTriggerObject _investigationTriggerObject;
         private Bounds _bounds;
 
-        public void Init(InvestigationTriggerObject investigationTriggerBox)
+        public void Init(InvestigationTriggerObject investigationTriggerObject)
         {
-            _investigationTriggerBox = investigationTriggerBox;
+            _investigationTriggerObject = investigationTriggerObject;
 
             // 2: 模型触发
-            if (investigationTriggerBox.Info.TriggerType == 2 &&
+            if (_investigationTriggerObject.Info.TriggerType == 2 &&
                 GetComponentInChildren<StaticMeshRenderer>() is { } meshRenderer)
             {
                 _bounds = meshRenderer.GetRendererBounds();
             }
             else
             {
-                _bounds.SetMinMax(GameBoxInterpreter.ToUnityPosition(_investigationTriggerBox.Info.BoundBox.Min),
-                    GameBoxInterpreter.ToUnityPosition(_investigationTriggerBox.Info.BoundBox.Max));
+                _bounds.SetMinMax(GameBoxInterpreter.ToUnityPosition(_investigationTriggerObject.Info.BoundBox.Min),
+                    GameBoxInterpreter.ToUnityPosition(_investigationTriggerObject.Info.BoundBox.Max));
             }
 
             //Utility.DrawBounds(_bounds);
 
             // Set active Y position of the lifting mechanism
             // TODO: impl of the lifting logic
-            if (_investigationTriggerBox.Info.Type == ScnSceneObjectType.LiftingMechanism)
+            if (_investigationTriggerObject.Info.Type == ScnSceneObjectType.LiftingMechanism)
             {
                 Vector3 oldPosition = transform.position;
-                float gameBoxYPosition = _investigationTriggerBox.Info.Parameters[0];
+                float gameBoxYPosition = _investigationTriggerObject.Info.Parameters[0];
                 // A small Y offset to ensure actor shadow is properly rendered
                 float activeYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
                 transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);

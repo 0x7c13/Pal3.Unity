@@ -51,9 +51,9 @@ namespace Pal3.Scene.SceneObjects
     {
         private ChestObject _chestObject;
         
-        public void Init(ChestObject rareChestObject)
+        public void Init(ChestObject chestObject)
         {
-            _chestObject = rareChestObject;
+            _chestObject = chestObject;
         }
         
         public void Interact()

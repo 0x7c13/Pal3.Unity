@@ -19,7 +19,7 @@ namespace Pal3.State
         ICommandExecutor<PlayVideoCommand>,
         ICommandExecutor<VideoEndedNotification>,
         ICommandExecutor<PlayerEnableInputCommand>,
-        ICommandExecutor<PlayerInteractionTriggeredNotification>,
+        ICommandExecutor<GameStateChangeRequest>,
         ICommandExecutor<DialogueRenderingStartedNotification>,
         ICommandExecutor<ScriptFinishedRunningNotification>,
         ICommandExecutor<ScriptFailedToRunNotification>,
@@ -114,9 +114,9 @@ namespace Pal3.State
             }
         }
 
-        public void Execute(PlayerInteractionTriggeredNotification notification)
+        public void Execute(GameStateChangeRequest request)
         {
-            GoToState(GameState.Cutscene);
+            GoToState(request.NewState);
         }
 
         public void Execute(DialogueRenderingStartedNotification command)

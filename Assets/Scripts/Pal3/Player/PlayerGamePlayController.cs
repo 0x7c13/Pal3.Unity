@@ -459,7 +459,7 @@ namespace Pal3.Player
                     interactionAction = () =>
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(
-                            new PlayerInteractionTriggeredNotification());
+                            new GameStateChangeRequest(GameState.Cutscene));
                         CommandDispatcher<ICommand>.Instance.Dispatch(
                             new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
                         Actor actor = _sceneManager.GetCurrentScene().GetActor(actorInfo.Key);

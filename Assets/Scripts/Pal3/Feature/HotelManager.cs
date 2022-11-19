@@ -12,6 +12,7 @@ namespace Pal3.Feature
     using MetaData;
     using Scene;
     using Script;
+    using State;
     using UnityEngine;
 
     public sealed class HotelManager : MonoBehaviour,
@@ -39,8 +40,7 @@ namespace Pal3.Feature
         public void Rest(string sceneFileName, string sceneName, uint afterRestTalkScript)
         {
             _sceneManager.LoadScene(sceneFileName, sceneName);
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerInteractionTriggeredNotification());
+            CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
             _scriptManager.AddScript(afterRestTalkScript);
         }
 

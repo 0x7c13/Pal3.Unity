@@ -5,8 +5,15 @@
 
 namespace Pal3.Command.InternalCommands
 {
-    public class PlayerInteractionTriggeredNotification : ICommand
+    using State;
+
+    public class GameStateChangeRequest : ICommand
     {
-        public PlayerInteractionTriggeredNotification() { }
+        public GameStateChangeRequest(GameState newState)
+        {
+            NewState = newState;
+        }
+        
+        public GameState NewState { get; }
     }
 }

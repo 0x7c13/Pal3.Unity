@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Climbable)]
@@ -45,7 +46,7 @@ namespace Pal3.Scene.SceneObjects
             else
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerInteractionTriggeredNotification());
+                    new GameStateChangeRequest(GameState.Cutscene));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptRunCommand((int)Info.ScriptId));
             }

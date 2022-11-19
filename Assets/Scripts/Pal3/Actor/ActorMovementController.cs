@@ -18,6 +18,7 @@ namespace Pal3.Actor
     using Core.GameBox;
     using MetaData;
     using Scene;
+    using Scene.SceneObjects;
     using Script.Waiter;
     using UnityEngine;
     using Random = UnityEngine.Random;
@@ -57,6 +58,8 @@ namespace Pal3.Actor
 
         private bool _isDuringCollision;
         private Vector3 _lastKnownValidPositionWhenCollisionEnter;
+        
+        private StandingPlatformController _activeStandingPlatform;
 
         private Func<int, byte[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
 
@@ -217,6 +220,23 @@ namespace Pal3.Actor
             }
         }
 
+        private void OnTriggerEnter(Collider triggerCollider)
+        {
+            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
+            {
+                _activeStandingPlatform = standingPlatformController;
+            }
+        }
+
+        private void OnTriggerExit(Collider triggerCollider)
+        {
+            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController &&
+                _activeStandingPlatform == standingPlatformController)
+            {
+                _activeStandingPlatform = null;
+            }
+        }
+
         public int GetCurrentLayerIndex()
         {
             return _currentLayerIndex;
@@ -351,6 +371,22 @@ namespace Pal3.Actor
         {
             newYPosition = 0f;
 
+            // Actor is on top of a platform
+            if (_activeStandingPlatform != null)
+            {
+                var rendererBounds = _activeStandingPlatform.GetRendererBounds();
+                
+                // A little bit lower than the platform to make sure the bounds check pass when (X,Z) is inside the platform
+                var targetYPosition = _activeStandingPlatform.GetPlatformHeight() - 0.05f;
+                
+                // Make sure actor is on top of the platform
+                if (rendererBounds.Contains(new Vector3(newPosition.x, targetYPosition, newPosition.z)))
+                {
+                    newYPosition = targetYPosition;
+                    return true;   
+                }
+            }
+            
             // New position is not blocked at current layer
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())

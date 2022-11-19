@@ -39,8 +39,8 @@ namespace Pal3.Scene.SceneObjects
             _cvdModelRenderer = gameObject.GetComponent<CvdModelRenderer>();
             if (_cvdModelRenderer != null)
             {
+                Bounds bounds = _cvdModelRenderer.GetMeshBounds();
                 _collider = gameObject.AddComponent<BoxCollider>();
-                Bounds bounds = gameObject.GetComponent<CvdModelRenderer>().GetMeshBounds();
                 _collider.center = bounds.center;
                 _collider.size = bounds.size;
                 _collider.isTrigger = true;
