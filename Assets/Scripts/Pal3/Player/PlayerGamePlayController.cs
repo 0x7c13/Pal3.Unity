@@ -356,7 +356,7 @@ namespace Pal3.Player
                 return;
             }
 
-            InteractWithNearestInteractable();
+            InteractWithFacingInteractable();
         }
         
         private void SwitchToNextPlayerActorPerformed(InputAction.CallbackContext _)
@@ -405,13 +405,17 @@ namespace Pal3.Player
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(previousPlayerActorId));
         }
 
-        private void InteractWithNearestInteractable()
+        /// <summary>
+        /// Interact with the nearby interactable object by the player actor facing direction.
+        /// </summary>
+        private void InteractWithFacingInteractable()
         {
-            Vector3 position = _playerActorMovementController.GetWorldPosition();
+            Vector3 actorFacingDirection = _playerActorMovementController.transform.forward;
+            Vector3 actorPosition = _playerActorMovementController.GetWorldPosition();
             Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
-            var nearestInteractableDistance = float.MaxValue;
+            float nearestInteractableFacingAngle = 181f;
             Action interactionAction = null;
 
             foreach (var sceneObjectInfo in
@@ -423,24 +427,23 @@ namespace Pal3.Player
                     sceneObject.Info.OnLayer != currentLayerIndex) continue;
 
                 Vector3 sceneObjectPosition = sceneObjectInfo.Value.transform.position;
-                var distance = Vector2.Distance(new Vector2(position.x, position.z),
+                float distanceToObject = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
                     new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
+                Vector3 actorToObjectFacing = sceneObjectPosition - actorPosition;
+                float facingAngle = Vector2.Angle(
+                    new Vector2(actorFacingDirection.x, actorFacingDirection.z),
+                    new Vector2(actorToObjectFacing.x, actorToObjectFacing.z));
 
-                if (sceneObject.IsInteractable(distance, tilePosition) && distance < nearestInteractableDistance)
+                if (sceneObject.IsInteractable(distanceToObject, tilePosition) &&
+                    facingAngle < nearestInteractableFacingAngle)
                 {
-                    nearestInteractableDistance = distance;
+                    nearestInteractableFacingAngle = facingAngle;
                     interactionAction = sceneObject.Interact;
                 }
             }
 
-            // Scene object interaction have higher priority than actor interaction
-            if (interactionAction != null)
-            {
-                interactionAction.Invoke();
-                return;
-            }
-            
-            foreach (var actorInfo in _sceneManager.GetCurrentScene().GetAllActorGameObjects())
+            foreach (var actorInfo in
+                     _sceneManager.GetCurrentScene().GetAllActorGameObjects())
             {
                 var actorController = actorInfo.Value.GetComponent<ActorController>();
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
@@ -449,13 +452,19 @@ namespace Pal3.Player
                     actorInfo.Key == (byte)_playerManager.GetPlayerActor() ||
                     !actorController.IsActive) continue;
 
-                Vector3 actorPosition = actorInfo.Value.transform.position;
-                var distance = Vector2.Distance(new Vector2(position.x, position.z),
-                    new Vector2(actorPosition.x, actorPosition.z));
+                Vector3 targetActorPosition = actorController.transform.position;
+                var distance = Vector2.Distance(
+                    new Vector2(actorPosition.x, actorPosition.z),
+                    new Vector2(targetActorPosition.x, targetActorPosition.z));
+                Vector3 actorToActorFacing = targetActorPosition - actorPosition;
+                float facingAngle = Vector2.Angle(
+                    new Vector2(actorFacingDirection.x, actorFacingDirection.z),
+                    new Vector2(actorToActorFacing.x, actorToActorFacing.z));
 
-                if (actorController.IsInteractable(distance) && distance < nearestInteractableDistance)
+                if (actorController.IsInteractable(distance) &&
+                    facingAngle < nearestInteractableFacingAngle)
                 {
-                    nearestInteractableDistance = distance;
+                    nearestInteractableFacingAngle = facingAngle;
                     interactionAction = () =>
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -816,7 +825,7 @@ namespace Pal3.Player
 
         public void Execute(PlayerInteractionRequest command)
         {
-            InteractWithNearestInteractable();
+            InteractWithFacingInteractable();
         }
 
         public void Execute(ActorSetTilePositionCommand command)

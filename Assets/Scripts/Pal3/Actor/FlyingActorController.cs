@@ -20,7 +20,7 @@ namespace Pal3.Actor
         public const float MaxFlySpeed = 11f;
         
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
-        private const float MAX_TARGET_DISTANCE = 10f;
+        private const float MAX_TARGET_DISTANCE = 20f;
         
         private Actor _actor;
         private ActorActionController _actionController;
@@ -51,7 +51,7 @@ namespace Pal3.Actor
             // In case the target position is too far away
             if (Vector3.Distance(transform.position, targetPosition) > MAX_TARGET_DISTANCE)
             {
-                transform.position = (targetPosition - transform.position).normalized * MAX_TARGET_DISTANCE + targetPosition;
+                transform.position = (transform.position - targetPosition).normalized * MAX_TARGET_DISTANCE + targetPosition;
             }
 
             var waiter = new WaitUntilCanceled(this);

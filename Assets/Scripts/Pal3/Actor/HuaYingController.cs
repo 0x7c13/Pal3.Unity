@@ -22,8 +22,8 @@ namespace Pal3.Actor
         private const float ROTATION_SPEED = 10f;
         private const float ROTATION_SYNCING_DISTANCE = 2f;
         private const float FOLLOW_TARGET_MIN_DISTANCE = 1f;
-        private const float FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE = 6f;
-        private const float FOLLOW_TARGET_MAX_DISTANCE = 10f;
+        private const float FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE = 8f;
+        private const float FOLLOW_TARGET_MAX_DISTANCE = 15f;
         private const float FOLLOW_TARGET_X_OFFSET = -0.8f;
         private const float FOLLOW_TARGET_Y_OFFSET = -0.8f;
 
