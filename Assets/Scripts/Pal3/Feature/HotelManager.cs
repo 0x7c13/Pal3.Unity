@@ -41,6 +41,7 @@ namespace Pal3.Feature
         {
             _sceneManager.LoadScene(sceneFileName, sceneName);
             CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
             _scriptManager.AddScript(afterRestTalkScript);
         }
 
@@ -64,7 +65,8 @@ namespace Pal3.Feature
                 if (vars[ScriptConstants.MainStoryVariableName] == 120301)
                 {
                     vars[ScriptConstants.MainStoryVariableName] = 120302;
-                    _scriptManager.AddScript((uint)command.AfterRestScriptId);
+                    Rest("Q13", "n06", (uint)command.AfterRestScriptId);
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new CameraSetDefaultTransformCommand(2));
                 }
             }
             #elif PAL3A

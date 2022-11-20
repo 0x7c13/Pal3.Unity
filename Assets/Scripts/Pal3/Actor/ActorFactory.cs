@@ -56,7 +56,7 @@ namespace Pal3.Actor
             switch (actor.Info.Id)
             {
                 case (byte)PlayerActorId.TaoZi:
-                    actorGameObject.AddComponent<FlyingActorController>().Init(actor, actionController);
+                    actorGameObject.AddComponent<FlyingActorController>().Init(actor, actorController, actionController);
                     break;
             }
             #endif

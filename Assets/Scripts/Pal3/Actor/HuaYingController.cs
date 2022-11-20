@@ -42,11 +42,11 @@ namespace Pal3.Actor
         private bool _followTarget = true;
         private int _currentMode = 1; // defaults to follow target actor
 
-        public void Init(Actor actor,
+        public new void Init(Actor actor,
             ActorController actorController,
             ActorActionController actionController)
         {
-            base.Init(actor, actionController);
+            base.Init(actor, actorController, actionController);
             _actor = actor;
             _actorController = actorController;
             _actorActionController = actionController;

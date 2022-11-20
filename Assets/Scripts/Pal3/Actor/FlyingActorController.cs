@@ -10,6 +10,7 @@ namespace Pal3.Actor
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
+    using Player;
     using Script.Waiter;
     using UnityEngine;
 
@@ -23,11 +24,13 @@ namespace Pal3.Actor
         private const float MAX_TARGET_DISTANCE = 20f;
         
         private Actor _actor;
+        private ActorController _actorController;
         private ActorActionController _actionController;
 
-        public void Init(Actor actor, ActorActionController actionController)
+        public void Init(Actor actor, ActorController actorController, ActorActionController actionController)
         {
             _actor = actor;
+            _actorController = actorController;
             _actionController = actionController;
         }
 
@@ -47,7 +50,15 @@ namespace Pal3.Actor
                 command.GameBoxXPosition,
                 command.GameBoxYPosition,
                 command.GameBoxZPosition));
-            
+
+            // If actor is inactive or at it's init position, just teleport to target position
+            if (!_actorController.IsActive ||
+                Vector3.Distance(transform.position, PlayerActorNpcInfoFactory.ActorInitPosition) < float.Epsilon)
+            {
+                transform.position = targetPosition;
+                return;
+            }
+
             // In case the target position is too far away
             if (Vector3.Distance(transform.position, targetPosition) > MAX_TARGET_DISTANCE)
             {
