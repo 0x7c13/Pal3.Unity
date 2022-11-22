@@ -121,11 +121,11 @@ namespace Core.DataReader.Pol
         private static PolMesh ReadMeshData(BinaryReader reader, int version, int codepage)
         #endif
         {
-            var boundBox = new GameBoxAABBox()
-            {
-                Min = reader.ReadVector3(),
-                Max = reader.ReadVector3(),
-            };
+            var bounds = new Bounds();
+            bounds.SetMinMax(
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+            
             var vertexTypeFlag = reader.ReadUInt32();
             var numberOfVertices = reader.ReadInt32();
 
@@ -221,7 +221,7 @@ namespace Core.DataReader.Pol
 
             return new PolMesh
             {
-                BoundBox = boundBox,
+                Bounds = bounds,
                 VertexFvfFlag = vertexTypeFlag,
                 VertexInfo = vertexInfo,
                 Textures = textureInfos

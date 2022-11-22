@@ -10,7 +10,7 @@ namespace Pal3.Effect
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    public class PortalEffect : MonoBehaviour, IEffect, IDisposable
+    public class PortalEffect : MonoBehaviour, IEffect
     {
         #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";

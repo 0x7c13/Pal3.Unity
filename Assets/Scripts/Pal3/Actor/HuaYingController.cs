@@ -153,7 +153,7 @@ namespace Pal3.Actor
 
         private void FindAndSetTarget()
         {
-            _target = _sceneManager.GetCurrentScene().GetActorGameObject((byte) FOLLOW_ACTOR_ID);
+            _target = _sceneManager.GetCurrentScene().GetActorGameObject((int) FOLLOW_ACTOR_ID);
             _targetActorController = _target.GetComponent<ActorController>();
             _targetActorActionController = _target.GetComponent<ActorActionController>();
             _isTargetRegistered = true;

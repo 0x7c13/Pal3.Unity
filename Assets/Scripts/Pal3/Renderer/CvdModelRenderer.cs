@@ -19,7 +19,7 @@ namespace Pal3.Renderer
     /// <summary>
     /// CVD(.cvd) model renderer
     /// </summary>
-    public class CvdModelRenderer : MonoBehaviour
+    public class CvdModelRenderer : MonoBehaviour, IDisposable
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
         private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
@@ -496,7 +496,7 @@ namespace Pal3.Renderer
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             StopAnimation();
             

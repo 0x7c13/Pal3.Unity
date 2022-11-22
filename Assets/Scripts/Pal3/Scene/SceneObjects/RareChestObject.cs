@@ -45,6 +45,18 @@ namespace Pal3.Scene.SceneObjects
             _isOpened = true;
             _rareChestObjectController.Interact();
         }
+
+        public override void Deactivate()
+        {
+            _isOpened = false;
+            
+            if (_rareChestObjectController != null)
+            {
+                Object.Destroy(_rareChestObjectController.gameObject);
+            }
+            
+            base.Deactivate();
+        }
     }
 
     internal class RareChestObjectController : MonoBehaviour

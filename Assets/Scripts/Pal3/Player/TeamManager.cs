@@ -76,7 +76,7 @@ namespace Pal3.Player
         public void Execute(TeamOpenCommand command)
         {
             PlayerActorId playerActorId = _playerManager.GetPlayerActor();
-            GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((byte)playerActorId);
+            GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
             var currentNavLayer = playerActor.GetComponent<ActorMovementController>().GetCurrentLayerIndex();
 
             Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
@@ -89,7 +89,7 @@ namespace Pal3.Player
             foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
             #endif
             {
-                GameObject actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)actor);
+                GameObject actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((int)actor);
                 actorObject.GetComponent<ActorController>().IsActive = true;
                 Vector3 spawnPosition = CalculateSpawnPosition(playerActor.transform, index);
                 Vector2Int tilePosition = tilemap.GetTilePosition(spawnPosition, currentNavLayer);
@@ -102,7 +102,7 @@ namespace Pal3.Player
             #if PAL3
             if (IsActorInTeam(PlayerActorId.XueJian))
             {
-                GameObject huaYing = _sceneManager.GetCurrentScene().GetActorGameObject((byte)PlayerActorId.HuaYing);
+                GameObject huaYing = _sceneManager.GetCurrentScene().GetActorGameObject((int)PlayerActorId.HuaYing);
                 huaYing.GetComponent<ActorMovementController>().SetNavLayer(currentNavLayer);
             }
             #endif
@@ -124,7 +124,7 @@ namespace Pal3.Player
             #if PAL3A
             // Need to add all active player actors into the team within certain radius
             {
-                GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((byte)playerActorId);
+                GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
                 Vector3 playerActorPosition = playerActor.transform.position; 
                 
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();

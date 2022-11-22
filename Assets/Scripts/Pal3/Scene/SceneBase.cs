@@ -33,8 +33,8 @@ namespace Pal3.Scene
         protected (PolFile PolFile, ITextureResourceProvider TextureProvider) ScenePolyMesh;
         protected (CvdFile CvdFile, ITextureResourceProvider TextureProvider)? SceneCvdMesh;
 
-        protected readonly Dictionary<byte, SceneObject> SceneObjects = new ();
-        protected readonly Dictionary<byte, Actor> Actors = new ();
+        protected readonly Dictionary<int, SceneObject> SceneObjects = new ();
+        protected readonly Dictionary<int, Actor> Actors = new ();
 
         private GameResourceProvider _resourceProvider;
 

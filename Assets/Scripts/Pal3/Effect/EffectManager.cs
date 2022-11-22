@@ -101,7 +101,7 @@ namespace Pal3.Effect
                 }
                 else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
                 {
-                    parent = currentScene.GetActorGameObject((byte)actorCommand.ActorId).transform;
+                    parent = currentScene.GetActorGameObject(actorCommand.ActorId).transform;
                 }
 
                 if (parent != null)
@@ -131,11 +131,11 @@ namespace Pal3.Effect
                 // 南宫煌切换为狼妖形态特效
                 case 164:
                 {
-                    Actor actor = currentScene.GetActor((byte)actorId);
+                    Actor actor = currentScene.GetActor(actorId);
                     actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameObject((byte)actorId)
+                        var actorActionController = currentScene.GetActorGameObject(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }
@@ -144,11 +144,11 @@ namespace Pal3.Effect
                 // 南宫煌切换为人形态特效
                 case 315:
                 {
-                    Actor actor = currentScene.GetActor((byte)actorId);
+                    Actor actor = currentScene.GetActor(actorId);
                     actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameObject((byte)actorId)
+                        var actorActionController = currentScene.GetActorGameObject(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }

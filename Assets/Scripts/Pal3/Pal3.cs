@@ -435,7 +435,7 @@ namespace Pal3
                         $"{currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
-                .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
 
             info.Append($"----- Player info -----\n" +
                         $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +

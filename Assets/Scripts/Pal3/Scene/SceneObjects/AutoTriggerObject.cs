@@ -29,7 +29,8 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<AutoTriggerObjectController>().Init(this);
@@ -114,7 +115,7 @@ namespace Pal3.Scene.SceneObjects
 
         public void Execute(PlayerActorTilePositionUpdatedNotification notification)
         {
-            if (notification.LayerIndex != _autoTrigger.Info.OnLayer || notification.MovedByScript) return;
+            if (notification.LayerIndex != _autoTrigger.Info.LayerIndex || notification.MovedByScript) return;
 
             bool isInsideTriggerArea = GameBoxInterpreter.IsPositionInsideRect(
                 _autoTrigger.Info.TileMapTriggerRect, notification.Position);

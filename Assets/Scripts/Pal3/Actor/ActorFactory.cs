@@ -19,7 +19,7 @@ namespace Pal3.Actor
             Actor actor,
             Tilemap tilemap,
             Color tintColor,
-            Func<int, byte[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
+            Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}")
             {
@@ -43,19 +43,19 @@ namespace Pal3.Actor
 
             // Attach additional controller(s) to special actor
             #if PAL3
-            switch (actor.Info.Id)
+            switch ((PlayerActorId)actor.Info.Id)
             {
-                case (byte)PlayerActorId.HuaYing:
+                case PlayerActorId.HuaYing:
                     actorGameObject.AddComponent<HuaYingController>().Init(actor, actorController, actionController);
                     break;
-                case (byte)PlayerActorId.LongKui:
+                case PlayerActorId.LongKui:
                     actorGameObject.AddComponent<LongKuiController>().Init(actor, actionController);
                     break;
             }
             #elif PAL3A
-            switch (actor.Info.Id)
+            switch ((PlayerActorId)actor.Info.Id)
             {
-                case (byte)PlayerActorId.TaoZi:
+                case PlayerActorId.TaoZi:
                     actorGameObject.AddComponent<FlyingActorController>().Init(actor, actorController, actionController);
                     break;
             }

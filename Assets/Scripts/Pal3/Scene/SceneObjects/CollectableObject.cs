@@ -49,5 +49,11 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
         }
+
+        public override void Deactivate()
+        {
+            _isCollected = false;
+            base.Deactivate();
+        }
     }
 }

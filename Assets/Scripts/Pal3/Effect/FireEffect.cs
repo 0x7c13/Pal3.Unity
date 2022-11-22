@@ -83,6 +83,11 @@ namespace Pal3.Effect
         
         private void OnDisable()
         {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
             if (_sceneObjectRenderer != null)
             {
                 Destroy(_sceneObjectRenderer);

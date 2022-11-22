@@ -238,7 +238,7 @@ namespace Pal3.UI
             bool isAvatarPresented = false;
             
             if (avatarCommand != null &&
-                _sceneManager.GetCurrentScene().GetActor((byte) avatarCommand.ActorId) is { } actor &&
+                _sceneManager.GetCurrentScene().GetActor(avatarCommand.ActorId) is { } actor &&
                 _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName) is { } avatarSprite)
             {
                 isRightAligned = avatarCommand.RightAligned == 1;

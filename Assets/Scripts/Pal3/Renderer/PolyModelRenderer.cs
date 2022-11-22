@@ -18,7 +18,7 @@ namespace Pal3.Renderer
     /// <summary>
     /// Poly(.pol) model renderer
     /// </summary>
-    public class PolyModelRenderer : MonoBehaviour
+    public class PolyModelRenderer : MonoBehaviour, IDisposable
     {
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";
@@ -248,7 +248,7 @@ namespace Pal3.Renderer
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             foreach (Coroutine waterAnimation in _waterAnimations)
             {

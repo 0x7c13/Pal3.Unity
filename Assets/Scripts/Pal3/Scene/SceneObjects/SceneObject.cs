@@ -23,10 +23,12 @@ namespace Pal3.Scene.SceneObjects
     {
         public ScnObjectInfo Info;
         public GraphicsEffect GraphicsEffect { get; }
-        
         public SceneObjectModelType ModelType { get; }
-        
+
+        private IEffect _effectComponent;
+        private GameObject _sceneObjectGameObject;
         private readonly string _modelFilePath;
+        private bool _activated;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
         {
@@ -83,19 +85,21 @@ namespace Pal3.Scene.SceneObjects
         public virtual GameObject Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            var sceneGameObject = new GameObject($"Object_{Info.Id}_{Info.Type}");
+            if (_activated && _sceneObjectGameObject != null) return _sceneObjectGameObject;
+            
+            _sceneObjectGameObject = new GameObject($"Object_{Info.Id}_{Info.Type}");
 
             // Attach SceneObjectInfo to the GameObject for better debuggability
             #if UNITY_EDITOR
-            var infoPresenter = sceneGameObject.AddComponent<SceneObjectInfoPresenter>();
+            var infoPresenter = _sceneObjectGameObject.AddComponent<SceneObjectInfoPresenter>();
             infoPresenter.sceneObjectInfo = Info;
             #endif
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
                 (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
-                var sceneObjectRenderer = sceneGameObject.AddComponent<PolyModelRenderer>();
-                sceneObjectRenderer.Render(poly.PolFile,
+                var modelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
+                modelRenderer.Render(poly.PolFile,
                     resourceProvider.GetMaterialFactory(),
                     poly.TextureProvider,
                     tintColor);
@@ -103,7 +107,7 @@ namespace Pal3.Scene.SceneObjects
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
                 (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
-                var sceneObjectRenderer = sceneGameObject.AddComponent<CvdModelRenderer>();
+                var modelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
 
                 var initTime = 0f;
                 
@@ -114,7 +118,7 @@ namespace Pal3.Scene.SceneObjects
                 //     initTime = cvd.CvdFile.AnimationDuration;
                 // }
 
-                sceneObjectRenderer.Init(cvd.CvdFile,
+                modelRenderer.Init(cvd.CvdFile,
                     resourceProvider.GetMaterialFactory(),
                     cvd.TextureProvider,
                     tintColor,
@@ -122,35 +126,41 @@ namespace Pal3.Scene.SceneObjects
 
                 if (Info.Type == ScnSceneObjectType.General)
                 {
-                    sceneObjectRenderer.PlayAnimation();
+                    modelRenderer.PlayAnimation();
                 }
             }
 
-            sceneGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.GameBoxPosition);
+            _sceneObjectGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.GameBoxPosition);
             #if PAL3
-            sceneGameObject.transform.rotation =
+            _sceneObjectGameObject.transform.rotation =
                 Quaternion.Euler(Info.XRotation, -Info.YRotation, 0f);
             #elif PAL3A
-            sceneGameObject.transform.rotation =
+            _sceneObjectGameObject.transform.rotation =
                 Quaternion.Euler(Info.XRotation, -Info.YRotation, Info.ZRotation);
             #endif
 
             if (GraphicsEffect != GraphicsEffect.None &&
                 EffectTypeResolver.GetEffectComponentType(GraphicsEffect) is {} effectComponentType)
             {
-                Component effectComponent = sceneGameObject.AddComponent(effectComponentType);
+                _effectComponent = _sceneObjectGameObject.AddComponent(effectComponentType) as IEffect;
                 #if PAL3
                 var effectParameter = Info.EffectModelType;
                 #elif PAL3A
                 var effectParameter = (uint)Info.Parameters[5];
                 #endif
                 Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {Info.Id}");
-                (effectComponent as IEffect)!.Init(resourceProvider, effectParameter);   
+                _effectComponent!.Init(resourceProvider, effectParameter);   
             }
 
-            return sceneGameObject;
+            _activated = true;
+            return _sceneObjectGameObject;
         }
 
+        public GameObject GetGameObject()
+        {
+            return _sceneObjectGameObject;
+        }
+        
         public virtual bool IsInteractable(float distance, Vector2Int actorTilePosition)
         {
             return false;
@@ -158,6 +168,27 @@ namespace Pal3.Scene.SceneObjects
 
         public virtual void Interact()
         {
+            // Do nothing
+        }
+        
+        /// <summary>
+        /// Should be called after the child class has finished its own deactivation.
+        /// </summary>
+        public virtual void Deactivate()
+        {
+            if (!_activated) return;
+            
+            _activated = false;
+
+            if (_effectComponent != null)
+            {
+                _effectComponent.Dispose();   
+            }
+
+            if (_sceneObjectGameObject != null)
+            {
+                Object.Destroy(_sceneObjectGameObject);
+            }
         }
     }
 }

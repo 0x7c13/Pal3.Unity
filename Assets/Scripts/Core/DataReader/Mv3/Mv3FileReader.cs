@@ -91,11 +91,12 @@ namespace Core.DataReader.Mv3
         {
             var name = reader.ReadString(64, codepage);
             var numberOfVertices = reader.ReadInt32();
-            var boundBox = new GameBoxAABBox()
-            {
-                Min = reader.ReadVector3(),
-                Max = reader.ReadVector3()
-            };
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+            
             var numberOfFrames = reader.ReadInt32();
             var frames = new Mv3VertFrame[numberOfFrames];
             for (var i = 0; i < numberOfFrames; i++)
@@ -167,11 +168,11 @@ namespace Core.DataReader.Mv3
                 };
             }
             
-            return GetMv3Mesh(name, boundBox, attributes, frames, texCoords);
+            return GetMv3Mesh(name, bounds, attributes, frames, texCoords);
         }
 
         private static Mv3Mesh GetMv3Mesh(string name,
-            GameBoxAABBox boundBox,
+            Bounds bounds,
             Mv3Attribute[] attributes,
             Mv3VertFrame[] vertFrames,
             Vector2[] texCoords)
@@ -219,7 +220,7 @@ namespace Core.DataReader.Mv3
             return new Mv3Mesh
             {
                 Name = name,
-                BoundBox = boundBox,
+                Bounds = bounds,
                 Attributes = attributes,
                 Triangles = triangles,
                 Uvs = uvs,

@@ -26,7 +26,8 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             _rareChestObjectController = sceneGameObject.AddComponent<ChestObjectController>();
@@ -43,7 +44,23 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_isOpened) return;
             _isOpened = true;
-            _rareChestObjectController.Interact();
+            
+            if (_rareChestObjectController != null)
+            {
+                _rareChestObjectController.Interact();
+            }
+        }
+
+        public override void Deactivate()
+        {
+            _isOpened = false;
+            
+            if (_rareChestObjectController != null)
+            {
+                Object.Destroy(_rareChestObjectController);
+            }
+            
+            base.Deactivate();
         }
     }
 

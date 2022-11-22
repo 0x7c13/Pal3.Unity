@@ -39,14 +39,6 @@ namespace Core.GameBox
         public float W;
     }
 
-    // GameBox axis-aligned bounding box
-    [System.Serializable]
-    public struct GameBoxAABBox
-    {
-        public Vector3 Min;
-        public Vector3 Max;
-    }
-
     [System.Serializable]
     public struct GameBoxRect
     {

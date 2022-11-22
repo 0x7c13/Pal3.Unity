@@ -5,9 +5,10 @@
 
 namespace Pal3.Effect
 {
+    using System;
     using Data;
 
-    public interface IEffect
+    public interface IEffect : IDisposable
     {
         public void Init(GameResourceProvider resourceProvider, uint effectParameter);
     }

@@ -774,7 +774,7 @@ namespace Pal3.Camera
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            _lookAtGameObject = _sceneManager.GetCurrentScene().GetActorGameObject((byte)command.ActorId);
+            _lookAtGameObject = _sceneManager.GetCurrentScene().GetActorGameObject(command.ActorId);
         }
 
         public void Execute(CameraFocusOnSceneObjectCommand command)
@@ -782,7 +782,7 @@ namespace Pal3.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             
             _lookAtGameObject = _sceneManager.GetCurrentScene()
-                .GetSceneObjectGameObject((byte)command.SceneObjectId);
+                .GetSceneObject(command.SceneObjectId).GetGameObject();
         }
 
         public void Execute(GameStateChangedNotification command)

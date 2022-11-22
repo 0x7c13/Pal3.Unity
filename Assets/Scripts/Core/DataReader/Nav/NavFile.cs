@@ -58,13 +58,13 @@ namespace Core.DataReader.Nav
         }
     }
 
-    public struct NavLayerNode
-    {
-        public GameBoxAABBox BoundBox;
-        public Vector3[] Triangles;
-        public int Level; // 0: root,  child level = parent level + 1
-        public NavLayerNode[] Children; // 4
-    }
+    // public struct NavLayerNode
+    // {
+    //     public GameBoxAABBox BoundBox;
+    //     public Vector3[] Triangles;
+    //     public int Level; // 0: root,  child level = parent level + 1
+    //     public NavLayerNode[] Children; // 4
+    // }
 
     public struct NavTileLayer
     {
@@ -80,7 +80,7 @@ namespace Core.DataReader.Nav
     {
         public Vector3[] Vertices;
         public int[] Triangles;
-        public NavLayerNode[] Nodes;
+        //public NavLayerNode[] Nodes;
     }
 
     /// <summary>

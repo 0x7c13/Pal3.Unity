@@ -198,7 +198,8 @@ namespace Core.DataReader.Scn
         // 人物初始朝向
         public float FacingDirection;
 
-        public int OnLayer;
+        // 初始地层
+        public int LayerIndex;
 
         // 原GameBox引擎下的初始位置（X，Z）
         public float GameBoxXPosition;
@@ -243,14 +244,14 @@ namespace Core.DataReader.Scn
         // 一关中唯一的编号
         public byte Id;
 
-        // 是否激活 (不激活相当于没这个物体)
-        public byte Active;
+        // 初始是否激活 (不激活相当于没这个物体)
+        public byte InitActive;
 
         // 可触发次数 (0表示不可触发，1表示只能触发一次（收集类道具），0xFF表示无限触发)
         public byte Times;
 
         // 开关状态 (0代表关, 1代表开)
-        public byte Switch;
+        public byte SwitchState;
 
         // char[32] 物品名称,对应美术模型,带扩展名
         public string Name;
@@ -259,12 +260,7 @@ namespace Core.DataReader.Scn
         public byte TriggerType;
 
         // 是否产生阻挡
-        public byte NonBlocking;
-
-        // Empty bytes between the memory addresses to align the data in memory.
-        // TriggerType and NonBlocking takes 2 bytes in memory, thus we need to add 2 bytes here
-        // to align the data in memory (4 bytes).
-        internal byte[] PaddingBytes;
+        public byte IsNonBlocking;
 
         // 原GameBox引擎下的模型位置
         public Vector3 GameBoxPosition;
@@ -282,7 +278,7 @@ namespace Core.DataReader.Scn
         public byte SaveState;
 
         // 在哪个地层
-        public byte OnLayer;
+        public byte LayerIndex;
 
         // 五灵属性,0~5代表,用于大宝箱
         public byte WuLing;
@@ -312,13 +308,13 @@ namespace Core.DataReader.Scn
         #endif
         
         // 触发条件
-        public ushort NeedSpecialAction;   // 对应特殊行走技能,0xFF为无此条件
-        public ushort NeedItem;            // 需要物品,0xFF为无此条件
-        public ushort NeedGold;            // 需要金钱值
-        public ushort NeedLv;              // 需要等级数
-        public ushort NeedWu;              // 需要武力值 (如果无此限制,则设成最小值)
-        public ushort NeedAllOpen;         // 场景中所有需检测的机关都为开
-        public string FailedMessage;       // char[16] 失败提示字符串名称
+        public ushort RequireSpecialAction;        // 对应特殊行走技能,0xFF为无此条件
+        public ushort RequireItem;                 // 需要物品,0xFF为无此条件
+        public ushort RequireMoney;                // 需要金钱值
+        public ushort RequireLevel;                // 需要等级数
+        public ushort RequireAttackValue;          // 需要武力值 (如果无此限制,则设成最小值)
+        public ushort RequireAllMechanismsSolved;  // 场景中所有需检测的机关都为开
+        public string FailedMessage;               // char[16] 失败提示字符串名称
 
         #if PAL3A
         public uint Unknown2;
@@ -335,7 +331,7 @@ namespace Core.DataReader.Scn
         public string DependentSceneName;  // char[32]
         public ushort DependentObjectId;
 
-        public GameBoxAABBox BoundBox;
+        public Bounds Bounds;
         public float XRotation;            // 绕X轴旋转
         #if PAL3A
         public float ZRotation;            // 绕Z轴旋转
@@ -344,7 +340,7 @@ namespace Core.DataReader.Scn
         
         public uint EffectModelType;
 
-        public uint ScriptChangeActive;
+        public uint ScriptActivated;
         public uint ScriptMoved;
         
         #if PAL3A

@@ -418,15 +418,15 @@ namespace Pal3.Player
             float nearestInteractableFacingAngle = 181f;
             Action interactionAction = null;
 
-            foreach (var sceneObjectInfo in
+            foreach (var sceneObjectId in
                      _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
             {
-                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectInfo.Key);
+                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectId);
 
                 if (sceneObject.Info.Type != ScnSceneObjectType.Climbable &&
-                    sceneObject.Info.OnLayer != currentLayerIndex) continue;
+                    sceneObject.Info.LayerIndex != currentLayerIndex) continue;
 
-                Vector3 sceneObjectPosition = sceneObjectInfo.Value.transform.position;
+                Vector3 sceneObjectPosition = sceneObject.GetGameObject().transform.position;
                 float distanceToObject = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
                     new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
                 Vector3 actorToObjectFacing = sceneObjectPosition - actorPosition;
@@ -449,7 +449,7 @@ namespace Pal3.Player
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
 
                 if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
-                    actorInfo.Key == (byte)_playerManager.GetPlayerActor() ||
+                    actorInfo.Key == (int)_playerManager.GetPlayerActor() ||
                     !actorController.IsActive) continue;
 
                 Vector3 targetActorPosition = actorController.transform.position;
@@ -550,8 +550,8 @@ namespace Pal3.Player
         public void Execute(ActorPerformClimbActionCommand command)
         {
             Scene scene = _sceneManager.GetCurrentScene();
-            SceneObject climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
-            GameObject climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
+            SceneObject climbableSceneObject = scene.GetSceneObject(command.ObjectId);
+            GameObject climbableObject = climbableSceneObject.GetGameObject();
             if (climbableObject == null)
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
@@ -604,8 +604,8 @@ namespace Pal3.Player
         public void Execute(PlayerActorClimbObjectCommand command)
         {
             Scene scene = _sceneManager.GetCurrentScene();
-            SceneObject climbableSceneObject = scene.GetSceneObject((byte) command.ObjectId);
-            GameObject climbableObject = scene.GetSceneObjectGameObject((byte) command.ObjectId);
+            SceneObject climbableSceneObject = scene.GetSceneObject(command.ObjectId);
+            GameObject climbableObject = climbableSceneObject.GetGameObject();
             if (climbableObject == null)
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
@@ -770,9 +770,9 @@ namespace Pal3.Player
             }
 
             // Set target actor as player actor
-            _playerActor = _sceneManager.GetCurrentScene().GetActor((byte) command.ActorId);
+            _playerActor = _sceneManager.GetCurrentScene().GetActor(command.ActorId);
             _playerActorGameObject = _sceneManager.GetCurrentScene()
-                .GetActorGameObject((byte) command.ActorId);
+                .GetActorGameObject(command.ActorId);
             _playerActorController = _playerActorGameObject.GetComponent<ActorController>();
             _playerActorActionController = _playerActorGameObject.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActorGameObject.GetComponent<ActorMovementController>();
@@ -835,7 +835,7 @@ namespace Pal3.Player
                 Scene currentScene = _sceneManager.GetCurrentScene();
                 
                 var currentLayerIndex = currentScene
-                    .GetActorGameObject((byte) _playerManager.GetPlayerActor())
+                    .GetActorGameObject((int)_playerManager.GetPlayerActor())
                     .GetComponent<ActorMovementController>()
                     .GetCurrentLayerIndex();
                 
@@ -894,7 +894,7 @@ namespace Pal3.Player
                     new ActorSetTilePositionCommand(playerActorId, actorTilePosition.x, actorTilePosition.y));
 
                 _sceneManager.GetCurrentScene()
-                    .GetActorGameObject((byte)playerActorId).transform.forward = actorFacing;
+                    .GetActorGameObject(playerActorId).transform.forward = actorFacing;
             }
             
             if (_playerManager.IsPlayerActorControlEnabled())

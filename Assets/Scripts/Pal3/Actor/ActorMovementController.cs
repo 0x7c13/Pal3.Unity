@@ -18,7 +18,7 @@ namespace Pal3.Actor
     using Core.GameBox;
     using MetaData;
     using Scene;
-    using Scene.SceneObjects;
+    using Scene.SceneObjects.Common;
     using Script.Waiter;
     using UnityEngine;
     using Random = UnityEngine.Random;
@@ -61,15 +61,15 @@ namespace Pal3.Actor
         
         private StandingPlatformController _activeStandingPlatform;
 
-        private Func<int, byte[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
+        private Func<int, int[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
 
         public void Init(Actor actor, Tilemap tilemap, ActorActionController actionController,
-            Func<int, byte[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
+            Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             _actor = actor;
             _tilemap = tilemap;
             _actionController = actionController;
-            _currentLayerIndex = actor.Info.OnLayer;
+            _currentLayerIndex = actor.Info.LayerIndex;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
             Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
@@ -502,7 +502,7 @@ namespace Pal3.Actor
         {
             Vector2Int[] path = Array.Empty<Vector2Int>();
             Vector2Int fromTilePosition = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
-            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Info.Id});
+            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {(int)_actor.Info.Id});
 
             var pathFindingThread = new Thread(() =>
             {

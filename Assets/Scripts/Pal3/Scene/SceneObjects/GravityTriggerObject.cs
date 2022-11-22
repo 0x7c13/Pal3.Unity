@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Common;
     using Core.DataReader.Scn;
     using Data;
     using Renderer;
@@ -46,6 +47,21 @@ namespace Pal3.Scene.SceneObjects
             _gravityTriggerObjectController.Init(this);
             
             return sceneGameObject;
+        }
+
+        public override void Deactivate()
+        {
+            if (_platformController != null)
+            {
+                Object.Destroy(_platformController);
+            }
+            
+            if (_gravityTriggerObjectController != null)
+            {
+                Object.Destroy(_gravityTriggerObjectController);
+            }
+            
+            base.Deactivate();
         }
     }
 

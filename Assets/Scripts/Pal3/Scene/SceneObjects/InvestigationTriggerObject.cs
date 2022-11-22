@@ -76,11 +76,8 @@ namespace Pal3.Scene.SceneObjects
             }
             else
             {
-                _bounds.SetMinMax(GameBoxInterpreter.ToUnityPosition(_investigationTriggerObject.Info.BoundBox.Min),
-                    GameBoxInterpreter.ToUnityPosition(_investigationTriggerObject.Info.BoundBox.Max));
+                _bounds = investigationTriggerObject.Info.Bounds;
             }
-
-            //Utility.DrawBounds(_bounds);
 
             // Set active Y position of the lifting mechanism
             // TODO: impl of the lifting logic

@@ -112,7 +112,7 @@ namespace Pal3.State
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
             
             var playerActorMovementController = currentScene
-                .GetActorGameObject((byte) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
 
             var varsToSave = _scriptManager.GetGlobalVariables();
@@ -193,11 +193,11 @@ namespace Pal3.State
                 var allSceneObjects = currentScene.GetAllSceneObjects();
                 var allActivatedSceneObjects = currentScene.GetAllActivatedSceneObjects();
                 commands.AddRange(allActivatedSceneObjects
-                    .Where(_ => allSceneObjects[_.Key].Info.Active == 0)
-                    .Select(_ => new SceneActivateObjectCommand(_.Key, 1)));
+                    .Where(_ => allSceneObjects[_].Info.InitActive == 0)
+                    .Select(_ => new SceneActivateObjectCommand(_, 1)));
                 commands.AddRange(allSceneObjects
-                    .Where(_ => allSceneObjects[_.Key].Info.Active == 1)
-                    .Where(_ => !allActivatedSceneObjects.Keys.Contains(_.Key))
+                    .Where(_ => allSceneObjects[_.Key].Info.InitActive == 1)
+                    .Where(_ => !allActivatedSceneObjects.Contains(_.Key))
                     .Select(_ => new SceneActivateObjectCommand(_.Key, 0)));
 
                 // Save actor activation state changed by the script
@@ -218,7 +218,7 @@ namespace Pal3.State
 
             #if PAL3
             // Save LongKui state
-            var longKuiCurrentMode = currentScene.GetActorGameObject((byte) PlayerActorId.LongKui)
+            var longKuiCurrentMode = currentScene.GetActorGameObject((int) PlayerActorId.LongKui)
                 .GetComponent<LongKuiController>()
                 .GetCurrentMode();
             if (longKuiCurrentMode != 0)
@@ -227,7 +227,7 @@ namespace Pal3.State
             }
 
             // Save HuaYing state
-            var huaYingGameObject = currentScene.GetActorGameObject((byte) PlayerActorId.HuaYing);
+            var huaYingGameObject = currentScene.GetActorGameObject((int) PlayerActorId.HuaYing);
             var huaYingCurrentMode = huaYingGameObject.GetComponent<HuaYingController>().GetCurrentMode();
             if (huaYingCurrentMode != 1)
             {

@@ -21,7 +21,7 @@ namespace Pal3.Renderer
     /// <summary>
     /// MV3(.mv3) model renderer
     /// </summary>
-    public class Mv3ModelRenderer : MonoBehaviour
+    public class Mv3ModelRenderer : MonoBehaviour, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
@@ -410,7 +410,7 @@ namespace Pal3.Renderer
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             DisposeAnimation();
 

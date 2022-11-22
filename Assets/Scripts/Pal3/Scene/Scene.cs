@@ -54,8 +54,8 @@ namespace Pal3.Scene
         private readonly List<GameObject> _navMeshLayers = new ();
         private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
 
-        private readonly Dictionary<byte, GameObject> _activatedSceneObjects = new ();
-        private readonly Dictionary<byte, GameObject> _actorObjects = new ();
+        private readonly HashSet<int> _activatedSceneObjects = new ();
+        private readonly Dictionary<int, GameObject> _actorObjects = new ();
 
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
@@ -95,9 +95,9 @@ namespace Pal3.Scene
                 Destroy(navMeshLayer);
             }
 
-            foreach (GameObject sceneObject in _activatedSceneObjects.Values)
+            foreach (int sceneObjectId in _activatedSceneObjects)
             {
-                Destroy(sceneObject);
+                SceneObjects[sceneObjectId].Deactivate();
             }
 
             foreach (var actor in _actorObjects)
@@ -157,42 +157,37 @@ namespace Pal3.Scene
             return Tilemap;
         }
 
-        public SceneObject GetSceneObject(byte id)
+        public SceneObject GetSceneObject(int id)
         {
             return SceneObjects.ContainsKey(id) ? SceneObjects[id] : null;
         }
-
-        public GameObject GetSceneObjectGameObject(byte id)
-        {
-            return _activatedSceneObjects.ContainsKey(id) ? _activatedSceneObjects[id] : null;
-        }
-
-        public Dictionary<byte, GameObject> GetAllActivatedSceneObjects()
+        
+        public HashSet<int> GetAllActivatedSceneObjects()
         {
             return _activatedSceneObjects;
         }
         
-        public Dictionary<byte, SceneObject> GetAllSceneObjects()
+        public Dictionary<int, SceneObject> GetAllSceneObjects()
         {
             return SceneObjects;
         }
 
-        public Actor GetActor(byte id)
+        public Actor GetActor(int id)
         {
             return Actors.ContainsKey(id) ? Actors[id] : null;
         }
 
-        public Dictionary<byte, Actor> GetAllActors()
+        public Dictionary<int, Actor> GetAllActors()
         {
             return Actors;
         }
 
-        public GameObject GetActorGameObject(byte id)
+        public GameObject GetActorGameObject(int id)
         {
             return _actorObjects.ContainsKey(id) ? _actorObjects[id] : null;
         }
 
-        public Dictionary<byte, GameObject> GetAllActorGameObjects()
+        public Dictionary<int, GameObject> GetAllActorGameObjects()
         {
             return _actorObjects;
         }
@@ -380,9 +375,9 @@ namespace Pal3.Scene
                     ActivateSceneObject(sceneObject);
                 }
                 else if (objectState == SceneObjectActivationState.Unknown &&
-                         sceneObject.Info.Active == 1)
+                         sceneObject.Info.InitActive == 1)
                 {
-                    ActivateSceneObject(sceneObject);   
+                    ActivateSceneObject(sceneObject);
                 }
             }
         }
@@ -400,7 +395,7 @@ namespace Pal3.Scene
 
         private void ActivateSceneObject(SceneObject sceneObject)
         {
-            if (_activatedSceneObjects.ContainsKey(sceneObject.Info.Id)) return;
+            if (_activatedSceneObjects.Contains(sceneObject.Info.Id)) return;
 
             Color tintColor = Color.white;
             if (IsNightScene())
@@ -409,7 +404,8 @@ namespace Pal3.Scene
             }
 
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
-
+            sceneObjectGameObject.transform.SetParent(_parent.transform);
+            
             #if RTX_ON
             if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
                 sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
@@ -419,25 +415,24 @@ namespace Pal3.Scene
                 AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
             }
             #endif
-
-            sceneObjectGameObject.transform.SetParent(_parent.transform);
-            _activatedSceneObjects[sceneObject.Info.Id] = sceneObjectGameObject;
+            
+            _activatedSceneObjects.Add(sceneObject.Info.Id);
         }
 
-        private void DisposeSceneObject(byte id)
+        private void DeactivateSceneObject(int id)
         {
-            if (!_activatedSceneObjects.ContainsKey(id)) return;
-            _activatedSceneObjects.Remove(id, out GameObject sceneObject);
+            if (!_activatedSceneObjects.Contains(id)) return;
+            _activatedSceneObjects.Remove(id);
             
             #if RTX_ON
-            if (sceneObject.GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
+            if (SceneObjects[id].GetGameObject().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
             {
                 _pointLights.Remove(pointLight);
                 StripPointLightShadowsIfNecessary();
             }
             #endif
             
-            Destroy(sceneObject);
+            SceneObjects[id].Deactivate();
         }
 
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
@@ -449,7 +444,7 @@ namespace Pal3.Scene
             _actorObjects[actor.Info.Id] = actorGameObject;
         }
 
-        private void ActivateActorObject(byte id, bool isActive)
+        private void ActivateActorObject(int id, bool isActive)
         {
             if (!_actorObjects.ContainsKey(id)) return;
 
@@ -461,7 +456,7 @@ namespace Pal3.Scene
         /// <summary>
         /// Get all tile positions blocked by the active actors in current scene.
         /// </summary>
-        private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, byte[] excludeActorIds)
+        private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, int[] excludeActorIds)
         {
             var allActors = GetAllActorGameObjects();
 
@@ -499,9 +494,9 @@ namespace Pal3.Scene
 
         public void Execute(SceneActivateObjectCommand command)
         {
-            if (!SceneObjects.ContainsKey((byte)command.ObjectId)) return;
+            if (!SceneObjects.ContainsKey(command.ObjectId)) return;
 
-            SceneObject sceneObject = SceneObjects[(byte)command.ObjectId];
+            SceneObject sceneObject = SceneObjects[command.ObjectId];
 
             if (command.IsActive == 1)
             {
@@ -518,25 +513,24 @@ namespace Pal3.Scene
             }
             else
             {
-                DisposeSceneObject(sceneObject.Info.Id);
+                DeactivateSceneObject(sceneObject.Info.Id);
             }
         }
 
         public void Execute(ActorActivateCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-            var actorId = (byte) command.ActorId;
-            if (!_actorObjects.ContainsKey(actorId)) return;
-            ActivateActorObject(actorId, command.IsActive == 1);
+            if (!_actorObjects.ContainsKey(command.ActorId)) return;
+            ActivateActorObject(command.ActorId, command.IsActive == 1);
         }
 
         public void Execute(ActorLookAtActorCommand command)
         {
-            if (!_actorObjects.ContainsKey((byte)command.ActorId) ||
-                !_actorObjects.ContainsKey((byte)command.LookAtActorId)) return;
+            if (!_actorObjects.ContainsKey(command.ActorId) ||
+                !_actorObjects.ContainsKey(command.LookAtActorId)) return;
 
-            Transform actorTransform = _actorObjects[(byte)command.ActorId].transform;
-            Transform lookAtActorTransform = _actorObjects[(byte)command.LookAtActorId].transform;
+            Transform actorTransform = _actorObjects[command.ActorId].transform;
+            Transform lookAtActorTransform = _actorObjects[command.LookAtActorId].transform;
             Vector3 lookAtActorPosition = lookAtActorTransform.position;
 
             actorTransform.LookAt(new Vector3(
@@ -547,10 +541,10 @@ namespace Pal3.Scene
 
         public void Execute(PlayerInteractWithObjectCommand command)
         {
-            if (_activatedSceneObjects.ContainsKey((byte) command.SceneObjectId))
+            if (_activatedSceneObjects.Contains(command.SceneObjectId))
             {
-                GameObject sceneObject = _activatedSceneObjects[(byte) command.SceneObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                GameObject sceneObjectGo = SceneObjects[command.SceneObjectId].GetGameObject();
+                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
                 }
@@ -563,10 +557,10 @@ namespace Pal3.Scene
 
         public void Execute(SceneOpenDoorCommand command)
         {
-            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
+                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
+                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
                     cvdMeshRenderer.GetCurrentTime() == 0f)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
@@ -591,13 +585,13 @@ namespace Pal3.Scene
 
         public void Execute(SceneMoveObjectCommand command)
         {
-            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
+                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
                 Vector3 offset = GameBoxInterpreter.ToUnityPosition(
                     new Vector3(command.GameBoxXOffset, command.GameBoxYOffset, command.GameBoxZOffset));
-                Vector3 toPosition = sceneObject.transform.position + offset;
-                StartCoroutine(AnimationHelper.MoveTransform(sceneObject.transform, toPosition, command.Duration));
+                Vector3 toPosition = sceneObjectGo.transform.position + offset;
+                StartCoroutine(AnimationHelper.MoveTransform(sceneObjectGo.transform, toPosition, command.Duration));
             }
             else
             {
@@ -624,10 +618,10 @@ namespace Pal3.Scene
         
         public void Execute(SceneCloseDoorCommand command)
         {
-            if (_activatedSceneObjects.ContainsKey((byte) command.ObjectId))
+            if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObject = _activatedSceneObjects[(byte) command.ObjectId];
-                if (sceneObject.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
+                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
+                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
                     cvdMeshRenderer.GetCurrentTime() != 0f)
                 {
                     cvdMeshRenderer.PlayAnimation(timeScale: -1, loopCount: 1);
@@ -667,17 +661,17 @@ namespace Pal3.Scene
                     {
                         if (actorId != activeBirdActorId)
                         {
-                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((byte)actorId, 0));   
+                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));   
                         }
                     }
 
-                    GameObject leiYuanGeActorGameObject = GetActorGameObject((byte)PlayerActorId.LeiYuanGe);
+                    GameObject leiYuanGeActorGameObject = GetActorGameObject((int)PlayerActorId.LeiYuanGe);
                     Vector3 leiYuanGeHeadPosition = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
                         .GetActorHeadWorldPosition();
 
                     var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;  // Height adjustment
                 
-                    GameObject birdActorGameObject = GetActorGameObject((byte)activeBirdActorId);
+                    GameObject birdActorGameObject = GetActorGameObject((int)activeBirdActorId);
                     birdActorGameObject.transform.position = new Vector3(leiYuanGeHeadPosition.x,
                         leiYuanGeHeadPosition.y + yOffset,
                         leiYuanGeHeadPosition.z);

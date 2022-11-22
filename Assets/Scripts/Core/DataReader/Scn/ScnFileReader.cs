@@ -70,7 +70,7 @@ namespace Core.DataReader.Scn
                 Name = reader.ReadString(32, codepage),
                 Texture = reader.ReadString(34, codepage),
                 FacingDirection = reader.ReadSingle(),
-                OnLayer = reader.ReadInt32(),
+                LayerIndex = reader.ReadInt32(),
                 GameBoxXPosition = reader.ReadSingle(),
                 GameBoxZPosition = reader.ReadSingle(),
                 InitActive = reader.ReadInt32(),
@@ -95,144 +95,164 @@ namespace Core.DataReader.Scn
 
         private static ScnObjectInfo ReadObjectInfo(BinaryReader reader, int codepage)
         {
+            var id = reader.ReadByte();
+            var initActive = reader.ReadByte();
+            var times = reader.ReadByte();
+            var switchState = reader.ReadByte();
+
+            var name = reader.ReadString(32, codepage);
+            
+            var triggerType = reader.ReadByte();
+            var isNonBlocking = reader.ReadByte();
+            _ = reader.ReadBytes(2); // --------| ^ empty padding bytes to complete 4-byte alignment
+
+            var gameBoxPosition = reader.ReadVector3();
+            var yRotation = reader.ReadSingle();
+
+            var tileMapTriggerRect = new GameBoxRect()
+            {
+                Left = reader.ReadInt32(),
+                Top = reader.ReadInt32(),
+                Right = reader.ReadInt32(),
+                Bottom = reader.ReadInt32(),
+            };
+
+            var type = (ScnSceneObjectType) reader.ReadByte();
+            var saveState = reader.ReadByte();
+            var layerIndex = reader.ReadByte();
+            var wuLing = reader.ReadByte();
+
             #if PAL3
-            return new ScnObjectInfo()
-            {
-                Id = reader.ReadByte(),
-                Active = reader.ReadByte(),
-                Times = reader.ReadByte(),
-                Switch = reader.ReadByte(),
-
-                Name = reader.ReadString(32, codepage),
-                
-                TriggerType = reader.ReadByte(), // -------------| 1
-                NonBlocking = reader.ReadByte(), // -------------| 2
-                PaddingBytes = reader.ReadBytes(2), // ----------| ^ to complete 4-byte alignment
-                
-                GameBoxPosition = reader.ReadVector3(),
-                YRotation = reader.ReadSingle(),
-                TileMapTriggerRect = new GameBoxRect()
-                {
-                    Left = reader.ReadInt32(),
-                    Top = reader.ReadInt32(),
-                    Right = reader.ReadInt32(),
-                    Bottom = reader.ReadInt32(),
-                },
-
-                Type = (ScnSceneObjectType) reader.ReadByte(),
-                SaveState = reader.ReadByte(),
-                OnLayer = reader.ReadByte(),
-                WuLing = reader.ReadByte(),
-
-                Parameters = reader.ReadInt32Array(6),
-
-                NeedSpecialAction = reader.ReadUInt16(),
-                NeedItem = reader.ReadUInt16(),
-                NeedGold = reader.ReadUInt16(),
-                NeedLv = reader.ReadUInt16(),
-                NeedWu = reader.ReadUInt16(),
-                NeedAllOpen = reader.ReadUInt16(),
-                FailedMessage = reader.ReadString(16, codepage),
-
-                ScriptId = reader.ReadUInt32(),
-                Path = new ScnPath()
-                {
-                    NumberOfWaypoints = reader.ReadInt32(),
-                    GameBoxWaypoints = reader.ReadVector3Array(16)
-                },
-
-                LinkedObjectId = reader.ReadUInt16(),
-                DependentSceneName = reader.ReadString(32, codepage),
-                DependentObjectId = reader.ReadUInt16(),
-
-                BoundBox = new GameBoxAABBox()
-                {
-                    Min = reader.ReadVector3(),
-                    Max = reader.ReadVector3()
-                },
-
-                XRotation = reader.ReadSingle(),
-                SfxName = reader.ReadString(8, codepage),
-                EffectModelType = reader.ReadUInt32(),
-
-                ScriptChangeActive = reader.ReadUInt32(),
-                ScriptMoved = reader.ReadUInt32(),
-
-                Reserved = reader.ReadUInt32Array(52)
-            };
+            var parameters = reader.ReadInt32Array(6);
             #elif PAL3A
+            var parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32);
+            #endif
+            
+            #if PAL3A
+            var unknown1 = reader.ReadUInt32(); // TODO
+            #endif
+
+            var requireSpecialAction = reader.ReadUInt16();
+            var requireItem = reader.ReadUInt16();
+            var requireMoney = reader.ReadUInt16();
+            var requireLevel = reader.ReadUInt16();
+            var requireAttackValue = reader.ReadUInt16();
+            var requireAllMechanismsSolved = reader.ReadUInt16();
+
+            var failedMessage = reader.ReadString(16, codepage);
+
+            #if PAL3A
+            var unknown2 = reader.ReadUInt32(); // TODO
+            #endif
+            
+            var scriptId = reader.ReadUInt32();
+
+            var path = new ScnPath()
+            {
+                NumberOfWaypoints = reader.ReadInt32(),
+                GameBoxWaypoints = reader.ReadVector3Array(16)
+            };
+
+            var linkedObjectId = reader.ReadUInt16();
+            var dependentSceneName = reader.ReadString(32, codepage);
+            var dependentObjectId = reader.ReadUInt16();
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
+                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+
+            var xRotation = reader.ReadSingle();
+
+            #if PAL3A
+            var zRotation = reader.ReadSingle();
+            #endif
+            
+            var sfxName = reader.ReadString(8, codepage);
+
+            var effectModelType = reader.ReadUInt32();
+
+            var scriptActivated = reader.ReadUInt32();
+            var scriptMoved = reader.ReadUInt32();
+
+            #if PAL3A
+            var unknown3 = reader.ReadUInt32(); // TODO
+            #endif
+            
+            #if PAL3
+            var reserved = reader.ReadUInt32Array(52);
+            #elif PAL3A
+            var reserved = reader.ReadUInt32Array(44);
+            #endif
+
             return new ScnObjectInfo()
             {
-                Id = reader.ReadByte(),
-                Active = reader.ReadByte(),
-                Times = reader.ReadByte(),
-                Switch = reader.ReadByte(),
+                Id = id,
+                InitActive = initActive,
+                Times = times,
+                SwitchState = switchState,
 
-                Name = reader.ReadString(32, codepage),
-                TriggerType = reader.ReadByte(), // -------------| 1
-                NonBlocking = reader.ReadByte(), // -------------| 2
-                PaddingBytes = reader.ReadBytes(2), // ----------| ^ to complete 4-byte alignment
+                Name = name,
                 
-                GameBoxPosition = reader.ReadVector3(),
-                YRotation = reader.ReadSingle(),
-                TileMapTriggerRect = new GameBoxRect()
-                {
-                    Left = reader.ReadInt32(),
-                    Top = reader.ReadInt32(),
-                    Right = reader.ReadInt32(),
-                    Bottom = reader.ReadInt32(),
-                },
+                TriggerType = triggerType,
+                IsNonBlocking = isNonBlocking,
 
-                Type = (ScnSceneObjectType) reader.ReadByte(),
-                SaveState = reader.ReadByte(),
-                OnLayer = reader.ReadByte(),
-                WuLing = reader.ReadByte(),
+                GameBoxPosition = gameBoxPosition,
+                YRotation = yRotation,
+                TileMapTriggerRect = tileMapTriggerRect,
+
+                Type = type,
+                SaveState = saveState,
+                LayerIndex = layerIndex,
+                WuLing = wuLing,
                 
-                Parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32),
-
-                Unknown1 = reader.ReadUInt32(), // TODO
-
-                NeedSpecialAction = reader.ReadUInt16(),
-                NeedItem = reader.ReadUInt16(),
-                NeedGold = reader.ReadUInt16(),
-                NeedLv = reader.ReadUInt16(),
-                NeedWu = reader.ReadUInt16(),
-                NeedAllOpen = reader.ReadUInt16(),
-                FailedMessage = reader.ReadString(16, codepage),
-
-                Unknown2 = reader.ReadUInt32(), // TODO
+                Parameters = parameters,
                 
-                ScriptId = reader.ReadUInt32(),
+                #if PAL3A
+                Unknown1 = unknown1, // TODO
+                #endif
 
-                Path = new ScnPath()
-                {
-                    NumberOfWaypoints = reader.ReadInt32(),
-                    GameBoxWaypoints = reader.ReadVector3Array(16)
-                },
-
-                LinkedObjectId = reader.ReadUInt16(),
-                DependentSceneName = reader.ReadString(32, codepage),
-                DependentObjectId = reader.ReadUInt16(),
-
-                BoundBox = new GameBoxAABBox()
-                {
-                    Min = reader.ReadVector3(),
-                    Max = reader.ReadVector3()
-                },
-
-                XRotation = reader.ReadSingle(),
-                ZRotation = reader.ReadSingle(),
-                SfxName = reader.ReadString(8, codepage),
-                EffectModelType = reader.ReadUInt32(),
-
-                ScriptChangeActive = reader.ReadUInt32(),
-                ScriptMoved = reader.ReadUInt32(),
-
-                Unknown3 = reader.ReadUInt32(), // TODO
+                RequireSpecialAction = requireSpecialAction,
+                RequireItem = requireItem,
+                RequireMoney = requireMoney,
+                RequireLevel = requireLevel,
+                RequireAttackValue = requireAttackValue,
+                RequireAllMechanismsSolved = requireAllMechanismsSolved,
                 
-                Reserved = reader.ReadUInt32Array(44)
+                FailedMessage = failedMessage,
+    
+                #if PAL3A
+                Unknown2 = unknown2, // TODO
+                #endif
+                
+                ScriptId = scriptId,
+
+                Path = path,
+
+                LinkedObjectId = linkedObjectId,
+                DependentSceneName = dependentSceneName,
+                DependentObjectId = dependentObjectId,
+
+                Bounds = bounds,
+
+                XRotation = xRotation,
+                
+                #if PAL3A
+                ZRotation = zRotation,
+                #endif
+                
+                SfxName = sfxName,
+                EffectModelType = effectModelType,
+
+                ScriptActivated = scriptActivated,
+                ScriptMoved = scriptMoved,
+
+                #if PAL3A
+                Unknown3 = unknown3, // TODO
+                #endif
+                
+                Reserved = reserved,
             };
-            #endif
         }
     }
 }

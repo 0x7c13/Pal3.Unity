@@ -31,16 +31,16 @@ namespace Pal3.Scene.SceneObjects
     {
         private StaticOrAnimatedObject _sceneObject;
         private Component _effectComponent;
-
+        private float _initYPosition;
+        
         public void Init(StaticOrAnimatedObject sceneObject)
         {
             _sceneObject = sceneObject;
         }
-
-        private float _startYPosition;
+        
         private void Start()
         {
-            _startYPosition = transform.localPosition.y;
+            _initYPosition = transform.localPosition.y;
 
             // Randomly play animation if Parameters[1] == 0 for Cvd modeled objects.
             if (_sceneObject.Info.Parameters[1] == 0)
@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
                 Transform currentTransform = transform;
                 Vector3 currentPosition = currentTransform.localPosition;
                 transform.localPosition = new Vector3(currentPosition.x,
-                    _startYPosition + Mathf.Sin(Time.time) / 6f,
+                    _initYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
             else if (_sceneObject.Info.Parameters[2] == 2)

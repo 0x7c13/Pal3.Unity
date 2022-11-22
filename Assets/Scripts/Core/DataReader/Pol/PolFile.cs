@@ -35,7 +35,7 @@ namespace Core.DataReader.Pol
 
     public struct PolMesh
     {
-        public GameBoxAABBox BoundBox;
+        public Bounds Bounds;
         public uint VertexFvfFlag;
         public PolVertexInfo VertexInfo;
         public PolTexture[] Textures;

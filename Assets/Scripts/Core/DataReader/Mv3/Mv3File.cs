@@ -77,7 +77,7 @@ namespace Core.DataReader.Mv3
     public struct Mv3Mesh
     {
         public string Name; // 64 chars max
-        public GameBoxAABBox BoundBox;
+        public Bounds Bounds;
         public Mv3Attribute[] Attributes;
         public Vector3[] Normals;
         public int[] Triangles;
