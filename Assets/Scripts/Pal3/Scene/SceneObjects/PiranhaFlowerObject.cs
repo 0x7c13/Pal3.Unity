@@ -21,10 +21,10 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
+        public override bool IsInteractable(InteractionContext ctx)
         {
             return GameBoxInterpreter.IsPositionInsideRect(
-                Info.TileMapTriggerRect, actorTilePosition);
+                Info.TileMapTriggerRect, ctx.ActorTilePosition);
         }
 
         public override void Interact()

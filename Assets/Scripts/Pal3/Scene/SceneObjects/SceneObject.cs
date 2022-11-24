@@ -19,6 +19,13 @@ namespace Pal3.Scene.SceneObjects
     using Renderer;
     using UnityEngine;
 
+    public struct InteractionContext
+    {
+        public int ActorId;
+        public Vector2Int ActorTilePosition;
+        public float DistanceToActor;
+    }
+    
     public abstract class SceneObject
     {
         public ScnObjectInfo Info;
@@ -163,7 +170,7 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
         
-        public virtual bool IsInteractable(float distance, Vector2Int actorTilePosition)
+        public virtual bool IsInteractable(InteractionContext ctx)
         {
             return false;
         }

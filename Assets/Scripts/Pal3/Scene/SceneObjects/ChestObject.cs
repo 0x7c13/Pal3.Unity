@@ -35,9 +35,9 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
         
-        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
+        public override bool IsInteractable(InteractionContext ctx)
         {
-            return !_isOpened && distance < MAX_INTERACTION_DISTANCE;
+            return !_isOpened && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()
@@ -45,6 +45,7 @@ namespace Pal3.Scene.SceneObjects
             if (_isOpened) return;
             _isOpened = true;
             
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg011", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
             
             for (int i = 0; i < 4; i++)

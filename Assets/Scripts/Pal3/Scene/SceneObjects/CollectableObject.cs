@@ -23,9 +23,9 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
+        public override bool IsInteractable(InteractionContext ctx)
         {
-            return !_isCollected && distance < MAX_INTERACTION_DISTANCE;
+            return !_isCollected && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()

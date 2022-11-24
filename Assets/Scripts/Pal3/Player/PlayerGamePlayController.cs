@@ -427,14 +427,21 @@ namespace Pal3.Player
                     sceneObject.Info.LayerIndex != currentLayerIndex) continue;
 
                 Vector3 sceneObjectPosition = sceneObject.GetGameObject().transform.position;
-                float distanceToObject = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
+                float distanceToActor = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
                     new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
                 Vector3 actorToObjectFacing = sceneObjectPosition - actorPosition;
                 float facingAngle = Vector2.Angle(
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
                     new Vector2(actorToObjectFacing.x, actorToObjectFacing.z));
 
-                if (sceneObject.IsInteractable(distanceToObject, tilePosition) &&
+                var interactionContext = new InteractionContext()
+                {
+                    ActorId = _playerActor.Info.Id,
+                    ActorTilePosition = tilePosition,
+                    DistanceToActor = distanceToActor,
+                };
+                
+                if (sceneObject.IsInteractable(interactionContext) &&
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     nearestInteractableFacingAngle = facingAngle;

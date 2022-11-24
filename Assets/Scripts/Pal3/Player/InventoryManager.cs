@@ -94,7 +94,7 @@ namespace Pal3.Player
 
             var itemName = _gameItemsInfo[command.ItemId].Name;
             
-            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{itemName}"));   
+            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));   
             
             Debug.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
@@ -130,7 +130,7 @@ namespace Pal3.Player
             }
             else if (command.ChangeAmount > 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"获得{command.ChangeAmount}文钱"));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{command.ChangeAmount}文钱"));
             }
             else if (command.ChangeAmount < 0)
             {

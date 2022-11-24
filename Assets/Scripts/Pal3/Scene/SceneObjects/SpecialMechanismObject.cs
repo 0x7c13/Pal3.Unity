@@ -6,13 +6,13 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Core.DataReader.Scn;
+    using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SavingPoint)]
-    [ScnSceneObject(ScnSceneObjectType.WishPool)]
-    public class DisabledSceneObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
+    public class SpecialMechanismObject : SceneObject
     {
-        public DisabledSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
-            : base(objectInfo, sceneInfo, hasModel: false)
+        public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+            : base(objectInfo, sceneInfo)
         {
         }
     }

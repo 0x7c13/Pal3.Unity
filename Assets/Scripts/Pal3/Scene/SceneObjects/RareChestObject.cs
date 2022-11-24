@@ -34,9 +34,9 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
         
-        public override bool IsInteractable(float distance, Vector2Int actorTilePosition)
+        public override bool IsInteractable(InteractionContext ctx)
         {
-            return !_isOpened && distance < MAX_INTERACTION_DISTANCE;
+            return !_isOpened && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()
@@ -53,8 +53,6 @@ namespace Pal3.Scene.SceneObjects
                     CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[i], 1));
                 }
             }
-
-            var animationDuration = 0f;
             
             if (_cvdModelRenderer != null)
             {
