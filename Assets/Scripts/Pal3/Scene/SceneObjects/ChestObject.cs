@@ -18,7 +18,7 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 
-        private ChestObjectController _rareChestObjectController;
+        private CvdModelRenderer _cvdModelRenderer;
         private bool _isOpened;
 
         public ChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -29,9 +29,9 @@ namespace Pal3.Scene.SceneObjects
         public override GameObject Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
+            if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _rareChestObjectController = sceneGameObject.AddComponent<ChestObjectController>();
-            _rareChestObjectController.Init(this);
+            _cvdModelRenderer = sceneGameObject.GetComponent<CvdModelRenderer>();
             return sceneGameObject;
         }
         
@@ -45,68 +45,43 @@ namespace Pal3.Scene.SceneObjects
             if (_isOpened) return;
             _isOpened = true;
             
-            if (_rareChestObjectController != null)
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
+            
+            for (int i = 0; i < 4; i++)
             {
-                _rareChestObjectController.Interact();
+                if (Info.Parameters[i] != 0)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[i], 1));
+                }
+            }
+            
+            #if PAL3A
+            if (Info.Parameters[5] != 0) // money
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[5]));
+            }
+            #endif
+            
+            if (_cvdModelRenderer != null)
+            {
+                _cvdModelRenderer.PlayOneTimeAnimation(() =>
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
+                });
+            }
+            else
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
             }
         }
 
         public override void Deactivate()
         {
             _isOpened = false;
-            
-            if (_rareChestObjectController != null)
-            {
-                Object.Destroy(_rareChestObjectController);
-            }
-            
+            _cvdModelRenderer = null;
             base.Deactivate();
-        }
-    }
-
-    internal class ChestObjectController : MonoBehaviour
-    {
-        private ChestObject _chestObject;
-        
-        public void Init(ChestObject chestObject)
-        {
-            _chestObject = chestObject;
-        }
-        
-        public void Interact()
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-            
-            for (int i = 0; i < 4; i++)
-            {
-                if (_chestObject.Info.Parameters[i] != 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(_chestObject.Info.Parameters[i], 1));
-                }
-            }
-            
-            #if PAL3A
-            if (_chestObject.Info.Parameters[5] != 0) // money
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(_chestObject.Info.Parameters[5]));
-            }
-            #endif
-
-            var animationDuration = 0f;
-            
-            if (GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
-            {
-                animationDuration = cvdModelRenderer.GetAnimationDuration();
-                cvdModelRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
-            }
-            
-            Invoke(nameof(OnAnimationFinished), animationDuration);
-        }
-
-        public void OnAnimationFinished()
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_chestObject.Info.Id, 0));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_chestObject.Info.Id, 0));
         }
     }
 }

@@ -73,8 +73,9 @@ namespace Pal3.Renderer
             UpdateMesh(time);
         }
         
-        public float GetAnimationDuration(float timeScale = 1f)
+        public float GetDefaultAnimationDuration(float timeScale = 1f)
         {
+            if (timeScale == 0f) return 0f;
             return _animationDuration / Mathf.Abs(timeScale);
         }
 
@@ -341,50 +342,76 @@ namespace Pal3.Renderer
             }
         }
 
-        public void PlayAnimation(float timeScale = 1f, int loopCount = -1, float fps = -1f)
+        public void PlayOneTimeAnimation(Action onFinished = null)
         {
-            if (_animationDuration < Mathf.Epsilon) return;
-
-            if (_renderers.Count == 0)
+            PlayAnimation(1f, 1, 1f, onFinished);
+        }
+        
+        public void LoopAnimation(float timeScale = 1f)
+        {
+            PlayAnimation(timeScale, -1, 1f, null);
+        }
+        
+        /// <summary>
+        /// Play CVD animation.
+        /// </summary>
+        /// <param name="timeScale">1f: default scale of time, -1f: reverse animation with default speed</param>
+        /// <param name="loopCount">Loop count, -1 means loop forever</param>
+        /// <param name="durationPercentage">1f: full length of the animation, .5f: half of the animation</param>
+        /// <param name="onFinished">On animation finished playing</param>
+        public void PlayAnimation(float timeScale,
+            int loopCount,
+            float durationPercentage,
+            Action onFinished)
+        {
+            if (timeScale == 0f ||
+                durationPercentage <= 0f ||
+                durationPercentage > 1f ||
+                _animationDuration < Mathf.Epsilon ||
+                _renderers.Count == 0)
             {
-                throw new Exception("Animation not initialized.");
+                Debug.LogError("Invalid parameters for playing CVD animation.");
+                return;
             }
 
-            StopAnimation();
+            StopCurrentAnimation();
 
             if (_animation != null) StopCoroutine(_animation);
 
             _animationCts = new CancellationTokenSource();
-            WaitForSeconds animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
             _animation = StartCoroutine(PlayAnimationInternal(timeScale,
+                _animationDuration * durationPercentage,
                 loopCount,
-                animationDelay,
+                onFinished,
                 _animationCts.Token));
         }
 
         private IEnumerator PlayAnimationInternal(float timeScale,
+            float duration,
             int loopCount,
-            WaitForSeconds animationDelay,
+            Action onFinished,
             CancellationToken cancellationToken)
         {
             if (loopCount == -1)
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, duration, cancellationToken);
                 }
             }
             else if (loopCount > 0)
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, duration, cancellationToken);
                 }
             }
+            
+            onFinished?.Invoke();
         }
 
         private IEnumerator PlayOneTimeAnimationInternal(float timeScale,
-            WaitForSeconds animationDelay,
+            float duration,
             CancellationToken cancellationToken)
         {
             var startTime = Time.timeSinceLevelLoad;
@@ -393,9 +420,9 @@ namespace Pal3.Renderer
             {
                 var currentTime = timeScale > 0 ? 
                         (Time.timeSinceLevelLoad - startTime) * timeScale :
-                        (_animationDuration - (Time.timeSinceLevelLoad - startTime)) * -timeScale;
+                        (duration - (Time.timeSinceLevelLoad - startTime)) * -timeScale;
 
-                if ((timeScale > 0f && currentTime >= _animationDuration) ||
+                if ((timeScale > 0f && currentTime >= duration) ||
                     (timeScale < 0f && currentTime <= 0f))
                 {
                     yield break;
@@ -403,7 +430,7 @@ namespace Pal3.Renderer
 
                 UpdateMesh(currentTime);
 
-                yield return animationDelay;
+                yield return null;
             }
         }
 
@@ -481,7 +508,7 @@ namespace Pal3.Renderer
             return nodeRotationInfo[^1].Rotation;
         }
 
-        public void StopAnimation()
+        public void StopCurrentAnimation()
         {
             if (_animation != null)
             {
@@ -498,7 +525,7 @@ namespace Pal3.Renderer
 
         public void Dispose()
         {
-            StopAnimation();
+            StopCurrentAnimation();
             
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {

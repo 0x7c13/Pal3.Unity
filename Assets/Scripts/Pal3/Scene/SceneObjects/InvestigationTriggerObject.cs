@@ -32,6 +32,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
+            if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<InvestigationTriggerController>().Init(this);
             return sceneGameObject;

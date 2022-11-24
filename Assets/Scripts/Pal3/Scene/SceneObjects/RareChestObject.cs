@@ -18,7 +18,7 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 
-        private RareChestObjectController _rareChestObjectController;
+        private CvdModelRenderer _cvdModelRenderer;
         private bool _isOpened;
 
         public RareChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -28,9 +28,9 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
+            if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _rareChestObjectController = sceneGameObject.AddComponent<RareChestObjectController>();
-            _rareChestObjectController.Init(this);
+            _cvdModelRenderer = sceneGameObject.GetComponent<CvdModelRenderer>();
             return sceneGameObject;
         }
         
@@ -43,59 +43,39 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_isOpened) return;
             _isOpened = true;
-            _rareChestObjectController.Interact();
-        }
 
-        public override void Deactivate()
-        {
-            _isOpened = false;
-            
-            if (_rareChestObjectController != null)
-            {
-                Object.Destroy(_rareChestObjectController.gameObject);
-            }
-            
-            base.Deactivate();
-        }
-    }
-
-    internal class RareChestObjectController : MonoBehaviour
-    {
-        private RareChestObject _rareChestObject;
-        
-        public void Init(RareChestObject rareChestObject)
-        {
-            _rareChestObject = rareChestObject;
-        }
-        
-        // TODO: implement rare chest interaction logic
-        public void Interact()
-        {
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
             
             for (int i = 0; i < 6; i++)
             {
-                if (_rareChestObject.Info.Parameters[i] != 0)
+                if (Info.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(_rareChestObject.Info.Parameters[i], 1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[i], 1));
                 }
             }
 
             var animationDuration = 0f;
             
-            if (GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
+            if (_cvdModelRenderer != null)
             {
-                animationDuration = cvdModelRenderer.GetAnimationDuration();
-                cvdModelRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
+                _cvdModelRenderer.PlayOneTimeAnimation(() =>
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
+                });
             }
-            
-            Invoke(nameof(OnAnimationFinished), animationDuration);
+            else
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
+            }
         }
 
-        public void OnAnimationFinished()
+        public override void Deactivate()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(_rareChestObject.Info.Id, 0));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(_rareChestObject.Info.Id, 0));
+            _isOpened = false;
+            _cvdModelRenderer = null;
+            base.Deactivate();
         }
     }
 }

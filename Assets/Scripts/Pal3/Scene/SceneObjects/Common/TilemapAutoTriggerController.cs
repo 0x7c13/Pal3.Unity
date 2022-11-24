@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects.Common
     public class TilemapAutoTriggerController : MonoBehaviour,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
-        public event EventHandler<Vector2Int> OnTrigger;
+        public event EventHandler<Vector2Int> OnTriggerEnter;
         
         private GameBoxRect _tileMapTriggerRect;
         private int _layerIndex;
@@ -65,7 +65,7 @@ namespace Pal3.Scene.SceneObjects.Common
             if (!_wasTriggered)
             {
                 _wasTriggered = true;
-                OnTrigger?.Invoke(this, notification.Position);
+                OnTriggerEnter?.Invoke(this, notification.Position);
             }
         }
     }

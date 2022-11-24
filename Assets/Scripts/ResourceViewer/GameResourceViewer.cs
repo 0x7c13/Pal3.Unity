@@ -208,7 +208,8 @@ namespace ResourceViewer
                     textureProvider,
                     Color.white,
                     0f);
-                meshRenderer.PlayAnimation();
+                
+                meshRenderer.LoopAnimation();
 
                 consoleTextUI.text = $"{filePath}";
 

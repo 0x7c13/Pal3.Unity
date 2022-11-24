@@ -22,6 +22,7 @@ namespace Pal3.Scene.SceneObjects
         
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
+            if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<CollidableObjectController>();
             return sceneGameObject;
@@ -61,7 +62,7 @@ namespace Pal3.Scene.SceneObjects
             
             _isCollided = true;
             
-            _cvdModelRenderer.PlayAnimation(timeScale: 1, loopCount: 1);
+            _cvdModelRenderer.PlayOneTimeAnimation();
             
             Destroy(_collider);
         }

@@ -25,10 +25,11 @@ namespace Pal3.Scene.SceneObjects
         public GraphicsEffect GraphicsEffect { get; }
         public SceneObjectModelType ModelType { get; }
 
+        internal bool Activated;
+        
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;
         private readonly string _modelFilePath;
-        private bool _activated;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
         {
@@ -85,7 +86,7 @@ namespace Pal3.Scene.SceneObjects
         public virtual GameObject Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (_activated && _sceneObjectGameObject != null) return _sceneObjectGameObject;
+            if (Activated) return _sceneObjectGameObject;
             
             _sceneObjectGameObject = new GameObject($"Object_{Info.Id}_{Info.Type}");
 
@@ -111,12 +112,13 @@ namespace Pal3.Scene.SceneObjects
 
                 var initTime = 0f;
                 
-                // if (Info.Type == ScnSceneObjectType.Switch &&
-                //     Info.Parameters[0] == 1 &&
-                //     Info.Parameters[1] == 1)
-                // {
-                //     initTime = cvd.CvdFile.AnimationDuration;
-                // }
+                // Some switches are on by default.
+                if (Info.Type == ScnSceneObjectType.Switch &&
+                    Info.Parameters[0] == 1 &&
+                    Info.Parameters[1] == 1)
+                {
+                    initTime = cvd.CvdFile.AnimationDuration;
+                }
 
                 modelRenderer.Init(cvd.CvdFile,
                     resourceProvider.GetMaterialFactory(),
@@ -126,7 +128,7 @@ namespace Pal3.Scene.SceneObjects
 
                 if (Info.Type == ScnSceneObjectType.General)
                 {
-                    modelRenderer.PlayAnimation();
+                    modelRenderer.LoopAnimation();
                 }
             }
 
@@ -152,7 +154,7 @@ namespace Pal3.Scene.SceneObjects
                 _effectComponent!.Init(resourceProvider, effectParameter);   
             }
 
-            _activated = true;
+            Activated = true;
             return _sceneObjectGameObject;
         }
 
@@ -176,13 +178,14 @@ namespace Pal3.Scene.SceneObjects
         /// </summary>
         public virtual void Deactivate()
         {
-            if (!_activated) return;
+            if (!Activated) return;
             
-            _activated = false;
+            Activated = false;
 
             if (_effectComponent != null)
             {
-                _effectComponent.Dispose();   
+                _effectComponent.Dispose();
+                _effectComponent = null;
             }
 
             if (_sceneObjectGameObject != null)

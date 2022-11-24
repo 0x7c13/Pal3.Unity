@@ -21,6 +21,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
+            if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(this);
             return sceneGameObject;
@@ -55,11 +56,11 @@ namespace Pal3.Scene.SceneObjects
         // Play animation with random wait time.
         private IEnumerator PlayAnimationRandomly(CvdModelRenderer cvdModelRenderer)
         {
-            var animationWaiter = new WaitForSeconds(cvdModelRenderer.GetAnimationDuration());
+            var animationWaiter = new WaitForSeconds(cvdModelRenderer.GetDefaultAnimationDuration());
             while (isActiveAndEnabled)
             {
-                yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f, 3.5f));
-                cvdModelRenderer.PlayAnimation(1f, 1);
+                yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
+                cvdModelRenderer.PlayOneTimeAnimation();
                 yield return animationWaiter;
             }
         }
