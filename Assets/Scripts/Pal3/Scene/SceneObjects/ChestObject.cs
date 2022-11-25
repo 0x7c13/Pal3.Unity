@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Chest)]
     public class ChestObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 4f;
+        private const float MAX_INTERACTION_DISTANCE = 3f;
         
         public ChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -27,11 +27,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact()
         {
-            if (Info.Times != 0xFF)
-            {
-                if (Info.Times <= 0) return;
-                else Info.Times--;
-            }
+            if (!IsInteractableBasedOnTimesCount()) return;
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg011", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));

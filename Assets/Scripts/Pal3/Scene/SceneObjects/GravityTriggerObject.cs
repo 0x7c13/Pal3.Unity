@@ -46,7 +46,7 @@ namespace Pal3.Scene.SceneObjects
             };
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds);
+            _platformController.SetBounds(bounds, Info.LayerIndex);
             _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
             _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
@@ -57,11 +57,7 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlatformTriggerEntered(object sender, Collider collider)
         {
-            if (Info.Times != 0xFF)
-            {
-                if (Info.Times <= 0) return;
-                else Info.Times--;
-            }
+            if (!IsInteractableBasedOnTimesCount()) return;
             
             // Check if the player actor is on the platform
             if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&

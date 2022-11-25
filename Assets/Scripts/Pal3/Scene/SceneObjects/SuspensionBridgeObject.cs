@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
@@ -23,12 +24,8 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact()
         {
-            if (Info.Times != 0xFF)
-            {
-                if (Info.Times <= 0) return;
-                else Info.Times--;
-            }
-
+            if (!IsInteractableBasedOnTimesCount()) return;
+            
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 if (!string.IsNullOrEmpty(Info.SfxName))
@@ -48,8 +45,8 @@ namespace Pal3.Scene.SceneObjects
                 size = new Vector3(4.5f, 0.7f, 6f),
             };
 
-            _platformController = GetGameObject().AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds);
+            _platformController = GetGameObject().GetOrAddComponent<StandingPlatformController>();
+            _platformController.SetBounds(bounds, Info.LayerIndex);
         }
 
         public override void Deactivate()

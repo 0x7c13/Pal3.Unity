@@ -15,8 +15,6 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 
-        private bool _isCollected;
-        
         public CollectableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -24,12 +22,12 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return Activated && !_isCollected && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()
         {
-            _isCollected = true;
+            if (!IsInteractableBasedOnTimesCount()) return;
             
             if (Info.Parameters[0] != 0) // Game item
             {
@@ -47,12 +45,6 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
-        }
-
-        public override void Deactivate()
-        {
-            _isCollected = false;
-            base.Deactivate();
         }
     }
 }

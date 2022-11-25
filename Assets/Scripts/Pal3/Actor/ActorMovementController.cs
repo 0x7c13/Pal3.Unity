@@ -270,9 +270,19 @@ namespace Pal3.Actor
             return _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
         }
 
-        public void PortalToPosition(Vector3 position, int layerIndex)
+        public void PortalToPosition(Vector3 position, int layerIndex, bool isPositionOnStandingPlatform)
         {
-            if (_tilemap.TryGetTile(position, layerIndex, out NavTile tile) && tile.IsWalkable())
+            if (isPositionOnStandingPlatform)
+            {
+                _currentPath?.Clear();
+                _actionController.PerformAction(_actor.GetIdleAction());
+                SetNavLayer(layerIndex);
+                transform.position = position;
+
+                Debug.LogWarning($"Portal to standing platform: {position}, " +
+                                 $"layer: {layerIndex}");
+            }
+            else if (_tilemap.TryGetTile(position, layerIndex, out NavTile tile) && tile.IsWalkable())
             {
                 _currentPath?.Clear();
                 _actionController.PerformAction(_actor.GetIdleAction());

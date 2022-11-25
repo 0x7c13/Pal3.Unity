@@ -45,11 +45,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact()
         {
-            if (Info.Times != 0xFF)
-            {
-                if (Info.Times <= 0) return;
-                else Info.Times--;
-            }
+            if (!IsInteractableBasedOnTimesCount()) return;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));

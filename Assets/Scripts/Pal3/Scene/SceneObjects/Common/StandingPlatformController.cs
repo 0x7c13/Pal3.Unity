@@ -12,14 +12,17 @@ namespace Pal3.Scene.SceneObjects.Common
     public class StandingPlatformController : MonoBehaviour
     {
         public event EventHandler<Collider> OnTriggerEntered;
-        
+
+        public int LayerIndex { get; private set; }
+
         private BoxCollider _collider;
         private Bounds _triggerBounds;
 
-        public void SetBounds(Bounds triggerBounds)
+        public void SetBounds(Bounds triggerBounds, int layerIndex)
         {
             _triggerBounds = triggerBounds;
-
+            LayerIndex = layerIndex;
+            
             _collider = gameObject.GetOrAddComponent<BoxCollider>();
             _collider.center = _triggerBounds.center;
             _collider.size = _triggerBounds.size;
@@ -30,7 +33,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             return _collider.bounds;
         }
-        
+
         public float GetPlatformHeight()
         {
             return _collider.bounds.max.y;

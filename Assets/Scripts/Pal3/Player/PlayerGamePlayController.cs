@@ -20,6 +20,7 @@ namespace Pal3.Player
     using MetaData;
     using Scene;
     using Scene.SceneObjects;
+    using Scene.SceneObjects.Common;
     using Script.Waiter;
     using State;
     using UnityEngine;
@@ -495,12 +496,23 @@ namespace Pal3.Player
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-            var layerIndex = _sceneManager.GetCurrentScene()
-                .GetMeshColliders()
-                .FirstOrDefault(_ => _.Value == hit.collider)
-                .Key;
+            int layerIndex = 0;
+            bool isPositionOnStandingPlatform = false;
+            
+            if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
+            {
+                layerIndex = standingPlatformController.LayerIndex;
+                isPositionOnStandingPlatform = true;
+            }
+            else
+            {
+                layerIndex = _sceneManager.GetCurrentScene()
+                    .GetMeshColliders()
+                    .FirstOrDefault(_ => _.Value == hit.collider)
+                    .Key;
+            }
 
-            _playerActorMovementController.PortalToPosition(hit.point, layerIndex);
+            _playerActorMovementController.PortalToPosition(hit.point, layerIndex, isPositionOnStandingPlatform);
         }
 
         // Raycast caches to avoid GC

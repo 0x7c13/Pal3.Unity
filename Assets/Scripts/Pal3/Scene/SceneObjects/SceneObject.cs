@@ -168,6 +168,20 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
+        internal bool IsInteractableBasedOnTimesCount()
+        {
+            switch (Info.Times)
+            {
+                case 0xFF:
+                    return true;
+                case <= 0:
+                    return false;
+                default:
+                    Info.Times--;
+                    return true;
+            }
+        }
+        
         public GameObject GetGameObject()
         {
             return _sceneObjectGameObject;
