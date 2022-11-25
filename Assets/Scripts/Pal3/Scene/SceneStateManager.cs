@@ -40,18 +40,16 @@ namespace Pal3.Scene
         
         public string GetSceneObjectHashName(string sceneCityName,
             string sceneName,
-            int lightMap,
             int objectId)
         {
-            return $"{sceneCityName.ToLower()}_{sceneName.ToLower()}_{lightMap}_{objectId}";
+            return $"{sceneCityName.ToLower()}_{sceneName.ToLower()}_{objectId}";
         }
         
         public SceneObjectActivationState GetSceneObjectActivationState(string sceneCityName,
             string sceneName,
-            int lightMap,
             int objectId)
         {
-            string sceneObjectHashName = GetSceneObjectHashName(sceneCityName, sceneName, lightMap, objectId);
+            string sceneObjectHashName = GetSceneObjectHashName(sceneCityName, sceneName, objectId);
             if (_sceneObjectActivationStates.ContainsKey(sceneObjectHashName))
             {
                 return _sceneObjectActivationStates[sceneObjectHashName] ?

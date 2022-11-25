@@ -171,7 +171,7 @@ namespace Core.DataReader.Scn
 
         public override string ToString()
         {
-            return $"{CityName.ToLower()}_{Name.ToLower()}_{LightMap}";
+            return $"{CityName.ToLower()}_{Name.ToLower()}";
         }
     }
 

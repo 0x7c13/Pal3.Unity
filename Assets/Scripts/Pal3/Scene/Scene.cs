@@ -367,7 +367,6 @@ namespace Pal3.Scene
             {
                 SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
                     ScnFile.SceneInfo.Name,
-                    ScnFile.SceneInfo.LightMap,
                     sceneObject.Info.Id);
 
                 if (objectState == SceneObjectActivationState.Enabled)
@@ -503,7 +502,6 @@ namespace Pal3.Scene
                 SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(
                     ScnFile.SceneInfo.CityName,
                     ScnFile.SceneInfo.Name,
-                    ScnFile.SceneInfo.LightMap,
                     sceneObject.Info.Id);
 
                 if (objectState != SceneObjectActivationState.Disabled)
@@ -574,7 +572,6 @@ namespace Pal3.Scene
                 _sceneStateManager.GetSceneObjectHashName(
                     ScnFile.SceneInfo.CityName,
                     ScnFile.SceneInfo.Name,
-                    ScnFile.SceneInfo.LightMap,
                     command.ObjectId),
                 command.IsActive));
         }
@@ -601,7 +598,6 @@ namespace Pal3.Scene
             var sceneObjectHashName = _sceneStateManager.GetSceneObjectHashName(
                 ScnFile.SceneInfo.CityName,
                 command.SceneName,
-                ScnFile.SceneInfo.LightMap,
                 command.ObjectId);
 
             if (!_sceneStateManager.GetSceneObjectActivationStates().ContainsKey(sceneObjectHashName))
