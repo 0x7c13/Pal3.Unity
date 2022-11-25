@@ -26,10 +26,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) return;
             
-            if (!string.IsNullOrEmpty(Info.SfxName))
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
-            }
+            PlaySfxIfAny();
             
             if (ModelType == SceneObjectModelType.CvdModel)
             {

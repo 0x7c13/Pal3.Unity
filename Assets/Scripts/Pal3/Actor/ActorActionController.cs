@@ -55,6 +55,7 @@ namespace Pal3.Actor
         private Bounds _rendererBounds;
         private Bounds _meshBounds;
 
+        private bool _hasColliderAndRigidBody;
         private Rigidbody _rigidbody;
         private CapsuleCollider _collider;
 
@@ -62,10 +63,14 @@ namespace Pal3.Actor
         // Also, the player actor is only non-kinematic during gameplay state.
         private bool _isKinematic = true;
 
-        public void Init(GameResourceProvider resourceProvider, Actor actor, Color tintColor)
+        public void Init(GameResourceProvider resourceProvider,
+            Actor actor,
+            bool hasColliderAndRigidBody,
+            Color tintColor)
         {
             _resourceProvider = resourceProvider;
             _actor = actor;
+            _hasColliderAndRigidBody = hasColliderAndRigidBody;
             _tintColor = tintColor;
         }
 
@@ -200,9 +205,12 @@ namespace Pal3.Actor
             #if !RTX_ON
             SetupShadow(action);
             #endif
-            
-            SetupCollider();
-            SetupRigidBody();
+
+            if (_hasColliderAndRigidBody)
+            {
+                SetupCollider();
+                SetupRigidBody();   
+            }
         }
 
         private void SetupShadow(ActorActionType actorAction)

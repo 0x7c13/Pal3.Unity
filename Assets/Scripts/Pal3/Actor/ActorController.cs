@@ -85,7 +85,7 @@ namespace Pal3.Actor
         public bool IsInteractable(float distance)
         {
             if (distance > _actor.GetInteractionMaxDistance()) return false;
-            return _actor.Info.ScriptId != 0;
+            return _actor.Info.ScriptId != ScriptConstants.InvalidScriptId;
         }
         
         public Actor GetActor()

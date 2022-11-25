@@ -6,6 +6,8 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.IO;
+    using Command;
+    using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -179,6 +181,14 @@ namespace Pal3.Scene.SceneObjects
                 default:
                     Info.Times--;
                     return true;
+            }
+        }
+
+        internal void PlaySfxIfAny()
+        {
+            if (!string.IsNullOrEmpty(Info.SfxName))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
             }
         }
         

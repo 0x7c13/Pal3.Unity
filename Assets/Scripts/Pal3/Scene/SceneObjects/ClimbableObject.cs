@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using MetaData;
     using State;
     using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact(bool triggerredByPlayer)
         {
-            if (Info.ScriptId == 0)
+            if (Info.ScriptId == ScriptConstants.InvalidScriptId)
             {
                 // For climbable scene object:
                 // Parameters[0] = x1

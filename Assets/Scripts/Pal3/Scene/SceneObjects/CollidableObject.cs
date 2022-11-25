@@ -5,8 +5,11 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Command;
+    using Command.SceCommands;
     using Core.DataReader.Scn;
     using Data;
+    using MetaData;
     using Renderer;
     using UnityEngine;
 
@@ -14,6 +17,8 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public class CollidableObject : SceneObject
     {
+        private CollidableObjectController _collidableObjectController;
+        
         public CollidableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -23,17 +28,34 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            sceneGameObject.AddComponent<CollidableObjectController>();
+            _collidableObjectController = sceneGameObject.AddComponent<CollidableObjectController>();
+            _collidableObjectController.Init(this);
             return sceneGameObject;
+        }
+
+        public override void Deactivate()
+        {
+            if (_collidableObjectController != null)
+            {
+                Object.Destroy(_collidableObjectController);
+            }
+            
+            base.Deactivate();
         }
     }
     
     internal class CollidableObjectController : MonoBehaviour
     {
         private bool _isCollided;
+        private CollidableObject _collidableObject;
         private BoxCollider _collider;
         private CvdModelRenderer _cvdModelRenderer;
 
+        public void Init(CollidableObject collidableObject)
+        {
+            _collidableObject = collidableObject;
+        }
+        
         private void OnEnable()
         {
             _cvdModelRenderer = gameObject.GetComponent<CvdModelRenderer>();
@@ -61,7 +83,22 @@ namespace Pal3.Scene.SceneObjects
             
             _isCollided = true;
             
-            _cvdModelRenderer.StartOneTimeAnimation();
+            _collidableObject.PlaySfxIfAny();
+            
+            _cvdModelRenderer.StartOneTimeAnimation(() =>
+            {
+                if (_collidableObject.Info.LinkedObjectId != 0xFFFF)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new SceneActivateObjectCommand(_collidableObject.Info.LinkedObjectId, 1));
+                }
+                
+                if (_collidableObject.Info.ScriptId != ScriptConstants.InvalidScriptId)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new ScriptRunCommand((int)_collidableObject.Info.ScriptId));
+                }
+            });
             
             Destroy(_collider);
         }

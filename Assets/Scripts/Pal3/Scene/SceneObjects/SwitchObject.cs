@@ -31,10 +31,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            if (!string.IsNullOrEmpty(Info.SfxName))
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
-            }
+            PlaySfxIfAny();
 
             if (triggerredByPlayer)
             {
@@ -62,7 +59,7 @@ namespace Pal3.Scene.SceneObjects
 
         private void ExecuteScript()
         {
-            if (Info.ScriptId != 0)
+            if (Info.ScriptId != ScriptConstants.InvalidScriptId)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptRunCommand((int) Info.ScriptId));

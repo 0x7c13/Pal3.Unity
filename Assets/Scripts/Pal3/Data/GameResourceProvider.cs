@@ -221,14 +221,14 @@ namespace Pal3.Data
         public SceFile GetSystemSce()
         {
             using var sceFileStream = new MemoryStream(
-                _fileSystem.ReadAllBytes(ScriptConstants.SystemSceFileVirtualPath));
+                _fileSystem.ReadAllBytes(FileConstants.SystemSceFileVirtualPath));
             return SceFileReader.Read(sceFileStream, _codepage);
         }
 
         public SceFile GetBigMapSce()
         {
             using var sceFileStream = new MemoryStream(
-                _fileSystem.ReadAllBytes(ScriptConstants.BigMapSceFileVirtualPath));
+                _fileSystem.ReadAllBytes(FileConstants.BigMapSceFileVirtualPath));
             return SceFileReader.Read(sceFileStream, _codepage);
         }
 

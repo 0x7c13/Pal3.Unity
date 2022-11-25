@@ -7,10 +7,6 @@ namespace Pal3.MetaData
 {
     public static class ScriptConstants
     {
-        public const string SystemSceFileVirtualPath = @"basedata.cpk\init.sce";
-
-        public const string BigMapSceFileVirtualPath = @"basedata.cpk\ui\BigMap\BigMap.sce";
-
         public const int InitScriptId = 51;
 
         public const int InvalidScriptId = 0;

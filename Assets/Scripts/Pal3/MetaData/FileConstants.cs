@@ -9,6 +9,10 @@ namespace Pal3.MetaData
 
     public static class FileConstants
     {
+        public const string SystemSceFileVirtualPath = @"basedata.cpk\init.sce";
+
+        public const string BigMapSceFileVirtualPath = @"basedata.cpk\ui\BigMap\BigMap.sce";
+        
         #if PAL3
         public const string EffectScnFolderName = "EffectScn";
         #elif PAL3A
