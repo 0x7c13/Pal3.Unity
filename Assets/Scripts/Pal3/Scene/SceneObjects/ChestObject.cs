@@ -6,7 +6,6 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
     
@@ -51,14 +50,12 @@ namespace Pal3.Scene.SceneObjects
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(() =>
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
+                    ChangeGlobalActivationState(false);
                 });
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
+                ChangeGlobalActivationState(false);
             }
         }
     }

@@ -49,20 +49,11 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(ExecuteScript);
+                GetCvdModelRenderer().StartOneTimeAnimation(ExecuteScriptIfAny);
             }
             else
             {
-                ExecuteScript();
-            }
-        }
-
-        private void ExecuteScript()
-        {
-            if (Info.ScriptId != ScriptConstants.InvalidScriptId)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunCommand((int) Info.ScriptId));
+                ExecuteScriptIfAny();
             }
         }
     }

@@ -11,7 +11,6 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Data;
-    using MetaData;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
@@ -66,12 +65,12 @@ namespace Pal3.Scene.SceneObjects
                     onFinished: () =>
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)Info.ScriptId));
+                        ExecuteScriptIfAny();
                     });
             }
-            else if (Info.ScriptId != ScriptConstants.InvalidScriptId)
+            else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)Info.ScriptId));
+                ExecuteScriptIfAny();   
             }
         }
 

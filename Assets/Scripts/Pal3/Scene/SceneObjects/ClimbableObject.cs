@@ -7,7 +7,6 @@ namespace Pal3.Scene.SceneObjects
 {
     using Command;
     using Command.InternalCommands;
-    using Command.SceCommands;
     using Core.DataReader.Scn;
     using MetaData;
     using State;
@@ -48,8 +47,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Cutscene));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunCommand((int)Info.ScriptId));
+                ExecuteScriptIfAny();
             }
         }
     }

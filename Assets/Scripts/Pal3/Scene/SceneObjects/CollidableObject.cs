@@ -5,11 +5,8 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using Command;
-    using Command.SceCommands;
     using Core.DataReader.Scn;
     using Data;
-    using MetaData;
     using Renderer;
     using UnityEngine;
 
@@ -87,17 +84,8 @@ namespace Pal3.Scene.SceneObjects
             
             _cvdModelRenderer.StartOneTimeAnimation(() =>
             {
-                if (_collidableObject.Info.LinkedObjectId != 0xFFFF)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new SceneActivateObjectCommand(_collidableObject.Info.LinkedObjectId, 1));
-                }
-                
-                if (_collidableObject.Info.ScriptId != ScriptConstants.InvalidScriptId)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new ScriptRunCommand((int)_collidableObject.Info.ScriptId));
-                }
+                _collidableObject.ChangeLinkedObjectGlobalActivationStateIfAny(true);
+                _collidableObject.ExecuteScriptIfAny();
             });
             
             Destroy(_collider);

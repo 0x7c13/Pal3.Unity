@@ -137,8 +137,7 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerInteractWithObjectCommand(_gravityTriggerObject.Info.LinkedObjectId));
+            _gravityTriggerObject.InteractWithLinkedObjectIfAny();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }

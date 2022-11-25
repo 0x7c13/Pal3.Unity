@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.IO;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -170,28 +171,6 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
-        internal bool IsInteractableBasedOnTimesCount()
-        {
-            switch (Info.Times)
-            {
-                case 0xFF:
-                    return true;
-                case <= 0:
-                    return false;
-                default:
-                    Info.Times--;
-                    return true;
-            }
-        }
-
-        internal void PlaySfxIfAny()
-        {
-            if (!string.IsNullOrEmpty(Info.SfxName))
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
-            }
-        }
-        
         public GameObject GetGameObject()
         {
             return _sceneObjectGameObject;
@@ -249,5 +228,65 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_sceneObjectGameObject);
             }
         }
+        
+        #region Internal helpper methods
+        internal bool IsInteractableBasedOnTimesCount()
+        {
+            switch (Info.Times)
+            {
+                case 0xFF:
+                    return true;
+                case <= 0:
+                    return false;
+                default:
+                    Info.Times--;
+                    return true;
+            }
+        }
+        
+        internal void ExecuteScriptIfAny()
+        {
+            if (Info.ScriptId != ScriptConstants.InvalidScriptId)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)Info.ScriptId));   
+            }
+        }
+
+        internal void PlaySfxIfAny()
+        {
+            if (!string.IsNullOrEmpty(Info.SfxName))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
+            }
+        }
+
+        internal void ChangeGlobalActivationState(bool isActivated)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneActivateObjectCommand(Info.Id, isActivated ? 1 : 0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneChangeObjectActivationStateCommand(Info.Id, isActivated ? 1 : 0));
+        }
+        
+        internal void ChangeLinkedObjectGlobalActivationStateIfAny(bool isActivated)
+        {
+            if (Info.LinkedObjectId != 0xFFFF)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneActivateObjectCommand(Info.LinkedObjectId, isActivated ? 1 : 0));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneChangeObjectActivationStateCommand(Info.LinkedObjectId, isActivated ? 1 : 0));
+            }
+        }
+
+        internal void InteractWithLinkedObjectIfAny()
+        {
+            if (Info.LinkedObjectId != 0xFFFF)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlayerInteractWithObjectCommand(Info.LinkedObjectId));
+            }
+        }
+        #endregion
     }
 }

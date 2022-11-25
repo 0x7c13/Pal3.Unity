@@ -7,7 +7,6 @@ namespace Pal3.Scene.SceneObjects
 {
     using Command;
     using Command.InternalCommands;
-    using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
     using Data;
@@ -54,7 +53,7 @@ namespace Pal3.Scene.SceneObjects
 
             _isScriptRunningInProgress = true;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)Info.ScriptId));
+            ExecuteScriptIfAny();
         }
 
         public void Execute(ScriptFinishedRunningNotification command)

@@ -54,11 +54,7 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            if (Info.ScriptId != ScriptConstants.InvalidScriptId)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunCommand((int)Info.ScriptId));
-            }
+            ExecuteScriptIfAny();
         }
     }
 

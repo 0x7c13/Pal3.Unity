@@ -82,8 +82,7 @@ namespace Pal3.Scene.SceneObjects
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
             
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new SceneActivateObjectCommand(_surfaceMechanismObject.Info.Id, 0));
+            _surfaceMechanismObject.ChangeGlobalActivationState(false);
         }
     }
 }
