@@ -58,7 +58,9 @@ namespace Pal3.Actor
 
         private bool _isDuringCollision;
         private Vector3 _lastKnownValidPositionWhenCollisionEnter;
-        
+
+        private bool _isNearOrOnTopOfPlatform;
+        private Vector3 _activeStandingPlatformLastKnownPosition;
         private StandingPlatformController _activeStandingPlatform;
 
         private Func<int, int[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
@@ -154,6 +156,21 @@ namespace Pal3.Actor
             }
         }
 
+        private void LateUpdate()
+        {
+            // To sync with the platform movement
+            if (_isNearOrOnTopOfPlatform &&
+                _activeStandingPlatform != null &&
+                _activeStandingPlatform.gameObject.transform.position != _activeStandingPlatformLastKnownPosition)
+            {
+                var currentPlatformPosition = _activeStandingPlatform.gameObject.transform.position;
+                transform.position += currentPlatformPosition -
+                                      _activeStandingPlatformLastKnownPosition;
+                
+                _activeStandingPlatformLastKnownPosition = currentPlatformPosition;
+            }
+        }
+
         private void FixedUpdate()
         {
             // To prevent actor from bouncing into un-walkable tile position,
@@ -224,16 +241,17 @@ namespace Pal3.Actor
         {
             if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
+                _isNearOrOnTopOfPlatform = true;
                 _activeStandingPlatform = standingPlatformController;
+                _activeStandingPlatformLastKnownPosition = triggerCollider.gameObject.transform.position;
             }
         }
 
         private void OnTriggerExit(Collider triggerCollider)
         {
-            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController &&
-                _activeStandingPlatform == standingPlatformController)
+            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() != null)
             {
-                _activeStandingPlatform = null;
+                _isNearOrOnTopOfPlatform = false;
             }
         }
 
@@ -371,16 +389,16 @@ namespace Pal3.Actor
         {
             newYPosition = 0f;
 
-            // Actor is on top of a platform
+            // Check if actor is on top of a platform
             if (_activeStandingPlatform != null)
             {
-                var rendererBounds = _activeStandingPlatform.GetRendererBounds();
-                
+                Bounds bounds = _activeStandingPlatform.GetBounds();
+
                 // A little bit lower than the platform to make sure the bounds check pass when (X,Z) is inside the platform
                 var targetYPosition = _activeStandingPlatform.GetPlatformHeight() - 0.05f;
                 
                 // Make sure actor is on top of the platform
-                if (rendererBounds.Contains(new Vector3(newPosition.x, targetYPosition, newPosition.z)))
+                if (bounds.Contains(new Vector3(newPosition.x, targetYPosition, newPosition.z)))
                 {
                     newYPosition = targetYPosition;
                     return true;   

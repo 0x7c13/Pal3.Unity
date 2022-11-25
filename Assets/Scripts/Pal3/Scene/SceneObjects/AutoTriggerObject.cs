@@ -41,16 +41,16 @@ namespace Pal3.Scene.SceneObjects
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
             
             _triggerController.Init(Info.TileMapTriggerRect, Info.LayerIndex, effectiveTime);
-            _triggerController.OnTriggerEnter += OnTriggerEnter;
+            _triggerController.OnTriggerEntered += OnTriggerEntered;
             
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
             
             return sceneGameObject;
         }
 
-        private void OnTriggerEnter(object sender, Vector2Int actorTilePosition)
+        private void OnTriggerEntered(object sender, Vector2Int actorTilePosition)
         {
-            if (_isScriptRunningInProgress) return; // prevent re-entry
+            if (_isScriptRunningInProgress) return; // Prevent re-entry
 
             _isScriptRunningInProgress = true;
 
@@ -73,7 +73,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (_triggerController != null)
             {
-                _triggerController.OnTriggerEnter -= OnTriggerEnter;
+                _triggerController.OnTriggerEntered -= OnTriggerEntered;
                 Object.Destroy(_triggerController);
             }
             

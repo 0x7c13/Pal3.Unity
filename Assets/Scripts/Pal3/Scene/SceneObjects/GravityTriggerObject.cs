@@ -5,10 +5,16 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
+    using Actor;
+    using Command;
+    using Command.SceCommands;
     using Common;
+    using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Services;
     using Data;
-    using Renderer;
+    using Player;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
@@ -17,9 +23,14 @@ namespace Pal3.Scene.SceneObjects
         private StandingPlatformController _platformController;
         private GravityTriggerObjectController _gravityTriggerObjectController;
         
+        private readonly PlayerManager _playerManager;
+        private readonly TeamManager _teamManager;
+        
         public GravityTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _teamManager = ServiceLocator.Instance.Get<TeamManager>();
         }
         
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -28,22 +39,15 @@ namespace Pal3.Scene.SceneObjects
             
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             
-            var cvdModelRenderer = sceneGameObject.GetComponent<CvdModelRenderer>();
-
-            Bounds triggerBounds = cvdModelRenderer.GetMeshBounds();
-            Bounds rendererBounds = cvdModelRenderer.GetRendererBounds();
-            
-            // This is a tweak based on the model
+            var bounds = new Bounds
             {
-                rendererBounds.size *= 0.7f;
-                rendererBounds.center = new Vector3(
-                    rendererBounds.center.x,
-                    rendererBounds.center.y + 0.2f,
-                    rendererBounds.center.z);
-            }
+                center = new Vector3(0f, 0.8f, 0f),
+                size = new Vector3(4f, 1f, 4f),
+            };
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(triggerBounds, rendererBounds);
+            _platformController.SetBounds(bounds);
+            _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
             _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
             _gravityTriggerObjectController.Init(this);
@@ -51,10 +55,35 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
+        private void OnPlatformTriggerEntered(object sender, Collider collider)
+        {
+            if (Info.Times != 0xFF)
+            {
+                if (Info.Times <= 0) return;
+                else Info.Times--;
+            }
+            
+            // Check if the player actor is on the platform
+            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
+                actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
+            {
+                // Check if total team members are equal to or greater than required headcount
+                if (_teamManager.GetActorsInTeam().Count >= Info.Parameters[0])
+                {
+                    _gravityTriggerObjectController.Interact(collider.gameObject);
+                }
+                else
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("重量不足，无法激活"));
+                }
+            }
+        }
+
         public override void Deactivate()
         {
             if (_platformController != null)
             {
+                _platformController.OnTriggerEntered -= OnPlatformTriggerEntered;
                 Object.Destroy(_platformController);
             }
             
@@ -69,11 +98,53 @@ namespace Pal3.Scene.SceneObjects
 
     public class GravityTriggerObjectController : MonoBehaviour
     {
-        private GravityTriggerObject _gravityTriggerObject;
+        private const float DESCENDING_HEIGHT = 0.5f;
+        private const float DESCENDING_ANIMATION_DURATION = 2.5f;
         
+        private GravityTriggerObject _gravityTriggerObject;
+
         public void Init(GravityTriggerObject gravityTriggerObject)
         {
             _gravityTriggerObject = gravityTriggerObject;
+        }
+
+        public void Interact(GameObject playerActorGameObject)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
+            StartCoroutine(InteractInternal(playerActorGameObject));
+        }
+
+        private IEnumerator InteractInternal(GameObject playerActorGameObject)
+        {
+            GameObject gravityTriggerGo = _gravityTriggerObject.GetGameObject();
+            var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
+            Vector3 platformPosition = platformController.transform.position;
+            var actorStandingPosition = new Vector3(
+                platformPosition.x,
+                platformController.GetPlatformHeight(),
+                platformPosition.z);
+            
+            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
+            yield return movementController.MoveDirectlyTo(actorStandingPosition, 0);
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
+
+            var cvdModelRenderer = _gravityTriggerObject.GetCvdModelRenderer();
+            yield return cvdModelRenderer.PlayOneTimeAnimation();
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
+
+            Vector3 finalPosition = gravityTriggerGo.transform.position;
+            finalPosition.y -= DESCENDING_HEIGHT;
+            yield return AnimationHelper.MoveTransform(gravityTriggerGo.transform,
+                finalPosition,
+                DESCENDING_ANIMATION_DURATION,
+                AnimationCurveType.Sine);
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerInteractWithObjectCommand(_gravityTriggerObject.Info.LinkedObjectId));
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }
     }
 }

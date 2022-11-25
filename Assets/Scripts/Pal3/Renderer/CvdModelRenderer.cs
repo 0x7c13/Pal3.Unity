@@ -324,7 +324,6 @@ namespace Pal3.Renderer
                     if (!renderMeshComponents.ContainsKey(i)) continue;
 
                     RenderMeshComponent renderMeshComponent = renderMeshComponents[i];
-                    if (!renderMeshComponent.MeshRenderer.IsVisible()) continue;
 
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 
@@ -342,7 +341,12 @@ namespace Pal3.Renderer
             }
         }
 
-        public void PlayOneTimeAnimation(Action onFinished = null)
+        public IEnumerator PlayOneTimeAnimation(float timeScale = 1f)
+        {
+            yield return PlayOneTimeAnimationInternal(timeScale, _animationDuration, CancellationToken.None);
+        }
+        
+        public void StartOneTimeAnimation(Action onFinished = null)
         {
             PlayAnimation(1f, 1, 1f, onFinished);
         }

@@ -5,19 +5,20 @@
 
 namespace Pal3.Scene.SceneObjects.Common
 {
+    using System;
     using Core.Extensions;
     using UnityEngine;
 
     public class StandingPlatformController : MonoBehaviour
     {
+        public event EventHandler<Collider> OnTriggerEntered;
+        
         private BoxCollider _collider;
         private Bounds _triggerBounds;
-        private Bounds _rendererBounds;
 
-        public void SetBounds(Bounds triggerBounds, Bounds rendererBounds)
+        public void SetBounds(Bounds triggerBounds)
         {
             _triggerBounds = triggerBounds;
-            _rendererBounds = rendererBounds;
 
             _collider = gameObject.GetOrAddComponent<BoxCollider>();
             _collider.center = _triggerBounds.center;
@@ -25,16 +26,21 @@ namespace Pal3.Scene.SceneObjects.Common
             _collider.isTrigger = true;
         }
 
-        public Bounds GetRendererBounds()
+        public Bounds GetBounds()
         {
-            return _rendererBounds;
+            return _collider.bounds;
         }
         
         public float GetPlatformHeight()
         {
-            return _rendererBounds.max.y;
+            return _collider.bounds.max.y;
         }
-        
+
+        private void OnTriggerEnter(Collider other)
+        {
+            OnTriggerEntered?.Invoke(this, other);
+        }
+
         private void OnDisable()
         {
             if (_collider != null)

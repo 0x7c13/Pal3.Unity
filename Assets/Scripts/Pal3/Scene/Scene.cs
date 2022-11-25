@@ -543,11 +543,7 @@ namespace Pal3.Scene
         {
             if (_activatedSceneObjects.Contains(command.SceneObjectId))
             {
-                GameObject sceneObjectGo = SceneObjects[command.SceneObjectId].GetGameObject();
-                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
-                {
-                    cvdMeshRenderer.PlayOneTimeAnimation();
-                }
+                SceneObjects[command.SceneObjectId].Interact();
             }
             else
             {
@@ -563,7 +559,7 @@ namespace Pal3.Scene
                 if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
                     cvdMeshRenderer.GetCurrentTime() == 0f)
                 {
-                    cvdMeshRenderer.PlayOneTimeAnimation();
+                    cvdMeshRenderer.StartOneTimeAnimation();
                 }
             }
             else

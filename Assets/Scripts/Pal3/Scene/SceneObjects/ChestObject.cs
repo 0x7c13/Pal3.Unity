@@ -9,41 +9,29 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
-    using Data;
-    using Renderer;
-    using UnityEngine;
-
+    
     [ScnSceneObject(ScnSceneObjectType.Chest)]
     public class ChestObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
-
-        private CvdModelRenderer _cvdModelRenderer;
-        private bool _isOpened;
-
+        
         public ChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-
-        public override GameObject Activate(GameResourceProvider resourceProvider,
-            Color tintColor)
-        {
-            if (Activated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _cvdModelRenderer = sceneGameObject.GetComponent<CvdModelRenderer>();
-            return sceneGameObject;
-        }
         
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return !_isOpened && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()
         {
-            if (_isOpened) return;
-            _isOpened = true;
+            if (Info.Times != 0xFF)
+            {
+                if (Info.Times <= 0) return;
+                else Info.Times--;
+            }
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg011", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
@@ -63,9 +51,9 @@ namespace Pal3.Scene.SceneObjects
             }
             #endif
             
-            if (_cvdModelRenderer != null)
+            if (ModelType == SceneObjectModelType.CvdModel)
             {
-                _cvdModelRenderer.PlayOneTimeAnimation(() =>
+                GetCvdModelRenderer().StartOneTimeAnimation(() =>
                 {
                     CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
                     CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
@@ -76,13 +64,6 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneActivateObjectCommand(Info.Id, 0));
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneChangeObjectActivationStateCommand(Info.Id, 0));
             }
-        }
-
-        public override void Deactivate()
-        {
-            _isOpened = false;
-            _cvdModelRenderer = null;
-            base.Deactivate();
         }
     }
 }

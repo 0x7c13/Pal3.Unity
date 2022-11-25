@@ -37,6 +37,9 @@ namespace Pal3.Scene.SceneObjects
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;
         private readonly string _modelFilePath;
+        
+        private PolyModelRenderer _polyModelRenderer;
+        private CvdModelRenderer _cvdModelRenderer;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
         {
@@ -106,8 +109,8 @@ namespace Pal3.Scene.SceneObjects
             if (ModelType == SceneObjectModelType.PolModel)
             {
                 (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
-                var modelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
-                modelRenderer.Render(poly.PolFile,
+                _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
+                _polyModelRenderer.Render(poly.PolFile,
                     resourceProvider.GetMaterialFactory(),
                     poly.TextureProvider,
                     tintColor);
@@ -115,7 +118,7 @@ namespace Pal3.Scene.SceneObjects
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
                 (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
-                var modelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
+                _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
 
                 var initTime = 0f;
                 
@@ -127,7 +130,7 @@ namespace Pal3.Scene.SceneObjects
                     initTime = cvd.CvdFile.AnimationDuration;
                 }
 
-                modelRenderer.Init(cvd.CvdFile,
+                _cvdModelRenderer.Init(cvd.CvdFile,
                     resourceProvider.GetMaterialFactory(),
                     cvd.TextureProvider,
                     tintColor,
@@ -135,7 +138,7 @@ namespace Pal3.Scene.SceneObjects
 
                 if (Info.Type == ScnSceneObjectType.General)
                 {
-                    modelRenderer.LoopAnimation();
+                    _cvdModelRenderer.LoopAnimation();
                 }
             }
 
@@ -170,6 +173,16 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
         
+        public CvdModelRenderer GetCvdModelRenderer()
+        {
+            return _cvdModelRenderer;
+        }
+        
+        public PolyModelRenderer GetPolyModelRenderer()
+        {
+            return _polyModelRenderer;
+        }
+        
         public virtual bool IsInteractable(InteractionContext ctx)
         {
             return false;
@@ -193,6 +206,18 @@ namespace Pal3.Scene.SceneObjects
             {
                 _effectComponent.Dispose();
                 _effectComponent = null;
+            }
+            
+            if (_polyModelRenderer != null)
+            {
+                _polyModelRenderer.Dispose();
+                _polyModelRenderer = null;
+            }
+            
+            if (_cvdModelRenderer != null)
+            {
+                _cvdModelRenderer.Dispose();
+                _cvdModelRenderer = null;
             }
 
             if (_sceneObjectGameObject != null)

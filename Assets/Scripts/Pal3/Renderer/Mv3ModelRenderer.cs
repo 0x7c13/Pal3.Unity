@@ -243,7 +243,7 @@ namespace Pal3.Renderer
             {
                 foreach (GameObject meshObject in _meshObjects)
                 {
-                    DestroyImmediate(meshObject);
+                    Destroy(meshObject);
                 }
 
                 _meshObjects = null;
@@ -253,7 +253,7 @@ namespace Pal3.Renderer
             {
                 foreach (GameObject tagNode in _tagNodes)
                 {
-                    DestroyImmediate(tagNode);
+                    Destroy(tagNode);
                 }
 
                 _tagNodes = null;

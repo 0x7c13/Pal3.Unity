@@ -26,6 +26,14 @@ namespace Pal3.Scene.SceneObjects
             sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(this);
             return sceneGameObject;
         }
+
+        public override void Interact()
+        {
+            if (Activated && ModelType == SceneObjectModelType.CvdModel)
+            {
+                GetCvdModelRenderer().StartOneTimeAnimation();
+            }
+        }
     }
 
     public class StaticOrAnimatedObjectController : MonoBehaviour
@@ -56,12 +64,10 @@ namespace Pal3.Scene.SceneObjects
         // Play animation with random wait time.
         private IEnumerator PlayAnimationRandomly(CvdModelRenderer cvdModelRenderer)
         {
-            var animationWaiter = new WaitForSeconds(cvdModelRenderer.GetDefaultAnimationDuration());
             while (isActiveAndEnabled)
             {
                 yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
-                cvdModelRenderer.PlayOneTimeAnimation();
-                yield return animationWaiter;
+                yield return cvdModelRenderer.PlayOneTimeAnimation();
             }
         }
 

@@ -14,6 +14,7 @@ namespace Pal3.Dev
     using IngameDebugConsole;
     using Input;
     using MetaData;
+    using Player;
     using Scene;
     using Script;
     using State;
@@ -36,6 +37,7 @@ namespace Pal3.Dev
         private EventSystem _eventSystem;
         private PlayerInputActions _playerInputActions;
         private ScriptManager _scriptManager;
+        private TeamManager _teamManager;
         private GameStateManager _gameStateManager;
         private SceneManager _sceneManager;
         private SaveManager _saveManager;
@@ -1007,6 +1009,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 96 169
+                TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
             {"唐家堡-登云麓", @"
                 ScriptVarSetValue -32768 10800
@@ -1016,6 +1019,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 190 20
+                TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
             {"蜀山-找酒剑仙", @"
                 ScriptVarSetValue -32768 20200
@@ -1025,6 +1029,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 332 185
+                TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
             {"蜀山-第一次回家", @"
                 ScriptVarSetValue -32768 20800
@@ -1034,6 +1039,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 91 114
+                TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
             {"蜀山-绿萝嶂", @"
                 ScriptVarSetValue -32768 30101
@@ -1043,6 +1049,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 342 137
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
             {"绿萝山-蜀山", @"
@@ -1055,6 +1062,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 94 179
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 0
                 BigMapEnableRegion 1 0
                 BigMapEnableRegion 2 2
@@ -1070,6 +1078,7 @@ namespace Pal3.Dev
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 29 66
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1086,6 +1095,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 321 102
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1103,6 +1113,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 183 290
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1120,6 +1131,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 346 180
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1137,6 +1149,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 127 15
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1154,6 +1167,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 417 177
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1174,6 +1188,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 391 283
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1192,6 +1207,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 335 157
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
@@ -1211,6 +1227,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 55 18
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1229,6 +1246,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 13 192
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1247,6 +1265,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 1
                 ActorSetTilePosition -1 82 221
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1265,6 +1284,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 30 90
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1284,6 +1304,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 14 90
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 BigMapEnableRegion 0 2
@@ -1305,6 +1326,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 311 124
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
@@ -1327,6 +1349,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 41 428
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
@@ -1349,6 +1372,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 1
                 ActorSetTilePosition -1 265 400
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1369,6 +1393,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 192 27
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1389,6 +1414,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 89 116
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
@@ -1411,6 +1437,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 25 17
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
@@ -1434,6 +1461,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 50 21
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
                 BigMapEnableRegion 0 2
@@ -1458,6 +1486,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 365 194
+                TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
@@ -1480,6 +1509,7 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 123 226
+                TeamAddOrRemoveActor 0 1
                 BigMapEnableRegion 0 2
                 BigMapEnableRegion 1 2
                 BigMapEnableRegion 2 2
@@ -1873,6 +1903,7 @@ namespace Pal3.Dev
             SceneManager sceneManager,
             GameStateManager gameStateManager,
             ScriptManager scriptManager,
+            TeamManager teamManager,
             SaveManager saveManager,
             InformationManager informationManager,
             CanvasGroup storySelectorCanvas,
@@ -1884,6 +1915,7 @@ namespace Pal3.Dev
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _playerInputActions = inputManager.GetPlayerInputActions();
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
             _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
             _informationManager = informationManager != null ? informationManager : throw new ArgumentNullException(nameof(informationManager));
             _storySelectorCanvas = storySelectorCanvas != null ? storySelectorCanvas : throw new ArgumentNullException(nameof(storySelectorCanvas));
@@ -2051,6 +2083,9 @@ namespace Pal3.Dev
             // Add init script
             _scriptManager.AddScript(ScriptConstants.InitScriptId);
 
+            // Add main actor to the team
+            _teamManager.AddActor(0);
+            
             _gameStateManager.GoToState(GameState.Cutscene);
         }
 

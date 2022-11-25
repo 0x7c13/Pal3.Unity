@@ -6,7 +6,6 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Core.DataReader.Scn;
-    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
     public class SpecialMechanismObject : SceneObject

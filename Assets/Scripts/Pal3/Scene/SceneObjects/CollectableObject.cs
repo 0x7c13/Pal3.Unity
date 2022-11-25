@@ -9,7 +9,6 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
-    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
     public class CollectableObject : SceneObject
@@ -25,7 +24,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return !_isCollected && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && !_isCollected && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override void Interact()

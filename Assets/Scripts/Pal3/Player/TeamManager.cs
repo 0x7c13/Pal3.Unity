@@ -21,7 +21,6 @@ namespace Pal3.Player
         ICommandExecutor<TeamOpenCommand>,
         ICommandExecutor<TeamCloseCommand>,
         ICommandExecutor<TeamAddOrRemoveActorCommand>,
-        ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ResetGameStateCommand> 
     {
         private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 2.5f;
@@ -183,15 +182,6 @@ namespace Pal3.Player
         public void Execute(ResetGameStateCommand command)
         {
             _actorsInTeam.Clear();
-        }
-
-        // This is to make sure that the player actor is always in the team
-        public void Execute(ActorEnablePlayerControlCommand command)
-        {
-            if (_actorsInTeam.Count == 0 && Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
-            {
-                _actorsInTeam.Add((PlayerActorId) command.ActorId);
-            }
         }
     }
 }

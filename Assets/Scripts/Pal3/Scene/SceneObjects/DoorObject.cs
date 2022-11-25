@@ -11,7 +11,6 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Data;
-    using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
@@ -19,7 +18,6 @@ namespace Pal3.Scene.SceneObjects
         ICommandExecutor<ScriptFinishedRunningNotification>
     {
         private TilemapAutoTriggerController _triggerController;
-        private CvdModelRenderer _cvdModelRenderer;
         private bool _isScriptRunningInProgress;
         
         public DoorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -41,9 +39,7 @@ namespace Pal3.Scene.SceneObjects
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
             
             _triggerController.Init(Info.TileMapTriggerRect, Info.LayerIndex, effectiveTime);
-            _triggerController.OnTriggerEnter += OnTriggerEnter;
-            
-            _cvdModelRenderer = sceneGameObject.GetComponent<CvdModelRenderer>();
+            _triggerController.OnTriggerEntered += OnTriggerEnter;
             
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
             
@@ -52,20 +48,20 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnTriggerEnter(object sender, Vector2Int actorTilePosition)
         {
-            if (_isScriptRunningInProgress) return; // prevent re-entry
+            if (_isScriptRunningInProgress) return; // Prevent re-entry
 
             _isScriptRunningInProgress = true;
             
             // There are doors controlled by the script for it's behaviour & animation which have
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
-            if (Info.Parameters[0] == 0 && _cvdModelRenderer != null)
+            if (Info.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
                 
                 var timeScale = 2f; // Make the animation 2X faster for better user experience
                 var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
 
-                _cvdModelRenderer.PlayAnimation(timeScale, loopCount: 1, durationPercentage,
+                GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage,
                     onFinished: () =>
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
@@ -83,12 +79,10 @@ namespace Pal3.Scene.SceneObjects
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             
             _isScriptRunningInProgress = false;
-            
-            _cvdModelRenderer = null;
-            
+
             if (_triggerController != null)
             {
-                _triggerController.OnTriggerEnter -= OnTriggerEnter;
+                _triggerController.OnTriggerEntered -= OnTriggerEnter;
                 Object.Destroy(_triggerController);
             }
 

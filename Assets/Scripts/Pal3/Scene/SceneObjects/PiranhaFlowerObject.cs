@@ -5,7 +5,6 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -23,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return GameBoxInterpreter.IsPositionInsideRect(
+            return Activated && GameBoxInterpreter.IsPositionInsideRect(
                 Info.TileMapTriggerRect, ctx.ActorTilePosition);
         }
 

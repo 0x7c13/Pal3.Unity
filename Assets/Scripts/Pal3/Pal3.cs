@@ -311,6 +311,7 @@ namespace Pal3
                 _sceneManager,
                 _gameStateManager,
                 _scriptManager,
+                _teamManager,
                 _saveManager,
                 _informationManager,
                 storySelectionCanvasGroup,

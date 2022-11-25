@@ -82,6 +82,11 @@ namespace Pal3.Actor
             if (distance > _actor.GetInteractionMaxDistance()) return false;
             return _actor.Info.ScriptId != 0;
         }
+        
+        public Actor GetActor()
+        {
+            return _actor;
+        }
 
         private void Activate()
         {

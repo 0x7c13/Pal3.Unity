@@ -5,7 +5,6 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
     using Core.DataReader.Scn;
     using Data;
     using Renderer;
@@ -62,7 +61,7 @@ namespace Pal3.Scene.SceneObjects
             
             _isCollided = true;
             
-            _cvdModelRenderer.PlayOneTimeAnimation();
+            _cvdModelRenderer.StartOneTimeAnimation();
             
             Destroy(_collider);
         }
