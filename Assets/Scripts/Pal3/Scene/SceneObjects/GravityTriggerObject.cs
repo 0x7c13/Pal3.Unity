@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 
-    public class GravityTriggerObjectController : MonoBehaviour
+    internal class GravityTriggerObjectController : MonoBehaviour
     {
         private const float DESCENDING_HEIGHT = 0.5f;
         private const float DESCENDING_ANIMATION_DURATION = 2.5f;

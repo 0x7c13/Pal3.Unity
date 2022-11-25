@@ -543,7 +543,7 @@ namespace Pal3.Scene
         {
             if (_activatedSceneObjects.Contains(command.SceneObjectId))
             {
-                SceneObjects[command.SceneObjectId].Interact();
+                SceneObjects[command.SceneObjectId].Interact(triggerredByPlayer: false);
             }
             else
             {

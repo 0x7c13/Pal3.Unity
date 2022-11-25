@@ -17,7 +17,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
-    [ScnSceneObject(ScnSceneObjectType.Switch)]
     [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
     [ScnSceneObject(ScnSceneObjectType.VirtualInvestigationTrigger)]
     [ScnSceneObject(ScnSceneObjectType.InvestigationTriggerObject)]
@@ -43,14 +42,18 @@ namespace Pal3.Scene.SceneObjects
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact()
+        public override void Interact(bool triggerredByPlayer)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            if (triggerredByPlayer)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Cutscene));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            }
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand((int)Info.ScriptId));
         }

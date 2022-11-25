@@ -26,7 +26,7 @@ namespace Pal3.Scene.SceneObjects
                 Info.TileMapTriggerRect, ctx.ActorTilePosition);
         }
 
-        public override void Interact()
+        public override void Interact(bool triggerredByPlayer)
         {
             #if PAL3
             // For PiranhaFlower object:

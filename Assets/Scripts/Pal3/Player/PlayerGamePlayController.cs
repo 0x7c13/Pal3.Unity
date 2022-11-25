@@ -446,7 +446,7 @@ namespace Pal3.Player
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionAction = sceneObject.Interact;
+                    interactionAction = () => sceneObject.Interact(triggerredByPlayer: true);
                 }
             }
 

@@ -202,7 +202,7 @@ namespace Pal3.Scene.SceneObjects
             return false;
         }
 
-        public virtual void Interact()
+        public virtual void Interact(bool triggerredByPlayer)
         {
             // Do nothing
         }

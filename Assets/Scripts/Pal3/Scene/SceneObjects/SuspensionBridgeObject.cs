@@ -22,17 +22,17 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override void Interact()
+        public override void Interact(bool triggerredByPlayer)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
             
+            if (!string.IsNullOrEmpty(Info.SfxName))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
+            }
+            
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                if (!string.IsNullOrEmpty(Info.SfxName))
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
-                }
-                
                 GetCvdModelRenderer().StartOneTimeAnimation(EnableCollider);
             }
         }

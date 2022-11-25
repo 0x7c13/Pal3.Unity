@@ -25,7 +25,7 @@ namespace Pal3.Scene.SceneObjects
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact()
+        public override void Interact(bool triggerredByPlayer)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
             

@@ -27,7 +27,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override void Interact()
+        public override void Interact(bool triggerredByPlayer)
         {
             if (Activated && ModelType == SceneObjectModelType.CvdModel)
             {
@@ -36,7 +36,7 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 
-    public class StaticOrAnimatedObjectController : MonoBehaviour
+    internal class StaticOrAnimatedObjectController : MonoBehaviour
     {
         private StaticOrAnimatedObject _sceneObject;
         private Component _effectComponent;
