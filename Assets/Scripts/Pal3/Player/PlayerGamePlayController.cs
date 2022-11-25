@@ -72,6 +72,7 @@ namespace Pal3.Player
         
         private Actor _currentInteractingActor;
         private GameObject _currentInteractingActorGameObject;
+        private Quaternion _currentInteractingActorRotationBeforeInteraction;
 
         private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
         private readonly List<(ScnSceneInfo sceneInfo,
@@ -491,6 +492,7 @@ namespace Pal3.Player
             Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
             _currentInteractingActor = targetActor;
             _currentInteractingActorGameObject = actorGameObject;
+            _currentInteractingActorRotationBeforeInteraction = actorGameObject.transform.rotation;
             
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
@@ -998,17 +1000,24 @@ namespace Pal3.Player
                 command.ScriptType == PalScriptType.Scene &&
                 command.ScriptId == _currentInteractingActor.Info.ScriptId)
             {
-                // Resume current path follow movement of the interacting actor
-                if (_currentInteractingActorGameObject.GetComponent<ActorController>() is {} actorController &&
-                    actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
-                    _currentInteractingActorGameObject.GetComponent<ActorMovementController>() is { } movementController)
+                if (_currentInteractingActorGameObject.GetComponent<ActorController>() is {} actorController)
                 {
-                    movementController.ResumeMovement();
+                    // Resume current path follow movement of the interacting actor
+                    if (actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
+                        _currentInteractingActorGameObject.GetComponent<ActorMovementController>() is {} movementController)
+                    {
+                        movementController.ResumeMovement();   
+                    }
+
+                    // Reset facing rotation of the interacting actor
+                    _currentInteractingActorGameObject.transform.rotation =
+                        _currentInteractingActorRotationBeforeInteraction;
                 }
             }
             
             _currentInteractingActor = null;
             _currentInteractingActorGameObject = null;
+            _currentInteractingActorRotationBeforeInteraction = default;
         }
         
         public void Execute(ResetGameStateCommand command)
