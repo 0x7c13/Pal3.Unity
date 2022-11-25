@@ -43,6 +43,8 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlayerActorLookAtSceneObjectCommand(Info.Id));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionNames[ActorActionType.Check],
                         1));

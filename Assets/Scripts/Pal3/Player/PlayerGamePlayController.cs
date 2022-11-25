@@ -38,6 +38,7 @@ namespace Pal3.Player
         #endif
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
+        ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private GameStateManager _gameStateManager;
@@ -252,7 +253,7 @@ namespace Pal3.Player
 
             var movementMode = movement.magnitude < 0.7f ? 0 : 1;
             ActorActionType movementAction = movementMode == 0 ? ActorActionType.Walk : ActorActionType.Run;
-            _playerActorMovementController.CancelCurrentMovement();
+            _playerActorMovementController.CancelMovement();
             Transform cameraTransform = _camera.transform;
             Vector3 inputDirection = cameraTransform.forward * movement.y +
                                      cameraTransform.right * movement.x;
@@ -473,21 +474,45 @@ namespace Pal3.Player
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionAction = () =>
-                    {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(
-                            new GameStateChangeRequest(GameState.Cutscene));
-                        CommandDispatcher<ICommand>.Instance.Dispatch(
-                            new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                        Actor actor = _sceneManager.GetCurrentScene().GetActor(actorInfo.Key);
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)actor.Info.ScriptId));
-                    };
+                    interactionAction = () => InteractWithOtherActor(actorInfo.Key, actorInfo.Value);
                 }
             }
             
             interactionAction?.Invoke();
         }
+        
+        private void InteractWithOtherActor(int actorId, GameObject actorGameObject)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Cutscene));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
+            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
+
+            // Pause current movement of the target actor
+            if (actorGameObject.GetComponent<ActorMovementController>() is { } movementController)
+            {
+                movementController.PauseMovement();
+            }
+
+            // Look at the target actor
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorLookAtActorCommand(_playerActor.Info.Id, targetActor.Info.Id));
+
+            // Only look at player actor when the target actor is in idle state
+            if (actorGameObject.GetComponent<ActorActionController>() is { } actionController &&
+                actionController.IsCurrentActionIdleAction())
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorLookAtActorCommand(targetActor.Info.Id, _playerActor.Info.Id));
+            }
+
+            // Run dialogue script
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ScriptRunCommand((int)targetActor.Info.ScriptId));
+        }
+        
         private void PortalToTapPosition()
         {
             if (!_lastInputTapPosition.HasValue) return;
@@ -752,6 +777,22 @@ namespace Pal3.Player
             callback?.Invoke();
         }
 
+        public void Execute(PlayerActorLookAtSceneObjectCommand command)
+        {
+            Transform actorTransform = _playerActorGameObject.transform;
+            SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(command.SceneObjectId);
+
+            if (sceneObject?.GetGameObject() is { } sceneObjectGameObject)
+            {
+                Vector3 objectPosition = sceneObjectGameObject.transform.position;
+
+                actorTransform.LookAt(new Vector3(
+                    objectPosition.x,
+                    actorTransform.position.y,
+                    objectPosition.z));   
+            }
+        }
+        
         public void Execute(ActorEnablePlayerControlCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
@@ -825,7 +866,7 @@ namespace Pal3.Player
             {
                 if (_playerActorMovementController != null)
                 {
-                    _playerActorMovementController.CancelCurrentMovement();
+                    _playerActorMovementController.CancelMovement();
                 }
 
                 if (_playerActorActionController != null && 

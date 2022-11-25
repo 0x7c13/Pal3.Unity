@@ -19,6 +19,7 @@ namespace Pal3.Actor
     using MetaData;
     using Scene;
     using Scene.SceneObjects.Common;
+    using Script;
     using Script.Waiter;
     using UnityEngine;
     using Random = UnityEngine.Random;
@@ -42,7 +43,8 @@ namespace Pal3.Actor
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorMoveOutOfScreenCommand>,
         ICommandExecutor<ActorActivateCommand>,
-        ICommandExecutor<ActorSetNavLayerCommand>
+        ICommandExecutor<ActorSetNavLayerCommand>,
+        ICommandExecutor<ScriptFinishedRunningNotification>
     {
         private const float MAX_CROSS_LAYER_Y_DIFFERENTIAL = 2f;
         private const float DEFAULT_ROTATION_SPEED = 20f;
@@ -53,6 +55,7 @@ namespace Pal3.Actor
         private int _currentLayerIndex = 0;
 
         private readonly Path _currentPath = new ();
+        private bool _isMovementOnHold;
         private WaitUntilCanceled _movementWaiter;
         private CancellationTokenSource _movementCts = new ();
 
@@ -123,19 +126,29 @@ namespace Pal3.Actor
             _currentLayerIndex = layerIndex;
         }
 
-        public bool MovementInProgress()
+        public bool IsMovementInProgress()
         {
             return !_currentPath.IsEndOfPath();
         }
 
-        public void CancelCurrentMovement()
+        public void CancelMovement()
         {
             _currentPath.Clear();
         }
 
+        public void PauseMovement()
+        {
+            _isMovementOnHold = true;
+
+            if (IsMovementInProgress())
+            {
+                _actionController.PerformAction(_actor.GetIdleAction());   
+            }
+        }
+
         private void Update()
         {
-            if (_currentPath.IsEndOfPath()) return;
+            if (_isMovementOnHold || _currentPath.IsEndOfPath()) return;
 
             MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode,
                 _currentPath.IgnoreObstacle);
@@ -502,6 +515,7 @@ namespace Pal3.Actor
         private IEnumerator WaitForSomeTimeAndFollowPath(Vector3[] waypoints, int mode, CancellationToken cancellationToken)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
+            yield return new WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
                 SetupPath(waypoints, mode, EndOfPathActionType.Reverse, ignoreObstacle: true);   
@@ -615,7 +629,8 @@ namespace Pal3.Actor
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            CancelCurrentMovement();
+            
+            CancelMovement();
 
             var tilePosition = new Vector2Int(command.TileXPosition, command.TileYPosition);
 
@@ -717,6 +732,20 @@ namespace Pal3.Actor
                 _movementCts = new CancellationTokenSource();
                 _currentPath.Clear();
                 _isDuringCollision = false;
+            }
+        }
+
+        public void Execute(ScriptFinishedRunningNotification command)
+        {
+            if (command.ScriptType == PalScriptType.Scene &&
+                command.ScriptId == _actor.Info.ScriptId &&
+                _isMovementOnHold)
+            {
+                _isMovementOnHold = false;
+                if (IsMovementInProgress())
+                {
+                    _actionController.PerformAction(_actor.GetMovementAction(_currentPath.MovementMode));   
+                }
             }
         }
     }

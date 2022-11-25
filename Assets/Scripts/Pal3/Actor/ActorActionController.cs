@@ -106,6 +106,12 @@ namespace Pal3.Actor
             return _currentAction;
         }
 
+        public bool IsCurrentActionIdleAction()
+        {
+            return !string.IsNullOrEmpty(_currentAction) &&
+                   string.Equals(_currentAction, _actor.GetIdleAction(), StringComparison.OrdinalIgnoreCase);
+        }
+        
         public Rigidbody GetRigidBody()
         {
             return _rigidbody;

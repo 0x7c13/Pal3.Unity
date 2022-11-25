@@ -5,6 +5,8 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Command;
+    using Command.SceCommands;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
@@ -66,6 +68,8 @@ namespace Pal3.Scene.SceneObjects
         {
             Vector3 finalPosition = gameObject.transform.position;
             finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_surfaceMechanismObject.Info.Parameters[0]);
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
             
             StartCoroutine(AnimationHelper.MoveTransform(gameObject.transform,
                 finalPosition,
