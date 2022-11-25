@@ -43,8 +43,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorMoveOutOfScreenCommand>,
         ICommandExecutor<ActorActivateCommand>,
-        ICommandExecutor<ActorSetNavLayerCommand>,
-        ICommandExecutor<ScriptFinishedRunningNotification>
+        ICommandExecutor<ActorSetNavLayerCommand>
     {
         private const float MAX_CROSS_LAYER_Y_DIFFERENTIAL = 2f;
         private const float DEFAULT_ROTATION_SPEED = 20f;
@@ -143,6 +142,18 @@ namespace Pal3.Actor
             if (IsMovementInProgress())
             {
                 _actionController.PerformAction(_actor.GetIdleAction());   
+            }
+        }
+        
+        public void ResumeMovement()
+        {
+            if (_isMovementOnHold)
+            {
+                _isMovementOnHold = false;
+                if (IsMovementInProgress())
+                {
+                    _actionController.PerformAction(_actor.GetMovementAction(_currentPath.MovementMode));   
+                }
             }
         }
 
@@ -490,7 +501,7 @@ namespace Pal3.Actor
                 case EndOfPathActionType.Idle:
                     _actionController.PerformAction(_actor.GetIdleAction());
                     break;
-                case EndOfPathActionType.Reverse:
+                case EndOfPathActionType.WaitAndReverse:
                 {
                     _actionController.PerformAction(_actor.GetIdleAction());
                     var waypoints = _currentPath.GetAllWayPoints();
@@ -518,7 +529,7 @@ namespace Pal3.Actor
             yield return new WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
-                SetupPath(waypoints, mode, EndOfPathActionType.Reverse, ignoreObstacle: true);   
+                SetupPath(waypoints, mode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);   
             }
         }
 
@@ -732,20 +743,6 @@ namespace Pal3.Actor
                 _movementCts = new CancellationTokenSource();
                 _currentPath.Clear();
                 _isDuringCollision = false;
-            }
-        }
-
-        public void Execute(ScriptFinishedRunningNotification command)
-        {
-            if (command.ScriptType == PalScriptType.Scene &&
-                command.ScriptId == _actor.Info.ScriptId &&
-                _isMovementOnHold)
-            {
-                _isMovementOnHold = false;
-                if (IsMovementInProgress())
-                {
-                    _actionController.PerformAction(_actor.GetMovementAction(_currentPath.MovementMode));   
-                }
             }
         }
     }

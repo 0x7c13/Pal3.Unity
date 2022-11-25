@@ -12,7 +12,7 @@ namespace Pal3.Actor
     {
         Idle = 0,
         DisposeSelf,
-        Reverse
+        WaitAndReverse
     }
 
     public class Path

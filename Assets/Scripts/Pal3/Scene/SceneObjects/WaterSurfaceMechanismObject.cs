@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.SceCommands;
     using Core.Animation;
@@ -66,15 +67,23 @@ namespace Pal3.Scene.SceneObjects
         
         public void Interact()
         {
+            StartCoroutine(InteractInternal());
+        }
+
+        private IEnumerator InteractInternal()
+        {
             Vector3 finalPosition = gameObject.transform.position;
             finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_surfaceMechanismObject.Info.Parameters[0]);
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
             
-            StartCoroutine(AnimationHelper.MoveTransform(gameObject.transform,
+            yield return AnimationHelper.MoveTransform(gameObject.transform,
                 finalPosition,
                 WATER_ANIMATION_DURATION,
-                AnimationCurveType.Sine));
+                AnimationCurveType.Sine);
+            
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneActivateObjectCommand(_surfaceMechanismObject.Info.Id, 0));
         }
     }
 }

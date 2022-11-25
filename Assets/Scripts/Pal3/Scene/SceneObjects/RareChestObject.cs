@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.RareChest)]
     public class RareChestObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 3f;
+        private const float MAX_INTERACTION_DISTANCE = 4f;
 
         public RareChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)

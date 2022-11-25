@@ -77,6 +77,11 @@ namespace Pal3.Actor
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
+        public ScnActorBehaviour GetCurrentBehaviour()
+        {
+            return _currentBehaviour;
+        }
+        
         public bool IsInteractable(float distance)
         {
             if (distance > _actor.GetInteractionMaxDistance()) return false;
@@ -140,7 +145,7 @@ namespace Pal3.Actor
                 {
                     waypoints[i] = GameBoxInterpreter.ToUnityPosition(_actor.Info.Path.GameBoxWaypoints[i]);
                 }
-                _movementController.SetupPath(waypoints, 0, EndOfPathActionType.Reverse, ignoreObstacle: true);
+                _movementController.SetupPath(waypoints, 0, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);
             }
         }
 

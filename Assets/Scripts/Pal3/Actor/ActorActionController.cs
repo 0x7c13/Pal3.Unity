@@ -117,7 +117,7 @@ namespace Pal3.Actor
             return _rigidbody;
         }
 
-        public void PerformAction(ActorActionType actorActionType, bool overwrite = false, int loopCount = -1)
+        public void PerformAction(ActorActionType actorActionType)
         {
             PerformAction(ActorConstants.ActionNames[actorActionType]);
         }

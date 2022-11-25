@@ -21,6 +21,7 @@ namespace Pal3.Player
     using Scene;
     using Scene.SceneObjects;
     using Scene.SceneObjects.Common;
+    using Script;
     using Script.Waiter;
     using State;
     using UnityEngine;
@@ -39,6 +40,7 @@ namespace Pal3.Player
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
+        ICommandExecutor<ScriptFinishedRunningNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private GameStateManager _gameStateManager;
@@ -67,6 +69,9 @@ namespace Pal3.Player
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
+        
+        private Actor _currentInteractingActor;
+        private GameObject _currentInteractingActorGameObject;
 
         private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
         private readonly List<(ScnSceneInfo sceneInfo,
@@ -474,24 +479,28 @@ namespace Pal3.Player
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionAction = () => InteractWithOtherActor(actorInfo.Key, actorInfo.Value);
+                    interactionAction = () => InteractWithActor(actorInfo.Key, actorInfo.Value);
                 }
             }
             
             interactionAction?.Invoke();
         }
         
-        private void InteractWithOtherActor(int actorId, GameObject actorGameObject)
+        private void InteractWithActor(int actorId, GameObject actorGameObject)
         {
+            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
+            _currentInteractingActor = targetActor;
+            _currentInteractingActorGameObject = actorGameObject;
+            
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
-
-            // Pause current movement of the target actor
-            if (actorGameObject.GetComponent<ActorMovementController>() is { } movementController)
+            // Pause current path follow movement of the interacting actor
+            if (actorGameObject.GetComponent<ActorController>() is {} actorController &&
+                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
+                actorGameObject.GetComponent<ActorMovementController>() is { } movementController)
             {
                 movementController.PauseMovement();
             }
@@ -711,6 +720,11 @@ namespace Pal3.Player
                     CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
                 }));
         }
+        
+        private void EnablePlayerInputs()
+        {
+            _inputActions.Enable();
+        }
 
         private IEnumerator PlayerActorMoveToClimbableObjectAndClimb(
             GameObject climbableObject,
@@ -728,8 +742,7 @@ namespace Pal3.Player
             yield return _playerActorMovementController
                 .MoveDirectlyTo(climbUp ? lowerPosition : upperPosition, 0);
 
-            _playerActorActionController.PerformAction(
-                climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown, true, 1);
+            _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
             _playerActorGameObject.transform.position = new Vector3(lowerPosition.x,
                 _playerActorGameObject.transform.position.y, lowerPosition.z);
@@ -978,9 +991,24 @@ namespace Pal3.Player
             }
         }
 
-        private void EnablePlayerInputs()
+        public void Execute(ScriptFinishedRunningNotification command)
         {
-            _inputActions.Enable();
+            if (_currentInteractingActor != null &&
+                _currentInteractingActorGameObject != null &&
+                command.ScriptType == PalScriptType.Scene &&
+                command.ScriptId == _currentInteractingActor.Info.ScriptId)
+            {
+                // Resume current path follow movement of the interacting actor
+                if (_currentInteractingActorGameObject.GetComponent<ActorController>() is {} actorController &&
+                    actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
+                    _currentInteractingActorGameObject.GetComponent<ActorMovementController>() is { } movementController)
+                {
+                    movementController.ResumeMovement();
+                }
+            }
+            
+            _currentInteractingActor = null;
+            _currentInteractingActorGameObject = null;
         }
         
         public void Execute(ResetGameStateCommand command)
