@@ -20,6 +20,9 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
     public class GravityTriggerObject : SceneObject
     {
+        public const float DescendingHeight = 0.5f;
+        public const float DescendingAnimationDuration = 2.5f;
+        
         private StandingPlatformController _platformController;
         private GravityTriggerObjectController _gravityTriggerObjectController;
         
@@ -51,6 +54,14 @@ namespace Pal3.Scene.SceneObjects
             
             _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
             _gravityTriggerObjectController.Init(this);
+
+            // Set to final position if the gravity trigger is already activated
+            if (ObjectInfo.Times == 0)
+            {
+                Vector3 finalPosition = sceneGameObject.transform.position;
+                finalPosition.y -= DescendingHeight;
+                sceneGameObject.transform.position = finalPosition;
+            }
             
             return sceneGameObject;
         }
@@ -94,9 +105,6 @@ namespace Pal3.Scene.SceneObjects
 
     internal class GravityTriggerObjectController : MonoBehaviour
     {
-        private const float DESCENDING_HEIGHT = 0.5f;
-        private const float DESCENDING_ANIMATION_DURATION = 2.5f;
-        
         private GravityTriggerObject _gravityTriggerObject;
 
         public void Init(GravityTriggerObject gravityTriggerObject)
@@ -131,10 +139,10 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
 
             Vector3 finalPosition = gravityTriggerGo.transform.position;
-            finalPosition.y -= DESCENDING_HEIGHT;
+            finalPosition.y -= GravityTriggerObject.DescendingHeight;
             yield return AnimationHelper.MoveTransform(gravityTriggerGo.transform,
                 finalPosition,
-                DESCENDING_ANIMATION_DURATION,
+                GravityTriggerObject.DescendingAnimationDuration,
                 AnimationCurveType.Sine);
 
             _gravityTriggerObject.InteractWithLinkedObjectIfAny();

@@ -113,7 +113,8 @@ namespace Pal3.Scene
 
             var timer = new Stopwatch();
             timer.Start();
-            base.Init(_resourceProvider, scnFile);
+            
+            base.Init(_resourceProvider, scnFile, _sceneStateManager);
             //Debug.LogError($"InitTotal: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -364,16 +365,17 @@ namespace Pal3.Scene
         {
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
-                SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
-                    ScnFile.SceneInfo.SceneName,
-                    sceneObject.ObjectInfo.Id);
-
-                if (objectState == SceneObjectActivationState.Enabled)
+                if (_sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName,
+                        sceneObject.ObjectInfo.Id,
+                        out bool isActivated))
                 {
-                    ActivateSceneObject(sceneObject);
+                    if (isActivated)
+                    {
+                        ActivateSceneObject(sceneObject);   
+                    }
                 }
-                else if (objectState == SceneObjectActivationState.Unknown &&
-                         sceneObject.ObjectInfo.InitActive == 1)
+                else if (sceneObject.ObjectInfo.InitActive == 1)
                 {
                     ActivateSceneObject(sceneObject);
                 }
@@ -498,14 +500,20 @@ namespace Pal3.Scene
 
             if (command.IsActive == 1)
             {
-                SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(
-                    ScnFile.SceneInfo.CityName,
-                    ScnFile.SceneInfo.SceneName,
-                    sceneObject.ObjectInfo.Id);
-
-                if (objectState != SceneObjectActivationState.Disabled)
+                if (_sceneStateManager.TryGetSceneObjectActivationState(
+                        ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName,
+                        sceneObject.ObjectInfo.Id,
+                        out bool isActivated))
                 {
-                    ActivateSceneObject(sceneObject);   
+                    if (isActivated)
+                    {
+                        ActivateSceneObject(sceneObject);
+                    }
+                }
+                else
+                {
+                    ActivateSceneObject(sceneObject);
                 }
             }
             else
@@ -584,8 +592,8 @@ namespace Pal3.Scene
         #if PAL3A
         public void Execute(SceneActivateObject2Command command)
         {
-            if (_sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName, command.SceneName, command.ObjectId)
-                == SceneObjectActivationState.Unknown)
+            if (!_sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                    command.SceneName, command.ObjectId, out _))
             {
                 _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
                     ScnFile.SceneInfo.CityName,

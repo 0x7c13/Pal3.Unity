@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Common;
     using Core.DataReader.Scn;
     using MetaData;
     using State;
@@ -24,13 +25,15 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
         }
 
         public override void Interact(bool triggerredByPlayer)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 
+            ToggleSwitchState();
+            
             PlaySfxIfAny();
 
             if (triggerredByPlayer)

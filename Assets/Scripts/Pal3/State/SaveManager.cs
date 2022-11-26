@@ -170,6 +170,24 @@ namespace Pal3.State
                         state.Key.objectId,
                         state.Value ? 1 : 0)));
             
+            // Save scene object switch state
+            commands.AddRange(_sceneStateManager.GetSceneObjectSwitchStates()
+                .Select(state => 
+                    new SceneChangeGlobalObjectSwitchStateCommand(
+                        state.Key.cityName,
+                        state.Key.sceneName,
+                        state.Key.objectId,
+                        state.Value ? 1 : 0)));
+            
+            // Save scene object times used
+            commands.AddRange(_sceneStateManager.GetSceneObjectTimesCount()
+                .Select(state => 
+                    new SceneChangeGlobalObjectTimesCountCommand(
+                        state.Key.cityName,
+                        state.Key.sceneName,
+                        state.Key.objectId,
+                        state.Value)));
+            
             // Save current applied screen effect state
             var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
             if (currentEffectMode != -1)

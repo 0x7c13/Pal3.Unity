@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Command;
     using Command.SceCommands;
+    using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
@@ -82,7 +83,7 @@ namespace Pal3.Scene.SceneObjects
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
             
-            _surfaceMechanismObject.ChangeGlobalActivationState(false);
+            _surfaceMechanismObject.ChangeActivationState(false);
         }
     }
 }

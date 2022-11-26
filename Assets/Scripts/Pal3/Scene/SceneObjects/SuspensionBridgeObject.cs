@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Core.Extensions;
+    using Data;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
@@ -22,6 +23,22 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        {
+            if (Activated) return GetGameObject();
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            // Set to final position if the bridge is already activated
+            if (ObjectInfo.Times == 0)
+            {
+                var cvdModelRenderer = GetCvdModelRenderer();
+                cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
+                EnableCollider();
+            }
+            
+            return sceneGameObject;
+        }
+        
         public override void Interact(bool triggerredByPlayer)
         {
             if (!IsInteractableBasedOnTimesCount()) return;

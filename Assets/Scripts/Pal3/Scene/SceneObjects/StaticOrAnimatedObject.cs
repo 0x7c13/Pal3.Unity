@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
+    using Common;
     using Core.DataReader.Scn;
     using Data;
     using Renderer;
@@ -23,6 +24,13 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            // Should block the player if Parameters[0] is 0
+            if (ObjectInfo.Parameters[0] == 0)
+            {
+                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
+            
             sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(this);
             return sceneGameObject;
         }

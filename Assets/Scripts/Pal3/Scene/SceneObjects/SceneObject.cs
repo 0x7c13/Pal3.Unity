@@ -127,12 +127,19 @@ namespace Pal3.Scene.SceneObjects
 
                 var initTime = 0f;
                 
-                // Some switches are on by default.
-                if (ObjectInfo.Type == ScnSceneObjectType.Switch &&
-                    ObjectInfo.Parameters[0] == 1 &&
-                    ObjectInfo.Parameters[1] == 1)
+                if (ObjectInfo.Type == ScnSceneObjectType.Switch)
                 {
-                    initTime = cvd.CvdFile.AnimationDuration;
+                    // Some switches are on by default.
+                    if (ObjectInfo.Parameters[0] == 1 &&
+                        ObjectInfo.Parameters[1] == 1)
+                    {
+                        initTime = cvd.CvdFile.AnimationDuration;
+                    }
+
+                    if (ObjectInfo.SwitchState == 1)
+                    {
+                        initTime = cvd.CvdFile.AnimationDuration;
+                    }
                 }
 
                 _cvdModelRenderer.Init(cvd.CvdFile,
@@ -242,6 +249,11 @@ namespace Pal3.Scene.SceneObjects
                     return false;
                 default:
                     ObjectInfo.Times--;
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new SceneChangeGlobalObjectTimesCountCommand(SceneInfo.CityName,
+                            SceneInfo.SceneName,
+                            ObjectInfo.Id,
+                            ObjectInfo.Times));
                     return true;
             }
         }
@@ -262,7 +274,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        internal void ChangeGlobalActivationState(bool isActivated)
+        internal void ChangeActivationState(bool isActivated)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneActivateObjectCommand(ObjectInfo.Id, isActivated ? 1 : 0));
@@ -272,8 +284,18 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Id,
                     isActivated ? 1 : 0));
         }
+
+        internal void ToggleSwitchState()
+        {
+            ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneChangeGlobalObjectSwitchStateCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    ObjectInfo.SwitchState));
+        }
         
-        internal void ChangeLinkedObjectGlobalActivationStateIfAny(bool isActivated)
+        internal void ChangeLinkedObjectActivationStateIfAny(bool isActivated)
         {
             if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {

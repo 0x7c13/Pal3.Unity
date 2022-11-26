@@ -5,10 +5,13 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
+    using Common;
     using Core.DataReader.Scn;
     using Data;
     using Renderer;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Collidable)]
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
@@ -43,7 +46,7 @@ namespace Pal3.Scene.SceneObjects
     
     internal class CollidableObjectController : MonoBehaviour
     {
-        private bool _isCollided;
+        private bool _hasCollided;
         private CollidableObject _collidableObject;
         private BoxCollider _collider;
         private CvdModelRenderer _cvdModelRenderer;
@@ -51,21 +54,48 @@ namespace Pal3.Scene.SceneObjects
         public void Init(CollidableObject collidableObject)
         {
             _collidableObject = collidableObject;
-        }
-        
-        private void OnEnable()
-        {
             _cvdModelRenderer = gameObject.GetComponent<CvdModelRenderer>();
+            SetupCollider();
+        }
+
+        private void SetupCollider()
+        {
             if (_cvdModelRenderer != null)
             {
                 Bounds bounds = _cvdModelRenderer.GetMeshBounds();
-                _collider = gameObject.AddComponent<BoxCollider>();
+
+                if (_collider == null)
+                {
+                    _collider = gameObject.AddComponent<BoxCollider>();
+                }
+
                 _collider.center = bounds.center;
                 _collider.size = bounds.size;
-                _collider.isTrigger = true;
+
+                if (_collidableObject.ObjectInfo.IsNonBlocking == 1)
+                {
+                    _collider.isTrigger = true;   
+                }
             }
         }
 
+        private void Interact()
+        {
+            if (_hasCollided) return;
+            _hasCollided = true;
+            
+            if (!_collidableObject.IsInteractableBasedOnTimesCount()) return;
+            
+            _collidableObject.PlaySfxIfAny();
+            
+            _cvdModelRenderer.StartOneTimeAnimation(() =>
+            {
+                _collidableObject.ChangeLinkedObjectActivationStateIfAny(true);
+                _collidableObject.ExecuteScriptIfAny();
+                SetupCollider(); // reset collider since bounds may change after animation
+            });
+        }
+        
         private void OnDisable()
         {
             if (_collider != null)
@@ -74,21 +104,14 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
+        private void OnCollisionEnter(Collision _)
+        {
+            Interact();
+        }
+
         private void OnTriggerEnter(Collider _)
         {
-            if (_isCollided) return;
-            
-            _isCollided = true;
-            
-            _collidableObject.PlaySfxIfAny();
-            
-            _cvdModelRenderer.StartOneTimeAnimation(() =>
-            {
-                _collidableObject.ChangeLinkedObjectGlobalActivationStateIfAny(true);
-                _collidableObject.ExecuteScriptIfAny();
-            });
-            
-            Destroy(_collider);
+            Interact();
         }
     }
 }

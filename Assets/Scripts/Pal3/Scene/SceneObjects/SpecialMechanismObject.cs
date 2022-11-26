@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using Common;
     using Core.DataReader.Scn;
 
     [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]

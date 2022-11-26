@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Scene.SceneObjects
+namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
     using Core.DataReader.Scn;

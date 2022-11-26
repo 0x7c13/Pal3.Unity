@@ -22,8 +22,12 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             _triggerBounds = triggerBounds;
             LayerIndex = layerIndex;
+
+            if (_collider == null)
+            {
+                _collider = gameObject.AddComponent<BoxCollider>();   
+            }
             
-            _collider = gameObject.GetOrAddComponent<BoxCollider>();
             _collider.center = _triggerBounds.center;
             _collider.size = _triggerBounds.size;
             _collider.isTrigger = true;

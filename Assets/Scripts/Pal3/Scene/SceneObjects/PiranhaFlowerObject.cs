@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Common;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using UnityEngine;

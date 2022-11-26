@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using Command;
     using Command.SceCommands;
+    using Common;
     using Core.DataReader.Scn;
     
     [ScnSceneObject(ScnSceneObjectType.Chest)]
@@ -50,12 +51,12 @@ namespace Pal3.Scene.SceneObjects
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(() =>
                 {
-                    ChangeGlobalActivationState(false);
+                    ChangeActivationState(false);
                 });
             }
             else
             {
-                ChangeGlobalActivationState(false);
+                ChangeActivationState(false);
             }
         }
     }

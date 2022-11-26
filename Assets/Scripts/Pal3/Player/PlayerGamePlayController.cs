@@ -532,8 +532,8 @@ namespace Pal3.Player
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-            int layerIndex = 0;
-            bool isPositionOnStandingPlatform = false;
+            int layerIndex;
+            bool isPositionOnStandingPlatform;
             
             if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
@@ -542,10 +542,19 @@ namespace Pal3.Player
             }
             else
             {
-                layerIndex = _sceneManager.GetCurrentScene()
-                    .GetMeshColliders()
-                    .FirstOrDefault(_ => _.Value == hit.collider)
-                    .Key;
+                var meshColliders = _sceneManager.GetCurrentScene()
+                    .GetMeshColliders();
+
+                if (meshColliders.Any(_ => _.Value == hit.collider))
+                {
+                    layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
+                    isPositionOnStandingPlatform = false;
+                }
+                else
+                {
+                    // Raycast hit a collider that is not a mesh collider or a standing platform
+                    return;
+                }
             }
 
             _playerActorMovementController.PortalToPosition(hit.point, layerIndex, isPositionOnStandingPlatform);

@@ -21,6 +21,7 @@ namespace Pal3.Script
     using Player;
     using UI;
     using Feature;
+    using Scene;
     using UnityEngine;
     using Waiter;
     using Random = UnityEngine.Random;
@@ -400,13 +401,20 @@ namespace Pal3.Script
             var isActorInTeam = ServiceLocator.Instance.Get<TeamManager>().IsActorInTeam((PlayerActorId) command.ActorId);
             SetVarValueBasedOnOperationResult(isActorInTeam);
         }
-
-        // TODO: Impl
+        
         public void Execute(ScriptGetMazeSwitchStatusCommand command)
         {
             if (!_isExecuting) return;
-            var switchIsOn = 1;
-            SetVariableValue(command.Variable, switchIsOn);
+            var currentCity = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetSceneInfo().CityName;
+            if (ServiceLocator.Instance.Get<SceneStateManager>()
+                .TryGetSceneObjectSwitchState(currentCity, command.SceneName, command.ObjectId, out bool isSwitchOn))
+            {
+                SetVariableValue(command.Variable, isSwitchOn ? 1 : 0);
+            }
+            else
+            {
+                SetVariableValue(command.Variable, 0); // Default to off
+            }
         }
         
         public void Execute(ScriptGetMoneyCommand command)

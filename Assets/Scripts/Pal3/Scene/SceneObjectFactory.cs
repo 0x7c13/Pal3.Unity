@@ -3,13 +3,15 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Scene.SceneObjects
+namespace Pal3.Scene
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Core.DataReader.Scn;
+    using SceneObjects;
+    using SceneObjects.Common;
     using UnityEngine;
 
     public static class SceneObjectFactory

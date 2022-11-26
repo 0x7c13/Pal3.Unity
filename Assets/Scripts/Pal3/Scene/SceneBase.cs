@@ -37,11 +37,13 @@ namespace Pal3.Scene
         protected readonly Dictionary<int, Actor> Actors = new ();
 
         private GameResourceProvider _resourceProvider;
+        private SceneStateManager _sceneStateManager;
 
-        protected void Init(GameResourceProvider resourceProvider, ScnFile scnFile)
+        protected void Init(GameResourceProvider resourceProvider, ScnFile scnFile, SceneStateManager sceneStateManager)
         {
             _resourceProvider = resourceProvider;
-
+            _sceneStateManager = sceneStateManager;
+            
             ScnFile = scnFile;
 
             InitMeshData();
@@ -108,8 +110,24 @@ namespace Pal3.Scene
         
         private void InitSceneObjectData()
         {
-            foreach (ScnObjectInfo objectInfo in ScnFile.ObjectInfos)
+            foreach (ScnObjectInfo originalObjectInfo in ScnFile.ObjectInfos)
             {
+                ScnObjectInfo objectInfo = originalObjectInfo;
+
+                // Load switch state from state manager
+                if (_sceneStateManager.TryGetSceneObjectSwitchState(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName, objectInfo.Id, out bool isSwitchOn))
+                {
+                    objectInfo.SwitchState = (byte) (isSwitchOn ? 1 : 0);
+                }
+                
+                // Load times count from state manager
+                if (_sceneStateManager.TryGetSceneObjectTimesCount(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName, objectInfo.Id, out byte timesCount))
+                {
+                    objectInfo.Times = timesCount;
+                }
+
                 if (SceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)
                 {
                     SceneObjects[objectInfo.Id] = sceneObject;

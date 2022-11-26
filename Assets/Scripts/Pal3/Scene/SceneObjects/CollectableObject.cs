@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using Command;
     using Command.SceCommands;
+    using Common;
     using Core.DataReader.Scn;
 
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
@@ -42,7 +43,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-            ChangeGlobalActivationState(false);
+            ChangeActivationState(false);
         }
     }
 }
