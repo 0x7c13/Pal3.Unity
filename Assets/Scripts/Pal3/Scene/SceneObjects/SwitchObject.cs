@@ -10,17 +10,34 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Data;
     using MetaData;
     using State;
+    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Switch)]
     public class SwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
-
+        private SceneObjectMeshCollider _meshCollider;
+        
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+        }
+        
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        {
+            if (Activated) return GetGameObject();
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (ObjectInfo.IsNonBlocking == 0)
+            {
+                if (!(ObjectInfo.SwitchState == 1 && ObjectInfo.Parameters[0] == 1))
+                {
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+                }
+            }
+            return sceneGameObject;
         }
 
         public override bool IsInteractable(InteractionContext ctx)
@@ -52,11 +69,32 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(ExecuteScriptIfAny);
+                GetCvdModelRenderer().StartOneTimeAnimation(() =>
+                {
+                    // Remove collider to allow player to pass through
+                    if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
+                    {
+                        Object.Destroy(_meshCollider);
+                    }
+
+                    InteractInternal(triggerredByPlayer);
+                });
             }
             else
             {
-                ExecuteScriptIfAny();
+                InteractInternal(triggerredByPlayer);
+            }
+        }
+
+        private void InteractInternal(bool triggerredByPlayer)
+        {
+            InteractWithLinkedObjectIfAny();
+            ExecuteScriptIfAny();
+            
+            if (triggerredByPlayer && ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Gameplay));
             }
         }
     }

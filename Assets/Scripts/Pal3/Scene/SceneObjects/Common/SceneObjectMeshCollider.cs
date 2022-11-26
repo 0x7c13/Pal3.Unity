@@ -14,6 +14,11 @@ namespace Pal3.Scene.SceneObjects.Common
         
         private void OnEnable()
         {
+            UpdateBounds();
+        }
+
+        public void UpdateBounds()
+        {
             Bounds bounds;
             
             if (GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
@@ -28,8 +33,12 @@ namespace Pal3.Scene.SceneObjects.Common
             {
                 return;
             }
+
+            if (_collider == null)
+            {
+                _collider = gameObject.AddComponent<BoxCollider>();    
+            }
             
-            _collider = gameObject.AddComponent<BoxCollider>();
             _collider.center = bounds.center;
             _collider.size = bounds.size;
         }

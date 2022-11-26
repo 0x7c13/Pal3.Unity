@@ -84,6 +84,7 @@ namespace Pal3.Scene.SceneObjects
                 AnimationCurveType.Sine);
             
             _surfaceMechanismObject.ChangeActivationState(false);
+            _surfaceMechanismObject.SaveActivationState(false);
         }
     }
 }

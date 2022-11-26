@@ -94,6 +94,8 @@ namespace Pal3.Scene.SceneObjects
                     ActorConstants.ActionNames[ActorActionType.Skill],
                     1));
 
+            yield return new WaitForSeconds(1.2f); // Wait for actor animation to finish
+
             PlayerActorId actorId = _playerManager.GetPlayerActor();
 
             var sfxName = actorId switch
@@ -111,8 +113,6 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
             }
             
-            yield return new WaitForSeconds(1.5f); // Wait for actor animation to finish
-            
             if (_specialMechanismObject.ModelType == SceneObjectModelType.CvdModel)
             {
                 yield return _specialMechanismObject.GetCvdModelRenderer().PlayOneTimeAnimation();
@@ -127,6 +127,7 @@ namespace Pal3.Scene.SceneObjects
         private void FinishingSteps()
         {
             _specialMechanismObject.ChangeActivationState(false);
+            _specialMechanismObject.SaveActivationState(false);
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }
     }

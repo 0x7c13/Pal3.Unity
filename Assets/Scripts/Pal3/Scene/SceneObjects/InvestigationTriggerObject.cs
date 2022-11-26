@@ -10,7 +10,6 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
-    using Core.GameBox;
     using Core.Renderer;
     using Data;
     using MetaData;
@@ -18,7 +17,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
-    [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
     [ScnSceneObject(ScnSceneObjectType.VirtualInvestigationTrigger)]
     [ScnSceneObject(ScnSceneObjectType.InvestigationTriggerObject)]
     public class InvestigationTriggerObject : SceneObject
@@ -77,17 +75,6 @@ namespace Pal3.Scene.SceneObjects
             else
             {
                 _bounds = investigationTriggerObject.ObjectInfo.Bounds;
-            }
-
-            // Set active Y position of the lifting mechanism
-            // TODO: impl of the lifting logic
-            if (_investigationTriggerObject.ObjectInfo.Type == ScnSceneObjectType.LiftingMechanism)
-            {
-                Vector3 oldPosition = transform.position;
-                float gameBoxYPosition = _investigationTriggerObject.ObjectInfo.Parameters[0];
-                // A small Y offset to ensure actor shadow is properly rendered
-                float activeYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
-                transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);
             }
         }
     }

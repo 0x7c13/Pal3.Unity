@@ -127,19 +127,9 @@ namespace Pal3.Scene.SceneObjects
 
                 var initTime = 0f;
                 
-                if (ObjectInfo.Type == ScnSceneObjectType.Switch)
+                if (ObjectInfo.Type == ScnSceneObjectType.Switch && ObjectInfo.SwitchState == 1)
                 {
-                    // Some switches are on by default.
-                    if (ObjectInfo.Parameters[0] == 1 &&
-                        ObjectInfo.Parameters[1] == 1)
-                    {
-                        initTime = cvd.CvdFile.AnimationDuration;
-                    }
-
-                    if (ObjectInfo.SwitchState == 1)
-                    {
-                        initTime = cvd.CvdFile.AnimationDuration;
-                    }
+                    initTime = cvd.CvdFile.AnimationDuration;
                 }
 
                 _cvdModelRenderer.Init(cvd.CvdFile,
@@ -278,6 +268,10 @@ namespace Pal3.Scene.SceneObjects
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneActivateObjectCommand(ObjectInfo.Id, isActivated ? 1 : 0));
+        }
+
+        internal void SaveActivationState(bool isActivated)
+        {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneChangeGlobalObjectActivationStateCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
