@@ -377,6 +377,9 @@ namespace Pal3.Actor
             var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == 1 ? 11f : 5f) : _actor.Info.Speed / 11f;
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
+            
+            // Reduce speed during collision to avoid player walking through obstacles
+            if (!ignoreObstacle && _isDuringCollision) moveSpeed /= 3f;
 
             Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
 
