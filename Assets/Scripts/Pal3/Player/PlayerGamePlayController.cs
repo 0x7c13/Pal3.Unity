@@ -431,8 +431,8 @@ namespace Pal3.Player
             {
                 SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectId);
 
-                if (sceneObject.Info.Type != ScnSceneObjectType.Climbable &&
-                    sceneObject.Info.LayerIndex != currentLayerIndex) continue;
+                if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.Climbable &&
+                    sceneObject.ObjectInfo.LayerIndex != currentLayerIndex) continue;
 
                 Vector3 sceneObjectPosition = sceneObject.GetGameObject().transform.position;
                 float distanceToActor = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
@@ -615,7 +615,7 @@ namespace Pal3.Player
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
             Vector3 climbableObjectFacing =
-                Quaternion.Euler(0f, -climbableSceneObject.Info.YRotation, 0f) * Vector3.forward;
+                Quaternion.Euler(0f, -climbableSceneObject.ObjectInfo.YRotation, 0f) * Vector3.forward;
 
             Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
             Vector3 lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
@@ -669,7 +669,7 @@ namespace Pal3.Player
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
             Vector3 climbableObjectFacing =
-                Quaternion.Euler(0f, -climbableSceneObject.Info.YRotation, 0f) * Vector3.forward;
+                Quaternion.Euler(0f, -climbableSceneObject.ObjectInfo.YRotation, 0f) * Vector3.forward;
 
             Tilemap tileMap = scene.GetTilemap();
 

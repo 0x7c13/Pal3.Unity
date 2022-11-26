@@ -612,18 +612,18 @@ namespace Pal3.Data
             }
         }
         
-        private string _currentSceneCityName;
+        private string _currentCityName;
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newSceneCityName = notification.NewSceneInfo.CityName.ToLower();
+            var newCityName = notification.NewSceneInfo.CityName.ToLower();
 
-            if (string.IsNullOrEmpty(_currentSceneCityName))
+            if (string.IsNullOrEmpty(_currentCityName))
             {
-                _currentSceneCityName = newSceneCityName;
+                _currentCityName = newCityName;
                 return;
             }
 
-            if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
+            if (!newCityName.Equals(_currentCityName, StringComparison.OrdinalIgnoreCase))
             {
                 // Clean up cache after exiting current scene block
                 _textureCache?.DisposeAll();
@@ -651,7 +651,7 @@ namespace Pal3.Data
                 // clear all vfx prefabs in cache
                 _vfxEffectPrefabCache.Clear();
 
-                _currentSceneCityName = newSceneCityName;
+                _currentCityName = newCityName;
             }
             
             // Unloads assets that are not used (textures etc.)

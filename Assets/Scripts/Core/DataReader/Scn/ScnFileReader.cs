@@ -35,7 +35,7 @@ namespace Core.DataReader.Scn
             var sceneInfo = new ScnSceneInfo()
             {
                 CityName = reader.ReadString(32, codepage),
-                Name = reader.ReadString(32, codepage),
+                SceneName = reader.ReadString(32, codepage),
                 Model = reader.ReadString(32, codepage),
                 SceneType = (ScnSceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),

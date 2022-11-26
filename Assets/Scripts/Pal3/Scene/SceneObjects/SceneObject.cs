@@ -31,7 +31,8 @@ namespace Pal3.Scene.SceneObjects
     
     public abstract class SceneObject
     {
-        public ScnObjectInfo Info;
+        public ScnObjectInfo ObjectInfo;
+        public ScnSceneInfo SceneInfo;
         public GraphicsEffect GraphicsEffect { get; }
         public SceneObjectModelType ModelType { get; }
 
@@ -46,8 +47,9 @@ namespace Pal3.Scene.SceneObjects
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
         {
-            Info = objectInfo;
-
+            ObjectInfo = objectInfo;
+            SceneInfo = sceneInfo;
+            
             _modelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
@@ -101,12 +103,12 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return _sceneObjectGameObject;
             
-            _sceneObjectGameObject = new GameObject($"Object_{Info.Id}_{Info.Type}");
+            _sceneObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
 
             // Attach SceneObjectInfo to the GameObject for better debuggability
             #if UNITY_EDITOR
             var infoPresenter = _sceneObjectGameObject.AddComponent<SceneObjectInfoPresenter>();
-            infoPresenter.sceneObjectInfo = Info;
+            infoPresenter.sceneObjectInfo = ObjectInfo;
             #endif
 
             if (ModelType == SceneObjectModelType.PolModel)
@@ -126,9 +128,9 @@ namespace Pal3.Scene.SceneObjects
                 var initTime = 0f;
                 
                 // Some switches are on by default.
-                if (Info.Type == ScnSceneObjectType.Switch &&
-                    Info.Parameters[0] == 1 &&
-                    Info.Parameters[1] == 1)
+                if (ObjectInfo.Type == ScnSceneObjectType.Switch &&
+                    ObjectInfo.Parameters[0] == 1 &&
+                    ObjectInfo.Parameters[1] == 1)
                 {
                     initTime = cvd.CvdFile.AnimationDuration;
                 }
@@ -139,19 +141,19 @@ namespace Pal3.Scene.SceneObjects
                     tintColor,
                     initTime);
 
-                if (Info.Type == ScnSceneObjectType.General)
+                if (ObjectInfo.Type == ScnSceneObjectType.General)
                 {
                     _cvdModelRenderer.LoopAnimation();
                 }
             }
 
-            _sceneObjectGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(Info.GameBoxPosition);
+            _sceneObjectGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition);
             #if PAL3
             _sceneObjectGameObject.transform.rotation =
-                Quaternion.Euler(Info.XRotation, -Info.YRotation, 0f);
+                Quaternion.Euler(ObjectInfo.XRotation, -ObjectInfo.YRotation, 0f);
             #elif PAL3A
             _sceneObjectGameObject.transform.rotation =
-                Quaternion.Euler(Info.XRotation, -Info.YRotation, Info.ZRotation);
+                Quaternion.Euler(ObjectInfo.XRotation, -ObjectInfo.YRotation, ObjectInfo.ZRotation);
             #endif
 
             if (GraphicsEffect != GraphicsEffect.None &&
@@ -159,11 +161,11 @@ namespace Pal3.Scene.SceneObjects
             {
                 _effectComponent = _sceneObjectGameObject.AddComponent(effectComponentType) as IEffect;
                 #if PAL3
-                var effectParameter = Info.EffectModelType;
+                var effectParameter = ObjectInfo.EffectModelType;
                 #elif PAL3A
-                var effectParameter = (uint)Info.Parameters[5];
+                var effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
-                Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {Info.Id}");
+                Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
                 _effectComponent!.Init(resourceProvider, effectParameter);   
             }
 
@@ -232,59 +234,65 @@ namespace Pal3.Scene.SceneObjects
         #region Internal helpper methods
         internal bool IsInteractableBasedOnTimesCount()
         {
-            switch (Info.Times)
+            switch (ObjectInfo.Times)
             {
                 case 0xFF:
                     return true;
                 case <= 0:
                     return false;
                 default:
-                    Info.Times--;
+                    ObjectInfo.Times--;
                     return true;
             }
         }
         
         internal void ExecuteScriptIfAny()
         {
-            if (Info.ScriptId != ScriptConstants.InvalidScriptId)
+            if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)Info.ScriptId));   
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));   
             }
         }
 
         internal void PlaySfxIfAny()
         {
-            if (!string.IsNullOrEmpty(Info.SfxName))
+            if (!string.IsNullOrEmpty(ObjectInfo.SfxName))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(Info.SfxName, 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(ObjectInfo.SfxName, 1));
             }
         }
 
         internal void ChangeGlobalActivationState(bool isActivated)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new SceneActivateObjectCommand(Info.Id, isActivated ? 1 : 0));
+                new SceneActivateObjectCommand(ObjectInfo.Id, isActivated ? 1 : 0));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new SceneChangeObjectActivationStateCommand(Info.Id, isActivated ? 1 : 0));
+                new SceneChangeGlobalObjectActivationStateCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    isActivated ? 1 : 0));
         }
         
         internal void ChangeLinkedObjectGlobalActivationStateIfAny(bool isActivated)
         {
-            if (Info.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneActivateObjectCommand(Info.LinkedObjectId, isActivated ? 1 : 0));
+                    new SceneActivateObjectCommand(ObjectInfo.LinkedObjectId, isActivated ? 1 : 0));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneChangeObjectActivationStateCommand(Info.LinkedObjectId, isActivated ? 1 : 0));
+                    new SceneChangeGlobalObjectActivationStateCommand(SceneInfo.CityName,
+                        SceneInfo.SceneName,
+                        ObjectInfo.LinkedObjectId,
+                        isActivated ? 1 : 0));
             }
         }
 
         internal void InteractWithLinkedObjectIfAny()
         {
-            if (Info.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerInteractWithObjectCommand(Info.LinkedObjectId));
+                    new PlayerInteractWithObjectCommand(ObjectInfo.LinkedObjectId));
             }
         }
         #endregion

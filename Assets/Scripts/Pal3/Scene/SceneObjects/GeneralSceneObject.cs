@@ -55,7 +55,7 @@ namespace Pal3.Scene.SceneObjects
 
             // Don't cast shadow on the map entrance/exit indicator.
             // Those indicators are general objects which have Info.Parameters[0] set to 1
-            if (Info.Type == ScnSceneObjectType.General && Info.Parameters[0] == 1)
+            if (ObjectInfo.Type == ScnSceneObjectType.General && ObjectInfo.Parameters[0] == 1)
             {
                 foreach (MeshRenderer meshRenderer in sceneGameObject.GetComponentsInChildren<MeshRenderer>())
                 {

@@ -28,17 +28,17 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) return;
             
-            if (Info.Parameters[0] != 0) // Game item
+            if (ObjectInfo.Parameters[0] != 0) // Game item
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[0], 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[0], 1));
             }
-            else if (Info.Parameters[1] != 0 && Info.Parameters[1] != 1)
+            else if (ObjectInfo.Parameters[1] != 0 && ObjectInfo.Parameters[1] != 1)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[1]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[1]));
             }
-            else if (Info.Parameters[2] != 0)
+            else if (ObjectInfo.Parameters[2] != 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[2]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[2]));
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));

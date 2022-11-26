@@ -37,7 +37,7 @@ namespace Pal3.Scene.SceneObjects
             // "Comb filter" effect.
             float startDelay = Random.Range(0f, 1f);
 
-            float interval = Info.Parameters[0] > 0 ? Info.Parameters[0] / 1000f : 0f;
+            float interval = ObjectInfo.Parameters[0] > 0 ? ObjectInfo.Parameters[0] / 1000f : 0f;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new AttachSfxToGameObjectRequest(sceneGameObject,

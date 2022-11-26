@@ -8,14 +8,20 @@ namespace Pal3.Command.InternalCommands
     [AvailableInConsole]
     public class SceneChangeGlobalObjectActivationStateCommand : ICommand
     {
-        public SceneChangeGlobalObjectActivationStateCommand(string sceneObjectHashName,
+        public SceneChangeGlobalObjectActivationStateCommand(string cityName,
+            string sceneName,
+            int objectId,
             int isActive)
         {
-            SceneObjectHashName = sceneObjectHashName;
+            CityName = cityName;
+            SceneName = sceneName;
+            ObjectId = objectId;
             IsActive = isActive;
         }
 
-        public string SceneObjectHashName { get; }
+        public string CityName { get; }
+        public string SceneName { get; }
+        public int ObjectId { get; }
         public int IsActive { get; }
     }
 }

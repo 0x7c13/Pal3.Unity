@@ -73,7 +73,7 @@ namespace Pal3.Scene.SceneObjects
         private IEnumerator InteractInternal()
         {
             Vector3 finalPosition = gameObject.transform.position;
-            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_surfaceMechanismObject.Info.Parameters[0]);
+            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_surfaceMechanismObject.ObjectInfo.Parameters[0]);
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
             

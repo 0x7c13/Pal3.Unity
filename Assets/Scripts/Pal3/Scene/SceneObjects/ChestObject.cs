@@ -33,16 +33,16 @@ namespace Pal3.Scene.SceneObjects
             
             for (int i = 0; i < 4; i++)
             {
-                if (Info.Parameters[i] != 0)
+                if (ObjectInfo.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[i], 1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
                 }
             }
             
             #if PAL3A
-            if (Info.Parameters[5] != 0) // money
+            if (ObjectInfo.Parameters[5] != 0) // money
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(Info.Parameters[5]));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[5]));
             }
             #endif
             

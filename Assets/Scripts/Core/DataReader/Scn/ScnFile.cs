@@ -133,8 +133,8 @@ namespace Core.DataReader.Scn
 
     public struct ScnSceneInfo
     {
-        public string CityName;         // char[32] 关名称
-        public string Name;             // char[32] 区块名称
+        public string CityName;         // char[32] 关卡/区块名称
+        public string SceneName;        // char[32] 场景名称
         public string Model;            // char[32] 模型名称
         public ScnSceneType SceneType;
         public int LightMap;            // 0日景灯光, 1夜景灯光, -1无灯光？(比如M01)
@@ -171,7 +171,8 @@ namespace Core.DataReader.Scn
 
         public override string ToString()
         {
-            return $"{CityName.ToLower()}_{Name.ToLower()}";
+            return $"City: {CityName.ToLower()}, Scene: {SceneName.ToLower()}, " +
+                   $"Model: {Model.ToLower()}, Type: {SceneType}, LightMap: {LightMap}, SkyBox: {SkyBox}";
         }
     }
 

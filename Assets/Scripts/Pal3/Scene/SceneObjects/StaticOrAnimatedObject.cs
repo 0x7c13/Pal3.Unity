@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
             _initYPosition = transform.localPosition.y;
 
             // Randomly play animation if Parameters[1] == 0 for Cvd modeled objects.
-            if (_sceneObject.Info.Parameters[1] == 0)
+            if (_sceneObject.ObjectInfo.Parameters[1] == 0)
             {
                 if (gameObject.GetComponent<CvdModelRenderer>() is {} cvdModelRenderer)
                 {
@@ -76,7 +76,7 @@ namespace Pal3.Scene.SceneObjects
             // Parameters[2] describes animated object's default animation.
             // 0 means no animation. 1 means the object is animated up and down (sine curve).
             // 2 means the object is animated with constant rotation.
-            if (_sceneObject.Info.Parameters[2] == 1)
+            if (_sceneObject.ObjectInfo.Parameters[2] == 1)
             {
                 Transform currentTransform = transform;
                 Vector3 currentPosition = currentTransform.localPosition;
@@ -84,7 +84,7 @@ namespace Pal3.Scene.SceneObjects
                     _initYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
-            else if (_sceneObject.Info.Parameters[2] == 2)
+            else if (_sceneObject.ObjectInfo.Parameters[2] == 2)
             {
                 Transform currentTransform = transform;
                 transform.RotateAround(currentTransform.position, currentTransform.up, Time.deltaTime * 80f);

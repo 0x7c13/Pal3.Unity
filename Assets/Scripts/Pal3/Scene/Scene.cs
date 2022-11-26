@@ -31,7 +31,6 @@ namespace Pal3.Scene
         ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
-        ICommandExecutor<SceneChangeObjectActivationStateCommand>,
         #if PAL3A
         ICommandExecutor<SceneActivateObject2Command>,
         ICommandExecutor<FengYaSongCommand>,
@@ -200,7 +199,7 @@ namespace Pal3.Scene
         private void RenderMesh()
         {
             // Render mesh
-            _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.Name}");
+            _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}");
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform);
 
@@ -316,18 +315,18 @@ namespace Pal3.Scene
                 new Color(200f / 255f, 200f / 255f, 180f / 255f);
             
             // Apply lighting override
-            var sceneName = ScnFile.SceneInfo.ToString();
+            var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
             if (LightingConstants.MainLightColorInfoGlobal.ContainsKey(ScnFile.SceneInfo.CityName))
             {
                 _mainLight.color = LightingConstants.MainLightColorInfoGlobal[ScnFile.SceneInfo.CityName];
             }
-            if (LightingConstants.MainLightColorInfo.ContainsKey(sceneName))
+            if (LightingConstants.MainLightColorInfo.ContainsKey(key))
             {
-                _mainLight.color = LightingConstants.MainLightColorInfo[sceneName];
+                _mainLight.color = LightingConstants.MainLightColorInfo[key];
             }
-            if (LightingConstants.MainLightRotationInfo.ContainsKey(sceneName))
+            if (LightingConstants.MainLightRotationInfo.ContainsKey(key))
             {
-                _mainLight.transform.rotation = LightingConstants.MainLightRotationInfo[sceneName];
+                _mainLight.transform.rotation = LightingConstants.MainLightRotationInfo[key];
             }
         }
         
@@ -366,15 +365,15 @@ namespace Pal3.Scene
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
                 SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
-                    ScnFile.SceneInfo.Name,
-                    sceneObject.Info.Id);
+                    ScnFile.SceneInfo.SceneName,
+                    sceneObject.ObjectInfo.Id);
 
                 if (objectState == SceneObjectActivationState.Enabled)
                 {
                     ActivateSceneObject(sceneObject);
                 }
                 else if (objectState == SceneObjectActivationState.Unknown &&
-                         sceneObject.Info.InitActive == 1)
+                         sceneObject.ObjectInfo.InitActive == 1)
                 {
                     ActivateSceneObject(sceneObject);
                 }
@@ -394,7 +393,7 @@ namespace Pal3.Scene
 
         private void ActivateSceneObject(SceneObject sceneObject)
         {
-            if (_activatedSceneObjects.Contains(sceneObject.Info.Id)) return;
+            if (_activatedSceneObjects.Contains(sceneObject.ObjectInfo.Id)) return;
 
             Color tintColor = Color.white;
             if (IsNightScene())
@@ -415,7 +414,7 @@ namespace Pal3.Scene
             }
             #endif
             
-            _activatedSceneObjects.Add(sceneObject.Info.Id);
+            _activatedSceneObjects.Add(sceneObject.ObjectInfo.Id);
         }
 
         private void DeactivateSceneObject(int id)
@@ -501,8 +500,8 @@ namespace Pal3.Scene
             {
                 SceneObjectActivationState objectState = _sceneStateManager.GetSceneObjectActivationState(
                     ScnFile.SceneInfo.CityName,
-                    ScnFile.SceneInfo.Name,
-                    sceneObject.Info.Id);
+                    ScnFile.SceneInfo.SceneName,
+                    sceneObject.ObjectInfo.Id);
 
                 if (objectState != SceneObjectActivationState.Disabled)
                 {
@@ -511,7 +510,7 @@ namespace Pal3.Scene
             }
             else
             {
-                DeactivateSceneObject(sceneObject.Info.Id);
+                DeactivateSceneObject(sceneObject.ObjectInfo.Id);
             }
         }
 
@@ -565,16 +564,6 @@ namespace Pal3.Scene
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
-        
-        public void Execute(SceneChangeObjectActivationStateCommand command)
-        {
-            _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
-                _sceneStateManager.GetSceneObjectHashName(
-                    ScnFile.SceneInfo.CityName,
-                    ScnFile.SceneInfo.Name,
-                    command.ObjectId),
-                command.IsActive));
-        }
 
         public void Execute(SceneMoveObjectCommand command)
         {
@@ -595,15 +584,13 @@ namespace Pal3.Scene
         #if PAL3A
         public void Execute(SceneActivateObject2Command command)
         {
-            var sceneObjectHashName = _sceneStateManager.GetSceneObjectHashName(
-                ScnFile.SceneInfo.CityName,
-                command.SceneName,
-                command.ObjectId);
-
-            if (!_sceneStateManager.GetSceneObjectActivationStates().ContainsKey(sceneObjectHashName))
+            if (_sceneStateManager.GetSceneObjectActivationState(ScnFile.SceneInfo.CityName, command.SceneName, command.ObjectId)
+                == SceneObjectActivationState.Unknown)
             {
                 _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
-                    sceneObjectHashName,
+                    ScnFile.SceneInfo.CityName,
+                    command.SceneName,
+                    command.ObjectId,
                     command.IsActive));     
             }
         }

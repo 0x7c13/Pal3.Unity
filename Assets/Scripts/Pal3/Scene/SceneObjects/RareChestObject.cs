@@ -32,9 +32,9 @@ namespace Pal3.Scene.SceneObjects
             
             for (int i = 0; i < 6; i++)
             {
-                if (Info.Parameters[i] != 0)
+                if (ObjectInfo.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(Info.Parameters[i], 1));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
                 }
             }
             

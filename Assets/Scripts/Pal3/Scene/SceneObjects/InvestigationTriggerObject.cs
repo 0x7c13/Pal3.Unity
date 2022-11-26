@@ -68,22 +68,22 @@ namespace Pal3.Scene.SceneObjects
             _investigationTriggerObject = investigationTriggerObject;
 
             // 2: 模型触发
-            if (_investigationTriggerObject.Info.TriggerType == 2 &&
+            if (_investigationTriggerObject.ObjectInfo.TriggerType == 2 &&
                 GetComponentInChildren<StaticMeshRenderer>() is { } meshRenderer)
             {
                 _bounds = meshRenderer.GetRendererBounds();
             }
             else
             {
-                _bounds = investigationTriggerObject.Info.Bounds;
+                _bounds = investigationTriggerObject.ObjectInfo.Bounds;
             }
 
             // Set active Y position of the lifting mechanism
             // TODO: impl of the lifting logic
-            if (_investigationTriggerObject.Info.Type == ScnSceneObjectType.LiftingMechanism)
+            if (_investigationTriggerObject.ObjectInfo.Type == ScnSceneObjectType.LiftingMechanism)
             {
                 Vector3 oldPosition = transform.position;
-                float gameBoxYPosition = _investigationTriggerObject.Info.Parameters[0];
+                float gameBoxYPosition = _investigationTriggerObject.ObjectInfo.Parameters[0];
                 // A small Y offset to ensure actor shadow is properly rendered
                 float activeYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
                 transform.position = new Vector3(oldPosition.x, activeYPosition, oldPosition.z);

@@ -23,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
         public override bool IsInteractable(InteractionContext ctx)
         {
             return Activated && GameBoxInterpreter.IsPositionInsideRect(
-                Info.TileMapTriggerRect, ctx.ActorTilePosition);
+                ObjectInfo.TileMapTriggerRect, ctx.ActorTilePosition);
         }
 
         public override void Interact(bool triggerredByPlayer)
@@ -34,9 +34,9 @@ namespace Pal3.Scene.SceneObjects
             // Parameters[1] = y1
             // Parameters[2] = portal to flower object Id
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(-1, Info.Parameters[0], Info.Parameters[1]));
+                new ActorSetTilePositionCommand(-1, ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]));
             #elif PAL3A
-            Vector3 worldPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(Info.Parameters[0], 0f, Info.Parameters[1]));
+            Vector3 worldPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(ObjectInfo.Parameters[0], 0f, ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetWorldPositionCommand(-1, worldPosition.x, worldPosition.z));
             #endif

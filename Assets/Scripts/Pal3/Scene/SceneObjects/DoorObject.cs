@@ -38,7 +38,7 @@ namespace Pal3.Scene.SceneObjects
             // a fresh scene load.
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
             
-            _triggerController.Init(Info.TileMapTriggerRect, Info.LayerIndex, effectiveTime);
+            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
             _triggerController.OnTriggerEntered += OnTriggerEnter;
             
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -54,7 +54,7 @@ namespace Pal3.Scene.SceneObjects
             
             // There are doors controlled by the script for it's behaviour & animation which have
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
-            if (Info.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
+            if (ObjectInfo.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
                 
@@ -91,7 +91,7 @@ namespace Pal3.Scene.SceneObjects
         
         public void Execute(ScriptFinishedRunningNotification command)
         {
-            if (command.ScriptId == Info.ScriptId)
+            if (command.ScriptId == ObjectInfo.ScriptId)
             {
                 _isScriptRunningInProgress = false;
             }

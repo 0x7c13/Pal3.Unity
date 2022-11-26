@@ -29,7 +29,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact(bool triggerredByPlayer)
         {
-            if (Info.ScriptId == ScriptConstants.InvalidScriptId)
+            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId)
             {
                 // For climbable scene object:
                 // Parameters[0] = x1
@@ -38,10 +38,10 @@ namespace Pal3.Scene.SceneObjects
                 // Parameters[3] = y2
                 // Parameters[4] == 1 ? Crossing different layer : Same layer
 
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerActorClimbObjectCommand(Info.Id,
-                    new Vector2Int(Info.Parameters[0], Info.Parameters[1]),
-                    new Vector2Int(Info.Parameters[2], Info.Parameters[3]),
-                    Info.Parameters[4] == 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerActorClimbObjectCommand(ObjectInfo.Id,
+                    new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]),
+                    new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]),
+                    ObjectInfo.Parameters[4] == 1));
             }
             else
             {

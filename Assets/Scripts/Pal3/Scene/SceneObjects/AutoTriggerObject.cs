@@ -39,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
             // a fresh scene load.
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
             
-            _triggerController.Init(Info.TileMapTriggerRect, Info.LayerIndex, effectiveTime);
+            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
             _triggerController.OnTriggerEntered += OnTriggerEntered;
             
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -58,7 +58,7 @@ namespace Pal3.Scene.SceneObjects
 
         public void Execute(ScriptFinishedRunningNotification command)
         {
-            if (command.ScriptId == Info.ScriptId)
+            if (command.ScriptId == ObjectInfo.ScriptId)
             {
                 _isScriptRunningInProgress = false;
             }

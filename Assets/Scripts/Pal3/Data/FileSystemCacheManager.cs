@@ -18,7 +18,7 @@ namespace Pal3.Data
         ICommandExecutor<ScenePreLoadingNotification>
     {
         private readonly ICpkFileSystem _fileSystem;
-        private string _currentSceneCityName;
+        private string _currentCityName;
         private string _currentSceneName;
 
         public FileSystemCacheManager(ICpkFileSystem fileSystem)
@@ -35,16 +35,16 @@ namespace Pal3.Data
 
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newSceneCityName = notification.NewSceneInfo.CityName.ToLower();
-            var newSceneName = notification.NewSceneInfo.Name.ToLower();
+            var newCityName = notification.NewSceneInfo.CityName.ToLower();
+            var newSceneName = notification.NewSceneInfo.SceneName.ToLower();
 
-            if (!newSceneCityName.Equals(_currentSceneCityName, StringComparison.OrdinalIgnoreCase))
+            if (!newCityName.Equals(_currentCityName, StringComparison.OrdinalIgnoreCase))
             {
                 // Dispose current scene cpk
-                if (!string.IsNullOrEmpty(_currentSceneCityName))
+                if (!string.IsNullOrEmpty(_currentCityName))
                 {
-                    var currentSceneFolderPath = _currentSceneCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
-                                          + _currentSceneName;
+                    var currentSceneFolderPath = _currentCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
+                                                 + _currentSceneName;
                     
                     if (_fileSystem.FileExistsInSegmentedArchive(currentSceneFolderPath, out string segmentedArchiveName))
                     {
@@ -52,13 +52,13 @@ namespace Pal3.Data
                     }
                     else
                     {
-                        _fileSystem.DisposeInMemoryArchive(_currentSceneCityName + CpkConstants.FileExtension);
+                        _fileSystem.DisposeInMemoryArchive(_currentCityName + CpkConstants.FileExtension);
                     }
                 }
 
                 // Load new scene cpk into memory
                 {
-                    var newSceneFolderPath = newSceneCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
+                    var newSceneFolderPath = newCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
                                              + newSceneName;
 
                     if (_fileSystem.FileExistsInSegmentedArchive(newSceneFolderPath, out string segmentedArchiveName))
@@ -67,11 +67,11 @@ namespace Pal3.Data
                     }
                     else
                     {
-                        _fileSystem.LoadArchiveIntoMemory(newSceneCityName + CpkConstants.FileExtension);
+                        _fileSystem.LoadArchiveIntoMemory(newCityName + CpkConstants.FileExtension);
                     }
                 }
 
-                _currentSceneCityName = newSceneCityName;
+                _currentCityName = newCityName;
                 _currentSceneName = newSceneName;
             }
         }

@@ -426,7 +426,7 @@ namespace Pal3.Audio
             _currentMusicClipName = string.Empty;
 
             ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
-            StartCoroutine(PlaySceneMusic(sceneInfo.CityName, sceneInfo.Name));
+            StartCoroutine(PlaySceneMusic(sceneInfo.CityName, sceneInfo.SceneName));
         }
 
         public void Execute(ScenePreLoadingNotification command)
@@ -440,7 +440,7 @@ namespace Pal3.Audio
         {
             if (string.IsNullOrEmpty(_currentScriptMusic))
             {
-                StartCoroutine(PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.Name));
+                StartCoroutine(PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.SceneName));
             }
         }
 

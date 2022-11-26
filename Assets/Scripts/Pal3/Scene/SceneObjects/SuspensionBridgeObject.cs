@@ -43,7 +43,7 @@ namespace Pal3.Scene.SceneObjects
             };
 
             _platformController = GetGameObject().GetOrAddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, Info.LayerIndex);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
         }
 
         public override void Deactivate()

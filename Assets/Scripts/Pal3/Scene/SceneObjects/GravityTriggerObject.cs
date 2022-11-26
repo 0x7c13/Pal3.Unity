@@ -46,7 +46,7 @@ namespace Pal3.Scene.SceneObjects
             };
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, Info.LayerIndex);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
             _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
@@ -64,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
                 actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
             {
                 // Check if total team members are equal to or greater than required headcount
-                if (_teamManager.GetActorsInTeam().Count >= Info.Parameters[0])
+                if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
                 {
                     _gravityTriggerObjectController.Interact(collider.gameObject);
                 }

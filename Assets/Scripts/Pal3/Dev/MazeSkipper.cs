@@ -936,9 +936,9 @@ namespace Pal3.Dev
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
             
             // This is how exit button works:
-            // If there are predefined commands that has a format of <sceneCityName>_<sceneName>_<mainStoryVarValue>
+            // If there are predefined commands that has a format of <CityName>_<sceneName>_<mainStoryVarValue>
             // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commands
-            // if no matching pattern found, it will execute the default exit commands (<sceneCityName>_<sceneName>_1)
+            // if no matching pattern found, it will execute the default exit commands (<CityName>_<sceneName>_1)
 
             var mainStoryVarCurrentValue = ServiceLocator.Instance.Get<ScriptManager>()
                 .GetGlobalVariables()[ScriptConstants.MainStoryVariableName];
@@ -979,7 +979,7 @@ namespace Pal3.Dev
         
         private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)
         {
-            return $"{sceneInfo.CityName}_{sceneInfo.Name}_".ToLower();
+            return $"{sceneInfo.CityName}_{sceneInfo.SceneName}_".ToLower();
         }
 
         public void Execute(GameStateChangedNotification command)

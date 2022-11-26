@@ -163,7 +163,12 @@ namespace Pal3.State
             
             // Save scene object activation state
             commands.AddRange(_sceneStateManager.GetSceneObjectActivationStates()
-                .Select(state => new SceneChangeGlobalObjectActivationStateCommand(state.Key, state.Value ? 1 : 0)));
+                .Select(state => 
+                    new SceneChangeGlobalObjectActivationStateCommand(
+                        state.Key.cityName,
+                        state.Key.sceneName,
+                        state.Key.objectId,
+                        state.Value ? 1 : 0)));
             
             // Save current applied screen effect state
             var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
@@ -175,7 +180,7 @@ namespace Pal3.State
             // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()
             {
-                new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.Name),
+                new SceneLoadCommand(currentSceneInfo.CityName, currentSceneInfo.SceneName),
                 new ActorActivateCommand(currentPlayerActorId, 1),
                 new ActorEnablePlayerControlCommand(currentPlayerActorId),
                 new PlayerEnableInputCommand(1),
@@ -193,10 +198,10 @@ namespace Pal3.State
                 var allSceneObjects = currentScene.GetAllSceneObjects();
                 var allActivatedSceneObjects = currentScene.GetAllActivatedSceneObjects();
                 commands.AddRange(allActivatedSceneObjects
-                    .Where(_ => allSceneObjects[_].Info.InitActive == 0)
+                    .Where(_ => allSceneObjects[_].ObjectInfo.InitActive == 0)
                     .Select(_ => new SceneActivateObjectCommand(_, 1)));
                 commands.AddRange(allSceneObjects
-                    .Where(_ => allSceneObjects[_.Key].Info.InitActive == 1)
+                    .Where(_ => allSceneObjects[_.Key].ObjectInfo.InitActive == 1)
                     .Where(_ => !allActivatedSceneObjects.Contains(_.Key))
                     .Select(_ => new SceneActivateObjectCommand(_.Key, 0)));
 

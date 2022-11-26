@@ -21,7 +21,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneChangeGlobalObjectActivationStateCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly Dictionary<string, bool> _sceneObjectActivationStates = new ();
+        private readonly Dictionary<(string cityName, string sceneName, int objectId), bool> _sceneObjectActivationStates = new ();
 
         public SceneStateManager()
         {
@@ -33,26 +33,19 @@ namespace Pal3.Scene
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public Dictionary<string, bool> GetSceneObjectActivationStates()
+        public Dictionary<(string cityName, string sceneName, int objectId), bool> GetSceneObjectActivationStates()
         {
             return _sceneObjectActivationStates;
         }
-        
-        public string GetSceneObjectHashName(string sceneCityName,
+
+        public SceneObjectActivationState GetSceneObjectActivationState(string cityName,
             string sceneName,
             int objectId)
         {
-            return $"{sceneCityName.ToLower()}_{sceneName.ToLower()}_{objectId}";
-        }
-        
-        public SceneObjectActivationState GetSceneObjectActivationState(string sceneCityName,
-            string sceneName,
-            int objectId)
-        {
-            string sceneObjectHashName = GetSceneObjectHashName(sceneCityName, sceneName, objectId);
-            if (_sceneObjectActivationStates.ContainsKey(sceneObjectHashName))
+            var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
+            if (_sceneObjectActivationStates.ContainsKey(key))
             {
-                return _sceneObjectActivationStates[sceneObjectHashName] ?
+                return _sceneObjectActivationStates[key] ?
                     SceneObjectActivationState.Enabled :
                     SceneObjectActivationState.Disabled;
             }
@@ -61,7 +54,8 @@ namespace Pal3.Scene
         
         public void Execute(SceneChangeGlobalObjectActivationStateCommand command)
         {
-            _sceneObjectActivationStates[command.SceneObjectHashName] = command.IsActive != 0;
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            _sceneObjectActivationStates[key] = command.IsActive != 0;
         }
 
         public void Execute(ResetGameStateCommand command)
