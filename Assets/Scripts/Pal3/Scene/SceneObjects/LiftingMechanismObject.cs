@@ -96,7 +96,7 @@ namespace Pal3.Scene.SceneObjects
 
     internal class LiftingMechanismObjectController : MonoBehaviour
     {
-        private const float LIFTING_ANIMATION_DURATION = 3f;
+        private const float LIFTING_ANIMATION_DURATION = 2.5f;
         
         private LiftingMechanismObject _liftingMechanismObject;
         
