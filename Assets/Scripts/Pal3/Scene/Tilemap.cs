@@ -170,6 +170,28 @@ namespace Pal3.Scene
             return false;
         }
 
+        public void MarkFloorKindAsObstacle(NavFloorKind floorKind, bool isObstacle)
+        {
+            for (int i = 0; i < _navFile.TileLayers.Length; i++)
+            {
+                var newTiles = new NavTile[_navFile.TileLayers[i].Tiles.Length];
+
+                for (int j = 0; j < _navFile.TileLayers[i].Tiles.Length; j++)
+                {
+                    NavTile navTile = _navFile.TileLayers[i].Tiles[j];
+                    
+                    if (navTile.FloorKind == floorKind)
+                    {
+                        navTile.IsObstacle = isObstacle;
+                    }
+                    
+                    newTiles[j] = navTile;
+                }
+
+                _navFile.TileLayers[i].Tiles = newTiles;
+            }
+        }
+        
         // Add some weights to the tiles near obstacle.
         private int GetTileExtraWeight(NavTile tile)
         {

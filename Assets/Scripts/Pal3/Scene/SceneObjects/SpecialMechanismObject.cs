@@ -98,6 +98,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlayerActorId actorId = _playerManager.GetPlayerActor();
 
+            #if PAL3
             var sfxName = actorId switch
             {
                 PlayerActorId.JingTian   => "we026",
@@ -112,6 +113,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
             }
+            #endif
             
             if (_specialMechanismObject.ModelType == SceneObjectModelType.CvdModel)
             {
