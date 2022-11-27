@@ -20,8 +20,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
     public class SpecialMechanismObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 5f;
-
         private SpecialMechanismObjectController _specialMechanismObjectController;
         
         public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -33,16 +31,46 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+            
+            // Add collider to block player, also make the bounds of the collider a little bit bigger
+            // to make sure the player can't walk through the collider
+            var boundsScale = (PlayerActorId)ObjectInfo.Parameters[0] switch
+            {
+                #if PAL3
+                PlayerActorId.JingTian => 1.5f,
+                PlayerActorId.XueJian => 1.5f,
+                PlayerActorId.LongKui => 1.2f,
+                PlayerActorId.ZiXuan => 1.3f,
+                PlayerActorId.ChangQing => 1.7f,
+                #endif
+                _ => 1f
+            };
+            
+            sceneGameObject.AddComponent<SceneObjectMeshCollider>().SetBoundsScale(boundsScale);
             _specialMechanismObjectController = sceneGameObject.AddComponent<SpecialMechanismObjectController>();
             _specialMechanismObjectController.Init(this);
             return sceneGameObject;
         }
 
+        private float GetInteractionMaxDistance()
+        {
+            return (PlayerActorId) ObjectInfo.Parameters[0] switch
+            {
+                #if PAL3
+                PlayerActorId.JingTian => 4.5f,
+                PlayerActorId.XueJian => 5f,
+                PlayerActorId.LongKui => 8f,
+                PlayerActorId.ZiXuan  => 4.5f, 
+                PlayerActorId.ChangQing => 4.5f,
+                #endif
+                _ => 4.5f
+            };
+        }
+
         public override bool IsInteractable(InteractionContext ctx)
         {
             return Activated &&
-                   ctx.DistanceToActor < MAX_INTERACTION_DISTANCE &&
+                   ctx.DistanceToActor < GetInteractionMaxDistance() &&
                    ctx.ActorId == ObjectInfo.Parameters[0]; // Only specified actor can interact with this object
         }
 

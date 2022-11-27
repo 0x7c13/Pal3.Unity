@@ -121,6 +121,11 @@ namespace Pal3.Actor
         {
             return _rigidbody;
         }
+        
+        public CapsuleCollider GetCollider()
+        {
+            return _collider;
+        }
 
         public void PerformAction(ActorActionType actorActionType)
         {
@@ -251,7 +256,7 @@ namespace Pal3.Actor
             Bounds bounds = GetMeshBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
-            _collider.radius = bounds.size.x * 0.35f;
+            _collider.radius = bounds.size.x * 0.4f;
         }
 
         private void SetupRigidBody()

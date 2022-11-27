@@ -33,14 +33,15 @@ namespace Pal3.Scene.SceneObjects.Common
             _collider.isTrigger = true;
         }
 
-        public Bounds GetBounds()
+        public Collider GetCollider()
         {
-            return _collider.bounds;
+            return _collider;
         }
 
         public float GetPlatformHeight()
         {
-            return _collider.bounds.max.y;
+            // A little bit lower than the platform to make sure the bounds check pass when (X,Z) is inside the platform
+            return _collider.bounds.max.y - 0.05f;
         }
 
         private void OnTriggerEnter(Collider other)

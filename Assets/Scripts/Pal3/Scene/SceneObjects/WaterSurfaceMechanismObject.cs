@@ -50,7 +50,6 @@ namespace Pal3.Scene.SceneObjects
             if (_surfaceMechanismObjectController != null)
             {
                 _surfaceMechanismObjectController.Interact();
-                UpdateTileMapIfConditionApply(false);
             }
         }
 

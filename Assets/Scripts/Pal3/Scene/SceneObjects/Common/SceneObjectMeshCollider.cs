@@ -11,8 +11,20 @@ namespace Pal3.Scene.SceneObjects.Common
     public class SceneObjectMeshCollider : MonoBehaviour
     {
         private BoxCollider _collider;
+        private Vector3 _meshBoundsSize;
+        private float _boundsScale = 1.0f;
+
+        public void SetBoundsScale(float boundsScale)
+        {
+            _boundsScale = boundsScale;
+            
+            if (_collider != null)
+            {
+                _collider.size = _meshBoundsSize * _boundsScale;
+            }
+        }
         
-        private void OnEnable()
+        private void Start()
         {
             UpdateBounds();
         }
@@ -38,9 +50,11 @@ namespace Pal3.Scene.SceneObjects.Common
             {
                 _collider = gameObject.AddComponent<BoxCollider>();    
             }
+
+            _meshBoundsSize = bounds.size;
             
             _collider.center = bounds.center;
-            _collider.size = bounds.size;
+            _collider.size = _meshBoundsSize * _boundsScale;
         }
 
         private void OnDisable()

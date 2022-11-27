@@ -164,6 +164,12 @@ namespace Core.Utils
             return finalBounds;
         }
 
+        public static bool IsPointWithinCollider(Collider collider, Vector3 point)
+        {
+            if (collider == null) return false;
+            return collider.ClosestPoint(point) == point;
+        }
+        
         public static Vector3[] CalculateNormals(Vector3[] vertices, int[] triangles)
         {
             Vector3[] normals = new Vector3[vertices.Length];

@@ -16,10 +16,10 @@ namespace Pal3.Actor
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Utils;
     using MetaData;
     using Scene;
     using Scene.SceneObjects.Common;
-    using Script;
     using Script.Waiter;
     using UnityEngine;
     using Random = UnityEngine.Random;
@@ -58,7 +58,7 @@ namespace Pal3.Actor
         private WaitUntilCanceled _movementWaiter;
         private CancellationTokenSource _movementCts = new ();
 
-        private bool _isDuringCollision;
+        private readonly HashSet<Collider> _activeColliders = new ();
         private Vector3 _lastKnownValidPositionWhenCollisionEnter;
 
         private bool _isNearOrOnTopOfPlatform;
@@ -125,6 +125,11 @@ namespace Pal3.Actor
             _currentLayerIndex = layerIndex;
         }
 
+        public bool IsDuringCollision()
+        {
+            return _activeColliders.Count > 0;
+        }
+        
         public bool IsMovementInProgress()
         {
             return !_currentPath.IsEndOfPath();
@@ -202,7 +207,7 @@ namespace Pal3.Actor
             // Also we need to adjust Y position based on tile information
             // during the collision since we are locking Y movement for the
             // player actor's rigidbody.
-            if (!_isDuringCollision) return;
+            if (!IsDuringCollision()) return;
             Rigidbody rigidBody = _actionController.GetRigidBody();
             if (rigidBody != null && !rigidBody.isKinematic)
             {
@@ -229,10 +234,10 @@ namespace Pal3.Actor
             }
         }
 
-        private void OnCollisionEnter(Collision _)
+        private void OnCollisionEnter(Collision collision)
         {
-            _isDuringCollision = true;
-            
+            _activeColliders.Add(collision.collider);
+
             Vector3 currentActorPosition = transform.position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
             
@@ -251,9 +256,9 @@ namespace Pal3.Actor
             }
         }
 
-        private void OnCollisionExit(Collision _)
+        private void OnCollisionExit(Collision collision)
         {
-            _isDuringCollision = false;
+            _activeColliders.Remove(collision.collider);
 
             if (_actionController.GetRigidBody() is { isKinematic: false } actorRigidbody)
             {
@@ -268,12 +273,17 @@ namespace Pal3.Actor
                 _isNearOrOnTopOfPlatform = true;
                 _activeStandingPlatform = standingPlatformController;
                 _activeStandingPlatformLastKnownPosition = triggerCollider.gameObject.transform.position;
+                
+                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
+                Vector3 currentPosition = transform.position;
+                transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
             }
         }
 
         private void OnTriggerExit(Collider triggerCollider)
         {
-            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() != null)
+            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController &&
+                standingPlatformController == _activeStandingPlatform)
             {
                 _isNearOrOnTopOfPlatform = false;
             }
@@ -378,10 +388,16 @@ namespace Pal3.Actor
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
             
-            // Reduce speed during collision to avoid player walking through obstacles
-            if (!ignoreObstacle && _isDuringCollision) moveSpeed /= 3f;
-
             Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
+
+            // If actor is moving towards a collider, check if the new position is still inside the collider.
+            // If yes, don't move the actor. This is to prevent the actor from moving through the collider.
+            if (IsDuringCollision() && _actionController.GetRigidBody() is { isKinematic: false } &&
+                IsNewPositionInsideCollisionCollider(currentPosition, newPosition))
+            {
+                RotateTowards(currentPosition, newPosition, movementMode);
+                return MovementResult.InProgress;
+            }
 
             var canGotoPosition = CanGotoPosition(currentPosition, newPosition, out var newYPosition);
 
@@ -392,10 +408,30 @@ namespace Pal3.Actor
 
             if (!canGotoPosition || Mathf.Abs(newYPosition - newPosition.y) > 3f) newYPosition = currentPosition.y;
 
-            var moveDirection = new Vector3(
+            RotateTowards(currentPosition, newPosition, movementMode);
+
+            currentTransform.position = new Vector3(
+                newPosition.x,
+                newYPosition,
+                newPosition.z);
+                
+            if (Mathf.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
+                Mathf.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
+            {
+                return MovementResult.Completed;
+            }
+
+            return MovementResult.InProgress;
+        }
+
+        private void RotateTowards(Vector3 currentPosition, Vector3 targetPosition, int movementMode)
+        {
+            Transform currentTransform = transform;
+            
+            Vector3 moveDirection = new Vector3(
                 targetPosition.x - currentPosition.x,
                 0f,
-                targetPosition.z - currentPosition.z);
+                targetPosition.z - currentPosition.z).normalized;
 
             // Special handling for moving backwards
             if (movementMode == 2)
@@ -407,19 +443,31 @@ namespace Pal3.Actor
                 currentTransform.forward = Vector3.RotateTowards(currentTransform.forward,
                     moveDirection, DEFAULT_ROTATION_SPEED * Time.deltaTime, 0.0f);
             }
+        }
 
-            currentTransform.position = new Vector3(
-                newPosition.x,
-                newYPosition,
-                newPosition.z);
-
-            if (Mathf.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
-                Mathf.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
+        private bool IsNewPositionInsideCollisionCollider(Vector3 currentPosition, Vector3 newPosition)
+        {
+            // Check if actor is running into any of the active collision colliders
+            foreach (Collider currentCollider in _activeColliders)
             {
-                return MovementResult.Completed;
+                var centerYPosition = (_actionController.GetRendererBounds().max.y +
+                                       _actionController.GetRendererBounds().min.y) / 2f;
+            
+                var fromCenterPosition = new Vector3(currentPosition.x, centerYPosition, currentPosition.z);
+                var toCenterPosition = new Vector3(newPosition.x, centerYPosition, newPosition.z);
+                Vector3 movingDirection = (toCenterPosition - fromCenterPosition).normalized;
+            
+                if (_actionController.GetCollider() is { } capsuleCollider)
+                {
+                    if (Utility.IsPointWithinCollider(currentCollider,
+                            toCenterPosition + movingDirection * capsuleCollider.radius))
+                    {
+                        return true;
+                    }
+                }   
             }
 
-            return MovementResult.InProgress;
+            return false;
         }
 
         private bool CanGotoPosition(Vector3 currentPosition, Vector3 newPosition, out float newYPosition)
@@ -429,19 +477,17 @@ namespace Pal3.Actor
             // Check if actor is on top of a platform
             if (_activeStandingPlatform != null)
             {
-                Bounds bounds = _activeStandingPlatform.GetBounds();
-
-                // A little bit lower than the platform to make sure the bounds check pass when (X,Z) is inside the platform
-                var targetYPosition = _activeStandingPlatform.GetPlatformHeight() - 0.05f;
+                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
                 
                 // Make sure actor is on top of the platform
-                if (bounds.Contains(new Vector3(newPosition.x, targetYPosition, newPosition.z)))
+                if (Utility.IsPointWithinCollider(_activeStandingPlatform.GetCollider(),
+                        new Vector3(newPosition.x, targetYPosition, newPosition.z)))
                 {
                     newYPosition = targetYPosition;
-                    return true;   
+                    return true;
                 }
             }
-            
+
             // New position is not blocked at current layer
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())
@@ -745,7 +791,10 @@ namespace Pal3.Actor
                 _movementCts?.Cancel();
                 _movementCts = new CancellationTokenSource();
                 _currentPath.Clear();
-                _isDuringCollision = false;
+                
+                _activeColliders.Clear();
+                _isNearOrOnTopOfPlatform = false;
+                _activeStandingPlatform = null;
             }
         }
     }

@@ -285,6 +285,8 @@ namespace Pal3.Player
 
             if (result != MovementResult.Blocked) return result;
 
+            if (_playerActorMovementController.IsDuringCollision()) return result;
+            
             // Try change direction a little bit to see if it works
             for (var degrees = 2; degrees <= 80; degrees+= 2)
             {
