@@ -211,28 +211,28 @@ namespace Pal3.MetaData
         #if PAL3
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
         {
-            {PlayerActorId.JingTian,  "101"},
-            {PlayerActorId.XueJian,   "104"},
-            {PlayerActorId.LongKui,   "105"},  // 105 人形 106 鬼形
-            {PlayerActorId.ZiXuan,    "107"},
-            {PlayerActorId.ChangQing, "102"},
-            {PlayerActorId.HuaYing,   "109"}
+            { PlayerActorId.JingTian,  "101" },
+            { PlayerActorId.XueJian,   "104" },
+            { PlayerActorId.LongKui,   "105" },  // 105 人形 106 鬼形
+            { PlayerActorId.ZiXuan,    "107" },
+            { PlayerActorId.ChangQing, "102" },
+            { PlayerActorId.HuaYing,   "109" }
         };
         #elif PAL3A
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
         {
-            {PlayerActorId.NanGongHuang,  "101"},  // 101 人形 107 狼形
-            {PlayerActorId.WenHui,        "102"},
-            {PlayerActorId.WangPengXu,    "103"},
-            {PlayerActorId.XingXuan,      "104"},
-            {PlayerActorId.LeiYuanGe,     "105"},
-            {PlayerActorId.TaoZi,         "106"},  // 桃子兽形
+            { PlayerActorId.NanGongHuang,  "101" },  // 101 人形 107 狼形
+            { PlayerActorId.WenHui,        "102" },
+            { PlayerActorId.WangPengXu,    "103" },
+            { PlayerActorId.XingXuan,      "104" },
+            { PlayerActorId.LeiYuanGe,     "105" },
+            { PlayerActorId.TaoZi,         "106" },  // 桃子兽形
         };
         public static readonly Dictionary<FengYaSongActorId, string> FengYaSongActorNameMap = new()
         {
-            {FengYaSongActorId.Feng,  "110"},  // 风
-            {FengYaSongActorId.Ya,    "108"},  // 雅
-            {FengYaSongActorId.Song,  "109"},  // 颂
+            { FengYaSongActorId.Feng,  "110" },  // 风
+            { FengYaSongActorId.Ya,    "108" },  // 雅
+            { FengYaSongActorId.Song,  "109" },  // 颂
         };
         #endif
         
@@ -260,148 +260,148 @@ namespace Pal3.MetaData
         public static readonly Dictionary<ActorActionType, string> ActionNames = new()
         {
             // 基本动作
-            { ActorActionType.Stand,             "c01"},   // 站立
-            { ActorActionType.Walk,              "c02"},   // 行走
-            { ActorActionType.Run,               "c03"},   // 奔跑
-            { ActorActionType.Back,              "c15"},   // 后退
-            { ActorActionType.Jump,              "c04"},   // 起跳
-            { ActorActionType.Climb,             "c05"},   // 攀爬
-            { ActorActionType.ClimbDown,         "c052"},  // 向下攀爬
-            { ActorActionType.Push,              "c06"},   // 推
-            { ActorActionType.Skill,             "c07"},   // 技能
-            { ActorActionType.Tire,              "c08"},   // 疲倦
-            { ActorActionType.Seat,              "c09"},   // 坐
-            { ActorActionType.Check,             "c10"},   // 调查
-            { ActorActionType.Sleep,             "c11"},   // 睡觉
-            { ActorActionType.Shake,             "c12"},   // 摇头
-            { ActorActionType.Nod,               "c13"},   // 点头
-            { ActorActionType.Wave,              "c14"},   // 摆手
+            { ActorActionType.Stand,             "c01"  },   // 站立
+            { ActorActionType.Walk,              "c02"  },   // 行走
+            { ActorActionType.Run,               "c03"  },   // 奔跑
+            { ActorActionType.Back,              "c15"  },   // 后退
+            { ActorActionType.Jump,              "c04"  },   // 起跳
+            { ActorActionType.Climb,             "c05"  },   // 攀爬
+            { ActorActionType.ClimbDown,         "c052" },   // 向下攀爬
+            { ActorActionType.Push,              "c06"  },   // 推
+            { ActorActionType.Skill,             "c07"  },   // 技能
+            { ActorActionType.Tire,              "c08"  },   // 疲倦
+            { ActorActionType.Seat,              "c09"  },   // 坐
+            { ActorActionType.Check,             "c10"  },   // 调查
+            { ActorActionType.Sleep,             "c11"  },   // 睡觉
+            { ActorActionType.Shake,             "c12"  },   // 摇头
+            { ActorActionType.Nod,               "c13"  },   // 点头
+            { ActorActionType.Wave,              "c14"  },   // 摆手
 
             // 剧情动作
-            { ActorActionType.Signature,         "j01"},   // 招牌
-            { ActorActionType.Shocked,           "j02"},   // 惊吓
-            { ActorActionType.SeatDown,          "j03"},   // 下蹲
-            { ActorActionType.SeatUp,            "j04"},   // 坐起
-            { ActorActionType.Point,             "j05"},   // 指点
-            { ActorActionType.Kick,              "j06"},   // 踢
-            { ActorActionType.Salute,            "j07"},   // 行礼
-            { ActorActionType.Tease,             "j08"},   // 挑逗
-            { ActorActionType.Snuggle,           "j09"},   // 依偎
-            { ActorActionType.Whining,           "j10"},   // 撒娇
-            { ActorActionType.Anger,             "j11"},   // 发怒
-            { ActorActionType.Dose,              "j12"},   // 服药
-            { ActorActionType.J13,               "j13"},   // 得意
+            { ActorActionType.Signature,         "j01" },   // 招牌
+            { ActorActionType.Shocked,           "j02" },   // 惊吓
+            { ActorActionType.SeatDown,          "j03" },   // 下蹲
+            { ActorActionType.SeatUp,            "j04" },   // 坐起
+            { ActorActionType.Point,             "j05" },   // 指点
+            { ActorActionType.Kick,              "j06" },   // 踢
+            { ActorActionType.Salute,            "j07" },   // 行礼
+            { ActorActionType.Tease,             "j08" },   // 挑逗
+            { ActorActionType.Snuggle,           "j09" },   // 依偎
+            { ActorActionType.Whining,           "j10" },   // 撒娇
+            { ActorActionType.Anger,             "j11" },   // 发怒
+            { ActorActionType.Dose,              "j12" },   // 服药
+            { ActorActionType.J13,               "j13" },   // 得意
 
             // 战斗动作
-            { ActorActionType.Attack1,		     "z01"},   // 攻击1
-            { ActorActionType.Attack2,		     "z02"},   // 攻击2
-            { ActorActionType.AttackMove,	     "z03"},   // 攻击移动
-            { ActorActionType.PreAttack,         "z04"},   // 备战
-            { ActorActionType.BeAttack,		     "z05"},   // 被攻击
-            { ActorActionType.MagicWait,         "z061"},  // 仙术预备
-            { ActorActionType.Magic,             "z06"},   // 仙术
-            { ActorActionType.Skill1,		     "z09"},   // 特技1
-            { ActorActionType.Skill2,		     "z10"},   // 特技2
-            { ActorActionType.UseItemRecover,    "z11"},   // 恢复物品
-            { ActorActionType.UseItemAttack,     "z12"},   // 攻击物品
-            { ActorActionType.WeaponSkill,	     "z13"},   // 武器技
-            { ActorActionType.StartDefence,	     "z14"},   // 开始防御
-            { ActorActionType.Defence,		     "z141"},  // 防御
-            { ActorActionType.DefenceBeAttack,   "z142"},  // 攻击被防住
-            { ActorActionType.Dodge,             "z15"},   // 回避
-            { ActorActionType.Freeze,            "z16"},   // 眠定
-            { ActorActionType.Dying,             "z17"},   // 濒死
-            { ActorActionType.Dead,			     "z18"},   // 死亡
-            { ActorActionType.Flee,			     "z19"},   // 逃跑等到
-            { ActorActionType.Win,			     "z20"},   // 胜利
+            { ActorActionType.Attack1,		     "z01"  },   // 攻击1
+            { ActorActionType.Attack2,		     "z02"  },   // 攻击2
+            { ActorActionType.AttackMove,	     "z03"  },   // 攻击移动
+            { ActorActionType.PreAttack,         "z04"  },   // 备战
+            { ActorActionType.BeAttack,		     "z05"  },   // 被攻击
+            { ActorActionType.MagicWait,         "z061" },   // 仙术预备
+            { ActorActionType.Magic,             "z06"  },   // 仙术
+            { ActorActionType.Skill1,		     "z09"  },   // 特技1
+            { ActorActionType.Skill2,		     "z10"  },   // 特技2
+            { ActorActionType.UseItemRecover,    "z11"  },   // 恢复物品
+            { ActorActionType.UseItemAttack,     "z12"  },   // 攻击物品
+            { ActorActionType.WeaponSkill,	     "z13"  },   // 武器技
+            { ActorActionType.StartDefence,	     "z14"  },   // 开始防御
+            { ActorActionType.Defence,		     "z141" },   // 防御
+            { ActorActionType.DefenceBeAttack,   "z142" },   // 攻击被防住
+            { ActorActionType.Dodge,             "z15"  },   // 回避
+            { ActorActionType.Freeze,            "z16"  },   // 眠定
+            { ActorActionType.Dying,             "z17"  },   // 濒死
+            { ActorActionType.Dead,			     "z18"  },   // 死亡
+            { ActorActionType.Flee,			     "z19"  },   // 逃跑等到
+            { ActorActionType.Win,			     "z20"  },   // 胜利
 
             // NPC,怪物动作
-            { ActorActionType.NpcStand1,         "z1"},    // 站立1
-            { ActorActionType.NpcStand2,         "z2"},    // 站立2
-            { ActorActionType.NpcWalk,	         "z3"},    // 行走
-            { ActorActionType.NpcAttack,         "g"},     // 攻击
-            { ActorActionType.NpcBeAttacked,     "b"},     // 攻击
-            { ActorActionType.NpcMagic1,         "x1"},    // 仙术1
-            { ActorActionType.NpcMagic2,         "x2"},    // 仙术2
-            { ActorActionType.NpcMagic3,         "x3"},    // 仙术3
-            { ActorActionType.NpcRun,            "z3"},    // 跑,用走代替
+            { ActorActionType.NpcStand1,         "z1" },    // 站立1
+            { ActorActionType.NpcStand2,         "z2" },    // 站立2
+            { ActorActionType.NpcWalk,	         "z3" },    // 行走
+            { ActorActionType.NpcAttack,         "g"  },    // 攻击
+            { ActorActionType.NpcBeAttacked,     "b"  },    // 攻击
+            { ActorActionType.NpcMagic1,         "x1" },    // 仙术1
+            { ActorActionType.NpcMagic2,         "x2" },    // 仙术2
+            { ActorActionType.NpcMagic3,         "x3" },    // 仙术3
+            { ActorActionType.NpcRun,            "z3" },    // 跑,用走代替
         };
         #elif PAL3A
         public static readonly Dictionary<ActorActionType, string> ActionNames = new()
         {
             // 基本动作
-            { ActorActionType.Stand,             "c01"},   // 站立
-            { ActorActionType.Walk,              "c02"},   // 行走
-            { ActorActionType.Run,               "c03"},   // 奔跑
-            { ActorActionType.Back,              "c15"},   // 后退
-            { ActorActionType.Jump,              "c05"},   // 起跳
-            { ActorActionType.Climb,             "c04a"},  // 向上攀爬
-            { ActorActionType.ClimbDown,         "c04b"},  // 向下攀爬
-            { ActorActionType.Push,              "c013"},  // 推
-            { ActorActionType.Skill,             "c06"},   // 技能
-            { ActorActionType.Tire,              "c07"},   // 疲倦
-            { ActorActionType.Seat,              "c12"},   // 坐
-            { ActorActionType.Check,             "c08"},   // 调查
-            { ActorActionType.Sleep,             "j04"},   // 睡觉
-            { ActorActionType.Shake,             "c09"},   // 摇头
-            { ActorActionType.Nod,               "c10"},   // 点头
-            { ActorActionType.Wave,              "c11"},   // 摆手
+            { ActorActionType.Stand,             "c01"  },   // 站立
+            { ActorActionType.Walk,              "c02"  },   // 行走
+            { ActorActionType.Run,               "c03"  },   // 奔跑
+            { ActorActionType.Back,              "c15"  },   // 后退
+            { ActorActionType.Jump,              "c05"  },   // 起跳
+            { ActorActionType.Climb,             "c04a" },   // 向上攀爬
+            { ActorActionType.ClimbDown,         "c04b" },   // 向下攀爬
+            { ActorActionType.Push,              "c013" },   // 推
+            { ActorActionType.Skill,             "c06"  },   // 技能
+            { ActorActionType.Tire,              "c07"  },   // 疲倦
+            { ActorActionType.Seat,              "c12"  },   // 坐
+            { ActorActionType.Check,             "c08"  },   // 调查
+            { ActorActionType.Sleep,             "j04"  },   // 睡觉
+            { ActorActionType.Shake,             "c09"  },   // 摇头
+            { ActorActionType.Nod,               "c10"  },   // 点头
+            { ActorActionType.Wave,              "c11"  },   // 摆手
 
             // 剧情动作
-            { ActorActionType.Threaten,          "j15"},   // 威胁
-            { ActorActionType.Shocked,           "j06"},   // 惊吓
-            { ActorActionType.BendOver,          "j07"},   // 下蹲
-            { ActorActionType.SeatUp,            "j02"},   // 坐起
-            { ActorActionType.Point,             "j05"},   // 指点
-            { ActorActionType.Kick,              "j06"},   // 踢
-            { ActorActionType.Salute,            "j09"},   // 行礼
-            { ActorActionType.Tease,             "j08"},   // 挑逗
-            { ActorActionType.Snuggle,           "j09"},   // 依偎
-            { ActorActionType.Whining,           "j10"},   // 撒娇
-            { ActorActionType.Anger,             "j11"},   // 发怒
-            { ActorActionType.Dose,              "j03"},   // 服药
-            { ActorActionType.J13,               "j12"},   // 得意
+            { ActorActionType.Threaten,          "j15" },   // 威胁
+            { ActorActionType.Shocked,           "j06" },   // 惊吓
+            { ActorActionType.BendOver,          "j07" },   // 下蹲
+            { ActorActionType.SeatUp,            "j02" },   // 坐起
+            { ActorActionType.Point,             "j05" },   // 指点
+            { ActorActionType.Kick,              "j06" },   // 踢
+            { ActorActionType.Salute,            "j09" },   // 行礼
+            { ActorActionType.Tease,             "j08" },   // 挑逗
+            { ActorActionType.Snuggle,           "j09" },   // 依偎
+            { ActorActionType.Whining,           "j10" },   // 撒娇
+            { ActorActionType.Anger,             "j11" },   // 发怒
+            { ActorActionType.Dose,              "j03" },   // 服药
+            { ActorActionType.J13,               "j12" },   // 得意
 
             // 战斗动作
-            { ActorActionType.Attack1,		     "z01"},   // 攻击1
-            { ActorActionType.Attack2,		     "z02"},   // 攻击2
-            { ActorActionType.AttackMove,	     "z04"},   // 攻击移动
-            { ActorActionType.PreAttack,         "z03"},   // 备战
-            { ActorActionType.BeAttack,		     "z05"},   // 被攻击
-            { ActorActionType.MagicWait,         "z081"},  // 仙术预备
-            { ActorActionType.Magic,             "z08"},   // 仙术
-            { ActorActionType.Skill1,		     "z17"},   // 特技1
-            { ActorActionType.Skill2,		     "z18"},   // 特技2
-            { ActorActionType.UseItemRecover,    "z09"},   // 恢复物品
-            { ActorActionType.UseItemAttack,     "z10"},   // 攻击物品
-            { ActorActionType.WeaponSkill,	     "z19"},   // 武器技
-            { ActorActionType.StartDefence,	     "z061"},  // 开始防御
-            { ActorActionType.Defence,		     "z062"},  // 防御
-            { ActorActionType.DefenceBeAttack,   "z063"},  // 攻击被防住
-            { ActorActionType.Dodge,             "z07"},   // 回避
-            { ActorActionType.Freeze,            "z11"},   // 眠定
-            { ActorActionType.Dying,             "z12"},   // 濒死
-            { ActorActionType.Dead,			     "z13"},   // 死亡
-            { ActorActionType.Flee,			     "z14"},   // 逃跑等到
-            { ActorActionType.Win,			     "z15"},   // 胜利
+            { ActorActionType.Attack1,		     "z01"  },   // 攻击1
+            { ActorActionType.Attack2,		     "z02"  },   // 攻击2
+            { ActorActionType.AttackMove,	     "z04"  },   // 攻击移动
+            { ActorActionType.PreAttack,         "z03"  },   // 备战
+            { ActorActionType.BeAttack,		     "z05"  },   // 被攻击
+            { ActorActionType.MagicWait,         "z081" },   // 仙术预备
+            { ActorActionType.Magic,             "z08"  },   // 仙术
+            { ActorActionType.Skill1,		     "z17"  },   // 特技1
+            { ActorActionType.Skill2,		     "z18"  },   // 特技2
+            { ActorActionType.UseItemRecover,    "z09"  },   // 恢复物品
+            { ActorActionType.UseItemAttack,     "z10"  },   // 攻击物品
+            { ActorActionType.WeaponSkill,	     "z19"  },   // 武器技
+            { ActorActionType.StartDefence,	     "z061" },   // 开始防御
+            { ActorActionType.Defence,		     "z062" },   // 防御
+            { ActorActionType.DefenceBeAttack,   "z063" },   // 攻击被防住
+            { ActorActionType.Dodge,             "z07"  },   // 回避
+            { ActorActionType.Freeze,            "z11"  },   // 眠定
+            { ActorActionType.Dying,             "z12"  },   // 濒死
+            { ActorActionType.Dead,			     "z13"  },   // 死亡
+            { ActorActionType.Flee,			     "z14"  },   // 逃跑等到
+            { ActorActionType.Win,			     "z15"  },   // 胜利
 
             // NPC,怪物动作
-            { ActorActionType.NpcStand1,         "z1"},    // 站立1
-            { ActorActionType.NpcStand2,         "z2"},    // 站立2
-            { ActorActionType.NpcWalk,	         "z3"},    // 行走
-            { ActorActionType.NpcAttack,         "g"},     // 攻击
-            { ActorActionType.NpcBeAttacked,     "b"},     // 攻击
-            { ActorActionType.NpcMagic1,         "x1"},    // 仙术1
-            { ActorActionType.NpcMagic2,         "x2"},    // 仙术2
-            { ActorActionType.NpcMagic3,         "x3"},    // 仙术3
-            { ActorActionType.NpcRun,            "z3"},    // 跑,用走代替
+            { ActorActionType.NpcStand1,         "z1" },    // 站立1
+            { ActorActionType.NpcStand2,         "z2" },    // 站立2
+            { ActorActionType.NpcWalk,	         "z3" },    // 行走
+            { ActorActionType.NpcAttack,         "g"  },    // 攻击
+            { ActorActionType.NpcBeAttacked,     "b"  },    // 攻击
+            { ActorActionType.NpcMagic1,         "x1" },    // 仙术1
+            { ActorActionType.NpcMagic2,         "x2" },    // 仙术2
+            { ActorActionType.NpcMagic3,         "x3" },    // 仙术3
+            { ActorActionType.NpcRun,            "z3" },    // 跑,用走代替
             
             // 仙剑三外传新增动作
-            { ActorActionType.LevelUp,          "z16"},    // 升级
-            { ActorActionType.Transform,        "z20"},    // 变身
-            { ActorActionType.Attack21,         "z021"},   // 扔八卦的第一段动作
-            { ActorActionType.Attack22,	        "z022"},   // 扔八卦的第二段动作
-            { ActorActionType.Attack23,	        "z023"},   // 扔八卦的第三段动作
+            { ActorActionType.LevelUp,          "z16"  },   // 升级
+            { ActorActionType.Transform,        "z20"  },   // 变身
+            { ActorActionType.Attack21,         "z021" },   // 扔八卦的第一段动作
+            { ActorActionType.Attack22,	        "z022" },   // 扔八卦的第二段动作
+            { ActorActionType.Attack23,	        "z023" },   // 扔八卦的第三段动作
         };
         #endif
 

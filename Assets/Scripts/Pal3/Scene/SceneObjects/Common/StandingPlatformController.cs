@@ -6,7 +6,6 @@
 namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
-    using Core.Extensions;
     using UnityEngine;
 
     public class StandingPlatformController : MonoBehaviour
@@ -40,7 +39,8 @@ namespace Pal3.Scene.SceneObjects.Common
 
         public float GetPlatformHeight()
         {
-            // A little bit lower than the platform to make sure the bounds check pass when (X,Z) is inside the platform
+            // A little bit lower than the collider bounds just to make sure
+            // the actor is always inside the collider when standing on the platform.
             return _collider.bounds.max.y - 0.05f;
         }
 
