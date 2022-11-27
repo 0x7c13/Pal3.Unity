@@ -6,6 +6,7 @@
 namespace Pal3.Scene
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using Command;
     using Command.InternalCommands;
@@ -21,6 +22,7 @@ namespace Pal3.Scene
 
     public sealed class SceneManager : IDisposable,
         ICommandExecutor<SceneLoadCommand>,
+        ICommandExecutor<SceneObjectDoNotLoadFromSaveStateCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private readonly Camera _mainCamera;
@@ -31,6 +33,8 @@ namespace Pal3.Scene
         private GameObject _currentSceneRoot;
         private Scene _currentScene;
 
+        private readonly HashSet<int> _sceneObjectIdsToNotLoadFromSaveState = new ();
+        
         public SceneManager(GameResourceProvider resourceProvider,
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
@@ -73,9 +77,15 @@ namespace Pal3.Scene
             _currentSceneRoot = new GameObject($"Scene_{sceneFileName}_{sceneName}");
             _currentSceneRoot.transform.SetParent(null);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
-            _currentScene.Init(_resourceProvider, _sceneStateManager, _mainCamera);
+            _currentScene.Init(_resourceProvider,
+                _sceneStateManager,
+                _mainCamera,
+                _sceneObjectIdsToNotLoadFromSaveState);
             _currentScene.Load(scnFile, _currentSceneRoot);
 
+            // Must to clear the exclude list after loading the scene.
+            _sceneObjectIdsToNotLoadFromSaveState.Clear();
+            
             // Add scene script
             SceFile sceFile = _resourceProvider.GetSceneSce(sceneFileName);
             _scriptManager.AddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}");
@@ -106,6 +116,11 @@ namespace Pal3.Scene
         public void Execute(ResetGameStateCommand command)
         {
             DisposeCurrentScene();
+        }
+
+        public void Execute(SceneObjectDoNotLoadFromSaveStateCommand command)
+        {
+            _sceneObjectIdsToNotLoadFromSaveState.Add(command.ObjectId);
         }
     }
 }

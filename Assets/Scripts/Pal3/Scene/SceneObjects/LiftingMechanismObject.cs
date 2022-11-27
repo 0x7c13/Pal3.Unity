@@ -54,6 +54,15 @@ namespace Pal3.Scene.SceneObjects
             {
                 bounds = polyModelRenderer.GetMeshBounds();
             }
+
+            // Some tweaks to the bounds to fit better with the rendering model
+            Vector3 tweakedBoundsCenter = bounds.center;
+            tweakedBoundsCenter.y -= 0.4f;
+            Vector3 tweakedBoundsSize = bounds.size;
+            tweakedBoundsSize.x += 0.4f;
+            tweakedBoundsSize.z += 0.4f;
+            bounds.center = tweakedBoundsCenter;
+            bounds.size = tweakedBoundsSize;
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);

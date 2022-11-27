@@ -36,13 +36,19 @@ namespace Pal3.Scene
         protected readonly Dictionary<int, SceneObject> SceneObjects = new ();
         protected readonly Dictionary<int, Actor> Actors = new ();
 
+        private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
+        
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
 
-        protected void Init(GameResourceProvider resourceProvider, ScnFile scnFile, SceneStateManager sceneStateManager)
+        protected void Init(GameResourceProvider resourceProvider,
+            ScnFile scnFile,
+            SceneStateManager sceneStateManager,
+            HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
             _sceneStateManager = sceneStateManager;
+            _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
             
             ScnFile = scnFile;
 
@@ -114,18 +120,21 @@ namespace Pal3.Scene
             {
                 ScnObjectInfo objectInfo = originalObjectInfo;
 
-                // Load switch state from state manager
-                if (_sceneStateManager.TryGetSceneObjectSwitchState(ScnFile.SceneInfo.CityName,
-                        ScnFile.SceneInfo.SceneName, objectInfo.Id, out bool isSwitchOn))
+                if (!_sceneObjectIdsToNotLoadFromSaveState.Contains(objectInfo.Id))
                 {
-                    objectInfo.SwitchState = (byte) (isSwitchOn ? 1 : 0);
-                }
+                    // Load switch state from state manager
+                    if (_sceneStateManager.TryGetSceneObjectSwitchState(ScnFile.SceneInfo.CityName,
+                            ScnFile.SceneInfo.SceneName, objectInfo.Id, out bool isSwitchOn))
+                    {
+                        objectInfo.SwitchState = (byte) (isSwitchOn ? 1 : 0);
+                    }
                 
-                // Load times count from state manager
-                if (_sceneStateManager.TryGetSceneObjectTimesCount(ScnFile.SceneInfo.CityName,
-                        ScnFile.SceneInfo.SceneName, objectInfo.Id, out byte timesCount))
-                {
-                    objectInfo.Times = timesCount;
+                    // Load times count from state manager
+                    if (_sceneStateManager.TryGetSceneObjectTimesCount(ScnFile.SceneInfo.CityName,
+                            ScnFile.SceneInfo.SceneName, objectInfo.Id, out byte timesCount))
+                    {
+                        objectInfo.Times = timesCount;
+                    }   
                 }
 
                 if (SceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)

@@ -56,6 +56,8 @@ namespace Pal3.Scene
         private readonly HashSet<int> _activatedSceneObjects = new ();
         private readonly Dictionary<int, GameObject> _actorObjects = new ();
 
+        private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
+        
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
         private Camera _mainCamera;
@@ -63,11 +65,15 @@ namespace Pal3.Scene
         
         private Tilemap _tilemap;
 
-        public void Init(GameResourceProvider resourceProvider, SceneStateManager sceneStateManager, Camera mainCamera)
+        public void Init(GameResourceProvider resourceProvider,
+            SceneStateManager sceneStateManager,
+            Camera mainCamera,
+            HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
             _sceneStateManager = sceneStateManager;
             _mainCamera = mainCamera;
+            _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
             _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
                                 (1 << LayerMask.NameToLayer("VFX"));
         }
@@ -114,7 +120,10 @@ namespace Pal3.Scene
             var timer = new Stopwatch();
             timer.Start();
             
-            base.Init(_resourceProvider, scnFile, _sceneStateManager);
+            base.Init(_resourceProvider,
+                scnFile,
+                _sceneStateManager,
+                _sceneObjectIdsToNotLoadFromSaveState);
             //Debug.LogError($"InitTotal: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -365,7 +374,8 @@ namespace Pal3.Scene
         {
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
-                if (_sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                if (!_sceneObjectIdsToNotLoadFromSaveState.Contains(sceneObject.ObjectInfo.Id) &&
+                    _sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         sceneObject.ObjectInfo.Id,
                         out bool isActivated))
