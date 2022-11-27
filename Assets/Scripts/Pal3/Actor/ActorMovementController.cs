@@ -45,7 +45,8 @@ namespace Pal3.Actor
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private const float MAX_CROSS_LAYER_Y_DIFFERENTIAL = 2f;
+        private const float MAX_Y_DIFFERENTIAL = 2f;
+        private const float MAX_Y_DIFFERENTIAL_CROSS_LAYER = 2f;
         private const float DEFAULT_ROTATION_SPEED = 20f;
 
         private Actor _actor;
@@ -406,7 +407,14 @@ namespace Pal3.Actor
                 return MovementResult.Blocked;
             }
 
-            if (!canGotoPosition || Mathf.Abs(newYPosition - newPosition.y) > 3f) newYPosition = currentPosition.y;
+            switch (ignoreObstacle)
+            {
+                case false when Mathf.Abs(newYPosition - newPosition.y) > MAX_Y_DIFFERENTIAL:
+                    return MovementResult.Blocked;
+                case true when Mathf.Abs(newYPosition - newPosition.y) > MAX_Y_DIFFERENTIAL:
+                    newYPosition = currentPosition.y;
+                    break;
+            }
 
             RotateTowards(currentPosition, newPosition, movementMode);
 
@@ -518,7 +526,7 @@ namespace Pal3.Actor
             {
                 var yPositionAtNextLayer = GameBoxInterpreter.ToUnityYPosition(tileAtNextLayer.GameBoxYPosition);
                 
-                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_CROSS_LAYER_Y_DIFFERENTIAL)
+                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_Y_DIFFERENTIAL_CROSS_LAYER)
                 {
                     return false;
                 }
