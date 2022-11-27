@@ -46,9 +46,9 @@ namespace Pal3.Scene.SceneObjects
                 new GameStateChangeRequest(GameState.Cutscene));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-            
+
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg007", 1));
-            
+
             PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
             GameObject playerActorGo = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene()
                 .GetActorGameObject((int) playerActor);
@@ -63,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
             
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(ExecuteScriptIfAny);
+                GetCvdModelRenderer().StartOneTimeAnimation(true, ExecuteScriptIfAny);
             }
             else
             {

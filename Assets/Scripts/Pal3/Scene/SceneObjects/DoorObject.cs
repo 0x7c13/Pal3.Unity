@@ -61,7 +61,7 @@ namespace Pal3.Scene.SceneObjects
                 var timeScale = 2f; // Make the animation 2X faster for better user experience
                 var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
 
-                GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage,
+                GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage, true,
                     onFinished: () =>
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));

@@ -561,10 +561,9 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.Contains(command.ObjectId))
             {
                 GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
-                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
-                    cvdMeshRenderer.GetCurrentTime() == 0f)
+                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
-                    cvdMeshRenderer.StartOneTimeAnimation();
+                    cvdMeshRenderer.StartOneTimeAnimation(true);
                 }
             }
             else
@@ -608,11 +607,14 @@ namespace Pal3.Scene
             if (_activatedSceneObjects.Contains(command.ObjectId))
             {
                 GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
-                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer &&
-                    cvdMeshRenderer.GetCurrentTime() != 0f)
+                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
                     // Set timeScale to be -1f to reverse the animation
-                    cvdMeshRenderer.PlayAnimation(timeScale: -1f, loopCount: 1, 1f, null);
+                    cvdMeshRenderer.PlayAnimation(timeScale: -1f,
+                        loopCount: 1,
+                        1f,
+                        true,
+                        null);
                 }
             }
             else

@@ -69,7 +69,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(() =>
+                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
                     // Remove collider to allow player to pass through
                     if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)

@@ -341,19 +341,19 @@ namespace Pal3.Renderer
             }
         }
 
-        public IEnumerator PlayOneTimeAnimation(float timeScale = 1f)
+        public IEnumerator PlayOneTimeAnimation(bool startFromBeginning, float timeScale = 1f)
         {
-            yield return PlayOneTimeAnimationInternal(timeScale, _animationDuration, CancellationToken.None);
+            yield return PlayOneTimeAnimationInternal(timeScale, _animationDuration, startFromBeginning, CancellationToken.None);
         }
         
-        public void StartOneTimeAnimation(Action onFinished = null)
+        public void StartOneTimeAnimation(bool startFromBeginning, Action onFinished = null)
         {
-            PlayAnimation(1f, 1, 1f, onFinished);
+            PlayAnimation(1f, 1, 1f, startFromBeginning, onFinished);
         }
         
         public void LoopAnimation(float timeScale = 1f)
         {
-            PlayAnimation(timeScale, -1, 1f, null);
+            PlayAnimation(timeScale, -1, 1f, true, null);
         }
         
         /// <summary>
@@ -362,10 +362,12 @@ namespace Pal3.Renderer
         /// <param name="timeScale">1f: default scale of time, -1f: reverse animation with default speed</param>
         /// <param name="loopCount">Loop count, -1 means loop forever</param>
         /// <param name="durationPercentage">1f: full length of the animation, .5f: half of the animation</param>
+        /// <param name="startFromBeginning">Start the animation from beginning instead of current time</param>
         /// <param name="onFinished">On animation finished playing</param>
         public void PlayAnimation(float timeScale,
             int loopCount,
             float durationPercentage,
+            bool startFromBeginning,
             Action onFinished)
         {
             if (timeScale == 0f ||
@@ -386,6 +388,7 @@ namespace Pal3.Renderer
             _animation = StartCoroutine(PlayAnimationInternal(timeScale,
                 _animationDuration * durationPercentage,
                 loopCount,
+                startFromBeginning,
                 onFinished,
                 _animationCts.Token));
         }
@@ -393,6 +396,7 @@ namespace Pal3.Renderer
         private IEnumerator PlayAnimationInternal(float timeScale,
             float duration,
             int loopCount,
+            bool startFromBeginning,
             Action onFinished,
             CancellationToken cancellationToken)
         {
@@ -400,14 +404,14 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, duration, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, duration, startFromBeginning, cancellationToken);
                 }
             }
             else if (loopCount > 0)
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, duration, cancellationToken);
+                    yield return PlayOneTimeAnimationInternal(timeScale, duration, startFromBeginning, cancellationToken);
                 }
             }
             
@@ -416,9 +420,19 @@ namespace Pal3.Renderer
 
         private IEnumerator PlayOneTimeAnimationInternal(float timeScale,
             float duration,
+            bool startFromBeginning,
             CancellationToken cancellationToken)
         {
-            var startTime = Time.timeSinceLevelLoad;
+            float startTime;
+            
+            if (startFromBeginning)
+            {
+                startTime = Time.timeSinceLevelLoad;
+            }
+            else
+            {
+                startTime = Time.timeSinceLevelLoad - _currentTime;   
+            }
 
             while (!cancellationToken.IsCancellationRequested)
             {

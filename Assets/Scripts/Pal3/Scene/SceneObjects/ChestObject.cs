@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
             
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(() =>
+                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
                     ChangeActivationState(false);
                     SaveActivationState(false);

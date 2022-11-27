@@ -88,7 +88,7 @@ namespace Pal3.Scene.SceneObjects
             
             _collidableObject.PlaySfxIfAny();
             
-            _cvdModelRenderer.StartOneTimeAnimation(() =>
+            _cvdModelRenderer.StartOneTimeAnimation(true, () =>
             {
                 _collidableObject.ChangeLinkedObjectActivationStateIfAny(true);
                 _collidableObject.ExecuteScriptIfAny();

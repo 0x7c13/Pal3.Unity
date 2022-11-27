@@ -47,7 +47,7 @@ namespace Pal3.Scene.SceneObjects
             
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(EnableCollider);
+                GetCvdModelRenderer().StartOneTimeAnimation(true, EnableCollider);
             }
         }
 

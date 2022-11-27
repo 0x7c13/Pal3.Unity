@@ -39,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated && ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation();
+                GetCvdModelRenderer().StartOneTimeAnimation(true);
             }
         }
     }
@@ -75,7 +75,7 @@ namespace Pal3.Scene.SceneObjects
             while (isActiveAndEnabled)
             {
                 yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
-                yield return cvdModelRenderer.PlayOneTimeAnimation();
+                yield return cvdModelRenderer.PlayOneTimeAnimation(true);
             }
         }
 

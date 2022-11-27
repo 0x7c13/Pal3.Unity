@@ -145,7 +145,7 @@ namespace Pal3.Scene.SceneObjects
             
             if (_specialMechanismObject.ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return _specialMechanismObject.GetCvdModelRenderer().PlayOneTimeAnimation();
+                yield return _specialMechanismObject.GetCvdModelRenderer().PlayOneTimeAnimation(true);
                 FinishingSteps();
             }
             else

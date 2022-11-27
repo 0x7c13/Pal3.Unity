@@ -134,7 +134,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
 
             var cvdModelRenderer = _gravityTriggerObject.GetCvdModelRenderer();
-            yield return cvdModelRenderer.PlayOneTimeAnimation();
+            yield return cvdModelRenderer.PlayOneTimeAnimation(true);
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
 
