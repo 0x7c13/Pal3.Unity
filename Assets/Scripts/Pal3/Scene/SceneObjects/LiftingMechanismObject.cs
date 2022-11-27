@@ -58,13 +58,6 @@ namespace Pal3.Scene.SceneObjects
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
 
-            // This is to store the activation state of the lifting mechanism if
-            // its initial state is not activated
-            if (ObjectInfo.InitActive == 0)
-            {
-                SaveActivationState(true);
-            }
-            
             return sceneGameObject;
         }
         

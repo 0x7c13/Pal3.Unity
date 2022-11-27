@@ -44,7 +44,6 @@ namespace Pal3.Scene.SceneObjects
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
             ChangeActivationState(false);
-            SaveActivationState(false);
         }
     }
 }

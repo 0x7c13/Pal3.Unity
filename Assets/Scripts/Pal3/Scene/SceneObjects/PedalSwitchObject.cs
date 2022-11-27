@@ -17,23 +17,21 @@ namespace Pal3.Scene.SceneObjects
     using Player;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
-    public class GravityTriggerObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
+    public class PedalSwitchObject : SceneObject
     {
-        public const float DescendingHeight = 0.5f;
-        public const float DescendingAnimationDuration = 2.5f;
+        public const float DescendingHeight = 0.25f;
+        public const float DescendingAnimationDuration = 2f;
         
         private StandingPlatformController _platformController;
-        private GravityTriggerObjectController _gravityTriggerObjectController;
+        private PedalSwitchObjectController _pedalSwitchObjectController;
         
         private readonly PlayerManager _playerManager;
-        private readonly TeamManager _teamManager;
-        
-        public GravityTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+
+        public PedalSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-            _teamManager = ServiceLocator.Instance.Get<TeamManager>();
         }
         
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -44,16 +42,16 @@ namespace Pal3.Scene.SceneObjects
             
             var bounds = new Bounds
             {
-                center = new Vector3(0f, 0.8f, 0f),
-                size = new Vector3(4f, 1f, 4f),
+                center = new Vector3(0f, -0.2f, 0f),
+                size = new Vector3(3f, 0.5f, 3f),
             };
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
-            _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
-            _gravityTriggerObjectController.Init(this);
+            _pedalSwitchObjectController = sceneGameObject.AddComponent<PedalSwitchObjectController>();
+            _pedalSwitchObjectController.Init(this);
 
             // Set to final position if the gravity trigger is already activated
             if (ObjectInfo.Times == 0)
@@ -68,20 +66,13 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlatformTriggerEntered(object sender, Collider collider)
         {
+            if (!IsInteractableBasedOnTimesCount()) return;
+            
             // Check if the player actor is on the platform
             if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
             {
-                // Check if total team members are equal to or greater than required headcount
-                if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
-                {
-                    if (!IsInteractableBasedOnTimesCount()) return;
-                    _gravityTriggerObjectController.Interact(collider.gameObject);
-                }
-                else if (ObjectInfo.Times > 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("重量不足，无法激活"));
-                }
+                _pedalSwitchObjectController.Interact(collider.gameObject);
             }
         }
 
@@ -93,34 +84,34 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_platformController);
             }
             
-            if (_gravityTriggerObjectController != null)
+            if (_pedalSwitchObjectController != null)
             {
-                Object.Destroy(_gravityTriggerObjectController);
+                Object.Destroy(_pedalSwitchObjectController);
             }
             
             base.Deactivate();
         }
     }
-
-    internal class GravityTriggerObjectController : MonoBehaviour
+    
+    internal class PedalSwitchObjectController : MonoBehaviour
     {
-        private GravityTriggerObject _gravityTriggerObject;
-
-        public void Init(GravityTriggerObject gravityTriggerObject)
+        private PedalSwitchObject _pedalSwitchObject;
+        
+        public void Init(PedalSwitchObject pedalSwitchObject)
         {
-            _gravityTriggerObject = gravityTriggerObject;
+            _pedalSwitchObject = pedalSwitchObject;
         }
-
+        
         public void Interact(GameObject playerActorGameObject)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
             StartCoroutine(InteractInternal(playerActorGameObject));
         }
-
+        
         private IEnumerator InteractInternal(GameObject playerActorGameObject)
         {
-            GameObject gravityTriggerGo = _gravityTriggerObject.GetGameObject();
-            var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
+            GameObject pedalSwitchGo = _pedalSwitchObject.GetGameObject();
+            var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
             Vector3 platformPosition = platformController.transform.position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
@@ -130,21 +121,16 @@ namespace Pal3.Scene.SceneObjects
             var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
             yield return movementController.MoveDirectlyTo(actorStandingPosition, 0);
             
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
-
-            var cvdModelRenderer = _gravityTriggerObject.GetCvdModelRenderer();
-            yield return cvdModelRenderer.PlayOneTimeAnimation(true);
+            // Play descending animation
+            Vector3 finalPosition = transform.position;
+            finalPosition.y -= PedalSwitchObject.DescendingHeight;
             
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
-
-            Vector3 finalPosition = gravityTriggerGo.transform.position;
-            finalPosition.y -= GravityTriggerObject.DescendingHeight;
-            yield return AnimationHelper.MoveTransform(gravityTriggerGo.transform,
+            yield return AnimationHelper.MoveTransform(pedalSwitchGo.transform,
                 finalPosition,
-                GravityTriggerObject.DescendingAnimationDuration,
+                PedalSwitchObject.DescendingAnimationDuration,
                 AnimationCurveType.Sine);
 
-            _gravityTriggerObject.InteractWithLinkedObjectIfAny();
+            _pedalSwitchObject.ExecuteScriptIfAny();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }

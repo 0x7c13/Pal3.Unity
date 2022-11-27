@@ -270,15 +270,6 @@ namespace Pal3.Scene.SceneObjects
                 new SceneActivateObjectCommand(ObjectInfo.Id, isActivated ? 1 : 0));
         }
 
-        internal void SaveActivationState(bool isActivated)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new SceneChangeGlobalObjectActivationStateCommand(SceneInfo.CityName,
-                    SceneInfo.SceneName,
-                    ObjectInfo.Id,
-                    isActivated ? 1 : 0));
-        }
-
         internal void ToggleSwitchState()
         {
             ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;

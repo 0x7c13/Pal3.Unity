@@ -32,23 +32,21 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
-            
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
-            
-            if (ModelType == SceneObjectModelType.CvdModel)
-            {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
-                {
-                    ChangeActivationState(false);
-                    SaveActivationState(false);
-                });
-            }
-            else
-            {
-                ChangeActivationState(false);
-                SaveActivationState(false);
-            }
+            // if (!IsInteractableBasedOnTimesCount()) return;
+            //
+            // CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
+            //
+            // if (ModelType == SceneObjectModelType.CvdModel)
+            // {
+            //     GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
+            //     {
+            //         ChangeActivationState(false);
+            //     });
+            // }
+            // else
+            // {
+            //     ChangeActivationState(false);
+            // }
         }
 
         public override void Deactivate()

@@ -209,36 +209,22 @@ namespace Pal3.State
                 new ActorRotateFacingCommand(currentPlayerActorId,
                     -(int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
-
-            if (saveLevel == SaveLevel.Full)
-            {
-                // Save scene object activation state changed by the script
-                var allSceneObjects = currentScene.GetAllSceneObjects();
-                var allActivatedSceneObjects = currentScene.GetAllActivatedSceneObjects();
-                commands.AddRange(allActivatedSceneObjects
-                    .Where(_ => allSceneObjects[_].ObjectInfo.InitActive == 0)
-                    .Select(_ => new SceneActivateObjectCommand(_, 1)));
-                commands.AddRange(allSceneObjects
-                    .Where(_ => allSceneObjects[_.Key].ObjectInfo.InitActive == 1)
-                    .Where(_ => !allActivatedSceneObjects.Contains(_.Key))
-                    .Select(_ => new SceneActivateObjectCommand(_.Key, 0)));
-
-                // Save actor activation state changed by the script
-                var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>().ToList();
-                var allActors = currentScene.GetAllActors().Where(_ => !playerActorIds.Contains(_.Key)).ToArray();
-                var allActorGameObjects = currentScene.GetAllActorGameObjects();
-                commands.AddRange(allActors
-                    .Where(_ => _.Value.Info.InitActive == 0)
-                    .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
-                                allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
-                    .Select(_ => new ActorActivateCommand(_.Key, 1)));
-                commands.AddRange(allActors
-                    .Where(_ => _.Value.Info.InitActive == 1)
-                    .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
-                                !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
-                    .Select(_ => new ActorActivateCommand(_.Key, 0)));
-            }
-
+            
+            // Save actor activation state changed by the script
+            var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>().ToList();
+            var allActors = currentScene.GetAllActors().Where(_ => !playerActorIds.Contains(_.Key)).ToArray();
+            var allActorGameObjects = currentScene.GetAllActorGameObjects();
+            commands.AddRange(allActors
+                .Where(_ => _.Value.Info.InitActive == 0)
+                .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
+                            allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                .Select(_ => new ActorActivateCommand(_.Key, 1)));
+            commands.AddRange(allActors
+                .Where(_ => _.Value.Info.InitActive == 1)
+                .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
+                            !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
+                .Select(_ => new ActorActivateCommand(_.Key, 0)));
+            
             #if PAL3
             // Save LongKui state
             var longKuiCurrentMode = currentScene.GetActorGameObject((int) PlayerActorId.LongKui)

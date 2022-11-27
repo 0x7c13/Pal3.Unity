@@ -15,7 +15,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
     [ScnSceneObject(ScnSceneObjectType.Elevator)]
     [ScnSceneObject(ScnSceneObjectType.ElevatorPedal)]
     [ScnSceneObject(ScnSceneObjectType.RotatingStoneBeam)]

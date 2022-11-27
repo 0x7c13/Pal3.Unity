@@ -44,13 +44,11 @@ namespace Pal3.Scene.SceneObjects
                 GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
                     ChangeActivationState(false);
-                    SaveActivationState(false);
                 });
             }
             else
             {
                 ChangeActivationState(false);
-                SaveActivationState(false);
             }
         }
     }

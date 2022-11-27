@@ -106,13 +106,13 @@ namespace Pal3.Scene.SceneObjects
 
         public void Interact()
         {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerEnableInputCommand(0));
             StartCoroutine(InteractInternal());
         }
 
         private IEnumerator InteractInternal()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerEnableInputCommand(0));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -157,7 +157,6 @@ namespace Pal3.Scene.SceneObjects
         private void FinishingSteps()
         {
             _specialMechanismObject.ChangeActivationState(false);
-            _specialMechanismObject.SaveActivationState(false);
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }
     }

@@ -138,11 +138,11 @@ namespace Pal3.Scene
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
-            CreateActorObjects(actorTintColor, _tilemap);
+            InitActorObjects(actorTintColor, _tilemap);
             //Debug.LogError($"CreateActors: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
-            ActivateSceneObjects();
+            InitSceneObjects();
             //Debug.LogError($"ActivateSceneObjects: {timer.ElapsedMilliseconds} ms");
             timer.Stop();
         }
@@ -361,7 +361,7 @@ namespace Pal3.Scene
             }
         }
 
-        private void ActivateSceneObjects()
+        private void InitSceneObjects()
         {
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
@@ -382,7 +382,7 @@ namespace Pal3.Scene
             }
         }
 
-        private void CreateActorObjects(Color tintColor, Tilemap tilemap)
+        private void InitActorObjects(Color tintColor, Tilemap tilemap)
         {
             foreach (Actor actorObject in Actors.Values)
             {
@@ -500,26 +500,19 @@ namespace Pal3.Scene
 
             if (command.IsActive == 1)
             {
-                if (_sceneStateManager.TryGetSceneObjectActivationState(
-                        ScnFile.SceneInfo.CityName,
-                        ScnFile.SceneInfo.SceneName,
-                        sceneObject.ObjectInfo.Id,
-                        out bool isActivated))
-                {
-                    if (isActivated)
-                    {
-                        ActivateSceneObject(sceneObject);
-                    }
-                }
-                else
-                {
-                    ActivateSceneObject(sceneObject);
-                }
+                ActivateSceneObject(sceneObject);
             }
             else
             {
                 DeactivateSceneObject(sceneObject.ObjectInfo.Id);
             }
+            
+            // Save the activation state since it is activated/de-activated by the script
+            _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
+                ScnFile.SceneInfo.CityName,
+                ScnFile.SceneInfo.SceneName,
+                sceneObject.ObjectInfo.Id,
+                command.IsActive));
         }
 
         public void Execute(ActorActivateCommand command)
