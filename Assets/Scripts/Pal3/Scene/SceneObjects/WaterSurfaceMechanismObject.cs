@@ -38,7 +38,7 @@ namespace Pal3.Scene.SceneObjects
             _surfaceMechanismObjectController = sceneGameObject.AddComponent<WaterSurfaceMechanismObjectController>();
             _surfaceMechanismObjectController.Init(this);
             
-            UpdateTileMapIfConditionApply(true);
+            UpdateTileMapWhenConditionMet(true);
             
             return sceneGameObject;
         }
@@ -55,7 +55,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Deactivate()
         {
-            UpdateTileMapIfConditionApply(false);
+            UpdateTileMapWhenConditionMet(false);
             
             if (_surfaceMechanismObjectController != null)
             {
@@ -68,7 +68,7 @@ namespace Pal3.Scene.SceneObjects
         // 仙三霹雳堂水面机关对TileMap地砖通过性的特殊处理:
         // * 当水面机关开启之前，需要将地砖类型为土壤的地砖设置为不可通过
         // * 当水面机关开启之后，需要将地砖类型为土壤的地砖设置为可通过
-        private void UpdateTileMapIfConditionApply(bool setSoilFloorAsObstacle)
+        private void UpdateTileMapWhenConditionMet(bool setSoilFloorAsObstacle)
         {
             #if PAL3
             if (string.Equals(SceneInfo.CityName, "m09", StringComparison.OrdinalIgnoreCase))

@@ -42,6 +42,7 @@ namespace Pal3.Scene.SceneObjects
             
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             
+            // wz06.cvd
             var bounds = new Bounds
             {
                 center = new Vector3(0f, 0.8f, 0f),

@@ -40,6 +40,7 @@ namespace Pal3.Scene.SceneObjects
             
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             
+            // _h1.pol
             var bounds = new Bounds
             {
                 center = new Vector3(0f, -0.2f, 0f),

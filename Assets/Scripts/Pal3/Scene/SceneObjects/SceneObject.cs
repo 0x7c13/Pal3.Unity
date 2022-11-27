@@ -240,7 +240,8 @@ namespace Pal3.Scene.SceneObjects
                 default:
                     ObjectInfo.Times--;
                     CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new SceneChangeGlobalObjectTimesCountCommand(SceneInfo.CityName,
+                        new SceneChangeGlobalObjectTimesCountCommand(
+                            SceneInfo.CityName,
                             SceneInfo.SceneName,
                             ObjectInfo.Id,
                             ObjectInfo.Times));
@@ -286,11 +287,6 @@ namespace Pal3.Scene.SceneObjects
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneActivateObjectCommand(ObjectInfo.LinkedObjectId, isActivated ? 1 : 0));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneChangeGlobalObjectActivationStateCommand(SceneInfo.CityName,
-                        SceneInfo.SceneName,
-                        ObjectInfo.LinkedObjectId,
-                        isActivated ? 1 : 0));
             }
         }
 

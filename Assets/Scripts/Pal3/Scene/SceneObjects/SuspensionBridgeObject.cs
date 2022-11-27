@@ -53,6 +53,7 @@ namespace Pal3.Scene.SceneObjects
 
         private void EnableCollider()
         {
+            // _e.cvd
             var bounds = new Bounds
             {
                 center = new Vector3(0f, -0.2f, 1.4f),

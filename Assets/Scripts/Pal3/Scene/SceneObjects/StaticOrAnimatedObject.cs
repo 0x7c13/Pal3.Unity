@@ -95,7 +95,9 @@ namespace Pal3.Scene.SceneObjects
             else if (_sceneObject.ObjectInfo.Parameters[2] == 2)
             {
                 Transform currentTransform = transform;
-                transform.RotateAround(currentTransform.position, currentTransform.up, Time.deltaTime * 80f);
+                transform.RotateAround(currentTransform.position,
+                    currentTransform.up, 
+                    Time.deltaTime * 80f);
             }
         }
 
