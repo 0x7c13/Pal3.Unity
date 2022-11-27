@@ -345,7 +345,7 @@ namespace Pal3.Actor
                 _mv3AnimationRenderer.GetMeshBounds().size.y,
                 parentPosition.z);
         }
-        
+
         public Bounds GetRendererBounds()
         {
             return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _rendererBounds :

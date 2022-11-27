@@ -457,14 +457,13 @@ namespace Pal3.Actor
                     hasDestroyedCollider = true;
                     continue; // In case the collider is destroyed
                 }
+
+                var centerYPosition = _actionController.GetRendererBounds().center.y;
                 
-                var centerYPosition = (_actionController.GetRendererBounds().max.y +
-                                       _actionController.GetRendererBounds().min.y) / 2f;
-            
                 var fromCenterPosition = new Vector3(currentPosition.x, centerYPosition, currentPosition.z);
                 var toCenterPosition = new Vector3(newPosition.x, centerYPosition, newPosition.z);
                 Vector3 movingDirection = (toCenterPosition - fromCenterPosition).normalized;
-            
+
                 if (_actionController.GetCollider() is { } capsuleCollider)
                 {
                     if (Utility.IsPointWithinCollider(currentCollider,

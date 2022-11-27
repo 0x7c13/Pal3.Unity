@@ -84,7 +84,7 @@ namespace Core.DataReader.Scn
         WishPool                      = 27,   // 许愿池
         ColdWeapon                    = 28,   // (M24)剑或锤
         GravityTrigger                = 29,   // 重力机关（乌龟）
-        ElevatorSwitch                = 30,   // 升降机关门
+        ElevatorDoor                  = 30,   // 升降机关门
         WaterSurfaceMechanism         = 31,   // 水面机关
         PiranhaFlower                 = 32,   // 食人花
         PedalSwitch                   = 33,   // 踏板开关

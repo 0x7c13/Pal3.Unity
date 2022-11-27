@@ -267,14 +267,28 @@ namespace Pal3.Renderer
 
         public Bounds GetRendererBounds()
         {
-            return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetRendererBounds()));
-        }
+            var bounds = new Bounds(transform.position, Vector3.one);
 
+            foreach (RenderMeshComponent meshComponent in _renderMeshComponents)
+            {
+                bounds.Encapsulate(meshComponent.MeshRenderer.GetRendererBounds());
+            }
+
+            return bounds;
+        }
+        
         public Bounds GetMeshBounds()
         {
-            return Utility.EncapsulateBounds(_renderMeshComponents.Select(_ => _.MeshRenderer.GetMeshBounds()));
-        }
+            var bounds = new Bounds(Vector3.zero, Vector3.one);
+        
+            foreach (RenderMeshComponent meshComponent in _renderMeshComponents)
+            {
+                bounds.Encapsulate(meshComponent.MeshRenderer.GetMeshBounds());
+            }
 
+            return bounds;
+        }
+        
         public bool IsActionInHoldState()
         {
             return _isActionInHoldState;
