@@ -68,9 +68,9 @@ namespace Pal3.Scene.SceneObjects
                 
                 var portalToFlowerObjectCvdModelRenderer = portalToFlowerObject.GetCvdModelRenderer();
                 
-                // Skip part of the animation
+                // Skip part of the animation, start from 80% of the animation
                 portalToFlowerObjectCvdModelRenderer.SetCurrentTime(
-                    portalToFlowerObjectCvdModelRenderer.GetDefaultAnimationDuration() / 1.25f);
+                    portalToFlowerObjectCvdModelRenderer.GetDefaultAnimationDuration() * 0.80f);
                 
                 // Play reverse animation on portal to flower object
                 portalToFlowerObjectCvdModelRenderer.PlayAnimation(-2f, 1, 1f, false, () =>

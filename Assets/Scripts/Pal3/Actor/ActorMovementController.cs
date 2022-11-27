@@ -58,7 +58,7 @@ namespace Pal3.Actor
         private WaitUntilCanceled _movementWaiter;
         private CancellationTokenSource _movementCts = new ();
 
-        private readonly HashSet<Collider> _activeColliders = new ();
+        private HashSet<Collider> _activeColliders = new ();
         private Vector3 _lastKnownValidPositionWhenCollisionEnter;
 
         private bool _isNearOrOnTopOfPlatform;
@@ -447,9 +447,17 @@ namespace Pal3.Actor
 
         private bool IsNewPositionInsideCollisionCollider(Vector3 currentPosition, Vector3 newPosition)
         {
+            bool hasDestroyedCollider = false;
+            
             // Check if actor is running into any of the active collision colliders
             foreach (Collider currentCollider in _activeColliders)
             {
+                if (currentCollider == null)
+                {
+                    hasDestroyedCollider = true;
+                    continue; // In case the collider is destroyed
+                }
+                
                 var centerYPosition = (_actionController.GetRendererBounds().max.y +
                                        _actionController.GetRendererBounds().min.y) / 2f;
             
@@ -467,6 +475,11 @@ namespace Pal3.Actor
                 }   
             }
 
+            if (hasDestroyedCollider)
+            {
+                _activeColliders = _activeColliders.Where(_ => _ != null).ToHashSet();
+            }
+            
             return false;
         }
 
