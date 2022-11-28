@@ -17,7 +17,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public class CollidableObject : SceneObject
     {
-        private CollidableObjectController _collidableObjectController;
+        private CollidableObjectController _objectController;
         
         public CollidableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -28,16 +28,16 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _collidableObjectController = sceneGameObject.AddComponent<CollidableObjectController>();
-            _collidableObjectController.Init(this);
+            _objectController = sceneGameObject.AddComponent<CollidableObjectController>();
+            _objectController.Init(this);
             return sceneGameObject;
         }
 
         public override void Deactivate()
         {
-            if (_collidableObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_collidableObjectController);
+                Object.Destroy(_objectController);
             }
             
             base.Deactivate();
@@ -47,13 +47,13 @@ namespace Pal3.Scene.SceneObjects
     internal class CollidableObjectController : MonoBehaviour
     {
         private bool _hasCollided;
-        private CollidableObject _collidableObject;
+        private CollidableObject _object;
         private BoxCollider _collider;
         private CvdModelRenderer _cvdModelRenderer;
 
         public void Init(CollidableObject collidableObject)
         {
-            _collidableObject = collidableObject;
+            _object = collidableObject;
             _cvdModelRenderer = gameObject.GetComponent<CvdModelRenderer>();
             SetupCollider();
         }
@@ -72,7 +72,7 @@ namespace Pal3.Scene.SceneObjects
                 _collider.center = bounds.center;
                 _collider.size = bounds.size;
 
-                if (_collidableObject.ObjectInfo.IsNonBlocking == 1)
+                if (_object.ObjectInfo.IsNonBlocking == 1)
                 {
                     _collider.isTrigger = true;   
                 }
@@ -84,14 +84,14 @@ namespace Pal3.Scene.SceneObjects
             if (_hasCollided) return;
             _hasCollided = true;
             
-            if (!_collidableObject.IsInteractableBasedOnTimesCount()) return;
+            if (!_object.IsInteractableBasedOnTimesCount()) return;
             
-            _collidableObject.PlaySfxIfAny();
+            _object.PlaySfxIfAny();
             
             _cvdModelRenderer.StartOneTimeAnimation(true, () =>
             {
-                _collidableObject.ChangeLinkedObjectActivationStateIfAny(true);
-                _collidableObject.ExecuteScriptIfAny();
+                _object.ChangeLinkedObjectActivationStateIfAny(true);
+                _object.ExecuteScriptIfAny();
                 SetupCollider(); // reset collider since bounds may change after animation
             });
         }

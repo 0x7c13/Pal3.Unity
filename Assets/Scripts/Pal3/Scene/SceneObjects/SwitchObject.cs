@@ -89,9 +89,8 @@ namespace Pal3.Scene.SceneObjects
         private void InteractInternal(bool triggerredByPlayer)
         {
             InteractWithLinkedObjectIfAny();
-            ExecuteScriptIfAny();
-            
-            if (triggerredByPlayer && ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId)
+
+            if (triggerredByPlayer && !ExecuteScriptIfAny())
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Gameplay));

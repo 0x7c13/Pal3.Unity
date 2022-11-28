@@ -24,7 +24,7 @@ namespace Pal3.Scene.SceneObjects
         public const float DescendingAnimationDuration = 2f;
         
         private StandingPlatformController _platformController;
-        private PedalSwitchObjectController _pedalSwitchObjectController;
+        private PedalSwitchObjectController _objectController;
         
         private readonly PlayerManager _playerManager;
 
@@ -51,8 +51,8 @@ namespace Pal3.Scene.SceneObjects
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
-            _pedalSwitchObjectController = sceneGameObject.AddComponent<PedalSwitchObjectController>();
-            _pedalSwitchObjectController.Init(this);
+            _objectController = sceneGameObject.AddComponent<PedalSwitchObjectController>();
+            _objectController.Init(this);
 
             // Set to final position if the gravity trigger is already activated
             if (ObjectInfo.Times == 0)
@@ -73,7 +73,7 @@ namespace Pal3.Scene.SceneObjects
             if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
             {
-                _pedalSwitchObjectController.Interact(collider.gameObject);
+                _objectController.Interact(collider.gameObject);
             }
         }
 
@@ -85,9 +85,9 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_platformController);
             }
             
-            if (_pedalSwitchObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_pedalSwitchObjectController);
+                Object.Destroy(_objectController);
             }
             
             base.Deactivate();
@@ -96,11 +96,11 @@ namespace Pal3.Scene.SceneObjects
     
     internal class PedalSwitchObjectController : MonoBehaviour
     {
-        private PedalSwitchObject _pedalSwitchObject;
+        private PedalSwitchObject _object;
         
         public void Init(PedalSwitchObject pedalSwitchObject)
         {
-            _pedalSwitchObject = pedalSwitchObject;
+            _object = pedalSwitchObject;
         }
         
         public void Interact(GameObject playerActorGameObject)
@@ -111,7 +111,7 @@ namespace Pal3.Scene.SceneObjects
         
         private IEnumerator InteractInternal(GameObject playerActorGameObject)
         {
-            GameObject pedalSwitchGo = _pedalSwitchObject.GetGameObject();
+            GameObject pedalSwitchGo = _object.GetGameObject();
             var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
             Vector3 platformPosition = platformController.transform.position;
             var actorStandingPosition = new Vector3(
@@ -131,7 +131,7 @@ namespace Pal3.Scene.SceneObjects
                 PedalSwitchObject.DescendingAnimationDuration,
                 AnimationCurveType.Sine);
 
-            _pedalSwitchObject.ExecuteScriptIfAny();
+            _object.ExecuteScriptIfAny();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }

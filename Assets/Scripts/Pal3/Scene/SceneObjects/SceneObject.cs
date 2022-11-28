@@ -38,10 +38,11 @@ namespace Pal3.Scene.SceneObjects
 
         internal bool Activated;
         
+        internal readonly string ModelFilePath;
+        
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;
-        private readonly string _modelFilePath;
-        
+
         private PolyModelRenderer _polyModelRenderer;
         private CvdModelRenderer _cvdModelRenderer;
 
@@ -50,10 +51,10 @@ namespace Pal3.Scene.SceneObjects
             ObjectInfo = objectInfo;
             SceneInfo = sceneInfo;
             
-            _modelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
+            ModelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
-            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(_modelFilePath));
+            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(ModelFilePath));
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
@@ -113,7 +114,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
-                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(_modelFilePath);
+                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(ModelFilePath);
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(poly.PolFile,
                     resourceProvider.GetMaterialFactory(),
@@ -122,7 +123,7 @@ namespace Pal3.Scene.SceneObjects
             }
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
-                (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(_modelFilePath);
+                (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(ModelFilePath);
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
 
                 var initTime = 0f;
@@ -249,12 +250,15 @@ namespace Pal3.Scene.SceneObjects
             }
         }
         
-        internal void ExecuteScriptIfAny()
+        internal bool ExecuteScriptIfAny()
         {
             if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));   
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
+                return true;
             }
+
+            return false;
         }
 
         internal void PlaySfxIfAny()

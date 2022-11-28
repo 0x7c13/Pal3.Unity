@@ -60,10 +60,13 @@ namespace Pal3.Scene.SceneObjects
                 rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
                 rigidbody.isKinematic = false;
             }
-            
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, ExecuteScriptIfAny);
+                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
+                {
+                    ExecuteScriptIfAny();
+                });
             }
             else
             {

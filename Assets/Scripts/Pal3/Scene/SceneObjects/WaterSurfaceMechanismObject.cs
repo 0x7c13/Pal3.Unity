@@ -23,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
     public class WaterSurfaceMechanismObject : SceneObject
     {
         private SceneManager _sceneManager;
-        private WaterSurfaceMechanismObjectController _surfaceMechanismObjectController;
+        private WaterSurfaceMechanismObjectController _objectController;
         
         public WaterSurfaceMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -35,8 +35,9 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _surfaceMechanismObjectController = sceneGameObject.AddComponent<WaterSurfaceMechanismObjectController>();
-            _surfaceMechanismObjectController.Init(this);
+            
+            _objectController = sceneGameObject.AddComponent<WaterSurfaceMechanismObjectController>();
+            _objectController.Init(this);
             
             UpdateTileMapWhenConditionMet(true);
             
@@ -47,9 +48,9 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            if (_surfaceMechanismObjectController != null)
+            if (_objectController != null)
             {
-                _surfaceMechanismObjectController.Interact();
+                _objectController.Interact();
             }
         }
 
@@ -57,9 +58,9 @@ namespace Pal3.Scene.SceneObjects
         {
             UpdateTileMapWhenConditionMet(false);
             
-            if (_surfaceMechanismObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_surfaceMechanismObjectController);
+                Object.Destroy(_objectController);
             }
             
             base.Deactivate();
@@ -85,11 +86,11 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float WATER_ANIMATION_DURATION = 4f;
         
-        private WaterSurfaceMechanismObject _surfaceMechanismObject;
+        private WaterSurfaceMechanismObject _object;
         
         public void Init(WaterSurfaceMechanismObject surfaceMechanismObject)
         {
-            _surfaceMechanismObject = surfaceMechanismObject;
+            _object = surfaceMechanismObject;
         }
         
         public void Interact()
@@ -100,7 +101,7 @@ namespace Pal3.Scene.SceneObjects
         private IEnumerator InteractInternal()
         {
             Vector3 finalPosition = gameObject.transform.position;
-            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_surfaceMechanismObject.ObjectInfo.Parameters[0]);
+            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_object.ObjectInfo.Parameters[0]);
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
             
@@ -109,7 +110,7 @@ namespace Pal3.Scene.SceneObjects
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
             
-            _surfaceMechanismObject.ChangeActivationState(false);
+            _object.ChangeActivationState(false);
         }
     }
 }

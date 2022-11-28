@@ -24,7 +24,7 @@ namespace Pal3.Scene.SceneObjects
         public const float DescendingAnimationDuration = 2.5f;
         
         private StandingPlatformController _platformController;
-        private GravityTriggerObjectController _gravityTriggerObjectController;
+        private GravityTriggerObjectController _objectController;
         
         private readonly PlayerManager _playerManager;
         private readonly TeamManager _teamManager;
@@ -53,8 +53,8 @@ namespace Pal3.Scene.SceneObjects
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
             
-            _gravityTriggerObjectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
-            _gravityTriggerObjectController.Init(this);
+            _objectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
+            _objectController.Init(this);
 
             // Set to final position if the gravity trigger is already activated
             if (ObjectInfo.Times == 0)
@@ -77,7 +77,7 @@ namespace Pal3.Scene.SceneObjects
                 if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
                 {
                     if (!IsInteractableBasedOnTimesCount()) return;
-                    _gravityTriggerObjectController.Interact(collider.gameObject);
+                    _objectController.Interact(collider.gameObject);
                 }
                 else if (ObjectInfo.Times > 0)
                 {
@@ -94,9 +94,9 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_platformController);
             }
             
-            if (_gravityTriggerObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_gravityTriggerObjectController);
+                Object.Destroy(_objectController);
             }
             
             base.Deactivate();
@@ -105,11 +105,11 @@ namespace Pal3.Scene.SceneObjects
 
     internal class GravityTriggerObjectController : MonoBehaviour
     {
-        private GravityTriggerObject _gravityTriggerObject;
+        private GravityTriggerObject _object;
 
         public void Init(GravityTriggerObject gravityTriggerObject)
         {
-            _gravityTriggerObject = gravityTriggerObject;
+            _object = gravityTriggerObject;
         }
 
         public void Interact(GameObject playerActorGameObject)
@@ -120,7 +120,7 @@ namespace Pal3.Scene.SceneObjects
 
         private IEnumerator InteractInternal(GameObject playerActorGameObject)
         {
-            GameObject gravityTriggerGo = _gravityTriggerObject.GetGameObject();
+            GameObject gravityTriggerGo = _object.GetGameObject();
             var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
             Vector3 platformPosition = platformController.transform.position;
             var actorStandingPosition = new Vector3(
@@ -133,7 +133,7 @@ namespace Pal3.Scene.SceneObjects
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
 
-            var cvdModelRenderer = _gravityTriggerObject.GetCvdModelRenderer();
+            var cvdModelRenderer = _object.GetCvdModelRenderer();
             yield return cvdModelRenderer.PlayOneTimeAnimation(true);
             
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
@@ -145,7 +145,7 @@ namespace Pal3.Scene.SceneObjects
                 GravityTriggerObject.DescendingAnimationDuration,
                 AnimationCurveType.Sine);
 
-            _gravityTriggerObject.InteractWithLinkedObjectIfAny();
+            _object.InteractWithLinkedObjectIfAny();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }

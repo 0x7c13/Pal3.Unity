@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
     public class LiftingMechanismObject : SceneObject
     {
-        private LiftingMechanismObjectController _liftingMechanismObjectController;
+        private LiftingMechanismObjectController _objectController;
         private StandingPlatformController _platformController;
         
         public LiftingMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -42,8 +42,8 @@ namespace Pal3.Scene.SceneObjects
                 sceneGameObject.transform.position = finalPosition;
             }
             
-            _liftingMechanismObjectController = sceneGameObject.AddComponent<LiftingMechanismObjectController>();
-            _liftingMechanismObjectController.Init(this);
+            _objectController = sceneGameObject.AddComponent<LiftingMechanismObjectController>();
+            _objectController.Init(this);
 
             Bounds bounds = new Bounds();
             if (sceneGameObject.GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
@@ -74,17 +74,17 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            if (_liftingMechanismObjectController != null)
+            if (_objectController != null)
             {
-                _liftingMechanismObjectController.Interact();
+                _objectController.Interact();
             }
         }
 
         public override void Deactivate()
         {
-            if (_liftingMechanismObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_liftingMechanismObjectController);
+                Object.Destroy(_objectController);
             }
             
             if (_platformController != null)
@@ -100,11 +100,11 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float LIFTING_ANIMATION_DURATION = 2.5f;
         
-        private LiftingMechanismObject _liftingMechanismObject;
+        private LiftingMechanismObject _object;
         
         public void Init(LiftingMechanismObject liftingMechanismObject)
         {
-            _liftingMechanismObject = liftingMechanismObject;
+            _object = liftingMechanismObject;
         }
         
         public void Interact()
@@ -114,18 +114,18 @@ namespace Pal3.Scene.SceneObjects
 
         private IEnumerator InteractInternal()
         {
-            _liftingMechanismObject.ToggleSwitchState();
+            _object.ToggleSwitchState();
             
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFocusOnSceneObjectCommand(_liftingMechanismObject.ObjectInfo.Id));
+                new CameraFocusOnSceneObjectCommand(_object.ObjectInfo.Id));
             
             Vector3 finalPosition = transform.position;
-            float gameBoxYPosition = _liftingMechanismObject.ObjectInfo.Parameters[0];
+            float gameBoxYPosition = _object.ObjectInfo.Parameters[0];
             
             // A small Y offset to ensure actor shadow is properly rendered
             finalPosition.y = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
 
-            _liftingMechanismObject.PlaySfxIfAny();
+            _object.PlaySfxIfAny();
             
             yield return AnimationHelper.MoveTransform(gameObject.transform,
                 finalPosition,

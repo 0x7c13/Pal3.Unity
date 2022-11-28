@@ -11,7 +11,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
-    [ScnSceneObject(ScnSceneObjectType.ImpulsiveMechanism)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
     [ScnSceneObject(ScnSceneObjectType.Elevator)]

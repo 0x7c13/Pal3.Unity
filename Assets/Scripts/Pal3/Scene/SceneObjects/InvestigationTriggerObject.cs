@@ -53,21 +53,25 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            ExecuteScriptIfAny();
+            if (!ExecuteScriptIfAny())
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Gameplay));
+            }
         }
     }
 
     internal class InvestigationTriggerController : MonoBehaviour
     {
-        private InvestigationTriggerObject _investigationTriggerObject;
+        private InvestigationTriggerObject _object;
         private Bounds _bounds;
 
         public void Init(InvestigationTriggerObject investigationTriggerObject)
         {
-            _investigationTriggerObject = investigationTriggerObject;
+            _object = investigationTriggerObject;
 
             // 2: 模型触发
-            if (_investigationTriggerObject.ObjectInfo.TriggerType == 2 &&
+            if (_object.ObjectInfo.TriggerType == 2 &&
                 GetComponentInChildren<StaticMeshRenderer>() is { } meshRenderer)
             {
                 _bounds = meshRenderer.GetRendererBounds();

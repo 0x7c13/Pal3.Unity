@@ -20,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
     public class SpecialMechanismObject : SceneObject
     {
-        private SpecialMechanismObjectController _specialMechanismObjectController;
+        private SpecialMechanismObjectController _objectController;
         
         public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -47,8 +47,10 @@ namespace Pal3.Scene.SceneObjects
             };
             
             sceneGameObject.AddComponent<SceneObjectMeshCollider>().SetBoundsScale(boundsScale);
-            _specialMechanismObjectController = sceneGameObject.AddComponent<SpecialMechanismObjectController>();
-            _specialMechanismObjectController.Init(this);
+            
+            _objectController = sceneGameObject.AddComponent<SpecialMechanismObjectController>();
+            _objectController.Init(this);
+            
             return sceneGameObject;
         }
 
@@ -76,17 +78,17 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Interact(bool triggerredByPlayer)
         {
-            if (_specialMechanismObjectController != null)
+            if (_objectController != null)
             {
-                _specialMechanismObjectController.Interact();
+                _objectController.Interact();
             }
         }
 
         public override void Deactivate()
         {
-            if (_specialMechanismObjectController != null)
+            if (_objectController != null)
             {
-                Object.Destroy(_specialMechanismObjectController);
+                Object.Destroy(_objectController);
             }
             
             base.Deactivate();
@@ -96,11 +98,11 @@ namespace Pal3.Scene.SceneObjects
     internal class SpecialMechanismObjectController : MonoBehaviour
     {
         private PlayerManager _playerManager;
-        private SpecialMechanismObject _specialMechanismObject;
+        private SpecialMechanismObject _object;
         
         public void Init(SpecialMechanismObject specialMechanismObject)
         {
-            _specialMechanismObject = specialMechanismObject;
+            _object = specialMechanismObject;
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
         }
 
@@ -116,7 +118,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerActorLookAtSceneObjectCommand(_specialMechanismObject.ObjectInfo.Id));
+                new PlayerActorLookAtSceneObjectCommand(_object.ObjectInfo.Id));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionNames[ActorActionType.Skill],
@@ -143,9 +145,9 @@ namespace Pal3.Scene.SceneObjects
             }
             #endif
             
-            if (_specialMechanismObject.ModelType == SceneObjectModelType.CvdModel)
+            if (_object.ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return _specialMechanismObject.GetCvdModelRenderer().PlayOneTimeAnimation(true);
+                yield return _object.GetCvdModelRenderer().PlayOneTimeAnimation(true);
                 FinishingSteps();
             }
             else
@@ -156,7 +158,7 @@ namespace Pal3.Scene.SceneObjects
 
         private void FinishingSteps()
         {
-            _specialMechanismObject.ChangeActivationState(false);
+            _object.ChangeActivationState(false);
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }
     }
