@@ -81,6 +81,7 @@ namespace Pal3.Scene.SceneObjects
         private BoxCollider _collider;
         private Coroutine _movementCoroutine;
         private PlayerManager _playerManager;
+        private bool _isDuringInteraction;
 
         public void Init(ImpulsiveMechanismObject impulsiveMechanismObject)
         {
@@ -107,10 +108,13 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnTriggerEnter(Collider collider)
         {
+            if (_isDuringInteraction) return; // Prevent multiple interactions during animation
+            
             // Check if collider game object is player actor
             if (collider.gameObject.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
             {
+                _isDuringInteraction = true;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Cutscene));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -123,6 +127,9 @@ namespace Pal3.Scene.SceneObjects
 
         private IEnumerator Interact(GameObject playerActorGameObject)
         {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlaySfxCommand("wb002", 1));
+            
             playerActorGameObject.GetComponent<ActorActionController>()
                 .PerformAction(ActorActionType.BeAttack);
             
@@ -132,8 +139,6 @@ namespace Pal3.Scene.SceneObjects
                 targetPosition,
                 HIT_ANIMATION_DURATION);
             
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlaySfxCommand("wb002", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID,
                     _object.ObjectInfo.Parameters[2]));
@@ -145,10 +150,14 @@ namespace Pal3.Scene.SceneObjects
                 new CameraFreeCommand(1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Gameplay));
+            
+            _isDuringInteraction = false;
         }
         
         private void OnDisable()
         {
+            _isDuringInteraction = false;
+            
             if (_movementCoroutine != null)
             {
                 StopCoroutine(_movementCoroutine);
