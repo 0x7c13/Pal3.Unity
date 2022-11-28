@@ -211,7 +211,7 @@ namespace Pal3.Scene
             // Render mesh
             _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}");
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
-            _mesh.transform.SetParent(_parent.transform);
+            _mesh.transform.SetParent(_parent.transform, false);
 
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 _resourceProvider.GetMaterialFactory(),
@@ -252,7 +252,7 @@ namespace Pal3.Scene
                 {
                     layer = LayerMask.NameToLayer("RaycastOnly")
                 };
-                navMesh.transform.SetParent(_parent.transform);
+                navMesh.transform.SetParent(_parent.transform, false);
                 
                 var meshCollider = navMesh.AddComponent<MeshCollider>();
                 meshCollider.convex = false;
@@ -295,7 +295,7 @@ namespace Pal3.Scene
             // }
             
             var mainLightGo = new GameObject($"LightSource_Main");
-            mainLightGo.transform.SetParent(_parent.transform);
+            mainLightGo.transform.SetParent(_parent.transform, false);
             mainLightGo.transform.position = mainLightPosition;
             mainLightGo.transform.rotation = mainLightRotation;
 
@@ -414,7 +414,7 @@ namespace Pal3.Scene
             }
 
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
-            sceneObjectGameObject.transform.SetParent(_parent.transform);
+            sceneObjectGameObject.transform.SetParent(_parent.transform, false);
             
             #if RTX_ON
             if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&

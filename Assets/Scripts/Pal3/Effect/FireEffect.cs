@@ -53,21 +53,16 @@ namespace Pal3.Effect
                     sprites[i] = sprite;
                 }
                 
-                Vector3 parentPosition = transform.position;
-
-                var yPosition = parentPosition.y;
+                var yPosition = 0f;
                 if (_sceneObjectRenderer != null)
                 {
-                    yPosition = _sceneObjectRenderer.GetRendererBounds().max.y;
+                    yPosition = _sceneObjectRenderer.GetMeshBounds().max.y;
                 }
 
                 EffectGameObject = new GameObject($"Effect_{GraphicsEffect.Fire.ToString()}_{FireEffectType.ToString()}");
-                EffectGameObject.transform.localScale =
-                    new Vector3(info.Size, info.Size, info.Size);
-                EffectGameObject.transform.SetParent(gameObject.transform);
-                EffectGameObject.transform.position = new Vector3(parentPosition.x,
-                    yPosition,
-                    parentPosition.z);
+                EffectGameObject.transform.SetParent(gameObject.transform, false);
+                EffectGameObject.transform.localScale = new Vector3(info.Size, info.Size, info.Size);
+                EffectGameObject.transform.localPosition = new Vector3(0f, yPosition, 0f);
                 
                 _billboardRenderer = EffectGameObject.AddComponent<AnimatedBillboardRenderer>();
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel

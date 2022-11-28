@@ -276,17 +276,18 @@ namespace Pal3.Actor
         private void RenderShadow()
         {
             _shadow = new GameObject("Shadow");
+            _shadow.transform.SetParent(transform, false);
+            Transform shadowTransform = _shadow.transform;
+            shadowTransform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
+            shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
+            
             Texture2D shadowTexture = _resourceProvider.GetShadowTexture();
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
             _shadowSpriteRenderer.sprite = Sprite.Create(shadowTexture,
                 new Rect(0, 0, shadowTexture.width, shadowTexture.height),
                 new Vector2(0.5f, 0.5f));
             _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.7f);
-            Transform shadowTransform = _shadow.transform;
-            shadowTransform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
-            shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
-            _shadow.transform.SetParent(transform, false);
         }
 
         private IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
@@ -303,12 +304,9 @@ namespace Pal3.Actor
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
             var emojiGameObject = new GameObject($"Emoji_{emojiType.ToString()}");
-            emojiGameObject.transform.SetParent(transform);
+            emojiGameObject.transform.SetParent(transform, false);
             emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            Vector3 actorHeadPosition = GetActorHeadWorldPosition();
-            emojiGameObject.transform.position = new Vector3(actorHeadPosition.x,
-                actorHeadPosition.y + 0.1f, // With a small Y offset
-                actorHeadPosition.z);
+            emojiGameObject.transform.localPosition = new Vector3(0f, GetActorHeadYPosition(), 0f);
 
             var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
 
@@ -329,21 +327,14 @@ namespace Pal3.Actor
             waiter.CancelWait();
         }
         
-        public Vector3 GetActorHeadWorldPosition()
+        private float GetActorHeadYPosition()
         {
-            Vector3 parentPosition = transform.position;
-            
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {
-                return new Vector3(parentPosition.x,
-                    parentPosition.y + _meshBounds.size.y,
-                    parentPosition.z);
+                return _meshBounds.size.y;
             }
             
-            return new Vector3(parentPosition.x,
-                parentPosition.y +
-                _mv3AnimationRenderer.GetMeshBounds().size.y,
-                parentPosition.z);
+            return _mv3AnimationRenderer.GetMeshBounds().size.y;
         }
 
         public Bounds GetRendererBounds()
