@@ -154,8 +154,10 @@ namespace Pal3.Script
             }
         }
 
-        public void AddSceneScript(SceFile sceFile, string sceneScriptDescription)
+        public bool TryAddSceneScript(SceFile sceFile, string sceneScriptDescription, out uint sceneScriptId)
         {
+            sceneScriptId = ScriptConstants.InvalidScriptId;
+            
             _sceFile = sceFile;
 
             foreach (var scriptBlock in _sceFile.ScriptBlocks
@@ -164,12 +166,15 @@ namespace Pal3.Script
                                  sceneScriptDescription,
                                  StringComparison.OrdinalIgnoreCase)))
             {
-                AddScript(scriptBlock.Key);
+                sceneScriptId = scriptBlock.Key;
+                AddScript(sceneScriptId);
                 _pendingSceneScriptExecution = true;
                 // This is to break the current running script from executing and let scene script to execute first
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptWaitUntilTimeCommand(0f));
-                break;
+                return true;
             }
+
+            return false;
         }
 
         public void Execute(ScriptRunCommand command)

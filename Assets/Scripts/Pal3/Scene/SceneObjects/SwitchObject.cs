@@ -51,8 +51,6 @@ namespace Pal3.Scene.SceneObjects
 
             ToggleSwitchState();
             
-            PlaySfxIfAny();
-
             if (triggerredByPlayer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -69,6 +67,8 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
+                PlaySfxIfAny();
+                
                 GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
                     // Remove collider to allow player to pass through

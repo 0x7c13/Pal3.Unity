@@ -14,6 +14,7 @@ namespace Pal3.Scene
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
     using Data;
+    using MetaData;
     using Newtonsoft.Json;
     using Script;
     using UnityEngine;
@@ -86,11 +87,13 @@ namespace Pal3.Scene
             // Must to clear the exclude list after loading the scene.
             _sceneObjectIdsToNotLoadFromSaveState.Clear();
             
-            // Add scene script
+            // Add scene script if exists.
             SceFile sceFile = _resourceProvider.GetSceneSce(sceneFileName);
-            _scriptManager.AddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}");
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                _scriptManager.TryAddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}", out var sceneScriptId)
+                    ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
+                    : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePostLoadingNotification(scnFile.SceneInfo));
             Debug.Log($"Scene loaded in {timer.Elapsed.TotalSeconds} seconds.");
 
             // Also a good time to collect garbage

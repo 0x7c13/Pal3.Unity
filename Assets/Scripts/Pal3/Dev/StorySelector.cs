@@ -30,8 +30,7 @@ namespace Pal3.Dev
         ICommandExecutor<ToggleStorySelectorRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ScriptFinishedRunningNotification>,
-        ICommandExecutor<GameStateChangedNotification>,
-        ICommandExecutor<ResetGameStateCommand>
+        ICommandExecutor<ScenePostLoadingNotification>
     {
         private InputManager _inputManager;
         private EventSystem _eventSystem;
@@ -45,6 +44,7 @@ namespace Pal3.Dev
         private CanvasGroup _storySelectorCanvas;
         private GameObject _storySelectorButtonPrefab;
 
+        private uint _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
         private readonly List<string> _deferredExecutionCommands = new();
         
         private readonly List<GameObject> _selectionButtons = new();
@@ -2103,6 +2103,11 @@ namespace Pal3.Dev
         private void ExecuteCommandsFromSaveFile(string commands)
         {
             _informationManager.EnableNoteDisplay(false);
+
+            _deferredExecutionCommands.Clear();
+            _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
+            
+            var commandsToExecute = new List<string>();
             
             foreach (var command in commands.Split('\n'))
             {
@@ -2117,14 +2122,15 @@ namespace Pal3.Dev
                 {
                     _deferredExecutionCommands.Add(command);
                 }
-                else if (arguments[0] == nameof(SceneActivateObjectCommand).Replace("Command", string.Empty))
-                {
-                    _deferredExecutionCommands.Add(command);
-                }
                 else
                 {
-                    DebugLogConsole.ExecuteCommand(command);
+                    commandsToExecute.Add(command);
                 }
+            }
+
+            foreach (var command in commandsToExecute)
+            {
+                DebugLogConsole.ExecuteCommand(command);
             }
             
             _informationManager.EnableNoteDisplay(true);
@@ -2153,31 +2159,34 @@ namespace Pal3.Dev
             if (!_storySelectorCanvas.interactable) Show();
         }
 
+        public void Execute(ScenePostLoadingNotification command)
+        {
+            if (_deferredExecutionCommands.Count == 0) return;
+            
+            if (command.SceneScriptId == ScriptConstants.InvalidScriptId)
+            {
+                ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
+                _deferredExecutionCommands.Clear();
+                _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
+            }
+            else
+            {
+                _pendingSceneScriptId = command.SceneScriptId;
+            }
+        }
+
         public void Execute(ScriptFinishedRunningNotification command)
         {
-            if (command.ScriptType == PalScriptType.Scene &&
-                _deferredExecutionCommands.Count > 0)
+            if (_deferredExecutionCommands.Count == 0) return;
+            
+            if (_pendingSceneScriptId != ScriptConstants.InvalidScriptId &&
+                _pendingSceneScriptId == command.ScriptId &&
+                command.ScriptType == PalScriptType.Scene)
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
+                _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
             }
-        }
-
-        public void Execute(GameStateChangedNotification command)
-        {
-            // Not every scene has init scene script to run,
-            // so we need to check if there are pending deferred commands to run.
-            if (command.NewState == GameState.Gameplay &&
-                _deferredExecutionCommands.Count > 0)
-            {
-                ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
-                _deferredExecutionCommands.Clear();
-            }
-        }
-
-        public void Execute(ResetGameStateCommand command)
-        {
-            _deferredExecutionCommands.Clear();
         }
     }
 }

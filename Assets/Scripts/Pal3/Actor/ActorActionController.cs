@@ -40,6 +40,7 @@ namespace Pal3.Actor
         ICommandExecutor<GameStateChangedNotification>
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
+        private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
         
         private GameResourceProvider _resourceProvider;
         private Actor _actor;
@@ -256,7 +257,7 @@ namespace Pal3.Actor
             Bounds bounds = GetMeshBounds();
             _collider.center = bounds.center;
             _collider.height = bounds.size.y;
-            _collider.radius = bounds.size.x * 0.4f;
+            _collider.radius = Mathf.Min(bounds.size.x * 0.4f, ACTOR_COLLIDER_RADIUS_MAX);
         }
 
         private void SetupRigidBody()

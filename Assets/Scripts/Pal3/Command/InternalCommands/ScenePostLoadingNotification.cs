@@ -9,11 +9,13 @@ namespace Pal3.Command.InternalCommands
 
     public class ScenePostLoadingNotification : ICommand
     {
-        public ScenePostLoadingNotification(ScnSceneInfo sceneInfo)
+        public ScenePostLoadingNotification(ScnSceneInfo sceneInfo, uint sceneScriptId)
         {
             NewSceneInfo = sceneInfo;
+            SceneScriptId = sceneScriptId;
         }
 
         public ScnSceneInfo NewSceneInfo { get; }
+        public uint SceneScriptId { get; }
     }
 }
