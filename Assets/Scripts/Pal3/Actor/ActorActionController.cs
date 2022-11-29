@@ -306,7 +306,7 @@ namespace Pal3.Actor
             var emojiGameObject = new GameObject($"Emoji_{emojiType.ToString()}");
             emojiGameObject.transform.SetParent(transform, false);
             emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            emojiGameObject.transform.localPosition = new Vector3(0f, GetActorHeadYPosition(), 0f);
+            emojiGameObject.transform.localPosition = new Vector3(0f, GetActorHeight(), 0f);
 
             var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
 
@@ -327,7 +327,7 @@ namespace Pal3.Actor
             waiter.CancelWait();
         }
         
-        private float GetActorHeadYPosition()
+        public float GetActorHeight()
         {
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {

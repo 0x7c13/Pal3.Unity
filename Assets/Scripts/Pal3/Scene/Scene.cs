@@ -659,15 +659,17 @@ namespace Pal3.Scene
                     }
 
                     GameObject leiYuanGeActorGameObject = GetActorGameObject((int)PlayerActorId.LeiYuanGe);
-                    Vector3 leiYuanGeHeadPosition = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
-                        .GetActorHeadWorldPosition();
+                    Vector3 leiYuanGePosition = leiYuanGeActorGameObject.transform.position;
+                    float leiYuanGeHeight = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
+                        .GetActorHeight();
 
-                    var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;  // Height adjustment
+                    // Height adjustment based on bird action type
+                    var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;
                 
                     GameObject birdActorGameObject = GetActorGameObject((int)activeBirdActorId);
-                    birdActorGameObject.transform.position = new Vector3(leiYuanGeHeadPosition.x,
-                        leiYuanGeHeadPosition.y + yOffset,
-                        leiYuanGeHeadPosition.z);
+                    birdActorGameObject.transform.position = new Vector3(leiYuanGePosition.x,
+                        leiYuanGePosition.y + leiYuanGeHeight + yOffset,
+                        leiYuanGePosition.z);
                     birdActorGameObject.transform.forward = leiYuanGeActorGameObject.transform.forward;
                     birdActorGameObject.GetComponent<ActorController>().IsActive = true;
                     birdActorGameObject.GetComponent<ActorActionController>()
