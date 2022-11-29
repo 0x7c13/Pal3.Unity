@@ -20,6 +20,8 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
     public class SpecialMechanismObject : SceneObject
     {
+        private const float MAX_INTERACTION_DISTANCE = 4f;
+        
         private SpecialMechanismObjectController _objectController;
         
         public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -40,7 +42,7 @@ namespace Pal3.Scene.SceneObjects
                 PlayerActorId.JingTian => 1.5f,
                 PlayerActorId.XueJian => 1.5f,
                 PlayerActorId.LongKui => 1.2f,
-                PlayerActorId.ZiXuan => 1.3f,
+                PlayerActorId.ZiXuan => 1.2f,
                 PlayerActorId.ChangQing => 1.7f,
                 #endif
                 _ => 1f
@@ -54,25 +56,10 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        private float GetInteractionMaxDistance()
-        {
-            return (PlayerActorId) ObjectInfo.Parameters[0] switch
-            {
-                #if PAL3
-                PlayerActorId.JingTian => 4.5f,
-                PlayerActorId.XueJian => 5f,
-                PlayerActorId.LongKui => 8f,
-                PlayerActorId.ZiXuan  => 4.5f, 
-                PlayerActorId.ChangQing => 4.5f,
-                #endif
-                _ => 4.5f
-            };
-        }
-
         public override bool IsInteractable(InteractionContext ctx)
         {
             return Activated &&
-                   ctx.DistanceToActor < GetInteractionMaxDistance() &&
+                   ctx.DistanceToActor < MAX_INTERACTION_DISTANCE &&
                    ctx.ActorId == ObjectInfo.Parameters[0]; // Only specified actor can interact with this object
         }
 

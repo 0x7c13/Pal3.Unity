@@ -47,6 +47,7 @@ namespace Pal3.Actor
     {
         private const float MAX_Y_DIFFERENTIAL = 2f;
         private const float MAX_Y_DIFFERENTIAL_CROSS_LAYER = 2f;
+        private const float MAX_Y_DIFFERENTIAL_CROSS_PLATFORM = 1.5f;
         private const float DEFAULT_ROTATION_SPEED = 20f;
 
         private Actor _actor;
@@ -167,7 +168,8 @@ namespace Pal3.Actor
         {
             if (_isMovementOnHold || _currentPath.IsEndOfPath()) return;
 
-            MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(), _currentPath.MovementMode,
+            MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(),
+                _currentPath.MovementMode,
                 _currentPath.IgnoreObstacle);
 
             switch (result)
@@ -214,7 +216,11 @@ namespace Pal3.Actor
             {
                 Vector3 currentPosition = transform.position;
 
-                if (!_tilemap.TryGetTile(currentPosition, _currentLayerIndex, out NavTile tile))
+                if (_isNearOrOnTopOfPlatform)
+                { 
+                    // Do nothing.
+                }
+                else if (!_tilemap.TryGetTile(currentPosition, _currentLayerIndex, out NavTile tile))
                 {
                     transform.position = _lastKnownValidPositionWhenCollisionEnter;
                 }
@@ -241,8 +247,12 @@ namespace Pal3.Actor
 
             Vector3 currentActorPosition = transform.position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
-            
-            if (_tilemap.TryGetTile(currentActorPosition, _currentLayerIndex, out NavTile tile) && tile.IsWalkable())
+
+            if (_isNearOrOnTopOfPlatform)
+            {
+                _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
+            }
+            else if (_tilemap.TryGetTile(currentActorPosition, _currentLayerIndex, out NavTile tile) && tile.IsWalkable())
             {
                 _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
             }
@@ -275,9 +285,13 @@ namespace Pal3.Actor
                 _activeStandingPlatform = standingPlatformController;
                 _activeStandingPlatformLastKnownPosition = triggerCollider.gameObject.transform.position;
                 
-                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
+                // Move the actor to the platform surface
                 Vector3 currentPosition = transform.position;
-                transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
+                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
+                if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                {
+                    transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);   
+                }
             }
         }
 
@@ -392,7 +406,8 @@ namespace Pal3.Actor
             Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
 
             // If actor is moving towards a collider, check if the new position is still inside the collider.
-            // If yes, don't move the actor. This is to prevent the actor from moving through the collider.
+            // If yes, don't move the actor. This is to prevent the actor from moving through the collider
+            // since we are not moving the rigidbody directly but instead moving the transform.
             if (IsDuringCollision() && _actionController.GetRigidBody() is { isKinematic: false } &&
                 IsNewPositionInsideCollisionCollider(currentPosition, newPosition))
             {
@@ -495,13 +510,14 @@ namespace Pal3.Actor
             newYPosition = 0f;
 
             // Check if actor is on top of a platform
-            if (_activeStandingPlatform != null)
+            if (_isNearOrOnTopOfPlatform && _activeStandingPlatform != null)
             {
                 var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
                 
                 // Make sure actor is on top of the platform
                 if (Utility.IsPointWithinCollider(_activeStandingPlatform.GetCollider(),
-                        new Vector3(newPosition.x, targetYPosition, newPosition.z)))
+                        new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
+                    Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
                 {
                     newYPosition = targetYPosition;
                     return true;

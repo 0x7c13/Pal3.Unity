@@ -10,7 +10,6 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
-    using Core.Renderer;
     using Data;
     using MetaData;
     using State;
@@ -33,6 +32,10 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             sceneGameObject.AddComponent<InvestigationTriggerController>().Init(this);
+            if (ObjectInfo.IsNonBlocking == 0)
+            {
+                sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+            }
             return sceneGameObject;
         }
 
@@ -64,22 +67,10 @@ namespace Pal3.Scene.SceneObjects
     internal class InvestigationTriggerController : MonoBehaviour
     {
         private InvestigationTriggerObject _object;
-        private Bounds _bounds;
 
         public void Init(InvestigationTriggerObject investigationTriggerObject)
         {
             _object = investigationTriggerObject;
-
-            // 2: 模型触发
-            if (_object.ObjectInfo.TriggerType == 2 &&
-                GetComponentInChildren<StaticMeshRenderer>() is { } meshRenderer)
-            {
-                _bounds = meshRenderer.GetRendererBounds();
-            }
-            else
-            {
-                _bounds = investigationTriggerObject.ObjectInfo.Bounds;
-            }
         }
     }
 }

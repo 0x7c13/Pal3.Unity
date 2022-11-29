@@ -41,7 +41,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             // A little bit lower than the collider bounds just to make sure
             // the actor is always inside the collider when standing on the platform.
-            return _collider.bounds.max.y - 0.05f;
+            return _collider.bounds.max.y - 0.01f;
         }
 
         private void OnTriggerEnter(Collider other)

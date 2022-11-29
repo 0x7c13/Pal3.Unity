@@ -16,6 +16,7 @@ namespace Pal3.State
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Effect;
     using Effect.PostProcessing;
     using Feature;
@@ -114,6 +115,8 @@ namespace Pal3.State
             var playerActorMovementController = currentScene
                 .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
+            Vector3 playerActorGameBoxPosition = GameBoxInterpreter
+                .ToGameBoxPosition(playerActorMovementController.GetWorldPosition());
 
             var varsToSave = _scriptManager.GetGlobalVariables();
             if (saveLevel == SaveLevel.Minimal)
@@ -206,6 +209,8 @@ namespace Pal3.State
                     playerActorMovementController.GetCurrentLayerIndex()),
                 new ActorSetTilePositionCommand(currentPlayerActorId,
                     playerActorTilePosition.x, playerActorTilePosition.y),
+                new ActorSetYPositionCommand(currentPlayerActorId,
+                    playerActorGameBoxPosition.y),
                 new ActorRotateFacingCommand(currentPlayerActorId,
                     -(int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });

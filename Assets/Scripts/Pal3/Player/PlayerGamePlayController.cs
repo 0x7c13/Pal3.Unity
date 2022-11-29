@@ -51,7 +51,6 @@ namespace Pal3.Player
         private Camera _camera;
 
         private string _currentMovementSfxAudioName = string.Empty;
-        private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
         private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
         private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;
 
@@ -222,7 +221,7 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
-                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         disposeSource: false));
             }
             else
@@ -230,7 +229,7 @@ namespace Pal3.Player
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new AttachSfxToGameObjectRequest(_playerActorGameObject,
                         newMovementSfxAudioFileName,
-                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         loopCount: -1,
                         actionType == ActorActionType.Walk
                             ? PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME
@@ -421,7 +420,7 @@ namespace Pal3.Player
         private void InteractWithFacingInteractable()
         {
             Vector3 actorFacingDirection = _playerActorMovementController.transform.forward;
-            Vector3 actorPosition = _playerActorMovementController.GetWorldPosition();
+            Vector3 actorCenterPosition = _playerActorActionController.GetRendererBounds().center;
             Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
@@ -436,10 +435,9 @@ namespace Pal3.Player
                 if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.Climbable &&
                     sceneObject.ObjectInfo.LayerIndex != currentLayerIndex) continue;
 
-                Vector3 sceneObjectPosition = sceneObject.GetGameObject().transform.position;
-                float distanceToActor = Vector2.Distance(new Vector2(actorPosition.x, actorPosition.z),
-                    new Vector2(sceneObjectPosition.x, sceneObjectPosition.z));
-                Vector3 actorToObjectFacing = sceneObjectPosition - actorPosition;
+                Vector3 closetPointOnObject = sceneObject.GetRendererBounds().ClosestPoint(actorCenterPosition);
+                float distanceToActor = Vector3.Distance(actorCenterPosition, closetPointOnObject);
+                Vector3 actorToObjectFacing = closetPointOnObject - actorCenterPosition;
                 float facingAngle = Vector2.Angle(
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
                     new Vector2(actorToObjectFacing.x, actorToObjectFacing.z));
@@ -454,6 +452,7 @@ namespace Pal3.Player
                 if (sceneObject.IsInteractable(interactionContext) &&
                     facingAngle < nearestInteractableFacingAngle)
                 {
+                    //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
                     interactionAction = () => sceneObject.Interact(triggerredByPlayer: true);
                 }
@@ -463,17 +462,16 @@ namespace Pal3.Player
                      _sceneManager.GetCurrentScene().GetAllActorGameObjects())
             {
                 var actorController = actorInfo.Value.GetComponent<ActorController>();
+                var actorActionController = actorInfo.Value.GetComponent<ActorActionController>();
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
 
                 if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
                     actorInfo.Key == (int)_playerManager.GetPlayerActor() ||
                     !actorController.IsActive) continue;
 
-                Vector3 targetActorPosition = actorController.transform.position;
-                var distance = Vector2.Distance(
-                    new Vector2(actorPosition.x, actorPosition.z),
-                    new Vector2(targetActorPosition.x, targetActorPosition.z));
-                Vector3 actorToActorFacing = targetActorPosition - actorPosition;
+                Vector3 targetActorCenterPosition = actorActionController.GetRendererBounds().center;
+                var distance = Vector3.Distance(actorCenterPosition,targetActorCenterPosition);
+                Vector3 actorToActorFacing = targetActorCenterPosition - actorCenterPosition;
                 float facingAngle = Vector2.Angle(
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
                     new Vector2(actorToActorFacing.x, actorToActorFacing.z));
@@ -481,6 +479,7 @@ namespace Pal3.Player
                 if (actorController.IsInteractable(distance) &&
                     facingAngle < nearestInteractableFacingAngle)
                 {
+                    //Debug.DrawLine(actorCenterPosition, targetActorCenterPosition, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
                     interactionAction = () => InteractWithActor(actorInfo.Key, actorInfo.Value);
                 }
@@ -837,7 +836,7 @@ namespace Pal3.Player
                 _currentMovementSfxAudioName = string.Empty;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
-                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         disposeSource: true));
             }
 
@@ -940,7 +939,7 @@ namespace Pal3.Player
                 _currentMovementSfxAudioName = string.Empty;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
-                        PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME,
+                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         disposeSource: true));   
             }
 

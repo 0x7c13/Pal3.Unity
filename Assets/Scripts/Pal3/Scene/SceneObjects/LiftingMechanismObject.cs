@@ -12,6 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using Data;
     using Renderer;
     using UnityEngine;
@@ -21,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     {
         private LiftingMechanismObjectController _objectController;
         private StandingPlatformController _platformController;
-        
+
         public LiftingMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -35,11 +36,18 @@ namespace Pal3.Scene.SceneObjects
             // Set to final position if the platform is already activated
             if (ObjectInfo.SwitchState == 1)
             {
-                Vector3 finalPosition = sceneGameObject.transform.position;
+                Vector3 position = sceneGameObject.transform.position;
                 float gameBoxYPosition = ObjectInfo.Parameters[0];
-                // A small Y offset to ensure actor shadow is properly rendered
-                finalPosition.y = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
-                sceneGameObject.transform.position = finalPosition;
+                var finalYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition);
+                var yOffset = finalYPosition - position.y;
+                position.y = finalYPosition;
+                sceneGameObject.transform.position = position;
+
+                // Set Y position of the object on the platform
+                if (ObjectInfo.Parameters[2] != 0)
+                {
+                    // TODO: impl
+                }
             }
             
             _objectController = sceneGameObject.AddComponent<LiftingMechanismObjectController>();
@@ -55,13 +63,11 @@ namespace Pal3.Scene.SceneObjects
                 bounds = polyModelRenderer.GetMeshBounds();
             }
 
-            // Some tweaks to the bounds to fit better with the rendering model
-            Vector3 tweakedBoundsCenter = bounds.center;
-            tweakedBoundsCenter.y -= 0.4f;
+            // Some tweaks to the bounds to make sure actor won't stuck
+            // near the edge of the platform
             Vector3 tweakedBoundsSize = bounds.size;
-            tweakedBoundsSize.x += 0.4f;
-            tweakedBoundsSize.z += 0.4f;
-            bounds.center = tweakedBoundsCenter;
+            tweakedBoundsSize.x += 0.5f;
+            tweakedBoundsSize.z += 0.5f;
             bounds.size = tweakedBoundsSize;
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
@@ -109,6 +115,7 @@ namespace Pal3.Scene.SceneObjects
         
         public void Interact()
         {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
             StartCoroutine(InteractInternal());
         }
 
@@ -119,21 +126,46 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFocusOnSceneObjectCommand(_object.ObjectInfo.Id));
             
-            Vector3 finalPosition = transform.position;
+            Vector3 position = transform.position;
             float gameBoxYPosition = _object.ObjectInfo.Parameters[0];
-            
-            // A small Y offset to ensure actor shadow is properly rendered
-            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition) - 0.02f;
+            var finalYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition);
+            var yOffset = finalYPosition - position.y;
 
             _object.PlaySfxIfAny();
+
+            var hasObjectOnPlatform = false;
+            GameObject objectOnThePlatform = null;
+            Vector3 objectOnThePlatformOriginalPosition = Vector3.zero;
+                
+            // Set Y position of the object on the platform
+            if (_object.ObjectInfo.Parameters[2] != 0)
+            {
+                hasObjectOnPlatform = true;
+                objectOnThePlatform = ServiceLocator.Instance.Get<SceneManager>()
+                    .GetCurrentScene()
+                    .GetSceneObject(_object.ObjectInfo.Parameters[2])
+                    .GetGameObject();
+                objectOnThePlatformOriginalPosition = objectOnThePlatform.transform.position;
+            }
             
-            yield return AnimationHelper.MoveTransform(gameObject.transform,
-                finalPosition,
-                LIFTING_ANIMATION_DURATION,
-                AnimationCurveType.Sine);
+            yield return AnimationHelper.EnumerateValue(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
+                offset =>
+                {
+                    transform.position = new Vector3(position.x, position.y + offset, position.z);
+
+                    if (hasObjectOnPlatform)
+                    {
+                        objectOnThePlatform.transform.position = new Vector3(
+                            objectOnThePlatformOriginalPosition.x,
+                            objectOnThePlatformOriginalPosition.y + offset,
+                            objectOnThePlatformOriginalPosition.z);
+                    }
+                });
             
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFreeCommand(1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerEnableInputCommand(1));
         }
     }
 }

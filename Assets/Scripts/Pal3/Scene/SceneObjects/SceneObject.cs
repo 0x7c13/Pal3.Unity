@@ -171,6 +171,25 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
+        public Bounds GetRendererBounds()
+        {
+            if (_polyModelRenderer != null)
+            {
+                return _polyModelRenderer.GetRendererBounds();
+            }
+            
+            if (_cvdModelRenderer != null)
+            {
+                return _cvdModelRenderer.GetRendererBounds();
+            }
+            
+            return new Bounds
+            {
+                center = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition),
+                size = Vector3.one
+            };
+        }
+        
         public GameObject GetGameObject()
         {
             return _sceneObjectGameObject;

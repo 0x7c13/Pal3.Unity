@@ -45,9 +45,7 @@ namespace Pal3.Player
         ICommandExecutor<ActorFadeInCommand>,
         ICommandExecutor<ActorFadeOutCommand>,
         ICommandExecutor<ActorSetScriptCommand>,
-        #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
-        #endif
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<EffectAttachToActorCommand>,
@@ -354,7 +352,6 @@ namespace Pal3.Player
             }
         }
         
-        #if PAL3A
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -363,7 +360,6 @@ namespace Pal3.Player
                     new ActorSetYPositionCommand((int)_playerActor, command.GameBoxYPosition));
             }
         }
-        #endif
 
         public void Execute(CameraFocusOnActorCommand command)
         {

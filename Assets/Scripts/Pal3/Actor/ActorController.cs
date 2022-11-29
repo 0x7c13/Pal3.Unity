@@ -22,9 +22,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
         ICommandExecutor<ActorSetScriptCommand>,
-        #if PAL3A
         ICommandExecutor<ActorSetYPositionCommand>,
-        #endif
         ICommandExecutor<ActorChangeScaleCommand>
     {
         private Actor _actor;
@@ -227,8 +225,7 @@ namespace Pal3.Actor
                 new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(AnimateScale(command.Scale, 2f, waiter));
         }
-
-        #if PAL3A
+        
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;
@@ -237,6 +234,5 @@ namespace Pal3.Actor
                 GameBoxInterpreter.ToUnityYPosition(command.GameBoxYPosition),
                 oldPosition.z);
         }
-        #endif
     }
 }

@@ -13,7 +13,6 @@ namespace Pal3.Audio
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Scn;
     using Core.Extensions;
@@ -47,8 +46,8 @@ namespace Pal3.Audio
         private string _currentScriptMusic = string.Empty;
         private readonly List<string> _playingSfxSourceNames = new ();
 
-        // TODO: Fix and remove this hack
-        private const string PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME = "PlayerActorMovementSfx";
+        // TODO: Maybe it is better to control movement sfx
+        // by the player gameplay controller instead of AudioManager?
         private bool _playerMovementSfxInProgress;
         
         private CancellationTokenSource _sceneAudioCts = new ();
@@ -168,7 +167,7 @@ namespace Pal3.Audio
                 sfxAudioClip == null) yield break;
 
             if (parent != _mainCamera.gameObject &&
-                audioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME &&
+                audioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName &&
                 _playerMovementSfxInProgress == false)
             {
                 yield break; // Means movement sfx is already stopped before it started due to the delay of the coroutine
@@ -346,7 +345,7 @@ namespace Pal3.Audio
 
         public void Execute(AttachSfxToGameObjectRequest request)
         {
-            if (request.AudioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME)
+            if (request.AudioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName)
             {
                 _playerMovementSfxInProgress = true;
             }
@@ -366,7 +365,7 @@ namespace Pal3.Audio
         
         public void Execute(StopSfxPlayingAtGameObjectRequest command)
         {
-            if (command.AudioSourceName == PLAYER_ACTOR_MOVEMENT_SFX_AUDIO_SOURCE_NAME)
+            if (command.AudioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName)
             {
                 _playerMovementSfxInProgress = false;
             }            
