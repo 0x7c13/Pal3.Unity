@@ -842,6 +842,7 @@ namespace Pal3.Player
 
             Vector3? lastActivePlayerActorPosition = null;
             Quaternion? lastActivePlayerActorRotation = null;
+            int? lastActivePlayerActorNavLayerIndex = null;
             
             // Deactivate current player actor
             if (_playerActorGameObject != null &&
@@ -849,6 +850,7 @@ namespace Pal3.Player
                 _playerActorController != null &&
                 _playerActorController.IsActive)
             {
+                lastActivePlayerActorNavLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
                 lastActivePlayerActorPosition = _playerActorGameObject.transform.position;
                 lastActivePlayerActorRotation = _playerActorGameObject.transform.rotation;
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 0));
@@ -866,7 +868,12 @@ namespace Pal3.Player
             if (!_playerActorController.IsActive)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 1));
-                
+
+                // Inherent nav layer index
+                if (lastActivePlayerActorNavLayerIndex.HasValue)
+                {
+                    _playerActorMovementController.SetNavLayer(lastActivePlayerActorNavLayerIndex.Value);
+                }
                 // Inherent position
                 if (lastActivePlayerActorPosition.HasValue)
                 {
