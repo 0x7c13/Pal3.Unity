@@ -631,21 +631,31 @@ namespace Pal3.Actor
             _actionController.PerformAction(_actor.GetIdleAction());
         }
 
-        private IEnumerator FindPathAndMoveToTilePosition(Vector2Int position,
+        private IEnumerator FindPathAndMoveToTilePosition(Vector2Int toTilePosition,
             int mode,
             EndOfPathActionType endOfPathAction,
             CancellationToken cancellationToken,
             bool moveTowardsPositionIfNoPathFound = false,
             string specialAction = default)
         {
-            Vector2Int[] path = Array.Empty<Vector2Int>();
             Vector2Int fromTilePosition = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+
+            if (fromTilePosition == toTilePosition)
+            {
+                _movementWaiter?.CancelWait();
+                yield break;
+            }
+            
+            Vector2Int[] path = Array.Empty<Vector2Int>();
             var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {(int)_actor.Info.Id});
 
             var pathFindingThread = new Thread(() =>
             {
-                path = _tilemap.FindPathToTilePositionThreadSafe(fromTilePosition,
-                    new Vector2Int(position.x, position.y), _currentLayerIndex, obstacles);
+                path = _tilemap.FindPathToTilePositionThreadSafe(
+                    fromTilePosition,
+                    toTilePosition,
+                    _currentLayerIndex,
+                    obstacles);
             })
             {
                 IsBackground = true,
@@ -666,7 +676,7 @@ namespace Pal3.Actor
                 {
                     var directWayPoints = new[]
                     {
-                        _tilemap.GetWorldPosition(position, _currentLayerIndex),
+                        _tilemap.GetWorldPosition(toTilePosition, _currentLayerIndex),
                     };
 
                     SetupPath(directWayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
@@ -674,7 +684,8 @@ namespace Pal3.Actor
                 else
                 {
                     _movementWaiter?.CancelWait();
-                    Debug.LogError($"Failed to find path from tile position {fromTilePosition} to tile position: {position}");
+                    Debug.LogError($"Failed to find path from tile position {fromTilePosition} " +
+                                   $"to tile position: {toTilePosition}");
                 }
                 yield break;
             }

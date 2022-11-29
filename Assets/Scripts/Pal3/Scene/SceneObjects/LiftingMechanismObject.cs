@@ -67,6 +67,7 @@ namespace Pal3.Scene.SceneObjects
             // near the edge of the platform
             Vector3 tweakedBoundsSize = bounds.size;
             tweakedBoundsSize.x += 0.5f;
+            tweakedBoundsSize.y += 0.2f;
             tweakedBoundsSize.z += 0.5f;
             bounds.size = tweakedBoundsSize;
             

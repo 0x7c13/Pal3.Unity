@@ -2116,9 +2116,15 @@ namespace Pal3.Dev
                 var arguments = new List<string>();
                     
                 DebugLogConsole.FetchArgumentsFromCommand(command, arguments);
-                    
-                if (arguments[0] == nameof(ActorActivateCommand).Replace("Command", string.Empty) &&
-                    !Enum.GetValues(typeof(PlayerActorId)).Cast<int>().Contains(int.Parse(arguments[1])))
+                
+                // These commands should be executed after the scene script is executed
+                // to prevent unexpected behavior
+                if (arguments[0] + "Command" == nameof(ActorActivateCommand) ||
+                    arguments[0] + "Command" == nameof(ActorSetNavLayerCommand) ||
+                    arguments[0] + "Command" == nameof(ActorSetWorldPositionCommand) ||
+                    arguments[0] + "Command" == nameof(ActorSetYPositionCommand) ||
+                    arguments[0] + "Command" == nameof(ActorSetFacingCommand) ||
+                    arguments[0] + "Command" == nameof(ActorSetScriptCommand))
                 {
                     _deferredExecutionCommands.Add(command);
                 }

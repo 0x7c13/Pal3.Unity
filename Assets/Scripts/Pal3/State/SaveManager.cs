@@ -114,7 +114,7 @@ namespace Pal3.State
             
             var playerActorMovementController = currentScene
                 .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
-            Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
+            Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             Vector3 playerActorGameBoxPosition = GameBoxInterpreter
                 .ToGameBoxPosition(playerActorMovementController.GetWorldPosition());
 
@@ -207,28 +207,84 @@ namespace Pal3.State
                 new PlayerEnableInputCommand(1),
                 new ActorSetNavLayerCommand(currentPlayerActorId,
                     playerActorMovementController.GetCurrentLayerIndex()),
-                new ActorSetTilePositionCommand(currentPlayerActorId,
-                    playerActorTilePosition.x, playerActorTilePosition.y),
+                new ActorSetWorldPositionCommand(currentPlayerActorId,
+                    playerActorWorldPosition.x, playerActorWorldPosition.z),
                 new ActorSetYPositionCommand(currentPlayerActorId,
                     playerActorGameBoxPosition.y),
-                new ActorRotateFacingCommand(currentPlayerActorId,
-                    -(int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
+                new ActorSetFacingCommand(currentPlayerActorId,
+                    (int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
             
-            // Save actor activation state changed by the script
-            var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>().ToList();
-            var allActors = currentScene.GetAllActors().Where(_ => !playerActorIds.Contains(_.Key)).ToArray();
+            var allActors = currentScene.GetAllActors();
             var allActorGameObjects = currentScene.GetAllActorGameObjects();
-            commands.AddRange(allActors
-                .Where(_ => _.Value.Info.InitActive == 0)
-                .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
-                            allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
-                .Select(_ => new ActorActivateCommand(_.Key, 1)));
-            commands.AddRange(allActors
-                .Where(_ => _.Value.Info.InitActive == 1)
-                .Where(_ => allActorGameObjects.ContainsKey(_.Key) &&
-                            !allActorGameObjects[_.Key].GetComponent<ActorController>().IsActive)
-                .Select(_ => new ActorActivateCommand(_.Key, 0)));
+
+            // Save actor activation state changed by the script
+            // + actor position changed by the script
+            // + actor rotation changed by the script
+            // + actor layer changed by the script
+            // + actor script id changed by the script
+            foreach ((int actorId, GameObject actorGameObject)  in allActorGameObjects)
+            {
+                if (currentPlayerActorId == actorId) continue;
+                
+                var actorController = actorGameObject.GetComponent<ActorController>();
+                var actorMovementController = actorGameObject.GetComponent<ActorMovementController>();
+                
+                if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
+                {
+                    commands.Add(new ActorActivateCommand(actorId, 0));
+                }
+                else if (actorController.IsActive)
+                {
+                    Actor actor = actorController.GetActor();
+
+                    if (actor.Info.InitActive == 0)
+                    {
+                        commands.Add(new ActorActivateCommand(actorId, 1));
+                    }
+                    
+                    // Save position and rotation if not in initial state
+                    // Only save position and rotation if the actor behavior is None or Hold
+                    if (actor.Info.InitBehaviour is ScnActorBehaviour.None or ScnActorBehaviour.Hold)
+                    {
+                        if (actorMovementController.GetCurrentLayerIndex() != actor.Info.LayerIndex)
+                        {
+                            commands.Add(new ActorSetNavLayerCommand(actorId,
+                                actorMovementController.GetCurrentLayerIndex()));
+                        }
+                    
+                        var currentPosition = actorGameObject.transform.position;
+                        var currentGameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(currentPosition);
+                        
+                        if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
+                            Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)
+                        {
+                            commands.Add(new ActorSetWorldPositionCommand(actorId,
+                                currentPosition.x, currentPosition.z));
+                        }
+                        
+                        if (Mathf.Abs(currentGameBoxPosition.y - actor.Info.GameBoxYPosition) > 0.01f)
+                        {
+                            commands.Add(new ActorSetYPositionCommand(actorId,
+                                currentGameBoxPosition.y));
+                        }
+                        
+                        if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=
+                            actorGameObject.transform.rotation)
+                        {
+                            commands.Add(new ActorSetFacingCommand(actorId,
+                                (int) actorGameObject.transform.rotation.eulerAngles.y));
+                        }
+                    }
+                    
+                    // Save script id if changed by the script
+                    if (actorController.IsScriptChanged())
+                    {
+                        commands.Add(new ActorSetScriptCommand(actorId,
+                            (int)actor.Info.ScriptId));
+                    }
+                }
+            }
             
             #if PAL3
             // Save LongKui state
@@ -253,12 +309,12 @@ namespace Pal3.State
                 var huaYingMovementController = huaYingGameObject.GetComponent<ActorMovementController>();
                 commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
                     huaYingMovementController.GetCurrentLayerIndex()));
-                Vector2Int tilePosition = huaYingMovementController.GetTilePosition();
-                commands.Add(new ActorSetTilePositionCommand((int)PlayerActorId.HuaYing,
-                    tilePosition.x,
-                    tilePosition.y));
-                var rotationInDegrees = (int)huaYingGameObject.transform.rotation.eulerAngles.y;
-                commands.Add(new ActorRotateFacingCommand((int)PlayerActorId.HuaYing, -rotationInDegrees));
+                Vector3 position = huaYingMovementController.GetWorldPosition();
+                Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
+                commands.Add(new ActorSetWorldPositionCommand((int)PlayerActorId.HuaYing, position.x, position.z));
+                commands.Add(new ActorSetYPositionCommand((int)PlayerActorId.HuaYing, gameBoxPosition.y));
+                commands.Add(new ActorSetFacingCommand((int)PlayerActorId.HuaYing,
+                    (int)huaYingGameObject.transform.rotation.eulerAngles.y));
             }
             #endif
 

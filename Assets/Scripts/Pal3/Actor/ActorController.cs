@@ -18,6 +18,7 @@ namespace Pal3.Actor
     using UnityEngine;
 
     public class ActorController : MonoBehaviour,
+        ICommandExecutor<ActorSetFacingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
@@ -47,7 +48,9 @@ namespace Pal3.Actor
                 _actor.IsActive = value;
             }
         }
-
+        
+        private bool _isScriptChanged;
+        
         private ScnActorBehaviour _currentBehaviour;
 
         public void Init(Actor actor,
@@ -89,6 +92,11 @@ namespace Pal3.Actor
         public Actor GetActor()
         {
             return _actor;
+        }
+        
+        public bool IsScriptChanged()
+        {
+            return _isScriptChanged;
         }
 
         private void Activate()
@@ -162,6 +170,12 @@ namespace Pal3.Actor
             waiter?.CancelWait();
         }
 
+        public void Execute(ActorSetFacingCommand command)
+        {
+            if (_actor.Info.Id != command.ActorId) return;
+            transform.rotation = Quaternion.Euler(0, command.Degrees, 0);
+        }
+        
         public void Execute(ActorRotateFacingCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
@@ -214,7 +228,11 @@ namespace Pal3.Actor
         public void Execute(ActorSetScriptCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;
-            _actor.Info.ScriptId = (uint)command.ScriptId;
+            if (_actor.Info.ScriptId != (uint) command.ScriptId)
+            {
+                _isScriptChanged = true;
+                _actor.Info.ScriptId = (uint) command.ScriptId;
+            }
         }
 
         public void Execute(ActorChangeScaleCommand command)

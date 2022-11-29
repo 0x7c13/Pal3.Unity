@@ -29,6 +29,7 @@ namespace Pal3.Player
                 Kind = ScnActorKind.MainActor,
                 InitActive = 0,
                 InitAction = ActorConstants.ActionNames[ActorActionType.Stand],
+                InitBehaviour = ScnActorBehaviour.None,
                 GameBoxXPosition = gameBoxInitPosition.x,
                 GameBoxYPosition = gameBoxInitPosition.y,
                 GameBoxZPosition = gameBoxInitPosition.z,

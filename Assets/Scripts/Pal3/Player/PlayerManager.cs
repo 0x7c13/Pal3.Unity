@@ -24,6 +24,7 @@ namespace Pal3.Player
         ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorChangeColliderSettingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
+        ICommandExecutor<ActorSetFacingCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
         ICommandExecutor<ActorPathToCommand>,
@@ -176,6 +177,15 @@ namespace Pal3.Player
             }
         }
 
+        public void Execute(ActorSetFacingCommand command)
+        {
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorSetFacingCommand((int)_playerActor, command.Degrees));
+            }
+        }
+        
         public void Execute(ActorRotateFacingCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
