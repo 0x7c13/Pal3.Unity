@@ -56,7 +56,7 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            if (triggerredByPlayer && !ExecuteScriptIfAny())
+            if (!ExecuteScriptIfAny() && triggerredByPlayer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Gameplay));

@@ -88,9 +88,7 @@ namespace Pal3.Scene.SceneObjects
 
         private void InteractInternal(bool triggerredByPlayer)
         {
-            InteractWithLinkedObjectIfAny();
-
-            if (triggerredByPlayer && !ExecuteScriptIfAny())
+            if (!InteractWithLinkedObjectIfAny() && !ExecuteScriptIfAny() && triggerredByPlayer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Gameplay));

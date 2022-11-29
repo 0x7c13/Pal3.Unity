@@ -276,7 +276,6 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
                 return true;
             }
-
             return false;
         }
 
@@ -297,11 +296,14 @@ namespace Pal3.Scene.SceneObjects
         internal void ToggleSwitchState()
         {
             ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new SceneChangeGlobalObjectSwitchStateCommand(SceneInfo.CityName,
-                    SceneInfo.SceneName,
-                    ObjectInfo.Id,
-                    ObjectInfo.SwitchState));
+            if (ObjectInfo.Times != 0xFF)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneChangeGlobalObjectSwitchStateCommand(SceneInfo.CityName,
+                        SceneInfo.SceneName,
+                        ObjectInfo.Id,
+                        ObjectInfo.SwitchState));
+            }
         }
         
         internal void ChangeLinkedObjectActivationStateIfAny(bool isActivated)
@@ -313,13 +315,15 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        internal void InteractWithLinkedObjectIfAny()
+        internal bool InteractWithLinkedObjectIfAny()
         {
             if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new PlayerInteractWithObjectCommand(ObjectInfo.LinkedObjectId));
+                return true;
             }
+            return false;
         }
         #endregion
     }

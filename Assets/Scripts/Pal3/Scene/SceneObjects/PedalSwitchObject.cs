@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Animation;
@@ -15,6 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Services;
     using Data;
     using Player;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
@@ -68,6 +70,8 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlatformTriggerEntered(object sender, Collider collider)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
+            if (ObjectInfo.SwitchState == 1) return;
+            ToggleSwitchState();
             
             // Check if the player actor is on the platform
             if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
@@ -105,7 +109,8 @@ namespace Pal3.Scene.SceneObjects
         
         public void Interact(GameObject playerActorGameObject)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Cutscene));
             StartCoroutine(InteractInternal(playerActorGameObject));
         }
         
@@ -130,10 +135,12 @@ namespace Pal3.Scene.SceneObjects
                 finalPosition,
                 PedalSwitchObject.DescendingAnimationDuration,
                 AnimationCurveType.Sine);
-
-            _object.ExecuteScriptIfAny();
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+            
+            if (!_object.InteractWithLinkedObjectIfAny() && !_object.ExecuteScriptIfAny())
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Gameplay));
+            }
         }
     }
 }
