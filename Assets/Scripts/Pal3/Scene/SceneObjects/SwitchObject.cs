@@ -77,18 +77,18 @@ namespace Pal3.Scene.SceneObjects
                         Object.Destroy(_meshCollider);
                     }
 
-                    InteractInternal(triggerredByPlayer);
+                    InteractInternal();
                 });
             }
             else
             {
-                InteractInternal(triggerredByPlayer);
+                InteractInternal();
             }
         }
 
-        private void InteractInternal(bool triggerredByPlayer)
+        private void InteractInternal()
         {
-            if (!InteractWithLinkedObjectIfAny() && !ExecuteScriptIfAny() && triggerredByPlayer)
+            if (!InteractWithLinkedObjectIfAny() && !ExecuteScriptIfAny())
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new GameStateChangeRequest(GameState.Gameplay));

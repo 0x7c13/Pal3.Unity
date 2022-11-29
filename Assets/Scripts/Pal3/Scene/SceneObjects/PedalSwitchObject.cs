@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using Actor;
     using Command;
@@ -18,6 +19,7 @@ namespace Pal3.Scene.SceneObjects
     using Player;
     using State;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
     public class PedalSwitchObject : SceneObject
@@ -41,13 +43,26 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
             
             // _h1.pol
-            var bounds = new Bounds
+            if (ObjectInfo.Name.Equals("_h1.pol", StringComparison.OrdinalIgnoreCase))
             {
-                center = new Vector3(0f, -0.2f, 0f),
-                size = new Vector3(3f, 0.5f, 3f),
-            };
+                bounds = new Bounds
+                {
+                    center = new Vector3(0f, -0.2f, 0f),
+                    size = new Vector3(3f, 0.5f, 3f),
+                };
+            }
+            else if (ObjectInfo.Name.Equals("_c.pol", StringComparison.OrdinalIgnoreCase))
+            {
+                bounds = new Bounds
+                {
+                    center = new Vector3(0f, -0.2f, -0.5f),
+                    size = new Vector3(3.5f, 0.5f, 6f),
+                };
+            }
             
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
