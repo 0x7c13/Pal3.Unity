@@ -55,25 +55,31 @@ namespace Pal3.Renderer
 
         public Bounds GetRendererBounds()
         {
-            var bounds = new Bounds(transform.position, Vector3.one);
-
-            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            var renderers = GetComponentsInChildren<StaticMeshRenderer>();
+            if (renderers.Length == 0)
             {
-                bounds.Encapsulate(meshRenderer.GetRendererBounds());
+                return new Bounds(transform.position, Vector3.one);
             }
-
+            Bounds bounds = renderers[0].GetRendererBounds();
+            for (var i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].GetRendererBounds());
+            }
             return bounds;
         }
 
         public Bounds GetMeshBounds()
         {
-            var bounds = new Bounds(Vector3.zero, Vector3.one);
-
-            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            var renderers = GetComponentsInChildren<StaticMeshRenderer>();
+            if (renderers.Length == 0)
             {
-                bounds.Encapsulate(meshRenderer.GetMeshBounds());
+                return new Bounds(Vector3.zero, Vector3.one);
             }
-
+            Bounds bounds = renderers[0].GetMeshBounds();
+            for (var i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].GetMeshBounds());
+            }
             return bounds;
         }
 

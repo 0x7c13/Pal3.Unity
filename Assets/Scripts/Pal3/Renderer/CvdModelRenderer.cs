@@ -81,16 +81,25 @@ namespace Pal3.Renderer
 
         public Bounds GetRendererBounds()
         {
+            var boundsInitialized = false;
             var bounds = new Bounds(transform.position, Vector3.one);
 
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
-                if (node.IsGeometryNode)
+                if (!node.IsGeometryNode) continue;
+                
+                foreach(RenderMeshComponent meshComponent in meshComponents.Values)
                 {
-                    foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                    Bounds rendererBounds = meshComponent.MeshRenderer.GetRendererBounds();
+                    if (!boundsInitialized)
                     {
-                        bounds.Encapsulate(meshComponent.MeshRenderer.GetRendererBounds());
-                    }   
+                        bounds = rendererBounds;
+                        boundsInitialized = true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(rendererBounds);   
+                    }
                 }
             }
 
@@ -99,19 +108,28 @@ namespace Pal3.Renderer
         
         public Bounds GetMeshBounds()
         {
+            var boundsInitialized = false;
             var bounds = new Bounds(Vector3.zero, Vector3.one);
-        
+
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
-                if (node.IsGeometryNode)
+                if (!node.IsGeometryNode) continue;
+                
+                foreach(RenderMeshComponent meshComponent in meshComponents.Values)
                 {
-                    foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                    Bounds meshBounds = meshComponent.MeshRenderer.GetMeshBounds();
+                    if (!boundsInitialized)
                     {
-                        bounds.Encapsulate(meshComponent.MeshRenderer.GetMeshBounds());
-                    }   
+                        bounds = meshBounds;
+                        boundsInitialized = true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(meshBounds);   
+                    }
                 }
             }
-        
+
             return bounds;
         }
         

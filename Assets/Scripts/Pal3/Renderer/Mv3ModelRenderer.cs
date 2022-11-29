@@ -267,25 +267,29 @@ namespace Pal3.Renderer
 
         public Bounds GetRendererBounds()
         {
-            var bounds = new Bounds(transform.position, Vector3.one);
-
-            foreach (RenderMeshComponent meshComponent in _renderMeshComponents)
+            if (_renderMeshComponents.Length == 0)
             {
-                bounds.Encapsulate(meshComponent.MeshRenderer.GetRendererBounds());
+                return new Bounds(transform.position, Vector3.one);
             }
-
+            Bounds bounds = _renderMeshComponents[0].MeshRenderer.GetRendererBounds();
+            for (var i = 1; i < _renderMeshComponents.Length; i++)
+            {
+                bounds.Encapsulate(_renderMeshComponents[i].MeshRenderer.GetRendererBounds());
+            }
             return bounds;
         }
         
         public Bounds GetMeshBounds()
         {
-            var bounds = new Bounds(Vector3.zero, Vector3.one);
-        
-            foreach (RenderMeshComponent meshComponent in _renderMeshComponents)
+            if (_renderMeshComponents.Length == 0)
             {
-                bounds.Encapsulate(meshComponent.MeshRenderer.GetMeshBounds());
+                return new Bounds(Vector3.zero, Vector3.one);
             }
-
+            Bounds bounds = _renderMeshComponents[0].MeshRenderer.GetMeshBounds();
+            for (var i = 1; i < _renderMeshComponents.Length; i++)
+            {
+                bounds.Encapsulate(_renderMeshComponents[i].MeshRenderer.GetMeshBounds());
+            }
             return bounds;
         }
         
