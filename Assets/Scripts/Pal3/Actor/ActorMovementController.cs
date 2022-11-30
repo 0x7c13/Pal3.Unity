@@ -31,6 +31,18 @@ namespace Pal3.Actor
         Completed,
     }
 
+    internal class ActiveColliderInfo
+    {
+        public Collider Collider;
+        public Vector3 ActorPositionWhenCollisionEnter;
+    }
+    
+    internal class ActiveStandingPlatformInfo
+    {
+        public StandingPlatformController Platform;
+        public Vector3 PlatformLastKnownPosition;
+    }
+
     public class ActorMovementController : MonoBehaviour,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorSetWorldPositionCommand>,
@@ -60,12 +72,8 @@ namespace Pal3.Actor
         private WaitUntilCanceled _movementWaiter;
         private CancellationTokenSource _movementCts = new ();
 
-        private HashSet<Collider> _activeColliders = new ();
-        private Vector3 _lastKnownValidPositionWhenCollisionEnter;
-
-        private bool _isNearOrOnTopOfPlatform;
-        private Vector3 _activeStandingPlatformLastKnownPosition;
-        private StandingPlatformController _activeStandingPlatform;
+        private readonly HashSet<ActiveColliderInfo> _activeColliders = new ();
+        private readonly HashSet<ActiveStandingPlatformInfo> _activeStandingPlatforms = new ();
 
         private Func<int, int[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
 
@@ -131,6 +139,55 @@ namespace Pal3.Actor
         {
             return _activeColliders.Count > 0;
         }
+
+        private bool IsNearOrOnTopOfPlatform()
+        {
+            return _activeStandingPlatforms.Count > 0;
+        }
+
+        private bool TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo)
+        {
+            platformInfo = null;
+            var distance = float.MaxValue;
+            
+            foreach (ActiveStandingPlatformInfo info in _activeStandingPlatforms)
+            {
+                if (info.Platform == null)
+                {
+                    continue; // In case the platform is destroyed
+                }
+
+                var distanceToPlatformCenter = Vector3.Distance(
+                    info.Platform.GetCollider().bounds.center, transform.position);
+                
+                if (distanceToPlatformCenter < distance)
+                {
+                    distance = distanceToPlatformCenter;
+                    platformInfo = info;
+                }
+            }
+            
+            return platformInfo != null;
+        }
+
+        private Vector3 GetNearestLastKnownPositionWhenCollisionEnter()
+        {
+            Vector3 nearestPosition = transform.position;
+            float distance = float.MaxValue;
+
+            foreach (var colliderInfo in _activeColliders)
+            {
+                var distanceToLastKnownPosition = Vector3.Distance(
+                    colliderInfo.ActorPositionWhenCollisionEnter, transform.position);
+                if (distanceToLastKnownPosition < distance)
+                {
+                    distance = distanceToLastKnownPosition;
+                    nearestPosition = colliderInfo.ActorPositionWhenCollisionEnter;
+                }
+            }
+
+            return nearestPosition;
+        }
         
         public bool IsMovementInProgress()
         {
@@ -191,44 +248,55 @@ namespace Pal3.Actor
         private void LateUpdate()
         {
             // To sync with the platform movement
-            if (_isNearOrOnTopOfPlatform &&
-                _activeStandingPlatform != null &&
-                _activeStandingPlatform.gameObject.transform.position != _activeStandingPlatformLastKnownPosition)
+            if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(
+                    out ActiveStandingPlatformInfo platformInfo))
             {
-                var currentPlatformPosition = _activeStandingPlatform.gameObject.transform.position;
-                transform.position += currentPlatformPosition -
-                                      _activeStandingPlatformLastKnownPosition;
-                
-                _activeStandingPlatformLastKnownPosition = currentPlatformPosition;
+                Vector3 currentPlatformPosition = platformInfo.Platform.gameObject.transform.position;
+
+                if (currentPlatformPosition != platformInfo.PlatformLastKnownPosition)
+                {
+                    transform.position += currentPlatformPosition - platformInfo.PlatformLastKnownPosition;
+                    platformInfo.PlatformLastKnownPosition = currentPlatformPosition;
+                }
             }
         }
 
         private void FixedUpdate()
         {
+            // Sanity cleanup
+            if (_activeColliders.Count > 0)
+            {
+                _activeColliders.RemoveWhere(_ => _.Collider == null);
+            }
+            
+            // Sanity cleanup
+            if (_activeStandingPlatforms.Count > 0)
+            {
+                _activeStandingPlatforms.RemoveWhere(_ => _.Platform == null);   
+            }
+
             // To prevent actor from bouncing into un-walkable tile position,
             // we need to reset its position during the collision.
             // Also we need to adjust Y position based on tile information
             // during the collision since we are locking Y movement for the
             // player actor's rigidbody.
-            if (!IsDuringCollision()) return;
-            Rigidbody rigidBody = _actionController.GetRigidBody();
-            if (rigidBody != null && !rigidBody.isKinematic)
+            if (IsDuringCollision() && _actionController.GetRigidBody() is { isKinematic: false } _)
             {
                 Vector3 currentPosition = transform.position;
 
-                if (_isNearOrOnTopOfPlatform)
-                { 
+                if (IsNearOrOnTopOfPlatform())
+                {
                     // Do nothing.
                 }
                 else if (!_tilemap.TryGetTile(currentPosition, _currentLayerIndex, out NavTile tile))
                 {
-                    transform.position = _lastKnownValidPositionWhenCollisionEnter;
+                    transform.position = GetNearestLastKnownPositionWhenCollisionEnter();
                 }
                 else
                 {
                     if (!tile.IsWalkable())
                     {
-                        transform.position = _lastKnownValidPositionWhenCollisionEnter;
+                        transform.position = GetNearestLastKnownPositionWhenCollisionEnter();
                     }
                     else
                     {
@@ -243,33 +311,38 @@ namespace Pal3.Actor
 
         private void OnCollisionEnter(Collision collision)
         {
-            _activeColliders.Add(collision.collider);
-
             Vector3 currentActorPosition = transform.position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
 
-            if (_isNearOrOnTopOfPlatform)
+            Vector3 actorPosition;
+            if (IsNearOrOnTopOfPlatform())
             {
-                _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
+                actorPosition = currentActorPosition;
             }
             else if (_tilemap.TryGetTile(currentActorPosition, _currentLayerIndex, out NavTile tile) && tile.IsWalkable())
             {
-                _lastKnownValidPositionWhenCollisionEnter = currentActorPosition;
+                actorPosition = currentActorPosition;
             }
             else
             {
-                _lastKnownValidPositionWhenCollisionEnter = 
+                actorPosition = 
                     _tilemap.TryGetAdjacentWalkableTile(currentTilePosition,
                         _currentLayerIndex,
                         out Vector2Int nearestWalkableTilePosition) 
                         ? _tilemap.GetWorldPosition(nearestWalkableTilePosition, _currentLayerIndex)
                         : currentActorPosition; // Highly unlikely to happen, but this is the best effort
             }
+            
+            _activeColliders.Add(new ActiveColliderInfo()
+            {
+                Collider = collision.collider,
+                ActorPositionWhenCollisionEnter = actorPosition
+            });
         }
 
         private void OnCollisionExit(Collision collision)
         {
-            _activeColliders.Remove(collision.collider);
+            _activeColliders.RemoveWhere(_ => _.Collider == collision.collider);
 
             if (_actionController.GetRigidBody() is { isKinematic: false } actorRigidbody)
             {
@@ -281,26 +354,31 @@ namespace Pal3.Actor
         {
             if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
-                _isNearOrOnTopOfPlatform = true;
-                _activeStandingPlatform = standingPlatformController;
-                _activeStandingPlatformLastKnownPosition = triggerCollider.gameObject.transform.position;
-                
-                // Move the actor to the platform surface
-                Vector3 currentPosition = transform.position;
-                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
-                if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                _activeStandingPlatforms.Add(new ActiveStandingPlatformInfo()
+                    {
+                        Platform = standingPlatformController,
+                        PlatformLastKnownPosition = triggerCollider.gameObject.transform.position
+                    });
+
+                if (TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo) &&
+                    platformInfo.Platform == standingPlatformController)
                 {
-                    transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);   
+                    // Move the actor to the platform surface
+                    Vector3 currentPosition = transform.position;
+                    var targetYPosition = standingPlatformController.GetPlatformHeight();
+                    if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                    {
+                        transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);   
+                    }   
                 }
             }
         }
 
         private void OnTriggerExit(Collider triggerCollider)
         {
-            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController &&
-                standingPlatformController == _activeStandingPlatform)
+            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
-                _isNearOrOnTopOfPlatform = false;
+                _activeStandingPlatforms.RemoveWhere(_ => _.Platform == standingPlatformController);
             }
         }
 
@@ -348,16 +426,17 @@ namespace Pal3.Actor
             }
         }
 
-        public void MoveToTapPoint(Dictionary<int, Vector3> tapPoints, bool isDoubleTap)
+        public void MoveToTapPoint(Dictionary<int, (Vector3 point, bool isPlatform)> tapPoints, bool isDoubleTap)
         {
             Vector3 targetPosition = Vector3.zero;
             var targetPositionFound = false;
             if (tapPoints.ContainsKey(_currentLayerIndex))
             {
-                if (_tilemap.TryGetTile(tapPoints[_currentLayerIndex], _currentLayerIndex, out NavTile tile) &&
-                    tile.IsWalkable())
+                if (tapPoints[_currentLayerIndex].isPlatform ||
+                    (_tilemap.TryGetTile(tapPoints[_currentLayerIndex].point, _currentLayerIndex, out NavTile tile) &&
+                    tile.IsWalkable()))
                 {
-                    targetPosition = tapPoints[_currentLayerIndex];
+                    targetPosition = tapPoints[_currentLayerIndex].point;
                     targetPositionFound = true;
                 }
             }
@@ -367,13 +446,13 @@ namespace Pal3.Actor
                 nextLayer < _tilemap.GetLayerCount() &&
                 tapPoints.ContainsKey(nextLayer))
             {
-                targetPosition = tapPoints[nextLayer];
+                targetPosition = tapPoints[nextLayer].point;
                 targetPositionFound = true;
             }
 
             if (!targetPositionFound)
             {
-                targetPosition = tapPoints.First().Value;
+                targetPosition = tapPoints.First().Value.point;
             }
 
             var moveMode = isDoubleTap ? 1 : 0;
@@ -470,14 +549,11 @@ namespace Pal3.Actor
 
         private bool IsNewPositionInsideCollisionCollider(Vector3 currentPosition, Vector3 newPosition)
         {
-            bool hasDestroyedCollider = false;
-            
             // Check if actor is running into any of the active collision colliders
-            foreach (Collider currentCollider in _activeColliders)
+            foreach (ActiveColliderInfo colliderInfo in _activeColliders)
             {
-                if (currentCollider == null)
+                if (colliderInfo.Collider == null)
                 {
-                    hasDestroyedCollider = true;
                     continue; // In case the collider is destroyed
                 }
 
@@ -489,17 +565,12 @@ namespace Pal3.Actor
 
                 if (_actionController.GetCollider() is { } capsuleCollider)
                 {
-                    if (Utility.IsPointWithinCollider(currentCollider,
+                    if (Utility.IsPointWithinCollider(colliderInfo.Collider,
                             toCenterPosition + movingDirection * capsuleCollider.radius))
                     {
                         return true;
                     }
                 }   
-            }
-
-            if (hasDestroyedCollider)
-            {
-                _activeColliders = _activeColliders.Where(_ => _ != null).ToHashSet();
             }
             
             return false;
@@ -510,12 +581,12 @@ namespace Pal3.Actor
             newYPosition = 0f;
 
             // Check if actor is on top of a platform
-            if (_isNearOrOnTopOfPlatform && _activeStandingPlatform != null)
+            if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo))
             {
-                var targetYPosition = _activeStandingPlatform.GetPlatformHeight();
+                var targetYPosition = platformInfo.Platform.GetPlatformHeight();
                 
                 // Make sure actor is on top of the platform
-                if (Utility.IsPointWithinCollider(_activeStandingPlatform.GetCollider(),
+                if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
                         new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
                     Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
                 {
@@ -718,14 +789,18 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             
-            Vector2Int tilePosition = _tilemap.GetTilePosition(new Vector3(command.XPosition, 0f, command.ZPosition), _currentLayerIndex);
+            Vector2Int tilePosition = _tilemap.GetTilePosition(
+                new Vector3(command.XPosition, 0f, command.ZPosition), _currentLayerIndex);
+
             if (_tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex))
             {
                 Execute(new ActorSetTilePositionCommand(command.ActorId, tilePosition.x, tilePosition.y));
             }
             else // Try next layer
             {
-                tilePosition = _tilemap.GetTilePosition(new Vector3(command.XPosition, 0f, command.ZPosition), (_currentLayerIndex + 1) % 2);
+                tilePosition = _tilemap.GetTilePosition(
+                    new Vector3(command.XPosition, 0f, command.ZPosition), (_currentLayerIndex + 1) % 2);
+
                 if (_tilemap.IsTilePositionInsideTileMap(tilePosition, (_currentLayerIndex + 1) % 2))
                 {
                     Execute(new ActorSetTilePositionCommand(command.ActorId, tilePosition.x, tilePosition.y));
@@ -840,8 +915,7 @@ namespace Pal3.Actor
                 _currentPath.Clear();
                 
                 _activeColliders.Clear();
-                _isNearOrOnTopOfPlatform = false;
-                _activeStandingPlatform = null;
+                _activeStandingPlatforms.Clear();
             }
         }
     }

@@ -560,7 +560,7 @@ namespace Pal3.Player
 
         // Raycast caches to avoid GC
         private readonly RaycastHit[] _raycastHits = new RaycastHit[4];
-        private readonly Dictionary<int, Vector3> _tapPoints = new ();
+        private readonly Dictionary<int, (Vector3 point, bool isPlatform)> _tapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
         {
             if (!_lastInputTapPosition.HasValue) return;
@@ -579,6 +579,14 @@ namespace Pal3.Player
             for (var i = 0; i < hitCount; i++)
             {
                 RaycastHit hit = _raycastHits[i];
+                
+                if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { }
+                        standingPlatformController)
+                {
+                    _tapPoints[standingPlatformController.LayerIndex] = (hit.point, true);
+                    continue;
+                }
+                
                 var layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
                 
                 if (!tilemap.TryGetTile(hit.point, layerIndex, out NavTile _))
@@ -591,15 +599,15 @@ namespace Pal3.Player
 
                 if (_tapPoints.ContainsKey(layerIndex))
                 {
-                    var existingDistance = Vector3.Distance(cameraPosition, _tapPoints[layerIndex]);
+                    var existingDistance = Vector3.Distance(cameraPosition, _tapPoints[layerIndex].point);
                     if (distanceToCamera < existingDistance)
                     {
-                        _tapPoints[layerIndex] = hit.point;
+                        _tapPoints[layerIndex] = (hit.point, false);
                     }
                 }
                 else
                 {
-                    _tapPoints[layerIndex] = hit.point;
+                    _tapPoints[layerIndex] = (hit.point, false);
                 }
             }
 
