@@ -7,10 +7,16 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(200, "???")]
-    public class UnknownCommand200 : ICommand
+    [SceCommand(182, "取出五灵轮当前使用次数并赋值给变量，" +
+                     "参数：变量名")]
+    public class ScriptGetWuLingLunUsageCountCommand : ICommand
     {
-        public UnknownCommand200() { }
+        public ScriptGetWuLingLunUsageCountCommand(int variable)
+        {
+            Variable = variable;
+        }
+
+        public int Variable { get; }
     }
     #endif
 }

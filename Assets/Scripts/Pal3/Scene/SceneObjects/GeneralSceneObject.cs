@@ -14,7 +14,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.Elevator)]
     [ScnSceneObject(ScnSceneObjectType.ElevatorPedal)]
     [ScnSceneObject(ScnSceneObjectType.RotatingStoneBeam)]
     [ScnSceneObject(ScnSceneObjectType.EyeBall)]

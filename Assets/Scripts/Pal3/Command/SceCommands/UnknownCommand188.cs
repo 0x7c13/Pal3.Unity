@@ -7,7 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(188, "???")]
+    [SceCommand(188, "设置相机看向固定点???")]
     public class UnknownCommand188 : ICommand
     {
         public UnknownCommand188(float unknown1,

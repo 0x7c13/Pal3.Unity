@@ -8,40 +8,40 @@ namespace Pal3.Command.SceCommands
     #if PAL3
     [AvailableInConsole]
     [SceCommand(117, "旋转整个场景，" +
-                    "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
+                    "参数：原GameBox坐标系下的X轴旋转角度, Y轴旋转角度, Z轴旋转角度")]
     public class SceneRotateWorldCommand : ICommand
     {
-        public SceneRotateWorldCommand(int gameBoxXPosition, int gameBoxYPosition, int gameBoxZPosition)
+        public SceneRotateWorldCommand(int xDegrees, int yDegrees, int zDegrees)
         {
-            GameBoxXPosition = gameBoxXPosition;
-            GameBoxYPosition = gameBoxYPosition;
-            GameBoxZPosition = gameBoxZPosition;
+            XDegrees = xDegrees;
+            YDegrees = yDegrees;
+            ZDegrees = zDegrees;
         }
 
-        public int GameBoxXPosition { get; }
-        public int GameBoxYPosition { get; }
-        public int GameBoxZPosition { get; }
+        public int XDegrees { get; }
+        public int YDegrees { get; }
+        public int ZDegrees { get; }
     }
     #elif PAL3A
     [AvailableInConsole]
     [SceCommand(117, "旋转整个场景，" +
-                     "参数：X，Y，Z")]
+                     "参数：原GameBox坐标系下的X轴旋转角度, Y轴旋转角度, Z轴旋转角度，动画时间，旋转正反向")]
     public class SceneRotateWorldCommand : ICommand
     {
-        public SceneRotateWorldCommand(int unknown1, int unknown2, int gameBoxXPosition, int gameBoxYPosition, int gameBoxZPosition)
+        public SceneRotateWorldCommand(int xDegrees, int yDegrees, int zDegrees, int duration, int inverse)
         {
-            Unknown1 = unknown1;
-            Unknown2 = unknown2;
-            GameBoxXPosition = gameBoxXPosition;
-            GameBoxYPosition = gameBoxYPosition;
-            GameBoxZPosition = gameBoxZPosition;
+            XDegrees = xDegrees;
+            YDegrees = yDegrees;
+            ZDegrees = zDegrees;
+            Duration = duration;
+            Inverse = inverse;
         }
 
-        public int Unknown1 { get; }
-        public int Unknown2 { get; }
-        public int GameBoxXPosition { get; }
-        public int GameBoxYPosition { get; }
-        public int GameBoxZPosition { get; }
+        public int XDegrees { get; }
+        public int YDegrees { get; }
+        public int ZDegrees { get; }
+        public int Duration { get; }
+        public int Inverse { get; }
     }
     #endif
 }

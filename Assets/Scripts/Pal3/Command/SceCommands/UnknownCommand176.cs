@@ -7,7 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(176, "???")]
+    [SceCommand(176, "南宫煌开启摄灵法阵")]
     public class UnknownCommand176 : ICommand
     {
         public UnknownCommand176(

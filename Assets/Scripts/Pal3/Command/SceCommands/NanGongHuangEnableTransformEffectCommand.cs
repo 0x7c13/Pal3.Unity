@@ -7,16 +7,10 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(182, "???")]
-    public class UnknownCommand182 : ICommand
+    [SceCommand(199, "开启南宫煌身体异常时（快要变身）的特效")]
+    public class NanGongHuangEnableTransformEffectCommand : ICommand
     {
-        public UnknownCommand182(
-            string unknown)
-        {
-            Unknown = unknown;
-        }
-
-        public string Unknown { get; }
+        public NanGongHuangEnableTransformEffectCommand() { }
     }
     #endif
 }

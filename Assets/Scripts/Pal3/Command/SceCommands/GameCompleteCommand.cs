@@ -7,10 +7,10 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(194, "PAL3游戏结束的最后一个指令")]
-    public class UnknownCommand194 : ICommand
+    [SceCommand(194, "PAL3A游戏结束的最后一个指令，标示游戏通关")]
+    public class GameCompleteCommand : ICommand
     {
-        public UnknownCommand194() { }
+        public GameCompleteCommand() { }
     }
     #endif
 }

@@ -7,17 +7,17 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(197, "???")]
+    [SceCommand(197, "设置风雅颂宿主角色ID？")]
     public class UnknownCommand197 : ICommand
     {
-        public UnknownCommand197(int unknown1, int unknown2)
+        public UnknownCommand197(int actorId, int enable)
         {
-            Unknown1 = unknown1;
-            Unknown2 = unknown2;
+            ActorId = actorId;
+            Enable = enable;
         }
 
-        public int Unknown1 { get; }
-        public int Unknown2 { get; }
+        public int ActorId { get; }
+        public int Enable { get; }
     }
     #endif
 }

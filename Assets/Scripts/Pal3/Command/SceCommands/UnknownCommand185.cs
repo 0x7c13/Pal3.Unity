@@ -7,7 +7,7 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(185, "PAL3A算命UI???")]
+    [SceCommand(185, "PAL3A打开算命小游戏UI")]
     public class UnknownCommand185 : ICommand
     {
         public UnknownCommand185(int unknown1,

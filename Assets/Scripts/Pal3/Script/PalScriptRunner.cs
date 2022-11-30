@@ -56,6 +56,8 @@ namespace Pal3.Script
         ICommandExecutor<ScriptVarSetLeastFavorableActorIdCommand>,
         #if PAL3
         ICommandExecutor<MiniGameGetAppraisalsResultCommand>,
+        #elif PAL3A
+        ICommandExecutor<ScriptGetWuLingLunUsageCountCommand>,
         #endif
         ICommandExecutor<ScriptVarGetCombatResultCommand>
     {
@@ -444,6 +446,17 @@ namespace Pal3.Script
             var leastFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetLeastFavorableActorId();
             SetVariableValue(command.Variable, leastFavorableActorId);
         }
+        
+        // TODO: Impl
+        #if PAL3A
+        public void Execute(ScriptGetWuLingLunUsageCountCommand command)
+        {
+            if (!_isExecuting) return;
+            var rand = Random.Range(0f, 1f);
+            var usageCount = rand > 0.35f ? 360 : 0;
+            SetVariableValue(command.Variable, usageCount);
+        }
+        #endif
 
         // TODO: Impl
         public void Execute(ScriptVarGetCombatResultCommand command)

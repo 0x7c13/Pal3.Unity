@@ -31,11 +31,13 @@ namespace Pal3.Scene.SceneObjects
         private PedalSwitchObjectController _objectController;
         
         private readonly PlayerManager _playerManager;
+        private readonly GameStateManager _gameStateManager;
 
         public PedalSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
         }
         
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -84,8 +86,11 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlatformTriggerEntered(object sender, Collider collider)
         {
+            // Prevent duplicate triggers
+            if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
+            
             if (!IsInteractableBasedOnTimesCount()) return;
-            if (ObjectInfo.SwitchState == 1) return;
+
             ToggleSwitchState();
             
             // Check if the player actor is on the platform
@@ -133,11 +138,11 @@ namespace Pal3.Scene.SceneObjects
         {
             GameObject pedalSwitchGo = _object.GetGameObject();
             var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
-            Vector3 platformPosition = platformController.transform.position;
+            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
             var actorStandingPosition = new Vector3(
-                platformPosition.x,
+                platformCenterPosition.x,
                 platformController.GetPlatformHeight(),
-                platformPosition.z);
+                platformCenterPosition.z);
             
             var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
             yield return movementController.MoveDirectlyTo(actorStandingPosition, 0);
