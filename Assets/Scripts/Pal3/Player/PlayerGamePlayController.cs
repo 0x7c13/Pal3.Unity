@@ -432,9 +432,6 @@ namespace Pal3.Player
             {
                 SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectId);
 
-                if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.Climbable &&
-                    sceneObject.ObjectInfo.LayerIndex != currentLayerIndex) continue;
-
                 Vector3 closetPointOnObject = sceneObject.GetRendererBounds().ClosestPoint(actorCenterPosition);
                 float distanceToActor = Vector3.Distance(actorCenterPosition, closetPointOnObject);
                 Vector3 actorToObjectFacing = closetPointOnObject - actorCenterPosition;

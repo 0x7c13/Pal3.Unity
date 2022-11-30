@@ -5,10 +5,12 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using Common;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
     public class SwordBridgeObject : SceneObject
@@ -26,13 +28,17 @@ namespace Pal3.Scene.SceneObjects
             
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             
-            // _t.pol
-            var bounds = new Bounds
-            {
-                center = new Vector3(0f, -0.4f, -7.5f),
-                size = new Vector3(6f, 1f, 14.5f),
-            };
+            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
             
+            if (ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
+            {
+                bounds = new Bounds
+                {
+                    center = new Vector3(0f, -0.4f, -7.5f),
+                    size = new Vector3(6f, 1f, 14.5f),
+                };
+            }
+
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             

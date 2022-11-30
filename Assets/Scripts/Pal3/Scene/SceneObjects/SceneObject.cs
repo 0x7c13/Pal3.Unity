@@ -325,6 +325,12 @@ namespace Pal3.Scene.SceneObjects
             }
             return false;
         }
+
+        internal void ChangeAndSaveNavLayerIndex(byte layerIndex)
+        {
+            ObjectInfo.LayerIndex = layerIndex;
+            // TODO: Save state
+        }
         #endregion
     }
 }

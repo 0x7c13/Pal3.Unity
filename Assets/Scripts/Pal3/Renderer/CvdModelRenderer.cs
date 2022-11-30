@@ -389,8 +389,7 @@ namespace Pal3.Renderer
             Action onFinished)
         {
             if (timeScale == 0f ||
-                durationPercentage <= 0f ||
-                durationPercentage > 1f ||
+                durationPercentage is <= 0f or > 1f ||
                 _animationDuration < Mathf.Epsilon ||
                 _renderers.Count == 0)
             {

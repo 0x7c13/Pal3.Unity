@@ -89,14 +89,14 @@ namespace Pal3.Scene.SceneObjects
             // Prevent duplicate triggers
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             
-            if (!IsInteractableBasedOnTimesCount()) return;
-
-            ToggleSwitchState();
-            
             // Check if the player actor is on the platform
             if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
             {
+                if (!IsInteractableBasedOnTimesCount()) return;
+
+                ToggleSwitchState();
+                
                 _objectController.Interact(collider.gameObject);
             }
         }

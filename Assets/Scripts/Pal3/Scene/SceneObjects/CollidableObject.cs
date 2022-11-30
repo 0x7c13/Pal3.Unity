@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 _object.ChangeLinkedObjectActivationStateIfAny(true);
                 _object.ExecuteScriptIfAny();
-                SetupCollider(); // reset collider since bounds may change after animation
+                SetupCollider(); // Reset collider since bounds may change after animation
             });
         }
         

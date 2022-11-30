@@ -19,6 +19,7 @@ namespace Pal3.Scene.SceneObjects
     public class SwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
+        
         private SceneObjectMeshCollider _meshCollider;
         
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

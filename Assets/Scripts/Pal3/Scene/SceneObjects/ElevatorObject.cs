@@ -27,7 +27,8 @@ namespace Pal3.Scene.SceneObjects
         
         private ElevatorObjectController _objectController;
         private TilemapAutoTriggerController _triggerController;
-        private GameStateManager _gameStateManager;
+        
+        private readonly GameStateManager _gameStateManager;
 
         public ElevatorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)

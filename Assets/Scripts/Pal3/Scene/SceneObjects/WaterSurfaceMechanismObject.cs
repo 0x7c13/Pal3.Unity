@@ -22,8 +22,9 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.WaterSurfaceMechanism)]
     public class WaterSurfaceMechanismObject : SceneObject
     {
-        private SceneManager _sceneManager;
         private WaterSurfaceMechanismObjectController _objectController;
+     
+        private readonly SceneManager _sceneManager;
         
         public WaterSurfaceMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
