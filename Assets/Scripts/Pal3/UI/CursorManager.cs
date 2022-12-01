@@ -17,7 +17,7 @@ namespace Pal3.UI
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
         private Texture2D _cursorTextureNormal;
-        
+
         public void Init(GameResourceProvider gameResourceProvider)
         {
             gameResourceProvider = gameResourceProvider ?? throw new ArgumentNullException(nameof(gameResourceProvider));

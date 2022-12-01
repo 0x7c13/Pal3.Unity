@@ -40,7 +40,7 @@ namespace Pal3.UI
         private GameObject _bigMapRegionButtonPrefab;
 
         private bool _isVisible;
-        
+
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
 
@@ -99,7 +99,7 @@ namespace Pal3.UI
         {
             return _isVisible;
         }
-        
+
         public Dictionary<int, int> GetRegionEnablementInfo()
         {
             return _regionEnablementInfo;
@@ -108,7 +108,7 @@ namespace Pal3.UI
         private void ToggleBigMap()
         {
             if (_sceneManager.GetCurrentScene() == null) return;
-            
+
             if (_isVisible)
             {
                 Hide();
@@ -201,7 +201,7 @@ namespace Pal3.UI
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
             _isVisible = false;
-            
+
             foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();

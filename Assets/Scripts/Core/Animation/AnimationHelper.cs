@@ -57,7 +57,7 @@ namespace Core.Animation
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                onValueChanged?.Invoke(to);   
+                onValueChanged?.Invoke(to);
             }
             yield return null;
         }
@@ -139,7 +139,7 @@ namespace Core.Animation
                 target.rotation = toRotation;
                 target.position = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
             }
-            
+
             yield return null;
         }
 

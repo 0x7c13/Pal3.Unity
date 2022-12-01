@@ -40,18 +40,18 @@ namespace Pal3.Actor
         {
             return _currentMode;
         }
-        
+
         public void Execute(LongKuiSwitchModeCommand command)
         {
             _currentMode = command.Mode;
-            
+
             _actor.ChangeName(command.Mode == 0 ?
                 ActorConstants.LongKuiHumanModeActorName :
                 ActorConstants.LongKuiGhostModeActorName);
-            
+
             if (_actor.IsActive)
             {
-                _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);   
+                _actionController.PerformAction(_actor.GetIdleAction(), overwrite: true);
             }
         }
     }

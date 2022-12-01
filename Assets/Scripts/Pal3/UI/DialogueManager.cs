@@ -99,11 +99,11 @@ namespace Pal3.UI
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
-            
+
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
             ResetUI();
-            
+
             _inputActions = inputManager.GetPlayerInputActions();
             _inputActions.Cutscene.Continue.performed += SkipDialoguePerformed;
         }
@@ -233,10 +233,10 @@ namespace Pal3.UI
             DialogueRenderActorAvatarCommand avatarCommand = null)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
-            
+
             bool isRightAligned = true;
             bool isAvatarPresented = false;
-            
+
             if (avatarCommand != null &&
                 _sceneManager.GetCurrentScene().GetActor(avatarCommand.ActorId) is { } actor &&
                 _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName) is { } avatarSprite)
@@ -258,7 +258,7 @@ namespace Pal3.UI
             }
 
             TextMeshProUGUI dialogueTextUI = GetRenderingTextUI(isAvatarPresented, isRightAligned);
-            
+
             // TODO: when trackReactionTime set to true, we should also show alert on UI
             // to let player know
 
@@ -290,7 +290,7 @@ namespace Pal3.UI
             {
                 _totalTimeUsedBeforeSkippingTheLastDialogue = timer.Elapsed.TotalSeconds;
             }
-            
+
             ResetUI();
             waitUntilCanceled.CancelWait();
             _isDialoguePresenting = false;
@@ -310,7 +310,7 @@ namespace Pal3.UI
             _avatarImageRight.color = new Color(0f, 0f, 0f, 0f);
             _avatarImageLeft.sprite = null;
             _avatarImageRight.sprite = null;
-            
+
             _dialogueSelectionButtonsCanvas.enabled = false;
 
             foreach (GameObject button in _selectionButtons)
@@ -345,7 +345,7 @@ namespace Pal3.UI
             }
 
             var formattedText = text.Replace("\\n", "\n");
-            
+
             return ReplaceStringWithPatternForEachChar(formattedText,
                 "\\i", "\\r",
                 $"<color={INFORMATION_TEXT_COLOR_HEX}>", "</color>");
@@ -429,7 +429,7 @@ namespace Pal3.UI
                     return selectionString[(selectionString.IndexOf('.') + 1)..];
                 }
             }
-            
+
             if (selectionString.Contains('、'))
             {
                 var numberStr = selectionString[..selectionString.IndexOf('、')];
@@ -448,17 +448,17 @@ namespace Pal3.UI
                     return selectionString[intStr.Length..];
                 }
             }
-            
+
             return selectionString;
         }
 
         public void Execute(DialogueAddSelectionsCommand command)
         {
             _gameStateManager.GoToState(GameState.UI);
-            
+
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            
+
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Count; i++)
             {

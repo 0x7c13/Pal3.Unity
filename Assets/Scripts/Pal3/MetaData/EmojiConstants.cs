@@ -63,7 +63,7 @@ namespace Pal3.MetaData
             { ActorEmojiType.Speechless,  3 },
             #endif
         };
-        
+
         #if PAL3
         public static readonly Dictionary<ActorEmojiType, string> EmojiSfxInfo = new()
         {

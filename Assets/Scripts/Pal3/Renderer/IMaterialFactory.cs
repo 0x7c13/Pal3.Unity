@@ -15,7 +15,7 @@ namespace Pal3.Renderer
         /// </summary>
         /// <returns>Material</returns>
         public Material CreateOpaqueSpriteMaterial();
-        
+
         /// <summary>
         /// Create a material for effect sprite without alpha channel.
         /// </summary>

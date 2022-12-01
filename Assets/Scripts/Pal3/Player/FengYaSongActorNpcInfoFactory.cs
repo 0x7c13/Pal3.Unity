@@ -26,7 +26,7 @@ namespace Pal3.Player
                 InitAction = ActorConstants.ActionNames[ActorActionType.Stand],
             };
         }
-        
+
         public static IEnumerable<ScnNpcInfo> CreateAll()
         {
             return from actorId in (FengYaSongActorId[]) Enum.GetValues(typeof(FengYaSongActorId)) select Create(actorId);

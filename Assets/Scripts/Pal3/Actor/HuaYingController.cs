@@ -57,7 +57,7 @@ namespace Pal3.Actor
         {
             return _currentMode;
         }
-        
+
         private void OnEnable()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -125,7 +125,7 @@ namespace Pal3.Actor
                     transform.position = (transform.position - myNewPosition).normalized * FOLLOW_TARGET_MAX_DISTANCE +
                                          myNewPosition;
                 }
-                
+
                 // Increase fly speed if the distance is greater than a threshold
                 var flySpeed = distanceToTarget > FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE ? MaxFlySpeed : DefaultFlySpeed;
 
@@ -158,7 +158,7 @@ namespace Pal3.Actor
             _targetActorActionController = _target.GetComponent<ActorActionController>();
             _isTargetRegistered = true;
         }
-        
+
         public void Execute(HuaYingSwitchBehaviourModeCommand command)
         {
             switch (command.Mode)

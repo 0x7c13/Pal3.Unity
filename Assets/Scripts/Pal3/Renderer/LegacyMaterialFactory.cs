@@ -31,12 +31,12 @@ namespace Pal3.Renderer
         private static readonly int WaterShadowTexPropId = Shader.PropertyToID("_ShadowTex");
         private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
         private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
-        
+
         private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
-        
+
         /// <inheritdoc/>
-        public Material CreateWaterMaterial(Texture2D mainTexture, 
-            Texture2D shadowTexture, 
+        public Material CreateWaterMaterial(Texture2D mainTexture,
+            Texture2D shadowTexture,
             float alpha)
         {
             var material = new Material(GetShader(WATER_SHADER_PATH));
@@ -85,7 +85,7 @@ namespace Pal3.Renderer
 
                 BlendMode srcFactor;
                 BlendMode destFactor;
-                
+
                 if (blendFlag == GameBoxBlendFlag.InvertColorBlend)
                 {
                     srcFactor = BlendMode.SrcAlpha;
@@ -96,7 +96,7 @@ namespace Pal3.Renderer
                     srcFactor = BlendMode.SrcAlpha;
                     destFactor = BlendMode.OneMinusSrcAlpha;
                 }
-                
+
                 materials[1].SetInt(BlendSrcFactorPropertyId, (int)srcFactor);
                 materials[1].SetInt(BlendDstFactorPropertyId, (int)destFactor);
             }
@@ -108,13 +108,13 @@ namespace Pal3.Renderer
 
             return materials;
         }
-        
+
         public void UpdateMaterial(Material material,
             Texture2D newMainTexture,
             GameBoxBlendFlag blendFlag)
         {
             material.mainTexture = newMainTexture;
-            
+
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
                 material.SetFloat(TransparentThresholdPropertyId, DEFAULT_TRANSPARENT_THRESHOLD);
@@ -124,7 +124,7 @@ namespace Pal3.Renderer
                 material.SetFloat(TransparentThresholdPropertyId, 0f);
             }
         }
-        
+
         private Material CreateTransparentMaterial(Texture2D mainTexture,
             Color tintColor,
             float transparentThreshold,
@@ -134,7 +134,7 @@ namespace Pal3.Renderer
             material.SetTexture(MainTexturePropertyId, mainTexture);
             material.SetColor(TintColorPropertyId, tintColor);
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-            
+
             // shadow texture
             material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
@@ -142,10 +142,10 @@ namespace Pal3.Renderer
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
-            
+
             return material;
         }
-        
+
         private Material CreateTransparentOpaquePartMaterial(Texture2D mainTexture,
             Color tintColor,
             float transparentThreshold,
@@ -155,7 +155,7 @@ namespace Pal3.Renderer
             material.SetTexture(MainTexturePropertyId, mainTexture);
             material.SetColor(TintColorPropertyId, tintColor);
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-            
+
             // shadow
             material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
@@ -163,10 +163,10 @@ namespace Pal3.Renderer
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
-            
+
             return material;
         }
-        
+
         private Material CreateOpaqueMaterial(Texture2D mainTexture,
             Color tintColor,
             Texture2D shadowTexture)
@@ -174,7 +174,7 @@ namespace Pal3.Renderer
             Material material = new Material(GetShader(OPAQUE_SHADER_PATH));
             material.SetTexture(MainTexturePropertyId, mainTexture);
             material.SetColor(TintColorPropertyId, tintColor);
-            
+
             // shadow
             material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture != null)
@@ -182,7 +182,7 @@ namespace Pal3.Renderer
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture);
             }
-            
+
             return material;
         }
     }

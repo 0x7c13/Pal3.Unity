@@ -23,10 +23,10 @@ namespace Core.DataReader.Gdb
 
             uint skillDataOffset = reader.ReadUInt32();
             int numOfSkills = reader.ReadInt32();
-            
+
             uint itemDataOffset = reader.ReadUInt32();
             int numOfItems = reader.ReadInt32();
-            
+
             uint comboSkillDataOffset = reader.ReadUInt32();
             int numOfComboSkills = reader.ReadInt32();
 
@@ -40,7 +40,7 @@ namespace Core.DataReader.Gdb
 
             return new GdbFile(gameItems);
         }
-        
+
         private static GameItem ReadGameItem(BinaryReader reader, int codepage)
         {
             return new GameItem
@@ -59,7 +59,7 @@ namespace Core.DataReader.Gdb
                 SpecialType = (SpecialType) reader.ReadByte(), // ----------------| 1
                 TargetRangeType = (TargetRangeType) reader.ReadByte(), // --------| 2
                 PlaceOfUseType = (PlaceOfUseType) reader.ReadByte(), // ----------| 3
-                AttributeImpactType = reader.ReadBytes(12), 
+                AttributeImpactType = reader.ReadBytes(12),
                 PaddingByte = reader.ReadByte(), // ------------------------------| ^ to complete 4-byte alignment
                 AttributeImpactValue = reader.ReadInt16Array(12),
                 FightStateImpactType = reader.ReadBytes(32),

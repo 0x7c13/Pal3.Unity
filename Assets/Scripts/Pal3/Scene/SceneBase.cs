@@ -37,7 +37,7 @@ namespace Pal3.Scene
         protected readonly Dictionary<int, Actor> Actors = new ();
 
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
-        
+
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
 
@@ -49,7 +49,7 @@ namespace Pal3.Scene
             _resourceProvider = resourceProvider;
             _sceneStateManager = sceneStateManager;
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
-            
+
             ScnFile = scnFile;
 
             InitMeshData();
@@ -75,7 +75,7 @@ namespace Pal3.Scene
                 return false;
             }
         }
-        
+
         private void InitMeshData()
         {
             var separator = CpkConstants.DirectorySeparator;
@@ -90,7 +90,7 @@ namespace Pal3.Scene
             }
 
             var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
-            
+
             ScenePolyMesh = _resourceProvider.GetPol(sceneMetadataFilePrefix + ".pol");
 
             // Only few of the scenes use CVD models, so we need to check first
@@ -98,7 +98,7 @@ namespace Pal3.Scene
             {
                 SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
             }
-            
+
             #if RTX_ON
             // Check if light file exists
             // if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
@@ -113,7 +113,7 @@ namespace Pal3.Scene
             NavFile = _resourceProvider.GetNav(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
             Tilemap = new Tilemap(NavFile);
         }
-        
+
         private void InitSceneObjectData()
         {
             foreach (ScnObjectInfo originalObjectInfo in ScnFile.ObjectInfos)

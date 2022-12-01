@@ -10,11 +10,11 @@ namespace Core.DataReader.Data
     using System.IO;
     using Extensions;
     using Utils;
-    
+
     public static class EffectDefinitionFileReader
     {
         private const int NUM_OF_EFFECTS = 1324;
-        
+
         public static void Read(byte[] data, int codepage)
         {
             #if USE_UNSAFE_BINARY_READER
@@ -50,14 +50,14 @@ namespace Core.DataReader.Data
                 effectDefinition.TextureName = unionStr;
                 effectDefinition.ParticleFileName = unionStr;
                 effectDefinition.SfxFileNamePrefix = unionStr;
-                effectDefinition.VideoFileNamePrefix = unionStr;    
+                effectDefinition.VideoFileNamePrefix = unionStr;
             }
 
             effectDefinition.FramesPerRow = reader.ReadInt32();
             effectDefinition.FramesPerColumn = reader.ReadInt32();
             effectDefinition.FrameCount = reader.ReadInt32();
             effectDefinition.FramePerSecond = reader.ReadSingle();
-            
+
             effectDefinition.InitXPosition = reader.ReadSingle();
             effectDefinition.InitYPosition = reader.ReadSingle();
             effectDefinition.InitZPosition = reader.ReadSingle();
@@ -72,15 +72,15 @@ namespace Core.DataReader.Data
             effectDefinition.InitSize = reader.ReadInt32();
             effectDefinition.InitColor = reader.ReadUInt32();
             effectDefinition.MaxQuadCount = reader.ReadInt32();
-            
+
             effectDefinition.IsValid = reader.ReadBoolean();
             effectDefinition.IsAdditiveBlend = reader.ReadBoolean();
             effectDefinition.IsBillboard = reader.ReadBoolean();
             effectDefinition.IsZTestIgnored = reader.ReadBoolean();
-            
+
             effectDefinition.InitXRotation = reader.ReadSingle();
             effectDefinition.InitZRotation = reader.ReadSingle();
-            
+
             effectDefinition.RotationAngle = reader.ReadSingle();
             effectDefinition.Width = reader.ReadSingle();
             effectDefinition.DivisionCount = reader.ReadSingle();
@@ -92,7 +92,7 @@ namespace Core.DataReader.Data
             effectDefinition.BottomRadiusIncreaseSpeed = reader.ReadSingle();
             effectDefinition.TopRiseSpeed = reader.ReadSingle();
             effectDefinition.BottomRiseSpeed = reader.ReadSingle();
-            
+
             effectDefinition.TextureRepeat = reader.ReadSingle();
 
             effectDefinition.Param = new[]

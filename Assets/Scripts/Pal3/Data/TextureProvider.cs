@@ -52,7 +52,7 @@ namespace Pal3.Data
         {
             return _relativePath + name;
         }
-            
+
         public Texture2D GetTexture(string name)
         {
             return GetTexture(name, out _);

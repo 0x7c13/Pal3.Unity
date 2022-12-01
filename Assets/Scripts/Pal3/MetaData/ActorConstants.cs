@@ -13,7 +13,7 @@ namespace Pal3.MetaData
         LeftHanded,
         RightHanded
     }
-    
+
     #if PAL3
     public enum PlayerActorId
     {
@@ -207,7 +207,7 @@ namespace Pal3.MetaData
 
         public const string MonsterIdleAction = "z0";
         public const string MonsterWalkAction = "z4";
-        
+
         #if PAL3
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
         {
@@ -235,7 +235,7 @@ namespace Pal3.MetaData
             { FengYaSongActorId.Song,  "109" },  // 颂
         };
         #endif
-        
+
         #if PAL3
         public static readonly Dictionary<string, string> MainActorWeaponMap = new()
         {
@@ -254,7 +254,7 @@ namespace Pal3.MetaData
             { "105", "WLA" },
         };
         #endif
-        
+
         //每个动作对应的.A_Q模型中的名字
         #if PAL3
         public static readonly Dictionary<ActorActionType, string> ActionNames = new()
@@ -395,7 +395,7 @@ namespace Pal3.MetaData
             { ActorActionType.NpcMagic2,         "x2" },    // 仙术2
             { ActorActionType.NpcMagic3,         "x3" },    // 仙术3
             { ActorActionType.NpcRun,            "z3" },    // 跑,用走代替
-            
+
             // 仙剑三外传新增动作
             { ActorActionType.LevelUp,          "z16"  },   // 升级
             { ActorActionType.Transform,        "z20"  },   // 变身
@@ -475,7 +475,7 @@ namespace Pal3.MetaData
             { ActorActionType.NpcMagic3,         WeaponArmType.None },    // 仙术3
             { ActorActionType.NpcRun,            WeaponArmType.None },    // 跑,用走代替
         };
-        #elif PAL3A        
+        #elif PAL3A
         public static readonly Dictionary<ActorActionType, WeaponArmType> ActionNameToWeaponArmTypeMap = new()
         {
             // 基本动作
@@ -544,7 +544,7 @@ namespace Pal3.MetaData
             { ActorActionType.NpcMagic2,         WeaponArmType.None },    // 仙术2
             { ActorActionType.NpcMagic3,         WeaponArmType.None },    // 仙术3
             { ActorActionType.NpcRun,            WeaponArmType.None },    // 跑,用走代替
-            
+
             // 仙剑三外传新增动作
             { ActorActionType.LevelUp,          WeaponArmType.None },    // 升级
             { ActorActionType.Transform,        WeaponArmType.None },    // 变身
@@ -553,7 +553,7 @@ namespace Pal3.MetaData
             { ActorActionType.Attack23,	        WeaponArmType.None },    // 扔八卦的第三段动作
         };
         #endif
-        
+
         #if PAL3
         public static readonly HashSet<ActorActionType> ActionWithoutShadow = new()
         {

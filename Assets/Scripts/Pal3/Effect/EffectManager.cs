@@ -35,7 +35,7 @@ namespace Pal3.Effect
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
         }
-        
+
         private void OnEnable()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -50,7 +50,7 @@ namespace Pal3.Effect
         {
             _effectPositionCommand = null;
         }
-        
+
         public void Execute(EffectPreLoadCommand command)
         {
             // In PAL3A, PreLoad command is always issued right before the effect is played.
@@ -59,12 +59,12 @@ namespace Pal3.Effect
             StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
             #endif
         }
-        
+
         public void Execute(EffectSetPositionCommand command)
         {
             _effectPositionCommand = command;
         }
-        
+
         public void Execute(EffectAttachToActorCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
@@ -75,7 +75,7 @@ namespace Pal3.Effect
         {
             if (_effectPositionCommand == null ||
                 _sceneManager.GetCurrentScene() is not {} currentScene) return;
-            
+
             #if PAL3A
             if (_effectPositionCommand is EffectAttachToActorCommand effectAttachToActorCommand)
             {
@@ -89,7 +89,7 @@ namespace Pal3.Effect
             {
                 Transform parent = null;
                 Vector3 localPosition = Vector3.zero;
-                
+
                 if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
                     _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
                 {
@@ -108,7 +108,7 @@ namespace Pal3.Effect
                 {
                     var vfx = (GameObject)Instantiate(vfxPrefab, parent, false);
                     vfx.name = "VFX_" + command.EffectGroupId;
-                    vfx.transform.localPosition += localPosition; 
+                    vfx.transform.localPosition += localPosition;
                 }
             }
 
@@ -157,12 +157,12 @@ namespace Pal3.Effect
             }
         }
         #endif
-        
+
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             Dispose();
         }
-        
+
         public void Execute(ResetGameStateCommand command)
         {
             Dispose();

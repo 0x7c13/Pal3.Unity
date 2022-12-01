@@ -101,7 +101,7 @@ namespace Core.DataReader.Scn
             var switchState = reader.ReadByte();
 
             var name = reader.ReadString(32, codepage);
-            
+
             var triggerType = reader.ReadByte();
             var isNonBlocking = reader.ReadByte();
             _ = reader.ReadBytes(2); // --------| ^ empty padding bytes to complete 4-byte alignment
@@ -127,7 +127,7 @@ namespace Core.DataReader.Scn
             #elif PAL3A
             var parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32);
             #endif
-            
+
             #if PAL3A
             var unknown1 = reader.ReadUInt32(); // TODO
             #endif
@@ -144,7 +144,7 @@ namespace Core.DataReader.Scn
             #if PAL3A
             var unknown2 = reader.ReadUInt32(); // TODO
             #endif
-            
+
             var scriptId = reader.ReadUInt32();
 
             var path = new ScnPath()
@@ -167,7 +167,7 @@ namespace Core.DataReader.Scn
             #if PAL3A
             var zRotation = reader.ReadSingle();
             #endif
-            
+
             var sfxName = reader.ReadString(8, codepage);
 
             var effectModelType = reader.ReadUInt32();
@@ -178,7 +178,7 @@ namespace Core.DataReader.Scn
             #if PAL3A
             var unknown3 = reader.ReadUInt32(); // TODO
             #endif
-            
+
             #if PAL3
             var reserved = reader.ReadUInt32Array(52);
             #elif PAL3A
@@ -193,7 +193,7 @@ namespace Core.DataReader.Scn
                 SwitchState = switchState,
 
                 Name = name,
-                
+
                 TriggerType = triggerType,
                 IsNonBlocking = isNonBlocking,
 
@@ -205,9 +205,9 @@ namespace Core.DataReader.Scn
                 SaveState = saveState,
                 LayerIndex = layerIndex,
                 WuLing = wuLing,
-                
+
                 Parameters = parameters,
-                
+
                 #if PAL3A
                 Unknown1 = unknown1, // TODO
                 #endif
@@ -218,13 +218,13 @@ namespace Core.DataReader.Scn
                 RequireLevel = requireLevel,
                 RequireAttackValue = requireAttackValue,
                 RequireAllMechanismsSolved = requireAllMechanismsSolved,
-                
+
                 FailedMessage = failedMessage,
-    
+
                 #if PAL3A
                 Unknown2 = unknown2, // TODO
                 #endif
-                
+
                 ScriptId = scriptId,
 
                 Path = path,
@@ -236,11 +236,11 @@ namespace Core.DataReader.Scn
                 Bounds = bounds,
 
                 XRotation = xRotation,
-                
+
                 #if PAL3A
                 ZRotation = zRotation,
                 #endif
-                
+
                 SfxName = sfxName,
                 EffectModelType = effectModelType,
 
@@ -250,7 +250,7 @@ namespace Core.DataReader.Scn
                 #if PAL3A
                 Unknown3 = unknown3, // TODO
                 #endif
-                
+
                 Reserved = reserved,
             };
         }

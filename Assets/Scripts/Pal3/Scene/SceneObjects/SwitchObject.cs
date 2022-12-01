@@ -13,7 +13,6 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Data;
     using MetaData;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Switch)]

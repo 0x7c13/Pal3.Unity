@@ -45,7 +45,7 @@ namespace Pal3.Feature
         {
             return _actorFavor;
         }
-        
+
         public int GetFavorByActor(int actorId)
         {
             return _actorFavor.ContainsKey(actorId) ?

@@ -29,7 +29,7 @@ namespace Pal3.Scene.SceneObjects
         public override GameObject Activate(GameResourceProvider gameResourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
-            
+
             GameObject sceneGameObject = base.Activate(gameResourceProvider, tintColor);
 
             // We want some random delay before playing the scene sfx
@@ -46,7 +46,7 @@ namespace Pal3.Scene.SceneObjects
                     SCENE_SFX_AUDIO_SOURCE_NAME,
                     loopCount: -1,
                     SCENE_SFX_VOLUME,
-                    startDelay, 
+                    startDelay,
                     interval));
 
             return sceneGameObject;

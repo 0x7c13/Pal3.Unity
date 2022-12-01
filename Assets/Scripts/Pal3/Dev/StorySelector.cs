@@ -46,7 +46,7 @@ namespace Pal3.Dev
 
         private uint _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
         private readonly List<string> _deferredExecutionCommands = new();
-        
+
         private readonly List<GameObject> _selectionButtons = new();
 
         private readonly Dictionary<string, string> _storySelections = new()
@@ -1950,18 +1950,18 @@ namespace Pal3.Dev
         private void HideStorySelectorOnPerformed(InputAction.CallbackContext _)
         {
             if (_sceneManager.GetCurrentScene() == null) return;
-            
+
             if (_storySelectorCanvas.interactable)
             {
                 Hide();
                 _gameStateManager.GoToState(GameState.Gameplay);
             }
         }
-        
+
         private void ToggleStorySelector()
         {
             if (_sceneManager.GetCurrentScene() == null) return;
-            
+
             if (_storySelectorCanvas.interactable)
             {
                 Hide();
@@ -1976,17 +1976,17 @@ namespace Pal3.Dev
         public void Show()
         {
             _gameStateManager.GoToState(GameState.Cutscene);
-            
+
             var hideCloseButton = _sceneManager.GetCurrentScene() == null;
-            
+
             foreach (var story in _storySelections)
             {
                 if (hideCloseButton && story.Key is "关闭" or "保存当前游戏进度") continue;
-                
+
                 #if !UNITY_STANDALONE || UNITY_EDITOR
                 if (story.Key == "退出游戏") continue;
                 #endif
-                
+
                 GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
 
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -1996,7 +1996,7 @@ namespace Pal3.Dev
                 {
                     buttonTextUI.fontStyle = FontStyles.Underline;
                 }
-                
+
                 var button = selectionButton.GetComponent<Button>();
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
@@ -2085,7 +2085,7 @@ namespace Pal3.Dev
 
             // Add main actor to the team
             _teamManager.AddActor(0);
-            
+
             _gameStateManager.GoToState(GameState.Cutscene);
         }
 
@@ -2099,24 +2099,24 @@ namespace Pal3.Dev
                 }
             }
         }
-        
+
         private void ExecuteCommandsFromSaveFile(string commands)
         {
             _informationManager.EnableNoteDisplay(false);
 
             _deferredExecutionCommands.Clear();
             _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
-            
+
             var commandsToExecute = new List<string>();
-            
+
             foreach (var command in commands.Split('\n'))
             {
                 if (string.IsNullOrEmpty(command)) continue;
-                
+
                 var arguments = new List<string>();
-                    
+
                 DebugLogConsole.FetchArgumentsFromCommand(command, arguments);
-                
+
                 // These commands should be executed after the scene script is executed
                 // to prevent unexpected behavior
                 if (arguments[0] + "Command" == nameof(ActorActivateCommand) ||
@@ -2138,7 +2138,7 @@ namespace Pal3.Dev
             {
                 DebugLogConsole.ExecuteCommand(command);
             }
-            
+
             _informationManager.EnableNoteDisplay(true);
         }
 
@@ -2168,7 +2168,7 @@ namespace Pal3.Dev
         public void Execute(ScenePostLoadingNotification command)
         {
             if (_deferredExecutionCommands.Count == 0) return;
-            
+
             if (command.SceneScriptId == ScriptConstants.InvalidScriptId)
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
@@ -2184,7 +2184,7 @@ namespace Pal3.Dev
         public void Execute(ScriptFinishedRunningNotification command)
         {
             if (_deferredExecutionCommands.Count == 0) return;
-            
+
             if (_pendingSceneScriptId != ScriptConstants.InvalidScriptId &&
                 _pendingSceneScriptId == command.ScriptId &&
                 command.ScriptType == PalScriptType.Scene)

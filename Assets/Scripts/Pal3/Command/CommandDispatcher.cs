@@ -64,7 +64,7 @@ namespace Pal3.Command
 
             // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
             var executors = _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType).ToList();
-            
+
             foreach (var commandExecutor in executors)
             {
                 if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)

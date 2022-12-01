@@ -27,7 +27,7 @@ namespace Pal3.MetaData
             { "m15", new Color(80f / 255f, 130f / 255f, 200f / 255f) },     // 月光城
         };
         #endif
-        
+
         /// <summary>
         /// This is the lighting color override for the target scene.
         /// </summary>
@@ -44,7 +44,7 @@ namespace Pal3.MetaData
         {
         };
         #endif
-        
+
         /// <summary>
         /// This is the lighting color override for the target scene.
         /// </summary>

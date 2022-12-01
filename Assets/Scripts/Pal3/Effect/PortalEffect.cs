@@ -17,7 +17,7 @@ namespace Pal3.Effect
         #elif PAL3A
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.tga";
         #endif
-        
+
         private const float PORTAL_DEFAULT_SIZE = 1.3f;
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 
@@ -31,7 +31,7 @@ namespace Pal3.Effect
                 PORTAL_BASE_TEXTURE_NAME,
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
-            
+
             Object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
             if (rayEffectPrefab != null)
             {

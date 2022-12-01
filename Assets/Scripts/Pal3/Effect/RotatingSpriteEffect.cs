@@ -25,14 +25,14 @@ namespace Pal3.Effect
             float rotationSpeed)
         {
             _rotationSpeed = rotationSpeed;
-            
+
             Texture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
 
             _root = new GameObject($"RotatingSpriteEffect_{textureName}");
             _root.transform.SetParent(transform, false);
-            
+
             _spriteRenderer = _root.AddComponent<SpriteRenderer>();
-            
+
             _spriteRenderer.sprite = Sprite.Create(texture,
                 new Rect(0, 0, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f));
@@ -40,7 +40,7 @@ namespace Pal3.Effect
             if (!hasAlphaChannel)
             {
                 _material = resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial(texture);
-                _spriteRenderer.sharedMaterial = _material;                
+                _spriteRenderer.sharedMaterial = _material;
             }
 
             Quaternion parentRotation = gameObject.transform.rotation;

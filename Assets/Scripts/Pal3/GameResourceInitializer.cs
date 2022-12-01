@@ -38,7 +38,7 @@ namespace Pal3
 
         private const string CUSTOM_GAME_FOLDER_PATH_FILE_NAME = "CustomGameFolderPath.txt";
         private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
-        
+
         private string GetCustomGameFolderPathFilePath()
         {
             return Application.persistentDataPath +
@@ -104,7 +104,7 @@ namespace Pal3
 
             // TODO: let user to choose language? Or auto-detect encoding?
             var codepage = GBK_CODE_PAGE;
-            
+
             yield return InitResource(GetGameFolderPath(), crcHash, codepage);
         }
 

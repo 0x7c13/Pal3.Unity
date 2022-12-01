@@ -34,7 +34,7 @@ namespace Pal3.Renderer
         private Color _tintColor;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
-        
+
         public void Render(PolFile polFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
@@ -44,7 +44,7 @@ namespace Pal3.Renderer
             _textureProvider = textureProvider;
             _tintColor = tintColor;
             _textureCache = BuildTextureCache(polFile, textureProvider);
-            
+
             for (var i = 0; i < polFile.Meshes.Length; i++)
             {
                 RenderMeshInternal(
@@ -145,7 +145,7 @@ namespace Pal3.Renderer
                 if (textures.Count == 1)
                 {
                     Material[] materials;
-                    
+
                     var isWaterSurface = textures[0].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
@@ -181,10 +181,10 @@ namespace Pal3.Renderer
                 else if (textures.Count >= 2)
                 {
                     Material[] materials;
-                    
+
                     var isWaterSurface = textures[1].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
-                    
+
                     if (isWaterSurface)
                     {
                         materials = new Material[1];

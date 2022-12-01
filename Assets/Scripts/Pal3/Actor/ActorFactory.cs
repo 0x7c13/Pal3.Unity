@@ -31,13 +31,13 @@ namespace Pal3.Actor
             var npcInfoPresent = actorGameObject.AddComponent<NpcInfoPresenter>();
             npcInfoPresent.npcInfo = actor.Info;
             #endif
-            
+
             #if PAL3
             var hasColliderAndRigidBody = (PlayerActorId) actor.Info.Id != PlayerActorId.HuaYing;
             #elif PAL3A
             var hasColliderAndRigidBody = (PlayerActorId) actor.Info.Id != PlayerActorId.TaoZi;
             #endif
-            
+
             var actionController = actorGameObject.AddComponent<ActorActionController>();
             actionController.Init(resourceProvider, actor, hasColliderAndRigidBody, tintColor);
 

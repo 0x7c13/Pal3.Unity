@@ -13,10 +13,10 @@ namespace Pal3.Renderer
         // Toon material uniforms
         private static readonly int CutoutPropertyId = Shader.PropertyToID("_Cutout");
         private readonly int _lightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
-        
+
         private readonly Material _toonMaterial;
         private readonly Shader _toonShader;
-        
+
         public ToonMaterialFactory()
         {
             _toonMaterial = Resources.Load<Material>("Materials/Toon");
@@ -24,8 +24,8 @@ namespace Pal3.Renderer
         }
 
         /// <inheritdoc/>
-        public Material CreateWaterMaterial(Texture2D mainTexture, 
-            Texture2D shadowTexture, 
+        public Material CreateWaterMaterial(Texture2D mainTexture,
+            Texture2D shadowTexture,
             float alpha)
         {
             Material material = new Material(_toonShader);
@@ -60,14 +60,14 @@ namespace Pal3.Renderer
                 // This is to make the shadow on actor lighter
                 materials[0].SetFloat(_lightIntensityPropertyId, -0.5f);
             }
-            
+
             return materials;
         }
-        
+
         public void UpdateMaterial(Material material, Texture2D newMainTexture, GameBoxBlendFlag blendFlag)
         {
             material.mainTexture = newMainTexture;
-            
+
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
                 material.SetFloat(CutoutPropertyId, 0.3f);
@@ -77,7 +77,7 @@ namespace Pal3.Renderer
                 material.SetFloat(CutoutPropertyId, 0f);
             }
         }
-        
+
         private Material CreateTransparentMaterial(Texture2D mainTexture)
         {
             Material material = new Material(_toonShader);
@@ -86,7 +86,7 @@ namespace Pal3.Renderer
             material.mainTexture = mainTexture;
             return material;
         }
-        
+
         private Material CreateOpaqueMaterial(Texture2D mainTexture)
         {
             Material material = new Material(_toonShader);

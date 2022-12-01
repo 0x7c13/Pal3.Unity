@@ -49,7 +49,7 @@ namespace Pal3.Audio
         // TODO: Maybe it is better to control movement sfx
         // by the player gameplay controller instead of AudioManager?
         private bool _playerMovementSfxInProgress;
-        
+
         private CancellationTokenSource _sceneAudioCts = new ();
 
         public void Init(Camera mainCamera,
@@ -102,7 +102,7 @@ namespace Pal3.Audio
             _currentMusicClipName = musicName;
             var musicFileVirtualPath = GetMusicFileVirtualPath(musicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
-            
+
             yield return PlayMusic(musicName, musicFileVirtualPath, musicFileCachePath, -1);
         }
 
@@ -145,7 +145,7 @@ namespace Pal3.Audio
                 }
             }
         }
-        
+
         // Spatial Audio
         private IEnumerator AttachSfxToGameObjectAndPlaySfx(GameObject parent,
             string sfxFilePath,
@@ -161,7 +161,7 @@ namespace Pal3.Audio
 
             yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, streamAudio: false,
                 audioClip => { sfxAudioClip = audioClip; });
-            
+
             if (parent == null ||
                 cancellationToken.IsCancellationRequested ||
                 sfxAudioClip == null) yield break;
@@ -199,7 +199,7 @@ namespace Pal3.Audio
 
             yield return PlayAudioClip(audioSource, sfxAudioClip, loopCount, interval, volume, cancellationToken);
         }
-        
+
         private IEnumerator StartWithDelay(
             float delayInSeconds,
             IEnumerator coroutine,
@@ -229,17 +229,17 @@ namespace Pal3.Audio
             int loopCount)
         {
             yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
-            
+
             AudioClip musicClip = null;
             yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, streamAudio: true,
                 audioClip => { musicClip = audioClip; });
-            
+
             // We need to check if current music clip is the same as the one we are trying to play,
             // since we are using coroutine to load and play music, there is a chance that the music
             // clip we are trying to play is not the same as the one we supposed to play.
             if (musicClip == null ||
                 !string.Equals(_currentMusicClipName, musicName, StringComparison.OrdinalIgnoreCase)) yield break;
-            
+
             yield return PlayAudioClip(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
                 new CancellationToken(false)); // Should not stop music during scene switch
         }
@@ -259,16 +259,16 @@ namespace Pal3.Audio
                 if (audioSourceParentTransform.GetComponent<AudioSource>() is { } audioSource)
                 {
                     audioSource.Stop();
-                    
+
                     if (audioSource.clip != null)
                     {
                         Destroy(audioSource.clip);
                     }
                 }
-                
+
                 Destroy(audioSourceParentTransform.gameObject);
             }
-            
+
             _playingSfxSourceNames.Clear();
         }
 
@@ -292,7 +292,7 @@ namespace Pal3.Audio
             #elif PAL3A
             var sfxName = command.SfxName.ToUpper();
             #endif
-            
+
             var loopCount = command.LoopCount;
 
             #if PAL3
@@ -349,10 +349,10 @@ namespace Pal3.Audio
             {
                 _playerMovementSfxInProgress = true;
             }
-            
+
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(StartWithDelay(request.StartDelayInSeconds, 
+            StartCoroutine(StartWithDelay(request.StartDelayInSeconds,
                 AttachSfxToGameObjectAndPlaySfx(request.Parent,
                     sfxFilePath,
                     request.AudioSourceName,
@@ -362,21 +362,21 @@ namespace Pal3.Audio
                     cancellationToken),
                 cancellationToken));
         }
-        
+
         public void Execute(StopSfxPlayingAtGameObjectRequest command)
         {
             if (command.AudioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName)
             {
                 _playerMovementSfxInProgress = false;
-            }            
-            
+            }
+
             Transform audioSourceParentTransform = command.Parent.transform.Find(command.AudioSourceName);
             if (audioSourceParentTransform == null) return;
 
             GameObject audioSourceParent = audioSourceParentTransform.gameObject;
             var audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
             if (audioSource == default) return;
-            
+
             audioSource.Stop();
             audioSource.clip = null;
 

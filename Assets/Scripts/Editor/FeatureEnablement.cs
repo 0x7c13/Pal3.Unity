@@ -16,7 +16,7 @@ namespace Editor
             SymbolsHelper.AddSymbol("RTX_ON");
             AssetDatabase.SaveAssets();
         }
-        
+
         [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Enable", true)]
         static bool ValidateEnableRealtimeLightingAndShadow()
         {
@@ -29,7 +29,7 @@ namespace Editor
             SymbolsHelper.RemoveSymbol("RTX_ON");
             AssetDatabase.SaveAssets();
         }
-        
+
         [MenuItem("Pal3/Extra Features/Realtime lighting and shadow/Disable", true)]
         static bool ValidateDisableRealtimeLightingAndShadow()
         {

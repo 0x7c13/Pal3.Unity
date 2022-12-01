@@ -25,7 +25,7 @@ namespace Pal3.MetaData
             EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_up.tga",
             EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_dn.tga",
         };
-        
+
         #if PAL3
         public static readonly List<(string cpkName, string sceneName)> SceneCpkNameInfos = new()
         {

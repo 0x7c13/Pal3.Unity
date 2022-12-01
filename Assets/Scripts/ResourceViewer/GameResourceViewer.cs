@@ -79,7 +79,7 @@ namespace ResourceViewer
             {
                 DebugLogManager.Instance.PopupEnabled = true;
             }
-            
+
             #if RTX_ON
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = Color.white;
@@ -89,7 +89,7 @@ namespace ResourceViewer
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
-            
+
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
             randomMv3Button.onClick.AddListener(RandMv3);
@@ -208,7 +208,7 @@ namespace ResourceViewer
                     textureProvider,
                     Color.white,
                     0f);
-                
+
                 meshRenderer.LoopAnimation();
 
                 consoleTextUI.text = $"{filePath}";
@@ -285,7 +285,7 @@ namespace ResourceViewer
                 return false;
             }
         }
-        
+
         #if UNITY_EDITOR
         private void DecompileAllSceScripts()
         {
@@ -299,10 +299,10 @@ namespace ResourceViewer
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
-            
+
             foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
         }
-        
+
         private void ExtractAllCpkArchives()
         {
             var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
@@ -327,14 +327,14 @@ namespace ResourceViewer
                 IsBackground = true,
                 Priority = System.Threading.ThreadPriority.Highest
             };
-            
+
             workerThread.Start();
 
             while (workerThread.IsAlive)
             {
                 yield return null;
             }
-            
+
             consoleTextUI.text = "全部CPK文件已解包完成！";
         }
         #endif
@@ -346,9 +346,9 @@ namespace ResourceViewer
             using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
 
             SceFile sceFile;
-            
+
             try
-            { 
+            {
                 sceFile = SceFileReader.Read(sceFileStream, GBK_CODE_PAGE);
             }
             catch (Exception ex)
@@ -369,13 +369,13 @@ namespace ResourceViewer
                     var currentPosition = scriptDataReader.BaseStream.Position;
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
-                    
+
                     ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
 
                     output.Append($"{currentPosition} {command.GetType().Name.Replace("Command", "")} " +
                                   $"{JsonConvert.SerializeObject(command)}\n");
                 }
-                
+
                 output.Append($"{scriptDataReader.BaseStream.Length} __END__\n");
             }
 
@@ -422,7 +422,7 @@ namespace ResourceViewer
             {
                 Destroy(child.gameObject);
             }
-            
+
             // Unloads assets that are not used (textures etc.)
             Resources.UnloadUnusedAssets();
         }

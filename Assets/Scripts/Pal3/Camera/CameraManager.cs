@@ -86,7 +86,7 @@ namespace Pal3.Camera
         private GameObject _lookAtGameObject;
 
         private int _currentAppliedDefaultTransformOption = 0;
-        
+
         private RectTransform _joyStickRect;
         private float _joyStickMovementRange;
         private bool _isTouchEnabled;
@@ -100,7 +100,7 @@ namespace Pal3.Camera
             Vector3 cameraPosition,
             Quaternion cameraRotation,
             Vector3 cameraOffset)> _cameraLastKnownSceneState = new ();
-        
+
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
             SceneManager sceneManager,
@@ -113,7 +113,7 @@ namespace Pal3.Camera
             _gamePlayController = gamePlayController != null ? gamePlayController : throw new ArgumentNullException(nameof(gamePlayController));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            
+
             _camera = mainCamera;
             _camera!.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
 
@@ -341,10 +341,10 @@ namespace Pal3.Camera
             Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
             Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
             Transform cameraTransform = _camera.transform;
-            
+
             yield return AnimationHelper.MoveTransform(cameraTransform,
                 newPosition,
-                duration, 
+                duration,
                 curveType,
                 cancellationToken);
 
@@ -375,7 +375,7 @@ namespace Pal3.Camera
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                _curtainImage.color = new Color(color.r, color.g, color.b, to);   
+                _curtainImage.color = new Color(color.r, color.g, color.b, to);
             }
 
             waiter?.CancelWait();
@@ -385,7 +385,7 @@ namespace Pal3.Camera
         {
             return _currentAppliedDefaultTransformOption;
         }
-        
+
         private void ApplySceneSettings(ScnSceneInfo sceneInfo)
         {
             switch (sceneInfo.SceneType)
@@ -427,7 +427,7 @@ namespace Pal3.Camera
             float cameraDistance;
             Quaternion cameraRotation;
             float cameraFov;
-            
+
             switch (option)
             {
                 case 0:
@@ -485,7 +485,7 @@ namespace Pal3.Camera
         public void Execute(CameraSetTransformCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             _lookAtGameObject = null;
 
             Vector3 cameraPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
@@ -502,7 +502,7 @@ namespace Pal3.Camera
 
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
             {
-                _free = false;   
+                _free = false;
             }
         }
 
@@ -517,7 +517,7 @@ namespace Pal3.Camera
         public void Execute(CameraShakeEffectCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(Shake(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
@@ -526,7 +526,7 @@ namespace Pal3.Camera
         public void Execute(CameraOrbitCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
             Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
@@ -536,7 +536,7 @@ namespace Pal3.Camera
         public void Execute(CameraRotateCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             #if PAL3
             if (true)
             #elif PAL3A
@@ -561,16 +561,16 @@ namespace Pal3.Camera
             }
             #endif
         }
-        
+
         #if PAL3A
         public void Execute(CameraOrbitHorizontalCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             var oldDistance = _cameraOffset.magnitude;
             var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             var distanceDelta = newDistance - oldDistance;
-            
+
             if (command.Synchronous == 1)
             {
                 var waiter = new WaitUntilCanceled(this);
@@ -591,16 +591,16 @@ namespace Pal3.Camera
             }
         }
         #endif
-        
+
         #if PAL3A
         public void Execute(CameraOrbitVerticalCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             var oldDistance = _cameraOffset.magnitude;
             var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             var distanceDelta = newDistance - oldDistance;
-            
+
             if (command.Synchronous == 1)
             {
                 var waiter = new WaitUntilCanceled(this);
@@ -661,7 +661,7 @@ namespace Pal3.Camera
         public void Execute(CameraPushCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             #if PAL3
             if (true)
             #elif PAL3A
@@ -690,7 +690,7 @@ namespace Pal3.Camera
         public void Execute(CameraMoveCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             #if PAL3
             if (true)
             #elif PAL3A
@@ -745,15 +745,15 @@ namespace Pal3.Camera
                 if (_cameraLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
                 {
                     _cameraLastKnownSceneState.RemoveAt(0);
-                }   
+                }
             }
         }
-        
+
         public void Execute(ScenePreLoadingNotification notification)
         {
             _currentAppliedDefaultTransformOption = 0;
             ApplySceneSettings(notification.NewSceneInfo);
-            
+
             // Apply the last known scene state if found in record.
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
                 notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
@@ -769,7 +769,7 @@ namespace Pal3.Camera
                 }
             }
         }
-        
+
         public void Execute(CameraFocusOnActorCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
@@ -780,7 +780,7 @@ namespace Pal3.Camera
         public void Execute(CameraFocusOnSceneObjectCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            
+
             _lookAtGameObject = _sceneManager.GetCurrentScene()
                 .GetSceneObject(command.SceneObjectId).GetGameObject();
         }

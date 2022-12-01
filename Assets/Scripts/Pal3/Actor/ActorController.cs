@@ -48,9 +48,9 @@ namespace Pal3.Actor
                 _actor.IsActive = value;
             }
         }
-        
+
         private bool _isScriptChanged;
-        
+
         private ScnActorBehaviour _currentBehaviour;
 
         public void Init(Actor actor,
@@ -82,18 +82,18 @@ namespace Pal3.Actor
         {
             return _currentBehaviour;
         }
-        
+
         public bool IsInteractable(float distance)
         {
             if (distance > _actor.GetInteractionMaxDistance()) return false;
             return _actor.Info.ScriptId != ScriptConstants.InvalidScriptId;
         }
-        
+
         public Actor GetActor()
         {
             return _actor;
         }
-        
+
         public bool IsScriptChanged()
         {
             return _isScriptChanged;
@@ -109,12 +109,12 @@ namespace Pal3.Actor
                 _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
             }
             #endif
-            
+
             if (_actor.Info.Kind == ScnActorKind.MainActor)
             {
                 if (string.IsNullOrEmpty(_actionController.GetCurrentAction()))
                 {
-                    _actionController.PerformAction(_actor.GetIdleAction());   
+                    _actionController.PerformAction(_actor.GetIdleAction());
                 }
                 return;
             }
@@ -175,7 +175,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             transform.rotation = Quaternion.Euler(0, command.Degrees, 0);
         }
-        
+
         public void Execute(ActorRotateFacingCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
@@ -190,10 +190,10 @@ namespace Pal3.Actor
         public void Execute(ActorSetFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            
+
             if (command.Direction is >= 0 and < 8)
             {
-                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);   
+                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
             }
             else
             {
@@ -209,7 +209,7 @@ namespace Pal3.Actor
         public void Execute(ActorRotateFacingDirectionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            
+
             if (command.Direction is >= 0 and < 8)
             {
                 transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
@@ -243,7 +243,7 @@ namespace Pal3.Actor
                 new ScriptRunnerWaitRequest(waiter));
             StartCoroutine(AnimateScale(command.Scale, 2f, waiter));
         }
-        
+
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;

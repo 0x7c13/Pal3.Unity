@@ -17,7 +17,7 @@ namespace Core.GameBox
     {
         public const float GameBoxUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
-        
+
         public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
         {
             return ToUnityVector3(vertex, scale);
@@ -32,17 +32,17 @@ namespace Core.GameBox
         {
             return gameBoxDistance / GameBoxUnitToUnityUnit;
         }
-        
+
         public static float ToUnityXPosition(float gameBoxXPosition)
         {
             return -gameBoxXPosition / GameBoxUnitToUnityUnit;
         }
-        
+
         public static float ToUnityYPosition(float gameBoxYPosition)
         {
             return gameBoxYPosition / GameBoxUnitToUnityUnit;
         }
-        
+
         public static float ToUnityZPosition(float gameBoxZPosition)
         {
             return gameBoxZPosition / GameBoxUnitToUnityUnit;
@@ -79,7 +79,7 @@ namespace Core.GameBox
                 normal.y,
                 normal.z);
         }
-        
+
         public static Quaternion CvdQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Z, -quaternion.Y, quaternion.W);
@@ -89,7 +89,7 @@ namespace Core.GameBox
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
-        
+
         public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
             var rotation = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);

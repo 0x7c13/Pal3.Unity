@@ -21,7 +21,7 @@ namespace Pal3.Player
         ICommandExecutor<TeamOpenCommand>,
         ICommandExecutor<TeamCloseCommand>,
         ICommandExecutor<TeamAddOrRemoveActorCommand>,
-        ICommandExecutor<ResetGameStateCommand> 
+        ICommandExecutor<ResetGameStateCommand>
     {
         private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 2.5f;
 
@@ -49,7 +49,7 @@ namespace Pal3.Player
             80f,
         };
         #endif
-        
+
         public TeamManager(PlayerManager playerManager, SceneManager sceneManager)
         {
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
@@ -124,20 +124,20 @@ namespace Pal3.Player
             // Need to add all active player actors into the team within certain radius
             {
                 GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
-                Vector3 playerActorPosition = playerActor.transform.position; 
-                
+                Vector3 playerActorPosition = playerActor.transform.position;
+
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
                 var activePlayerActors = _sceneManager.GetCurrentScene()
                     .GetAllActorGameObjects()
                     .Where(actor => playerActorIds.Contains(actor.Key) &&
                                     actor.Value.GetComponent<ActorController>().IsActive);
-                
+
                 foreach (var activePlayerActor in activePlayerActors)
                 {
                     if (Vector3.Distance(playerActorPosition,
                             activePlayerActor.Value.transform.position) < 13f) // 13f is about right
                     {
-                        AddActor((PlayerActorId)activePlayerActor.Key);   
+                        AddActor((PlayerActorId)activePlayerActor.Key);
                     }
                 }
             }

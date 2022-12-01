@@ -29,7 +29,7 @@ namespace Core.FileSystem
         {
             rootPath = !string.IsNullOrEmpty(rootPath) ? rootPath : throw new ArgumentNullException(nameof(rootPath));
             crcHash = crcHash ?? throw new ArgumentNullException(nameof(crcHash));
-            
+
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 rootPath += Path.DirectorySeparatorChar;
@@ -72,7 +72,7 @@ namespace Core.FileSystem
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }
-        
+
         /// <summary>
         /// Check if file exists in any of the segmented archives using virtual path.
         /// </summary>
@@ -88,7 +88,7 @@ namespace Core.FileSystem
                 segmentedArchiveName = null;
                 return false;
             }
-            
+
             // Check if the file exists in any of the segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
                          .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
@@ -141,10 +141,10 @@ namespace Core.FileSystem
         public byte[] ReadAllBytes(string fileVirtualPath)
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
-            
+
             if (_cpkArchives.ContainsKey(cpkFileName))
             {
-                return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);   
+                return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);
             }
 
             // Find and read the file content in segmented cpk archives.
@@ -154,7 +154,7 @@ namespace Core.FileSystem
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
                 {
-                    return _cpkArchives[subCpkPath].ReadAllBytes(relativePathInSubCpk);   
+                    return _cpkArchives[subCpkPath].ReadAllBytes(relativePathInSubCpk);
                 }
             }
 
@@ -212,17 +212,17 @@ namespace Core.FileSystem
             foreach ((string cpkFileName, CpkArchive cpkArchive) in _cpkArchives)
             {
                 var outputDir = outputFolder + cpkFileName + Path.DirectorySeparatorChar;
-                
+
                 if (!Directory.Exists(outputDir))
                 {
                     Directory.CreateDirectory(outputDir);
                 }
-                
+
                 cpkArchive.ExtractTo(outputDir);
                 Debug.Log($"{cpkFileName} extracted to {outputDir}");
             }
         }
-        
+
         /// <summary>
         /// Search files using keyword.
         /// </summary>

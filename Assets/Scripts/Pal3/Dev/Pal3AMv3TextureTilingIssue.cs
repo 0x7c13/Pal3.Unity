@@ -8,7 +8,7 @@
 namespace Pal3.Dev
 {
     using System.Collections.Generic;
-    
+
     public static class Pal3AMv3TextureTilingIssue
     {
         // These textures have wrong scaling/tiling,

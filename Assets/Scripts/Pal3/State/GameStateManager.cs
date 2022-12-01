@@ -134,7 +134,7 @@ namespace Pal3.State
                 {
                     return;
                 }
-                
+
                 GoToState(GameState.Gameplay);
             }
         }

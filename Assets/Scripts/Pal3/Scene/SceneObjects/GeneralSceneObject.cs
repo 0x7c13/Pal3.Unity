@@ -41,11 +41,11 @@ namespace Pal3.Scene.SceneObjects
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
-            
+
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             // Don't cast shadow on the map entrance/exit indicator.
@@ -67,7 +67,7 @@ namespace Pal3.Scene.SceneObjects
                 sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }
             #endif
-            
+
             return sceneGameObject;
         }
     }

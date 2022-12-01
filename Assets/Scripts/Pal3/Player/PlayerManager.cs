@@ -113,7 +113,7 @@ namespace Pal3.Player
                     new ActorAddSkillCommand((int)_playerActor, command.SkillId));
             }
         }
-        
+
         public void Execute(ActorAutoStandCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -140,7 +140,7 @@ namespace Pal3.Player
                     new ActorChangeScaleCommand((int)_playerActor, command.Scale));
             }
         }
-        
+
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -158,7 +158,7 @@ namespace Pal3.Player
                     new ActorSetWorldPositionCommand((int)_playerActor, command.XPosition, command.ZPosition));
             }
         }
-        
+
         public void Execute(ActorChangeColliderSettingCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -185,7 +185,7 @@ namespace Pal3.Player
                     new ActorSetFacingCommand((int)_playerActor, command.Degrees));
             }
         }
-        
+
         public void Execute(ActorRotateFacingCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -212,7 +212,7 @@ namespace Pal3.Player
                     new ActorPathToCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }
         }
-        
+
         #if PAL3A
         public void Execute(ActorWalkToUsingActionCommand command)
         {
@@ -223,7 +223,7 @@ namespace Pal3.Player
             }
         }
         #endif
-        
+
         public void Execute(ActorMoveToCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -232,7 +232,7 @@ namespace Pal3.Player
                     new ActorMoveToCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }
         }
-        
+
         public void Execute(ActorMoveOutOfScreenCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -273,7 +273,7 @@ namespace Pal3.Player
                     new ActorShowEmojiCommand((int)_playerActor, command.EmojiId));
             }
         }
-        
+
         #if PAL3A
         public void Execute(ActorShowEmoji2Command command)
         {
@@ -343,7 +343,7 @@ namespace Pal3.Player
                 _playerActorControlEnabled = true;
             }
         }
-        
+
         public void Execute(ActorSetScriptCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -361,7 +361,7 @@ namespace Pal3.Player
                     new ActorSetNavLayerCommand((int)_playerActor, command.LayerIndex));
             }
         }
-        
+
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -398,7 +398,7 @@ namespace Pal3.Player
                 _playerActor = 0;
             }
         }
-        
+
         public void Execute(ResetGameStateCommand command)
         {
             _playerActor = 0;

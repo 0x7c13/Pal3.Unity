@@ -38,7 +38,7 @@ namespace Editor
                 .Select(defines => defines.Split(';').ToList())
                 .All(allDefines => allDefines.Contains(symbol));
         }
-        
+
         public static void AddSymbol(string symbolToAdd)
         {
             foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())

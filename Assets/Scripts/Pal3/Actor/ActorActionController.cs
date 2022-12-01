@@ -41,7 +41,7 @@ namespace Pal3.Actor
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
         private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
-        
+
         private GameResourceProvider _resourceProvider;
         private Actor _actor;
         private Color _tintColor;
@@ -117,12 +117,12 @@ namespace Pal3.Actor
             return !string.IsNullOrEmpty(_currentAction) &&
                    string.Equals(_currentAction, _actor.GetIdleAction(), StringComparison.OrdinalIgnoreCase);
         }
-        
+
         public Rigidbody GetRigidBody()
         {
             return _rigidbody;
         }
-        
+
         public CapsuleCollider GetCollider()
         {
             return _collider;
@@ -173,7 +173,7 @@ namespace Pal3.Actor
 
             ActorActionType actionType = ActorConstants.ActionNames
                 .FirstOrDefault(_ => string.Equals(_.Value, actionName, StringComparison.OrdinalIgnoreCase)).Key;
-            
+
             if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
                 ActorConstants.ActionNameToWeaponArmTypeMap[actionType] != WeaponArmType.None)
             {
@@ -185,7 +185,7 @@ namespace Pal3.Actor
                 (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
                 _mv3AnimationRenderer.Init(mv3File,
                     _resourceProvider.GetMaterialFactory(),
-                    textureProvider, 
+                    textureProvider,
                     _tintColor,
                     polFile,
                     weaponTextureProvider,
@@ -215,7 +215,7 @@ namespace Pal3.Actor
             if (_hasColliderAndRigidBody)
             {
                 SetupCollider();
-                SetupRigidBody();   
+                SetupRigidBody();
             }
         }
 
@@ -282,7 +282,7 @@ namespace Pal3.Actor
             shadowTransform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
             shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
-            
+
             Texture2D shadowTexture = _resourceProvider.GetShadowTexture();
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
             _shadowSpriteRenderer.sprite = Sprite.Create(shadowTexture,
@@ -294,7 +294,7 @@ namespace Pal3.Actor
         private IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
         {
             if (!_actor.IsActive) yield break;
-            
+
             // For some reason, there are 12 emoji types exist in the game script,
             // but only 11 sprite sheet in the data folder (PAL3A has 12 but PAL3 has 11).
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
@@ -318,7 +318,7 @@ namespace Pal3.Actor
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(emojiSfx, 1));
             }
             #endif
-            
+
             yield return billboardRenderer.PlaySpriteAnimation(sprites,
                 EMOJI_ANIMATION_FPS,
                 ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
@@ -327,14 +327,14 @@ namespace Pal3.Actor
             Destroy(emojiGameObject);
             waiter.CancelWait();
         }
-        
+
         public float GetActorHeight()
         {
             if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
             {
                 return _meshBounds.size.y;
             }
-            
+
             return _mv3AnimationRenderer.GetMeshBounds().size.y;
         }
 
@@ -510,13 +510,13 @@ namespace Pal3.Actor
                 _rigidbody.isKinematic = _isKinematic;
             }
         }
-        
+
         public void Execute(ActorShowEmojiCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
             StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
         }
-        
+
         #if PAL3A
         public void Execute(ActorShowEmoji2Command command)
         {

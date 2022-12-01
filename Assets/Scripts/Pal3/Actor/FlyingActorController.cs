@@ -19,10 +19,10 @@ namespace Pal3.Actor
     {
         public const float DefaultFlySpeed = 7.5f;
         public const float MaxFlySpeed = 11f;
-        
+
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         private const float MAX_TARGET_DISTANCE = 20f;
-        
+
         private Actor _actor;
         private ActorController _actorController;
         private ActorActionController _actionController;
@@ -67,7 +67,7 @@ namespace Pal3.Actor
 
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
-            
+
             var distance = (targetPosition - transform.position).magnitude;
             var duration = distance / DefaultFlySpeed;
 
@@ -77,11 +77,11 @@ namespace Pal3.Actor
 
             StartCoroutine(Fly(targetPosition, duration, waiter));
         }
-        
+
         private IEnumerator Fly(Vector3 targetPosition, float duration, WaitUntilCanceled waiter = null)
         {
             Vector3 oldPosition = transform.position;
-            
+
             // Facing towards target position, ignoring y
             transform.LookAt(new Vector3(targetPosition.x, oldPosition.y, targetPosition.z));
 

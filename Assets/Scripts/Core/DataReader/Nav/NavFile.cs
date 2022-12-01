@@ -51,12 +51,12 @@ namespace Core.DataReader.Nav
         public float GameBoxYPosition;           // 格子地板高度（原GameBox引擎下的Y坐标单位）
         public byte DistanceToNearestObstacle;   // 格子距离周边障碍物的距离 (0最小-7最大)
         public NavFloorKind FloorKind;           // 格子地板类型：0~128索引普通地面属性(土草雪等)，128~255索引机关序号
-        
+
         public bool IsObstacle;                  // 是否为障碍物
 
         public bool IsWalkable()
         {
-            return !IsObstacle && (DistanceToNearestObstacle > 0 || FloorKind == NavFloorKind.Jumpable); // TODO: Remove Jumpable 
+            return !IsObstacle && (DistanceToNearestObstacle > 0 || FloorKind == NavFloorKind.Jumpable); // TODO: Remove Jumpable
         }
     }
 

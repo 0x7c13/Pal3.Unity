@@ -35,7 +35,7 @@ namespace Pal3.Video
             _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
             _videoPlayerUI = videoPlayerUI != null ? videoPlayerUI : throw new ArgumentNullException(nameof(videoPlayerUI));
             _videoPlayer = videoPlayer != null ? videoPlayer : throw new ArgumentNullException(nameof(videoPlayer));
-            
+
             _videoPlayerUI.enabled = false;
             _videoPlayer.loopPointReached += StopVideoInternal;
             _inputActions.VideoPlaying.SkipVideo.performed += SkipVideoPerformed;
@@ -49,10 +49,10 @@ namespace Pal3.Video
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            
+
             _inputActions.VideoPlaying.SkipVideo.performed -= SkipVideoPerformed;
             _videoPlayer.loopPointReached -= StopVideoInternal;
-            
+
             // In case video is still playing
             _videoPlayer.Stop();
             _videoPlayer.targetTexture.Release();

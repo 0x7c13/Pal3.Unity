@@ -15,14 +15,14 @@ namespace Pal3.Effect.PostProcessing
     {
         [Range(0.1f, 30.0f), Tooltip("TimeScale")]
         public FloatParameter timeScale = new() { value = 4.0f };
-           
+
         [Range(0.1f, 30.0f), Tooltip("X Factor")]
         public FloatParameter xFactor = new() { value = 15.0f };
-        
+
         [Range(0.1f, 30.0f), Tooltip("Y Factor")]
         public FloatParameter yFactor = new() { value = 10.0f };
     }
-    
+
     public sealed class DistortionRenderer : PostProcessEffectRenderer<Distortion>
     {
         private static readonly int TimeScalePropertyId = Shader.PropertyToID("_TimeScale");
@@ -30,7 +30,7 @@ namespace Pal3.Effect.PostProcessing
         private static readonly int YFactorPropertyId = Shader.PropertyToID("_YFactor");
 
         private Shader _distortionShader;
-        
+
         public override void Init()
         {
             _distortionShader = Shader.Find("Pal3/PostEffectDistortion");
@@ -45,5 +45,5 @@ namespace Pal3.Effect.PostProcessing
             sheet.properties.SetFloat(YFactorPropertyId, settings.yFactor);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
-    }    
+    }
 }

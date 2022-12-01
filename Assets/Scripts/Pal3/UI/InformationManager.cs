@@ -105,17 +105,17 @@ namespace Pal3.UI
         {
             _isNoteShowingEnabled = enable;
         }
-        
+
         public void Execute(UIDisplayNoteCommand command)
         {
             if (!_isNoteShowingEnabled) return;
-            
+
             if (_noteCanvasGroup.alpha > 0f)
             {
                 var currentText = _noteText.text;
                 if (_noteAnimation != null)
                 {
-                    StopCoroutine(_noteAnimation);   
+                    StopCoroutine(_noteAnimation);
                 }
 
                 if (!string.Equals(currentText, command.Note) &&
@@ -128,15 +128,15 @@ namespace Pal3.UI
             {
                 _noteText.text = command.Note;
             }
-            
+
             _noteAnimation = StartCoroutine(AnimateNoteUI());
         }
-        
+
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             if (_noteAnimation != null)
             {
-                StopCoroutine(_noteAnimation);   
+                StopCoroutine(_noteAnimation);
             }
             _noteCanvasGroup.alpha = 0f;
             _noteText.text = string.Empty;

@@ -52,7 +52,7 @@ namespace Core.DataReader.Nav
         private static NavTileLayer ReadTileLayer(BinaryReader reader, byte version)
         {
             var portals = Array.Empty<GameBoxRect>();
-            
+
             if (version == 2)
             {
                 portals = new GameBoxRect[8];
@@ -127,18 +127,18 @@ namespace Core.DataReader.Nav
             // make the mesh double sided, but that would cause some other issues (trust me).
             {
                 Vector3[] normals = Utility.CalculateNormals(vertices, triangles);
-                
+
                 for (var i = 0; i < numberOfFaces; i++)
                 {
                     var index = i * 3;
-                    
+
                     // Determine if the face is pointing downwards.
                     if (normals[triangles[index]].y +
                         normals[triangles[index + 1]].y +
                         normals[triangles[index + 2]].y < 0)
                     {
                         // Change the winding order of the face to make it point upwards.
-                        (triangles[index], triangles[index + 1]) = (triangles[index + 1], triangles[index]); 
+                        (triangles[index], triangles[index + 1]) = (triangles[index + 1], triangles[index]);
                     }
                 }
             }

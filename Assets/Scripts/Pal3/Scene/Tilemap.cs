@@ -122,7 +122,7 @@ namespace Pal3.Scene
                     Vector2Int.Distance(to, position) > 1 &&
                     obstacles.Contains(position)) return true;
                 var index = position.x + position.y * currentLayer.Width;
-                
+
                 return !currentLayer.Tiles[index].IsWalkable();
             }
 
@@ -179,19 +179,19 @@ namespace Pal3.Scene
                 for (int j = 0; j < _navFile.TileLayers[i].Tiles.Length; j++)
                 {
                     NavTile navTile = _navFile.TileLayers[i].Tiles[j];
-                    
+
                     if (navTile.FloorKind == floorKind)
                     {
                         navTile.IsObstacle = isObstacle;
                     }
-                    
+
                     newTiles[j] = navTile;
                 }
 
                 _navFile.TileLayers[i].Tiles = newTiles;
             }
         }
-        
+
         // Add some weights to the tiles near obstacle.
         private int GetTileExtraWeight(NavTile tile)
         {

@@ -33,7 +33,7 @@ namespace Core.Renderer
             Material material = default)
         {
             _isPlaying = true;
-            
+
             if (material != default)
             {
                 _spriteRenderer.material = material;
@@ -51,7 +51,7 @@ namespace Core.Renderer
                 while (--loopCount >= 0 && _isPlaying)
                 {
                     yield return PlaySpriteAnimationInternal(sprites, fps);
-                }   
+                }
             }
         }
 

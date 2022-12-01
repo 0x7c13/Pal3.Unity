@@ -71,14 +71,14 @@ namespace Core.GameBox
         InvertColorBlend,   // srcAlpha, One , +
         AdditiveBlend,      //
     }
-    
+
     public enum GameBoxLightType
     {
         Omni,           // point light
         Spot,           // spot light
         Directional,    // directional light
     }
-    
+
     public enum GameBoxLightDecayType
     {
         None,
@@ -91,7 +91,7 @@ namespace Core.GameBox
         Cone,
         Square,
     }
-    
+
     public static class GameBoxVertex
     {
         public static int GetSize(uint vertexType)

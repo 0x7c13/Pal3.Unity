@@ -33,7 +33,7 @@ namespace Core.DataReader.Cpk
         private readonly Dictionary<uint, byte[]> _fileNameMap = new ();
         private readonly Dictionary<uint, uint> _crcToTableIndexMap = new ();
         private readonly Dictionary<uint, HashSet<uint>> _fatherCrcToChildCrcTableIndexMap = new ();
-        
+
         private bool _archiveInMemory;
         private byte[] _archiveData;
 
@@ -102,7 +102,7 @@ namespace Core.DataReader.Cpk
         {
             ExtractToInternal(outputFolder, GetRootEntries());
         }
-       
+
         private void ExtractToInternal(string outputFolder, IEnumerable<CpkEntry> nodes)
         {
             foreach (CpkEntry node in nodes)
@@ -121,7 +121,7 @@ namespace Core.DataReader.Cpk
                 }
             }
         }
-        
+
         /// <summary>
         /// Check if file exists inside the archive.
         /// </summary>

@@ -37,7 +37,7 @@ namespace Pal3.UI
             _interactionButton = interactionButton != null ? interactionButton : throw new ArgumentNullException(nameof(interactionButton));
             _bigMapButton = bigMapButton != null ? bigMapButton : throw new ArgumentNullException(nameof(bigMapButton));
             _storySelectionButton = storySelectionButton != null ? storySelectionButton : throw new ArgumentNullException(nameof(storySelectionButton));
-            
+
             _touchControlUI.enabled = false;
             _isTouchSupported = Utility.IsHandheldDevice();
 
@@ -70,7 +70,7 @@ namespace Pal3.UI
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            
+
             if (_isTouchSupported)
             {
                 _interactionButton.onClick.RemoveAllListeners();

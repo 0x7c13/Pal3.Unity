@@ -35,7 +35,7 @@ namespace Pal3.Scene
         private Scene _currentScene;
 
         private readonly HashSet<int> _sceneObjectIdsToNotLoadFromSaveState = new ();
-        
+
         public SceneManager(GameResourceProvider resourceProvider,
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
@@ -58,7 +58,7 @@ namespace Pal3.Scene
         {
             return _currentScene;
         }
-        
+
         public GameObject GetSceneRootGameObject()
         {
             return _currentSceneRoot;
@@ -86,7 +86,7 @@ namespace Pal3.Scene
 
             // Must to clear the exclude list after loading the scene.
             _sceneObjectIdsToNotLoadFromSaveState.Clear();
-            
+
             // Add scene script if exists.
             SceFile sceFile = _resourceProvider.GetSceneSce(sceneFileName);
             CommandDispatcher<ICommand>.Instance.Dispatch(

@@ -24,14 +24,14 @@ namespace Core.DataReader.Lgt
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
             #endif
-            
+
             var numOfLightNodes = reader.ReadInt32();
             var lightNodes = new List<LightNode>();
-            
+
             for (var i = 0; i < numOfLightNodes; i++)
             {
                 var lightNode = ReadLightNode(reader);
-                
+
                 if (Enum.IsDefined(typeof(GameBoxLightType), lightNode.LightType) &&
                     Enum.IsDefined(typeof(GameBoxLightShapeType), lightNode.LightShapeType))
                 {
@@ -56,7 +56,7 @@ namespace Core.DataReader.Lgt
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             };
             transformMatrix.Tw = 1f;
-            
+
             var lightNode = new LightNode
             {
                 WorldMatrix = GameBoxInterpreter.ToUnityMatrix4x4(transformMatrix),

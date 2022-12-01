@@ -48,7 +48,7 @@ namespace Pal3.MetaData
                 _ => throw new ArgumentOutOfRangeException(nameof(vector), vector, null)
             };
         }
-        
+
         public static Vector2Int ToVector2Int(Direction direction)
         {
             return direction switch

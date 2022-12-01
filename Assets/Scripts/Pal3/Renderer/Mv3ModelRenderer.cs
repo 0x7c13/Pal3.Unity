@@ -97,7 +97,7 @@ namespace Pal3.Renderer
                 Mv3Mesh mesh = mv3File.Meshes[i];
                 var materialId = mesh.Attributes[0].MaterialId;
                 Mv3Material material = mv3File.Materials[materialId];
-                
+
                 InitSubMeshes(i, mesh, material);
             }
 
@@ -150,7 +150,7 @@ namespace Pal3.Renderer
             #endif
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
-            
+
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Mv3,
                 _textures[index],
@@ -182,7 +182,7 @@ namespace Pal3.Renderer
                 ref mv3Mesh.Uvs,
                 ref mv3Mesh.Uvs,
                 ref _materials[index],
-                true);            
+                true);
 
             renderMesh.RecalculateTangents();
 
@@ -215,10 +215,10 @@ namespace Pal3.Renderer
         public void ChangeTexture(string textureName)
         {
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
-            
+
             _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[0] = hasAlphaChannel;
-            
+
             // Change the texture for the first sub-mesh only
             _materialFactory.UpdateMaterial(_materials[0][0], _textures[0], _textureHasAlphaChannel[0] ?
                 GameBoxBlendFlag.AlphaBlend :
@@ -278,7 +278,7 @@ namespace Pal3.Renderer
             }
             return bounds;
         }
-        
+
         public Bounds GetMeshBounds()
         {
             if (_renderMeshComponents.Length == 0)
@@ -292,7 +292,7 @@ namespace Pal3.Renderer
             }
             return bounds;
         }
-        
+
         public bool IsActionInHoldState()
         {
             return _isActionInHoldState;

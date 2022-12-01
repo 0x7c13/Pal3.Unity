@@ -48,12 +48,12 @@ namespace Pal3.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly IMaterialFactory _materialFactory;
-        
+
         private readonly GdbFile _gameDatabase;
         private readonly int _codepage;
-        
+
         private TextureCache _textureCache;
-        
+
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
         private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
         private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
@@ -61,7 +61,7 @@ namespace Pal3.Data
         private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
         private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
-        
+
         // Cache player actor movement sfx audio clips
         private readonly HashSet<string> _audioClipCacheList = new ()
         {
@@ -92,13 +92,13 @@ namespace Pal3.Data
             _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
             _materialFactory = materialFactory ?? throw new ArgumentNullException(nameof(materialFactory));
             _codepage = codepage;
-            
+
             var gdbFilePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.CombatDataFolderName}{PathSeparator}{GameConstants.AppName}_Softstar.gdb";
 
             _gameDatabase = GdbFileReader.Read(_fileSystem.ReadAllBytes(gdbFilePath), codepage);
-                
+
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -132,7 +132,7 @@ namespace Pal3.Data
         {
             return _materialFactory;
         }
-        
+
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
@@ -236,7 +236,7 @@ namespace Pal3.Data
         {
             return _gameDatabase.GameItems;
         }
-        
+
         /// <summary>
         /// Get music file path in cache folder.
         /// </summary>
@@ -244,7 +244,7 @@ namespace Pal3.Data
         /// <returns>Mp3 file path in cache folder</returns>
         public string GetMp3FilePathInCacheFolder(string musicFileVirtualPath)
         {
-            return Application.persistentDataPath 
+            return Application.persistentDataPath
                    + Path.DirectorySeparatorChar
                    + CACHE_FOLDER_NAME
                    + Path.DirectorySeparatorChar
@@ -295,7 +295,7 @@ namespace Pal3.Data
             #elif PAL3A
             string sfxFileName = (sfxName + ".wav").ToUpper();
             #endif
-            
+
             var sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" + sfxFileName;
 
             var rootPath = _fileSystem.GetRootPath();
@@ -303,7 +303,7 @@ namespace Pal3.Data
 
             return sfxFilePath;
         }
-        
+
         public IEnumerator LoadAudioClip(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
         {
             var fileName = Path.GetFileName(filePath);
@@ -314,17 +314,17 @@ namespace Pal3.Data
                 if (_audioClipCache[fileName] != null) // check if clip has been destroyed
                 {
                     callback?.Invoke(_audioClipCache[fileName]);
-                    yield break;   
+                    yield break;
                 }
             }
-            
+
             yield return AudioClipLoader.LoadAudioClip(filePath, audioType, streamAudio, audioClip =>
             {
                 if (shouldCache && audioClip != null)
                 {
                     _audioClipCache[fileName] = audioClip;
                 }
-                
+
                 callback?.Invoke(audioClip);
             });
         }
@@ -520,19 +520,19 @@ namespace Pal3.Data
 
             return Array.Empty<(Texture2D, bool)>();
         }
-        
+
         private string GetVfxPrefabPath(int effectGroupId)
         {
             return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
         }
-        
+
         public Object GetVfxEffectPrefab(int effectGroupId)
         {
             if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
             {
                 return _vfxEffectPrefabCache[effectGroupId];
             }
-            
+
             Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
             if (vfxPrefab != null)
             {
@@ -552,14 +552,14 @@ namespace Pal3.Data
             {
                 yield break;
             }
-            
+
             ResourceRequest request = Resources.LoadAsync(GetVfxPrefabPath(effectGroupId));
-            
-            while (!request.isDone) 
+
+            while (!request.isDone)
             {
                 yield return request;
             }
-            
+
             if (request.asset != null)
             {
                 _vfxEffectPrefabCache[effectGroupId] = request.asset;
@@ -590,7 +590,7 @@ namespace Pal3.Data
                 ActorConstants.ActionNames[ActorActionType.Run],
                 ActorConstants.ActionNames[ActorActionType.Back],
             };
-            
+
             foreach (var name in ActorConstants.MainActorNameMap.Values)
             {
                 var actorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
@@ -602,7 +602,7 @@ namespace Pal3.Data
                 {
                     // Cache known actions only.
                     if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
-                    
+
                     var mv3File = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                                   $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}" +
                                   $"{actorAction.ActionFileName}";
@@ -611,7 +611,7 @@ namespace Pal3.Data
                 }
             }
         }
-        
+
         private string _currentCityName;
         public void Execute(ScenePreLoadingNotification notification)
         {
@@ -653,7 +653,7 @@ namespace Pal3.Data
 
                 _currentCityName = newCityName;
             }
-            
+
             // Unloads assets that are not used (textures etc.)
             Resources.UnloadUnusedAssets();
         }

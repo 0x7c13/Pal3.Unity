@@ -36,7 +36,7 @@ namespace Pal3.Actor
         public Collider Collider;
         public Vector3 ActorPositionWhenCollisionEnter;
     }
-    
+
     internal class ActiveStandingPlatformInfo
     {
         public StandingPlatformController Platform;
@@ -90,7 +90,7 @@ namespace Pal3.Actor
                 actor.Info.GameBoxXPosition,
                 actor.Info.GameBoxYPosition,
                 actor.Info.GameBoxZPosition));
-            
+
             if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
                 _tilemap.TryGetTile(initPosition, _currentLayerIndex, out NavTile tile))
             {
@@ -149,7 +149,7 @@ namespace Pal3.Actor
         {
             platformInfo = null;
             var distance = float.MaxValue;
-            
+
             foreach (ActiveStandingPlatformInfo info in _activeStandingPlatforms)
             {
                 if (info.Platform == null)
@@ -159,14 +159,14 @@ namespace Pal3.Actor
 
                 var distanceToPlatformCenter = Vector3.Distance(
                     info.Platform.GetCollider().bounds.center, transform.position);
-                
+
                 if (distanceToPlatformCenter < distance)
                 {
                     distance = distanceToPlatformCenter;
                     platformInfo = info;
                 }
             }
-            
+
             return platformInfo != null;
         }
 
@@ -188,7 +188,7 @@ namespace Pal3.Actor
 
             return nearestPosition;
         }
-        
+
         public bool IsMovementInProgress()
         {
             return !_currentPath.IsEndOfPath();
@@ -205,10 +205,10 @@ namespace Pal3.Actor
 
             if (IsMovementInProgress())
             {
-                _actionController.PerformAction(_actor.GetIdleAction());   
+                _actionController.PerformAction(_actor.GetIdleAction());
             }
         }
-        
+
         public void ResumeMovement()
         {
             if (_isMovementOnHold)
@@ -216,7 +216,7 @@ namespace Pal3.Actor
                 _isMovementOnHold = false;
                 if (IsMovementInProgress())
                 {
-                    _actionController.PerformAction(_actor.GetMovementAction(_currentPath.MovementMode));   
+                    _actionController.PerformAction(_actor.GetMovementAction(_currentPath.MovementMode));
                 }
             }
         }
@@ -268,11 +268,11 @@ namespace Pal3.Actor
             {
                 _activeColliders.RemoveWhere(_ => _.Collider == null);
             }
-            
+
             // Sanity cleanup
             if (_activeStandingPlatforms.Count > 0)
             {
-                _activeStandingPlatforms.RemoveWhere(_ => _.Platform == null);   
+                _activeStandingPlatforms.RemoveWhere(_ => _.Platform == null);
             }
 
             // To prevent actor from bouncing into un-walkable tile position,
@@ -325,14 +325,14 @@ namespace Pal3.Actor
             }
             else
             {
-                actorPosition = 
+                actorPosition =
                     _tilemap.TryGetAdjacentWalkableTile(currentTilePosition,
                         _currentLayerIndex,
-                        out Vector2Int nearestWalkableTilePosition) 
+                        out Vector2Int nearestWalkableTilePosition)
                         ? _tilemap.GetWorldPosition(nearestWalkableTilePosition, _currentLayerIndex)
                         : currentActorPosition; // Highly unlikely to happen, but this is the best effort
             }
-            
+
             _activeColliders.Add(new ActiveColliderInfo()
             {
                 Collider = collision.collider,
@@ -368,8 +368,8 @@ namespace Pal3.Actor
                     var targetYPosition = standingPlatformController.GetPlatformHeight();
                     if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
                     {
-                        transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);   
-                    }   
+                        transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
+                    }
                 }
             }
         }
@@ -481,7 +481,7 @@ namespace Pal3.Actor
             var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == 1 ? 11f : 5f) : _actor.Info.Speed / 11f;
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
-            
+
             Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
 
             // If actor is moving towards a collider, check if the new position is still inside the collider.
@@ -516,7 +516,7 @@ namespace Pal3.Actor
                 newPosition.x,
                 newYPosition,
                 newPosition.z);
-                
+
             if (Mathf.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
                 Mathf.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
             {
@@ -529,7 +529,7 @@ namespace Pal3.Actor
         private void RotateTowards(Vector3 currentPosition, Vector3 targetPosition, int movementMode)
         {
             Transform currentTransform = transform;
-            
+
             Vector3 moveDirection = new Vector3(
                 targetPosition.x - currentPosition.x,
                 0f,
@@ -558,7 +558,7 @@ namespace Pal3.Actor
                 }
 
                 var centerYPosition = _actionController.GetRendererBounds().center.y;
-                
+
                 var fromCenterPosition = new Vector3(currentPosition.x, centerYPosition, currentPosition.z);
                 var toCenterPosition = new Vector3(newPosition.x, centerYPosition, newPosition.z);
                 Vector3 movingDirection = (toCenterPosition - fromCenterPosition).normalized;
@@ -570,9 +570,9 @@ namespace Pal3.Actor
                     {
                         return true;
                     }
-                }   
+                }
             }
-            
+
             return false;
         }
 
@@ -584,7 +584,7 @@ namespace Pal3.Actor
             if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo))
             {
                 var targetYPosition = platformInfo.Platform.GetPlatformHeight();
-                
+
                 // Make sure actor is on top of the platform
                 if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
                         new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
@@ -612,7 +612,7 @@ namespace Pal3.Actor
                 tileAtNextLayer.IsWalkable())
             {
                 var yPositionAtNextLayer = GameBoxInterpreter.ToUnityYPosition(tileAtNextLayer.GameBoxYPosition);
-                
+
                 if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_Y_DIFFERENTIAL_CROSS_LAYER)
                 {
                     return false;
@@ -648,7 +648,7 @@ namespace Pal3.Actor
         private void ReachingToEndOfPath()
         {
             _movementWaiter?.CancelWait();
-            
+
             switch (_currentPath.EndOfPathAction)
             {
                 case EndOfPathActionType.DisposeSelf:
@@ -685,7 +685,7 @@ namespace Pal3.Actor
             yield return new WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
-                SetupPath(waypoints, mode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);   
+                SetupPath(waypoints, mode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);
             }
         }
 
@@ -716,7 +716,7 @@ namespace Pal3.Actor
                 _movementWaiter?.CancelWait();
                 yield break;
             }
-            
+
             Vector2Int[] path = Array.Empty<Vector2Int>();
             var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {(int)_actor.Info.Id});
 
@@ -740,7 +740,7 @@ namespace Pal3.Actor
             }
 
             if (cancellationToken.IsCancellationRequested) yield break;
-            
+
             if (path.Length <= 0)
             {
                 if (moveTowardsPositionIfNoPathFound)
@@ -788,7 +788,7 @@ namespace Pal3.Actor
         public void Execute(ActorSetWorldPositionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            
+
             Vector2Int tilePosition = _tilemap.GetTilePosition(
                 new Vector3(command.XPosition, 0f, command.ZPosition), _currentLayerIndex);
 
@@ -807,11 +807,11 @@ namespace Pal3.Actor
                 }
             }
         }
-        
+
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            
+
             CancelMovement();
 
             var tilePosition = new Vector2Int(command.TileXPosition, command.TileYPosition);
@@ -825,15 +825,15 @@ namespace Pal3.Actor
                 if (!isTileInsideCurrentLayer && isTileInsideAtNextLayer)
                 {
                     SetNavLayer((_currentLayerIndex + 1) % 2);
-                }   
+                }
             }
 
             transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);
-            
+
             // Cancel current action if any
             if (_actionController.GetCurrentAction() != string.Empty)
             {
-                _actionController.PerformAction(_actor.GetIdleAction());   
+                _actionController.PerformAction(_actor.GetIdleAction());
             }
         }
 
@@ -846,7 +846,7 @@ namespace Pal3.Actor
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
-        
+
         #if PAL3A
         public void Execute(ActorWalkToUsingActionCommand command)
         {
@@ -913,7 +913,7 @@ namespace Pal3.Actor
                 _movementCts?.Cancel();
                 _movementCts = new CancellationTokenSource();
                 _currentPath.Clear();
-                
+
                 _activeColliders.Clear();
                 _activeStandingPlatforms.Clear();
             }

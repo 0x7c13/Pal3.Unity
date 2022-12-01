@@ -22,7 +22,7 @@ namespace Editor
             ApplyPlayerSettingsForVariant("PAL3");
             AssetDatabase.SaveAssets();
         }
-        
+
         [MenuItem("Pal3/Switch Variant/PAL3", true)]
         static bool ValidateSwitchToPal3()
         {
@@ -37,13 +37,13 @@ namespace Editor
             ApplyPlayerSettingsForVariant("PAL3A");
             AssetDatabase.SaveAssets();
         }
-        
+
         [MenuItem("Pal3/Switch Variant/PAL3A", true)]
         static bool ValidateSwitchToPal3A()
         {
             return !SymbolsHelper.HasSymbol("PAL3A");
         }
-        
+
         private static void ApplyPlayerSettingsForVariant(string appName)
         {
             PlayerSettings.productName = appName;
@@ -58,7 +58,7 @@ namespace Editor
             var gameIconPath = $"UI/game-icon-{appName}";
             var gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
-            
+
             foreach (NamedBuildTarget buildTarget in SymbolsHelper.GetAllSupportedNamedBuildTargets())
             {
                 // Set app icon
@@ -66,7 +66,7 @@ namespace Editor
                 PlayerSettings.SetIcons(buildTarget,
                     Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
                     IconKind.Application);
-                
+
                 // Set iOS store icon which is required for store publishing or TestFlight
                 if (buildTarget == NamedBuildTarget.iOS)
                 {

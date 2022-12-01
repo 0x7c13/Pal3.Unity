@@ -252,7 +252,7 @@ namespace Pal3.Dev
             {
                 new ActorSetNavLayerCommand(-1, 0),
                 new ActorSetTilePositionCommand(-1, 207, 255)
-            }},            
+            }},
             { "m20_1_120700", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 0),
@@ -934,7 +934,7 @@ namespace Pal3.Dev
         {
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-            
+
             // This is how exit button works:
             // If there are predefined commands that has a format of <CityName>_<sceneName>_<mainStoryVarValue>
             // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commands
@@ -942,7 +942,7 @@ namespace Pal3.Dev
 
             var mainStoryVarCurrentValue = ServiceLocator.Instance.Get<ScriptManager>()
                 .GetGlobalVariables()[ScriptConstants.MainStoryVariableName];
-            
+
             var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentScene.GetSceneInfo());
             foreach (var commandKey in _skipperCommands.Keys.Where(_ =>
                          _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase) &&
@@ -960,7 +960,7 @@ namespace Pal3.Dev
                     return;
                 }
             }
-                
+
             foreach (ICommand command in _skipperCommands[cmdHashKeyPrefix + "1"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
@@ -976,7 +976,7 @@ namespace Pal3.Dev
             _mazeExitButton.onClick
                 .RemoveListener(ExitButtonClicked);
         }
-        
+
         private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)
         {
             return $"{sceneInfo.CityName}_{sceneInfo.SceneName}_".ToLower();
@@ -995,7 +995,7 @@ namespace Pal3.Dev
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
             var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentSceneInfo);
-            
+
             if (command.NewState == GameState.Gameplay &&
                 _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
             {
@@ -1007,7 +1007,7 @@ namespace Pal3.Dev
         public void Execute(ScenePostLoadingNotification command)
         {
             var cmdHashKeyPrefix = GetCommandHashKeyPrefix(command.NewSceneInfo);
-            
+
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
                 _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
             {

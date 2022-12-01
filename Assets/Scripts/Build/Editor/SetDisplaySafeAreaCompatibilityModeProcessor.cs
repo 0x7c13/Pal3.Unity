@@ -29,7 +29,7 @@ namespace Build.Editor
             #elif PAL3A
             string plistPath = pathToBuiltProject + "/PAL3A/Info.plist";
             #endif
-            
+
             PlistDocument plist = new PlistDocument();
             plist.ReadFromString(File.ReadAllText(plistPath));
 

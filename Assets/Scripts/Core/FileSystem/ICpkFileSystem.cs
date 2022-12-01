@@ -33,7 +33,7 @@ namespace Core.FileSystem
         /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
         /// <returns>True if file exists in segmented archive</returns>
         public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName);
-        
+
         /// <summary>
         /// Check if file exists in the archive using virtual path.
         /// </summary>
@@ -68,7 +68,7 @@ namespace Core.FileSystem
         /// Extract all archives to the specified destination
         /// </summary>
         public void ExtractTo(string outputFolder);
-        
+
         /// <summary>
         /// Search files using keyword.
         /// </summary>

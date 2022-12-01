@@ -33,7 +33,7 @@ namespace Pal3.MetaData
     public static class EffectConstants
     {
         public const int AnimatedFireEffectFrameCount = 16;
-        
+
         public const int AnimatedFireEffectFrameRate = 10;
 
         private const char PathSeparator = CpkConstants.DirectorySeparator;
@@ -86,7 +86,7 @@ namespace Pal3.MetaData
                     "", 1f, 0.6f) },
             };
         #endif
-        
+
         #if PAL3
         // Effect group id to sfx mapping
         public static readonly Dictionary<int, string> EffectSfxInfo = new()

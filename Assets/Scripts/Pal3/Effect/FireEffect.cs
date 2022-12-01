@@ -17,7 +17,7 @@ namespace Pal3.Effect
     {
         public GameObject EffectGameObject { get; private set; }
         public FireEffectType FireEffectType { get; private set; }
-        
+
         private (Texture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(Texture2D texture, bool hasAlphaChannel)>();
         private AnimatedBillboardRenderer _billboardRenderer;
         private PolyModelRenderer _sceneObjectRenderer;
@@ -52,7 +52,7 @@ namespace Pal3.Effect
                         new Vector2(0.5f, 0f));
                     sprites[i] = sprite;
                 }
-                
+
                 var yPosition = 0f;
                 if (_sceneObjectRenderer != null)
                 {
@@ -63,19 +63,19 @@ namespace Pal3.Effect
                 EffectGameObject.transform.SetParent(gameObject.transform, false);
                 EffectGameObject.transform.localScale = new Vector3(info.Size, info.Size, info.Size);
                 EffectGameObject.transform.localPosition = new Vector3(0f, yPosition, 0f);
-                
+
                 _billboardRenderer = EffectGameObject.AddComponent<AnimatedBillboardRenderer>();
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
                     : resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial();
-                
+
                 StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
                     EffectConstants.AnimatedFireEffectFrameRate,
                     -1,
                     _spriteMaterial));
             }
         }
-        
+
         private void OnDisable()
         {
             Dispose();

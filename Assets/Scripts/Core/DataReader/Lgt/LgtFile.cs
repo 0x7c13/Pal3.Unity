@@ -12,7 +12,7 @@ namespace Core.DataReader.Lgt
     public struct LightNode
     {
         public Matrix4x4 WorldMatrix;
-        
+
         public GameBoxLightType LightType;
         public Color LightColor;
         public Color AmbientColor;
@@ -22,20 +22,20 @@ namespace Core.DataReader.Lgt
         public float NearEnd;
         public float FarStart;
         public float FarEnd;
-        
+
         public GameBoxLightDecayType LightDecayType;
         public float DecayRadius;
-        
+
         public GameBoxLightShapeType LightShapeType;
         public float Size;
         public float Falloff;
         public float AspectRatio;
     }
-    
+
     public class LgtFile
     {
         public LightNode[] LightNodes { get; }
-        
+
         public LgtFile(LightNode[] lightNodes)
         {
             LightNodes = lightNodes;

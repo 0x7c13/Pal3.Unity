@@ -28,7 +28,7 @@ namespace Core.DataReader.Mv3
 
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
-            
+
             if (headerStr != "MV3")
             {
                 throw new InvalidDataException("Invalid MV3(.mv3) file: header != MV3");
@@ -96,7 +96,7 @@ namespace Core.DataReader.Mv3
             bounds.SetMinMax(
                 GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
                 GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
-            
+
             var numberOfFrames = reader.ReadInt32();
             var frames = new Mv3VertFrame[numberOfFrames];
             for (var i = 0; i < numberOfFrames; i++)
@@ -167,7 +167,7 @@ namespace Core.DataReader.Mv3
                     Commands = commands,
                 };
             }
-            
+
             return GetMv3Mesh(name, bounds, attributes, frames, texCoords);
         }
 
@@ -183,7 +183,7 @@ namespace Core.DataReader.Mv3
             var uvs = new Vector2[attributes[0].IndexBuffers.Length * 3];
 
             var triangleIndex = 0;
-            
+
             for (var i = 0; i < attributes[0].IndexBuffers.Length; i++)
             {
                 Mv3IndexBuffer indexBuffer = attributes[0].IndexBuffers[i];
@@ -216,7 +216,7 @@ namespace Core.DataReader.Mv3
                     Vertices = keyFrameVertices[i].ToArray(),
                 };
             }
-            
+
             return new Mv3Mesh
             {
                 Name = name,

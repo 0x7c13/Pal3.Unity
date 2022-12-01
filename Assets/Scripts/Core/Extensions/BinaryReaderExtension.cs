@@ -68,7 +68,7 @@ namespace Core.Extensions
             }
             return integers;
         }
-        
+
         public static short[] ReadInt16Array(this BinaryReader binaryReader, int count)
         {
             var integers = new short[count];
@@ -78,7 +78,7 @@ namespace Core.Extensions
             }
             return integers;
         }
-        
+
         public static ushort[] ReadUInt16Array(this BinaryReader binaryReader, int count)
         {
             var integers = new ushort[count];

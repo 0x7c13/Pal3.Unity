@@ -12,7 +12,7 @@ namespace Pal3.MetaData
         public const string SystemSceFileVirtualPath = @"basedata.cpk\init.sce";
 
         public const string BigMapSceFileVirtualPath = @"basedata.cpk\ui\BigMap\BigMap.sce";
-        
+
         #if PAL3
         public const string EffectScnFolderName = "EffectScn";
         #elif PAL3A
@@ -30,13 +30,13 @@ namespace Pal3.MetaData
         #endif
 
         public const string UIFolderName = "ui";
-        
+
         public const string CombatDataFolderName = "cbdata";
 
         public const string CaptionFolderName = "caption";
 
         public const string EmojiFolderName = "EMOTE";
-        
+
         public const string CursorFolderName = "cursor";
 
         public const string MovieFolderName = "movie";

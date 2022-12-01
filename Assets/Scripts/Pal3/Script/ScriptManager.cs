@@ -48,7 +48,7 @@ namespace Pal3.Script
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
             _pendingScripts.Clear();
-            
+
             foreach (PalScriptRunner scriptRunner in _runningScripts)
             {
                 scriptRunner.OnCommandExecutionRequested -= OnCommandExecutionRequested;
@@ -157,7 +157,7 @@ namespace Pal3.Script
         public bool TryAddSceneScript(SceFile sceFile, string sceneScriptDescription, out uint sceneScriptId)
         {
             sceneScriptId = ScriptConstants.InvalidScriptId;
-            
+
             _sceFile = sceFile;
 
             foreach (var scriptBlock in _sceFile.ScriptBlocks

@@ -125,7 +125,7 @@ namespace Core.DataReader.Pol
             bounds.SetMinMax(
                 GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
                 GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
-            
+
             var vertexTypeFlag = reader.ReadUInt32();
             var numberOfVertices = reader.ReadInt32();
 
@@ -196,7 +196,7 @@ namespace Core.DataReader.Pol
                     var y = reader.ReadSingle();
                     uvs[3][i] = new Vector2(x, y);
                 }
-                
+
                 // Quick fix for the missing/wrong normals
                 if (normals[i] == Vector3.zero) normals[i] = Vector3.up;
             }
@@ -275,7 +275,7 @@ namespace Core.DataReader.Pol
             }
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
-            
+
             return new PolTexture()
             {
                 BlendFlag = blendFlag,

@@ -43,10 +43,10 @@ namespace Pal3.Player
         public override string ToString()
         {
             var sb = new StringBuilder();
-            
+
             sb.Append("----- Inventory info -----\n");
             sb.Append($"Total money: {_items[MoneyItemID]}\n");
-            
+
             foreach (var (id, count) in _items.Where(_ => _.Key != MoneyItemID))
             {
                 sb.Append($"{_gameItemsInfo[id].Name}({id}) x {count} [{_gameItemsInfo[id].Type}]\n");
@@ -63,17 +63,17 @@ namespace Pal3.Player
                     _gameItemsInfo[itemId].Type == ItemType.Plot)
                 {
                     return true;
-                }   
+                }
             }
 
             return _items.ContainsKey(itemId);
         }
-        
+
         public int GetTotalMoney()
         {
             return _items[MoneyItemID];
         }
-        
+
         public IEnumerable<KeyValuePair<int, int>> GetAllItems()
         {
             return _items.Where(_ => _.Key != MoneyItemID);
@@ -82,7 +82,7 @@ namespace Pal3.Player
         public void Execute(InventoryAddItemCommand command)
         {
             if (!_gameItemsInfo.ContainsKey(command.ItemId)) return;
-            
+
             if (_items.ContainsKey(command.ItemId))
             {
                 _items[command.ItemId] += command.Count;
@@ -93,9 +93,9 @@ namespace Pal3.Player
             }
 
             var itemName = _gameItemsInfo[command.ItemId].Name;
-            
-            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));   
-            
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));
+
             Debug.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
 

@@ -17,11 +17,11 @@ namespace Pal3.Player
     {
         // This is a position that is far away from the camera to prevent glitches.
         public static readonly Vector3 ActorInitPosition = new (777f, 777f, 777f); // Unity position
-        
+
         public static ScnNpcInfo Create(PlayerActorId actorId)
         {
             Vector3 gameBoxInitPosition = GameBoxInterpreter.ToGameBoxPosition(ActorInitPosition);
-            
+
             return new ScnNpcInfo
             {
                 Id = (byte)actorId,

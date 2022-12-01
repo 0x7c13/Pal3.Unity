@@ -364,7 +364,7 @@ namespace Core.DataReader.Cvd
 
                     // Quick fix for the missing/wrong normals
                     if (normal == Vector3.zero) normal = Vector3.up;
-                    
+
                     vertices[j] = new CvdVertex()
                     {
                         Normal = normal,
@@ -460,9 +460,9 @@ namespace Core.DataReader.Cvd
             var frameVertices = new CvdVertex[allFrameVertices.Length][];
 
             (List<int> triangles, List<int> indexBuffer) = CalculateTriangles(indices);
-            
+
             GameBoxInterpreter.ToUnityTriangles(triangles);
-            
+
             for (var i = 0; i < allFrameVertices.Length; i++)
             {
                 var verts = new CvdVertex[indexBuffer.Count];

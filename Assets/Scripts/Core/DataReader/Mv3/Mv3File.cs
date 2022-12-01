@@ -102,7 +102,7 @@ namespace Core.DataReader.Mv3
         public Mv3TagNode[] TagNodes { get; }
         public Mv3Material[] Materials { get; }
         public Mv3Mesh[] Meshes { get; }
-        
+
         public Mv3File(int version,
             uint duration,
             Mv3AnimationEvent[] animationEvents,

@@ -45,7 +45,7 @@ namespace Pal3.Data
                 {
                     var currentSceneFolderPath = _currentCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
                                                  + _currentSceneName;
-                    
+
                     if (_fileSystem.FileExistsInSegmentedArchive(currentSceneFolderPath, out string segmentedArchiveName))
                     {
                         _fileSystem.DisposeInMemoryArchive(segmentedArchiveName);

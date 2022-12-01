@@ -99,7 +99,7 @@ namespace Core.DataReader.Scn
         SavingPoint                   = 42,   // 存盘点
         SceneSfx                      = 43,   // 场景音效
         JumpableArea                  = 44,   // 可跳跃区域
-        
+
         // PAL3A new scene objects
         UnknownObj47                  = 47,   // PAL3A m19 8
         UnknownObj48                  = 48,   // PAL3A m19 8
@@ -162,7 +162,7 @@ namespace Core.DataReader.Scn
             if (modelBName.EndsWith("y", StringComparison.OrdinalIgnoreCase))
             {
                 modelBName = modelBName[..^1];
-                
+
             }
             return string.Equals(CityName, sceneInfo.CityName, StringComparison.OrdinalIgnoreCase) &&
                    string.Equals(modelAName, modelBName, StringComparison.OrdinalIgnoreCase);
@@ -195,7 +195,7 @@ namespace Core.DataReader.Scn
 
         // char[34] 贴图编号 （无用）
         public string Texture;
-        
+
         // 人物初始朝向
         public float FacingDirection;
 
@@ -218,7 +218,7 @@ namespace Core.DataReader.Scn
         // 初始Y坐标,只有在 InitBehaviour == Hold
         // 的时候 GameBoxYPosition 和 InitAction 才有用
         public float GameBoxYPosition; // 原GameBox引擎下的Y坐标
-        
+
         // chars[16] 初始动作
         public string InitAction;
 
@@ -307,7 +307,7 @@ namespace Core.DataReader.Scn
         #if PAL3A
         public uint Unknown1; // always 0
         #endif
-        
+
         // 触发条件
         public ushort RequireSpecialAction;        // 对应特殊行走技能,0xFF为无此条件
         public ushort RequireItem;                 // 需要物品,0xFF为无此条件
@@ -320,13 +320,13 @@ namespace Core.DataReader.Scn
         #if PAL3A
         public uint Unknown2;
         #endif
-        
+
         public uint ScriptId;
 
         public ScnPath Path;
 
         // 触发结果
-        public ushort LinkedObjectId;        // 触发其它机关的编号;
+        public ushort LinkedObjectId;      // 触发其它机关的编号;
 
         // 与场景的某个开关相关
         public string DependentSceneName;  // char[32]
@@ -338,16 +338,16 @@ namespace Core.DataReader.Scn
         public float ZRotation;            // 绕Z轴旋转
         #endif
         public string SfxName;             // 音效文件名
-        
+
         public uint EffectModelType;
 
         public uint ScriptActivated;
         public uint ScriptMoved;
-        
+
         #if PAL3A
         public uint Unknown3;
         #endif
-        
+
         public uint[] Reserved;            // PAL3: 52 DWORDs PAL3A: 44 DWORDs
     }
 

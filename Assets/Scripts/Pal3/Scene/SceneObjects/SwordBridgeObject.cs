@@ -21,15 +21,15 @@ namespace Pal3.Scene.SceneObjects
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
-            
+
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            
+
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
-            
+
             if (ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
             {
                 bounds = new Bounds
@@ -41,7 +41,7 @@ namespace Pal3.Scene.SceneObjects
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
-            
+
             return sceneGameObject;
         }
 
@@ -51,7 +51,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 Object.Destroy(_platformController);
             }
-            
+
             base.Deactivate();
         }
     }

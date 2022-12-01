@@ -15,7 +15,7 @@ namespace Core.DataReader.Gdb
         Thunder,  // 雷
         Earth,    // 土
     }
-    
+
     public enum ItemType
     {
         None = 0,
@@ -87,7 +87,7 @@ namespace Core.DataReader.Gdb
         Thunder,       // 雷
         Earth,         // 土
     }
-    
+
     public struct GameItem
     {
         public uint Id;                         // 物品ID
@@ -109,20 +109,20 @@ namespace Core.DataReader.Gdb
         public SpecialType SpecialType;         // 特殊类型
         public TargetRangeType TargetRangeType; // 目标范围类型
         public PlaceOfUseType PlaceOfUseType;   // 使用地点类型
-        
+
         public byte[] AttributeImpactType;      // 角色属性影响类型 (0绝对值，1百分比值，2恢复到上限，3增加上限值)
-        
+
         // Empty byte between the memory addresses to align the data in memory.
         // SpecialType, TargetRangeType and PlaceOfUseType take 3 bytes in memory, thus we need to add 1 byte here
         // to align the data in memory (4 bytes).
         // Note: The padding byte is added after AttributeImpactType instead of before based on observation.
         internal byte PaddingByte;
-        
+
         public short[] AttributeImpactValue;    // 角色属性影响值
 
         public byte[] FightStateImpactType;     // 战斗状态影响类型（0不影响，1增加，2解除）
         public short[] FightStateImpactValue;   // 战斗状态值
-        
+
         public int ComboCount;                  // 连击次数
 
         // 装备属性
@@ -130,7 +130,7 @@ namespace Core.DataReader.Gdb
         public short MpSavingPercentage;                  // 神消耗减少百分比
         public short CriticalAttackAmplifyPercentage;     // 暴击伤害增加百分比
         public short SpecialSkillSuccessRate;             // 特技成功率增加百分比
-        
+
         // 尸块属性
         public uint OreId;                      // 矿石ID
         public uint ProductId;                  // 炼制出的物品ID

@@ -169,11 +169,11 @@ namespace Core.Utils
             if (collider == null) return false;
             return collider.ClosestPoint(point) == point;
         }
-        
+
         public static Vector3[] CalculateNormals(Vector3[] vertices, int[] triangles)
         {
             Vector3[] normals = new Vector3[vertices.Length];
-            
+
             for (var face = 0; face < triangles.Length / 3; face++)
             {
                 int v1 = triangles[face * 3];
@@ -207,7 +207,7 @@ namespace Core.Utils
 
             return normals;
         }
-        
+
         public static void DrawBounds(Bounds b, float duration = 1000)
         {
             var p1 = new Vector3(b.min.x, b.min.y, b.min.z);

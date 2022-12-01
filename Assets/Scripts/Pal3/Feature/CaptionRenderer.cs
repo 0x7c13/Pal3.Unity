@@ -40,7 +40,7 @@ namespace Pal3.Feature
             _gameResourceProvider = gameResourceProvider ?? throw new ArgumentNullException(nameof(gameResourceProvider));
             _playerInputActions = playerInputActions ?? throw new ArgumentNullException(nameof(playerInputActions));
             _captionImage = captionImage != null ? captionImage : throw new ArgumentNullException(nameof(captionImage));
-            
+
             _captionImage.preserveAspect = true;
             _playerInputActions.Cutscene.Continue.performed += CutsceneContinueOnPerformed;
         }
@@ -95,7 +95,7 @@ namespace Pal3.Feature
         {
             StartCoroutine(AnimateCaption(command.TextureName));
         }
-        
+
         #if PAL3A
         public void Execute(UIDisplayNextCaptionCommand command)
         {

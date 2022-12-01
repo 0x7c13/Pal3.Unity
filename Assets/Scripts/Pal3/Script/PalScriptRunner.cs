@@ -109,10 +109,10 @@ namespace Pal3.Script
             _globalVariables = globalVariables;
             _codepage = codepage;
             _executionMode = executionMode;
-            
+
             _registers = new object[MAX_REGISTER_COUNT];
             _registers[(int) RegisterOperations.Operator] = 0; // Init operator
-            
+
             _scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.ScriptData));
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -140,12 +140,12 @@ namespace Pal3.Script
         public bool Update(float deltaTime)
         {
             var canExecute = true;
-            
+
             if (_waiters.Count > 0)
             {
                 UpdateWaiters(deltaTime);
             }
-            
+
             if (_waiters.Count == 0)
             {
                 do { canExecute = Execute(); }
@@ -168,7 +168,7 @@ namespace Pal3.Script
         private bool Execute()
         {
             if (_isDisposed) return false;
-            
+
             if (_scriptDataReader.BaseStream.Position == _scriptDataReader.BaseStream.Length)
             {
                 return false;
@@ -389,7 +389,7 @@ namespace Pal3.Script
             var playerReactedInTime = dialogueManager.PlayerReactedInTimeForLimitTimeDialogue() ? 1 : 0;
             SetVariableValue(command.Variable, playerReactedInTime);
         }
-        
+
         public void Execute(ScriptCheckIfPlayerHaveItemCommand command)
         {
             if (!_isExecuting) return;
@@ -403,7 +403,7 @@ namespace Pal3.Script
             var isActorInTeam = ServiceLocator.Instance.Get<TeamManager>().IsActorInTeam((PlayerActorId) command.ActorId);
             SetVarValueBasedOnOperationResult(isActorInTeam);
         }
-        
+
         public void Execute(ScriptGetMazeSwitchStatusCommand command)
         {
             if (!_isExecuting) return;
@@ -419,7 +419,7 @@ namespace Pal3.Script
                 SetVariableValue(command.Variable, 0); // Default to off
             }
         }
-        
+
         public void Execute(ScriptGetMoneyCommand command)
         {
             if (!_isExecuting) return;
@@ -447,7 +447,7 @@ namespace Pal3.Script
             var leastFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetLeastFavorableActorId();
             SetVariableValue(command.Variable, leastFavorableActorId);
         }
-        
+
         // TODO: Impl
         #if PAL3A
         public void Execute(ScriptGetWuLingLunUsageCountCommand command)
