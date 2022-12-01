@@ -309,12 +309,12 @@ namespace Core.DataReader.Scn
         #endif
 
         // 触发条件
-        public ushort RequireSpecialAction;        // 对应特殊行走技能,0xFF为无此条件
+        public byte RequireSpecialAction;          // 对应特殊行走技能,0xFF为无此条件
         public ushort RequireItem;                 // 需要物品,0xFF为无此条件
         public ushort RequireMoney;                // 需要金钱值
         public ushort RequireLevel;                // 需要等级数
         public ushort RequireAttackValue;          // 需要武力值 (如果无此限制,则设成最小值)
-        public ushort RequireAllMechanismsSolved;  // 场景中所有需检测的机关都为开
+        public byte RequireAllMechanismsSolved;    // 场景中所有需检测的机关都为开
         public string FailedMessage;               // char[16] 失败提示字符串名称
 
         #if PAL3A
@@ -330,7 +330,7 @@ namespace Core.DataReader.Scn
 
         // 与场景的某个开关相关
         public string DependentSceneName;  // char[32]
-        public ushort DependentObjectId;
+        public byte DependentObjectId;
 
         public Bounds Bounds;
         public float XRotation;            // 绕X轴旋转

@@ -104,7 +104,7 @@ namespace Core.DataReader.Scn
 
             var triggerType = reader.ReadByte();
             var isNonBlocking = reader.ReadByte();
-            _ = reader.ReadBytes(2); // --------| ^ empty padding bytes to complete 4-byte alignment
+            _ = reader.ReadBytes(2); // Empty padding bytes to complete 4-byte alignment
 
             var gameBoxPosition = reader.ReadVector3();
             var yRotation = reader.ReadSingle();
@@ -132,14 +132,17 @@ namespace Core.DataReader.Scn
             var unknown1 = reader.ReadUInt32(); // TODO
             #endif
 
-            var requireSpecialAction = reader.ReadUInt16();
+            var requireSpecialAction = reader.ReadByte();
             var requireItem = reader.ReadUInt16();
+            _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
+
             var requireMoney = reader.ReadUInt16();
             var requireLevel = reader.ReadUInt16();
-            var requireAttackValue = reader.ReadUInt16();
-            var requireAllMechanismsSolved = reader.ReadUInt16();
 
+            var requireAttackValue = reader.ReadUInt16();
+            var requireAllMechanismsSolved = reader.ReadByte();
             var failedMessage = reader.ReadString(16, codepage);
+            _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
             #if PAL3A
             var unknown2 = reader.ReadUInt32(); // TODO
@@ -155,7 +158,8 @@ namespace Core.DataReader.Scn
 
             var linkedObjectId = reader.ReadUInt16();
             var dependentSceneName = reader.ReadString(32, codepage);
-            var dependentObjectId = reader.ReadUInt16();
+            var dependentObjectId = reader.ReadByte();
+            _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
             var bounds = new Bounds();
             bounds.SetMinMax(

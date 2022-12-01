@@ -49,7 +49,10 @@ namespace Pal3.Command
 
             if (!executed)
             {
-                Debug.LogWarning($"No command executor found for command: {typeof(T).Name}");
+                if (Attribute.GetCustomAttribute(typeof(T), typeof(SceCommandAttribute)) != null)
+                {
+                    Debug.LogWarning($"No command executor found for sce command: {typeof(T).Name}");
+                }
             }
         }
 
@@ -76,7 +79,10 @@ namespace Pal3.Command
 
             if (!executed)
             {
-                Debug.LogWarning($"No command executor found for command: {command.GetType().Name}");
+                if (Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
+                {
+                    Debug.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
+                }
             }
         }
 

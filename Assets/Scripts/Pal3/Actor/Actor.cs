@@ -109,12 +109,12 @@ namespace Pal3.Actor
         {
             return Info.Kind switch
             {
-                ScnActorKind.Soldier => 5f,
+                ScnActorKind.Soldier => 4f,
                 ScnActorKind.MainActor => 4f,
-                ScnActorKind.StoryNpc => 5f,
+                ScnActorKind.StoryNpc => 4f,
                 ScnActorKind.HotelManager => 6f,
                 ScnActorKind.Dealer => 6f,
-                _ => 5f
+                _ => 4f
             };
         }
     }
