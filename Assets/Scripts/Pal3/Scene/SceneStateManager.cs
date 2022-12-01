@@ -45,21 +45,6 @@ namespace Pal3.Scene
         private readonly Dictionary<(string cityName, string sceneName, int objectId), SceneObjectStateOverride>
             _sceneObjectStateOverrides = new ();
 
-        // There are some objects' position purely controlled by the script, so we don't want to persist them.
-        private readonly HashSet<(string cityName, string sceneName)> _sceneObjectPositionStateIgnoredScenes =
-            new ()
-            {
-                ("m08", "3"),
-                ("m15", "a"),
-                ("m15", "b"),
-                ("m15", "c"),
-                ("m15", "d"),
-                ("m15", "a1"),
-                ("m15", "b1"),
-                ("m15", "c1"),
-                ("m15", "d1"),
-            };
-
         public SceneStateManager()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -132,13 +117,6 @@ namespace Pal3.Scene
         public void Execute(SceneSaveGlobalObjectPositionCommand command)
         {
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
-
-            if (_sceneObjectPositionStateIgnoredScenes.Contains(
-                    (command.CityName.ToLower(), command.SceneName.ToLower())))
-            {
-                return; // Don't save the position of the objects in these scenes.
-            }
-
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].GameBoxPosition = command.GameBoxPosition;
         }

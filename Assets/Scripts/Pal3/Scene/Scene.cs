@@ -579,12 +579,34 @@ namespace Pal3.Scene
         {
             if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
-                Vector3 offset = GameBoxInterpreter.ToUnityPosition(
-                    new Vector3(command.GameBoxXOffset, command.GameBoxYOffset, command.GameBoxZOffset));
+                SceneObject sceneObject = SceneObjects[command.ObjectId];
+
+                var gameBoxPositionOffset = new Vector3(
+                    command.GameBoxXOffset,
+                    command.GameBoxYOffset,
+                    command.GameBoxZOffset);
+
+                Vector3 originalPosition = ScnFile.ObjectInfos.First(_ => _.Id == command.ObjectId).GameBoxPosition;
+
+                // There are some objects that moved by scripts on scene load which are saved in the scene state,
+                // which we don't want to override. So we need check if this object has already been moved by the
+                // SceneStateManager first. If so, we don't move it again.
+                // Example: The climbable object in PAL3 scene m08 3.
+                if (sceneObject.ObjectInfo.GameBoxPosition != originalPosition &&
+                    Vector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)
+                {
+                    // Don't do anything since this object has already been moved by the SceneStateManager
+                    Debug.LogWarning($"Won't move object {command.ObjectId} since it has already been " +
+                                   $"moved by the SceneStateManager on scene load.");
+                    return;
+                }
+
+                GameObject sceneObjectGo = sceneObject.GetGameObject();
+                Vector3 offset = GameBoxInterpreter.ToUnityPosition(gameBoxPositionOffset);
                 Vector3 toPosition = sceneObjectGo.transform.position + offset;
                 StartCoroutine(AnimationHelper.MoveTransform(sceneObjectGo.transform, toPosition, command.Duration));
 
+                // Save the new position since it is moved by the script
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
