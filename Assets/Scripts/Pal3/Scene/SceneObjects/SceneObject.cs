@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using System.IO;
     using Command;
     using Command.InternalCommands;
@@ -15,6 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using Data;
     using Dev;
     using Effect;
@@ -28,7 +30,7 @@ namespace Pal3.Scene.SceneObjects
         public Vector2Int ActorTilePosition;
         public float DistanceToActor;
     }
-    
+
     public abstract class SceneObject
     {
         public ScnObjectInfo ObjectInfo;
@@ -37,9 +39,9 @@ namespace Pal3.Scene.SceneObjects
         public SceneObjectModelType ModelType { get; }
 
         internal bool Activated;
-        
+
         internal readonly string ModelFilePath;
-        
+
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;
 
@@ -50,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
         {
             ObjectInfo = objectInfo;
             SceneInfo = sceneInfo;
-            
+
             ModelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
@@ -58,10 +60,10 @@ namespace Pal3.Scene.SceneObjects
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
-        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)  
+        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)
         {
             if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
-            
+
             if (objectInfo.Parameters[1] == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
                 // Dead object
@@ -103,7 +105,7 @@ namespace Pal3.Scene.SceneObjects
             Color tintColor)
         {
             if (Activated) return _sceneObjectGameObject;
-            
+
             _sceneObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
 
             // Attach SceneObjectInfo to the GameObject for better debuggability
@@ -127,8 +129,11 @@ namespace Pal3.Scene.SceneObjects
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
 
                 var initTime = 0f;
-                
-                if (ObjectInfo.Type == ScnSceneObjectType.Switch && ObjectInfo.SwitchState == 1)
+
+                if (ObjectInfo.Type is ScnSceneObjectType.Switch
+                        or ScnSceneObjectType.Collidable
+                        or ScnSceneObjectType.Shakeable
+                    && ObjectInfo.SwitchState == 1)
                 {
                     initTime = cvd.CvdFile.AnimationDuration;
                 }
@@ -164,7 +169,7 @@ namespace Pal3.Scene.SceneObjects
                 var effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
                 Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
-                _effectComponent!.Init(resourceProvider, effectParameter);   
+                _effectComponent!.Init(resourceProvider, effectParameter);
             }
 
             Activated = true;
@@ -177,51 +182,52 @@ namespace Pal3.Scene.SceneObjects
             {
                 return _polyModelRenderer.GetRendererBounds();
             }
-            
+
             if (_cvdModelRenderer != null)
             {
                 return _cvdModelRenderer.GetRendererBounds();
             }
-            
+
             return new Bounds
             {
                 center = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition),
                 size = Vector3.one
             };
         }
-        
+
         public GameObject GetGameObject()
         {
             return _sceneObjectGameObject;
         }
-        
+
         public CvdModelRenderer GetCvdModelRenderer()
         {
             return _cvdModelRenderer;
         }
-        
+
         public PolyModelRenderer GetPolyModelRenderer()
         {
             return _polyModelRenderer;
         }
-        
+
         public virtual bool IsInteractable(InteractionContext ctx)
         {
             return false;
         }
 
-        public virtual void Interact(bool triggerredByPlayer)
+        public virtual IEnumerator Interact(bool triggerredByPlayer)
         {
             // Do nothing
+            yield break;
         }
-        
+
         /// <summary>
         /// Should be called after the child class has finished its own deactivation.
         /// </summary>
         public virtual void Deactivate()
         {
             if (!Activated) return;
-            
+
             Activated = false;
 
             if (_effectComponent != null)
@@ -229,13 +235,13 @@ namespace Pal3.Scene.SceneObjects
                 _effectComponent.Dispose();
                 _effectComponent = null;
             }
-            
+
             if (_polyModelRenderer != null)
             {
                 _polyModelRenderer.Dispose();
                 _polyModelRenderer = null;
             }
-            
+
             if (_cvdModelRenderer != null)
             {
                 _cvdModelRenderer.Dispose();
@@ -247,7 +253,7 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_sceneObjectGameObject);
             }
         }
-        
+
         #region Internal helpper methods
         internal bool IsInteractableBasedOnTimesCount()
         {
@@ -260,7 +266,7 @@ namespace Pal3.Scene.SceneObjects
                 default:
                     ObjectInfo.Times--;
                     CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new SceneChangeGlobalObjectTimesCountCommand(
+                        new SceneSaveGlobalObjectTimesCountCommand(
                             SceneInfo.CityName,
                             SceneInfo.SceneName,
                             ObjectInfo.Id,
@@ -268,7 +274,7 @@ namespace Pal3.Scene.SceneObjects
                     return true;
             }
         }
-        
+
         internal bool ExecuteScriptIfAny()
         {
             if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId)
@@ -287,49 +293,53 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        internal void ChangeActivationState(bool isActivated)
+        internal void ChangeAndSaveActivationState(bool isActivated)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneActivateObjectCommand(ObjectInfo.Id, isActivated ? 1 : 0));
+            // Scene will receive this command and save its global activation state
+            // so no need to dispatch a SceneSaveGlobalObjectActivationStateCommand here
         }
 
-        internal void ToggleSwitchState()
+        internal void ToggleAndSaveSwitchState()
         {
             ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;
             if (ObjectInfo.Times != 0xFF)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneChangeGlobalObjectSwitchStateCommand(SceneInfo.CityName,
+                    new SceneSaveGlobalObjectSwitchStateCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Id,
                         ObjectInfo.SwitchState));
             }
         }
-        
-        internal void ChangeLinkedObjectActivationStateIfAny(bool isActivated)
-        {
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneActivateObjectCommand(ObjectInfo.LinkedObjectId, isActivated ? 1 : 0));
-            }
-        }
 
-        internal bool InteractWithLinkedObjectIfAny()
+        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAny()
         {
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId == 0xFFFF) yield break;
+
+            Scene scene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
+            var allActivatedSceneObjects = scene.GetAllActivatedSceneObjects();
+
+            if (!allActivatedSceneObjects.Contains(ObjectInfo.LinkedObjectId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerInteractWithObjectCommand(ObjectInfo.LinkedObjectId));
-                return true;
+                    new SceneActivateObjectCommand(ObjectInfo.LinkedObjectId, 1));
             }
-            return false;
+            else
+            {
+                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).Interact(false);
+            }
         }
 
         internal void ChangeAndSaveNavLayerIndex(byte layerIndex)
         {
             ObjectInfo.LayerIndex = layerIndex;
-            // TODO: Save state
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneSaveGlobalObjectLayerIndexCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    layerIndex));
         }
         #endregion
     }

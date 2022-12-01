@@ -5,23 +5,25 @@
 
 namespace Pal3.Command.InternalCommands
 {
+    using UnityEngine;
+
     [AvailableInConsole]
-    public class SceneChangeGlobalObjectSwitchStateCommand : ICommand
+    public class SceneSaveGlobalObjectPositionCommand : ICommand
     {
-        public SceneChangeGlobalObjectSwitchStateCommand(string cityName,
+        public SceneSaveGlobalObjectPositionCommand(string cityName,
             string sceneName,
             int objectId,
-            int switchState)
+            Vector3 gameBoxPosition)
         {
             CityName = cityName;
             SceneName = sceneName;
             ObjectId = objectId;
-            SwitchState = switchState;
+            GameBoxPosition = gameBoxPosition;
         }
 
         public string CityName { get; }
         public string SceneName { get; }
         public int ObjectId { get; }
-        public int SwitchState { get; }
+        public Vector3 GameBoxPosition { get; }
     }
 }

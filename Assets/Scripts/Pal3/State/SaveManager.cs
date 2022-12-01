@@ -33,7 +33,7 @@ namespace Pal3.State
         Minimal = 0,
         Full
     }
-    
+
     public class SaveManager
     {
         private readonly SceneManager _sceneManager;
@@ -49,7 +49,7 @@ namespace Pal3.State
         private readonly PostProcessManager _postProcessManager;
 
         private const string SAVE_FILE_NAME = "save.txt";
-        
+
         public SaveManager(SceneManager sceneManager,
             PlayerManager playerManager,
             TeamManager teamManager,
@@ -80,12 +80,12 @@ namespace Pal3.State
             return Application.persistentDataPath +
                    Path.DirectorySeparatorChar + SAVE_FILE_NAME;
         }
-        
+
         public bool SaveFileExists()
         {
             return File.Exists(GetSaveFilePath());
         }
-        
+
         public bool SaveGameStateToFile()
         {
             string saveFilePath = GetSaveFilePath();
@@ -107,11 +107,11 @@ namespace Pal3.State
         {
             return !SaveFileExists() ? null : File.ReadAllText(GetSaveFilePath());
         }
-        
+
         public List<ICommand> ConvertCurrentGameStateToCommands(SaveLevel saveLevel)
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
-            
+
             var playerActorMovementController = currentScene
                 .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
@@ -124,16 +124,16 @@ namespace Pal3.State
                 varsToSave = new Dictionary<int, int>()
                 {
                     {ScriptConstants.MainStoryVariableName, varsToSave[ScriptConstants.MainStoryVariableName]}
-                }; // Save main story var only   
+                }; // Save main story var only
             }
-            
+
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
             var commands = new List<ICommand>
             {
                 new ResetGameStateCommand(), // Reset game state at first
             };
-            
+
             // Save global variable(s)
             commands.AddRange(varsToSave.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
@@ -146,15 +146,15 @@ namespace Pal3.State
             {
                 commands.Add(new PlayMusicCommand(currentScriptMusic, 0));
             }
-            
+
             // Save team state
             commands.AddRange(_teamManager.GetActorsInTeam()
                 .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
-            
+
             // Save favor info
             commands.AddRange(_favorManager.GetAllActorFavorInfo()
                 .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
-            
+
             // Save big map region activation state
             commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
                 .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
@@ -163,41 +163,63 @@ namespace Pal3.State
             commands.Add(new InventoryAddMoneyCommand(_inventoryManager.GetTotalMoney()));
             commands.AddRange(_inventoryManager.GetAllItems()
                 .Select(item => new InventoryAddItemCommand(item.Key, item.Value)));
-            
-            // Save scene object activation state
-            commands.AddRange(_sceneStateManager.GetSceneObjectActivationStates()
-                .Select(state => 
-                    new SceneChangeGlobalObjectActivationStateCommand(
-                        state.Key.cityName,
-                        state.Key.sceneName,
-                        state.Key.objectId,
-                        state.Value ? 1 : 0)));
-            
-            // Save scene object switch state
-            commands.AddRange(_sceneStateManager.GetSceneObjectSwitchStates()
-                .Select(state => 
-                    new SceneChangeGlobalObjectSwitchStateCommand(
-                        state.Key.cityName,
-                        state.Key.sceneName,
-                        state.Key.objectId,
-                        state.Value ? 1 : 0)));
-            
-            // Save scene object times used
-            commands.AddRange(_sceneStateManager.GetSceneObjectTimesCount()
-                .Select(state => 
-                    new SceneChangeGlobalObjectTimesCountCommand(
-                        state.Key.cityName,
-                        state.Key.sceneName,
-                        state.Key.objectId,
-                        state.Value)));
-            
+
+            // Save scene object state
+            foreach (var sceneObjectStateOverride in _sceneStateManager.GetSceneObjectStateOverrides())
+            {
+                if (sceneObjectStateOverride.Value.IsActivated.HasValue)
+                {
+                    commands.Add(new SceneSaveGlobalObjectActivationStateCommand(
+                        sceneObjectStateOverride.Key.cityName,
+                        sceneObjectStateOverride.Key.sceneName,
+                        sceneObjectStateOverride.Key.objectId,
+                        sceneObjectStateOverride.Value.IsActivated.Value));
+                }
+
+                if (sceneObjectStateOverride.Value.SwitchState.HasValue)
+                {
+                    commands.Add(new SceneSaveGlobalObjectSwitchStateCommand(
+                        sceneObjectStateOverride.Key.cityName,
+                        sceneObjectStateOverride.Key.sceneName,
+                        sceneObjectStateOverride.Key.objectId,
+                        sceneObjectStateOverride.Value.SwitchState.Value));
+                }
+
+                if (sceneObjectStateOverride.Value.TimesCount.HasValue)
+                {
+                    commands.Add(new SceneSaveGlobalObjectTimesCountCommand(
+                        sceneObjectStateOverride.Key.cityName,
+                        sceneObjectStateOverride.Key.sceneName,
+                        sceneObjectStateOverride.Key.objectId,
+                        sceneObjectStateOverride.Value.TimesCount.Value));
+                }
+
+                if (sceneObjectStateOverride.Value.LayerIndex.HasValue)
+                {
+                    commands.Add(new SceneSaveGlobalObjectLayerIndexCommand(
+                        sceneObjectStateOverride.Key.cityName,
+                        sceneObjectStateOverride.Key.sceneName,
+                        sceneObjectStateOverride.Key.objectId,
+                        sceneObjectStateOverride.Value.LayerIndex.Value));
+                }
+
+                if (sceneObjectStateOverride.Value.GameBoxPosition.HasValue)
+                {
+                    commands.Add(new SceneSaveGlobalObjectPositionCommand(
+                        sceneObjectStateOverride.Key.cityName,
+                        sceneObjectStateOverride.Key.sceneName,
+                        sceneObjectStateOverride.Key.objectId,
+                        sceneObjectStateOverride.Value.GameBoxPosition.Value));
+                }
+            }
+
             // Save current applied screen effect state
             var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
             if (currentEffectMode != -1)
             {
-                commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));   
+                commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));
             }
-            
+
             // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()
             {
@@ -214,7 +236,7 @@ namespace Pal3.State
                 new ActorSetFacingCommand(currentPlayerActorId,
                     (int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
-            
+
             var allActors = currentScene.GetAllActors();
             var allActorGameObjects = currentScene.GetAllActorGameObjects();
 
@@ -226,10 +248,10 @@ namespace Pal3.State
             foreach ((int actorId, GameObject actorGameObject)  in allActorGameObjects)
             {
                 if (currentPlayerActorId == actorId) continue;
-                
+
                 var actorController = actorGameObject.GetComponent<ActorController>();
                 var actorMovementController = actorGameObject.GetComponent<ActorMovementController>();
-                
+
                 if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
                 {
                     commands.Add(new ActorActivateCommand(actorId, 0));
@@ -242,7 +264,7 @@ namespace Pal3.State
                     {
                         commands.Add(new ActorActivateCommand(actorId, 1));
                     }
-                    
+
                     // Save position and rotation if not in initial state
                     // Only save position and rotation if the actor behavior is None or Hold
                     if (actor.Info.InitBehaviour is ScnActorBehaviour.None or ScnActorBehaviour.Hold)
@@ -252,23 +274,23 @@ namespace Pal3.State
                             commands.Add(new ActorSetNavLayerCommand(actorId,
                                 actorMovementController.GetCurrentLayerIndex()));
                         }
-                    
+
                         var currentPosition = actorGameObject.transform.position;
                         var currentGameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(currentPosition);
-                        
+
                         if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
                             Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)
                         {
                             commands.Add(new ActorSetWorldPositionCommand(actorId,
                                 currentPosition.x, currentPosition.z));
                         }
-                        
+
                         if (Mathf.Abs(currentGameBoxPosition.y - actor.Info.GameBoxYPosition) > 0.01f)
                         {
                             commands.Add(new ActorSetYPositionCommand(actorId,
                                 currentGameBoxPosition.y));
                         }
-                        
+
                         if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=
                             actorGameObject.transform.rotation)
                         {
@@ -276,7 +298,7 @@ namespace Pal3.State
                                 (int) actorGameObject.transform.rotation.eulerAngles.y));
                         }
                     }
-                    
+
                     // Save script id if changed by the script
                     if (actorController.IsScriptChanged())
                     {
@@ -285,7 +307,7 @@ namespace Pal3.State
                     }
                 }
             }
-            
+
             #if PAL3
             // Save LongKui state
             var longKuiCurrentMode = currentScene.GetActorGameObject((int) PlayerActorId.LongKui)
@@ -322,7 +344,7 @@ namespace Pal3.State
             var defaultCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
             if (defaultCameraTransformOption != 0)
             {
-                commands.Add(new CameraSetDefaultTransformCommand(defaultCameraTransformOption));   
+                commands.Add(new CameraSetDefaultTransformCommand(defaultCameraTransformOption));
             }
 
             // Good to have

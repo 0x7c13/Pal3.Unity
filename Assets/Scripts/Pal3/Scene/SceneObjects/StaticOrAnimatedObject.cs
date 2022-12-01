@@ -30,37 +30,39 @@ namespace Pal3.Scene.SceneObjects
             {
                 sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }
-            
-            sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(this);
+
+            sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(ObjectInfo.Parameters);
             return sceneGameObject;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
             if (Activated && ModelType == SceneObjectModelType.CvdModel)
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(true);
             }
+
+            yield break;
         }
     }
 
     internal class StaticOrAnimatedObjectController : MonoBehaviour
     {
-        private StaticOrAnimatedObject _object;
+        private int[] _parameters;
         private Component _effectComponent;
         private float _initYPosition;
-        
-        public void Init(StaticOrAnimatedObject staticOrAnimatedObject)
+
+        public void Init(int[] parameters)
         {
-            _object = staticOrAnimatedObject;
+            _parameters = parameters;
         }
-        
+
         private void Start()
         {
             _initYPosition = transform.localPosition.y;
 
             // Randomly play animation if Parameters[1] == 0 for Cvd modeled objects.
-            if (_object.ObjectInfo.Parameters[1] == 0)
+            if (_parameters[1] == 0)
             {
                 if (gameObject.GetComponent<CvdModelRenderer>() is {} cvdModelRenderer)
                 {
@@ -84,7 +86,7 @@ namespace Pal3.Scene.SceneObjects
             // Parameters[2] describes animated object's default animation.
             // 0 means no animation. 1 means the object is animated up and down (sine curve).
             // 2 means the object is animated with constant rotation.
-            if (_object.ObjectInfo.Parameters[2] == 1)
+            if (_parameters[2] == 1)
             {
                 Transform currentTransform = transform;
                 Vector3 currentPosition = currentTransform.localPosition;
@@ -92,11 +94,11 @@ namespace Pal3.Scene.SceneObjects
                     _initYPosition + Mathf.Sin(Time.time) / 6f,
                     currentPosition.z);
             }
-            else if (_object.ObjectInfo.Parameters[2] == 2)
+            else if (_parameters[2] == 2)
             {
                 Transform currentTransform = transform;
                 transform.RotateAround(currentTransform.position,
-                    currentTransform.up, 
+                    currentTransform.up,
                     Time.deltaTime * 80f);
             }
         }

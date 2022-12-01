@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Animation;
@@ -15,139 +16,118 @@ namespace Pal3.Scene.SceneObjects
     using Core.Services;
     using Data;
     using Player;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
     public class GravityTriggerObject : SceneObject
     {
-        public const float DescendingHeight = 0.5f;
-        public const float DescendingAnimationDuration = 2.5f;
-        
+        private const float DESCENDING_HEIGHT = 0.5f;
+        private const float DESCENDING_ANIMATION_DURATION = 2.5f;
+
         private StandingPlatformController _platformController;
-        private GravityTriggerObjectController _objectController;
-        
+
         private readonly PlayerManager _playerManager;
+        private readonly SceneManager _sceneManager;
         private readonly TeamManager _teamManager;
-        
+
         public GravityTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
             _teamManager = ServiceLocator.Instance.Get<TeamManager>();
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
-            
+
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            
+
             // wz06.cvd
             var bounds = new Bounds
             {
                 center = new Vector3(0f, 0.8f, 0f),
                 size = new Vector3(4f, 1f, 4f),
             };
-            
+
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
-            _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
-            
-            _objectController = sceneGameObject.AddComponent<GravityTriggerObjectController>();
-            _objectController.Init(this);
+            _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            // Set to final position if the gravity trigger is already activated
+            // Set to final position if it is already activated
             if (ObjectInfo.Times == 0)
             {
                 Vector3 finalPosition = sceneGameObject.transform.position;
-                finalPosition.y -= DescendingHeight;
+                finalPosition.y -= DESCENDING_HEIGHT;
                 sceneGameObject.transform.position = finalPosition;
             }
-            
+
             return sceneGameObject;
         }
 
-        private void OnPlatformTriggerEntered(object sender, Collider collider)
+        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
-            // Check if the player actor is on the platform
-            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
+            // Check if total team members are equal to or greater than required headcount
+            if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
             {
-                // Check if total team members are equal to or greater than required headcount
-                if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
-                {
-                    if (!IsInteractableBasedOnTimesCount()) return;
-                    _objectController.Interact(collider.gameObject);
-                }
-                else if (ObjectInfo.Times > 0)
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("重量不足，无法激活"));
-                }
+                if (!IsInteractableBasedOnTimesCount()) return;
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Cutscene));
+                Pal3.Instance.StartCoroutine(Interact(true));
+            }
+            else if (ObjectInfo.Times > 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("重量不足，无法激活"));
             }
         }
 
-        public override void Deactivate()
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (_platformController != null)
-            {
-                _platformController.OnTriggerEntered -= OnPlatformTriggerEntered;
-                Object.Destroy(_platformController);
-            }
-            
-            if (_objectController != null)
-            {
-                Object.Destroy(_objectController);
-            }
-            
-            base.Deactivate();
-        }
-    }
-
-    internal class GravityTriggerObjectController : MonoBehaviour
-    {
-        private GravityTriggerObject _object;
-
-        public void Init(GravityTriggerObject gravityTriggerObject)
-        {
-            _object = gravityTriggerObject;
-        }
-
-        public void Interact(GameObject playerActorGameObject)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
-            StartCoroutine(InteractInternal(playerActorGameObject));
-        }
-
-        private IEnumerator InteractInternal(GameObject playerActorGameObject)
-        {
-            GameObject gravityTriggerGo = _object.GetGameObject();
+            GameObject gravityTriggerGo = GetGameObject();
             var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
             Vector3 platformPosition = platformController.transform.position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
                 platformController.GetPlatformHeight(),
                 platformPosition.z);
-            
-            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
-            yield return movementController.MoveDirectlyTo(actorStandingPosition, 0);
-            
+
+            var actorMovementController = _sceneManager.GetCurrentScene()
+                .GetActorGameObject((int)_playerManager.GetPlayerActor())
+                .GetComponent<ActorMovementController>();
+
+            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
+
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
 
-            var cvdModelRenderer = _object.GetCvdModelRenderer();
+            var cvdModelRenderer = GetCvdModelRenderer();
             yield return cvdModelRenderer.PlayOneTimeAnimation(true);
-            
+
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
 
             Vector3 finalPosition = gravityTriggerGo.transform.position;
-            finalPosition.y -= GravityTriggerObject.DescendingHeight;
+            finalPosition.y -= DESCENDING_HEIGHT;
             yield return AnimationHelper.MoveTransform(gravityTriggerGo.transform,
                 finalPosition,
-                GravityTriggerObject.DescendingAnimationDuration,
+                DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            _object.InteractWithLinkedObjectIfAny();
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Gameplay));
+        }
+
+        public override void Deactivate()
+        {
+            if (_platformController != null)
+            {
+                _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                Object.Destroy(_platformController);
+            }
+
+            base.Deactivate();
         }
     }
 }

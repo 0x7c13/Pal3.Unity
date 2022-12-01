@@ -11,15 +11,15 @@ namespace Pal3.Scene.SceneObjects.Common
     using Core.GameBox;
     using UnityEngine;
 
-    public class TilemapAutoTriggerController : MonoBehaviour,
+    public class TilemapTriggerController : MonoBehaviour,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
-        public event EventHandler<Vector2Int> OnTriggerEntered;
-        
+        public event EventHandler<Vector2Int> OnPlayerActorEntered;
+
         private GameBoxRect _tileMapTriggerRect;
         private int _layerIndex;
         private double _effectiveTime;
-        
+
         private bool _wasTriggered;
         private bool _isScriptRunningInProgress;
 
@@ -29,7 +29,7 @@ namespace Pal3.Scene.SceneObjects.Common
             _layerIndex = layerIndex;
             _effectiveTime = Time.realtimeSinceStartupAsDouble;
         }
-        
+
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex, double effectiveTime)
         {
             _tileMapTriggerRect = tileMapTriggerRect;
@@ -59,13 +59,13 @@ namespace Pal3.Scene.SceneObjects.Common
                 _wasTriggered = false;
                 return;
             }
-            
+
             if (Time.realtimeSinceStartupAsDouble < _effectiveTime) return;
 
             if (!_wasTriggered)
             {
                 _wasTriggered = true;
-                OnTriggerEntered?.Invoke(this, notification.Position);
+                OnPlayerActorEntered?.Invoke(this, notification.Position);
             }
         }
     }

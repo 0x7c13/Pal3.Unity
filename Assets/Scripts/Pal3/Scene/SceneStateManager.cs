@@ -9,119 +9,143 @@ namespace Pal3.Scene
     using System.Collections.Generic;
     using Command;
     using Command.InternalCommands;
-    
+    using Core.DataReader.Scn;
+    using UnityEngine;
+
+    public class SceneObjectStateOverride
+    {
+        // In-game state overrides
+        public bool? IsActivated { get; set; }
+
+        // ScnObjectInfo overrides
+        public byte? SwitchState { get; set; }
+        public byte? TimesCount { get; set; }
+        public byte? LayerIndex { get; set; }
+        public Vector3? GameBoxPosition { get; set; }
+
+        public ScnObjectInfo ApplyOverrides(ScnObjectInfo objectInfo)
+        {
+            if (SwitchState.HasValue) objectInfo.SwitchState = SwitchState.Value;
+            if (TimesCount.HasValue) objectInfo.Times = TimesCount.Value;
+            if (LayerIndex.HasValue) objectInfo.LayerIndex = LayerIndex.Value;
+            if (GameBoxPosition.HasValue) objectInfo.GameBoxPosition = GameBoxPosition.Value;
+
+            return objectInfo;
+        }
+    }
+
     public sealed class SceneStateManager : IDisposable,
-        ICommandExecutor<SceneChangeGlobalObjectActivationStateCommand>,
-        ICommandExecutor<SceneChangeGlobalObjectSwitchStateCommand>,
-        ICommandExecutor<SceneChangeGlobalObjectTimesCountCommand>,
+        ICommandExecutor<SceneSaveGlobalObjectActivationStateCommand>,
+        ICommandExecutor<SceneSaveGlobalObjectSwitchStateCommand>,
+        ICommandExecutor<SceneSaveGlobalObjectTimesCountCommand>,
+        ICommandExecutor<SceneSaveGlobalObjectLayerIndexCommand>,
+        ICommandExecutor<SceneSaveGlobalObjectPositionCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly Dictionary<(string cityName, string sceneName, int objectId), bool> _sceneObjectActivationStates = new ();
-        private readonly Dictionary<(string cityName, string sceneName, int objectId), bool> _sceneObjectSwitchStates = new ();
-        private readonly Dictionary<(string cityName, string sceneName, int objectId), byte> _sceneObjectTimesCount = new ();
+        private readonly Dictionary<(string cityName, string sceneName, int objectId), SceneObjectStateOverride>
+            _sceneObjectStateOverrides = new ();
+
+        // There are some objects' position purely controlled by the script, so we don't want to persist them.
+        private readonly HashSet<(string cityName, string sceneName)> _sceneObjectPositionStateIgnoredScenes =
+            new ()
+            {
+                ("m08", "3"),
+                ("m15", "a"),
+                ("m15", "b"),
+                ("m15", "c"),
+                ("m15", "d"),
+                ("m15", "a1"),
+                ("m15", "b1"),
+                ("m15", "c1"),
+                ("m15", "d1"),
+            };
 
         public SceneStateManager()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
-        
+
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public Dictionary<(string cityName, string sceneName, int objectId), bool> GetSceneObjectActivationStates()
+        public Dictionary<(string cityName, string sceneName, int objectId), SceneObjectStateOverride> GetSceneObjectStateOverrides()
         {
-            return _sceneObjectActivationStates;
-        }
-        
-        public Dictionary<(string cityName, string sceneName, int objectId), bool> GetSceneObjectSwitchStates()
-        {
-            return _sceneObjectSwitchStates;
-        }
-        
-        public Dictionary<(string cityName, string sceneName, int objectId), byte> GetSceneObjectTimesCount()
-        {
-            return _sceneObjectTimesCount;
+            return _sceneObjectStateOverrides;
         }
 
-        public bool TryGetSceneObjectActivationState(string cityName,
+        public bool TryGetSceneObjectStateOverride(string cityName,
             string sceneName,
             int objectId,
-            out bool isActivated)
+            out SceneObjectStateOverride stateOverride)
         {
             var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
-            if (_sceneObjectActivationStates.ContainsKey(key))
+            if (_sceneObjectStateOverrides.ContainsKey(key))
             {
-                isActivated = _sceneObjectActivationStates[key];
+                stateOverride = _sceneObjectStateOverrides[key];
                 return true;
             }
             else
             {
-                isActivated = false;
+                stateOverride = default;
                 return false;
             }
-        }
-        
-        public bool TryGetSceneObjectSwitchState(string cityName,
-            string sceneName,
-            int objectId,
-            out bool isSwitchOn)
-        {
-            var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
-            if (_sceneObjectSwitchStates.ContainsKey(key))
-            {
-                isSwitchOn = _sceneObjectSwitchStates[key];
-                return true;
-            }
-            else
-            {
-                isSwitchOn = false;
-                return false;
-            }
-        }
-        
-        public bool TryGetSceneObjectTimesCount(string cityName,
-            string sceneName,
-            int objectId,
-            out byte timesCount)
-        {
-            var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
-            if (_sceneObjectTimesCount.ContainsKey(key))
-            {
-                timesCount = _sceneObjectTimesCount[key];
-                return true;
-            }
-            else
-            {
-                timesCount = 0xFF;
-                return false;
-            }
-        }
-        
-        public void Execute(SceneChangeGlobalObjectActivationStateCommand command)
-        {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
-            _sceneObjectActivationStates[key] = command.IsActive != 0;
-        }
-        
-        public void Execute(SceneChangeGlobalObjectSwitchStateCommand command)
-        {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
-            _sceneObjectSwitchStates[key] = command.SwitchState != 0;
         }
 
-        public void Execute(SceneChangeGlobalObjectTimesCountCommand command)
+        private void InitKeyIfNotExists((string cityName, string sceneName, int objectId) key)
+        {
+            if (!_sceneObjectStateOverrides.ContainsKey(key))
+            {
+                _sceneObjectStateOverrides[key] = new SceneObjectStateOverride();
+            }
+        }
+
+        public void Execute(SceneSaveGlobalObjectActivationStateCommand command)
         {
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
-            _sceneObjectTimesCount[key] = command.TimesCount;
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].IsActivated = command.IsActivated;
         }
-        
+
+        public void Execute(SceneSaveGlobalObjectSwitchStateCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].SwitchState = command.SwitchState;
+        }
+
+        public void Execute(SceneSaveGlobalObjectTimesCountCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].TimesCount = command.TimesCount;
+        }
+
+        public void Execute(SceneSaveGlobalObjectLayerIndexCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].LayerIndex = command.LayerIndex;
+        }
+
+        public void Execute(SceneSaveGlobalObjectPositionCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+
+            if (_sceneObjectPositionStateIgnoredScenes.Contains(
+                    (command.CityName.ToLower(), command.SceneName.ToLower())))
+            {
+                return; // Don't save the position of the objects in these scenes.
+            }
+
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].GameBoxPosition = command.GameBoxPosition;
+        }
+
         public void Execute(ResetGameStateCommand command)
         {
-            _sceneObjectActivationStates.Clear();
-            _sceneObjectSwitchStates.Clear();
-            _sceneObjectTimesCount.Clear();
+            _sceneObjectStateOverrides.Clear();
         }
     }
 }

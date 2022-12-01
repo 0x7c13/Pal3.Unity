@@ -5,14 +5,13 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
     using Data;
     using MetaData;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
@@ -31,7 +30,6 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            sceneGameObject.AddComponent<InvestigationTriggerController>().Init(this);
             if (ObjectInfo.IsNonBlocking == 0)
             {
                 sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
@@ -44,33 +42,17 @@ namespace Pal3.Scene.SceneObjects
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
+            if (!IsInteractableBasedOnTimesCount()) yield break;
 
             if (triggerredByPlayer)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Cutscene));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            if (!ExecuteScriptIfAny() && triggerredByPlayer)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Gameplay));
-            }
-        }
-    }
-
-    internal class InvestigationTriggerController : MonoBehaviour
-    {
-        private InvestigationTriggerObject _object;
-
-        public void Init(InvestigationTriggerObject investigationTriggerObject)
-        {
-            _object = investigationTriggerObject;
+            ExecuteScriptIfAny();
         }
     }
 }

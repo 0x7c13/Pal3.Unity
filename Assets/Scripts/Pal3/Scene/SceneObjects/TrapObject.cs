@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -20,7 +21,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Trap)]
     public class TrapObject : SceneObject
     {
-        private TilemapAutoTriggerController _triggerController;
+        private TilemapTriggerController _triggerController;
 
         public TrapObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -32,18 +33,23 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            
-            _triggerController = sceneGameObject.AddComponent<TilemapAutoTriggerController>();
+
+            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
-            _triggerController.OnTriggerEntered += OnTriggerEntered;
-            
+            _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+
             return sceneGameObject;
         }
 
-        private void OnTriggerEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
+            Pal3.Instance.StartCoroutine(Interact(true));
+        }
+
+        public override IEnumerator Interact(bool triggerredByPlayer)
+        {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
@@ -63,25 +69,20 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
-                {
-                    ExecuteScriptIfAny();
-                });
+                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
             }
-            else
-            {
-                ExecuteScriptIfAny();   
-            }
+
+            ExecuteScriptIfAny(); // Trap always has a script, so no need to explicitly set game state back to GamePlay
         }
 
         public override void Deactivate()
         {
             if (_triggerController != null)
             {
-                _triggerController.OnTriggerEntered -= OnTriggerEntered;
+                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 Object.Destroy(_triggerController);
             }
-            
+
             base.Deactivate();
         }
     }

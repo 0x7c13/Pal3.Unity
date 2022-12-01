@@ -39,7 +39,7 @@ namespace Pal3
     #if PAL3
     using MiniGame;
     #endif
-    
+
     /// <summary>
     /// Pal3 game model
     /// </summary>
@@ -134,7 +134,7 @@ namespace Pal3
         private CaptionRenderer _captionRenderer;
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
-        
+
         // Mini games
         #if PAL3
         private AppraisalsMiniGame _appraisalsMiniGame;
@@ -151,7 +151,7 @@ namespace Pal3
         private StorySelector _storySelector;
 
         private SettingsManager _settingsManager;
-        
+
         private void OnEnable()
         {
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
@@ -215,6 +215,7 @@ namespace Pal3
                 _teamManager,
                 _inputActions,
                 _sceneManager,
+                _scriptManager,
                 mainCamera);
             ServiceLocator.Instance.Register(_playerGamePlayController);
 
@@ -261,7 +262,7 @@ namespace Pal3
             _cursorManager.Init(_gameResourceProvider);
             ServiceLocator.Instance.Register(_cursorManager);
             #endif
-                
+
             _hotelManager = gameObject.AddComponent<HotelManager>();
             _hotelManager.Init(_scriptManager, _sceneManager);
             ServiceLocator.Instance.Register(_hotelManager);
@@ -296,7 +297,7 @@ namespace Pal3
                 _audioManager,
                 _postProcessManager);
             ServiceLocator.Instance.Register(_saveManager);
-            
+
             _mazeSkipper = new MazeSkipper(_gameStateManager,
                 _sceneManager,
                 mazeSkipperCanvasGroup,
@@ -320,13 +321,13 @@ namespace Pal3
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
-            
+
             DebugLogConsole.AddCommand("state", "Get current game state in commands form.", PrintCurrentGameStateInCommandsForm);
             DebugLogConsole.AddCommand("info", "Get current game info.", PrintCurrentGameInfo);
             DebugLogConsole.AddCommand<int>("fps", "Set target FPS.", SetTargetFps);
 
             DisableInGameDebugConsoleButtonNavigation();
-            
+
             _settingsManager = new SettingsManager();
             _settingsManager.ApplyDefaultRenderingSettings();
             _settingsManager.ApplyPlatformSpecificSettings();
@@ -427,7 +428,7 @@ namespace Pal3
         private void PrintCurrentGameInfo()
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-            
+
             var info = new StringBuilder();
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
@@ -444,12 +445,12 @@ namespace Pal3
 
             info.Append("----- Team info -----\n" +
                         $"Actors in team: {string.Join(", ", _teamManager.GetActorsInTeam().Select(_ => _.ToString()))}\n");
-            
+
             info.Append(_scriptManager.GetGlobalVariables()
                 .Aggregate("----- Variables info -----\n", (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
 
             info.Append(_inventoryManager);
-            
+
             Debug.Log(info.ToString() + '\n');
         }
 

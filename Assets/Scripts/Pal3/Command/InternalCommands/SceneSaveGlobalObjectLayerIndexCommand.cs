@@ -6,22 +6,22 @@
 namespace Pal3.Command.InternalCommands
 {
     [AvailableInConsole]
-    public class SceneChangeGlobalObjectActivationStateCommand : ICommand
+    public class SceneSaveGlobalObjectLayerIndexCommand : ICommand
     {
-        public SceneChangeGlobalObjectActivationStateCommand(string cityName,
+        public SceneSaveGlobalObjectLayerIndexCommand(string cityName,
             string sceneName,
             int objectId,
-            int isActive)
+            byte layerIndex)
         {
             CityName = cityName;
             SceneName = sceneName;
             ObjectId = objectId;
-            IsActive = isActive;
+            LayerIndex = layerIndex;
         }
 
         public string CityName { get; }
         public string SceneName { get; }
         public int ObjectId { get; }
-        public int IsActive { get; }
+        public byte LayerIndex { get; }
     }
 }

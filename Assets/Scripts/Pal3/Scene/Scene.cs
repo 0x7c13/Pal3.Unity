@@ -46,10 +46,10 @@ namespace Pal3.Scene
 
         private GameObject _parent;
         private GameObject _mesh;
-        
+
         private Light _mainLight;
         private readonly List<Light> _pointLights = new();
-        
+
         private readonly List<GameObject> _navMeshLayers = new ();
         private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
 
@@ -57,12 +57,12 @@ namespace Pal3.Scene
         private readonly Dictionary<int, GameObject> _actorObjects = new ();
 
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
-        
+
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
         private Camera _mainCamera;
         private SkyBoxRenderer _skyBoxRenderer;
-        
+
         private Tilemap _tilemap;
 
         public void Init(GameResourceProvider resourceProvider,
@@ -119,7 +119,7 @@ namespace Pal3.Scene
 
             var timer = new Stopwatch();
             timer.Start();
-            
+
             base.Init(_resourceProvider,
                 scnFile,
                 _sceneStateManager,
@@ -170,12 +170,12 @@ namespace Pal3.Scene
         {
             return SceneObjects.ContainsKey(id) ? SceneObjects[id] : null;
         }
-        
+
         public HashSet<int> GetAllActivatedSceneObjects()
         {
             return _activatedSceneObjects;
         }
-        
+
         public Dictionary<int, SceneObject> GetAllSceneObjects()
         {
             return SceneObjects;
@@ -253,7 +253,7 @@ namespace Pal3.Scene
                     layer = LayerMask.NameToLayer("RaycastOnly")
                 };
                 navMesh.transform.SetParent(_parent.transform, false);
-                
+
                 var meshCollider = navMesh.AddComponent<MeshCollider>();
                 meshCollider.convex = false;
                 meshCollider.sharedMesh = new Mesh()
@@ -278,7 +278,7 @@ namespace Pal3.Scene
             {
                 mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
             }
-            
+
             // Most in-door scenes have a single spot light source where we can find in the LGT file,
             // which can be used as the main light source for the scene.
             // if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB &&
@@ -293,7 +293,7 @@ namespace Pal3.Scene
             //         W = w,
             //     });
             // }
-            
+
             var mainLightGo = new GameObject($"LightSource_Main");
             mainLightGo.transform.SetParent(_parent.transform, false);
             mainLightGo.transform.position = mainLightPosition;
@@ -305,7 +305,7 @@ namespace Pal3.Scene
             _mainLight.shadows = LightShadows.Soft;
             _mainLight.cullingMask = _lightCullingMask;
             RenderSettings.sun = _mainLight;
-            
+
             #if PAL3
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
@@ -317,13 +317,13 @@ namespace Pal3.Scene
                 new Color(200f / 255f, 200f / 255f, 200f / 255f);
             _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB) ? 0.65f : 1f;
             #endif
-            
+
             // Ambient light
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = IsNightScene() ?
                 new Color( 90f/ 255f, 100f / 255f, 130f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 180f / 255f);
-            
+
             // Apply lighting override
             var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
             if (LightingConstants.MainLightColorInfoGlobal.ContainsKey(ScnFile.SceneInfo.CityName))
@@ -339,14 +339,14 @@ namespace Pal3.Scene
                 _mainLight.transform.rotation = LightingConstants.MainLightRotationInfo[key];
             }
         }
-        
+
         private void AddPointLight(Transform parent, float yOffset)
         {
             // Add a point light to the fire fx
             var lightSource = new GameObject($"LightSource_Point");
             lightSource.transform.SetParent(parent, false);
             lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
-            
+
             var lightComponent = lightSource.AddComponent<Light>();
             lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
             lightComponent.type = LightType.Point;
@@ -355,15 +355,15 @@ namespace Pal3.Scene
             lightComponent.shadows = LightShadows.Soft;
             lightComponent.shadowNearPlane = 0.25f;
             lightComponent.cullingMask = _lightCullingMask;
-            
+
             _pointLights.Add(lightComponent);
             StripPointLightShadowsIfNecessary();
         }
-        
+
         private void StripPointLightShadowsIfNecessary()
         {
             var disableShadows = !IsNightScene() || _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
-            
+
             foreach (Light pointLight in _pointLights)
             {
                 pointLight.shadows = disableShadows ? LightShadows.None : LightShadows.Soft;
@@ -375,14 +375,14 @@ namespace Pal3.Scene
             foreach (SceneObject sceneObject in SceneObjects.Values)
             {
                 if (!_sceneObjectIdsToNotLoadFromSaveState.Contains(sceneObject.ObjectInfo.Id) &&
-                    _sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
+                    _sceneStateManager.TryGetSceneObjectStateOverride(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         sceneObject.ObjectInfo.Id,
-                        out bool isActivated))
+                        out SceneObjectStateOverride state) && state.IsActivated.HasValue)
                 {
-                    if (isActivated)
+                    if (state.IsActivated.Value)
                     {
-                        ActivateSceneObject(sceneObject);   
+                        ActivateSceneObject(sceneObject);
                     }
                 }
                 else if (sceneObject.ObjectInfo.InitActive == 1)
@@ -415,7 +415,7 @@ namespace Pal3.Scene
 
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
             sceneObjectGameObject.transform.SetParent(_parent.transform, false);
-            
+
             #if RTX_ON
             if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
                 sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
@@ -425,7 +425,7 @@ namespace Pal3.Scene
                 AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
             }
             #endif
-            
+
             _activatedSceneObjects.Add(sceneObject.ObjectInfo.Id);
         }
 
@@ -433,7 +433,7 @@ namespace Pal3.Scene
         {
             if (!_activatedSceneObjects.Contains(id)) return;
             _activatedSceneObjects.Remove(id);
-            
+
             #if RTX_ON
             if (SceneObjects[id].GetGameObject().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
             {
@@ -441,7 +441,7 @@ namespace Pal3.Scene
                 StripPointLightShadowsIfNecessary();
             }
             #endif
-            
+
             SceneObjects[id].Deactivate();
         }
 
@@ -516,13 +516,13 @@ namespace Pal3.Scene
             {
                 DeactivateSceneObject(sceneObject.ObjectInfo.Id);
             }
-            
+
             // Save the activation state since it is activated/de-activated by the script
-            _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
+            _sceneStateManager.Execute(new SceneSaveGlobalObjectActivationStateCommand(
                 ScnFile.SceneInfo.CityName,
                 ScnFile.SceneInfo.SceneName,
                 sceneObject.ObjectInfo.Id,
-                command.IsActive));
+                command.IsActive == 1));
         }
 
         public void Execute(ActorActivateCommand command)
@@ -551,7 +551,7 @@ namespace Pal3.Scene
         {
             if (_activatedSceneObjects.Contains(command.SceneObjectId))
             {
-                SceneObjects[command.SceneObjectId].Interact(triggerredByPlayer: false);
+                StartCoroutine(SceneObjects[command.SceneObjectId].Interact(triggerredByPlayer: false));
             }
             else
             {
@@ -584,27 +584,34 @@ namespace Pal3.Scene
                     new Vector3(command.GameBoxXOffset, command.GameBoxYOffset, command.GameBoxZOffset));
                 Vector3 toPosition = sceneObjectGo.transform.position + offset;
                 StartCoroutine(AnimationHelper.MoveTransform(sceneObjectGo.transform, toPosition, command.Duration));
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName,
+                        command.ObjectId,
+                        GameBoxInterpreter.ToGameBoxPosition(toPosition)));
             }
             else
             {
                 Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
-        
+
         #if PAL3A
         public void Execute(SceneActivateObject2Command command)
         {
-            if (!_sceneStateManager.TryGetSceneObjectActivationState(ScnFile.SceneInfo.CityName,
-                    command.SceneName, command.ObjectId, out _))
+            if (!_sceneStateManager.TryGetSceneObjectStateOverride(ScnFile.SceneInfo.CityName,
+                    command.SceneName, command.ObjectId, out SceneObjectStateOverride state) ||
+                !state.IsActivated.HasValue)
             {
-                _sceneStateManager.Execute(new SceneChangeGlobalObjectActivationStateCommand(
+                _sceneStateManager.Execute(new SceneSaveGlobalObjectActivationStateCommand(
                     ScnFile.SceneInfo.CityName,
                     command.SceneName,
                     command.ObjectId,
-                    command.IsActive));     
+                    command.IsActive == 1));
             }
         }
-        
+
         public void Execute(SceneCloseDoorCommand command)
         {
             if (_activatedSceneObjects.Contains(command.ObjectId))
@@ -654,7 +661,7 @@ namespace Pal3.Scene
                     {
                         if (actorId != activeBirdActorId)
                         {
-                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));   
+                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));
                         }
                     }
 
@@ -665,7 +672,7 @@ namespace Pal3.Scene
 
                     // Height adjustment based on bird action type
                     var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;
-                
+
                     GameObject birdActorGameObject = GetActorGameObject((int)activeBirdActorId);
                     birdActorGameObject.transform.position = new Vector3(leiYuanGePosition.x,
                         leiYuanGePosition.y + leiYuanGeHeight + yOffset,

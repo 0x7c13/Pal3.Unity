@@ -6,22 +6,22 @@
 namespace Pal3.Command.InternalCommands
 {
     [AvailableInConsole]
-    public class SceneChangeGlobalObjectTimesCountCommand : ICommand
+    public class SceneSaveGlobalObjectSwitchStateCommand : ICommand
     {
-        public SceneChangeGlobalObjectTimesCountCommand(string cityName,
+        public SceneSaveGlobalObjectSwitchStateCommand(string cityName,
             string sceneName,
             int objectId,
-            byte timesCount)
+            byte switchState)
         {
             CityName = cityName;
             SceneName = sceneName;
             ObjectId = objectId;
-            TimesCount = timesCount;
+            SwitchState = switchState;
         }
 
         public string CityName { get; }
         public string SceneName { get; }
         public int ObjectId { get; }
-        public byte TimesCount { get; }
+        public byte SwitchState { get; }
     }
 }

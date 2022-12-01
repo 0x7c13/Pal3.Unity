@@ -5,8 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using Command;
-    using Command.SceCommands;
+    using System.Collections;
     using Common;
     using Core.DataReader.Scn;
     using Core.Extensions;
@@ -17,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     public class SuspensionBridgeObject : SceneObject
     {
         private StandingPlatformController _platformController;
-        
+
         public SuspensionBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -35,18 +34,21 @@ namespace Pal3.Scene.SceneObjects
                 cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
                 EnableCollider();
             }
-            
+
             return sceneGameObject;
         }
-        
-        public override void Interact(bool triggerredByPlayer)
+
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
-            
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
             PlaySfxIfAny();
-            
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
+                // SuspensionBridge is always triggered by other switch type objects
+                // so we don't wait for the animation to finish thus we don't call
+                // IEnumerator version of the cvd animation playing method here.
                 GetCvdModelRenderer().StartOneTimeAnimation(true, EnableCollider);
             }
         }

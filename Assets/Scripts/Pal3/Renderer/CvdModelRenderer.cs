@@ -28,9 +28,8 @@ namespace Pal3.Renderer
 
         private float _currentTime;
         private float _animationDuration;
-        private Coroutine _animation;
-        private CancellationTokenSource _animationCts;
-        
+        private CancellationTokenSource _animationCts = new ();
+
         public void Init(CvdFile cvdFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
@@ -72,7 +71,7 @@ namespace Pal3.Renderer
         {
             UpdateMesh(time);
         }
-        
+
         public float GetDefaultAnimationDuration(float timeScale = 1f)
         {
             if (timeScale == 0f) return 0f;
@@ -87,7 +86,7 @@ namespace Pal3.Renderer
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
                 if (!node.IsGeometryNode) continue;
-                
+
                 foreach(RenderMeshComponent meshComponent in meshComponents.Values)
                 {
                     Bounds rendererBounds = meshComponent.MeshRenderer.GetRendererBounds();
@@ -98,14 +97,14 @@ namespace Pal3.Renderer
                     }
                     else
                     {
-                        bounds.Encapsulate(rendererBounds);   
+                        bounds.Encapsulate(rendererBounds);
                     }
                 }
             }
 
             return bounds;
         }
-        
+
         public Bounds GetMeshBounds()
         {
             var boundsInitialized = false;
@@ -114,7 +113,7 @@ namespace Pal3.Renderer
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
                 if (!node.IsGeometryNode) continue;
-                
+
                 foreach(RenderMeshComponent meshComponent in meshComponents.Values)
                 {
                     Bounds meshBounds = meshComponent.MeshRenderer.GetMeshBounds();
@@ -125,14 +124,14 @@ namespace Pal3.Renderer
                     }
                     else
                     {
-                        bounds.Encapsulate(meshBounds);   
+                        bounds.Encapsulate(meshBounds);
                     }
                 }
             }
 
             return bounds;
         }
-        
+
         private void BuildTextureCache(CvdGeometryNode node,
             ITextureResourceProvider textureProvider,
             Dictionary<string, Texture2D> textureCache)
@@ -226,7 +225,7 @@ namespace Pal3.Renderer
                         NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
                         UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
                     };
-                    
+
                     UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,
                         frameIndex,
@@ -251,7 +250,7 @@ namespace Pal3.Renderer
                         shadowTexture: null, // CVD models don't have shadow textures
                         _tintColor,
                         meshSection.BlendFlag);
-                    
+
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
                         ref meshDataBuffer.VertexBuffer,
@@ -265,7 +264,7 @@ namespace Pal3.Renderer
                     renderMesh.RecalculateNormals();
                     renderMesh.RecalculateTangents();
                     renderMesh.RecalculateBounds();
-                    
+
                     nodeMeshes.Item2[i] = new RenderMeshComponent
                     {
                         Mesh = renderMesh,
@@ -323,7 +322,7 @@ namespace Pal3.Renderer
         private void UpdateMesh(float time)
         {
             _currentTime = time;
-            
+
             foreach ((CvdGeometryNode node, var renderMeshComponents) in _renderers)
             {
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
@@ -361,19 +360,19 @@ namespace Pal3.Renderer
 
         public IEnumerator PlayOneTimeAnimation(bool startFromBeginning, float timeScale = 1f)
         {
-            yield return PlayOneTimeAnimationInternal(timeScale, _animationDuration, startFromBeginning, CancellationToken.None);
+            yield return PlayAnimation(timeScale, 1, 1f, startFromBeginning);
         }
-        
+
         public void StartOneTimeAnimation(bool startFromBeginning, Action onFinished = null)
         {
-            PlayAnimation(1f, 1, 1f, startFromBeginning, onFinished);
+            StartCoroutine(PlayAnimation(1f, 1, 1f, startFromBeginning, onFinished));
         }
-        
+
         public void LoopAnimation(float timeScale = 1f)
         {
-            PlayAnimation(timeScale, -1, 1f, true, null);
+            StartCoroutine(PlayAnimation(timeScale, -1, 1f, true));
         }
-        
+
         /// <summary>
         /// Play CVD animation.
         /// </summary>
@@ -382,11 +381,11 @@ namespace Pal3.Renderer
         /// <param name="durationPercentage">1f: full length of the animation, .5f: half of the animation</param>
         /// <param name="startFromBeginning">Start the animation from beginning instead of current time</param>
         /// <param name="onFinished">On animation finished playing</param>
-        public void PlayAnimation(float timeScale,
+        public IEnumerator PlayAnimation(float timeScale,
             int loopCount,
             float durationPercentage,
             bool startFromBeginning,
-            Action onFinished)
+            Action onFinished = null)
         {
             if (timeScale == 0f ||
                 durationPercentage is <= 0f or > 1f ||
@@ -394,20 +393,21 @@ namespace Pal3.Renderer
                 _renderers.Count == 0)
             {
                 Debug.LogError("Invalid parameters for playing CVD animation.");
-                return;
+                yield break;
             }
 
             StopCurrentAnimation();
 
-            if (_animation != null) StopCoroutine(_animation);
+            if (!_animationCts.IsCancellationRequested) _animationCts.Cancel();
 
             _animationCts = new CancellationTokenSource();
-            _animation = StartCoroutine(PlayAnimationInternal(timeScale,
+
+            yield return PlayAnimationInternal(timeScale,
                 _animationDuration * durationPercentage,
                 loopCount,
                 startFromBeginning,
                 onFinished,
-                _animationCts.Token));
+                _animationCts.Token);
         }
 
         private IEnumerator PlayAnimationInternal(float timeScale,
@@ -431,7 +431,7 @@ namespace Pal3.Renderer
                     yield return PlayOneTimeAnimationInternal(timeScale, duration, startFromBeginning, cancellationToken);
                 }
             }
-            
+
             onFinished?.Invoke();
         }
 
@@ -441,19 +441,19 @@ namespace Pal3.Renderer
             CancellationToken cancellationToken)
         {
             float startTime;
-            
+
             if (startFromBeginning)
             {
                 startTime = Time.timeSinceLevelLoad;
             }
             else
             {
-                startTime = Time.timeSinceLevelLoad - _currentTime;   
+                startTime = Time.timeSinceLevelLoad - _currentTime;
             }
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var currentTime = timeScale > 0 ? 
+                var currentTime = timeScale > 0 ?
                         (Time.timeSinceLevelLoad - startTime) * timeScale :
                         (duration - (Time.timeSinceLevelLoad - startTime)) * -timeScale;
 
@@ -545,12 +545,7 @@ namespace Pal3.Renderer
 
         public void StopCurrentAnimation()
         {
-            if (_animation != null)
-            {
-                _animationCts.Cancel();
-                StopCoroutine(_animation);
-                _animation = null;
-            }
+            _animationCts.Cancel();
         }
 
         private void OnDisable()
@@ -561,7 +556,7 @@ namespace Pal3.Renderer
         public void Dispose()
         {
             StopCurrentAnimation();
-            
+
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 Destroy(meshRenderer.gameObject);

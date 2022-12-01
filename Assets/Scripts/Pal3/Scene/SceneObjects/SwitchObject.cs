@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -19,14 +20,14 @@ namespace Pal3.Scene.SceneObjects
     public class SwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
-        
+
         private SceneObjectMeshCollider _meshCollider;
-        
+
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
@@ -46,16 +47,14 @@ namespace Pal3.Scene.SceneObjects
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
+            if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            ToggleSwitchState();
-            
+            ToggleAndSaveSwitchState();
+
             if (triggerredByPlayer)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Cutscene));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -66,34 +65,22 @@ namespace Pal3.Scene.SceneObjects
                         1));
             }
 
+            PlaySfxIfAny();
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                PlaySfxIfAny();
-                
-                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
+                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+
+                // Remove collider to allow player to pass through
+                if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
                 {
-                    // Remove collider to allow player to pass through
-                    if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
-                    {
-                        Object.Destroy(_meshCollider);
-                    }
+                    Object.Destroy(_meshCollider);
+                }
+            }
 
-                    InteractInternal();
-                });
-            }
-            else
-            {
-                InteractInternal();
-            }
-        }
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
 
-        private void InteractInternal()
-        {
-            if (!InteractWithLinkedObjectIfAny() && !ExecuteScriptIfAny())
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Gameplay));
-            }
+            ExecuteScriptIfAny();
         }
     }
 }

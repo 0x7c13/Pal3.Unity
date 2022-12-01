@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.SceCommands;
     using Common;
@@ -25,10 +26,10 @@ namespace Pal3.Scene.SceneObjects
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
-            
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
             if (ObjectInfo.Parameters[0] != 0) // Game item
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[0], 1));
@@ -43,7 +44,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-            ChangeActivationState(false);
+            ChangeAndSaveActivationState(false);
         }
     }
 }

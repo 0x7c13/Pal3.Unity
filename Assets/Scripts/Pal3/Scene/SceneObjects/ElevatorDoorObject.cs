@@ -5,8 +5,6 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using Command;
-    using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
     using Data;
@@ -16,12 +14,12 @@ namespace Pal3.Scene.SceneObjects
     public class ElevatorDoorObject : SceneObject
     {
         private SceneObjectMeshCollider _meshCollider;
-        
+
         public ElevatorDoorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
@@ -30,24 +28,24 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override void Interact(bool triggerredByPlayer)
-        {
-            // if (!IsInteractableBasedOnTimesCount()) return;
-            //
-            // CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
-            //
-            // if (ModelType == SceneObjectModelType.CvdModel)
-            // {
-            //     GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
-            //     {
-            //         ChangeActivationState(false);
-            //     });
-            // }
-            // else
-            // {
-            //     ChangeActivationState(false);
-            // }
-        }
+        // public override IEnumerator Interact(bool triggerredByPlayer)
+        // {
+        //     if (!IsInteractableBasedOnTimesCount()) return;
+        //
+        //     CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
+        //
+        //     if (ModelType == SceneObjectModelType.CvdModel)
+        //     {
+        //         GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
+        //         {
+        //             ChangeActivationState(false);
+        //         });
+        //     }
+        //     else
+        //     {
+        //         ChangeActivationState(false);
+        //     }
+        // }
 
         public override void Deactivate()
         {
@@ -55,7 +53,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 Object.Destroy(_meshCollider);
             }
-            
+
             base.Deactivate();
         }
     }

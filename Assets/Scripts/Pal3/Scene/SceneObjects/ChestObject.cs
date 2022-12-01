@@ -5,33 +5,34 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
-    
+
     [ScnSceneObject(ScnSceneObjectType.Chest)]
     public class ChestObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
-        
+
         public ChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override bool IsInteractable(InteractionContext ctx)
         {
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
-            
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg011", 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-            
+
             for (int i = 0; i < 4; i++)
             {
                 if (ObjectInfo.Parameters[i] != 0)
@@ -39,24 +40,24 @@ namespace Pal3.Scene.SceneObjects
                     CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
                 }
             }
-            
+
             #if PAL3A
             if (ObjectInfo.Parameters[5] != 0) // money
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[5]));
             }
             #endif
-            
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
-                    ChangeActivationState(false);
+                    ChangeAndSaveActivationState(false);
                 });
             }
             else
             {
-                ChangeActivationState(false);
+                ChangeAndSaveActivationState(false);
             }
         }
     }

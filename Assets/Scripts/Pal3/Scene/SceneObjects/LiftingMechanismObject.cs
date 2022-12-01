@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Animation;
@@ -20,14 +21,15 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
     public class LiftingMechanismObject : SceneObject
     {
-        private LiftingMechanismObjectController _objectController;
+        private const float LIFTING_ANIMATION_DURATION = 2.5f;
+
         private StandingPlatformController _platformController;
 
         public LiftingMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
@@ -39,19 +41,9 @@ namespace Pal3.Scene.SceneObjects
                 Vector3 position = sceneGameObject.transform.position;
                 float gameBoxYPosition = ObjectInfo.Parameters[0];
                 var finalYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition);
-                var yOffset = finalYPosition - position.y;
                 position.y = finalYPosition;
                 sceneGameObject.transform.position = position;
-
-                // Set Y position of the object on the platform
-                if (ObjectInfo.Parameters[2] != 0)
-                {
-                    // TODO: impl
-                }
             }
-            
-            _objectController = sceneGameObject.AddComponent<LiftingMechanismObjectController>();
-            _objectController.Init(this);
 
             Bounds bounds = new Bounds();
             if (sceneGameObject.GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
@@ -70,89 +62,54 @@ namespace Pal3.Scene.SceneObjects
             tweakedBoundsSize.y += 0.2f;
             tweakedBoundsSize.z += 0.5f;
             bounds.size = tweakedBoundsSize;
-            
+
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
 
             return sceneGameObject;
         }
-        
-        public override void Interact(bool triggerredByPlayer)
-        {
-            if (!IsInteractableBasedOnTimesCount()) return;
 
-            if (_objectController != null)
-            {
-                _objectController.Interact();
-            }
-        }
+        public override IEnumerator Interact(bool triggerredByPlayer)
+        {
+            if (!IsInteractableBasedOnTimesCount()) yield break;
 
-        public override void Deactivate()
-        {
-            if (_objectController != null)
-            {
-                Object.Destroy(_objectController);
-            }
-            
-            if (_platformController != null)
-            {
-                Object.Destroy(_platformController);
-            }
-            
-            base.Deactivate();
-        }
-    }
-
-    internal class LiftingMechanismObjectController : MonoBehaviour
-    {
-        private const float LIFTING_ANIMATION_DURATION = 2.5f;
-        
-        private LiftingMechanismObject _object;
-        
-        public void Init(LiftingMechanismObject liftingMechanismObject)
-        {
-            _object = liftingMechanismObject;
-        }
-        
-        public void Interact()
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
-            StartCoroutine(InteractInternal());
-        }
-
-        private IEnumerator InteractInternal()
-        {
-            _object.ToggleSwitchState();
-            
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFocusOnSceneObjectCommand(_object.ObjectInfo.Id));
-            
-            Vector3 position = transform.position;
-            float gameBoxYPosition = _object.ObjectInfo.Parameters[0];
-            var finalYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition);
-            var yOffset = finalYPosition - position.y;
+                new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
 
-            _object.PlaySfxIfAny();
+            GameObject liftingMechanismGameObject = GetGameObject();
+            Vector3 position = liftingMechanismGameObject.transform.position;
+            float gameBoxYPosition = ObjectInfo.Parameters[0];
+
+            float finalYPosition = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.SwitchState == 0 ?
+                gameBoxYPosition :
+                ObjectInfo.GameBoxPosition.y);
+            float yOffset = finalYPosition - position.y;
+
+            ToggleAndSaveSwitchState();
+            PlaySfxIfAny();
 
             var hasObjectOnPlatform = false;
             GameObject objectOnThePlatform = null;
             Vector3 objectOnThePlatformOriginalPosition = Vector3.zero;
-                
+
             // Set Y position of the object on the platform
-            if (_object.ObjectInfo.Parameters[2] != 0)
+            if (ObjectInfo.Parameters[2] != 0)
             {
-                hasObjectOnPlatform = true;
                 objectOnThePlatform = ServiceLocator.Instance.Get<SceneManager>()
                     .GetCurrentScene()
-                    .GetSceneObject(_object.ObjectInfo.Parameters[2])
+                    .GetSceneObject(ObjectInfo.Parameters[2])
                     .GetGameObject();
+                if (objectOnThePlatform != null)
+                {
+                    hasObjectOnPlatform = true;
+                }
                 objectOnThePlatformOriginalPosition = objectOnThePlatform.transform.position;
             }
-            
+
             yield return AnimationHelper.EnumerateValue(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
                 offset =>
                 {
-                    transform.position = new Vector3(position.x, position.y + offset, position.z);
+                    liftingMechanismGameObject.transform.position = new Vector3(position.x, position.y + offset, position.z);
 
                     if (hasObjectOnPlatform)
                     {
@@ -162,11 +119,29 @@ namespace Pal3.Scene.SceneObjects
                             objectOnThePlatformOriginalPosition.z);
                     }
                 });
-            
+
+            // Save position of the object on the platform if any
+            if (hasObjectOnPlatform)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
+                        SceneInfo.SceneName,
+                        ObjectInfo.Id,
+                        GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
+            }
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFreeCommand(1));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerEnableInputCommand(1));
+        }
+
+        public override void Deactivate()
+        {
+            if (_platformController != null)
+            {
+                Object.Destroy(_platformController);
+            }
+
+            base.Deactivate();
         }
     }
 }

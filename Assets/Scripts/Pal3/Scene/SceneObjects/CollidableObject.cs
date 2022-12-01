@@ -5,11 +5,10 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
+    using System.Collections;
     using Common;
     using Core.DataReader.Scn;
     using Data;
-    using Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -17,101 +16,63 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public class CollidableObject : SceneObject
     {
-        private CollidableObjectController _objectController;
-        
+        private BoundsTriggerController _triggerController;
+
         public CollidableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _objectController = sceneGameObject.AddComponent<CollidableObjectController>();
-            _objectController.Init(this);
+
+            // Don't add a trigger if the object is already collided (SwitchState sets to 1).
+            if (ObjectInfo.SwitchState == 0)
+            {
+                _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
+                _triggerController.SetupCollider(GetRendererBounds(), ObjectInfo.IsNonBlocking == 1);
+                _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+            }
+
             return sceneGameObject;
+        }
+
+        private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
+        {
+            Pal3.Instance.StartCoroutine(Interact(true));
+        }
+
+        public override IEnumerator Interact(bool triggerredByPlayer)
+        {
+            if (ObjectInfo.SwitchState == 1) yield break;
+
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
+            ToggleAndSaveSwitchState();
+
+            PlaySfxIfAny();
+
+            yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
+
+            ExecuteScriptIfAny();
+
+            // Reset collider since bounds may change after animation
+            _triggerController.SetupCollider(GetRendererBounds(), ObjectInfo.IsNonBlocking == 1);
         }
 
         public override void Deactivate()
         {
-            if (_objectController != null)
+            if (_triggerController != null)
             {
-                Object.Destroy(_objectController);
+                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                Object.Destroy(_triggerController);
             }
-            
+
             base.Deactivate();
-        }
-    }
-    
-    internal class CollidableObjectController : MonoBehaviour
-    {
-        private bool _hasCollided;
-        private CollidableObject _object;
-        private BoxCollider _collider;
-        private CvdModelRenderer _cvdModelRenderer;
-
-        public void Init(CollidableObject collidableObject)
-        {
-            _object = collidableObject;
-            _cvdModelRenderer = gameObject.GetComponent<CvdModelRenderer>();
-            SetupCollider();
-        }
-
-        private void SetupCollider()
-        {
-            if (_cvdModelRenderer != null)
-            {
-                Bounds bounds = _cvdModelRenderer.GetMeshBounds();
-
-                if (_collider == null)
-                {
-                    _collider = gameObject.AddComponent<BoxCollider>();
-                }
-
-                _collider.center = bounds.center;
-                _collider.size = bounds.size;
-
-                if (_object.ObjectInfo.IsNonBlocking == 1)
-                {
-                    _collider.isTrigger = true;   
-                }
-            }
-        }
-
-        private void Interact()
-        {
-            if (_hasCollided) return;
-            _hasCollided = true;
-            
-            if (!_object.IsInteractableBasedOnTimesCount()) return;
-            
-            _object.PlaySfxIfAny();
-            
-            _cvdModelRenderer.StartOneTimeAnimation(true, () =>
-            {
-                _object.ChangeLinkedObjectActivationStateIfAny(true);
-                _object.ExecuteScriptIfAny();
-                SetupCollider(); // Reset collider since bounds may change after animation
-            });
-        }
-        
-        private void OnDisable()
-        {
-            if (_collider != null)
-            {
-                Destroy(_collider);   
-            }
-        }
-
-        private void OnCollisionEnter(Collision _)
-        {
-            Interact();
-        }
-
-        private void OnTriggerEnter(Collider _)
-        {
-            Interact();
         }
     }
 }

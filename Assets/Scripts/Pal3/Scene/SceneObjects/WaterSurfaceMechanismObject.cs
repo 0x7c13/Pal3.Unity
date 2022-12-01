@@ -17,53 +17,51 @@ namespace Pal3.Scene.SceneObjects
     using Core.Services;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.WaterSurfaceMechanism)]
     public class WaterSurfaceMechanismObject : SceneObject
     {
-        private WaterSurfaceMechanismObjectController _objectController;
-     
+        private const float WATER_ANIMATION_DURATION = 4f;
+
         private readonly SceneManager _sceneManager;
-        
+
         public WaterSurfaceMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            
-            _objectController = sceneGameObject.AddComponent<WaterSurfaceMechanismObjectController>();
-            _objectController.Init(this);
-            
+
             UpdateTileMapWhenConditionMet(true);
-            
+
             return sceneGameObject;
         }
-        
-        public override void Interact(bool triggerredByPlayer)
-        {
-            if (!IsInteractableBasedOnTimesCount()) return;
 
-            if (_objectController != null)
-            {
-                _objectController.Interact();
-            }
+        public override IEnumerator Interact(bool triggerredByPlayer)
+        {
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
+            GameObject waterSurfaceGameObject = GetGameObject();
+            Vector3 finalPosition = waterSurfaceGameObject.transform.position;
+            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.Parameters[0]);
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
+
+            yield return AnimationHelper.MoveTransform(waterSurfaceGameObject.transform,
+                finalPosition,
+                WATER_ANIMATION_DURATION,
+                AnimationCurveType.Sine);
+
+            ChangeAndSaveActivationState(false);
         }
 
         public override void Deactivate()
         {
             UpdateTileMapWhenConditionMet(false);
-            
-            if (_objectController != null)
-            {
-                Object.Destroy(_objectController);
-            }
-            
             base.Deactivate();
         }
 
@@ -80,38 +78,6 @@ namespace Pal3.Scene.SceneObjects
                     .MarkFloorKindAsObstacle(NavFloorKind.Soil, setSoilFloorAsObstacle);
             }
             #endif
-        }
-    }
-
-    internal class WaterSurfaceMechanismObjectController : MonoBehaviour
-    {
-        private const float WATER_ANIMATION_DURATION = 4f;
-        
-        private WaterSurfaceMechanismObject _object;
-        
-        public void Init(WaterSurfaceMechanismObject surfaceMechanismObject)
-        {
-            _object = surfaceMechanismObject;
-        }
-        
-        public void Interact()
-        {
-            StartCoroutine(InteractInternal());
-        }
-
-        private IEnumerator InteractInternal()
-        {
-            Vector3 finalPosition = gameObject.transform.position;
-            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(_object.ObjectInfo.Parameters[0]);
-            
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
-            
-            yield return AnimationHelper.MoveTransform(gameObject.transform,
-                finalPosition,
-                WATER_ANIMATION_DURATION,
-                AnimationCurveType.Sine);
-            
-            _object.ChangeActivationState(false);
         }
     }
 }

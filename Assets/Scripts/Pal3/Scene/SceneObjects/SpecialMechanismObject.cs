@@ -21,22 +21,23 @@ namespace Pal3.Scene.SceneObjects
     public class SpecialMechanismObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
-        
-        private SpecialMechanismObjectController _objectController;
-        
+
+        private readonly PlayerManager _playerManager;
+
         public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            
+
             // Add collider to block player, also make the bounds of the collider a little bit bigger
             // to make sure the player can't walk through the collider
-            var boundsScale = (PlayerActorId)ObjectInfo.Parameters[0] switch
+            var boundsScale = (PlayerActorId) ObjectInfo.Parameters[0] switch
             {
                 #if PAL3
                 PlayerActorId.JingTian => 1.5f,
@@ -47,12 +48,9 @@ namespace Pal3.Scene.SceneObjects
                 #endif
                 _ => 1f
             };
-            
+
             sceneGameObject.AddComponent<SceneObjectMeshCollider>().SetBoundsScale(boundsScale);
-            
-            _objectController = sceneGameObject.AddComponent<SpecialMechanismObjectController>();
-            _objectController.Init(this);
-            
+
             return sceneGameObject;
         }
 
@@ -63,49 +61,12 @@ namespace Pal3.Scene.SceneObjects
                    ctx.ActorId == ObjectInfo.Parameters[0]; // Only specified actor can interact with this object
         }
 
-        public override void Interact(bool triggerredByPlayer)
-        {
-            if (_objectController != null)
-            {
-                _objectController.Interact();
-            }
-        }
-
-        public override void Deactivate()
-        {
-            if (_objectController != null)
-            {
-                Object.Destroy(_objectController);
-            }
-            
-            base.Deactivate();
-        }
-    }
-
-    internal class SpecialMechanismObjectController : MonoBehaviour
-    {
-        private PlayerManager _playerManager;
-        private SpecialMechanismObject _object;
-        
-        public void Init(SpecialMechanismObject specialMechanismObject)
-        {
-            _object = specialMechanismObject;
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-        }
-
-        public void Interact()
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerEnableInputCommand(0));
-            StartCoroutine(InteractInternal());
-        }
-
-        private IEnumerator InteractInternal()
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerActorLookAtSceneObjectCommand(_object.ObjectInfo.Id));
+                new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionNames[ActorActionType.Skill],
@@ -118,11 +79,11 @@ namespace Pal3.Scene.SceneObjects
             #if PAL3
             var sfxName = actorId switch
             {
-                PlayerActorId.JingTian   => "we026",
-                PlayerActorId.XueJian    => "we027",
-                PlayerActorId.LongKui    => "we028",
-                PlayerActorId.ZiXuan     => "we029",
-                PlayerActorId.ChangQing  => "we030",
+                PlayerActorId.JingTian => "we026",
+                PlayerActorId.XueJian => "we027",
+                PlayerActorId.LongKui => "we028",
+                PlayerActorId.ZiXuan => "we029",
+                PlayerActorId.ChangQing => "we030",
                 _ => string.Empty
             };
 
@@ -131,22 +92,16 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
             }
             #endif
-            
-            if (_object.ModelType == SceneObjectModelType.CvdModel)
+
+            if (ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return _object.GetCvdModelRenderer().PlayOneTimeAnimation(true);
-                FinishingSteps();
+                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+                ChangeAndSaveActivationState(false);
             }
             else
             {
-                FinishingSteps();
+                ChangeAndSaveActivationState(false);
             }
-        }
-
-        private void FinishingSteps()
-        {
-            _object.ChangeActivationState(false);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
         }
     }
 }

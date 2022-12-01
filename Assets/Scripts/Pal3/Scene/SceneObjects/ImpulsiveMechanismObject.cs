@@ -5,7 +5,6 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
     using System.Collections;
     using Actor;
     using Command;
@@ -30,7 +29,7 @@ namespace Pal3.Scene.SceneObjects
     public class ImpulsiveMechanismObject : SceneObject
     {
         private GameObject _subObjectGameObject;
-        
+
         public ImpulsiveMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -50,11 +49,12 @@ namespace Pal3.Scene.SceneObjects
                 resourceProvider.GetMaterialFactory(),
                 poly.TextureProvider,
                 tintColor);
-            
-            _subObjectGameObject.AddComponent<ImpulsiveMechanismObjectController>().Init(this);
-            
+
+            _subObjectGameObject.AddComponent<ImpulsiveMechanismObjectController>().Init(
+                new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]), ObjectInfo.Parameters[2]);
+
             _subObjectGameObject.transform.SetParent(sceneGameObject.transform, false);
-            
+
             return sceneGameObject;
         }
 
@@ -64,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 Object.Destroy(_subObjectGameObject);
             }
-            
+
             base.Deactivate();
         }
     }
@@ -77,16 +77,20 @@ namespace Pal3.Scene.SceneObjects
         private const float MOVEMENT_ANIMATION_DURATION = 2.5f;
         private const float HIT_ANIMATION_DURATION = 0.5f;
 
-        private ImpulsiveMechanismObject _object;
         private BoxCollider _collider;
         private Coroutine _movementCoroutine;
         private PlayerManager _playerManager;
         private bool _isDuringInteraction;
 
-        public void Init(ImpulsiveMechanismObject impulsiveMechanismObject)
+        private Vector2Int _targetTilePosition;
+        private int _targetNavLayerIndex;
+
+        public void Init(Vector2Int targetTilePosition, int targetNavLayerIndex)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-            _object = impulsiveMechanismObject;
+
+            _targetTilePosition = targetTilePosition;
+            _targetNavLayerIndex = targetNavLayerIndex;
 
             // Add collider
             var bounds = new Bounds
@@ -94,7 +98,7 @@ namespace Pal3.Scene.SceneObjects
                 center = new Vector3(0f, 1f, -1f),
                 size = new Vector3(3f, 2f, 7f),
             };
-            
+
             _collider = gameObject.AddComponent<BoxCollider>();
             _collider.center = bounds.center;
             _collider.size = bounds.size;
@@ -109,7 +113,7 @@ namespace Pal3.Scene.SceneObjects
         private void OnTriggerEnter(Collider collider)
         {
             if (_isDuringInteraction) return; // Prevent multiple interactions during animation
-            
+
             // Check if collider game object is player actor
             if (collider.gameObject.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
@@ -129,41 +133,41 @@ namespace Pal3.Scene.SceneObjects
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new PlaySfxCommand("wb002", 1));
-            
+
             playerActorGameObject.GetComponent<ActorActionController>()
                 .PerformAction(ActorActionType.BeAttack);
-            
+
             Vector3 targetPosition = playerActorGameObject.transform.position + (transform.forward * 6f) + Vector3.up * 2f;
 
             yield return AnimationHelper.MoveTransform(playerActorGameObject.transform,
                 targetPosition,
                 HIT_ANIMATION_DURATION);
-            
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID,
-                    _object.ObjectInfo.Parameters[2]));
+                    _targetNavLayerIndex));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
-                    _object.ObjectInfo.Parameters[0],
-                    _object.ObjectInfo.Parameters[1]));
+                    _targetTilePosition.x,
+                    _targetTilePosition.y));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFreeCommand(1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Gameplay));
-            
+
             _isDuringInteraction = false;
         }
-        
+
         private void OnDisable()
         {
             _isDuringInteraction = false;
-            
+
             if (_movementCoroutine != null)
             {
                 StopCoroutine(_movementCoroutine);
                 _movementCoroutine = null;
             }
-            
+
             if (_collider != null)
             {
                 Destroy(_collider);
@@ -182,7 +186,7 @@ namespace Pal3.Scene.SceneObjects
 
             Vector3 initPosition = transform.localPosition;
             WaitForSeconds holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
-            
+
             while (isActiveAndEnabled)
             {
                 yield return AnimationHelper.EnumerateValue(MIN_Z_POSITION,
@@ -197,7 +201,7 @@ namespace Pal3.Scene.SceneObjects
                 });
 
                 yield return holdTimeWaiter;
-                
+
                 yield return AnimationHelper.EnumerateValue(MAX_Z_POSITION,
                     MIN_Z_POSITION,
                     MOVEMENT_ANIMATION_DURATION,
@@ -209,7 +213,7 @@ namespace Pal3.Scene.SceneObjects
                         transform.localPosition = newPosition;
                     });
 
-                
+
                 yield return holdTimeWaiter;
             }
         }

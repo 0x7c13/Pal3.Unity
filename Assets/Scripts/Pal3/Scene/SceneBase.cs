@@ -120,21 +120,12 @@ namespace Pal3.Scene
             {
                 ScnObjectInfo objectInfo = originalObjectInfo;
 
-                if (!_sceneObjectIdsToNotLoadFromSaveState.Contains(objectInfo.Id))
+                // Load scene object state from state manager if it exists
+                if (!_sceneObjectIdsToNotLoadFromSaveState.Contains(objectInfo.Id) &&
+                    _sceneStateManager.TryGetSceneObjectStateOverride(ScnFile.SceneInfo.CityName,
+                        ScnFile.SceneInfo.SceneName, objectInfo.Id, out SceneObjectStateOverride state))
                 {
-                    // Load switch state from state manager
-                    if (_sceneStateManager.TryGetSceneObjectSwitchState(ScnFile.SceneInfo.CityName,
-                            ScnFile.SceneInfo.SceneName, objectInfo.Id, out bool isSwitchOn))
-                    {
-                        objectInfo.SwitchState = (byte) (isSwitchOn ? 1 : 0);
-                    }
-                
-                    // Load times count from state manager
-                    if (_sceneStateManager.TryGetSceneObjectTimesCount(ScnFile.SceneInfo.CityName,
-                            ScnFile.SceneInfo.SceneName, objectInfo.Id, out byte timesCount))
-                    {
-                        objectInfo.Times = timesCount;
-                    }   
+                    objectInfo = state.ApplyOverrides(objectInfo);
                 }
 
                 if (SceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)

@@ -10,13 +10,13 @@ namespace Pal3.Scene.SceneObjects
     using Actor;
     using Command;
     using Command.InternalCommands;
-    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
     using Player;
+    using Script;
     using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
@@ -24,30 +24,33 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
     public class PedalSwitchObject : SceneObject
     {
-        public const float DescendingHeight = 0.25f;
-        public const float DescendingAnimationDuration = 2f;
-        
+        private const float DESCENDING_HEIGHT = 0.25f;
+        private const float DESCENDING_ANIMATION_DURATION = 2f;
+
         private StandingPlatformController _platformController;
-        private PedalSwitchObjectController _objectController;
-        
+
         private readonly PlayerManager _playerManager;
+        private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
+        private readonly ScriptManager _scriptManager;
 
         public PedalSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
+            _scriptManager = ServiceLocator.Instance.Get<ScriptManager>();
         }
-        
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
-            
+
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
-            
+
             // _h1.pol
             if (ObjectInfo.Name.Equals("_h1.pol", StringComparison.OrdinalIgnoreCase))
             {
@@ -65,39 +68,70 @@ namespace Pal3.Scene.SceneObjects
                     size = new Vector3(3.5f, 0.5f, 6f),
                 };
             }
-            
+
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
-            _platformController.OnTriggerEntered += OnPlatformTriggerEntered;
-            
-            _objectController = sceneGameObject.AddComponent<PedalSwitchObjectController>();
-            _objectController.Init(this);
+            _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            // Set to final position if the gravity trigger is already activated
+            // Set to final position if it is already activated
             if (ObjectInfo.Times == 0)
             {
                 Vector3 finalPosition = sceneGameObject.transform.position;
-                finalPosition.y -= DescendingHeight;
+                finalPosition.y -= DESCENDING_HEIGHT;
                 sceneGameObject.transform.position = finalPosition;
             }
-            
+
             return sceneGameObject;
         }
 
-        private void OnPlatformTriggerEntered(object sender, Collider collider)
+        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
             // Prevent duplicate triggers
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
-            
-            // Check if the player actor is on the platform
-            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte)_playerManager.GetPlayerActor())
-            {
-                if (!IsInteractableBasedOnTimesCount()) return;
 
-                ToggleSwitchState();
-                
-                _objectController.Interact(collider.gameObject);
+            if (ObjectInfo.SwitchState == 1) return;
+
+            if (!IsInteractableBasedOnTimesCount()) return;
+
+            ToggleAndSaveSwitchState();
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Cutscene));
+
+            Pal3.Instance.StartCoroutine(Interact(true));
+        }
+
+        public override IEnumerator Interact(bool triggerredByPlayer)
+        {
+            GameObject pedalSwitchGo = GetGameObject();
+            var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
+            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
+            var actorStandingPosition = new Vector3(
+                platformCenterPosition.x,
+                platformController.GetPlatformHeight(),
+                platformCenterPosition.z);
+
+            var actorMovementController = _sceneManager.GetCurrentScene()
+                .GetActorGameObject((int)_playerManager.GetPlayerActor())
+                .GetComponent<ActorMovementController>();
+
+            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
+
+            // Play descending animation
+            Vector3 finalPosition = pedalSwitchGo.transform.position;
+            finalPosition.y -= DESCENDING_HEIGHT;
+
+            yield return AnimationHelper.MoveTransform(pedalSwitchGo.transform,
+                finalPosition,
+                DESCENDING_ANIMATION_DURATION,
+                AnimationCurveType.Sine);
+
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
+
+            if (!ExecuteScriptIfAny() && _scriptManager.GetNumberOfRunningScripts() == 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new GameStateChangeRequest(GameState.Gameplay));
             }
         }
 
@@ -105,62 +139,11 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                _platformController.OnTriggerEntered -= OnPlatformTriggerEntered;
+                _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 Object.Destroy(_platformController);
             }
-            
-            if (_objectController != null)
-            {
-                Object.Destroy(_objectController);
-            }
-            
+
             base.Deactivate();
-        }
-    }
-    
-    internal class PedalSwitchObjectController : MonoBehaviour
-    {
-        private PedalSwitchObject _object;
-        
-        public void Init(PedalSwitchObject pedalSwitchObject)
-        {
-            _object = pedalSwitchObject;
-        }
-        
-        public void Interact(GameObject playerActorGameObject)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            StartCoroutine(InteractInternal(playerActorGameObject));
-        }
-        
-        private IEnumerator InteractInternal(GameObject playerActorGameObject)
-        {
-            GameObject pedalSwitchGo = _object.GetGameObject();
-            var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
-            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
-            var actorStandingPosition = new Vector3(
-                platformCenterPosition.x,
-                platformController.GetPlatformHeight(),
-                platformCenterPosition.z);
-            
-            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
-            yield return movementController.MoveDirectlyTo(actorStandingPosition, 0);
-            
-            // Play descending animation
-            Vector3 finalPosition = transform.position;
-            finalPosition.y -= PedalSwitchObject.DescendingHeight;
-            
-            yield return AnimationHelper.MoveTransform(pedalSwitchGo.transform,
-                finalPosition,
-                PedalSwitchObject.DescendingAnimationDuration,
-                AnimationCurveType.Sine);
-            
-            if (!_object.InteractWithLinkedObjectIfAny() && !_object.ExecuteScriptIfAny())
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Gameplay));
-            }
         }
     }
 }

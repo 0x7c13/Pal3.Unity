@@ -6,16 +6,26 @@
 namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
+    using Actor;
+    using Core.Services;
+    using Player;
     using UnityEngine;
 
     public class StandingPlatformController : MonoBehaviour
     {
-        public event EventHandler<Collider> OnTriggerEntered;
+        public event EventHandler<GameObject> OnPlayerActorEntered;
 
         public int LayerIndex { get; private set; }
 
         private BoxCollider _collider;
         private Bounds _triggerBounds;
+
+        private PlayerManager _playerManager;
+
+        private void OnEnable()
+        {
+            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+        }
 
         public void SetBounds(Bounds triggerBounds, int layerIndex)
         {
@@ -24,9 +34,9 @@ namespace Pal3.Scene.SceneObjects.Common
 
             if (_collider == null)
             {
-                _collider = gameObject.AddComponent<BoxCollider>();   
+                _collider = gameObject.AddComponent<BoxCollider>();
             }
-            
+
             _collider.center = _triggerBounds.center;
             _collider.size = _triggerBounds.size;
             _collider.isTrigger = true;
@@ -44,16 +54,20 @@ namespace Pal3.Scene.SceneObjects.Common
             return _collider.bounds.max.y - 0.01f;
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider collider)
         {
-            OnTriggerEntered?.Invoke(this, other);
+            if (collider.gameObject.GetComponent<ActorController>() is { } actorController &&
+                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+            {
+                OnPlayerActorEntered?.Invoke(this, collider.gameObject);
+            }
         }
 
         private void OnDisable()
         {
             if (_collider != null)
             {
-                Destroy(_collider);   
+                Destroy(_collider);
             }
         }
     }

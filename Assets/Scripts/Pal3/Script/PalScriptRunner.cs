@@ -409,9 +409,10 @@ namespace Pal3.Script
             if (!_isExecuting) return;
             var currentCity = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetSceneInfo().CityName;
             if (ServiceLocator.Instance.Get<SceneStateManager>()
-                .TryGetSceneObjectSwitchState(currentCity, command.SceneName, command.ObjectId, out bool isSwitchOn))
+                .TryGetSceneObjectStateOverride(currentCity, command.SceneName, command.ObjectId, out SceneObjectStateOverride state) &&
+                state.SwitchState.HasValue)
             {
-                SetVariableValue(command.Variable, isSwitchOn ? 1 : 0);
+                SetVariableValue(command.Variable, state.SwitchState.Value == 1 ? 1 : 0);
             }
             else
             {

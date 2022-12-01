@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.SceCommands;
     using Common;
@@ -19,18 +20,18 @@ namespace Pal3.Scene.SceneObjects
             : base(objectInfo, sceneInfo)
         {
         }
-        
+
         public override bool IsInteractable(InteractionContext ctx)
         {
             return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
-        public override void Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (!IsInteractableBasedOnTimesCount()) return;
+            if (!IsInteractableBasedOnTimesCount()) yield break;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
-            
+
             for (int i = 0; i < 6; i++)
             {
                 if (ObjectInfo.Parameters[i] != 0)
@@ -38,17 +39,17 @@ namespace Pal3.Scene.SceneObjects
                     CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
                 }
             }
-            
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
                 {
-                    ChangeActivationState(false);
+                    ChangeAndSaveActivationState(false);
                 });
             }
             else
             {
-                ChangeActivationState(false);
+                ChangeAndSaveActivationState(false);
             }
         }
     }
