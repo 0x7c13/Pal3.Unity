@@ -23,7 +23,6 @@ namespace Pal3.Scene.SceneObjects
     using MetaData;
     using Renderer;
     using Script;
-    using State;
     using UnityEngine;
 
     public struct InteractionContext
@@ -176,6 +175,25 @@ namespace Pal3.Scene.SceneObjects
 
             Activated = true;
             return _sceneObjectGameObject;
+        }
+
+        public Bounds GetMeshBounds()
+        {
+            if (_polyModelRenderer != null)
+            {
+                return _polyModelRenderer.GetMeshBounds();
+            }
+
+            if (_cvdModelRenderer != null)
+            {
+                return _cvdModelRenderer.GetMeshBounds();
+            }
+
+            return new Bounds
+            {
+                center = Vector3.zero,
+                size = Vector3.one
+            };
         }
 
         public Bounds GetRendererBounds()
