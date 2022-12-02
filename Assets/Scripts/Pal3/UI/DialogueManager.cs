@@ -393,7 +393,7 @@ namespace Pal3.UI
         public void Execute(DialogueRenderTextCommand command)
         {
             var skipDialogueWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(skipDialogueWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(
                 RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
@@ -403,7 +403,7 @@ namespace Pal3.UI
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
         {
             var skipDialogueWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(skipDialogueWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
@@ -457,7 +457,7 @@ namespace Pal3.UI
             _gameStateManager.GoToState(GameState.UI);
 
             var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Count; i++)

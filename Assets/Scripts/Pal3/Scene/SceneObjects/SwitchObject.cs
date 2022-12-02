@@ -35,7 +35,8 @@ namespace Pal3.Scene.SceneObjects
             {
                 if (!(ObjectInfo.SwitchState == 1 && ObjectInfo.Parameters[0] == 1))
                 {
-                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+                    // Add collider to block player
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
             }
             return sceneGameObject;
@@ -60,8 +61,7 @@ namespace Pal3.Scene.SceneObjects
                     new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
-                        ActorConstants.ActionNames[ActorActionType.Check],
-                        1));
+                        ActorConstants.ActionNames[ActorActionType.Check], 1));
             }
 
             PlaySfxIfAny();
@@ -77,9 +77,9 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
-
             ExecuteScriptIfAny();
+
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
         }
     }
 }

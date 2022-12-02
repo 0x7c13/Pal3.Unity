@@ -5,7 +5,7 @@
 
 namespace Pal3.Script.Waiter
 {
-    public class WaitUntilTime : IWaitUntil
+    public class WaitUntilTime : IScriptRunnerWaiter
     {
         private float _totalTimeInSec;
 
@@ -17,6 +17,13 @@ namespace Pal3.Script.Waiter
         public bool ShouldWait(float deltaTime = 0)
         {
             _totalTimeInSec -= deltaTime;
+
+            // Prevent overflow
+            if (_totalTimeInSec < 0)
+            {
+                _totalTimeInSec = -1f;
+            }
+
             return _totalTimeInSec > 0;
         }
     }

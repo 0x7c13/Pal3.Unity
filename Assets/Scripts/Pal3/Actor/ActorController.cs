@@ -240,7 +240,7 @@ namespace Pal3.Actor
             if (command.ActorId != _actor.Info.Id) return;
             var waiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunnerWaitRequest(waiter));
+                new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(AnimateScale(command.Scale, 2f, waiter));
         }
 

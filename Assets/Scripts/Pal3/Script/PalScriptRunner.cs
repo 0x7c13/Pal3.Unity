@@ -42,7 +42,7 @@ namespace Pal3.Script
         ICommandExecutor<ScriptTestGotoCommand>,
         ICommandExecutor<ScriptGotoCommand>,
         ICommandExecutor<ScriptWaitUntilTimeCommand>,
-        ICommandExecutor<ScriptRunnerWaitRequest>,
+        ICommandExecutor<ScriptRunnerAddWaiterRequest>,
         ICommandExecutor<ScriptVarSetValueCommand>,
         ICommandExecutor<ScriptVarSetRandomValueCommand>,
         ICommandExecutor<ScriptCheckIfPlayerHaveItemCommand>,
@@ -75,7 +75,7 @@ namespace Pal3.Script
         private readonly Dictionary<int, int> _globalVariables;
         private readonly Dictionary<int, int> _localVariables = new ();
 
-        private readonly Stack<IWaitUntil> _waiters = new ();
+        private readonly Stack<IScriptRunnerWaiter> _waiters = new ();
         private bool _isExecuting;
         private bool _isDisposed;
 
@@ -337,10 +337,10 @@ namespace Pal3.Script
             _waiters.Push(new WaitUntilTime(untilTimeCommand.Time));
         }
 
-        public void Execute(ScriptRunnerWaitRequest request)
+        public void Execute(ScriptRunnerAddWaiterRequest request)
         {
             if (!_isExecuting) return;
-            _waiters.Push(request.WaitUntil);
+            _waiters.Push(request.Waiter);
         }
 
         public void Execute(ScriptGotoCommand command)

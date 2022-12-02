@@ -6,6 +6,7 @@
 namespace Pal3.Dev
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Command;
@@ -29,7 +30,6 @@ namespace Pal3.Dev
     public sealed class StorySelector : MonoBehaviour,
         ICommandExecutor<ToggleStorySelectorRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
-        ICommandExecutor<ScriptFinishedRunningNotification>,
         ICommandExecutor<ScenePostLoadingNotification>
     {
         private InputManager _inputManager;
@@ -44,7 +44,6 @@ namespace Pal3.Dev
         private CanvasGroup _storySelectorCanvas;
         private GameObject _storySelectorButtonPrefab;
 
-        private uint _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
         private readonly List<string> _deferredExecutionCommands = new();
 
         private readonly List<GameObject> _selectionButtons = new();
@@ -2105,7 +2104,6 @@ namespace Pal3.Dev
             _informationManager.EnableNoteDisplay(false);
 
             _deferredExecutionCommands.Clear();
-            _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
 
             var commandsToExecute = new List<string>();
 
@@ -2173,25 +2171,20 @@ namespace Pal3.Dev
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
-                _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
             }
             else
             {
-                _pendingSceneScriptId = command.SceneScriptId;
+                StartCoroutine(ExecuteDeferredCommandsAfterSceneScriptFinished(command.SceneScriptId));
             }
         }
 
-        public void Execute(ScriptFinishedRunningNotification command)
+        private IEnumerator ExecuteDeferredCommandsAfterSceneScriptFinished(uint scriptId)
         {
-            if (_deferredExecutionCommands.Count == 0) return;
-
-            if (_pendingSceneScriptId != ScriptConstants.InvalidScriptId &&
-                _pendingSceneScriptId == command.ScriptId &&
-                command.ScriptType == PalScriptType.Scene)
+            yield return new WaitUntilScriptFinished(PalScriptType.Scene, scriptId);
+            if (_deferredExecutionCommands.Count > 0)
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
-                _pendingSceneScriptId = ScriptConstants.InvalidScriptId;
             }
         }
     }

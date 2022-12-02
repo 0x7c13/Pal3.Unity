@@ -77,6 +77,7 @@ namespace Pal3.Scene.SceneObjects
             while (isActiveAndEnabled)
             {
                 yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
+                if (!isActiveAndEnabled) yield break;
                 yield return cvdModelRenderer.PlayOneTimeAnimation(true);
             }
         }

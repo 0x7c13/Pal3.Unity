@@ -22,6 +22,8 @@ namespace Pal3.Scene.SceneObjects
     using Effect;
     using MetaData;
     using Renderer;
+    using Script;
+    using State;
     using UnityEngine;
 
     public struct InteractionContext
@@ -255,6 +257,7 @@ namespace Pal3.Scene.SceneObjects
         }
 
         #region Internal helpper methods
+
         internal bool IsInteractableBasedOnTimesCount()
         {
             switch (ObjectInfo.Times)
@@ -275,14 +278,17 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        internal bool ExecuteScriptIfAny()
+        internal void ExecuteScriptIfAny()
         {
-            if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
-                return true;
-            }
-            return false;
+            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) return;
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
+        }
+
+        internal IEnumerator ExecuteScriptAndWaitForFinishIfAny()
+        {
+            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) yield break;
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
+            yield return new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId);
         }
 
         internal void PlaySfxIfAny()
@@ -341,6 +347,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Id,
                     layerIndex));
         }
+
         #endregion
     }
 }

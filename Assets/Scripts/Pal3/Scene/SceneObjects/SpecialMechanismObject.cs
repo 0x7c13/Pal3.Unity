@@ -96,12 +96,9 @@ namespace Pal3.Scene.SceneObjects
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
-                ChangeAndSaveActivationState(false);
             }
-            else
-            {
-                ChangeAndSaveActivationState(false);
-            }
+
+            ChangeAndSaveActivationState(false);
         }
     }
 }

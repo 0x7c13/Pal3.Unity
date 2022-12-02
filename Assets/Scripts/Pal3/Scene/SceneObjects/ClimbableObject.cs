@@ -108,7 +108,7 @@ namespace Pal3.Scene.SceneObjects
             }
             else
             {
-                ExecuteScriptIfAny();
+                yield return ExecuteScriptAndWaitForFinishIfAny();
             }
         }
     }

@@ -5,7 +5,7 @@
 
 namespace Pal3.Script.Waiter
 {
-    public class WaitUntilCanceled : IWaitUntil
+    public class WaitUntilCanceled : IScriptRunnerWaiter
     {
         // TODO: Remove this
         public object Tag { get; }

@@ -66,7 +66,7 @@ namespace Pal3.Actor
             }
 
             var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var distance = (targetPosition - transform.position).magnitude;
             var duration = distance / DefaultFlySpeed;

@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
+    using System.Threading;
     using Actor;
     using Command;
     using Command.InternalCommands;
@@ -15,10 +16,8 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
-    using Core.Services;
     using Data;
     using MetaData;
-    using Player;
     using Renderer;
     using State;
     using UnityEngine;
@@ -50,8 +49,9 @@ namespace Pal3.Scene.SceneObjects
                 poly.TextureProvider,
                 tintColor);
 
-            _subObjectGameObject.AddComponent<ImpulsiveMechanismObjectController>().Init(
-                new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]), ObjectInfo.Parameters[2]);
+            _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>().Init(
+                new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]),
+                ObjectInfo.Parameters[2]);
 
             _subObjectGameObject.transform.SetParent(sceneGameObject.transform, false);
 
@@ -69,7 +69,7 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 
-    internal class ImpulsiveMechanismObjectController : MonoBehaviour
+    internal class ImpulsiveMechanismSubObjectController : MonoBehaviour
     {
         private const float MIN_Z_POSITION = -1.7f;
         private const float MAX_Z_POSITION = 4f;
@@ -77,18 +77,17 @@ namespace Pal3.Scene.SceneObjects
         private const float MOVEMENT_ANIMATION_DURATION = 2.5f;
         private const float HIT_ANIMATION_DURATION = 0.5f;
 
-        private BoxCollider _collider;
+        private BoundsTriggerController _triggerController;
         private Coroutine _movementCoroutine;
-        private PlayerManager _playerManager;
         private bool _isDuringInteraction;
 
         private Vector2Int _targetTilePosition;
         private int _targetNavLayerIndex;
 
+        private CancellationTokenSource _movementAnimationCts = new ();
+
         public void Init(Vector2Int targetTilePosition, int targetNavLayerIndex)
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-
             _targetTilePosition = targetTilePosition;
             _targetNavLayerIndex = targetNavLayerIndex;
 
@@ -99,10 +98,9 @@ namespace Pal3.Scene.SceneObjects
                 size = new Vector3(3f, 2f, 7f),
             };
 
-            _collider = gameObject.AddComponent<BoxCollider>();
-            _collider.center = bounds.center;
-            _collider.size = bounds.size;
-            _collider.isTrigger = true;
+            _triggerController = gameObject.AddComponent<BoundsTriggerController>();
+            _triggerController.SetupCollider(bounds, true);
+            _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // Set initial position
             Vector3 subObjectInitPosition = transform.position;
@@ -110,23 +108,18 @@ namespace Pal3.Scene.SceneObjects
             transform.position = subObjectInitPosition;
         }
 
-        private void OnTriggerEnter(Collider collider)
+        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
             if (_isDuringInteraction) return; // Prevent multiple interactions during animation
+            _isDuringInteraction = true;
 
-            // Check if collider game object is player actor
-            if (collider.gameObject.GetComponent<ActorController>() is { } actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
-            {
-                _isDuringInteraction = true;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Cutscene));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CameraFreeCommand(0));
-                StartCoroutine(Interact(collider.gameObject));
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Cutscene));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraFreeCommand(0));
+            StartCoroutine(Interact(playerActorGameObject));
         }
 
         private IEnumerator Interact(GameObject playerActorGameObject)
@@ -162,24 +155,28 @@ namespace Pal3.Scene.SceneObjects
         {
             _isDuringInteraction = false;
 
+            _movementAnimationCts.Cancel();
+
             if (_movementCoroutine != null)
             {
                 StopCoroutine(_movementCoroutine);
                 _movementCoroutine = null;
             }
 
-            if (_collider != null)
+            if (_triggerController != null)
             {
-                Destroy(_collider);
+                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                Destroy(_triggerController);
             }
         }
 
         public void Start()
         {
-            _movementCoroutine = StartCoroutine(StartMovement());
+            _movementAnimationCts = new CancellationTokenSource();
+            _movementCoroutine = StartCoroutine(StartMovement(_movementAnimationCts.Token));
         }
 
-        private IEnumerator StartMovement()
+        private IEnumerator StartMovement(CancellationToken cancellationToken)
         {
             float startDelay = Random.Range(0f, 3.5f);
             yield return new WaitForSeconds(startDelay);
@@ -187,7 +184,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 initPosition = transform.localPosition;
             WaitForSeconds holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
 
-            while (isActiveAndEnabled)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 yield return AnimationHelper.EnumerateValue(MIN_Z_POSITION,
                     MAX_Z_POSITION,
@@ -198,7 +195,7 @@ namespace Pal3.Scene.SceneObjects
                     Vector3 newPosition = initPosition;
                     newPosition.z = value;
                     transform.localPosition = newPosition;
-                });
+                }, cancellationToken);
 
                 yield return holdTimeWaiter;
 
@@ -211,8 +208,7 @@ namespace Pal3.Scene.SceneObjects
                         Vector3 newPosition = initPosition;
                         newPosition.z = value;
                         transform.localPosition = newPosition;
-                    });
-
+                    }, cancellationToken);
 
                 yield return holdTimeWaiter;
             }

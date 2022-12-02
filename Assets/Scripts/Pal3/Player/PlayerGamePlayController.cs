@@ -39,7 +39,6 @@ namespace Pal3.Player
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
-        ICommandExecutor<ScriptFinishedRunningNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private GameStateManager _gameStateManager;
@@ -47,7 +46,6 @@ namespace Pal3.Player
         private TeamManager _teamManager;
         private PlayerInputActions _inputActions;
         private SceneManager _sceneManager;
-        private ScriptManager _scriptManager;
         private Camera _camera;
 
         private string _currentMovementSfxAudioName = string.Empty;
@@ -69,10 +67,6 @@ namespace Pal3.Player
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
 
-        private Actor _currentInteractingActor;
-        private GameObject _currentInteractingActorGameObject;
-        private Quaternion _currentInteractingActorRotationBeforeInteraction;
-
         private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
         private readonly List<(ScnSceneInfo sceneInfo,
             int actorNavIndex,
@@ -92,7 +86,6 @@ namespace Pal3.Player
             _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
             _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
             _camera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
 
             _inputActions.Gameplay.OnTap.performed += OnTapPerformed;
@@ -427,7 +420,7 @@ namespace Pal3.Player
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             float nearestInteractableFacingAngle = 181f;
-            Action interactionAction = null;
+            IEnumerator interactionRoutine = null;
 
             foreach (var sceneObjectId in
                      _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
@@ -453,10 +446,7 @@ namespace Pal3.Player
                 {
                     //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionAction = () =>
-                    {
-                        StartCoroutine(PlayerActorInteractWithSceneObject(sceneObject, true));
-                    };
+                    interactionRoutine = InteractWithSceneObject(sceneObject, true);
                 }
             }
 
@@ -483,39 +473,40 @@ namespace Pal3.Player
                 {
                     //Debug.DrawLine(actorCenterPosition, targetActorCenterPosition, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionAction = () => InteractWithActor(actorInfo.Key, actorInfo.Value);
+                    interactionRoutine = InteractWithActor(actorInfo.Key, actorInfo.Value);
                 }
             }
 
-            interactionAction?.Invoke();
-        }
-
-        private IEnumerator PlayerActorInteractWithSceneObject(SceneObject sceneObject, bool triggerredByPlayer)
-        {
-            _gameStateManager.GoToState(GameState.Cutscene);
-            yield return sceneObject.Interact(triggerredByPlayer);
-            if (_scriptManager.GetNumberOfRunningScripts() == 0)
+            if (interactionRoutine != null)
             {
-                _gameStateManager.GoToState(GameState.Gameplay);
+                StartCoroutine(interactionRoutine);
             }
         }
 
-        private void InteractWithActor(int actorId, GameObject actorGameObject)
+        private IEnumerator InteractWithSceneObject(SceneObject sceneObject, bool triggerredByPlayer)
         {
-            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
-            _currentInteractingActor = targetActor;
-            _currentInteractingActorGameObject = actorGameObject;
-            _currentInteractingActorRotationBeforeInteraction = actorGameObject.transform.rotation;
+            _gameStateManager.GoToState(GameState.Cutscene);
+            yield return sceneObject.Interact(triggerredByPlayer);
+            _gameStateManager.GoToState(GameState.Gameplay);
+        }
 
+        private IEnumerator InteractWithActor(int actorId, GameObject actorGameObject)
+        {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
+            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
+            Quaternion rotationBeforeInteraction = actorGameObject.transform.rotation;
+
+            var actorController = actorGameObject.GetComponent<ActorController>();
+            var movementController = actorGameObject.GetComponent<ActorMovementController>();
+
             // Pause current path follow movement of the interacting actor
-            if (actorGameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
-                actorGameObject.GetComponent<ActorMovementController>() is { } movementController)
+            if (actorController != null &&
+                movementController != null &&
+                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
             {
                 movementController.PauseMovement();
             }
@@ -524,7 +515,7 @@ namespace Pal3.Player
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorLookAtActorCommand(_playerActor.Info.Id, targetActor.Info.Id));
 
-            // Only look at player actor when the target actor is in idle state
+            // Only let target actor look at player actor when the target actor is in idle state
             if (actorGameObject.GetComponent<ActorActionController>() is { } actionController &&
                 actionController.IsCurrentActionIdleAction())
             {
@@ -535,6 +526,23 @@ namespace Pal3.Player
             // Run dialogue script
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand((int)targetActor.Info.ScriptId));
+
+            // Wait until the dialogue script is finished
+            yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.Info.ScriptId);
+
+            // Resume current path follow movement of the interacting actor
+            if (actorController != null &&
+                movementController != null &&
+                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
+            {
+                movementController.ResumeMovement();
+            }
+
+            // Reset facing rotation of the interacting actor
+            if (actorGameObject != null)
+            {
+                actorGameObject.transform.rotation = rotationBeforeInteraction;
+            }
         }
 
         private void PortalToTapPosition()
@@ -675,7 +683,7 @@ namespace Pal3.Player
             }
 
             var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;
             StartCoroutine(PlayerActorMoveToClimbableObjectAndClimb(climbableObject, climbUp,
@@ -684,11 +692,6 @@ namespace Pal3.Player
                 {
                     waiter.CancelWait();
                 }));
-        }
-
-        private void EnablePlayerInputs()
-        {
-            _inputActions.Enable();
         }
 
         public IEnumerator PlayerActorMoveToClimbableObjectAndClimb(
@@ -913,12 +916,6 @@ namespace Pal3.Player
             {
                 _playerActorLastKnownSceneState.RemoveAt(0);
             }
-
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
-            {
-                // Temporarily disable player input (will resume once scene is loaded)
-                _inputActions.Disable();
-            }
         }
 
         public void Execute(ScenePostLoadingNotification notification)
@@ -955,39 +952,6 @@ namespace Pal3.Player
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
-
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
-            {
-                // Re-enable player input with a small delay
-                Invoke(nameof(EnablePlayerInputs), 0.2f);
-            }
-        }
-
-        public void Execute(ScriptFinishedRunningNotification command)
-        {
-            if (_currentInteractingActor != null &&
-                _currentInteractingActorGameObject != null &&
-                command.ScriptType == PalScriptType.Scene &&
-                command.ScriptId == _currentInteractingActor.Info.ScriptId)
-            {
-                if (_currentInteractingActorGameObject.GetComponent<ActorController>() is {} actorController)
-                {
-                    // Resume current path follow movement of the interacting actor
-                    if (actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow &&
-                        _currentInteractingActorGameObject.GetComponent<ActorMovementController>() is {} movementController)
-                    {
-                        movementController.ResumeMovement();
-                    }
-
-                    // Reset facing rotation of the interacting actor
-                    _currentInteractingActorGameObject.transform.rotation =
-                        _currentInteractingActorRotationBeforeInteraction;
-                }
-            }
-
-            _currentInteractingActor = null;
-            _currentInteractingActorGameObject = null;
-            _currentInteractingActorRotationBeforeInteraction = default;
         }
 
         public void Execute(ResetGameStateCommand command)

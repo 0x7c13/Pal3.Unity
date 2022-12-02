@@ -5,8 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using Command;
-    using Command.InternalCommands;
+    using System.Collections;
     using Common;
     using Core.DataReader.Scn;
     using Data;
@@ -14,8 +13,7 @@ namespace Pal3.Scene.SceneObjects
 
     [ScnSceneObject(ScnSceneObjectType.AutoTrigger)]
     [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
-    public class AutoTriggerObject : SceneObject,
-        ICommandExecutor<ScriptFinishedRunningNotification>
+    public class AutoTriggerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
         private bool _isScriptRunningInProgress;
@@ -31,18 +29,15 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
 
             // This is to prevent player from entering back to previous
             // scene when holding the stick while transferring between scenes.
             // We simply disable the auto trigger for a short time window after
             // a fresh scene load.
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
-
+            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
-
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
 
             return sceneGameObject;
         }
@@ -50,24 +45,18 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
             if (_isScriptRunningInProgress) return; // Prevent re-entry
-
             _isScriptRunningInProgress = true;
-
-            ExecuteScriptIfAny();
+            Pal3.Instance.StartCoroutine(Interact(true));
         }
 
-        public void Execute(ScriptFinishedRunningNotification command)
+        public override IEnumerator Interact(bool triggerredByPlayer)
         {
-            if (command.ScriptId == ObjectInfo.ScriptId)
-            {
-                _isScriptRunningInProgress = false;
-            }
+            yield return ExecuteScriptAndWaitForFinishIfAny();
+            _isScriptRunningInProgress = false;
         }
 
         public override void Deactivate()
         {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-
             _isScriptRunningInProgress = false;
 
             if (_triggerController != null)

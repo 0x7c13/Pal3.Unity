@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            ExecuteScriptIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAny();
         }
     }
 }

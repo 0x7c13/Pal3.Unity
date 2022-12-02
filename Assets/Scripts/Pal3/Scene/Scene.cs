@@ -588,9 +588,11 @@ namespace Pal3.Scene
 
                 Vector3 originalPosition = ScnFile.ObjectInfos.First(_ => _.Id == command.ObjectId).GameBoxPosition;
 
-                // There are some objects that moved by scripts on scene load which are saved in the scene state,
-                // which we don't want to override. So we need check if this object has already been moved by the
-                // SceneStateManager first. If so, we don't move it again.
+                // There are some objects that moved by scene scripts right after scene load which are persisted by
+                // SceneStateManager. Next time when the scene is loaded, SceneStateManager will set these objects to
+                // their final position. Thus we need to ignore these particular SceneMoveObject command issued by
+                // scene script. We are doing this by checking if the object current position is the same as the
+                // original position + SceneMoveObjectCommand offset.
                 // Example: The climbable object in PAL3 scene m08 3.
                 if (sceneObject.ObjectInfo.GameBoxPosition != originalPosition &&
                     Vector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)

@@ -72,7 +72,8 @@ namespace Pal3.Scene.SceneObjects
                 yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
             }
 
-            ExecuteScriptIfAny(); // Trap always has a script, so no need to explicitly set game state back to GamePlay
+            yield return ExecuteScriptAndWaitForFinishIfAny();
+            // Trap always has a script, so no need to explicitly set game state back to GamePlay
         }
 
         public override void Deactivate()

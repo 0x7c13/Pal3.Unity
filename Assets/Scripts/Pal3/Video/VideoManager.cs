@@ -95,7 +95,7 @@ namespace Pal3.Video
         {
             _videoPlayingWaiter?.CancelWait();
             _videoPlayingWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_videoPlayingWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_videoPlayingWaiter));
 
             try
             {

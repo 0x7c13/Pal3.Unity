@@ -300,7 +300,7 @@ namespace Pal3.Actor
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
 
             var waiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(waiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
@@ -436,7 +436,7 @@ namespace Pal3.Actor
                 {
                     waiter = new WaitUntilCanceled(this);
                     CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new ScriptRunnerWaitRequest(waiter));
+                        new ScriptRunnerAddWaiterRequest(waiter));
                 }
                 PerformAction(command.ActionName, true, command.LoopCount, waiter);
             }
@@ -453,7 +453,7 @@ namespace Pal3.Actor
                 _animationLoopPointWaiter?.CancelWait();
                 _animationLoopPointWaiter = new WaitUntilCanceled(this);
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunnerWaitRequest(_animationLoopPointWaiter));
+                    new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
 
                 _mv3AnimationRenderer.ResumeAction();
             }

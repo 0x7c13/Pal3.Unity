@@ -779,7 +779,7 @@ namespace Pal3.Actor
         {
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             var wayPoints = new [] { position };
             SetupPath(wayPoints, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
@@ -842,7 +842,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
@@ -853,7 +853,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 mode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
         }
@@ -879,7 +879,7 @@ namespace Pal3.Actor
 
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled(this);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitRequest(_movementWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             StartCoroutine(FindPathAndMoveToTilePosition(
                 new Vector2Int(command.TileXPosition, command.TileYPosition),

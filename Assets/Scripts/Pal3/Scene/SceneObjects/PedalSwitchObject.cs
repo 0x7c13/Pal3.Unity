@@ -126,13 +126,12 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
+            ExecuteScriptIfAny();
+
             yield return ActivateOrInteractWithLinkedObjectIfAny();
 
-            if (!ExecuteScriptIfAny() && _scriptManager.GetNumberOfRunningScripts() == 0)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Gameplay));
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new GameStateChangeRequest(GameState.Gameplay));
         }
 
         public override void Deactivate()

@@ -7,7 +7,6 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
@@ -15,8 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
-    public class DoorObject : SceneObject,
-        ICommandExecutor<ScriptFinishedRunningNotification>
+    public class DoorObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
         private bool _isScriptRunningInProgress;
@@ -31,18 +29,15 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
 
             // This is to prevent player from entering back to previous
             // scene when holding the stick while transferring between scenes.
             // We simply disable the auto trigger for a short time window after
             // a fresh scene load.
             var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
-
+            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
-
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
 
             return sceneGameObject;
         }
@@ -50,9 +45,7 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
             if (_isScriptRunningInProgress) return; // Prevent re-entry
-
             _isScriptRunningInProgress = true;
-
             Pal3.Instance.StartCoroutine(Interact(true));
         }
 
@@ -62,29 +55,25 @@ namespace Pal3.Scene.SceneObjects
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
             if (ObjectInfo.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
             {
-                // Just disable player input but don't actually goto cutscene because
-                // there is a logic in CameraManager which saves the current camera
-                // position and rotation before entering next scene based on the GameState.
+                // Just disable player input during door animation.
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
 
                 var timeScale = 2f; // Make the animation 2X faster for better user experience
                 var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
-
                 yield return GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage, true);
 
+                // Re-enable player input after door animation to switch game into GamePlay
+                // state because there is a logic in CameraManager which saves the current camera
+                // position and rotation before entering next scene based on the GameState.
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
-                ExecuteScriptIfAny();
             }
-            else
-            {
-                ExecuteScriptIfAny();
-            }
+
+            yield return ExecuteScriptAndWaitForFinishIfAny();
+            _isScriptRunningInProgress = false;
         }
 
         public override void Deactivate()
         {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-
             _isScriptRunningInProgress = false;
 
             if (_triggerController != null)
@@ -94,14 +83,6 @@ namespace Pal3.Scene.SceneObjects
             }
 
             base.Deactivate();
-        }
-
-        public void Execute(ScriptFinishedRunningNotification command)
-        {
-            if (command.ScriptId == ObjectInfo.ScriptId)
-            {
-                _isScriptRunningInProgress = false;
-            }
         }
     }
 }

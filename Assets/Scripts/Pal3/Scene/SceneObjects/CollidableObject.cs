@@ -58,7 +58,7 @@ namespace Pal3.Scene.SceneObjects
 
             yield return ActivateOrInteractWithLinkedObjectIfAny();
 
-            ExecuteScriptIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAny();
 
             // Reset collider since bounds may change after animation
             _triggerController.SetupCollider(GetRendererBounds(), ObjectInfo.IsNonBlocking == 1);

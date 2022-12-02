@@ -5,8 +5,17 @@
 
 namespace Pal3.Script.Waiter
 {
-    public interface IWaitUntil
+    /// <summary>
+    /// Waiter to stop script runner from executing next command
+    /// until condition is met.
+    /// </summary>
+    public interface IScriptRunnerWaiter
     {
+        /// <summary>
+        /// Should script keep waiting?
+        /// </summary>
+        /// <param name="deltaTime">Game time past since last check</param>
+        /// <returns>True if script runner should keep waiting</returns>
         public bool ShouldWait(float deltaTime = 0f);
     }
 }

@@ -16,6 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Services;
     using Data;
     using Renderer;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
@@ -102,14 +103,15 @@ namespace Pal3.Scene.SceneObjects
                 if (objectOnThePlatform != null)
                 {
                     hasObjectOnPlatform = true;
+                    objectOnThePlatformOriginalPosition = objectOnThePlatform.transform.position;
                 }
-                objectOnThePlatformOriginalPosition = objectOnThePlatform.transform.position;
             }
 
             yield return AnimationHelper.EnumerateValue(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
                 offset =>
                 {
-                    liftingMechanismGameObject.transform.position = new Vector3(position.x, position.y + offset, position.z);
+                    liftingMechanismGameObject.transform.position =
+                        new Vector3(position.x, position.y + offset, position.z);
 
                     if (hasObjectOnPlatform)
                     {

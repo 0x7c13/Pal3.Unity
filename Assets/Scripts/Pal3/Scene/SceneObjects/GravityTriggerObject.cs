@@ -113,10 +113,11 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
-
+            // Don't wait for linked object to finish interaction before enabling player control
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Gameplay));
+
+            yield return ActivateOrInteractWithLinkedObjectIfAny();
         }
 
         public override void Deactivate()

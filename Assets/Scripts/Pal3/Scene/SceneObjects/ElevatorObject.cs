@@ -101,7 +101,7 @@ namespace Pal3.Scene.SceneObjects
                 new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
                     toCenterTilePosition.x, toCenterTilePosition.y));
 
-            var zOffset = 5f; // Move player actor outside the elevator tilemap rect
+            const float zOffset = 5f; // Move player actor outside the elevator tilemap rect
             var finalPosition = new Vector3(toCenterPosition.x, toCenterPosition.y, toCenterPosition.z + zOffset);
             finalPosition.y = tilemap.TryGetTile(finalPosition, toNavLayer, out var tile)
                 ? GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition)

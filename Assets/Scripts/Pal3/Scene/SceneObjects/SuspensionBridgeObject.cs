@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
+    using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
@@ -30,9 +31,9 @@ namespace Pal3.Scene.SceneObjects
             // Set to final position if the bridge is already activated
             if (ObjectInfo.Times == 0)
             {
-                var cvdModelRenderer = GetCvdModelRenderer();
+                CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
                 cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
-                EnableCollider();
+                EnableStandingPlatform();
             }
 
             return sceneGameObject;
@@ -49,11 +50,11 @@ namespace Pal3.Scene.SceneObjects
                 // SuspensionBridge is always triggered by other switch type objects
                 // so we don't wait for the animation to finish thus we don't call
                 // IEnumerator version of the cvd animation playing method here.
-                GetCvdModelRenderer().StartOneTimeAnimation(true, EnableCollider);
+                GetCvdModelRenderer().StartOneTimeAnimation(true, EnableStandingPlatform);
             }
         }
 
-        private void EnableCollider()
+        private void EnableStandingPlatform()
         {
             // _e.cvd
             var bounds = new Bounds

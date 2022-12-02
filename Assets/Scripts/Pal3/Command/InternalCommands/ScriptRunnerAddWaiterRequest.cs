@@ -7,13 +7,13 @@ namespace Pal3.Command.InternalCommands
 {
     using Script.Waiter;
 
-    public class ScriptRunnerWaitRequest : ICommand
+    public class ScriptRunnerAddWaiterRequest : ICommand
     {
-        public ScriptRunnerWaitRequest(IWaitUntil waitUntil)
+        public ScriptRunnerAddWaiterRequest(IScriptRunnerWaiter waiter)
         {
-            WaitUntil = waitUntil;
+            Waiter = waiter;
         }
 
-        public IWaitUntil WaitUntil { get; }
+        public IScriptRunnerWaiter Waiter { get; }
     }
 }

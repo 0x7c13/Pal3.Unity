@@ -56,6 +56,13 @@ namespace Pal3.State
         {
             if (_currentState == newState) return;
 
+            if (newState == GameState.Gameplay &&
+                _scriptManager.GetNumberOfRunningScripts() > 0)
+            {
+                // Do not allow to switch to Gameplay state if there are running scripts.
+                return;
+            }
+
             Debug.Log($"Goto State: {newState.ToString()}");
 
             _previousState = _currentState;
@@ -108,7 +115,7 @@ namespace Pal3.State
             {
                 GoToState(GameState.Cutscene);
             }
-            else if (command.Enable == 1 && _scriptManager.GetNumberOfRunningScripts() == 0)
+            else if (command.Enable == 1)
             {
                 GoToState(GameState.Gameplay);
             }
@@ -126,25 +133,19 @@ namespace Pal3.State
 
         public void Execute(ScriptFinishedRunningNotification notification)
         {
-            if (_scriptManager.GetNumberOfRunningScripts() == 0)
+            // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
+            // Thus we need to check if BigMap is visible before switching state back to Gameplay.
+            if (ServiceLocator.Instance.Get<BigMapManager>().IsVisible())
             {
-                // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
-                // Thus we need to check if BigMap is visible before switching state back to Gameplay.
-                if (ServiceLocator.Instance.Get<BigMapManager>().IsVisible())
-                {
-                    return;
-                }
-
-                GoToState(GameState.Gameplay);
+                return;
             }
+
+            GoToState(GameState.Gameplay);
         }
 
         public void Execute(ScriptFailedToRunNotification notification)
         {
-            if (_scriptManager.GetNumberOfRunningScripts() == 0)
-            {
-                GoToState(GameState.Gameplay);
-            }
+            GoToState(GameState.Gameplay);
         }
 
         public void Execute(GameSwitchToMainMenuCommand command)
