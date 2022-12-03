@@ -27,8 +27,6 @@ namespace Pal3.Scene.SceneObjects
 
     public struct InteractionContext
     {
-        public int ActorId;
-        public Vector2Int ActorTilePosition;
         public float DistanceToActor;
     }
 
@@ -41,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
 
         internal bool Activated;
 
-        internal readonly string ModelFilePath;
+        internal string ModelFilePath;
 
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;

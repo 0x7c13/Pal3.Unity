@@ -436,8 +436,6 @@ namespace Pal3.Player
 
                 var interactionContext = new InteractionContext()
                 {
-                    ActorId = _playerActor.Info.Id,
-                    ActorTilePosition = tilePosition,
                     DistanceToActor = distanceToActor,
                 };
 

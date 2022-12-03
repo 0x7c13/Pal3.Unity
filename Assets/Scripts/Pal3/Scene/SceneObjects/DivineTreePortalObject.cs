@@ -5,19 +5,18 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
     using Common;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
-    public class SwordBridgeObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
+    public class DivineTreePortalObject : SceneObject
     {
         private StandingPlatformController _platformController;
 
-        public SwordBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public DivineTreePortalObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
@@ -28,29 +27,14 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
-            float heightOffset = 0f;
-
-            if (ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
+            Bounds bounds = new Bounds
             {
-                bounds = new Bounds
-                {
-                    center = new Vector3(0f, -0.4f, -7.5f),
-                    size = new Vector3(6f, 1f, 14.5f),
-                };
-            }
-            else if (ObjectInfo.Name.Equals("_g.pol", StringComparison.OrdinalIgnoreCase))
-            {
-                bounds = new Bounds
-                {
-                    center = new Vector3(0f, 0.5f, -0f),
-                    size = new Vector3(4.5f, 2.8f, 19f),
-                };
-                heightOffset = -1.7f;
-            }
+                center = new Vector3(0f, -1f, 0f),
+                size = new Vector3(9f, 2f, 9f),
+            };
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, heightOffset);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
 
             return sceneGameObject;
         }

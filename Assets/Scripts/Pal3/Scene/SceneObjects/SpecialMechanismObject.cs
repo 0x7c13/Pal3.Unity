@@ -56,13 +56,21 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsInteractable(InteractionContext ctx)
         {
-            return Activated &&
-                   ctx.DistanceToActor < MAX_INTERACTION_DISTANCE &&
-                   ctx.ActorId == ObjectInfo.Parameters[0]; // Only specified actor can interact with this object
+            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
         }
 
         public override IEnumerator Interact(bool triggerredByPlayer)
         {
+            PlayerActorId actorId = _playerManager.GetPlayerActor();
+
+            // Only specified actor can interact with this object
+            if ((int) actorId != ObjectInfo.Parameters[0])
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new UIDisplayNoteCommand("我不能打开这个机关..."));
+                yield break;
+            }
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -73,8 +81,6 @@ namespace Pal3.Scene.SceneObjects
                     1));
 
             yield return new WaitForSeconds(1.2f); // Wait for actor animation to finish
-
-            PlayerActorId actorId = _playerManager.GetPlayerActor();
 
             #if PAL3
             var sfxName = actorId switch

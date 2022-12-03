@@ -24,7 +24,7 @@ namespace Pal3.Actor
         private const float FOLLOW_TARGET_MIN_DISTANCE = 1f;
         private const float FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE = 8f;
         private const float FOLLOW_TARGET_MAX_DISTANCE = 15f;
-        private const float FOLLOW_TARGET_X_OFFSET = -0.8f;
+        private const float FOLLOW_TARGET_X_OFFSET = 0.8f;
         private const float FOLLOW_TARGET_Y_OFFSET = -0.8f;
 
         private const PlayerActorId FOLLOW_ACTOR_ID = PlayerActorId.XueJian;

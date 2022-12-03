@@ -12,7 +12,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.AutoTrigger)]
-    [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
     public class AutoTriggerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;

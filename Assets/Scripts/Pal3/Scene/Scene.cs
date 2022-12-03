@@ -382,12 +382,12 @@ namespace Pal3.Scene
                 {
                     if (state.IsActivated.Value)
                     {
-                        ActivateSceneObject(sceneObject);
+                        ActivateSceneObject(sceneObject.ObjectInfo.Id);
                     }
                 }
                 else if (sceneObject.ObjectInfo.InitActive == 1)
                 {
-                    ActivateSceneObject(sceneObject);
+                    ActivateSceneObject(sceneObject.ObjectInfo.Id);
                 }
             }
         }
@@ -403,9 +403,10 @@ namespace Pal3.Scene
             }
         }
 
-        private void ActivateSceneObject(SceneObject sceneObject)
+        public void ActivateSceneObject(int id)
         {
-            if (_activatedSceneObjects.Contains(sceneObject.ObjectInfo.Id)) return;
+            if (_activatedSceneObjects.Contains(id)) return;
+            SceneObject sceneObject = SceneObjects[id];
 
             Color tintColor = Color.white;
             if (IsNightScene())
@@ -429,7 +430,7 @@ namespace Pal3.Scene
             _activatedSceneObjects.Add(sceneObject.ObjectInfo.Id);
         }
 
-        private void DeactivateSceneObject(int id)
+        public void DeactivateSceneObject(int id)
         {
             if (!_activatedSceneObjects.Contains(id)) return;
             _activatedSceneObjects.Remove(id);
@@ -506,22 +507,20 @@ namespace Pal3.Scene
         {
             if (!SceneObjects.ContainsKey(command.ObjectId)) return;
 
-            SceneObject sceneObject = SceneObjects[command.ObjectId];
-
             if (command.IsActive == 1)
             {
-                ActivateSceneObject(sceneObject);
+                ActivateSceneObject(command.ObjectId);
             }
             else
             {
-                DeactivateSceneObject(sceneObject.ObjectInfo.Id);
+                DeactivateSceneObject(command.ObjectId);
             }
 
             // Save the activation state since it is activated/de-activated by the script
             _sceneStateManager.Execute(new SceneSaveGlobalObjectActivationStateCommand(
                 ScnFile.SceneInfo.CityName,
                 ScnFile.SceneInfo.SceneName,
-                sceneObject.ObjectInfo.Id,
+                command.ObjectId,
                 command.IsActive == 1));
         }
 
