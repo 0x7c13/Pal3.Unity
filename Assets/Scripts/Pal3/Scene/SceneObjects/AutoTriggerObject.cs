@@ -12,7 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.AutoTrigger)]
-    public class AutoTriggerObject : SceneObject
+    public sealed class AutoTriggerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
         private bool _isScriptRunningInProgress;

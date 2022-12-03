@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
-    public class DoorObject : SceneObject
+    public sealed class DoorObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
         private bool _isScriptRunningInProgress;

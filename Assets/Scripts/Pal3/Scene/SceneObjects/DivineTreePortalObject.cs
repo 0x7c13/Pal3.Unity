@@ -12,7 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
-    public class DivineTreePortalObject : SceneObject
+    public sealed class DivineTreePortalObject : SceneObject
     {
         private StandingPlatformController _platformController;
 

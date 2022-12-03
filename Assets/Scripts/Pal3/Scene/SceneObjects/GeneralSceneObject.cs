@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.RotatingStoneBeam)]
+    [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
     [ScnSceneObject(ScnSceneObjectType.EyeBall)]
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.UnknownObj55)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj56)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj59)]
-    public class GeneralSceneObject : SceneObject
+    public sealed class GeneralSceneObject : SceneObject
     {
         public GeneralSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)

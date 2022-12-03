@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
-    public class SuspensionBridgeObject : SceneObject
+    public sealed class SuspensionBridgeObject : SceneObject
     {
         private StandingPlatformController _platformController;
 

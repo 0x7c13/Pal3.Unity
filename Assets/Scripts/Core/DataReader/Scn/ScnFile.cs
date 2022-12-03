@@ -57,22 +57,22 @@ namespace Core.DataReader.Scn
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)
         Trap                          =  6,   // 陷阱 (调用脚本切换场景)
-        RotatingStoneBeam             =  7,   // 旋传石梁 (一字型)
+        RotatingBridge                =  7,   // 旋传石梁 (一字型)
         RotatingWall                  =  8,   // 旋转墙 (折尺型)
         PreciseTrigger                =  9,   // 精确触发点
         WindBlower                    = 10,   // 风口
         Pushable                      = 11,   // 推箱子
-        SpecialMechanism              = 12,   // 主角特技机关
-        ImpulsiveMechanism            = 13,   // 冲撞类机关
+        SpecialSwitch                 = 12,   // 主角特技机关
+        Impulsive                     = 13,   // 冲撞类机关
         Door                          = 14,   // 门，场景切换点
         Climbable                     = 15,   // 藤蔓或梯子 (可爬物)
-        InvestigationTriggerObject    = 16,   // 调查触发物体
+        InvestigationTrigger          = 16,   // 调查触发物体
         StaticOrAnimated              = 17,   // 死物体或者随机动画播放(通用参数[0]:对应的地面是否可通过)
         Billboard                     = 18,   // 公告板
         SuspensionBridge              = 19,   // 吊桥 (壁山)
         VirtualInvestigationTrigger   = 20,   // 虚拟BOX调查触发
         EyeBall                       = 21,   // 锁妖塔:眼球
-        LiftingMechanism              = 22,   // 锁妖塔:升降铁链或平台
+        LiftingPlatform               = 22,   // 锁妖塔:升降铁链或平台
                                               // 通用参数[0]:为升起后的高度,需要用其他开关间接触发
                                               // 通用参数[1]:升起后到高层
                                               // 通用参数[2]:平台上的其他物件编号
@@ -83,9 +83,9 @@ namespace Core.DataReader.Scn
         RareChest                     = 26,   // 迷宫大宝箱
         WishPool                      = 27,   // 许愿池
         ColdWeapon                    = 28,   // (M24)剑或锤
-        GravityTrigger                = 29,   // 重力机关（乌龟）
+        GravitySwitch                 = 29,   // 重力机关（乌龟）
         ElevatorDoor                  = 30,   // 升降机关门
-        WaterSurfaceMechanism         = 31,   // 水面机关
+        WaterSurface                  = 31,   // 水面机关
         PiranhaFlower                 = 32,   // 食人花
         PedalSwitch                   = 33,   // 踏板开关
         SwordBridge                   = 34,   // (m24)剑桥（触发后向前伸）

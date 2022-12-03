@@ -215,7 +215,6 @@ namespace Pal3
                 _teamManager,
                 _inputActions,
                 _sceneManager,
-                _scriptManager,
                 mainCamera);
             ServiceLocator.Instance.Register(_playerGamePlayController);
 

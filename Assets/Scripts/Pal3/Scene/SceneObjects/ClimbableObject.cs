@@ -15,7 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Climbable)]
-    public class ClimbableObject : SceneObject
+    public sealed class ClimbableObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 6f;
 

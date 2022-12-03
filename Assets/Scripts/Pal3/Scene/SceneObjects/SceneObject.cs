@@ -175,7 +175,7 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
-        public Bounds GetMeshBounds()
+        protected Bounds GetMeshBounds()
         {
             if (_polyModelRenderer != null)
             {
@@ -213,11 +213,6 @@ namespace Pal3.Scene.SceneObjects
             };
         }
 
-        public GameObject GetGameObject()
-        {
-            return _sceneObjectGameObject;
-        }
-
         public CvdModelRenderer GetCvdModelRenderer()
         {
             return _cvdModelRenderer;
@@ -226,6 +221,11 @@ namespace Pal3.Scene.SceneObjects
         public PolyModelRenderer GetPolyModelRenderer()
         {
             return _polyModelRenderer;
+        }
+
+        public GameObject GetGameObject()
+        {
+            return _sceneObjectGameObject;
         }
 
         public virtual bool IsInteractable(InteractionContext ctx)

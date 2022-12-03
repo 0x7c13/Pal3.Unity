@@ -12,7 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
 
     [ScnSceneObject(ScnSceneObjectType.RareChest)]
-    public class RareChestObject : SceneObject
+    public sealed class RareChestObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 

@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Elevator)]
-    public class ElevatorObject : SceneObject
+    public sealed class ElevatorObject : SceneObject
     {
         private const float ELEVATOR_SPEED = 6f;
 

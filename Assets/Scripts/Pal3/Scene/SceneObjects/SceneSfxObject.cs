@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SceneSfx)]
-    public class SceneSfxObject : SceneObject
+    public sealed class SceneSfxObject : SceneObject
     {
         public string SfxName { get; }
 

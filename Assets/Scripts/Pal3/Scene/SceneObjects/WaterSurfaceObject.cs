@@ -18,14 +18,14 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.WaterSurfaceMechanism)]
-    public class WaterSurfaceMechanismObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.WaterSurface)]
+    public sealed class WaterSurfaceObject : SceneObject
     {
         private const float WATER_ANIMATION_DURATION = 4f;
 
         private readonly SceneManager _sceneManager;
 
-        public WaterSurfaceMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public WaterSurfaceObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _sceneManager = ServiceLocator.Instance.Get<SceneManager>();

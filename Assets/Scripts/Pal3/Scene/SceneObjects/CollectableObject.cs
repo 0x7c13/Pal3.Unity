@@ -12,7 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
 
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
-    public class CollectableObject : SceneObject
+    public sealed class CollectableObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 

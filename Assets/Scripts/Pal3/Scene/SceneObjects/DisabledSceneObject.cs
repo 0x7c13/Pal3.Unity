@@ -10,7 +10,7 @@ namespace Pal3.Scene.SceneObjects
 
     [ScnSceneObject(ScnSceneObjectType.SavingPoint)]
     [ScnSceneObject(ScnSceneObjectType.WishPool)]
-    public class DisabledSceneObject : SceneObject
+    public sealed class DisabledSceneObject : SceneObject
     {
         public DisabledSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo, hasModel: false)

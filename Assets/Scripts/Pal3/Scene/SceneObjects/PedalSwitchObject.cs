@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.PedalSwitch)]
-    public class PedalSwitchObject : SceneObject
+    public sealed class PedalSwitchObject : SceneObject
     {
         private const float DESCENDING_HEIGHT = 0.25f;
         private const float DESCENDING_ANIMATION_DURATION = 2f;

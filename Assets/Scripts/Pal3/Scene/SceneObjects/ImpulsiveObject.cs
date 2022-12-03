@@ -24,12 +24,12 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
     using Random = UnityEngine.Random;
 
-    [ScnSceneObject(ScnSceneObjectType.ImpulsiveMechanism)]
-    public class ImpulsiveMechanismObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.Impulsive)]
+    public sealed class ImpulsiveObject : SceneObject
     {
         private GameObject _subObjectGameObject;
 
-        public ImpulsiveMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public ImpulsiveObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }

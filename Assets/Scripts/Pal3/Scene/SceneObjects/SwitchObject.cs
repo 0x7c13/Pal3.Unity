@@ -20,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Switch)]
-    public class SwitchObject : SceneObject
+    public sealed class SwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
 

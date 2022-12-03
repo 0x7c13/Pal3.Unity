@@ -19,14 +19,14 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.LiftingMechanism)]
-    public class LiftingMechanismObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.LiftingPlatform)]
+    public sealed class LiftingPlatformObject : SceneObject
     {
         private const float LIFTING_ANIMATION_DURATION = 2.5f;
 
         private StandingPlatformController _platformController;
 
-        public LiftingMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public LiftingPlatformObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }

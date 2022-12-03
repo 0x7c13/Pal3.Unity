@@ -16,8 +16,8 @@ namespace Pal3.Scene.SceneObjects
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
     [ScnSceneObject(ScnSceneObjectType.VirtualInvestigationTrigger)]
-    [ScnSceneObject(ScnSceneObjectType.InvestigationTriggerObject)]
-    public class InvestigationTriggerObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.InvestigationTrigger)]
+    public sealed class InvestigationTriggerObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
 

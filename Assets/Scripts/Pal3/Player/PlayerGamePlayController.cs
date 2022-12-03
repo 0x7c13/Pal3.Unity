@@ -78,7 +78,6 @@ namespace Pal3.Player
             TeamManager teamManager,
             PlayerInputActions inputActions,
             SceneManager sceneManager,
-            ScriptManager scriptManager,
             Camera mainCamera)
         {
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
@@ -416,7 +415,6 @@ namespace Pal3.Player
         {
             Vector3 actorFacingDirection = _playerActorMovementController.transform.forward;
             Vector3 actorCenterPosition = _playerActorActionController.GetRendererBounds().center;
-            Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             float nearestInteractableFacingAngle = 181f;

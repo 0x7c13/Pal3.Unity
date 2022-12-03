@@ -19,8 +19,8 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.GravityTrigger)]
-    public class GravityTriggerObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.GravitySwitch)]
+    public sealed class GravitySwitchObject : SceneObject
     {
         private const float DESCENDING_HEIGHT = 0.5f;
         private const float DESCENDING_ANIMATION_DURATION = 2.5f;
@@ -31,7 +31,7 @@ namespace Pal3.Scene.SceneObjects
         private readonly SceneManager _sceneManager;
         private readonly TeamManager _teamManager;
 
-        public GravityTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public GravitySwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();

@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
-    public class SwordBridgeObject : SceneObject
+    public sealed class SwordBridgeObject : SceneObject
     {
         private StandingPlatformController _platformController;
 

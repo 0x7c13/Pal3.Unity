@@ -17,14 +17,14 @@ namespace Pal3.Scene.SceneObjects
     using Player;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SpecialMechanism)]
-    public class SpecialMechanismObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.SpecialSwitch)]
+    public sealed class SpecialSwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 
         private readonly PlayerManager _playerManager;
 
-        public SpecialMechanismObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public SpecialSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();

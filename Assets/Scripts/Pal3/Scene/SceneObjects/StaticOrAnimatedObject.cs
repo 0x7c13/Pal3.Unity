@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.StaticOrAnimated)]
-    public class StaticOrAnimatedObject : SceneObject
+    public sealed class StaticOrAnimatedObject : SceneObject
     {
         public StaticOrAnimatedObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)

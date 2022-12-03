@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.ElevatorPedal)]
-    public class ElevatorPedalObject : SceneObject
+    public sealed class ElevatorPedalObject : SceneObject
     {
         private const float ELEVATOR_SPPED = 3f;
 

@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.PiranhaFlower)]
-    public class PiranhaFlowerObject : SceneObject
+    public sealed class PiranhaFlowerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
 

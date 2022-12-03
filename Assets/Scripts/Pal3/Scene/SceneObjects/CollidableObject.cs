@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
 
     [ScnSceneObject(ScnSceneObjectType.Collidable)]
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
-    public class CollidableObject : SceneObject
+    public sealed class CollidableObject : SceneObject
     {
         private BoundsTriggerController _triggerController;
 

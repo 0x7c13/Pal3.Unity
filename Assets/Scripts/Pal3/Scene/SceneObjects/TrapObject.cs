@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Trap)]
-    public class TrapObject : SceneObject
+    public sealed class TrapObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
 

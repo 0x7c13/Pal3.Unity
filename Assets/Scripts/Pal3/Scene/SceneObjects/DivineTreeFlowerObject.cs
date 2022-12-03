@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.DivineTreeFlower)]
-    public class DivineTreeFlowerObject : SceneObject
+    public sealed class DivineTreeFlowerObject : SceneObject
     {
         private StandingPlatformController _platformController;
 

@@ -11,7 +11,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.ElevatorDoor)]
-    public class ElevatorDoorObject : SceneObject
+    public sealed class ElevatorDoorObject : SceneObject
     {
         private SceneObjectMeshCollider _meshCollider;
 
