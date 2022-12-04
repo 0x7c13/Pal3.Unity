@@ -7,16 +7,11 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Actor;
-    using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
-    using MetaData;
-    using Player;
     using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
@@ -28,18 +23,12 @@ namespace Pal3.Scene.SceneObjects
 
         private StandingPlatformController _platformController;
 
-        private readonly PlayerManager _playerManager;
-        private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
-        private readonly Tilemap _tilemap;
 
         public ElevatorPedalObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
-            _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -54,19 +43,20 @@ namespace Pal3.Scene.SceneObjects
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
+            Tilemap tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
             // Set to init position based on layer index
             if (ObjectInfo.LayerIndex == 0)
             {
                 var tilePosition = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
                 Vector3 position = sceneGameObject.transform.position;
-                position.y = _tilemap.GetWorldPosition(tilePosition, 0).y + bounds.size.y / 2f;
+                position.y = tilemap.GetWorldPosition(tilePosition, 0).y + bounds.size.y / 2f;
                 sceneGameObject.transform.position = position;
             }
             else
             {
                 var tilePosition = new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
                 Vector3 position = sceneGameObject.transform.position;
-                position.y = _tilemap.GetWorldPosition(tilePosition, 1).y + bounds.size.y / 2f;
+                position.y = tilemap.GetWorldPosition(tilePosition, 1).y + bounds.size.y / 2f;
                 sceneGameObject.transform.position = position;
             }
 
@@ -82,15 +72,12 @@ namespace Pal3.Scene.SceneObjects
 
             ToggleAndSaveSwitchState();
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggeredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
-            Scene scene = _sceneManager.GetCurrentScene();
-            Tilemap tilemap = scene.GetTilemap();
+            Tilemap tilemap = ctx.CurrentScene.GetTilemap();
 
             byte fromLayer = ObjectInfo.LayerIndex;
             byte toLayer = (byte) ((fromLayer + 1) % 2);
@@ -104,12 +91,11 @@ namespace Pal3.Scene.SceneObjects
             positions[0] = tilemap.GetWorldPosition(tilePositions[0], 0);
             positions[1] = tilemap.GetWorldPosition(tilePositions[1], 1);
 
-            var actorMovementController = scene.GetActorGameObject((int)_playerManager.GetPlayerActor())
-                .GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            var elevatorGameObject = GetGameObject();
+            GameObject elevatorGameObject = GetGameObject();
             var platformController = GetGameObject().GetComponent<StandingPlatformController>();
-            var platformCenterPosition = platformController.GetCollider().bounds.center;
+            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
             var platformHeight = platformController.GetCollider().bounds.size.y / 2f;
 
             var actorStandingPosition = new Vector3(platformCenterPosition.x, positions[fromLayer].y, platformCenterPosition.z);
@@ -122,13 +108,9 @@ namespace Pal3.Scene.SceneObjects
                 platformFinalPosition, duration, AnimationCurveType.Sine);
 
             ChangeAndSaveNavLayerIndex(toLayer);
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID, toLayer));
+            actorMovementController.SetNavLayer(toLayer);
 
             yield return actorMovementController.MoveDirectlyTo(positions[toLayer], 0);
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
         }
 
         public override void Deactivate()

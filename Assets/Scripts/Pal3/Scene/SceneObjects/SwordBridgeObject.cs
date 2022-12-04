@@ -29,7 +29,7 @@ namespace Pal3.Scene.SceneObjects
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
-            float heightOffset = 0f;
+            var heightOffset = 0f;
 
             if (ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
             {

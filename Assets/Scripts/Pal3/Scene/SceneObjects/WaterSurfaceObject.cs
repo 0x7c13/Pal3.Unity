@@ -41,7 +41,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = waterSurfaceGameObject.transform.position;
             finalPosition.y = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.Parameters[0]);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wc007", 1));
+            PlaySfx("wc007");
 
             yield return AnimationHelper.MoveTransform(waterSurfaceGameObject.transform,
                 finalPosition,

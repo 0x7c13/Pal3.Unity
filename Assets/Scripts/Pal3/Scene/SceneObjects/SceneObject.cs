@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using System.IO;
     using Command;
@@ -24,10 +25,14 @@ namespace Pal3.Scene.SceneObjects
     using Renderer;
     using Script;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     public struct InteractionContext
     {
-        public float DistanceToActor;
+        public Guid CorrelationId;
+        public int InitObjectId;
+        public Scene CurrentScene;
+        public GameObject PlayerActorGameObject;
     }
 
     public abstract class SceneObject
@@ -228,12 +233,12 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
-        public virtual bool IsInteractable(InteractionContext ctx)
+        public virtual bool IsDirectlyInteractable(float distance)
         {
             return false;
         }
 
-        public virtual IEnumerator Interact(bool triggerredByPlayer)
+        public virtual IEnumerator Interact(InteractionContext ctx)
         {
             // Do nothing
             yield break;
@@ -273,6 +278,11 @@ namespace Pal3.Scene.SceneObjects
         }
 
         #region Internal helpper methods
+
+        internal void RequestForInteraction()
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerInteractWithObjectCommand(ObjectInfo.Id));
+        }
 
         internal bool IsInteractableBasedOnTimesCount()
         {
@@ -315,6 +325,11 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
+        internal void PlaySfx(string sfxName)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
+        }
+
         internal void ChangeAndSaveActivationState(bool isActivated)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -326,17 +341,14 @@ namespace Pal3.Scene.SceneObjects
         internal void ToggleAndSaveSwitchState()
         {
             ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;
-            if (ObjectInfo.Times != 0xFF)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneSaveGlobalObjectSwitchStateCommand(SceneInfo.CityName,
-                        SceneInfo.SceneName,
-                        ObjectInfo.Id,
-                        ObjectInfo.SwitchState));
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneSaveGlobalObjectSwitchStateCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    ObjectInfo.SwitchState));
         }
 
-        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAny()
+        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAny(InteractionContext ctx)
         {
             if (ObjectInfo.LinkedObjectId == 0xFFFF) yield break;
 
@@ -350,7 +362,7 @@ namespace Pal3.Scene.SceneObjects
             }
             else
             {
-                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).Interact(false);
+                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).Interact(ctx);
             }
         }
 

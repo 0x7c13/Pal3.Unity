@@ -28,7 +28,6 @@ namespace Pal3.Scene
 
     public class Scene : SceneBase,
         ICommandExecutor<SceneActivateObjectCommand>,
-        ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
         #if PAL3A
@@ -544,18 +543,6 @@ namespace Pal3.Scene
                 lookAtActorPosition.x,
                 actorTransform.position.y,
                 lookAtActorPosition.z));
-        }
-
-        public void Execute(PlayerInteractWithObjectCommand command)
-        {
-            if (_activatedSceneObjects.Contains(command.SceneObjectId))
-            {
-                StartCoroutine(SceneObjects[command.SceneObjectId].Interact(triggerredByPlayer: false));
-            }
-            else
-            {
-                Debug.LogError($"Scene object not found or not activated yet: {command.SceneObjectId}.");
-            }
         }
 
         public void Execute(SceneOpenDoorCommand command)

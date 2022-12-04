@@ -39,6 +39,7 @@ namespace Pal3.Player
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
+        ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private GameStateManager _gameStateManager;
@@ -432,17 +433,12 @@ namespace Pal3.Player
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
                     new Vector2(actorToObjectFacing.x, actorToObjectFacing.z));
 
-                var interactionContext = new InteractionContext()
-                {
-                    DistanceToActor = distanceToActor,
-                };
-
-                if (sceneObject.IsInteractable(interactionContext) &&
+                if (sceneObject.IsDirectlyInteractable(distanceToActor) &&
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithSceneObject(sceneObject, true);
+                    interactionRoutine = InteractWithSceneObject(sceneObject);
                 }
             }
 
@@ -464,7 +460,7 @@ namespace Pal3.Player
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
                     new Vector2(actorToActorFacing.x, actorToActorFacing.z));
 
-                if (actorController.IsInteractable(distance) &&
+                if (actorController.IsDirectlyInteractable(distance) &&
                     facingAngle < nearestInteractableFacingAngle)
                 {
                     //Debug.DrawLine(actorCenterPosition, targetActorCenterPosition, Color.white, 1000);
@@ -479,10 +475,22 @@ namespace Pal3.Player
             }
         }
 
-        private IEnumerator InteractWithSceneObject(SceneObject sceneObject, bool triggerredByPlayer)
+        private IEnumerator InteractWithSceneObject(SceneObject sceneObject)
         {
+            var correlationId = Guid.NewGuid();
+
             _gameStateManager.GoToState(GameState.Cutscene);
-            yield return sceneObject.Interact(triggerredByPlayer);
+            _gameStateManager.AddStateLocker(correlationId); // Lock the game state until the interaction is finished
+
+            yield return sceneObject.Interact(new InteractionContext
+            {
+                CorrelationId = correlationId,
+                InitObjectId = sceneObject.ObjectInfo.Id,
+                PlayerActorGameObject = _playerActorGameObject,
+                CurrentScene = _sceneManager.GetCurrentScene()
+            });
+
+            _gameStateManager.RemoveStateLocker(correlationId);
             _gameStateManager.GoToState(GameState.Gameplay);
         }
 
@@ -633,6 +641,19 @@ namespace Pal3.Player
             if (_tapPoints.Count > 0)
             {
                 _playerActorMovementController.MoveToTapPoint(_tapPoints, isDoubleTap);
+            }
+        }
+
+        public void Execute(PlayerInteractWithObjectCommand command)
+        {
+            Scene currentScene = _sceneManager.GetCurrentScene();
+            if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
+            {
+                StartCoroutine(InteractWithSceneObject(currentScene.GetSceneObject(command.SceneObjectId)));
+            }
+            else
+            {
+                Debug.LogError($"Scene object not found or not activated yet: {command.SceneObjectId}.");
             }
         }
 

@@ -8,7 +8,6 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor;
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Animation;
@@ -16,7 +15,6 @@ namespace Pal3.Scene.SceneObjects
     using Core.Services;
     using Data;
     using Player;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.GravitySwitch)]
@@ -27,15 +25,11 @@ namespace Pal3.Scene.SceneObjects
 
         private StandingPlatformController _platformController;
 
-        private readonly PlayerManager _playerManager;
-        private readonly SceneManager _sceneManager;
         private readonly TeamManager _teamManager;
 
         public GravitySwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
             _teamManager = ServiceLocator.Instance.Get<TeamManager>();
         }
 
@@ -73,9 +67,7 @@ namespace Pal3.Scene.SceneObjects
             if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
             {
                 if (!IsInteractableBasedOnTimesCount()) return;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new GameStateChangeRequest(GameState.Cutscene));
-                Pal3.Instance.StartCoroutine(Interact(true));
+                RequestForInteraction();
             }
             else if (ObjectInfo.Times > 0)
             {
@@ -83,7 +75,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             GameObject gravityTriggerGo = GetGameObject();
             var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
@@ -93,18 +85,15 @@ namespace Pal3.Scene.SceneObjects
                 platformController.GetPlatformHeight(),
                 platformPosition.z);
 
-            var actorMovementController = _sceneManager.GetCurrentScene()
-                .GetActorGameObject((int)_playerManager.GetPlayerActor())
-                .GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("we026", 1));
+            PlaySfx("we026");
 
-            var cvdModelRenderer = GetCvdModelRenderer();
-            yield return cvdModelRenderer.PlayOneTimeAnimation(true);
+            yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
+            PlaySfx("wg005");
 
             Vector3 finalPosition = gravityTriggerGo.transform.position;
             finalPosition.y -= DESCENDING_HEIGHT;
@@ -113,11 +102,7 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            // Don't wait for linked object to finish interaction before enabling player control
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
-
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
+            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
         }
 
         public override void Deactivate()

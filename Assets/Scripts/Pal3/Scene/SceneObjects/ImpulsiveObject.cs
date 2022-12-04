@@ -5,11 +5,11 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using System.Threading;
     using Actor;
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Animation;
@@ -19,7 +19,6 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using MetaData;
     using Renderer;
-    using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
     using Random = UnityEngine.Random;
@@ -27,7 +26,12 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Impulsive)]
     public sealed class ImpulsiveObject : SceneObject
     {
+        private const float HIT_ANIMATION_DURATION = 0.5f;
+
         private GameObject _subObjectGameObject;
+        private ImpulsiveMechanismSubObjectController _subObjectController;
+
+        private bool _isDuringInteraction;
 
         public ImpulsiveObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -49,17 +53,60 @@ namespace Pal3.Scene.SceneObjects
                 poly.TextureProvider,
                 tintColor);
 
-            _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>().Init(
-                new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]),
-                ObjectInfo.Parameters[2]);
+            _subObjectController = _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>();
+            _subObjectController.Init();
+            _subObjectController.OnPlayerActorHit += OnPlayerActorHit;
 
             _subObjectGameObject.transform.SetParent(sceneGameObject.transform, false);
 
             return sceneGameObject;
         }
 
+        private void OnPlayerActorHit(object sender, GameObject playerActorGameObject)
+        {
+            if (_isDuringInteraction) return; // Prevent multiple interactions during animation
+            _isDuringInteraction = true;
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraFreeCommand(0));
+            RequestForInteraction();
+        }
+
+        public override IEnumerator Interact(InteractionContext ctx)
+        {
+            PlaySfx("wb002");
+
+            ctx.PlayerActorGameObject.GetComponent<ActorActionController>()
+                .PerformAction(ActorActionType.BeAttack);
+
+            Vector3 targetPosition = ctx.PlayerActorGameObject.transform.position +
+                                     (_subObjectGameObject.transform.forward * 6f) + Vector3.up * 2f;
+
+            yield return AnimationHelper.MoveTransform(ctx.PlayerActorGameObject.transform,
+                targetPosition,
+                HIT_ANIMATION_DURATION);
+
+            ctx.PlayerActorGameObject.GetComponent<ActorMovementController>().SetNavLayer(ObjectInfo.Parameters[2]);
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
+                    ObjectInfo.Parameters[0],
+                    ObjectInfo.Parameters[1]));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraFreeCommand(1));
+
+            _isDuringInteraction = false;
+        }
+
         public override void Deactivate()
         {
+            if (_subObjectController != null)
+            {
+                _subObjectController.OnPlayerActorHit -= OnPlayerActorHit;
+                Object.Destroy(_subObjectController);
+            }
+
             if (_subObjectGameObject != null)
             {
                 Object.Destroy(_subObjectGameObject);
@@ -71,26 +118,20 @@ namespace Pal3.Scene.SceneObjects
 
     internal class ImpulsiveMechanismSubObjectController : MonoBehaviour
     {
+        public event EventHandler<GameObject> OnPlayerActorHit;
+
         private const float MIN_Z_POSITION = -1.7f;
         private const float MAX_Z_POSITION = 4f;
         private const float POSITION_HOLD_TIME = 3f;
         private const float MOVEMENT_ANIMATION_DURATION = 2.5f;
-        private const float HIT_ANIMATION_DURATION = 0.5f;
 
         private BoundsTriggerController _triggerController;
         private Coroutine _movementCoroutine;
-        private bool _isDuringInteraction;
-
-        private Vector2Int _targetTilePosition;
-        private int _targetNavLayerIndex;
 
         private CancellationTokenSource _movementAnimationCts = new ();
 
-        public void Init(Vector2Int targetTilePosition, int targetNavLayerIndex)
+        public void Init()
         {
-            _targetTilePosition = targetTilePosition;
-            _targetNavLayerIndex = targetNavLayerIndex;
-
             // Add collider
             var bounds = new Bounds
             {
@@ -110,51 +151,11 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
-            if (_isDuringInteraction) return; // Prevent multiple interactions during animation
-            _isDuringInteraction = true;
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(0));
-            StartCoroutine(Interact(playerActorGameObject));
-        }
-
-        private IEnumerator Interact(GameObject playerActorGameObject)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlaySfxCommand("wb002", 1));
-
-            playerActorGameObject.GetComponent<ActorActionController>()
-                .PerformAction(ActorActionType.BeAttack);
-
-            Vector3 targetPosition = playerActorGameObject.transform.position + (transform.forward * 6f) + Vector3.up * 2f;
-
-            yield return AnimationHelper.MoveTransform(playerActorGameObject.transform,
-                targetPosition,
-                HIT_ANIMATION_DURATION);
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID,
-                    _targetNavLayerIndex));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
-                    _targetTilePosition.x,
-                    _targetTilePosition.y));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(1));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
-
-            _isDuringInteraction = false;
+            OnPlayerActorHit?.Invoke(sender, playerActorGameObject);
         }
 
         private void OnDisable()
         {
-            _isDuringInteraction = false;
-
             _movementAnimationCts.Cancel();
 
             if (_movementCoroutine != null)
@@ -170,7 +171,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        public void Start()
+        private void Start()
         {
             _movementAnimationCts = new CancellationTokenSource();
             _movementCoroutine = StartCoroutine(StartMovement(_movementAnimationCts.Token));
@@ -178,11 +179,11 @@ namespace Pal3.Scene.SceneObjects
 
         private IEnumerator StartMovement(CancellationToken cancellationToken)
         {
-            float startDelay = Random.Range(0f, 3.5f);
+            var startDelay = Random.Range(0f, 3.5f);
             yield return new WaitForSeconds(startDelay);
 
             Vector3 initPosition = transform.localPosition;
-            WaitForSeconds holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
+            var holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
 
             while (!cancellationToken.IsCancellationRequested)
             {

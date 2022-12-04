@@ -13,10 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Core.Services;
     using Data;
-    using Renderer;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.LiftingPlatform)]
@@ -46,15 +43,7 @@ namespace Pal3.Scene.SceneObjects
                 sceneGameObject.transform.position = position;
             }
 
-            Bounds bounds = new Bounds();
-            if (sceneGameObject.GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
-            {
-                bounds = cvdModelRenderer.GetMeshBounds();
-            }
-            else if (sceneGameObject.GetComponent<PolyModelRenderer>() is { } polyModelRenderer)
-            {
-                bounds = polyModelRenderer.GetMeshBounds();
-            }
+            Bounds bounds = GetMeshBounds();
 
             // Some tweaks to the bounds to make sure actor won't stuck
             // near the edge of the platform
@@ -70,7 +59,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -81,10 +70,10 @@ namespace Pal3.Scene.SceneObjects
             Vector3 position = liftingMechanismGameObject.transform.position;
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 
-            float finalYPosition = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.SwitchState == 0 ?
+            var finalYPosition = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.SwitchState == 0 ?
                 gameBoxYPosition :
                 ObjectInfo.GameBoxPosition.y);
-            float yOffset = finalYPosition - position.y;
+            var yOffset = finalYPosition - position.y;
 
             ToggleAndSaveSwitchState();
             PlaySfxIfAny();
@@ -96,10 +85,7 @@ namespace Pal3.Scene.SceneObjects
             // Set Y position of the object on the platform
             if (ObjectInfo.Parameters[2] != 0)
             {
-                objectOnThePlatform = ServiceLocator.Instance.Get<SceneManager>()
-                    .GetCurrentScene()
-                    .GetSceneObject(ObjectInfo.Parameters[2])
-                    .GetGameObject();
+                objectOnThePlatform = ctx.CurrentScene.GetSceneObject(ObjectInfo.Parameters[2]).GetGameObject();
                 if (objectOnThePlatform != null)
                 {
                     hasObjectOnPlatform = true;

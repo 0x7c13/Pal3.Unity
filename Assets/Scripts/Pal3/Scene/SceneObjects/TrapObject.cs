@@ -7,15 +7,11 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
-    using Core.Services;
     using Data;
     using MetaData;
-    using Player;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Trap)]
@@ -43,24 +39,18 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg007", 1));
-
-            PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
-            GameObject playerActorGo = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene()
-                .GetActorGameObject((int) playerActor);
+            PlaySfx("wg007");
 
             // Let player actor fall down
-            if (playerActorGo.GetComponent<Rigidbody>() is { } rigidbody)
+            if (ctx.PlayerActorGameObject.GetComponent<Rigidbody>() is { } rigidbody)
             {
                 rigidbody.useGravity = true;
                 rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -73,7 +63,6 @@ namespace Pal3.Scene.SceneObjects
             }
 
             yield return ExecuteScriptAndWaitForFinishIfAny();
-            // Trap always has a script, so no need to explicitly set game state back to GamePlay
         }
 
         public override void Deactivate()

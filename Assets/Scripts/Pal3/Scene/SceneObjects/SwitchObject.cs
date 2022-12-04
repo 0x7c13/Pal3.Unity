@@ -50,12 +50,12 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override bool IsInteractable(InteractionContext ctx)
+        public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
+            return Activated && distance < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -63,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
 
             ToggleAndSaveSwitchState();
 
-            if (triggerredByPlayer)
+            if (ctx.InitObjectId == ObjectInfo.Id)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -90,7 +90,7 @@ namespace Pal3.Scene.SceneObjects
 
             ExecuteScriptIfAny();
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
+            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
 
             // Special handling for master flower switch located in
             // the scene m16 4

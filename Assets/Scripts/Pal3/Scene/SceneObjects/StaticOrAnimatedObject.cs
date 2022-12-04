@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (Activated && ModelType == SceneObjectModelType.CvdModel)
             {
@@ -84,23 +84,29 @@ namespace Pal3.Scene.SceneObjects
 
         void LateUpdate()
         {
-            // Parameters[2] describes animated object's default animation.
-            // 0 means no animation. 1 means the object is animated up and down (sine curve).
-            // 2 means the object is animated with constant rotation.
-            if (_parameters[2] == 1)
+            switch (_parameters[2])
             {
-                Transform currentTransform = transform;
-                Vector3 currentPosition = currentTransform.localPosition;
-                transform.localPosition = new Vector3(currentPosition.x,
-                    _initYPosition + Mathf.Sin(Time.time) / 6f,
-                    currentPosition.z);
-            }
-            else if (_parameters[2] == 2)
-            {
-                Transform currentTransform = transform;
-                transform.RotateAround(currentTransform.position,
-                    currentTransform.up,
-                    Time.deltaTime * 80f);
+                // Parameters[2] describes animated object's default animation.
+                // 0 means no animation.
+                // 1 means the object is animated up and down (sine curve).
+                // 2 means the object is animated with constant rotation.
+                case 1:
+                {
+                    Transform currentTransform = transform;
+                    Vector3 currentPosition = currentTransform.localPosition;
+                    transform.localPosition = new Vector3(currentPosition.x,
+                        _initYPosition + Mathf.Sin(Time.time) / 6f,
+                        currentPosition.z);
+                    break;
+                }
+                case 2:
+                {
+                    Transform currentTransform = transform;
+                    transform.RotateAround(currentTransform.position,
+                        currentTransform.up,
+                        Time.deltaTime * 80f);
+                    break;
+                }
             }
         }
 

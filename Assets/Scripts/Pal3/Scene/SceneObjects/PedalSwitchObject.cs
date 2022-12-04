@@ -8,15 +8,11 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using Actor;
-    using Command;
-    using Command.InternalCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
-    using Player;
-    using Script;
     using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
@@ -29,18 +25,14 @@ namespace Pal3.Scene.SceneObjects
 
         private StandingPlatformController _platformController;
 
-        private readonly PlayerManager _playerManager;
-        private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
-        private readonly ScriptManager _scriptManager;
+
+        private bool _isInteractionInProgress;
 
         public PedalSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
-            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
-            _scriptManager = ServiceLocator.Instance.Get<ScriptManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -89,19 +81,15 @@ namespace Pal3.Scene.SceneObjects
             // Prevent duplicate triggers
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
 
-            if (ObjectInfo.SwitchState == 1) return;
-
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            ToggleAndSaveSwitchState();
+            if (_isInteractionInProgress) return;
+            _isInteractionInProgress = true;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             GameObject pedalSwitchGo = GetGameObject();
             var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
@@ -111,9 +99,7 @@ namespace Pal3.Scene.SceneObjects
                 platformController.GetPlatformHeight(),
                 platformCenterPosition.z);
 
-            var actorMovementController = _sceneManager.GetCurrentScene()
-                .GetActorGameObject((int)_playerManager.GetPlayerActor())
-                .GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
 
@@ -126,12 +112,11 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            ExecuteScriptIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAny();
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
+            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
+            _isInteractionInProgress = false;
         }
 
         public override void Deactivate()

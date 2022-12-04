@@ -37,16 +37,16 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override bool IsInteractable(InteractionContext ctx)
+        public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            if (triggerredByPlayer)
+            if (ctx.InitObjectId == ObjectInfo.Id)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));

@@ -360,13 +360,15 @@ namespace Pal3.Actor
                         PlatformLastKnownPosition = triggerCollider.gameObject.transform.position
                     });
 
+                // Move actor on to the platform if platform is higher than current position
                 if (TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo) &&
                     platformInfo.Platform == standingPlatformController)
                 {
                     // Move the actor to the platform surface
                     Vector3 currentPosition = transform.position;
                     var targetYPosition = standingPlatformController.GetPlatformHeight();
-                    if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                    if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM &&
+                        currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
                     {
                         transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
                     }
@@ -578,7 +580,8 @@ namespace Pal3.Actor
 
         private bool CanGotoPosition(Vector3 currentPosition, Vector3 newPosition, out float newYPosition)
         {
-            newYPosition = 0f;
+            newYPosition = float.MinValue;
+            var isNewPositionValid = false;
 
             // Check if actor is on top of a platform
             if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo))
@@ -591,7 +594,7 @@ namespace Pal3.Actor
                     Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
                 {
                     newYPosition = targetYPosition;
-                    return true;
+                    isNewPositionValid = true;
                 }
             }
 
@@ -599,9 +602,18 @@ namespace Pal3.Actor
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())
             {
-                newYPosition = GameBoxInterpreter.ToUnityYPosition(tileAtCurrentLayer.GameBoxYPosition);
-                return true;
+                var tileYPosition = GameBoxInterpreter.ToUnityYPosition(tileAtCurrentLayer.GameBoxYPosition);
+
+                // Choose a higher position if possible
+                if (tileYPosition > newYPosition)
+                {
+                    newYPosition = tileYPosition;
+                }
+
+                isNewPositionValid = true;
             }
+
+            if (isNewPositionValid) return true;
 
             if (_tilemap.GetLayerCount() <= 1) return false;
 

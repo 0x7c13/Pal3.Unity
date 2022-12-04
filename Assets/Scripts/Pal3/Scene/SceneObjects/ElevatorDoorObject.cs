@@ -28,7 +28,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        // public override IEnumerator Interact(bool triggerredByPlayer)
+        // public override IEnumerator Interact(InteractionContext ctx)
         // {
         //     if (!IsInteractableBasedOnTimesCount()) return;
         //

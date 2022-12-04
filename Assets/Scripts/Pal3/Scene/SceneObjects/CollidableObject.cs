@@ -41,10 +41,10 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
         {
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (ObjectInfo.SwitchState == 1) yield break;
 
@@ -56,7 +56,7 @@ namespace Pal3.Scene.SceneObjects
 
             yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny();
+            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
 
             yield return ExecuteScriptAndWaitForFinishIfAny();
 

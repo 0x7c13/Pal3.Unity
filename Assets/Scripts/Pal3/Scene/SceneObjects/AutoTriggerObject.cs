@@ -15,7 +15,7 @@ namespace Pal3.Scene.SceneObjects
     public sealed class AutoTriggerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
-        private bool _isScriptRunningInProgress;
+        private bool _isInteractionInProgress;
 
         public AutoTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -43,20 +43,20 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
-            if (_isScriptRunningInProgress) return; // Prevent re-entry
-            _isScriptRunningInProgress = true;
-            Pal3.Instance.StartCoroutine(Interact(true));
+            if (_isInteractionInProgress) return; // Prevent re-entry
+            _isInteractionInProgress = true;
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             yield return ExecuteScriptAndWaitForFinishIfAny();
-            _isScriptRunningInProgress = false;
+            _isInteractionInProgress = false;
         }
 
         public override void Deactivate()
         {
-            _isScriptRunningInProgress = false;
+            _isInteractionInProgress = false;
 
             if (_triggerController != null)
             {

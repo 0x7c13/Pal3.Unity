@@ -6,15 +6,14 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
+    using Actor;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
-    using Core.Services;
     using Data;
     using MetaData;
-    using Player;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.SpecialSwitch)]
@@ -22,12 +21,9 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
 
-        private readonly PlayerManager _playerManager;
-
         public SpecialSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -54,14 +50,15 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override bool IsInteractable(InteractionContext ctx)
+        public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
-            PlayerActorId actorId = _playerManager.GetPlayerActor();
+            PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject
+                .GetComponent<ActorController>().GetActor().Info.Id;
 
             // Only specified actor can interact with this object
             if ((int) actorId != ObjectInfo.Parameters[0])
@@ -77,8 +74,7 @@ namespace Pal3.Scene.SceneObjects
                 new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
-                    ActorConstants.ActionNames[ActorActionType.Skill],
-                    1));
+                    ActorConstants.ActionNames[ActorActionType.Skill], 1));
 
             yield return new WaitForSeconds(1.2f); // Wait for actor animation to finish
 
@@ -95,7 +91,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!string.IsNullOrEmpty(sfxName))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
+                PlaySfx(sfxName);
             }
             #endif
 

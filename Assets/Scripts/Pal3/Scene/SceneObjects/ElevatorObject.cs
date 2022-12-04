@@ -7,17 +7,12 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Actor;
-    using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Services;
     using Data;
-    using MetaData;
-    using Player;
     using State;
     using UnityEngine;
 
@@ -29,15 +24,11 @@ namespace Pal3.Scene.SceneObjects
         private TilemapTriggerController _triggerController;
 
         private readonly GameStateManager _gameStateManager;
-        private readonly SceneManager _sceneManager;
-        private readonly PlayerManager _playerManager;
 
         public ElevatorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
-            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider,
@@ -59,32 +50,25 @@ namespace Pal3.Scene.SceneObjects
             // To prevent looping interaction between two elevators during the transition
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
-            var playerActorId = (int)_playerManager.GetPlayerActor();
-            var currentScene = _sceneManager.GetCurrentScene();
-
-            var tileRect = ObjectInfo.TileMapTriggerRect;
+            GameBoxRect tileRect = ObjectInfo.TileMapTriggerRect;
             var fromCenterTilePosition = new Vector2Int(
                 (tileRect.Left + tileRect.Right) / 2,
                 (tileRect.Top + tileRect.Bottom) / 2);
             var fromNavLayer = ObjectInfo.LayerIndex;
             var toNavLayer = ObjectInfo.Parameters[0];
 
-            Tilemap tilemap = currentScene.GetTilemap();
+            Tilemap tilemap = ctx.CurrentScene.GetTilemap();
 
             Vector3 fromCenterPosition = tilemap.GetWorldPosition(fromCenterTilePosition, fromNavLayer);
             Vector2Int toCenterTilePosition = tilemap.GetTilePosition(fromCenterPosition, toNavLayer);
             Vector3 toCenterPosition = tilemap.GetWorldPosition(toCenterTilePosition, toNavLayer);
 
-            GameObject playerActorGameObject = currentScene.GetActorGameObject(playerActorId);
-
-            var actorMovementController = playerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
             // Move the player to the center of the elevator
             yield return actorMovementController.MoveDirectlyTo(fromCenterPosition, 0);
@@ -92,14 +76,10 @@ namespace Pal3.Scene.SceneObjects
             var duration = Vector3.Distance(fromCenterPosition, toCenterPosition) / ELEVATOR_SPEED;
 
             // Lifting up/down
-            yield return AnimationHelper.MoveTransform(playerActorGameObject.transform,
+            yield return AnimationHelper.MoveTransform(ctx.PlayerActorGameObject.transform,
                 toCenterPosition, duration, AnimationCurveType.Sine);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetNavLayerCommand(ActorConstants.PlayerActorVirtualID, toNavLayer));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
-                    toCenterTilePosition.x, toCenterTilePosition.y));
+            actorMovementController.SetNavLayer(toNavLayer);
 
             const float zOffset = 5f; // Move player actor outside the elevator tilemap rect
             var finalPosition = new Vector3(toCenterPosition.x, toCenterPosition.y, toCenterPosition.z + zOffset);
@@ -108,9 +88,6 @@ namespace Pal3.Scene.SceneObjects
                 : finalPosition.y;
 
             yield return actorMovementController.MoveDirectlyTo(finalPosition, 0);
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
         }
 
         public override void Deactivate()

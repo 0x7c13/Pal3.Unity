@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects.Common
     public class StandingPlatformController : MonoBehaviour
     {
         public event EventHandler<GameObject> OnPlayerActorEntered;
+        public event EventHandler<GameObject> OnPlayerActorExited;
 
         public int LayerIndex { get; private set; }
 
@@ -53,7 +54,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             // A little bit lower than the collider bounds just to make sure
             // the actor is always inside the collider when standing on the platform.
-            return _collider.bounds.max.y - 0.01f + _heightOffset;
+            return _collider.bounds.max.y - 0.05f + _heightOffset;
         }
 
         private void OnTriggerEnter(Collider collider)
@@ -62,6 +63,15 @@ namespace Pal3.Scene.SceneObjects.Common
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, collider.gameObject);
+            }
+        }
+
+        private void OnTriggerExit(Collider collider)
+        {
+            if (collider.gameObject.GetComponent<ActorController>() is { } actorController &&
+                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+            {
+                OnPlayerActorExited?.Invoke(this, collider.gameObject);
             }
         }
 

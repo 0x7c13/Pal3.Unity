@@ -40,6 +40,7 @@ namespace Pal3.UI
         private GameObject _bigMapRegionButtonPrefab;
 
         private bool _isVisible;
+        private Guid _stateLockerGuid = Guid.NewGuid();
 
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
@@ -135,6 +136,13 @@ namespace Pal3.UI
             }
 
             _gameStateManager.GoToState(GameState.Cutscene);
+            // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
+            // After the script finishes, the state will be reset to Gameplay. Thus we need to
+            // block the state change.
+            _gameStateManager.AddStateLocker(_stateLockerGuid);
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
             GameObject exitButtonObj = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
             var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
@@ -208,6 +216,7 @@ namespace Pal3.UI
                 Destroy(button);
             }
             _selectionButtons.Clear();
+            _gameStateManager.RemoveStateLocker(_stateLockerGuid);
             _gameStateManager.GoToState(GameState.Gameplay);
         }
 

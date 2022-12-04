@@ -6,13 +6,12 @@
 namespace Pal3.State
 {
     using System;
+    using System.Collections.Generic;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.Services;
     using Input;
     using Script;
-    using UI;
     using UnityEngine;
 
     public sealed class GameStateManager : IDisposable,
@@ -23,13 +22,15 @@ namespace Pal3.State
         ICommandExecutor<DialogueRenderingStartedNotification>,
         ICommandExecutor<ScriptFinishedRunningNotification>,
         ICommandExecutor<ScriptFailedToRunNotification>,
-        ICommandExecutor<GameSwitchToMainMenuCommand>
+        ICommandExecutor<GameSwitchToMainMenuCommand>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         private GameState _previousState;
         private GameState _currentState;
         private readonly InputManager _inputManager;
         private readonly ScriptManager _scriptManager;
         private bool _isDebugging;
+        private readonly HashSet<Guid> _stateLockers = new ();
 
         private GameStateManager() { }
 
@@ -52,8 +53,20 @@ namespace Pal3.State
             return _currentState;
         }
 
+        public void AddStateLocker(Guid lockerId)
+        {
+            _stateLockers.Add(lockerId);
+        }
+
+        public void RemoveStateLocker(Guid lockerId)
+        {
+            _stateLockers.Remove(lockerId);
+        }
+
         public void GoToState(GameState newState)
         {
+            if (_stateLockers.Count > 0) return;
+
             if (_currentState == newState) return;
 
             if (newState == GameState.Gameplay &&
@@ -133,13 +146,6 @@ namespace Pal3.State
 
         public void Execute(ScriptFinishedRunningNotification notification)
         {
-            // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
-            // Thus we need to check if BigMap is visible before switching state back to Gameplay.
-            if (ServiceLocator.Instance.Get<BigMapManager>().IsVisible())
-            {
-                return;
-            }
-
             GoToState(GameState.Gameplay);
         }
 
@@ -151,6 +157,11 @@ namespace Pal3.State
         public void Execute(GameSwitchToMainMenuCommand command)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _stateLockers.Clear();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects.Common
     public class BoundsTriggerController : MonoBehaviour
     {
         public event EventHandler<GameObject> OnPlayerActorEntered;
+        public event EventHandler<GameObject> OnPlayerActorExited;
 
         private bool _hasCollided;
         private BoxCollider _collider;
@@ -60,6 +61,24 @@ namespace Pal3.Scene.SceneObjects.Common
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, collider.gameObject);
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
+                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+            {
+                OnPlayerActorExited?.Invoke(this, collision.gameObject);
+            }
+        }
+
+        private void OnTriggerExit(Collider collider)
+        {
+            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
+                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+            {
+                OnPlayerActorExited?.Invoke(this, collider.gameObject);
             }
         }
     }

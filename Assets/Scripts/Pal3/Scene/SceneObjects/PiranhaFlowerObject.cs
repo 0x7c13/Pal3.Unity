@@ -12,10 +12,8 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Core.Services;
     using Data;
     using MetaData;
-    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.PiranhaFlower)]
@@ -43,23 +41,20 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, Vector2Int playerActorTilePosition)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            Pal3.Instance.StartCoroutine(Interact(true));
+            RequestForInteraction();
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 0));
-
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg008", 1));
+            PlaySfx("wg008");
 
             yield return GetCvdModelRenderer().PlayAnimation(2f, 1, 0.5f, true);
 
@@ -68,9 +63,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFocusOnSceneObjectCommand(portalToFlowerObjectId));
 
-            SceneObject portalToFlowerObject = ServiceLocator.Instance.Get<SceneManager>()
-                .GetCurrentScene().
-                GetSceneObject(portalToFlowerObjectId);
+            SceneObject portalToFlowerObject = ctx.CurrentScene.GetSceneObject(portalToFlowerObjectId);
 
             var portalToFlowerObjectCvdModelRenderer = portalToFlowerObject.GetCvdModelRenderer();
 
@@ -89,18 +82,15 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFreeCommand(1));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
             #elif PAL3A
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 0));
-
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg008", 1));
+            PlaySfx("wg008");
 
             yield return  GetCvdModelRenderer().PlayAnimation(1.9f, 1, 1f, true);
 
@@ -113,11 +103,8 @@ namespace Pal3.Scene.SceneObjects
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetWorldPositionCommand(-1, worldPosition.x, worldPosition.z));
-
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFreeCommand(1));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Gameplay));
             #endif
         }
 

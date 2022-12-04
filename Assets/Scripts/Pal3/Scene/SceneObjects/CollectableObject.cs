@@ -21,12 +21,12 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override bool IsInteractable(InteractionContext ctx)
+        public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && ctx.DistanceToActor < MAX_INTERACTION_DISTANCE;
+            return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override IEnumerator Interact(bool triggerredByPlayer)
+        public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -43,7 +43,7 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[2]));
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wa006", 1));
+            PlaySfx("wa006");
             ChangeAndSaveActivationState(false);
         }
     }

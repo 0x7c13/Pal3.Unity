@@ -1975,6 +1975,8 @@ namespace Pal3.Dev
         public void Show()
         {
             _gameStateManager.GoToState(GameState.Cutscene);
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
             var hideCloseButton = _sceneManager.GetCurrentScene() == null;
 
