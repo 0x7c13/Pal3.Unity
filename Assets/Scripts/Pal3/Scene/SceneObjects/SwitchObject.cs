@@ -59,6 +59,14 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
+            var shouldResetCamera = false;
+            if (ctx.InitObjectId != ObjectInfo.Id && !IsVisibleToCamera())
+            {
+                shouldResetCamera = true;
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+            }
+
             var currentSwitchState = ObjectInfo.SwitchState;
 
             ToggleAndSaveSwitchState();
@@ -113,6 +121,11 @@ namespace Pal3.Scene.SceneObjects
                     _currentScene.DeactivateSceneObject(flowerObject.Key);
                     _currentScene.ActivateSceneObject(flowerObject.Key);
                 }
+            }
+
+            if (shouldResetCamera)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
             }
         }
 

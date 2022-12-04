@@ -45,8 +45,13 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+            var shouldResetCamera = false;
+            if (!IsVisibleToCamera())
+            {
+                shouldResetCamera = true;
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+            }
 
             PlaySfxIfAny();
 
@@ -57,8 +62,10 @@ namespace Pal3.Scene.SceneObjects
 
             EnableStandingPlatform();
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(1));
+            if (shouldResetCamera)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+            }
         }
 
         private void EnableStandingPlatform()

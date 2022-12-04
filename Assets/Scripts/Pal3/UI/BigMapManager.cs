@@ -40,7 +40,8 @@ namespace Pal3.UI
         private GameObject _bigMapRegionButtonPrefab;
 
         private bool _isVisible;
-        private Guid _stateLockerGuid = Guid.NewGuid();
+
+        private readonly Guid _stateLockerGuid = Guid.NewGuid();
 
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();

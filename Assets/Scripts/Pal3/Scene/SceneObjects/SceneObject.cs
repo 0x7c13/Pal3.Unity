@@ -376,6 +376,20 @@ namespace Pal3.Scene.SceneObjects
                     layerIndex));
         }
 
+        internal bool IsVisibleToCamera()
+        {
+            if (_sceneObjectGameObject != null)
+            {
+                foreach (MeshRenderer renderer in
+                         _sceneObjectGameObject.GetComponentsInChildren<MeshRenderer>())
+                {
+                    if (renderer.isVisible) return true;
+                }
+            }
+
+            return false;
+        }
+
         #endregion
     }
 }

@@ -241,7 +241,7 @@ namespace Pal3
 
         private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash, int codepage)
         {
-            var cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
+            ICpkFileSystem cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
             var filesToMount = new List<string>();
 
