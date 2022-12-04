@@ -2124,8 +2124,7 @@ namespace Pal3.Dev
                     arguments[0] + "Command" == nameof(ActorSetWorldPositionCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetYPositionCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetFacingCommand) ||
-                    arguments[0] + "Command" == nameof(ActorSetScriptCommand) ||
-                    arguments[0] + "Command" == nameof(CameraFadeInCommand))
+                    arguments[0] + "Command" == nameof(ActorSetScriptCommand))
                 {
                     _deferredExecutionCommands.Add(command);
                 }
