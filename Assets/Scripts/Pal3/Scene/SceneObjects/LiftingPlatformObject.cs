@@ -119,7 +119,7 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
-                        ObjectInfo.Id,
+                        ObjectInfo.Parameters[2],
                         GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
             }
 

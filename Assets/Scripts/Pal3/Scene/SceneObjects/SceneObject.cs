@@ -376,6 +376,15 @@ namespace Pal3.Scene.SceneObjects
                     layerIndex));
         }
 
+        internal void SaveCurrentPosition()
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    GameBoxInterpreter.ToGameBoxPosition(_sceneObjectGameObject.transform.position)));
+        }
+
         internal bool IsVisibleToCamera()
         {
             if (_sceneObjectGameObject != null)

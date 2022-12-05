@@ -259,7 +259,7 @@ namespace Pal3.Actor
             // Add a little bit of height to make sure the bottom point of the
             // collider is on the ground. This is to make sure actor can interact with
             // StandingPlatform correctly.
-            _collider.height = bounds.size.y + 0.2f;
+            _collider.height = bounds.size.y + 0.5f;
             _collider.radius = Mathf.Min(bounds.size.x * 0.4f, ACTOR_COLLIDER_RADIUS_MAX);
         }
 

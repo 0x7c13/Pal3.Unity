@@ -44,11 +44,6 @@ namespace Pal3.Scene.SceneObjects
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, yOffset);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            // Init position
-            sceneGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(ObjectInfo.SwitchState == 0 ?
-                ObjectInfo.Path.GameBoxWaypoints[0] :
-                ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1]);
-
             return sceneGameObject;
         }
 
@@ -62,16 +57,16 @@ namespace Pal3.Scene.SceneObjects
         public override IEnumerator Interact(InteractionContext ctx)
         {
             GameObject carrierObject = GetGameObject();
+            var isNearFirstWaypoint = IsNearFirstWaypoint();
 
             // Triggered by other objects
             if (ctx.InitObjectId != ObjectInfo.Id)
             {
-                ToggleAndSaveSwitchState();
+                carrierObject.transform.position = GameBoxInterpreter.ToUnityPosition(isNearFirstWaypoint ?
+                    ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1] :
+                    ObjectInfo.Path.GameBoxWaypoints[0]);
 
-                carrierObject.transform.position = GameBoxInterpreter.ToUnityPosition(ObjectInfo.SwitchState == 0 ?
-                    ObjectInfo.Path.GameBoxWaypoints[0] :
-                    ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1]);
-
+                SaveCurrentPosition();
                 yield break;
             }
 
@@ -87,10 +82,10 @@ namespace Pal3.Scene.SceneObjects
             yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
 
             var waypoints = new List<Vector3>();
-            for (int i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
+            for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
             {
                 Vector3 waypoint = GameBoxInterpreter.ToUnityPosition(ObjectInfo.Path.GameBoxWaypoints[i]);
-                if (ObjectInfo.SwitchState == 0)
+                if (isNearFirstWaypoint)
                 {
                     waypoints.Add(waypoint);
                 }
@@ -111,7 +106,7 @@ namespace Pal3.Scene.SceneObjects
                     AnimationCurveType.Linear);
             }
 
-            ToggleAndSaveSwitchState();
+            SaveCurrentPosition();
 
             Vector3 lastSectionForwardVector = (waypoints[^1] - waypoints[^2]).normalized;
             lastSectionForwardVector.y = 0f;
@@ -123,6 +118,14 @@ namespace Pal3.Scene.SceneObjects
             yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0);
 
             _isInteractionInProgress = false;
+        }
+
+        private bool IsNearFirstWaypoint()
+        {
+            Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(GetGameObject().transform.position);
+            Vector3 firstWaypoint = ObjectInfo.Path.GameBoxWaypoints[0];
+            Vector3 lastWaypoint = ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1];
+            return Vector3.Distance(gameBoxPosition, firstWaypoint) < Vector3.Distance(gameBoxPosition, lastWaypoint);
         }
 
         public override void Deactivate()
