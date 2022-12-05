@@ -41,6 +41,7 @@ namespace Pal3.Actor
     {
         public StandingPlatformController Platform;
         public Vector3 PlatformLastKnownPosition;
+        public double TimeWhenEntered;
     }
 
     public class ActorMovementController : MonoBehaviour,
@@ -145,10 +146,10 @@ namespace Pal3.Actor
             return _activeStandingPlatforms.Count > 0;
         }
 
-        private bool TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo)
+        private bool TryGetLastEnteredStandingPlatform(out ActiveStandingPlatformInfo platformInfo)
         {
             platformInfo = null;
-            var distance = float.MaxValue;
+            var latestTime = double.MinValue;
 
             foreach (ActiveStandingPlatformInfo info in _activeStandingPlatforms)
             {
@@ -157,12 +158,9 @@ namespace Pal3.Actor
                     continue; // In case the platform is destroyed
                 }
 
-                var distanceToPlatformCenter = Vector3.Distance(
-                    info.Platform.GetCollider().bounds.center, transform.position);
-
-                if (distanceToPlatformCenter < distance)
+                if (info.TimeWhenEntered > latestTime)
                 {
-                    distance = distanceToPlatformCenter;
+                    latestTime = info.TimeWhenEntered;
                     platformInfo = info;
                 }
             }
@@ -248,7 +246,7 @@ namespace Pal3.Actor
         private void LateUpdate()
         {
             // To sync with the platform movement
-            if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(
+            if (IsNearOrOnTopOfPlatform() && TryGetLastEnteredStandingPlatform(
                     out ActiveStandingPlatformInfo platformInfo))
             {
                 Vector3 currentPlatformPosition = platformInfo.Platform.gameObject.transform.position;
@@ -357,21 +355,17 @@ namespace Pal3.Actor
                 _activeStandingPlatforms.Add(new ActiveStandingPlatformInfo()
                     {
                         Platform = standingPlatformController,
-                        PlatformLastKnownPosition = triggerCollider.gameObject.transform.position
+                        PlatformLastKnownPosition = triggerCollider.gameObject.transform.position,
+                        TimeWhenEntered = Time.realtimeSinceStartupAsDouble,
                     });
 
                 // Move actor on to the platform if platform is higher than current position
-                if (TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo) &&
-                    platformInfo.Platform == standingPlatformController)
+                Vector3 currentPosition = transform.position;
+                var targetYPosition = standingPlatformController.GetPlatformHeight();
+                if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM &&
+                    currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
                 {
-                    // Move the actor to the platform surface
-                    Vector3 currentPosition = transform.position;
-                    var targetYPosition = standingPlatformController.GetPlatformHeight();
-                    if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM &&
-                        currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
-                    {
-                        transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
-                    }
+                    transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
                 }
             }
         }
@@ -584,17 +578,22 @@ namespace Pal3.Actor
             var isNewPositionValid = false;
 
             // Check if actor is on top of a platform
-            if (IsNearOrOnTopOfPlatform() && TryGetNearestActiveStandingPlatform(out ActiveStandingPlatformInfo platformInfo))
+            if (IsNearOrOnTopOfPlatform())
             {
-                var targetYPosition = platformInfo.Platform.GetPlatformHeight();
-
-                // Make sure actor is on top of the platform
-                if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
-                        new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
-                    Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                // Check if the new position is still on top of the nearest platform(s)
+                foreach (ActiveStandingPlatformInfo platformInfo in _activeStandingPlatforms)
                 {
-                    newYPosition = targetYPosition;
-                    isNewPositionValid = true;
+                    var targetYPosition = platformInfo.Platform.GetPlatformHeight();
+
+                    // Make sure actor is on top of the platform
+                    if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
+                            new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
+                        Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                    {
+                        newYPosition = targetYPosition;
+                        isNewPositionValid = true;
+                        break;
+                    }
                 }
             }
 
@@ -701,14 +700,14 @@ namespace Pal3.Actor
             }
         }
 
-        public IEnumerator MoveDirectlyTo(Vector3 position, int mode)
+        public IEnumerator MoveDirectlyTo(Vector3 position, int mode, bool ignoreObstacle)
         {
             _currentPath.Clear();
             MovementResult result;
             _actionController.PerformAction(_actor.GetMovementAction(mode));
             do
             {
-                result = MoveTowards(position, mode, ignoreObstacle: true);
+                result = MoveTowards(position, mode, ignoreObstacle);
                 yield return null;
             } while (result == MovementResult.InProgress);
             _actionController.PerformAction(_actor.GetIdleAction());

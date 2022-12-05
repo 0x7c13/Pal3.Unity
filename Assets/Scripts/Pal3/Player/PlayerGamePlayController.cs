@@ -725,7 +725,7 @@ namespace Pal3.Player
             Action onFinished = null)
         {
             yield return _playerActorMovementController
-                .MoveDirectlyTo(climbUp ? lowerPosition : upperPosition, 0);
+                .MoveDirectlyTo(climbUp ? lowerPosition : upperPosition, 0, true);
 
             _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
@@ -749,7 +749,7 @@ namespace Pal3.Player
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(upperLayer);
-                    yield return _playerActorMovementController.MoveDirectlyTo(upperStandingPosition, 0);
+                    yield return _playerActorMovementController.MoveDirectlyTo(upperStandingPosition, 0, true);
                     _playerActorGameObject.transform.position = upperStandingPosition;
                 }
             }
@@ -767,7 +767,7 @@ namespace Pal3.Player
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(lowerLayer);
-                    yield return _playerActorMovementController.MoveDirectlyTo(lowerStandingPosition, 0);
+                    yield return _playerActorMovementController.MoveDirectlyTo(lowerStandingPosition, 0, true);
                     _playerActorGameObject.transform.position = lowerStandingPosition;
                 }
             }

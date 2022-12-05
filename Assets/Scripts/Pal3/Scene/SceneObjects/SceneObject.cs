@@ -385,15 +385,17 @@ namespace Pal3.Scene.SceneObjects
                     GameBoxInterpreter.ToGameBoxPosition(_sceneObjectGameObject.transform.position)));
         }
 
-        internal bool IsVisibleToCamera()
+        internal bool IsFullyVisibleToCamera()
         {
             if (_sceneObjectGameObject != null)
             {
                 foreach (MeshRenderer renderer in
                          _sceneObjectGameObject.GetComponentsInChildren<MeshRenderer>())
                 {
-                    if (renderer.isVisible) return true;
+                    if (!renderer.isVisible) return false;
                 }
+
+                return true;
             }
 
             return false;

@@ -112,7 +112,7 @@ namespace Pal3.Scene.SceneObjects
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
+            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
 
             Vector3 finalPosition = portalObject.transform.position;
             finalPosition.y += shouldGoUp.Value ? 10f : -10f;

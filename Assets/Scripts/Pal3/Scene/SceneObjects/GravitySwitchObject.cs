@@ -87,7 +87,7 @@ namespace Pal3.Scene.SceneObjects
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
+            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
 
             PlaySfx("we026");
 

@@ -71,7 +71,7 @@ namespace Pal3.Scene.SceneObjects
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
             // Move the player to the center of the elevator
-            yield return actorMovementController.MoveDirectlyTo(fromCenterPosition, 0);
+            yield return actorMovementController.MoveDirectlyTo(fromCenterPosition, 0, true);
 
             var duration = Vector3.Distance(fromCenterPosition, toCenterPosition) / ELEVATOR_SPEED;
 
@@ -87,7 +87,7 @@ namespace Pal3.Scene.SceneObjects
                 ? GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition)
                 : finalPosition.y;
 
-            yield return actorMovementController.MoveDirectlyTo(finalPosition, 0);
+            yield return actorMovementController.MoveDirectlyTo(finalPosition, 0, true);
         }
 
         public override void Deactivate()

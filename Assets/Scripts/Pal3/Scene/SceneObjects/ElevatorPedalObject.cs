@@ -101,7 +101,7 @@ namespace Pal3.Scene.SceneObjects
             var actorStandingPosition = new Vector3(platformCenterPosition.x, positions[fromLayer].y, platformCenterPosition.z);
             var platformFinalPosition = new Vector3(platformCenterPosition.x, positions[toLayer].y + platformHeight, platformCenterPosition.z);
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0);
+            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
 
             var duration = Vector3.Distance(positions[fromLayer], positions[toLayer]) / ELEVATOR_SPPED;
             yield return AnimationHelper.MoveTransform(elevatorGameObject.transform,
@@ -110,7 +110,7 @@ namespace Pal3.Scene.SceneObjects
             ChangeAndSaveNavLayerIndex(toLayer);
             actorMovementController.SetNavLayer(toLayer);
 
-            yield return actorMovementController.MoveDirectlyTo(positions[toLayer], 0);
+            yield return actorMovementController.MoveDirectlyTo(positions[toLayer], 0, true);
         }
 
         public override void Deactivate()

@@ -64,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
             var shouldResetCamera = false;
-            if (!IsVisibleToCamera())
+            if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
                 CommandDispatcher<ICommand>.Instance.Dispatch(
