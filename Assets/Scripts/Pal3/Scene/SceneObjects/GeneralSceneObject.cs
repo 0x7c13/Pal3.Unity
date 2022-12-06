@@ -14,7 +14,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
     [ScnSceneObject(ScnSceneObjectType.EyeBall)]
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]
