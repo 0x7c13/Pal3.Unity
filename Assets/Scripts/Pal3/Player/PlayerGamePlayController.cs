@@ -13,8 +13,10 @@ namespace Pal3.Player
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Animation;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Core.Renderer;
     using Input;
     using MetaData;
@@ -42,6 +44,10 @@ namespace Pal3.Player
         ICommandExecutor<PlayerInteractWithObjectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
+        private const float MIN_JUMP_DISTANCE = 1.5f;
+        private const float MAX_JUMP_DISTANCE = 7f;
+        private const float MAX_JUMP_Y_DIFFERENTIAL = 4f;
+
         private GameStateManager _gameStateManager;
         private PlayerManager _playerManager;
         private TeamManager _teamManager;
@@ -144,8 +150,7 @@ namespace Pal3.Player
                 {
                     shouldUpdatePlayerActorMovementSfx = true;
                     _lastKnownTilePosition = tilePosition;
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, !isPlayerInControl));
+                    PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
                 }
             }
 
@@ -162,6 +167,12 @@ namespace Pal3.Player
             {
                 UpdatePlayerActorMovementSfx(_lastKnownPlayerActorAction);
             }
+        }
+
+        private void PlayerActorTilePositionChanged(int layerIndex, Vector2Int tilePosition, bool movedByScript)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, movedByScript));
         }
 
         private string GetMovementSfxName(ActorActionType movementAction)
@@ -338,7 +349,10 @@ namespace Pal3.Player
                 return;
             }
 
-            PortalToTapPosition();
+            if (Keyboard.current.leftCtrlKey.isPressed)
+            {
+                PortalToTapPosition();
+            }
         }
 
         private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -360,7 +374,87 @@ namespace Pal3.Player
                 return;
             }
 
-            InteractWithFacingInteractable();
+            var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+            Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
+
+            if (IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+            {
+                StartCoroutine(Jump());
+            }
+            else
+            {
+                InteractWithFacingInteractable();
+            }
+        }
+
+        private bool IsPositionInsideJumpableArea(int layerIndex, Vector2Int tilePosition)
+        {
+            Scene currentScene = _sceneManager.GetCurrentScene();
+            var activatedObjects = currentScene.GetAllActivatedSceneObjects();
+
+            foreach (var objectId in activatedObjects)
+            {
+                SceneObject sceneObject = currentScene.GetSceneObject(objectId);
+                if (sceneObject.ObjectInfo.Type == ScnSceneObjectType.JumpableArea &&
+                    layerIndex == sceneObject.ObjectInfo.LayerIndex &&
+                    GameBoxInterpreter.IsPositionInsideRect(sceneObject.ObjectInfo.TileMapTriggerRect,
+                        tilePosition))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Find the nearest walkable tile inside jumpable area and jump to it
+        private IEnumerator Jump()
+        {
+            _gameStateManager.GoToState(GameState.Cutscene);
+
+            int layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+            Vector3 currentPosition = _playerActorMovementController.GetWorldPosition();
+            Vector3 forwardDirection = _playerActorGameObject.transform.forward;
+            Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
+
+            Vector3 jumpTargetPosition = currentPosition;
+
+            // Try few position in front of the player actor from nearest to farthest
+            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.5f)
+            {
+                Vector3 targetPosition = currentPosition + forwardDirection * i;
+                Vector2Int tilePosition = tilemap.GetTilePosition(targetPosition, layerIndex);
+
+                if (IsPositionInsideJumpableArea(layerIndex, tilePosition) &&
+                    tilemap.TryGetTile(targetPosition, layerIndex, out NavTile tile) &&
+                    tile.IsWalkable() &&
+                    tile.DistanceToNearestObstacle > 1 &&
+                    Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition) - currentPosition.y)
+                      < MAX_JUMP_Y_DIFFERENTIAL)
+                {
+                    jumpTargetPosition = targetPosition;
+                    jumpTargetPosition.y = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
+                    break;
+                }
+            }
+
+            _playerActorMovementController.CancelMovement();
+            _playerActorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Jump],
+                 overwrite: true, loopCount: 1);
+            yield return new WaitForSeconds(0.7f);
+            var distanceOffset = Vector3.Distance(jumpTargetPosition, currentPosition);
+            var startingYPosition = currentPosition.y;
+            var yOffset = jumpTargetPosition.y - currentPosition.y;
+            yield return AnimationHelper.EnumerateValue(0f, 1f, 1.1f, AnimationCurveType.Sine,
+                value =>
+                {
+                    Vector3 calculatedPosition = currentPosition + forwardDirection * (distanceOffset * value);
+                    calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * 5f + yOffset * value;
+                    _playerActorGameObject.transform.position = calculatedPosition;
+                });
+            yield return new WaitForSeconds(0.7f);
+
+            _gameStateManager.GoToState(GameState.Gameplay);
         }
 
         private void SwitchToNextPlayerActorPerformed(InputAction.CallbackContext _)
@@ -480,7 +574,7 @@ namespace Pal3.Player
             var correlationId = Guid.NewGuid();
 
             _gameStateManager.GoToState(GameState.Cutscene);
-            _gameStateManager.AddStateLocker(correlationId); // Lock the game state until the interaction is finished
+            _gameStateManager.AddGamePlayStateLocker(correlationId);
 
             yield return sceneObject.Interact(new InteractionContext
             {
@@ -490,7 +584,7 @@ namespace Pal3.Player
                 CurrentScene = _sceneManager.GetCurrentScene()
             });
 
-            _gameStateManager.RemoveStateLocker(correlationId);
+            _gameStateManager.RemoveGamePlayStateLocker(correlationId);
             _gameStateManager.GoToState(GameState.Gameplay);
         }
 

@@ -202,7 +202,11 @@ namespace Pal3
             #endif
 
             _videoManager = gameObject.AddComponent<VideoManager>();
-            _videoManager.Init(_gameResourceProvider,_inputActions, videoPlayerCanvas, videoPlayer);
+            _videoManager.Init(_gameResourceProvider,
+                _gameStateManager,
+                _inputActions,
+                videoPlayerCanvas,
+                videoPlayer);
             ServiceLocator.Instance.Register(_videoManager);
 
             _captionRenderer = gameObject.AddComponent<CaptionRenderer>();

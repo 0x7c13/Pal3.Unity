@@ -140,7 +140,7 @@ namespace Pal3.UI
             // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
             // After the script finishes, the state will be reset to Gameplay. Thus we need to
             // block the state change.
-            _gameStateManager.AddStateLocker(_stateLockerGuid);
+            _gameStateManager.AddGamePlayStateLocker(_stateLockerGuid);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -217,7 +217,7 @@ namespace Pal3.UI
                 Destroy(button);
             }
             _selectionButtons.Clear();
-            _gameStateManager.RemoveStateLocker(_stateLockerGuid);
+            _gameStateManager.RemoveGamePlayStateLocker(_stateLockerGuid);
             _gameStateManager.GoToState(GameState.Gameplay);
         }
 

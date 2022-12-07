@@ -56,7 +56,7 @@ namespace Core.DataReader.Nav
 
         public bool IsWalkable()
         {
-            return !IsObstacle && (DistanceToNearestObstacle > 0 || FloorKind == NavFloorKind.Jumpable); // TODO: Remove Jumpable
+            return !IsObstacle && DistanceToNearestObstacle > 0 && FloorKind != NavFloorKind.Jumpable;
         }
     }
 

@@ -732,8 +732,8 @@ namespace Pal3.Camera
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
+            // Remember the current scene's camera position and rotation
+            if (_free && currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
             {
                 var cameraTransform = _camera.transform;
                 _cameraLastKnownSceneState.Add((
@@ -755,8 +755,7 @@ namespace Pal3.Camera
             ApplySceneSettings(notification.NewSceneInfo);
 
             // Apply the last known scene state if found in record.
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
+            if (_free && notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
             {
                 if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))

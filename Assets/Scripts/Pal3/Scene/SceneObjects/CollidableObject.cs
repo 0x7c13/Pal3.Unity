@@ -17,6 +17,7 @@ namespace Pal3.Scene.SceneObjects
     public sealed class CollidableObject : SceneObject
     {
         private BoundsTriggerController _triggerController;
+        private SceneObjectMeshCollider _meshCollider;
 
         public CollidableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -35,13 +36,23 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.SetupCollider(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
+            else
+            {
+                if (ObjectInfo.IsNonBlocking == 0)
+                {
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+            }
 
             return sceneGameObject;
         }
 
         private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
         {
-            RequestForInteraction();
+            if (ObjectInfo.SwitchState == 0)
+            {
+                RequestForInteraction();
+            }
         }
 
         public override IEnumerator Interact(InteractionContext ctx)
@@ -70,6 +81,11 @@ namespace Pal3.Scene.SceneObjects
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 Object.Destroy(_triggerController);
+            }
+
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
             }
 
             base.Deactivate();

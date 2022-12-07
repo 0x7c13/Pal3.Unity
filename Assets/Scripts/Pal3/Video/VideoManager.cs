@@ -13,6 +13,7 @@ namespace Pal3.Video
     using Data;
     using Input;
     using Script.Waiter;
+    using State;
     using UnityEngine;
     using UnityEngine.InputSystem;
     using UnityEngine.Video;
@@ -21,17 +22,20 @@ namespace Pal3.Video
         ICommandExecutor<PlayVideoCommand>
     {
         private GameResourceProvider _resourceProvider;
+        private GameStateManager _gameStateManager;
         private PlayerInputActions _inputActions;
         private VideoPlayer _videoPlayer;
         private WaitUntilCanceled _videoPlayingWaiter;
         private Canvas _videoPlayerUI;
 
         public void Init(GameResourceProvider resourceProvider,
+            GameStateManager gameStateManager,
             PlayerInputActions inputActions,
             Canvas videoPlayerUI,
             VideoPlayer videoPlayer)
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
             _videoPlayerUI = videoPlayerUI != null ? videoPlayerUI : throw new ArgumentNullException(nameof(videoPlayerUI));
             _videoPlayer = videoPlayer != null ? videoPlayer : throw new ArgumentNullException(nameof(videoPlayer));
@@ -84,15 +88,20 @@ namespace Pal3.Video
 
         private void StopVideoInternal(VideoPlayer source)
         {
-            source.Stop();
-            source.targetTexture.Release();
-            _videoPlayingWaiter?.CancelWait();
-            _videoPlayerUI.enabled = false;
-            CommandDispatcher<ICommand>.Instance.Dispatch(new VideoEndedNotification());
+            if (_gameStateManager.GetCurrentState() == GameState.VideoPlaying)
+            {
+                source.Stop();
+                source.targetTexture.Release();
+                _videoPlayingWaiter?.CancelWait();
+                _videoPlayerUI.enabled = false;
+                _gameStateManager.GoToPreviousState();
+            }
         }
 
         public void Execute(PlayVideoCommand command)
         {
+            _gameStateManager.GoToState(GameState.VideoPlaying);
+
             _videoPlayingWaiter?.CancelWait();
             _videoPlayingWaiter = new WaitUntilCanceled(this);
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_videoPlayingWaiter));
@@ -106,7 +115,7 @@ namespace Pal3.Video
             {
                 Debug.LogError(ex);
                 _videoPlayingWaiter.CancelWait();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new VideoEndedNotification());
+                _gameStateManager.GoToPreviousState();
             }
         }
     }

@@ -37,8 +37,8 @@ namespace Pal3.Scene.SceneObjects
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
-            bounds.size *= 1.25f; // Make it a little bigger
-            var yOffset = -0.1f;
+            bounds.size *= 1.35f; // Make it a little bigger
+            var yOffset = -0.15f;
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, yOffset);
@@ -162,7 +162,7 @@ namespace Pal3.Scene.SceneObjects
 
                 actorPositionOnCarrier = ctx.PlayerActorGameObject.transform.position;
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
-                    (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.5f);
+                    (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.4f);
 
                 yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, true);
             }

@@ -55,17 +55,9 @@ namespace Pal3.Scene.SceneObjects
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
             if (ObjectInfo.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
             {
-                // Just disable player input during door animation.
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(0));
-
                 var timeScale = 2f; // Make the animation 2X faster for better user experience
                 var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
                 yield return GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage, true);
-
-                // Re-enable player input after door animation to switch game into GamePlay
-                // state because there is a logic in CameraManager which saves the current camera
-                // position and rotation before entering next scene based on the GameState.
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }
 
             yield return ExecuteScriptAndWaitForFinishIfAny();

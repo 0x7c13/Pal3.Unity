@@ -15,8 +15,6 @@ namespace Pal3.State
     using UnityEngine;
 
     public sealed class GameStateManager : IDisposable,
-        ICommandExecutor<PlayVideoCommand>,
-        ICommandExecutor<VideoEndedNotification>,
         ICommandExecutor<PlayerEnableInputCommand>,
         ICommandExecutor<GameStateChangeRequest>,
         ICommandExecutor<DialogueRenderingStartedNotification>,
@@ -30,7 +28,7 @@ namespace Pal3.State
         private readonly InputManager _inputManager;
         private readonly ScriptManager _scriptManager;
         private bool _isDebugging;
-        private readonly HashSet<Guid> _stateLockers = new ();
+        private readonly HashSet<Guid> _gamePlayStateLockers = new ();
 
         private GameStateManager() { }
 
@@ -53,27 +51,32 @@ namespace Pal3.State
             return _currentState;
         }
 
-        public void AddStateLocker(Guid lockerId)
+        /// <summary>
+        /// Add a locker to prevent the game from entering GamePlay state.
+        /// </summary>
+        public void AddGamePlayStateLocker(Guid lockerId)
         {
-            _stateLockers.Add(lockerId);
+            _gamePlayStateLockers.Add(lockerId);
         }
 
-        public void RemoveStateLocker(Guid lockerId)
+        public void RemoveGamePlayStateLocker(Guid lockerId)
         {
-            _stateLockers.Remove(lockerId);
+            _gamePlayStateLockers.Remove(lockerId);
         }
 
         public void GoToState(GameState newState)
         {
-            if (_stateLockers.Count > 0) return;
-
             if (_currentState == newState) return;
 
-            if (newState == GameState.Gameplay &&
-                _scriptManager.GetNumberOfRunningScripts() > 0)
+            if (newState == GameState.Gameplay)
             {
-                // Do not allow to switch to Gameplay state if there are running scripts.
-                return;
+                if (_gamePlayStateLockers.Count > 0 ||
+                    _scriptManager.GetNumberOfRunningScripts() > 0)
+                {
+                    // Do not allow to switch to Gameplay state if there are running scripts
+                    // or there are GamePlay state lockers.
+                    return;
+                }
             }
 
             Debug.Log($"Goto State: {newState.ToString()}");
@@ -110,16 +113,6 @@ namespace Pal3.State
         {
             _isDebugging = false;
             _inputManager.SwitchCurrentActionMap(_currentState);
-        }
-
-        public void Execute(PlayVideoCommand command)
-        {
-            GoToState(GameState.VideoPlaying);
-        }
-
-        public void Execute(VideoEndedNotification notification)
-        {
-            GoToPreviousState();
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -161,7 +154,7 @@ namespace Pal3.State
 
         public void Execute(ResetGameStateCommand command)
         {
-            _stateLockers.Clear();
+            _gamePlayStateLockers.Clear();
         }
     }
 }
