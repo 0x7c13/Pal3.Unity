@@ -34,7 +34,7 @@ namespace Pal3.Renderer
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
             Color tintColor,
-            float initTime)
+            float initTime = 0f)
         {
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor;

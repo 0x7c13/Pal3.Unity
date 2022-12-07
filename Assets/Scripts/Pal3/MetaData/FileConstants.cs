@@ -13,6 +13,8 @@ namespace Pal3.MetaData
 
         public const string BigMapSceFileVirtualPath = @"basedata.cpk\ui\BigMap\BigMap.sce";
 
+        public const string ObjectFolderVirtualPath = @"basedata.cpk\object";
+
         #if PAL3
         public const string EffectScnFolderName = "EffectScn";
         #elif PAL3A

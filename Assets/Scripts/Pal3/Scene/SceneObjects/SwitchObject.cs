@@ -12,10 +12,14 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.DataLoader;
+    using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
     using MetaData;
+    using Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -25,7 +29,10 @@ namespace Pal3.Scene.SceneObjects
         private const float MAX_INTERACTION_DISTANCE = 5f;
 
         private SceneObjectMeshCollider _meshCollider;
-
+        private readonly string _switchInteractionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
+                                                                       CpkConstants.DirectorySeparator + "g03.cvd";
+        private CvdModelRenderer _switchInteractionIndicatorModelRenderer;
+        private GameObject _switchInteractionIndicatorGameObject;
         private readonly Scene _currentScene;
 
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -38,6 +45,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
             if (ObjectInfo.IsNonBlocking == 0)
             {
                 if (!(ObjectInfo.SwitchState == 1 && ObjectInfo.Parameters[0] == 1) &&
@@ -47,6 +55,26 @@ namespace Pal3.Scene.SceneObjects
                     _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
             }
+
+            // Add interaction indicator when switch times is greater than 0
+            // and Parameter[1] is 0 (1 means the switch is not directly interactable)
+            if (ObjectInfo.Times > 0 && ObjectInfo.Parameters[1] == 0)
+            {
+                Vector3 switchPosition = sceneGameObject.transform.position;
+                _switchInteractionIndicatorGameObject = new GameObject("Switch_Interaction_Indicator");
+                _switchInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
+                _switchInteractionIndicatorGameObject.transform.position =
+                    new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
+                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
+                    resourceProvider.GetCvd(_switchInteractionIndicatorModelPath);
+                _switchInteractionIndicatorModelRenderer = _switchInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _switchInteractionIndicatorModelRenderer.Init(cvdFile,
+                    resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    tintColor);
+                _switchInteractionIndicatorModelRenderer.LoopAnimation();
+            }
+
             return sceneGameObject;
         }
 
@@ -70,6 +98,13 @@ namespace Pal3.Scene.SceneObjects
             var currentSwitchState = ObjectInfo.SwitchState;
 
             ToggleAndSaveSwitchState();
+
+            if (ObjectInfo.Times == 0 && _switchInteractionIndicatorGameObject != null)
+            {
+                _switchInteractionIndicatorModelRenderer.Dispose();
+                Object.Destroy(_switchInteractionIndicatorModelRenderer);
+                Object.Destroy(_switchInteractionIndicatorGameObject);
+            }
 
             if (ctx.InitObjectId == ObjectInfo.Id)
             {
@@ -135,6 +170,27 @@ namespace Pal3.Scene.SceneObjects
                    ObjectInfo.Id == 22 &&
                    SceneInfo.CityName.Equals("m16", StringComparison.OrdinalIgnoreCase) &&
                    SceneInfo.SceneName.Equals("4", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override void Deactivate()
+        {
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+            }
+
+            if (_switchInteractionIndicatorModelRenderer != null)
+            {
+                _switchInteractionIndicatorModelRenderer.Dispose();
+                Object.Destroy(_switchInteractionIndicatorModelRenderer);
+            }
+
+            if (_switchInteractionIndicatorGameObject != null)
+            {
+                Object.Destroy(_switchInteractionIndicatorGameObject);
+            }
+
+            base.Deactivate();
         }
     }
 }

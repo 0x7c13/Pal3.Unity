@@ -63,13 +63,8 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            var shouldResetCamera = false;
-            if (!IsFullyVisibleToCamera())
-            {
-                shouldResetCamera = true;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
 
             GameObject liftingMechanismGameObject = GetGameObject();
             Vector3 position = liftingMechanismGameObject.transform.position;
@@ -123,10 +118,7 @@ namespace Pal3.Scene.SceneObjects
                         GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
             }
 
-            if (shouldResetCamera)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
-            }
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
         }
 
         public override void Deactivate()
