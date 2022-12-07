@@ -45,8 +45,9 @@ namespace Pal3.Player
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float MIN_JUMP_DISTANCE = 1.5f;
-        private const float MAX_JUMP_DISTANCE = 7f;
-        private const float MAX_JUMP_Y_DIFFERENTIAL = 4f;
+        private const float MAX_JUMP_DISTANCE = 8f;
+        private const float MAX_JUMP_Y_DIFFERENTIAL = 3.5f;
+        private const float JUMP_HEIGHT = 6f;
 
         private GameStateManager _gameStateManager;
         private PlayerManager _playerManager;
@@ -419,8 +420,8 @@ namespace Pal3.Player
 
             Vector3 jumpTargetPosition = currentPosition;
 
-            // Try few position in front of the player actor from nearest to farthest
-            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.5f)
+            var validJumpTargetPositions = new List<Vector3>();
+            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.35f)
             {
                 Vector3 targetPosition = currentPosition + forwardDirection * i;
                 Vector2Int tilePosition = tilemap.GetTilePosition(targetPosition, layerIndex);
@@ -432,10 +433,16 @@ namespace Pal3.Player
                     Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition) - currentPosition.y)
                       < MAX_JUMP_Y_DIFFERENTIAL)
                 {
-                    jumpTargetPosition = targetPosition;
-                    jumpTargetPosition.y = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
-                    break;
+                    var position = targetPosition;
+                    position.y = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
+                    validJumpTargetPositions.Add(position);
                 }
+            }
+
+            if (validJumpTargetPositions.Count > 0)
+            {
+                // Use the middle one
+                jumpTargetPosition = validJumpTargetPositions[validJumpTargetPositions.Count / 2];
             }
 
             _playerActorMovementController.CancelMovement();
@@ -449,7 +456,7 @@ namespace Pal3.Player
                 value =>
                 {
                     Vector3 calculatedPosition = currentPosition + forwardDirection * (distanceOffset * value);
-                    calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * 5f + yOffset * value;
+                    calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
                     _playerActorGameObject.transform.position = calculatedPosition;
                 });
             yield return new WaitForSeconds(0.7f);
@@ -573,8 +580,11 @@ namespace Pal3.Player
         {
             var correlationId = Guid.NewGuid();
 
-            _gameStateManager.GoToState(GameState.Cutscene);
-            _gameStateManager.AddGamePlayStateLocker(correlationId);
+            if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.AutoTrigger)
+            {
+                _gameStateManager.GoToState(GameState.Cutscene);
+                _gameStateManager.AddGamePlayStateLocker(correlationId);
+            }
 
             yield return sceneObject.Interact(new InteractionContext
             {
@@ -584,8 +594,11 @@ namespace Pal3.Player
                 CurrentScene = _sceneManager.GetCurrentScene()
             });
 
-            _gameStateManager.RemoveGamePlayStateLocker(correlationId);
-            _gameStateManager.GoToState(GameState.Gameplay);
+            if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.AutoTrigger)
+            {
+                _gameStateManager.RemoveGamePlayStateLocker(correlationId);
+                _gameStateManager.GoToState(GameState.Gameplay);
+            }
         }
 
         private IEnumerator InteractWithActor(int actorId, GameObject actorGameObject)
