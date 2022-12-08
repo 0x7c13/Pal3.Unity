@@ -414,14 +414,14 @@ namespace Pal3.Player
                 Vector2Int tilePosition = tilemap.GetTilePosition(position, layerIndex);
 
                 if (tilemap.TryGetTile(position, layerIndex, out NavTile tile) &&
-                    tile.FloorKind != NavFloorKind.Jumpable)
+                    tile.IsWalkable())
                 {
                     yPosition = Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition));
 
                     if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
 
                     if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition) ||
-                        (tile.IsWalkable() && tile.DistanceToNearestObstacle > 1))
+                        tile.DistanceToNearestObstacle > 1)
                     {
                         return true;
                     }

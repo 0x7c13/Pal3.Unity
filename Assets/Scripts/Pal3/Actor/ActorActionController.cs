@@ -40,7 +40,7 @@ namespace Pal3.Actor
         ICommandExecutor<GameStateChangedNotification>
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
-        private const float ACTOR_COLLIDER_RADIUS_MIN = 0.7f;
+        private const float ACTOR_COLLIDER_RADIUS_MIN = 0.5f;
         private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
 
         private GameResourceProvider _resourceProvider;
@@ -257,14 +257,26 @@ namespace Pal3.Actor
 
             Bounds bounds = GetMeshBounds();
             _collider.center = bounds.center;
+
             // Add a little bit of height to make sure the bottom point of the
-            // collider is on the ground. This is to make sure actor can interact with
-            // StandingPlatform correctly.
+            // collider is below the ground. This is to make sure actor can
+            // interact with StandingPlatform correctly.
             _collider.height = bounds.size.y + 1f;
-            _collider.radius = Mathf.Min(Mathf.Max(
-                    Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) * 0.3f,
-                    ACTOR_COLLIDER_RADIUS_MIN),
-                ACTOR_COLLIDER_RADIUS_MAX);
+
+            if (_actor.IsMainActor())
+            {
+                // Unify the radius of the collider for main actor.
+                // This is to make sure the main actor can always have
+                // expected behavior when interacting with standing platform.
+                _collider.radius = ACTOR_COLLIDER_RADIUS_MIN;
+            }
+            else
+            {
+                _collider.radius = Mathf.Min(Mathf.Max(
+                        Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) * 0.3f,
+                        ACTOR_COLLIDER_RADIUS_MIN),
+                    ACTOR_COLLIDER_RADIUS_MAX);
+            }
         }
 
         private void SetupRigidBody()

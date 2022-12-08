@@ -5,6 +5,7 @@
 
 namespace Pal3.Actor
 {
+    using System;
     using System.Collections;
     using Command;
     using Command.InternalCommands;
@@ -12,8 +13,11 @@ namespace Pal3.Actor
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using Input;
     using MetaData;
+    using Player;
+    using Scene;
     using Script.Waiter;
     using UnityEngine;
 
@@ -158,6 +162,25 @@ namespace Pal3.Actor
         private void DeActivate()
         {
             _actionController.DeActivate();
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (_actor.Info.Kind == ScnActorKind.CombatNpc &&
+                ServiceLocator.Instance.Get<SceneManager>()
+                    .GetCurrentScene()
+                    .GetSceneInfo().SceneType == ScnSceneType.Maze &&
+                collision.gameObject.GetComponent<ActorController>() is {} actorController &&
+                (byte) ServiceLocator.Instance.Get<PlayerManager>()
+                    .GetPlayerActor() == actorController.GetActor().Info.Id)
+            {
+                // Player actor collides with combat NPC in maze
+                // TODO: Implement combat
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlaySfxCommand("wd130", 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorActivateCommand(_actor.Info.Id, 0));
+            }
         }
 
         private IEnumerator AnimateScale(float toScale, float duration, WaitUntilCanceled waiter = null)
