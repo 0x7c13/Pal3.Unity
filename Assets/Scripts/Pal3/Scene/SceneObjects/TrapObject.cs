@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Data;
     using MetaData;
     using UnityEngine;
@@ -30,8 +31,17 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
+            // Make trap trigger rect a bit smaller for better game experience
+            var tweakedRect = new GameBoxRect()
+            {
+                Left = ObjectInfo.TileMapTriggerRect.Left + 1,
+                Right = ObjectInfo.TileMapTriggerRect.Right - 1,
+                Top = ObjectInfo.TileMapTriggerRect.Top + 1,
+                Bottom = ObjectInfo.TileMapTriggerRect.Bottom - 1
+            };
+
             _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
-            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
+            _triggerController.Init(tweakedRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             return sceneGameObject;

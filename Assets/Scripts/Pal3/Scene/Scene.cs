@@ -205,6 +205,23 @@ namespace Pal3.Scene
             return _meshColliders;
         }
 
+        public bool IsPositionInsideJumpableArea(int layerIndex, Vector2Int tilePosition)
+        {
+            foreach (var objectId in _activatedSceneObjects)
+            {
+                SceneObject sceneObject = SceneObjects[objectId];
+                if (sceneObject.ObjectInfo.Type == ScnSceneObjectType.JumpableArea &&
+                    layerIndex == sceneObject.ObjectInfo.LayerIndex &&
+                    GameBoxInterpreter.IsPointInsideRect(sceneObject.ObjectInfo.TileMapTriggerRect,
+                        tilePosition))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void RenderMesh()
         {
             // Render mesh

@@ -35,7 +35,7 @@ namespace Pal3.Scene
         {
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return currentLayer.Portals.Any(portal =>
-                GameBoxInterpreter.IsPositionInsideRect(portal, position));
+                GameBoxInterpreter.IsPointInsideRect(portal, position));
         }
 
         public bool IsTilePositionInsideTileMap(Vector2Int tilePosition, int layerIndex)

@@ -125,12 +125,12 @@ namespace Core.GameBox
             Array.Reverse(triangles);
         }
 
-        public static bool IsPositionInsideRect(GameBoxRect rect, Vector2Int position)
+        public static bool IsPointInsideRect(GameBoxRect rect, Vector2Int point)
         {
-            return position.x >= rect.Left &&
-                   position.x <= rect.Right &&
-                   position.y >= rect.Top &&
-                   position.y <= rect.Bottom;
+            return point.x >= rect.Left &&
+                   point.x <= rect.Right &&
+                   point.y >= rect.Top &&
+                   point.y <= rect.Bottom;
         }
 
         public static Matrix4x4 ToUnityMatrix4x4(GameBoxMatrix4X4 matrix)

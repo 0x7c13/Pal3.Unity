@@ -354,6 +354,16 @@ namespace Pal3.Player
             {
                 PortalToTapPosition();
             }
+            else
+            {
+                var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+                Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
+
+                if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+                {
+                    JumpToTapPosition();
+                }
+            }
         }
 
         private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -378,7 +388,7 @@ namespace Pal3.Player
             var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
             Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
 
-            if (IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+            if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
             {
                 StartCoroutine(Jump());
             }
@@ -388,78 +398,97 @@ namespace Pal3.Player
             }
         }
 
-        private bool IsPositionInsideJumpableArea(int layerIndex, Vector2Int tilePosition)
-        {
-            Scene currentScene = _sceneManager.GetCurrentScene();
-            var activatedObjects = currentScene.GetAllActivatedSceneObjects();
-
-            foreach (var objectId in activatedObjects)
-            {
-                SceneObject sceneObject = currentScene.GetSceneObject(objectId);
-                if (sceneObject.ObjectInfo.Type == ScnSceneObjectType.JumpableArea &&
-                    layerIndex == sceneObject.ObjectInfo.LayerIndex &&
-                    GameBoxInterpreter.IsPositionInsideRect(sceneObject.ObjectInfo.TileMapTriggerRect,
-                        tilePosition))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         // Find the nearest walkable tile inside jumpable area and jump to it
-        private IEnumerator Jump()
+        private IEnumerator Jump(Vector3? jumpTargetPosition = null)
         {
             _gameStateManager.GoToState(GameState.Cutscene);
+            _playerActorMovementController.CancelMovement();
 
-            int layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
             Vector3 currentPosition = _playerActorMovementController.GetWorldPosition();
-            Vector3 forwardDirection = _playerActorGameObject.transform.forward;
-            Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
 
-            Vector3 jumpTargetPosition = currentPosition;
+            Scene currentScene = _sceneManager.GetCurrentScene();
+            Tilemap tilemap = currentScene.GetTilemap();
 
-            var validJumpTargetPositions = new List<Vector3>();
-            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.35f)
+            bool IsPositionCanJumpTo(Vector3 position, int layerIndex, out float yPosition)
             {
-                Vector3 targetPosition = currentPosition + forwardDirection * i;
-                Vector2Int tilePosition = tilemap.GetTilePosition(targetPosition, layerIndex);
+                Vector2Int tilePosition = tilemap.GetTilePosition(position, layerIndex);
 
-                if (IsPositionInsideJumpableArea(layerIndex, tilePosition) &&
-                    tilemap.TryGetTile(targetPosition, layerIndex, out NavTile tile) &&
-                    tile.IsWalkable() &&
-                    tile.DistanceToNearestObstacle > 1 &&
-                    Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition) - currentPosition.y)
-                      < MAX_JUMP_Y_DIFFERENTIAL)
+                if (tilemap.TryGetTile(position, layerIndex, out NavTile tile) &&
+                    tile.FloorKind != NavFloorKind.Jumpable)
                 {
-                    var position = targetPosition;
-                    position.y = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
-                    validJumpTargetPositions.Add(position);
+                    yPosition = Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition));
+
+                    if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
+
+                    if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition) ||
+                        (tile.IsWalkable() && tile.DistanceToNearestObstacle > 1))
+                    {
+                        return true;
+                    }
+                }
+
+                yPosition = 0f;
+                return false;
+            }
+
+            Vector3 jumpDirection = _playerActorGameObject.transform.forward;
+
+            if (jumpTargetPosition != null)
+            {
+                jumpDirection = jumpTargetPosition.Value - _playerActorGameObject.transform.position;
+                jumpDirection.y = 0f;
+                jumpDirection.Normalize();
+                _playerActorGameObject.transform.forward = jumpDirection;
+            }
+
+            var validJumpTargetPositions = new List<(Vector3 position, int layerIndex)>();
+            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.2f)
+            {
+                Vector3 targetPosition = currentPosition + jumpDirection * i;
+
+                for (var j = 0; j < tilemap.GetLayerCount(); j++)
+                {
+                    if (IsPositionCanJumpTo(targetPosition, j, out var yPosition))
+                    {
+                        Vector3 position = targetPosition;
+                        position.y = yPosition;
+                        validJumpTargetPositions.Add((position, j));
+                    }
                 }
             }
 
+            var jumpTargetLayer = _playerActorMovementController.GetCurrentLayerIndex();
             if (validJumpTargetPositions.Count > 0)
             {
-                // Use the middle one
-                jumpTargetPosition = validJumpTargetPositions[validJumpTargetPositions.Count / 2];
+                // Pick a position that is closer to the farthest position
+                (jumpTargetPosition, jumpTargetLayer) = validJumpTargetPositions[(int)(validJumpTargetPositions.Count * (2f / 3f))];
+            }
+            else
+            {
+                jumpTargetPosition = currentPosition;
             }
 
-            _playerActorMovementController.CancelMovement();
             _playerActorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Jump],
                  overwrite: true, loopCount: 1);
             yield return new WaitForSeconds(0.7f);
-            var distanceOffset = Vector3.Distance(jumpTargetPosition, currentPosition);
+            var distanceOffset = Vector3.Distance(jumpTargetPosition.Value, currentPosition);
             var startingYPosition = currentPosition.y;
-            var yOffset = jumpTargetPosition.y - currentPosition.y;
+            var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
             yield return AnimationHelper.EnumerateValue(0f, 1f, 1.1f, AnimationCurveType.Sine,
                 value =>
                 {
-                    Vector3 calculatedPosition = currentPosition + forwardDirection * (distanceOffset * value);
+                    Vector3 calculatedPosition = currentPosition + jumpDirection * (distanceOffset * value);
                     calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
                     _playerActorGameObject.transform.position = calculatedPosition;
                 });
             yield return new WaitForSeconds(0.7f);
+
+            _playerActorMovementController.SetNavLayer(jumpTargetLayer);
+
+            PlayerActorTilePositionChanged(jumpTargetLayer,
+                tilemap.GetTilePosition(jumpTargetPosition.Value,
+                    jumpTargetLayer),
+                false);
 
             _gameStateManager.GoToState(GameState.Gameplay);
         }
@@ -679,7 +708,7 @@ namespace Pal3.Player
 
                 if (meshColliders.Any(_ => _.Value == hit.collider))
                 {
-                    layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
+                    layerIndex = meshColliders.First(_ => _.Value == hit.collider).Key;
                     isPositionOnStandingPlatform = false;
                 }
                 else
@@ -690,6 +719,21 @@ namespace Pal3.Player
             }
 
             _playerActorMovementController.PortalToPosition(hit.point, layerIndex, isPositionOnStandingPlatform);
+        }
+
+        private void JumpToTapPosition()
+        {
+            if (!_lastInputTapPosition.HasValue) return;
+
+            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
+
+            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
+
+            if (_sceneManager.GetCurrentScene()
+                    .GetMeshColliders().Any(_ => _.Value == hit.collider))
+            {
+                StartCoroutine(Jump(hit.point));
+            }
         }
 
         // Raycast caches to avoid GC
