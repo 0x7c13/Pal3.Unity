@@ -167,50 +167,7 @@ namespace Pal3.State
             // Save scene object state
             foreach (var sceneObjectStateOverride in _sceneStateManager.GetSceneObjectStateOverrides())
             {
-                if (sceneObjectStateOverride.Value.IsActivated.HasValue)
-                {
-                    commands.Add(new SceneSaveGlobalObjectActivationStateCommand(
-                        sceneObjectStateOverride.Key.cityName,
-                        sceneObjectStateOverride.Key.sceneName,
-                        sceneObjectStateOverride.Key.objectId,
-                        sceneObjectStateOverride.Value.IsActivated.Value));
-                }
-
-                if (sceneObjectStateOverride.Value.SwitchState.HasValue)
-                {
-                    commands.Add(new SceneSaveGlobalObjectSwitchStateCommand(
-                        sceneObjectStateOverride.Key.cityName,
-                        sceneObjectStateOverride.Key.sceneName,
-                        sceneObjectStateOverride.Key.objectId,
-                        sceneObjectStateOverride.Value.SwitchState.Value));
-                }
-
-                if (sceneObjectStateOverride.Value.TimesCount.HasValue)
-                {
-                    commands.Add(new SceneSaveGlobalObjectTimesCountCommand(
-                        sceneObjectStateOverride.Key.cityName,
-                        sceneObjectStateOverride.Key.sceneName,
-                        sceneObjectStateOverride.Key.objectId,
-                        sceneObjectStateOverride.Value.TimesCount.Value));
-                }
-
-                if (sceneObjectStateOverride.Value.LayerIndex.HasValue)
-                {
-                    commands.Add(new SceneSaveGlobalObjectLayerIndexCommand(
-                        sceneObjectStateOverride.Key.cityName,
-                        sceneObjectStateOverride.Key.sceneName,
-                        sceneObjectStateOverride.Key.objectId,
-                        sceneObjectStateOverride.Value.LayerIndex.Value));
-                }
-
-                if (sceneObjectStateOverride.Value.GameBoxPosition.HasValue)
-                {
-                    commands.Add(new SceneSaveGlobalObjectPositionCommand(
-                        sceneObjectStateOverride.Key.cityName,
-                        sceneObjectStateOverride.Key.sceneName,
-                        sceneObjectStateOverride.Key.objectId,
-                        sceneObjectStateOverride.Value.GameBoxPosition.Value));
-                }
+                commands.AddRange(sceneObjectStateOverride.Value.ToCommands(sceneObjectStateOverride.Key));
             }
 
             // Save current applied screen effect state

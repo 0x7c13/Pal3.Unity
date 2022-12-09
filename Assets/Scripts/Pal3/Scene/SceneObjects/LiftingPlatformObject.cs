@@ -63,8 +63,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+            yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
 
             GameObject liftingMechanismGameObject = GetGameObject();
             Vector3 position = liftingMechanismGameObject.transform.position;
@@ -118,7 +117,7 @@ namespace Pal3.Scene.SceneObjects
                         GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+            ResetCamera();
         }
 
         public override void Deactivate()

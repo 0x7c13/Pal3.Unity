@@ -267,7 +267,7 @@ namespace Core.DataReader.Scn
         public Vector3 GameBoxPosition;
 
         // 渲染模型的时候转动多少角度(绕Y轴)
-        public float YRotation;
+        public float GameBoxYRotation;
 
         // 触发范围(TileMap区域)
         public GameBoxRect TileMapTriggerRect;
@@ -333,9 +333,9 @@ namespace Core.DataReader.Scn
         public byte DependentObjectId;
 
         public Bounds Bounds;
-        public float XRotation;            // 绕X轴旋转
+        public float GameBoxXRotation;            // 绕X轴旋转
         #if PAL3A
-        public float ZRotation;            // 绕Z轴旋转
+        public float GameBoxZRotation;            // 绕Z轴旋转
         #endif
         public string SfxName;             // 音效文件名
 

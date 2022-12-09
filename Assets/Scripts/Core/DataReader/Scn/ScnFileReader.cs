@@ -202,7 +202,7 @@ namespace Core.DataReader.Scn
                 IsNonBlocking = isNonBlocking,
 
                 GameBoxPosition = gameBoxPosition,
-                YRotation = yRotation,
+                GameBoxYRotation = yRotation,
                 TileMapTriggerRect = tileMapTriggerRect,
 
                 Type = type,
@@ -239,10 +239,10 @@ namespace Core.DataReader.Scn
 
                 Bounds = bounds,
 
-                XRotation = xRotation,
+                GameBoxXRotation = xRotation,
 
                 #if PAL3A
-                ZRotation = zRotation,
+                GameBoxZRotation = zRotation,
                 #endif
 
                 SfxName = sfxName,

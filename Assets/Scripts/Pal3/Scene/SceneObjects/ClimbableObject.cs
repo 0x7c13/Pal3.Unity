@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Actor;
     using Common;
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Core.Services;
     using MetaData;
     using Player;
@@ -48,7 +49,8 @@ namespace Pal3.Scene.SceneObjects
             GameObject climbableObject = GetGameObject();
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = Quaternion.Euler(0f, -ObjectInfo.YRotation, 0f) * Vector3.forward;
+            Vector3 climbableObjectFacing = GameBoxInterpreter.ToUnityRotation(
+                new Vector3(0f, ObjectInfo.GameBoxYRotation, 0f)) * Vector3.forward;
 
             Tilemap tileMap = ctx.CurrentScene.GetTilemap();
 

@@ -49,8 +49,7 @@ namespace Pal3.Scene.SceneObjects
             if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+                yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
             }
 
             PlaySfxIfAny();
@@ -64,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (shouldResetCamera)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+                ResetCamera();
             }
         }
 

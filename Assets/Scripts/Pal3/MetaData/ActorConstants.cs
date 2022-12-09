@@ -198,8 +198,8 @@ namespace Pal3.MetaData
         public const float ActorClimbSpeed = 2f;
 
         #if PAL3
-        public const string LongKuiHumanModeActorName = "105";
-        public const string LongKuiGhostModeActorName = "106";
+        public const string LongKuiBlueModeActorName = "105";
+        public const string LongKuiRedModeActorName = "106";
         #elif PAL3A
         public const string NanGongHuangHumanModeActorName = "101";
         public const string NanGongHuangWolfModeActorName = "107";
@@ -213,7 +213,7 @@ namespace Pal3.MetaData
         {
             { PlayerActorId.JingTian,  "101" },
             { PlayerActorId.XueJian,   "104" },
-            { PlayerActorId.LongKui,   "105" },  // 105 人形 106 鬼形
+            { PlayerActorId.LongKui,   "105" },  // 105 蓝葵 106 红葵
             { PlayerActorId.ZiXuan,    "107" },
             { PlayerActorId.ChangQing, "102" },
             { PlayerActorId.HuaYing,   "109" }

@@ -48,6 +48,29 @@ namespace Core.GameBox
             return gameBoxZPosition / GameBoxUnitToUnityUnit;
         }
 
+        public static float ToGameBoxXRotation(float eulerAnglesX)
+        {
+            return eulerAnglesX;
+        }
+
+        public static float ToGameBoxYRotation(float eulerAnglesY)
+        {
+            return -eulerAnglesY;
+        }
+
+        public static float ToGameBoxZRotation(float eulerAnglesZ)
+        {
+            return eulerAnglesZ;
+        }
+
+        public static Quaternion ToUnityRotation(Vector3 gameBoxEulerAngles)
+        {
+            return Quaternion.Euler(
+                gameBoxEulerAngles.x,
+                -gameBoxEulerAngles.y,
+                gameBoxEulerAngles.z);
+        }
+
         public static Vector3 ToGameBoxPosition(Vector3 position, float scale = GameBoxUnitToUnityUnit)
         {
             return new Vector3(

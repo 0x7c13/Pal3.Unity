@@ -91,8 +91,7 @@ namespace Pal3.Scene.SceneObjects
             if (ctx.InitObjectId != ObjectInfo.Id && !IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+                yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
             }
 
             var currentSwitchState = ObjectInfo.SwitchState;
@@ -160,7 +159,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (shouldResetCamera)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+                ResetCamera();
             }
         }
 

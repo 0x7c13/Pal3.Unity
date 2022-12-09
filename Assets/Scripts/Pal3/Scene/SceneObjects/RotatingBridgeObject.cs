@@ -6,7 +6,9 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System;
+    using System.Collections;
     using Common;
+    using Core.Animation;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
@@ -15,6 +17,8 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
     public class RotatingBridgeObject : SceneObject
     {
+        private float ROTATION_ANIMATION_DURATION = 3.5f;
+
         private StandingPlatformController _platformController;
 
         public RotatingBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -51,6 +55,25 @@ namespace Pal3.Scene.SceneObjects
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
 
             return sceneGameObject;
+        }
+
+        public override IEnumerator Interact(InteractionContext ctx)
+        {
+            yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
+
+            GameObject bridgeObject = GetGameObject();
+            Vector3 eulerAngles = bridgeObject.transform.rotation.eulerAngles;
+            var targetYRotation = (eulerAngles.y  + 90f) % 360f;
+            var targetRotation = new Vector3(eulerAngles.x, targetYRotation, eulerAngles.z);
+
+            PlaySfx("wg004");
+
+            yield return AnimationHelper.RotateTransform(bridgeObject.transform,
+                Quaternion.Euler(targetRotation), ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
+
+            SaveYRotation();
+
+            ResetCamera();
         }
 
         public override void Deactivate()

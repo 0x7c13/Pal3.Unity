@@ -398,7 +398,6 @@ namespace Pal3.Player
             }
         }
 
-        // Find the nearest walkable tile inside jumpable area and jump to it
         private IEnumerator Jump(Vector3? jumpTargetPosition = null)
         {
             _gameStateManager.GoToState(GameState.Cutscene);
@@ -820,8 +819,8 @@ namespace Pal3.Player
             }
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing =
-                Quaternion.Euler(0f, -climbableSceneObject.ObjectInfo.YRotation, 0f) * Vector3.forward;
+            Vector3 climbableObjectFacing = GameBoxInterpreter.ToUnityRotation(
+                new Vector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)) * Vector3.forward;
 
             Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
             Vector3 lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
@@ -988,6 +987,15 @@ namespace Pal3.Player
             _playerActorActionController = _playerActorGameObject.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActorGameObject.GetComponent<ActorMovementController>();
 
+            #if PAL3
+            // LongKui should stay blue form when player control is enabled
+            if (command.ActorId == (int)PlayerActorId.LongKui &&
+                _playerActorGameObject.GetComponent<LongKuiController>() is { } longKuiController)
+            {
+                longKuiController.Execute(new LongKuiSwitchModeCommand(0));
+            }
+            #endif
+
             // Just to make sure the new actor is activated
             if (!_playerActorController.IsActive)
             {
@@ -1116,10 +1124,6 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }
-
-            #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
-            #endif
         }
 
         public void Execute(ResetGameStateCommand command)

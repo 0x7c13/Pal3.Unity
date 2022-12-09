@@ -46,8 +46,8 @@ namespace Pal3.Actor
             _currentMode = command.Mode;
 
             _actor.ChangeName(command.Mode == 0 ?
-                ActorConstants.LongKuiHumanModeActorName :
-                ActorConstants.LongKuiGhostModeActorName);
+                ActorConstants.LongKuiBlueModeActorName :
+                ActorConstants.LongKuiRedModeActorName);
 
             if (_actor.IsActive)
             {

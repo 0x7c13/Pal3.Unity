@@ -75,6 +75,8 @@ namespace Pal3.Scene.SceneObjects
 
             var duration = Vector3.Distance(fromCenterPosition, toCenterPosition) / ELEVATOR_SPEED;
 
+            PlaySfx("wc014");
+
             // Lifting up/down
             yield return AnimationHelper.MoveTransform(ctx.PlayerActorGameObject.transform,
                 toCenterPosition, duration, AnimationCurveType.Sine);

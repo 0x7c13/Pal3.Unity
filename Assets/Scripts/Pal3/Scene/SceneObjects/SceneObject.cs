@@ -11,6 +11,7 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Animation;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -43,7 +44,6 @@ namespace Pal3.Scene.SceneObjects
         public SceneObjectModelType ModelType { get; }
 
         internal bool Activated;
-
         internal string ModelFilePath;
 
         private IEffect _effectComponent;
@@ -156,11 +156,11 @@ namespace Pal3.Scene.SceneObjects
 
             _sceneObjectGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition);
             #if PAL3
-            _sceneObjectGameObject.transform.rotation =
-                Quaternion.Euler(ObjectInfo.XRotation, -ObjectInfo.YRotation, 0f);
+            _sceneObjectGameObject.transform.rotation = GameBoxInterpreter.ToUnityRotation(
+                new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, 0f));
             #elif PAL3A
-            _sceneObjectGameObject.transform.rotation =
-                Quaternion.Euler(ObjectInfo.XRotation, -ObjectInfo.YRotation, ObjectInfo.ZRotation);
+            _sceneObjectGameObject.transform.rotation = GameBoxInterpreter.ToUnityRotation(
+                new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, ObjectInfo.GameBoxZRotation));
             #endif
 
             if (GraphicsEffect != GraphicsEffect.None &&
@@ -325,9 +325,9 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        internal void PlaySfx(string sfxName)
+        internal void PlaySfx(string sfxName, int loopCount = 1)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, 1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(sfxName, loopCount));
         }
 
         internal void ChangeAndSaveActivationState(bool isActivated)
@@ -383,6 +383,36 @@ namespace Pal3.Scene.SceneObjects
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
                     GameBoxInterpreter.ToGameBoxPosition(_sceneObjectGameObject.transform.position)));
+        }
+
+        internal void SaveYRotation()
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new SceneSaveGlobalObjectYRotationCommand(SceneInfo.CityName,
+                    SceneInfo.SceneName,
+                    ObjectInfo.Id,
+                    GameBoxInterpreter.ToGameBoxYRotation(_sceneObjectGameObject.transform.rotation.eulerAngles.y)));
+        }
+
+        internal IEnumerator MoveCameraToLookAtObjectAndFocus(GameObject playerActorGameObject)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(0));
+
+            Vector3 offset = GetGameObject().transform.position - playerActorGameObject.transform.position;
+            Transform cameraTransform = Camera.main!.transform;
+            Vector3 cameraCurrentPosition = cameraTransform.position;
+            Vector3 targetPosition = cameraCurrentPosition + offset;
+            yield return AnimationHelper.MoveTransform(cameraTransform,
+                targetPosition, 1.5f, AnimationCurveType.Sine);
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+        }
+
+        internal void ResetCamera()
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
         }
 
         internal bool IsFullyVisibleToCamera()

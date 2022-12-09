@@ -14,7 +14,6 @@ namespace Pal3.Scene.SceneObjects
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Pushable)]
     [ScnSceneObject(ScnSceneObjectType.VirtualInvestigationTrigger)]
     [ScnSceneObject(ScnSceneObjectType.InvestigationTrigger)]
     public sealed class InvestigationTriggerObject : SceneObject
