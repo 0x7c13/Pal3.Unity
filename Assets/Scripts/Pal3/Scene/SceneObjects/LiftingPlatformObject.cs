@@ -8,7 +8,6 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Command;
     using Command.InternalCommands;
-    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;

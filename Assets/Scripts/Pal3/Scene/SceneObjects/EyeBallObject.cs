@@ -13,7 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.EyeBall)]
-    public class EyeBallObject : SceneObject,
+    public sealed class EyeBallObject : SceneObject,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
         private readonly Tilemap _tilemap;

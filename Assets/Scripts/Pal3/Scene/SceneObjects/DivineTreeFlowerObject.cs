@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
+    using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
 

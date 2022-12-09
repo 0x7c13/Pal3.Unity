@@ -17,6 +17,7 @@ namespace Pal3.Scene
     using MetaData;
     using Newtonsoft.Json;
     using Script;
+    using State;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
     using Object = UnityEngine.Object;

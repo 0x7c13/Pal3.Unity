@@ -18,6 +18,7 @@ namespace Pal3.Scene
     using Data;
     using Player;
     using SceneObjects;
+    using State;
     using UnityEngine;
 
     /// <summary>

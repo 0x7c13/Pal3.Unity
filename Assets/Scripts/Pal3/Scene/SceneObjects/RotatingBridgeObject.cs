@@ -15,7 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
-    public class RotatingBridgeObject : SceneObject
+    public sealed class RotatingBridgeObject : SceneObject
     {
         private float ROTATION_ANIMATION_DURATION = 3.5f;
 

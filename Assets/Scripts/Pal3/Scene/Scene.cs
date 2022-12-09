@@ -23,6 +23,7 @@ namespace Pal3.Scene
     using MetaData;
     using Renderer;
     using SceneObjects;
+    using State;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
 

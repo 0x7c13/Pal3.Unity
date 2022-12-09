@@ -18,7 +18,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
-    public class PushableObject : SceneObject
+    public sealed class PushableObject : SceneObject
     {
         private const float PUSH_ANIMATION_DURATION = 2.5f;
 

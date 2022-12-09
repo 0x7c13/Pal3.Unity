@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Scene
+namespace Pal3.State
 {
     using System;
     using System.Collections.Generic;

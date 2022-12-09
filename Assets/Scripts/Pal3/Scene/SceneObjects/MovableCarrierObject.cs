@@ -17,7 +17,7 @@ namespace Pal3.Scene.SceneObjects
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
-    public class MovableCarrierObject : SceneObject
+    public sealed class MovableCarrierObject : SceneObject
     {
         private float MOVE_SPEED = 3.5f;
 

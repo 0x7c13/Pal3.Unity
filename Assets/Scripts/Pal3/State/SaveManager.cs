@@ -36,6 +36,8 @@ namespace Pal3.State
 
     public class SaveManager
     {
+        private const string SAVE_FILE_NAME = "save.txt";
+        
         private readonly SceneManager _sceneManager;
         private readonly PlayerManager _playerManager;
         private readonly TeamManager _teamManager;
@@ -47,8 +49,6 @@ namespace Pal3.State
         private readonly CameraManager _cameraManager;
         private readonly AudioManager _audioManager;
         private readonly PostProcessManager _postProcessManager;
-
-        private const string SAVE_FILE_NAME = "save.txt";
 
         public SaveManager(SceneManager sceneManager,
             PlayerManager playerManager,

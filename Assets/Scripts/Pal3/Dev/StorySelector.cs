@@ -18,6 +18,7 @@ namespace Pal3.Dev
     using Player;
     using Scene;
     using Script;
+    using Script.Waiter;
     using State;
     using TMPro;
     using UI;

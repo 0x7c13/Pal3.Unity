@@ -22,11 +22,12 @@ namespace Pal3.Script
     using UI;
     using Feature;
     using Scene;
+    using State;
     using UnityEngine;
     using Waiter;
     using Random = UnityEngine.Random;
 
-    public class PalScriptRunner : IDisposable,
+    public sealed class PalScriptRunner : IDisposable,
         ICommandExecutor<ScriptChangeExecutionModeCommand>,
         ICommandExecutor<ScriptSetOperatorCommand>,
         ICommandExecutor<ScriptVarGreaterThanCommand>,
