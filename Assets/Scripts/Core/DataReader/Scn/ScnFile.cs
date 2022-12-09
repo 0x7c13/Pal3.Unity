@@ -169,6 +169,21 @@ namespace Core.DataReader.Scn
             #endif
         }
 
+        public bool Is(string cityName, string sceneName)
+        {
+            return IsCity(cityName) && IsScene(sceneName);
+        }
+
+        public bool IsCity(string cityName)
+        {
+            return string.Equals(CityName, cityName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsScene(string sceneName)
+        {
+            return string.Equals(SceneName, sceneName, StringComparison.OrdinalIgnoreCase);
+        }
+
         public override string ToString()
         {
             return $"City: {CityName.ToLower()}, Scene: {SceneName.ToLower()}, " +

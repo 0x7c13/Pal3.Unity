@@ -71,7 +71,7 @@ namespace Pal3.Scene.SceneObjects
         private void UpdateTileMapWhenConditionMet(bool setSoilFloorAsObstacle)
         {
             #if PAL3
-            if (string.Equals(SceneInfo.CityName, "m09", StringComparison.OrdinalIgnoreCase))
+            if (SceneInfo.IsCity("m09"))
             {
                 _sceneManager.GetCurrentScene()
                     .GetTilemap()

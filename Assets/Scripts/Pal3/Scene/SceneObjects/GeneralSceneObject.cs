@@ -57,9 +57,8 @@ namespace Pal3.Scene.SceneObjects
 
             #if PAL3
             // The general object 15 in M15 2 scene should block player
-            if (ObjectInfo.Type == ScnSceneObjectType.General && ObjectInfo.Id == 15 &&
-                SceneInfo.CityName.Equals("m15", StringComparison.OrdinalIgnoreCase) &&
-                SceneInfo.SceneName.Equals("2", StringComparison.OrdinalIgnoreCase))
+            if (ObjectInfo is { Type: ScnSceneObjectType.General, Id: 15 } &&
+                SceneInfo.Is("m15", "2"))
             {
                 sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }

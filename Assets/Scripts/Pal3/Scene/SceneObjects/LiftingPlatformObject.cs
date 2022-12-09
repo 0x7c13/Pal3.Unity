@@ -48,13 +48,14 @@ namespace Pal3.Scene.SceneObjects
             // Some tweaks to the bounds to make sure actor won't stuck
             // near the edge of the platform
             Vector3 tweakedBoundsSize = bounds.size;
-            tweakedBoundsSize.x += 0.5f;
-            tweakedBoundsSize.y += 0.2f;
-            tweakedBoundsSize.z += 0.5f;
+            tweakedBoundsSize.x += 0.6f;
+            tweakedBoundsSize.y += 0.3f;
+            var yOffset = -0.1f;
+            tweakedBoundsSize.z += 0.6f;
             bounds.size = tweakedBoundsSize;
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, yOffset);
 
             return sceneGameObject;
         }

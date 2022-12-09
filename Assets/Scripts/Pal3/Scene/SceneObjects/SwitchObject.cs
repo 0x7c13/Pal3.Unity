@@ -167,8 +167,7 @@ namespace Pal3.Scene.SceneObjects
         {
             return ObjectInfo.Parameters[2] == 1 &&
                    ObjectInfo.Id == 22 &&
-                   SceneInfo.CityName.Equals("m16", StringComparison.OrdinalIgnoreCase) &&
-                   SceneInfo.SceneName.Equals("4", StringComparison.OrdinalIgnoreCase);
+                   SceneInfo.Is("m16", "4");
         }
 
         public override void Deactivate()

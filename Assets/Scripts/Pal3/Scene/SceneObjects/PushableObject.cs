@@ -36,10 +36,9 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
 
             #if PAL3
-            // Temporarily disable pushable boxes in m02 3 scene.
+            // Temporarily disable pushable boxes in PAL3 m02 3 scene.
             // TODO: proper impl
-            if (SceneInfo.CityName.Equals("m02", StringComparison.OrdinalIgnoreCase) &&
-                SceneInfo.SceneName.Equals("3", StringComparison.OrdinalIgnoreCase))
+            if (SceneInfo.Is("m02", "3"))
             {
                 return new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_Placeholder");
             }

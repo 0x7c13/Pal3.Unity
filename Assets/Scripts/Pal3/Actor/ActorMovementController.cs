@@ -58,7 +58,7 @@ namespace Pal3.Actor
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private const float MAX_Y_DIFFERENTIAL = 2f;
+        private const float MAX_Y_DIFFERENTIAL = 2.2f;
         private const float MAX_Y_DIFFERENTIAL_CROSS_LAYER = 2f;
         private const float MAX_Y_DIFFERENTIAL_CROSS_PLATFORM = 2f;
         private const float DEFAULT_ROTATION_SPEED = 20f;

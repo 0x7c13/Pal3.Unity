@@ -123,9 +123,15 @@ namespace Pal3.Scene.SceneObjects
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
                     (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.5f);
 
-                // Do not ignore obstacles when moving out of the carrier since
-                // the final position might be blocked by other objects/switches
-                yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, false);
+                // Do not ignore obstacles when moving out of the carrier in PAL3 scene m17 7
+                // since the final position might be blocked by a lifted platform
+                #if PAL3
+                bool ignoreObstacle = !SceneInfo.Is("m17", "7");
+                #else
+                bool ignoreObstacle = true;
+                #endif
+
+                yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, ignoreObstacle);
 
                 // Verify if actor is able to move to final position,
                 // if so, end the interaction
