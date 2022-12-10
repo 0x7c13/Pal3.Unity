@@ -42,6 +42,7 @@ namespace Pal3.Player
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
         ICommandExecutor<PlayerInteractWithObjectCommand>,
+        ICommandExecutor<ToggleBigMapRequest>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float MIN_JUMP_DISTANCE = 1.5f;
@@ -200,6 +201,10 @@ namespace Pal3.Player
                 return sfxPrefix + 'a';
             }
             #elif PAL3A
+            if (_playerActor.Info.Id == (byte)PlayerActorId.WangPengXu)
+            {
+                return movementAction == ActorActionType.Walk ? "WE007" : "WE045";
+            }
             return movementAction == ActorActionType.Walk ? "WE007" : "WE008";
             #endif
         }
@@ -494,27 +499,15 @@ namespace Pal3.Player
 
         private void SwitchToNextPlayerActorPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled() ||
-                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
-            {
-                return;
-            }
-
-            var actorsInTeam = _teamManager.GetActorsInTeam();
-            if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
-
-            var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
-            int nextPlayerActorId = _playerActor.Info.Id;
-            do
-            {
-                nextPlayerActorId = (nextPlayerActorId + 1) % playerActorIdLength;
-            } while (!actorsInTeam.Contains((PlayerActorId) nextPlayerActorId));
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(nextPlayerActorId));
+            SwitchPlayerActorInCurrentTeam(true);
         }
 
         private void SwitchToPreviousPlayerActorPerformed(InputAction.CallbackContext _)
+        {
+            SwitchPlayerActorInCurrentTeam(false);
+        }
+
+        private void SwitchPlayerActorInCurrentTeam(bool next)
         {
             if (!_playerManager.IsPlayerActorControlEnabled() ||
                 !_playerManager.IsPlayerInputEnabled() ||
@@ -527,15 +520,14 @@ namespace Pal3.Player
             if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
 
             var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
-            int previousPlayerActorId = _playerActor.Info.Id;
+            int targetPlayerActorId = _playerActor.Info.Id;
+
             do
             {
-                previousPlayerActorId = (previousPlayerActorId - 1) >= 0
-                    ? (previousPlayerActorId - 1) % playerActorIdLength
-                    : playerActorIdLength - 1;
-            } while (!actorsInTeam.Contains((PlayerActorId) previousPlayerActorId));
+                targetPlayerActorId = (targetPlayerActorId + playerActorIdLength + (next ? +1 : -1)) % playerActorIdLength;
+            } while (!actorsInTeam.Contains((PlayerActorId) targetPlayerActorId));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(previousPlayerActorId));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(targetPlayerActorId));
         }
 
         /// <summary>
@@ -1049,7 +1041,17 @@ namespace Pal3.Player
 
         public void Execute(PlayerInteractionRequest command)
         {
-            InteractWithFacingInteractable();
+            var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+            Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
+
+            if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+            {
+                StartCoroutine(Jump());
+            }
+            else
+            {
+                InteractWithFacingInteractable();
+            }
         }
 
         public void Execute(ActorSetTilePositionCommand command)
@@ -1147,6 +1149,15 @@ namespace Pal3.Player
             _playerActorController = null;
             _playerActorActionController = null;
             _playerActorMovementController = null;
+        }
+
+        // TODO: Remove this
+        public void Execute(ToggleBigMapRequest command)
+        {
+            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
+            {
+                SwitchPlayerActorInCurrentTeam(true);
+            }
         }
 
         #if PAL3

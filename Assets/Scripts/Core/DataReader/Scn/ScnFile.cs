@@ -186,8 +186,12 @@ namespace Core.DataReader.Scn
 
         public override string ToString()
         {
-            return $"City: {CityName.ToLower()}, Scene: {SceneName.ToLower()}, " +
-                   $"Model: {Model.ToLower()}, Type: {SceneType}, LightMap: {LightMap}, SkyBox: {SkyBox}";
+            return $"City: {CityName.ToLower()}, " +
+                   $"Scene: {SceneName.ToLower()}, " +
+                   $"Model: {Model.ToLower()}, " +
+                   $"Type: {SceneType}, " +
+                   $"LightMap: {LightMap}, " +
+                   $"SkyBox: {SkyBox}";
         }
     }
 

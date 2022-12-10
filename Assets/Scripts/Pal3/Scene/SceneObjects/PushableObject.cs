@@ -120,7 +120,9 @@ namespace Pal3.Scene.SceneObjects
                     playerActorTransform.position = actorInitPosition + movingDirection * value;
                 });
 
-            actorActionController.PerformAction(ActorActionType.Stand);
+            // Move player actor back a bit to avoid collision with the pushable object again.
+            Vector3 actorFinalPosition = actorInitPosition + movingDirection * (movingDistance - 1f);
+            yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, true);
 
             yield return ExecuteScriptAndWaitForFinishIfAny();
 
