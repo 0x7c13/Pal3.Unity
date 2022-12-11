@@ -8,11 +8,16 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor;
     using Common;
+    using Core.DataLoader;
+    using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Services;
+    using Data;
     using MetaData;
     using Player;
+    using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Climbable)]
@@ -21,6 +26,13 @@ namespace Pal3.Scene.SceneObjects
         private const float MAX_INTERACTION_DISTANCE = 6f;
 
         private readonly PlayerGamePlayController _playerGamePlayController;
+
+        private readonly string _interactionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
+                                                                 CpkConstants.DirectorySeparator + "g02.cvd";
+        private CvdModelRenderer _upperInteractionIndicatorRenderer;
+        private CvdModelRenderer _lowerInteractionIndicatorRenderer;
+        private GameObject _upperInteractionIndicatorGameObject;
+        private GameObject _lowerInteractionIndicatorGameObject;
 
         public ClimbableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -31,6 +43,53 @@ namespace Pal3.Scene.SceneObjects
         public override bool IsDirectlyInteractable(float distance)
         {
             return Activated && distance < MAX_INTERACTION_DISTANCE;
+        }
+
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        {
+            if (Activated) return GetGameObject();
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            Vector3 climbablePosition = sceneGameObject.transform.position;
+            Bounds bounds = GetRendererBounds();
+
+            Vector3 upperPosition = new Vector3(climbablePosition.x, bounds.max.y, climbablePosition.z) +
+                                    sceneGameObject.transform.forward * 0.7f;
+
+            {
+                _upperInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Upper");
+                _upperInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
+                _upperInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, -1f, 1f);
+                _upperInteractionIndicatorGameObject.transform.position = upperPosition;
+                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
+                    resourceProvider.GetCvd(_interactionIndicatorModelPath);
+                _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _upperInteractionIndicatorRenderer.Init(cvdFile,
+                    resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    tintColor);
+                _upperInteractionIndicatorRenderer.LoopAnimation();
+            }
+
+            Vector3 lowerPosition = new Vector3(climbablePosition.x, bounds.min.y + 1f, climbablePosition.z) +
+                                    sceneGameObject.transform.forward * 0.7f;
+
+            {
+                _lowerInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Lower");
+                _lowerInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
+                _lowerInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
+                _lowerInteractionIndicatorGameObject.transform.position = lowerPosition;
+                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
+                    resourceProvider.GetCvd(_interactionIndicatorModelPath);
+                _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _lowerInteractionIndicatorRenderer.Init(cvdFile,
+                    resourceProvider.GetMaterialFactory(),
+                    textureProvider,
+                    tintColor);
+                _lowerInteractionIndicatorRenderer.LoopAnimation();
+            }
+
+            return sceneGameObject;
         }
 
         public override IEnumerator Interact(InteractionContext ctx)
@@ -104,6 +163,33 @@ namespace Pal3.Scene.SceneObjects
                 upperStandingPosition,
                 lowerLayer,
                 upperLayer);
+        }
+
+        public override void Deactivate()
+        {
+            if (_upperInteractionIndicatorRenderer != null)
+            {
+                _upperInteractionIndicatorRenderer.Dispose();
+                Object.Destroy(_upperInteractionIndicatorRenderer);
+            }
+
+            if (_lowerInteractionIndicatorRenderer != null)
+            {
+                _lowerInteractionIndicatorRenderer.Dispose();
+                Object.Destroy(_lowerInteractionIndicatorRenderer);
+            }
+
+            if (_upperInteractionIndicatorGameObject != null)
+            {
+                Object.Destroy(_upperInteractionIndicatorGameObject);
+            }
+
+            if (_lowerInteractionIndicatorGameObject != null)
+            {
+                Object.Destroy(_lowerInteractionIndicatorGameObject);
+            }
+
+            base.Deactivate();
         }
     }
 }

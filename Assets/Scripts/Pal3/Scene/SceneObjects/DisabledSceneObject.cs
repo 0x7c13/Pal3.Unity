@@ -10,6 +10,8 @@ namespace Pal3.Scene.SceneObjects
 
     [ScnSceneObject(ScnSceneObjectType.SavingPoint)]
     [ScnSceneObject(ScnSceneObjectType.WishPool)]
+    [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
+    [ScnSceneObject(ScnSceneObjectType.Arrow)]
     public sealed class DisabledSceneObject : SceneObject
     {
         public DisabledSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
