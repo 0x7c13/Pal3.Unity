@@ -62,18 +62,31 @@ namespace Pal3.Scene.SceneObjects
 
         private Vector3 GetClosetMovableDirection(Vector3 vector)
         {
-            var directions = new List<Vector3>()
+            List<Vector3> validDirections;
+
+            if (ObjectInfo.Parameters[0] == 2)
             {
-                Vector3.left,
-                Vector3.right,
-                Vector3.forward,
-                Vector3.back,
-            };
+                validDirections = new List<Vector3>()
+                {
+                    Vector3.forward,
+                    Vector3.back,
+                };
+            }
+            else
+            {
+                validDirections = new List<Vector3>()
+                {
+                    Vector3.left,
+                    Vector3.right,
+                    Vector3.forward,
+                    Vector3.back,
+                };
+            }
 
             float smallestAngle = float.MaxValue;
             Vector3 closetDirection = Vector3.forward;
 
-            foreach (Vector3 direction in directions)
+            foreach (Vector3 direction in validDirections)
             {
                 float facingAngle = Vector3.Angle(direction, vector);
                 if (facingAngle < smallestAngle)
@@ -94,19 +107,24 @@ namespace Pal3.Scene.SceneObjects
             Transform playerActorTransform =  ctx.PlayerActorGameObject.transform;
             Transform pushableObjectTransform = pushableObject.transform;
 
+            Bounds bounds = GetMeshBounds();
+            float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
+
             Vector3 relativeDirection = pushableObjectTransform.position - playerActorTransform.position;
             relativeDirection.y = 0f; // Ignore y axis
             Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
 
+            // Move player actor to holding position
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
             actorMovementController.CancelMovement();
+            Vector3 actorHoldingPosition = pushableObjectTransform.position + -movingDirection * (movingDistance * 0.8f);
+            actorHoldingPosition.y = playerActorTransform.position.y;
+            yield return actorMovementController.MoveDirectlyTo(actorHoldingPosition, 0, true);
+
             playerActorTransform.forward = movingDirection;
             var actorActionController = ctx.PlayerActorGameObject.GetComponent<ActorActionController>();
             actorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Push],
                 overwrite: true, loopCount: -1);
-
-            Bounds bounds = GetMeshBounds();
-            float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
 
             Vector3 actorInitPosition = playerActorTransform.position;
             Vector3 objectInitPosition = pushableObjectTransform.position;
