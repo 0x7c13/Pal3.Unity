@@ -66,20 +66,23 @@ namespace Pal3.Scene.SceneObjects
 
             if (ObjectInfo.Parameters[0] == 2)
             {
+                var forwardDirection = GetGameObject().transform.forward;
                 validDirections = new List<Vector3>()
                 {
-                    Vector3.forward,
-                    Vector3.back,
+                    forwardDirection,
+                    -forwardDirection,
                 };
             }
             else
             {
+                var forwardDirection = GetGameObject().transform.forward;
+                var rightDirection = GetGameObject().transform.right;
                 validDirections = new List<Vector3>()
                 {
-                    Vector3.left,
-                    Vector3.right,
-                    Vector3.forward,
-                    Vector3.back,
+                    forwardDirection,
+                    -forwardDirection,
+                    rightDirection,
+                    -rightDirection,
                 };
             }
 

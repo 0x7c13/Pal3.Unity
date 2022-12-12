@@ -31,7 +31,6 @@ namespace Pal3.State
             if (LayerIndex.HasValue) objectInfo.LayerIndex = LayerIndex.Value;
             if (GameBoxPosition.HasValue) objectInfo.GameBoxPosition = GameBoxPosition.Value;
             if (GameBoxYRotation.HasValue) objectInfo.GameBoxYRotation = GameBoxYRotation.Value;
-
             return objectInfo;
         }
 
