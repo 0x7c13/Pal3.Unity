@@ -65,7 +65,7 @@ namespace Pal3.Actor
                 transform.position = (transform.position - targetPosition).normalized * MAX_TARGET_DISTANCE + targetPosition;
             }
 
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var distance = (targetPosition - transform.position).magnitude;

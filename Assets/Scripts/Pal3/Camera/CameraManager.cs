@@ -518,7 +518,7 @@ namespace Pal3.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(Shake(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
         }
@@ -527,7 +527,7 @@ namespace Pal3.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
             StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, 0f, waiter));
@@ -543,7 +543,7 @@ namespace Pal3.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled(this);
+                var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
                 StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
@@ -573,7 +573,7 @@ namespace Pal3.Camera
 
             if (command.Synchronous == 1)
             {
-                var waiter = new WaitUntilCanceled(this);
+                var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
                 StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
@@ -603,7 +603,7 @@ namespace Pal3.Camera
 
             if (command.Synchronous == 1)
             {
-                var waiter = new WaitUntilCanceled(this);
+                var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
                 StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
@@ -626,7 +626,7 @@ namespace Pal3.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
@@ -635,7 +635,7 @@ namespace Pal3.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
@@ -644,7 +644,7 @@ namespace Pal3.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
@@ -653,7 +653,7 @@ namespace Pal3.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
@@ -668,7 +668,7 @@ namespace Pal3.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled(this);
+                var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
                 StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
@@ -697,7 +697,7 @@ namespace Pal3.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled(this);
+                var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Vector3 position = GameBoxInterpreter.ToUnityPosition(new Vector3(
                     command.GameBoxXPosition,

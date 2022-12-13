@@ -103,7 +103,7 @@ namespace Pal3.Video
             _gameStateManager.GoToState(GameState.VideoPlaying);
 
             _videoPlayingWaiter?.CancelWait();
-            _videoPlayingWaiter = new WaitUntilCanceled(this);
+            _videoPlayingWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_videoPlayingWaiter));
 
             try

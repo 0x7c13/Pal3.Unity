@@ -318,7 +318,7 @@ namespace Pal3.Actor
             // but only 11 sprite sheet in the data folder (PAL3A has 12 but PAL3 has 11).
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
 
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
@@ -453,7 +453,7 @@ namespace Pal3.Actor
                 WaitUntilCanceled waiter = null;
                 if (command.LoopCount is > 0 or -2)
                 {
-                    waiter = new WaitUntilCanceled(this);
+                    waiter = new WaitUntilCanceled();
                     CommandDispatcher<ICommand>.Instance.Dispatch(
                         new ScriptRunnerAddWaiterRequest(waiter));
                 }
@@ -470,7 +470,7 @@ namespace Pal3.Actor
             if (_mv3AnimationRenderer.IsActionInHoldState())
             {
                 _animationLoopPointWaiter?.CancelWait();
-                _animationLoopPointWaiter = new WaitUntilCanceled(this);
+                _animationLoopPointWaiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
 

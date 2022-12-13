@@ -261,7 +261,7 @@ namespace Pal3.Actor
         public void Execute(ActorChangeScaleCommand command)
         {
             if (command.ActorId != _actor.Info.Id) return;
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(AnimateScale(command.Scale, 2f, waiter));

@@ -63,7 +63,7 @@ namespace Pal3.Feature
 
         private IEnumerator AnimateCaption(string textureName)
         {
-            _skipCaptionWaiter = new WaitUntilCanceled(this);
+            _skipCaptionWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
 
             Texture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);

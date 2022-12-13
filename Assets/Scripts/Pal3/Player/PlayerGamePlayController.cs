@@ -841,7 +841,7 @@ namespace Pal3.Player
                 upperStandingPosition.y = playerCurrentPosition.y;
             }
 
-            var waiter = new WaitUntilCanceled(this);
+            var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;

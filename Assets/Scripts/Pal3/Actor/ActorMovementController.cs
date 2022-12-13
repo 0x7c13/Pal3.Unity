@@ -789,7 +789,7 @@ namespace Pal3.Actor
         private void MoveTo(Vector3 position, int mode)
         {
             _movementWaiter?.CancelWait();
-            _movementWaiter = new WaitUntilCanceled(this);
+            _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             var wayPoints = new [] { position };
@@ -852,7 +852,7 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
-            _movementWaiter = new WaitUntilCanceled(this);
+            _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
@@ -863,7 +863,7 @@ namespace Pal3.Actor
         {
             if (_actor.Info.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
-            _movementWaiter = new WaitUntilCanceled(this);
+            _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 mode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
@@ -889,7 +889,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
 
             _movementWaiter?.CancelWait();
-            _movementWaiter = new WaitUntilCanceled(this);
+            _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             StartCoroutine(FindPathAndMoveToTilePosition(

@@ -7,15 +7,7 @@ namespace Pal3.Script.Waiter
 {
     public class WaitUntilCanceled : IScriptRunnerWaiter
     {
-        // TODO: Remove this
-        public object Tag { get; }
-
         private bool _shouldWait = true;
-
-        public WaitUntilCanceled(object tag)
-        {
-            Tag = tag;
-        }
 
         public void CancelWait()
         {
