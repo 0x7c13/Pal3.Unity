@@ -30,7 +30,7 @@ namespace Core.DataReader.Gdb
             uint comboSkillDataOffset = reader.ReadUInt32();
             int numOfComboSkills = reader.ReadInt32();
 
-            reader.BaseStream.Position = itemDataOffset;
+            reader.BaseStream.Seek(itemDataOffset, SeekOrigin.Begin);
             var gameItems = new Dictionary<int, GameItem>();
             for (var i = 0; i < numOfItems; i++)
             {

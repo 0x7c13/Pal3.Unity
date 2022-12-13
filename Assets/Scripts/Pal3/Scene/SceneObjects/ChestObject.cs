@@ -26,6 +26,11 @@ namespace Pal3.Scene.SceneObjects
             return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted()
+        {
+            return false;
+        }
+
         public override IEnumerator Interact(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;

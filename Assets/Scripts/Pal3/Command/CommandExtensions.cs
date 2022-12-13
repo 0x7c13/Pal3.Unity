@@ -25,9 +25,7 @@ namespace Pal3.Command
                 builder.Append(' ');
             }
 
-            var commandStr = builder.ToString();
-            if (commandStr.EndsWith(' ')) commandStr = commandStr[..^1];
-            return commandStr;
+            return builder.ToString().TrimEnd();
         }
     }
 }

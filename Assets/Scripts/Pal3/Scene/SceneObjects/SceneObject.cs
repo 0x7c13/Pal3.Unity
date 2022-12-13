@@ -239,6 +239,11 @@ namespace Pal3.Scene.SceneObjects
             return false;
         }
 
+        public virtual bool ShouldGoToCutsceneWhenInteractionStarted()
+        {
+            return true;
+        }
+
         public virtual IEnumerator Interact(InteractionContext ctx)
         {
             // Do nothing

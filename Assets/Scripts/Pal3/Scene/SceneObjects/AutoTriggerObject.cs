@@ -54,6 +54,11 @@ namespace Pal3.Scene.SceneObjects
             _isInteractionInProgress = false;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted()
+        {
+            return false; // Do not go to cutscene when auto trigger is executed, let the script decide.
+        }
+
         public override void Deactivate()
         {
             _isInteractionInProgress = false;

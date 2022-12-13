@@ -599,8 +599,9 @@ namespace Pal3.Player
         private IEnumerator InteractWithSceneObject(SceneObject sceneObject)
         {
             var correlationId = Guid.NewGuid();
+            var requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
 
-            if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.AutoTrigger)
+            if (requiresStateChange)
             {
                 _gameStateManager.GoToState(GameState.Cutscene);
                 _gameStateManager.AddGamePlayStateLocker(correlationId);
@@ -614,7 +615,7 @@ namespace Pal3.Player
                 CurrentScene = _sceneManager.GetCurrentScene()
             });
 
-            if (sceneObject.ObjectInfo.Type != ScnSceneObjectType.AutoTrigger)
+            if (requiresStateChange)
             {
                 _gameStateManager.RemoveGamePlayStateLocker(correlationId);
                 _gameStateManager.GoToState(GameState.Gameplay);
