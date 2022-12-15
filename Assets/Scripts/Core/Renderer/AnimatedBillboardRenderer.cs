@@ -12,7 +12,7 @@ namespace Core.Renderer
     public class AnimatedBillboardRenderer : MonoBehaviour
     {
         private Sprite[] _sprites;
-        private float _fps;
+        private WaitForSeconds _spriteAnimationFrameWaiter;
         private bool _initialized;
 
         private StaticBillboardRenderer _billboardRenderer;
@@ -37,12 +37,13 @@ namespace Core.Renderer
             Material material = default)
         {
             _sprites = sprites;
-            _fps = fps;
 
             if (material != default)
             {
                 _spriteRenderer.material = material;
             }
+
+            _spriteAnimationFrameWaiter = new WaitForSeconds(1 / fps);
 
             _initialized = true;
         }
@@ -96,7 +97,7 @@ namespace Core.Renderer
                     yield break;
                 }
                 _spriteRenderer.sprite = sprite;
-                yield return new WaitForSeconds(1 / _fps);
+                yield return _spriteAnimationFrameWaiter;
             }
         }
     }
