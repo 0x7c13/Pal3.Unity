@@ -15,6 +15,7 @@ namespace Pal3.Scene.SceneObjects.Common
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
         public event EventHandler<Vector2Int> OnPlayerActorEntered;
+        public event EventHandler<Vector2Int> OnPlayerActorExited;
 
         private GameBoxRect _tileMapTriggerRect;
         private int _layerIndex;
@@ -56,7 +57,11 @@ namespace Pal3.Scene.SceneObjects.Common
 
             if (!isInsideTriggerArea)
             {
-                _wasTriggered = false;
+                if (_wasTriggered)
+                {
+                    _wasTriggered = false;
+                    OnPlayerActorExited?.Invoke(this, notification.Position);
+                }
                 return;
             }
 

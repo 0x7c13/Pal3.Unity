@@ -214,7 +214,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_captionRenderer);
 
             _playerGamePlayController = gameObject.AddComponent<PlayerGamePlayController>();
-            _playerGamePlayController.Init(_gameStateManager,
+            _playerGamePlayController.Init(_gameResourceProvider,
+                _gameStateManager,
                 _playerManager,
                 _teamManager,
                 _inputActions,

@@ -18,6 +18,7 @@ namespace Pal3.Player
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Renderer;
+    using Data;
     using Input;
     using MetaData;
     using Scene;
@@ -50,6 +51,7 @@ namespace Pal3.Player
         private const float MAX_JUMP_Y_DIFFERENTIAL = 3.5f;
         private const float JUMP_HEIGHT = 6f;
 
+        private GameResourceProvider _resourceProvider;
         private GameStateManager _gameStateManager;
         private PlayerManager _playerManager;
         private TeamManager _teamManager;
@@ -66,6 +68,7 @@ namespace Pal3.Player
         private Vector2Int? _lastKnownTilePosition;
         private int? _lastKnownLayerIndex;
         private string _lastKnownPlayerActorAction = string.Empty;
+        private int _jumpableAreaEnterCount;
         #if PAL3
         private int _longKuiLastKnownMode = 0;
         #endif
@@ -76,19 +79,24 @@ namespace Pal3.Player
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
 
+        private GameObject _jumpIndicatorGameObject;
+        private AnimatedBillboardRenderer _jumpIndicatorRenderer;
+
         private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
         private readonly List<(ScnSceneInfo sceneInfo,
             int actorNavIndex,
             Vector2Int actorTilePosition,
             Vector3 actorFacing)> _playerActorLastKnownSceneState = new ();
 
-        public void Init(GameStateManager gameStateManager,
+        public void Init(GameResourceProvider resourceProvider,
+            GameStateManager gameStateManager,
             PlayerManager playerManager,
             TeamManager teamManager,
             PlayerInputActions inputActions,
             SceneManager sceneManager,
             Camera mainCamera)
         {
+            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
             _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
             _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
@@ -787,6 +795,40 @@ namespace Pal3.Player
             }
         }
 
+        public void PlayerActorEnteredJumpableArea()
+        {
+            if (_jumpIndicatorGameObject == null)
+            {
+                var sprites = _resourceProvider.GetJumpIndicatorSprites();
+
+                _jumpIndicatorGameObject = new GameObject($"JumpIndicator");
+                _jumpIndicatorGameObject.transform.SetParent(_playerActorGameObject.transform, false);
+                _jumpIndicatorGameObject.transform.localScale = new Vector3(3f, 3f, 3f);
+                _jumpIndicatorGameObject.transform.localPosition = new Vector3(0f,
+                    _playerActorActionController.GetActorHeight() + 1f, 0f);
+
+                _jumpIndicatorRenderer = _jumpIndicatorGameObject.AddComponent<AnimatedBillboardRenderer>();
+                _jumpIndicatorRenderer.Init(sprites, 4);
+            }
+
+            if (_jumpableAreaEnterCount == 0)
+            {
+                _jumpIndicatorRenderer.StartAnimation(-1);
+            }
+
+            _jumpableAreaEnterCount++;
+        }
+
+        public void PlayerActorExitedJumpableArea()
+        {
+            _jumpableAreaEnterCount--;
+
+            if (_jumpableAreaEnterCount == 0 && _jumpIndicatorRenderer != null)
+            {
+                _jumpIndicatorRenderer.StopAnimation();
+            }
+        }
+
         public void Execute(PlayerInteractWithObjectCommand command)
         {
             Scene currentScene = _sceneManager.GetCurrentScene();
@@ -956,6 +998,14 @@ namespace Pal3.Player
                         disposeSource: true));
             }
 
+            // Dispose current game play indicator
+            if (_jumpIndicatorGameObject != null)
+            {
+                Destroy(_jumpIndicatorGameObject);
+                _jumpIndicatorGameObject = null;
+                _jumpIndicatorRenderer = null;
+            }
+
             Vector3? lastActivePlayerActorPosition = null;
             Quaternion? lastActivePlayerActorRotation = null;
             int? lastActivePlayerActorNavLayerIndex = null;
@@ -1015,6 +1065,12 @@ namespace Pal3.Player
             _lastKnownPosition = null;
             _lastKnownTilePosition = null;
             _lastKnownPlayerActorAction = string.Empty;
+
+            if (_jumpableAreaEnterCount > 0)
+            {
+                _jumpableAreaEnterCount--;
+                PlayerActorEnteredJumpableArea();
+            }
         }
 
         public void Execute(PlayerEnableInputCommand command)
@@ -1150,6 +1206,8 @@ namespace Pal3.Player
             _playerActorController = null;
             _playerActorActionController = null;
             _playerActorMovementController = null;
+
+            _jumpableAreaEnterCount = 0;
         }
 
         // TODO: Remove this

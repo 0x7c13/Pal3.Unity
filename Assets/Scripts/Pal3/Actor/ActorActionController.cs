@@ -329,6 +329,7 @@ namespace Pal3.Actor
             emojiGameObject.transform.localPosition = new Vector3(0f, GetActorHeight(), 0f);
 
             var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
+            billboardRenderer.Init(sprites, EMOJI_ANIMATION_FPS);
 
             #if PAL3
             var emojiSfx = ActorEmojiConstants.EmojiSfxInfo[emojiType];
@@ -338,9 +339,7 @@ namespace Pal3.Actor
             }
             #endif
 
-            yield return billboardRenderer.PlaySpriteAnimation(sprites,
-                EMOJI_ANIMATION_FPS,
-                ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
+            yield return billboardRenderer.PlayAnimation(ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
 
             Destroy(billboardRenderer);
             Destroy(emojiGameObject);

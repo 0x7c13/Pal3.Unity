@@ -68,11 +68,8 @@ namespace Pal3.Effect
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
                     : resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial();
-
-                StartCoroutine(_billboardRenderer.PlaySpriteAnimation(sprites,
-                    EffectConstants.AnimatedFireEffectFrameRate,
-                    -1,
-                    _spriteMaterial));
+                _billboardRenderer.Init(sprites, EffectConstants.AnimatedFireEffectFrameRate, _spriteMaterial);
+                _billboardRenderer.StartAnimation(-1);
             }
         }
 

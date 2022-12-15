@@ -6,13 +6,18 @@
 namespace Core.Renderer
 {
     using System.Collections;
+    using System.Threading;
     using UnityEngine;
 
     public class AnimatedBillboardRenderer : MonoBehaviour
     {
+        private Sprite[] _sprites;
+        private float _fps;
+        private bool _initialized;
+
         private StaticBillboardRenderer _billboardRenderer;
         private SpriteRenderer _spriteRenderer;
-        private bool _isPlaying;
+        private CancellationTokenSource _animationCts = new ();
 
         public void OnEnable()
         {
@@ -22,46 +27,76 @@ namespace Core.Renderer
 
         private void OnDisable()
         {
-            _isPlaying = false;
+            _animationCts.Cancel();
             Destroy(_billboardRenderer);
             Destroy(_spriteRenderer);
         }
 
-        public IEnumerator PlaySpriteAnimation(Sprite[] sprites,
+        public void Init(Sprite[] sprites,
             float fps,
-            int loopCount,
             Material material = default)
         {
-            _isPlaying = true;
+            _sprites = sprites;
+            _fps = fps;
 
             if (material != default)
             {
                 _spriteRenderer.material = material;
             }
 
+            _initialized = true;
+        }
+
+        public void StartAnimation(int loopCount = -1)
+        {
+            StartCoroutine(PlayAnimation(loopCount));
+        }
+
+        public IEnumerator PlayAnimation(int loopCount)
+        {
+            if (!_initialized) yield break;
+
+            _animationCts.Cancel();
+            _animationCts = new CancellationTokenSource();
+            var cancellationToken = _animationCts.Token;
+
+            _spriteRenderer.enabled = true;
+
             if (loopCount == -1)
             {
-                while (_isPlaying)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlaySpriteAnimationInternal(sprites, fps);
+                    yield return PlaySpriteAnimationInternal(cancellationToken);
                 }
             }
             else
             {
-                while (--loopCount >= 0 && _isPlaying)
+                while (--loopCount >= 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlaySpriteAnimationInternal(sprites, fps);
+                    yield return PlaySpriteAnimationInternal(cancellationToken);
                 }
             }
         }
 
-        private IEnumerator PlaySpriteAnimationInternal(Sprite[] sprites, float fps)
+        public void StopAnimation()
         {
-            foreach (Sprite sprite in sprites)
+            if (_initialized && !_animationCts.IsCancellationRequested)
             {
-                if (!_isPlaying) yield break;
+                _animationCts.Cancel();
+                _spriteRenderer.enabled = false;
+            }
+        }
+
+        private IEnumerator PlaySpriteAnimationInternal(CancellationToken cancellationToken)
+        {
+            foreach (Sprite sprite in _sprites)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
                 _spriteRenderer.sprite = sprite;
-                yield return new WaitForSeconds(1 / fps);
+                yield return new WaitForSeconds(1 / _fps);
             }
         }
     }

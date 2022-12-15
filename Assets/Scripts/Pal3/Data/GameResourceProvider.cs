@@ -341,7 +341,7 @@ namespace Pal3.Data
 
         public Sprite GetActorAvatarSprite(string actorName, string avatarName)
         {
-            var cacheKey = "ActorAvatar" + actorName + avatarName;
+            var cacheKey = $"ActorAvatar_{actorName}_{avatarName}";
 
             if (_spriteCache.ContainsKey(cacheKey))
             {
@@ -423,7 +423,7 @@ namespace Pal3.Data
 
             for (var i = 0; i < textureInfo.Frames; i++)
             {
-                var cacheKey = "EmojiSprite" + emojiType + i;
+                var cacheKey = $"EmojiSprite_{emojiType}_{i}";
 
                 if (_spriteCache.ContainsKey(cacheKey))
                 {
@@ -441,6 +441,38 @@ namespace Pal3.Data
                 sprites[i] = emojiSprite;
 
                 widthIndex += textureInfo.Width;
+            }
+
+            return sprites;
+        }
+
+        public Sprite[] GetJumpIndicatorSprites()
+        {
+            var relativePath = FileConstants.UISceneFolderVirtualPath + PathSeparator;
+            var textureProvider = GetTextureResourceProvider(relativePath);
+
+            var sprites = new Sprite[4];
+
+            for (var i = 0; i < 4; i++)
+            {
+                var cacheKey = $"JumpIndicatorSprite_{i}";
+
+                if (_spriteCache.ContainsKey(cacheKey))
+                {
+                    Sprite sprite = _spriteCache[cacheKey];
+                    if (sprite != null && sprite.texture != null)
+                    {
+                        sprites[i] = sprite;
+                        continue;
+                    }
+                }
+
+                var texture = textureProvider.GetTexture($"tiao{i}.tga");
+                var jumpIndicatorSprite = Sprite.Create(texture,
+                    new Rect(0f, 0f, 40f, 32f),
+                    new Vector2(0.5f, 0f));
+                _spriteCache[cacheKey] = jumpIndicatorSprite;
+                sprites[i] = jumpIndicatorSprite;
             }
 
             return sprites;
