@@ -73,7 +73,7 @@ namespace Pal3.Audio
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private IEnumerator PlaySceneMusic(string cityName, string sceneName)
+        private IEnumerator PlaySceneMusicAsync(string cityName, string sceneName)
         {
             var key = $"{cityName}_{sceneName}";
             var musicName = string.Empty;
@@ -103,10 +103,10 @@ namespace Pal3.Audio
             var musicFileVirtualPath = GetMusicFileVirtualPath(musicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
 
-            yield return PlayMusic(musicName, musicFileVirtualPath, musicFileCachePath, -1);
+            yield return PlayMusicAsync(musicName, musicFileVirtualPath, musicFileCachePath, -1);
         }
 
-        private IEnumerator PlayAudioClip(AudioSource audioSource,
+        private IEnumerator PlayAudioClipAsync(AudioSource audioSource,
             AudioClip audioClip,
             int loopCount,
             float interval,
@@ -147,7 +147,7 @@ namespace Pal3.Audio
         }
 
         // Spatial Audio
-        private IEnumerator AttachSfxToGameObjectAndPlaySfx(GameObject parent,
+        private IEnumerator AttachSfxToGameObjectAndPlaySfxAsync(GameObject parent,
             string sfxFilePath,
             string audioSourceName,
             int loopCount,
@@ -159,7 +159,7 @@ namespace Pal3.Audio
 
             AudioClip sfxAudioClip = null;
 
-            yield return _resourceProvider.LoadAudioClip(sfxFilePath, AudioType.WAV, streamAudio: false,
+            yield return _resourceProvider.LoadAudioClipAsync(sfxFilePath, AudioType.WAV, streamAudio: false,
                 audioClip => { sfxAudioClip = audioClip; });
 
             if (parent == null ||
@@ -197,10 +197,10 @@ namespace Pal3.Audio
             audioSource.rolloffMode = AudioRolloffMode.Linear;
             audioSource.maxDistance = 75f;
 
-            yield return PlayAudioClip(audioSource, sfxAudioClip, loopCount, interval, volume, cancellationToken);
+            yield return PlayAudioClipAsync(audioSource, sfxAudioClip, loopCount, interval, volume, cancellationToken);
         }
 
-        private IEnumerator StartWithDelay(
+        private IEnumerator StartWithDelayAsync(
             float delayInSeconds,
             IEnumerator coroutine,
             CancellationToken cancellationToken)
@@ -223,15 +223,15 @@ namespace Pal3.Audio
                    $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
         }
 
-        public IEnumerator PlayMusic(string musicName,
+        public IEnumerator PlayMusicAsync(string musicName,
             string musicFileVirtualPath,
             string musicFileCachePath,
             int loopCount)
         {
-            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(musicFileVirtualPath, musicFileCachePath);
+            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolderAsync(musicFileVirtualPath, musicFileCachePath);
 
             AudioClip musicClip = null;
-            yield return _resourceProvider.LoadAudioClip(musicFileCachePath, AudioType.MPEG, streamAudio: true,
+            yield return _resourceProvider.LoadAudioClipAsync(musicFileCachePath, AudioType.MPEG, streamAudio: true,
                 audioClip => { musicClip = audioClip; });
 
             // We need to check if current music clip is the same as the one we are trying to play,
@@ -240,7 +240,7 @@ namespace Pal3.Audio
             if (musicClip == null ||
                 !string.Equals(_currentMusicClipName, musicName, StringComparison.OrdinalIgnoreCase)) yield break;
 
-            yield return PlayAudioClip(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
+            yield return PlayAudioClipAsync(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
                 new CancellationToken(false)); // Should not stop music during scene switch
         }
 
@@ -311,7 +311,7 @@ namespace Pal3.Audio
             {
                 case 0: // start playing sfx indefinitely for the given sfxName
                     _playingSfxSourceNames.Add(sfxName);
-                    StartCoroutine(AttachSfxToGameObjectAndPlaySfx(_mainCamera.gameObject,
+                    StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
                         _resourceProvider.GetSfxFilePath(sfxName),
                         sfxName, // use sfx name as audio source name
                         loopCount: -1, // loop indefinitely
@@ -331,7 +331,7 @@ namespace Pal3.Audio
                     _playingSfxSourceNames.Add(sfxName);
                     var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
                     CancellationToken cancellationToken = _sceneAudioCts.Token;
-                    StartCoroutine(AttachSfxToGameObjectAndPlaySfx(_mainCamera.gameObject,
+                    StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
                         sfxFilePath,
                         sfxName, // use sfx name as audio source name
                         loopCount,
@@ -352,8 +352,8 @@ namespace Pal3.Audio
 
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(StartWithDelay(request.StartDelayInSeconds,
-                AttachSfxToGameObjectAndPlaySfx(request.Parent,
+            StartCoroutine(StartWithDelayAsync(request.StartDelayInSeconds,
+                AttachSfxToGameObjectAndPlaySfxAsync(request.Parent,
                     sfxFilePath,
                     request.AudioSourceName,
                     request.LoopCount,
@@ -408,7 +408,7 @@ namespace Pal3.Audio
             _currentMusicClipName = command.MusicName;
             var musicFileVirtualPath = GetMusicFileVirtualPath(command.MusicName);
             var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
-            StartCoroutine(PlayMusic(command.MusicName,
+            StartCoroutine(PlayMusicAsync(command.MusicName,
                 musicFileVirtualPath,
                 musicFileCachePath,
                 command.Loop == 0 ? -1 : command.Loop));
@@ -425,7 +425,7 @@ namespace Pal3.Audio
             _currentMusicClipName = string.Empty;
 
             ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
-            StartCoroutine(PlaySceneMusic(sceneInfo.CityName, sceneInfo.SceneName));
+            StartCoroutine(PlaySceneMusicAsync(sceneInfo.CityName, sceneInfo.SceneName));
         }
 
         public void Execute(ScenePreLoadingNotification command)
@@ -439,7 +439,7 @@ namespace Pal3.Audio
         {
             if (string.IsNullOrEmpty(_currentScriptMusic))
             {
-                StartCoroutine(PlaySceneMusic(command.NewSceneInfo.CityName, command.NewSceneInfo.SceneName));
+                StartCoroutine(PlaySceneMusicAsync(command.NewSceneInfo.CityName, command.NewSceneInfo.SceneName));
             }
         }
 

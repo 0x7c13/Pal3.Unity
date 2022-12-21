@@ -47,10 +47,10 @@ namespace Pal3.Effect
             _root.transform.localRotation = Quaternion.Euler(parentRotation.x + 90f, 0f, 0f);
             _root.transform.localScale = scale;
 
-            _animation = StartCoroutine(Animate());
+            _animation = StartCoroutine(AnimateAsync());
         }
 
-        private IEnumerator Animate()
+        private IEnumerator AnimateAsync()
         {
             while (isActiveAndEnabled)
             {

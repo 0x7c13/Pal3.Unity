@@ -92,11 +92,11 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId)
             {
-                yield return ExecuteScriptAndWaitForFinishIfAny();
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
                 yield break;
             }
 
@@ -153,7 +153,7 @@ namespace Pal3.Scene.SceneObjects
 
             var climbableHeight = upperPosition.y - lowerPosition.y;
 
-            yield return _playerGamePlayController.PlayerActorMoveToClimbableObjectAndClimb(climbableObject,
+            yield return _playerGamePlayController.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
                 climbUp,
                 false,
                 climbableHeight,

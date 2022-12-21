@@ -69,7 +69,7 @@ namespace Pal3.Video
             StopVideoInternal(_videoPlayer);
         }
 
-        public IEnumerator Play(string videoFilePath)
+        public IEnumerator PlayAsync(string videoFilePath)
         {
             _videoPlayer.waitForFirstFrame = true;
             _videoPlayer.url = videoFilePath;
@@ -109,7 +109,7 @@ namespace Pal3.Video
             try
             {
                 var videoFilePath = _resourceProvider.GetVideoFilePath(command.Name);
-                StartCoroutine(Play(videoFilePath));
+                StartCoroutine(PlayAsync(videoFilePath));
             }
             catch (Exception ex)
             {

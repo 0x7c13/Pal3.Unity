@@ -41,7 +41,7 @@ namespace Pal3.Scene.SceneObjects
             return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -51,7 +51,7 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
         }
     }
 }

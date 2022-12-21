@@ -20,7 +20,7 @@ namespace Core.DataLoader
         /// <param name="streamAudio">Create streaming AudioClip</param>
         /// <param name="callback">AudioClip callback invoker</param>
         /// <returns>IEnumerator</returns>
-        public static IEnumerator LoadAudioClip(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
+        public static IEnumerator LoadAudioClipAsync(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
         {
             if (filePath.StartsWith("/")) filePath = filePath[1..];
 

@@ -201,7 +201,7 @@ namespace Pal3.Actor
             }
 
             _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
-            _mv3AnimationRenderer.PlayAnimation(loopCount);
+            _mv3AnimationRenderer.StartAnimation(loopCount);
 
             _rendererBounds = _mv3AnimationRenderer.GetRendererBounds();
             _meshBounds = _mv3AnimationRenderer.GetMeshBounds();
@@ -310,7 +310,7 @@ namespace Pal3.Actor
             _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.7f);
         }
 
-        private IEnumerator ShowEmojiAnimation(ActorEmojiType emojiType)
+        private IEnumerator ShowEmojiAnimationAsync(ActorEmojiType emojiType)
         {
             if (!_actor.IsActive) yield break;
 
@@ -339,7 +339,7 @@ namespace Pal3.Actor
             }
             #endif
 
-            yield return billboardRenderer.PlayAnimation(ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
+            yield return billboardRenderer.PlayAnimationAsync(ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
 
             Destroy(billboardRenderer);
             Destroy(emojiGameObject);
@@ -532,14 +532,14 @@ namespace Pal3.Actor
         public void Execute(ActorShowEmojiCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
+            StartCoroutine(ShowEmojiAnimationAsync((ActorEmojiType) command.EmojiId));
         }
 
         #if PAL3A
         public void Execute(ActorShowEmoji2Command command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            StartCoroutine(ShowEmojiAnimation((ActorEmojiType) command.EmojiId));
+            StartCoroutine(ShowEmojiAnimationAsync((ActorEmojiType) command.EmojiId));
         }
         #endif
     }

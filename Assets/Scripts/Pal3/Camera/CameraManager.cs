@@ -255,10 +255,10 @@ namespace Pal3.Camera
             return Mathf.Rad2Deg * 2 * Mathf.Atan(Mathf.Tan((horizontalFov * Mathf.Deg2Rad) / 2f) / aspect);
         }
 
-        private IEnumerator Shake(float duration, float amplitude, WaitUntilCanceled waiter = null)
+        private IEnumerator ShakeAsync(float duration, float amplitude, WaitUntilCanceled waiter = null)
         {
             _cameraAnimationInProgress = true;
-            yield return AnimationHelper.ShakeTransform(_camera.transform,
+            yield return AnimationHelper.ShakeTransformAsync(_camera.transform,
                 duration,
                 amplitude,
                 false,
@@ -268,7 +268,7 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        private IEnumerator Move(Vector3 position,
+        private IEnumerator MoveAsync(Vector3 position,
             float duration,
             int mode,
             WaitUntilCanceled waiter = null,
@@ -278,7 +278,7 @@ namespace Pal3.Camera
             var curveType = (AnimationCurveType) mode;
             Transform cameraTransform = _camera.transform;
             Vector3 oldPosition = cameraTransform.position;
-            yield return AnimationHelper.MoveTransform(cameraTransform, position, duration, curveType, cancellationToken);
+            yield return AnimationHelper.MoveTransformAsync(cameraTransform, position, duration, curveType, cancellationToken);
             if (!cancellationToken.IsCancellationRequested)
             {
                 _lastLookAtPoint += position - oldPosition;
@@ -288,7 +288,7 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        private IEnumerator Orbit(Quaternion toRotation,
+        private IEnumerator OrbitAsync(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
             float distanceDelta,
@@ -297,7 +297,7 @@ namespace Pal3.Camera
         {
             _cameraAnimationInProgress = true;
             Vector3 lookAtPoint = _lastLookAtPoint;
-            yield return AnimationHelper.OrbitTransformAroundCenterPoint(_camera.transform,
+            yield return AnimationHelper.OrbitTransformAroundCenterPointAsync(_camera.transform,
                 toRotation,
                 lookAtPoint,
                 duration,
@@ -313,14 +313,14 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        private IEnumerator Rotate(Quaternion toRotation,
+        private IEnumerator RotateAsync(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
             WaitUntilCanceled waiter = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            yield return AnimationHelper.RotateTransform(_camera.transform,
+            yield return AnimationHelper.RotateTransformAsync(_camera.transform,
                 toRotation,
                 duration,
                 curveType,
@@ -329,7 +329,7 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        public IEnumerator Push(float distance,
+        public IEnumerator PushAsync(float distance,
             float duration,
             AnimationCurveType curveType,
             WaitUntilCanceled waiter = null,
@@ -342,7 +342,7 @@ namespace Pal3.Camera
             Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
             Transform cameraTransform = _camera.transform;
 
-            yield return AnimationHelper.MoveTransform(cameraTransform,
+            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
                 newPosition,
                 duration,
                 curveType,
@@ -356,7 +356,7 @@ namespace Pal3.Camera
             waiter?.CancelWait();
         }
 
-        public IEnumerator Fade(bool fadeIn,
+        public IEnumerator FadeAsync(bool fadeIn,
             float duration,
             Color color,
             WaitUntilCanceled waiter = null,
@@ -367,7 +367,7 @@ namespace Pal3.Camera
             float from = 1f, to = 0f;
             if (!fadeIn) { from = 0f; to = 1f; }
 
-            yield return AnimationHelper.EnumerateValue(from, to, duration, AnimationCurveType.Linear,
+            yield return AnimationHelper.EnumerateValueAsync(from, to, duration, AnimationCurveType.Linear,
                 alpha =>
             {
                 _curtainImage.color = new Color(color.r, color.g, color.b, alpha);
@@ -520,7 +520,7 @@ namespace Pal3.Camera
 
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(Shake(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
+            StartCoroutine(ShakeAsync(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
         }
 
         public void Execute(CameraOrbitCommand command)
@@ -530,7 +530,7 @@ namespace Pal3.Camera
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-            StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, 0f, waiter));
+            StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, 0f, waiter));
         }
 
         public void Execute(CameraRotateCommand command)
@@ -546,14 +546,14 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Rotate(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+                StartCoroutine(RotateAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
             #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Rotate(rotation,
+                StartCoroutine(RotateAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     waiter: null,
@@ -576,13 +576,13 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
             }
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Orbit(rotation,
+                StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     distanceDelta,
@@ -606,13 +606,13 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Orbit(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
             }
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(Orbit(rotation,
+                StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     distanceDelta,
@@ -628,7 +628,7 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(true, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeInWhiteCommand command)
@@ -637,7 +637,7 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(Fade(true, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(true, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutCommand command)
@@ -646,7 +646,7 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(false, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutWhiteCommand command)
@@ -655,7 +655,7 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(Fade(false, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(false, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraPushCommand command)
@@ -671,14 +671,14 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
-                StartCoroutine(Push(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+                StartCoroutine(PushAsync(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
             #if PAL3A
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
                 var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
-                StartCoroutine(Push(distance,
+                StartCoroutine(PushAsync(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     waiter: null,
@@ -703,7 +703,7 @@ namespace Pal3.Camera
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition));
-                StartCoroutine(Move(position, command.Duration, command.Mode, waiter));
+                StartCoroutine(MoveAsync(position, command.Duration, command.Mode, waiter));
             }
             #if PAL3A
             else
@@ -713,7 +713,7 @@ namespace Pal3.Camera
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition));
-                StartCoroutine(Move(position,
+                StartCoroutine(MoveAsync(position,
                     command.Duration,
                     command.Mode,
                     waiter: null,

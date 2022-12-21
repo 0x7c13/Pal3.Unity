@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             // There are doors controlled by the script for it's behaviour & animation which have
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
@@ -57,10 +57,10 @@ namespace Pal3.Scene.SceneObjects
             {
                 var timeScale = 2f; // Make the animation 2X faster for better user experience
                 var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
-                yield return GetCvdModelRenderer().PlayAnimation(timeScale, loopCount: 1, durationPercentage, true);
+                yield return GetCvdModelRenderer().PlayAnimationAsync(timeScale, loopCount: 1, durationPercentage, true);
             }
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
             _isInteractionInProgress = false;
         }
 

@@ -50,10 +50,10 @@ namespace Core.Renderer
 
         public void StartAnimation(int loopCount = -1)
         {
-            StartCoroutine(PlayAnimation(loopCount));
+            StartCoroutine(PlayAnimationAsync(loopCount));
         }
 
-        public IEnumerator PlayAnimation(int loopCount)
+        public IEnumerator PlayAnimationAsync(int loopCount)
         {
             if (!_initialized) yield break;
 
@@ -67,14 +67,14 @@ namespace Core.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlaySpriteAnimationInternal(cancellationToken);
+                    yield return PlaySpriteAnimationInternalAsync(cancellationToken);
                 }
             }
             else
             {
                 while (--loopCount >= 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlaySpriteAnimationInternal(cancellationToken);
+                    yield return PlaySpriteAnimationInternalAsync(cancellationToken);
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace Core.Renderer
             }
         }
 
-        private IEnumerator PlaySpriteAnimationInternal(CancellationToken cancellationToken)
+        private IEnumerator PlaySpriteAnimationInternalAsync(CancellationToken cancellationToken)
         {
             foreach (Sprite sprite in _sprites)
             {

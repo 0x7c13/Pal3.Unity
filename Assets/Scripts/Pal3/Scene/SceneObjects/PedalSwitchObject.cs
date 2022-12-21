@@ -89,7 +89,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject pedalSwitchGo = GetGameObject();
             var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
@@ -101,20 +101,20 @@ namespace Pal3.Scene.SceneObjects
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             // Play descending animation
             Vector3 finalPosition = pedalSwitchGo.transform.position;
             finalPosition.y -= DESCENDING_HEIGHT;
 
-            yield return AnimationHelper.MoveTransform(pedalSwitchGo.transform,
+            yield return AnimationHelper.MoveTransformAsync(pedalSwitchGo.transform,
                 finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
+            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
 
             _isInteractionInProgress = false;
         }

@@ -54,7 +54,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject carrierObject = GetGameObject();
             var isNearFirstWaypoint = IsNearFirstWaypoint();
@@ -82,7 +82,7 @@ namespace Pal3.Scene.SceneObjects
                     platformController.GetPlatformHeight(),
                     platformPosition.z);
 
-                yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
+                yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
             }
 
             // Move carrier to final waypoint
@@ -105,7 +105,7 @@ namespace Pal3.Scene.SceneObjects
                 for (int i = 1; i < waypoints.Count; i++)
                 {
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
-                    yield return AnimationHelper.MoveTransform(carrierObjectTransform,
+                    yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
                         waypoints[i],
                         duration,
                         AnimationCurveType.Linear);
@@ -131,7 +131,7 @@ namespace Pal3.Scene.SceneObjects
                 bool ignoreObstacle = true;
                 #endif
 
-                yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, ignoreObstacle);
+                yield return actorMovementController.MoveDirectlyToAsync(actorFinalPosition, 0, ignoreObstacle);
 
                 // Verify if actor is able to move to final position,
                 // if so, end the interaction
@@ -149,7 +149,7 @@ namespace Pal3.Scene.SceneObjects
             // Actor is not able to move to final position, meaning it is blocked by something.
             // Move the actor back to carrier. And move the carrier back to original position.
             {
-                yield return actorMovementController.MoveDirectlyTo(actorPositionOnCarrier, 0, true);
+                yield return actorMovementController.MoveDirectlyToAsync(actorPositionOnCarrier, 0, true);
 
                 waypoints.Reverse(); // Reverse the waypoints
                 Transform carrierObjectTransform = carrierObject.transform;
@@ -157,7 +157,7 @@ namespace Pal3.Scene.SceneObjects
                 for (int i = 1; i < waypoints.Count; i++)
                 {
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
-                    yield return AnimationHelper.MoveTransform(carrierObjectTransform,
+                    yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
                         waypoints[i],
                         duration,
                         AnimationCurveType.Linear);
@@ -170,7 +170,7 @@ namespace Pal3.Scene.SceneObjects
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
                     (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.4f);
 
-                yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, true);
+                yield return actorMovementController.MoveDirectlyToAsync(actorFinalPosition, 0, true);
             }
 
             SaveCurrentPosition();

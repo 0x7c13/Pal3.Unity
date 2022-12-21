@@ -129,7 +129,7 @@ namespace Pal3.UI
             return _totalTimeUsedBeforeSkippingTheLastDialogue < LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME;
         }
 
-        IEnumerator TypeSentence(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
+        IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
         {
             var charTypingAnimationDelay = new WaitForSeconds(waitSecondsBeforeRenderingChar);
 
@@ -180,7 +180,7 @@ namespace Pal3.UI
             else return isRightAligned ? _dialogueTextRight : _dialogueTextLeft;
         }
 
-        private IEnumerator RenderDialogueTextWithAnimation(TextMeshProUGUI dialogueTextUI,
+        private IEnumerator RenderDialogueTextWithAnimationAsync(TextMeshProUGUI dialogueTextUI,
             string text,
             float waitSecondsBeforeRenderingChar = 0.04f)
         {
@@ -192,7 +192,7 @@ namespace Pal3.UI
             {
                 _isDialogueRenderingAnimationInProgress = true;
                 yield return null;
-                yield return TypeSentence(dialogueTextUI, text, waitSecondsBeforeRenderingChar);
+                yield return TypeSentenceAsync(dialogueTextUI, text, waitSecondsBeforeRenderingChar);
             }
 
             _isDialogueRenderingAnimationInProgress = false;
@@ -205,7 +205,7 @@ namespace Pal3.UI
         /// </summary>
         /// <param name="text"></param>
         /// <returns>One or two sub dialogues</returns>
-        private IEnumerable<string> GetSubDialogues(string text)
+        private IEnumerable<string> GetSubDialoguesAsync(string text)
         {
             if (text.Contains('\n'))
             {
@@ -227,7 +227,7 @@ namespace Pal3.UI
             yield return text;
         }
 
-        public IEnumerator RenderDialogueAndWait(string text,
+        public IEnumerator RenderDialogueAndWaitAsync(string text,
             bool trackReactionTime,
             WaitUntilCanceled waitUntilCanceled,
             DialogueRenderActorAvatarCommand avatarCommand = null)
@@ -268,20 +268,20 @@ namespace Pal3.UI
             _dialogueCanvas.enabled = true;
             _isSkipDialogueRequested = false;
 
-            foreach (var dialogue in GetSubDialogues(text))
+            foreach (var dialogue in GetSubDialoguesAsync(text))
             {
-                IEnumerator renderDialogue = RenderDialogueTextWithAnimation(dialogueTextUI, dialogue);
+                IEnumerator renderDialogue = RenderDialogueTextWithAnimationAsync(dialogueTextUI, dialogue);
 
                 StartCoroutine(renderDialogue);
 
-                yield return SkipDialogueRequested();
+                yield return SkipDialogueRequestedAsync();
 
                 if (_isDialogueRenderingAnimationInProgress)
                 {
                     _isDialogueRenderingAnimationInProgress = false;
                     StopCoroutine(renderDialogue);
                     dialogueTextUI.text = dialogue;
-                    yield return SkipDialogueRequested();
+                    yield return SkipDialogueRequestedAsync();
                 }
             }
 
@@ -321,7 +321,7 @@ namespace Pal3.UI
             _selectionButtons.Clear();
         }
 
-        IEnumerator SkipDialogueRequested()
+        IEnumerator SkipDialogueRequestedAsync()
         {
             yield return new WaitUntil(() => _isSkipDialogueRequested);
             _isSkipDialogueRequested = false;
@@ -396,7 +396,7 @@ namespace Pal3.UI
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(
-                RenderDialogueAndWait(GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
+                RenderDialogueAndWaitAsync(GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 
@@ -405,7 +405,7 @@ namespace Pal3.UI
             var skipDialogueWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
-            _dialogueRenderQueue.Enqueue(RenderDialogueAndWait(GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 

@@ -55,7 +55,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (ObjectInfo.SwitchState == 1) yield break;
 
@@ -65,11 +65,11 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfxIfAny();
 
-            yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+            yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
+            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
             // Reset collider since bounds may change after animation
             _triggerController.SetupCollider(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);

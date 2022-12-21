@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -69,10 +69,10 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
             }
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
         }
 
         public override void Deactivate()

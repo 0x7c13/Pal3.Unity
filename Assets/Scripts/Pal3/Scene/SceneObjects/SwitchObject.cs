@@ -83,7 +83,7 @@ namespace Pal3.Scene.SceneObjects
             return Activated && distance < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -91,7 +91,7 @@ namespace Pal3.Scene.SceneObjects
             if (ctx.InitObjectId != ObjectInfo.Id && !IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
+                yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
             }
 
             var currentSwitchState = ObjectInfo.SwitchState;
@@ -120,7 +120,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true,
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,
                     currentSwitchState == 0 ? 1f : -1f);
 
                 // Remove collider to allow player to pass through
@@ -132,7 +132,7 @@ namespace Pal3.Scene.SceneObjects
 
             ExecuteScriptIfAny();
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
+            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
 
             // Special handling for master flower switch located in
             // the scene m16 4

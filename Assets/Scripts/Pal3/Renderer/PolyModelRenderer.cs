@@ -219,7 +219,7 @@ namespace Pal3.Renderer
             }
         }
 
-        private IEnumerator AnimateWaterTexture(Material material, Texture2D defaultTexture)
+        private IEnumerator AnimateWaterTextureAsync(Material material, Texture2D defaultTexture)
         {
             var waterTextures = new List<Texture2D> { defaultTexture };
 
@@ -246,7 +246,7 @@ namespace Pal3.Renderer
 
         private void StartWaterSurfaceAnimation(Material material, Texture2D defaultTexture)
         {
-            _waterAnimations.Add(StartCoroutine(AnimateWaterTexture(material, defaultTexture)));
+            _waterAnimations.Add(StartCoroutine(AnimateWaterTextureAsync(material, defaultTexture)));
         }
 
         private void OnDisable()

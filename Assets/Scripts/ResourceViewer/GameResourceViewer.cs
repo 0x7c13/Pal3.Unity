@@ -270,7 +270,7 @@ namespace ResourceViewer
                         Color.white);
                 }
 
-                mv3AnimationRenderer.PlayAnimation();
+                mv3AnimationRenderer.StartAnimation();
 
                 consoleTextUI.text = $"{filePath}";
 
@@ -314,10 +314,10 @@ namespace ResourceViewer
             }
 
             consoleTextUI.text = "正在解包全部CPK文件，请稍等...";
-            StartCoroutine(ExtractAllCpkArchivesInternal(outputFolderPath));
+            StartCoroutine(ExtractAllCpkArchivesInternalAsync(outputFolderPath));
         }
 
-        private IEnumerator ExtractAllCpkArchivesInternal(string outputFolderPath)
+        private IEnumerator ExtractAllCpkArchivesInternalAsync(string outputFolderPath)
         {
             var workerThread = new Thread(() =>
             {
@@ -394,15 +394,15 @@ namespace ResourceViewer
         private bool LoadMp3(string filePath)
         {
             nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.DirectorySeparator);
-            StartCoroutine(LoadMp3AudioClip(filePath,
+            StartCoroutine(LoadMp3AudioClipAsync(filePath,
                 _resourceProvider.GetMp3FilePathInCacheFolder(filePath)));
             return true;
         }
 
-        private IEnumerator LoadMp3AudioClip(string fileVirtualPath, string writePath)
+        private IEnumerator LoadMp3AudioClipAsync(string fileVirtualPath, string writePath)
         {
-            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolder(fileVirtualPath, writePath);
-            yield return _resourceProvider.LoadAudioClip(writePath, AudioType.MPEG, streamAudio: true, audioClip =>
+            yield return _resourceProvider.ExtractAndMoveMp3FileToCacheFolderAsync(fileVirtualPath, writePath);
+            yield return _resourceProvider.LoadAudioClipAsync(writePath, AudioType.MPEG, streamAudio: true, audioClip =>
             {
                 if (audioSource.isPlaying)
                 {

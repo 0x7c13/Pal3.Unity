@@ -75,7 +75,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             Tilemap tilemap = ctx.CurrentScene.GetTilemap();
 
@@ -101,16 +101,16 @@ namespace Pal3.Scene.SceneObjects
             var actorStandingPosition = new Vector3(platformCenterPosition.x, positions[fromLayer].y, platformCenterPosition.z);
             var platformFinalPosition = new Vector3(platformCenterPosition.x, positions[toLayer].y + platformHeight, platformCenterPosition.z);
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             var duration = Vector3.Distance(positions[fromLayer], positions[toLayer]) / ELEVATOR_SPPED;
-            yield return AnimationHelper.MoveTransform(elevatorGameObject.transform,
+            yield return AnimationHelper.MoveTransformAsync(elevatorGameObject.transform,
                 platformFinalPosition, duration, AnimationCurveType.Sine);
 
             ChangeAndSaveNavLayerIndex(toLayer);
             actorMovementController.SetNavLayer(toLayer);
 
-            yield return actorMovementController.MoveDirectlyTo(positions[toLayer], 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(positions[toLayer], 0, true);
         }
 
         public override void Deactivate()

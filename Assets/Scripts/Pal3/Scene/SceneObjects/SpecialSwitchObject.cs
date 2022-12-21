@@ -55,7 +55,7 @@ namespace Pal3.Scene.SceneObjects
             return Activated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject
                 .GetComponent<ActorController>().GetActor().Info.Id;
@@ -97,7 +97,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
             }
 
             ChangeAndSaveActivationState(false);

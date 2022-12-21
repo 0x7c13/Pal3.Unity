@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             PlaySfx("wb002");
 
@@ -84,7 +84,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 targetPosition = ctx.PlayerActorGameObject.transform.position +
                                      (_subObjectGameObject.transform.forward * 6f) + Vector3.up * 2f;
 
-            yield return AnimationHelper.MoveTransform(ctx.PlayerActorGameObject.transform,
+            yield return AnimationHelper.MoveTransformAsync(ctx.PlayerActorGameObject.transform,
                 targetPosition,
                 HIT_ANIMATION_DURATION);
 
@@ -174,10 +174,10 @@ namespace Pal3.Scene.SceneObjects
         private void Start()
         {
             _movementAnimationCts = new CancellationTokenSource();
-            _movementCoroutine = StartCoroutine(StartMovement(_movementAnimationCts.Token));
+            _movementCoroutine = StartCoroutine(StartMovementAsync(_movementAnimationCts.Token));
         }
 
-        private IEnumerator StartMovement(CancellationToken cancellationToken)
+        private IEnumerator StartMovementAsync(CancellationToken cancellationToken)
         {
             var startDelay = Random.Range(0f, 3.5f);
             yield return new WaitForSeconds(startDelay);
@@ -187,7 +187,7 @@ namespace Pal3.Scene.SceneObjects
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                yield return AnimationHelper.EnumerateValue(MIN_Z_POSITION,
+                yield return AnimationHelper.EnumerateValueAsync(MIN_Z_POSITION,
                     MAX_Z_POSITION,
                     MOVEMENT_ANIMATION_DURATION,
                     AnimationCurveType.Linear,
@@ -200,7 +200,7 @@ namespace Pal3.Scene.SceneObjects
 
                 yield return holdTimeWaiter;
 
-                yield return AnimationHelper.EnumerateValue(MAX_Z_POSITION,
+                yield return AnimationHelper.EnumerateValueAsync(MAX_Z_POSITION,
                     MIN_Z_POSITION,
                     MOVEMENT_ANIMATION_DURATION,
                     AnimationCurveType.Linear,

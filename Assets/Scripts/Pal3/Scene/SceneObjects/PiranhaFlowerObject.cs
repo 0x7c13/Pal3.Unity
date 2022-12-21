@@ -44,7 +44,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -56,7 +56,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wg008");
 
-            yield return GetCvdModelRenderer().PlayAnimation(2f, 1, 0.5f, true);
+            yield return GetCvdModelRenderer().PlayAnimationAsync(2f, 1, 0.5f, true);
 
             var portalToFlowerObjectId = ObjectInfo.Parameters[2];
 
@@ -72,7 +72,7 @@ namespace Pal3.Scene.SceneObjects
                 portalToFlowerObjectCvdModelRenderer.GetDefaultAnimationDuration() * 0.80f);
 
             // Play reverse animation on portal to flower object
-            yield return portalToFlowerObjectCvdModelRenderer.PlayAnimation(-2f, 1, 1f, false);
+            yield return portalToFlowerObjectCvdModelRenderer.PlayAnimationAsync(-2f, 1, 1f, false);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1));
@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wg008");
 
-            yield return  GetCvdModelRenderer().PlayAnimation(1.9f, 1, 1f, true);
+            yield return  GetCvdModelRenderer().PlayAnimationAsync(1.9f, 1, 1f, true);
 
             Vector3 worldPosition = GameBoxInterpreter.ToUnityPosition(
                 new Vector3(ObjectInfo.Parameters[0],

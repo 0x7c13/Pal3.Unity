@@ -61,7 +61,7 @@ namespace Pal3.Feature
             _skipCaptionRequested = true;
         }
 
-        private IEnumerator AnimateCaption(string textureName)
+        private IEnumerator AnimateCaptionAsync(string textureName)
         {
             _skipCaptionWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
@@ -74,7 +74,7 @@ namespace Pal3.Feature
             _captionImage.sprite = sprite;
             _captionImage.color = Color.clear;
 
-            yield return AnimationHelper.EnumerateValue(0, 1, CAPTION_ANIMATION_DURATION, AnimationCurveType.Linear,
+            yield return AnimationHelper.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION, AnimationCurveType.Linear,
                 alpha =>
                 {
                     _captionImage.color = new Color(1f, 1f, 1f, alpha);
@@ -93,13 +93,13 @@ namespace Pal3.Feature
 
         public void Execute(UIDisplayCaptionCommand command)
         {
-            StartCoroutine(AnimateCaption(command.TextureName));
+            StartCoroutine(AnimateCaptionAsync(command.TextureName));
         }
 
         #if PAL3A
         public void Execute(UIDisplayNextCaptionCommand command)
         {
-            StartCoroutine(AnimateCaption(command.TextureName));
+            StartCoroutine(AnimateCaptionAsync(command.TextureName));
         }
         #endif
     }

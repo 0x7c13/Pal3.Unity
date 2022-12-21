@@ -183,9 +183,9 @@ namespace Pal3.Actor
             }
         }
 
-        private IEnumerator AnimateScale(float toScale, float duration, WaitUntilCanceled waiter = null)
+        private IEnumerator AnimateScaleAsync(float toScale, float duration, WaitUntilCanceled waiter = null)
         {
-            yield return AnimationHelper.EnumerateValue(transform.localScale.x,
+            yield return AnimationHelper.EnumerateValueAsync(transform.localScale.x,
                 toScale, duration, AnimationCurveType.Linear, value =>
                 {
                     transform.localScale = new Vector3(value, value, value);
@@ -264,7 +264,7 @@ namespace Pal3.Actor
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(AnimateScale(command.Scale, 2f, waiter));
+            StartCoroutine(AnimateScaleAsync(command.Scale, 2f, waiter));
         }
 
         public void Execute(ActorSetYPositionCommand command)

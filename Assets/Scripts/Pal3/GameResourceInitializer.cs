@@ -105,14 +105,14 @@ namespace Pal3
             // TODO: let user to choose language? Or auto-detect encoding?
             var codepage = GBK_CODE_PAGE;
 
-            yield return InitResource(GetGameFolderPath(), crcHash, codepage);
+            yield return InitResourceAsync(GetGameFolderPath(), crcHash, codepage);
         }
 
-        private IEnumerator InitResource(string gameRootPath, CrcHash crcHash, int codepage)
+        private IEnumerator InitResourceAsync(string gameRootPath, CrcHash crcHash, int codepage)
         {
             ICpkFileSystem cpkFileSystem = null;
             // Init file system
-            yield return InitFileSystem(gameRootPath, crcHash, codepage, (fileSystem) =>
+            yield return InitFileSystemAsync(gameRootPath, crcHash, codepage, (fileSystem) =>
             {
                 cpkFileSystem = fileSystem;
             });
@@ -141,7 +141,7 @@ namespace Pal3
             GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;
 
-            yield return FadeTextAndBackgroundImage();
+            yield return FadeTextAndBackgroundImageAsync();
 
             if (Utility.IsDesktopDevice())
             {
@@ -162,7 +162,7 @@ namespace Pal3
             Destroy(this);
         }
 
-        private IEnumerator InitFileSystem(string gameRootPath,
+        private IEnumerator InitFileSystemAsync(string gameRootPath,
             CrcHash crcHash,
             int codepage,
             Action<ICpkFileSystem> callback)
@@ -216,20 +216,20 @@ namespace Pal3
 
                     if (!string.IsNullOrEmpty(gameRootPath))
                     {
-                        StartCoroutine(InitResource(gameRootPath, crcHash, codepage));
+                        StartCoroutine(InitResourceAsync(gameRootPath, crcHash, codepage));
                     }
                 }
                 #endif
             }
         }
 
-        private IEnumerator FadeTextAndBackgroundImage()
+        private IEnumerator FadeTextAndBackgroundImageAsync()
         {
             loadingText.text = string.Empty;
             loadingText.alpha = 0f;
             loadingText.enabled = false;
 
-            yield return AnimationHelper.EnumerateValue(1f, 0f, duration: 1f, AnimationCurveType.Linear,
+            yield return AnimationHelper.EnumerateValueAsync(1f, 0f, duration: 1f, AnimationCurveType.Linear,
                 value =>
             {
                 backgroundImage.color = new Color(0, 0, 0, value);

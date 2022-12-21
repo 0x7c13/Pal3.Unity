@@ -41,7 +41,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -49,14 +49,14 @@ namespace Pal3.Scene.SceneObjects
             if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
+                yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
             }
 
             PlaySfxIfAny();
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
             }
 
             EnableStandingPlatform();

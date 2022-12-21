@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (Activated && ModelType == SceneObjectModelType.CvdModel)
             {
@@ -66,19 +66,19 @@ namespace Pal3.Scene.SceneObjects
             {
                 if (gameObject.GetComponent<CvdModelRenderer>() is {} cvdModelRenderer)
                 {
-                    StartCoroutine(PlayAnimationRandomly(cvdModelRenderer));
+                    StartCoroutine(PlayAnimationRandomlyAsync(cvdModelRenderer));
                 }
             }
         }
 
         // Play animation with random wait time.
-        private IEnumerator PlayAnimationRandomly(CvdModelRenderer cvdModelRenderer)
+        private IEnumerator PlayAnimationRandomlyAsync(CvdModelRenderer cvdModelRenderer)
         {
             while (isActiveAndEnabled)
             {
                 yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
                 if (!isActiveAndEnabled) yield break;
-                yield return cvdModelRenderer.PlayOneTimeAnimation(true);
+                yield return cvdModelRenderer.PlayOneTimeAnimationAsync(true);
             }
         }
 

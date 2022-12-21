@@ -259,7 +259,7 @@ namespace Pal3.Data
         /// </summary>
         /// <param name="musicFileVirtualPath">music file virtual path</param>
         /// <param name="musicFileCachePath">music file path in cache folder</param>
-        public IEnumerator ExtractAndMoveMp3FileToCacheFolder(string musicFileVirtualPath, string musicFileCachePath)
+        public IEnumerator ExtractAndMoveMp3FileToCacheFolderAsync(string musicFileVirtualPath, string musicFileCachePath)
         {
             if (File.Exists(musicFileCachePath)) yield break;
 
@@ -304,7 +304,7 @@ namespace Pal3.Data
             return sfxFilePath;
         }
 
-        public IEnumerator LoadAudioClip(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
+        public IEnumerator LoadAudioClipAsync(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
         {
             var fileName = Path.GetFileName(filePath);
             var shouldCache = _audioClipCacheList.Contains(fileName);
@@ -318,7 +318,7 @@ namespace Pal3.Data
                 }
             }
 
-            yield return AudioClipLoader.LoadAudioClip(filePath, audioType, streamAudio, audioClip =>
+            yield return AudioClipLoader.LoadAudioClipAsync(filePath, audioType, streamAudio, audioClip =>
             {
                 if (shouldCache && audioClip != null)
                 {

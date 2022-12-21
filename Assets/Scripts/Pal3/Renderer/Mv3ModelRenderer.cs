@@ -196,7 +196,7 @@ namespace Pal3.Renderer
             _meshObjects[index].transform.SetParent(transform, false);
         }
 
-        public void PlayAnimation(int loopCount = -1, float fps = -1f)
+        public void StartAnimation(int loopCount = -1, float fps = -1f)
         {
             if (_renderMeshComponents == null)
             {
@@ -207,7 +207,7 @@ namespace Pal3.Renderer
 
             _animationCts = new CancellationTokenSource();
             _animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
-            _animation = StartCoroutine(PlayAnimationInternal(loopCount,
+            _animation = StartCoroutine(PlayAnimationInternalAsync(loopCount,
                 _animationDelay,
                 _animationCts.Token));
         }
@@ -300,20 +300,20 @@ namespace Pal3.Renderer
 
         public void ResumeAction()
         {
-            StartCoroutine(ResumeActionInternal(_animationDelay));
+            StartCoroutine(ResumeActionInternalAsync(_animationDelay));
         }
 
-        private IEnumerator ResumeActionInternal(WaitForSeconds animationDelay)
+        private IEnumerator ResumeActionInternalAsync(WaitForSeconds animationDelay)
         {
             if (!_isActionInHoldState) yield break;
             _animationCts = new CancellationTokenSource();
-            yield return PlayOneTimeAnimationInternal(_actionHoldingTick, _duration, animationDelay, _animationCts.Token);
+            yield return PlayOneTimeAnimationInternalAsync(_actionHoldingTick, _duration, animationDelay, _animationCts.Token);
             _isActionInHoldState = false;
             _actionHoldingTick = 0;
             AnimationLoopPointReached?.Invoke(this, -2);
         }
 
-        private IEnumerator PlayAnimationInternal(int loopCount,
+        private IEnumerator PlayAnimationInternalAsync(int loopCount,
             WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
@@ -323,7 +323,7 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _duration, animationDelay, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -331,7 +331,7 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _duration, animationDelay, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -341,18 +341,18 @@ namespace Pal3.Renderer
                     e.Name.Equals(MV3_ANIMATION_HOLD_EVENT_NAME, StringComparison.OrdinalIgnoreCase)).Tick;
                 if (_actionHoldingTick != 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, _actionHoldingTick, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, animationDelay, cancellationToken);
                     _isActionInHoldState = true;
                 }
                 else
                 {
-                    yield return PlayOneTimeAnimationInternal(startTick, _duration, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _duration, animationDelay, cancellationToken);
                 }
                 AnimationLoopPointReached?.Invoke(this, loopCount);
             }
         }
 
-        private IEnumerator PlayOneTimeAnimationInternal(uint startTick,
+        private IEnumerator PlayOneTimeAnimationInternalAsync(uint startTick,
             uint endTick,
             WaitForSeconds animationDelay,
             CancellationToken cancellationToken)

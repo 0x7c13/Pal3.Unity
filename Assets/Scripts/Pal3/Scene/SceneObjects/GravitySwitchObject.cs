@@ -75,7 +75,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject gravityTriggerGo = GetGameObject();
             var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
@@ -87,22 +87,22 @@ namespace Pal3.Scene.SceneObjects
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             PlaySfx("we026");
 
-            yield return GetCvdModelRenderer().PlayOneTimeAnimation(true);
+            yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
 
             PlaySfx("wg005");
 
             Vector3 finalPosition = gravityTriggerGo.transform.position;
             finalPosition.y -= DESCENDING_HEIGHT;
-            yield return AnimationHelper.MoveTransform(gravityTriggerGo.transform,
+            yield return AnimationHelper.MoveTransformAsync(gravityTriggerGo.transform,
                 finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAny(ctx);
+            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
         }
 
         public override void Deactivate()

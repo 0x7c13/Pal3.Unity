@@ -39,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wc007");
 
-            yield return AnimationHelper.MoveTransform(waterSurfaceGameObject.transform,
+            yield return AnimationHelper.MoveTransformAsync(waterSurfaceGameObject.transform,
                 finalPosition,
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);

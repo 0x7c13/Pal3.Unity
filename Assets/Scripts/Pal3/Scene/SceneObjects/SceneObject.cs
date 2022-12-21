@@ -244,7 +244,7 @@ namespace Pal3.Scene.SceneObjects
             return true;
         }
 
-        public virtual IEnumerator Interact(InteractionContext ctx)
+        public virtual IEnumerator InteractAsync(InteractionContext ctx)
         {
             // Do nothing
             yield break;
@@ -316,7 +316,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
         }
 
-        internal IEnumerator ExecuteScriptAndWaitForFinishIfAny()
+        internal IEnumerator ExecuteScriptAndWaitForFinishIfAnyAsync()
         {
             if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) yield break;
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
@@ -354,7 +354,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.SwitchState));
         }
 
-        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAny(InteractionContext ctx)
+        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAnyAsync(InteractionContext ctx)
         {
             if (ObjectInfo.LinkedObjectId == 0xFFFF) yield break;
 
@@ -368,7 +368,7 @@ namespace Pal3.Scene.SceneObjects
             }
             else
             {
-                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).Interact(ctx);
+                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).InteractAsync(ctx);
             }
         }
 
@@ -400,7 +400,7 @@ namespace Pal3.Scene.SceneObjects
                     GameBoxInterpreter.ToGameBoxYRotation(_sceneObjectGameObject.transform.rotation.eulerAngles.y)));
         }
 
-        internal IEnumerator MoveCameraToLookAtObjectAndFocus(GameObject playerActorGameObject)
+        internal IEnumerator MoveCameraToLookAtObjectAndFocusAsync(GameObject playerActorGameObject)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(0));
 
@@ -408,7 +408,7 @@ namespace Pal3.Scene.SceneObjects
             Transform cameraTransform = Camera.main!.transform;
             Vector3 cameraCurrentPosition = cameraTransform.position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
-            yield return AnimationHelper.MoveTransform(cameraTransform,
+            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
                 targetPosition, 1.5f, AnimationCurveType.Sine);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));

@@ -403,7 +403,7 @@ namespace Pal3.Player
 
             if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
             {
-                StartCoroutine(Jump());
+                StartCoroutine(JumpAsync());
             }
             else
             {
@@ -411,7 +411,7 @@ namespace Pal3.Player
             }
         }
 
-        private IEnumerator Jump(Vector3? jumpTargetPosition = null)
+        private IEnumerator JumpAsync(Vector3? jumpTargetPosition = null)
         {
             _gameStateManager.GoToState(GameState.Cutscene);
             _playerActorMovementController.CancelMovement();
@@ -486,7 +486,7 @@ namespace Pal3.Player
             var distanceOffset = Vector3.Distance(jumpTargetPosition.Value, currentPosition);
             var startingYPosition = currentPosition.y;
             var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
-            yield return AnimationHelper.EnumerateValue(0f, 1f, 1.1f, AnimationCurveType.Sine,
+            yield return AnimationHelper.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
                 value =>
                 {
                     Vector3 calculatedPosition = currentPosition + jumpDirection * (distanceOffset * value);
@@ -567,7 +567,7 @@ namespace Pal3.Player
                 {
                     //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithSceneObject(sceneObject);
+                    interactionRoutine = InteractWithSceneObjectAsync(sceneObject);
                 }
             }
 
@@ -594,7 +594,7 @@ namespace Pal3.Player
                 {
                     //Debug.DrawLine(actorCenterPosition, targetActorCenterPosition, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithActor(actorInfo.Key, actorInfo.Value);
+                    interactionRoutine = InteractWithActorAsync(actorInfo.Key, actorInfo.Value);
                 }
             }
 
@@ -604,7 +604,7 @@ namespace Pal3.Player
             }
         }
 
-        private IEnumerator InteractWithSceneObject(SceneObject sceneObject)
+        private IEnumerator InteractWithSceneObjectAsync(SceneObject sceneObject)
         {
             var correlationId = Guid.NewGuid();
             var requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
@@ -615,7 +615,7 @@ namespace Pal3.Player
                 _gameStateManager.AddGamePlayStateLocker(correlationId);
             }
 
-            yield return sceneObject.Interact(new InteractionContext
+            yield return sceneObject.InteractAsync(new InteractionContext
             {
                 CorrelationId = correlationId,
                 InitObjectId = sceneObject.ObjectInfo.Id,
@@ -630,7 +630,7 @@ namespace Pal3.Player
             }
         }
 
-        private IEnumerator InteractWithActor(int actorId, GameObject actorGameObject)
+        private IEnumerator InteractWithActorAsync(int actorId, GameObject actorGameObject)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
@@ -732,7 +732,7 @@ namespace Pal3.Player
             if (_sceneManager.GetCurrentScene()
                     .GetMeshColliders().Any(_ => _.Value == hit.collider))
             {
-                StartCoroutine(Jump(hit.point));
+                StartCoroutine(JumpAsync(hit.point));
             }
         }
 
@@ -834,7 +834,7 @@ namespace Pal3.Player
             Scene currentScene = _sceneManager.GetCurrentScene();
             if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
             {
-                StartCoroutine(InteractWithSceneObject(currentScene.GetSceneObject(command.SceneObjectId)));
+                StartCoroutine(InteractWithSceneObjectAsync(currentScene.GetSceneObject(command.SceneObjectId)));
             }
             else
             {
@@ -888,7 +888,7 @@ namespace Pal3.Player
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;
-            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimb(climbableObject, climbUp,
+            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject, climbUp,
                 climbAnimationOnly, climbableHeight, lowerPosition, lowerStandingPosition,
                 upperPosition, upperStandingPosition, currentPlayerLayer, currentPlayerLayer, () =>
                 {
@@ -896,7 +896,7 @@ namespace Pal3.Player
                 }));
         }
 
-        public IEnumerator PlayerActorMoveToClimbableObjectAndClimb(
+        public IEnumerator PlayerActorMoveToClimbableObjectAndClimbAsync(
             GameObject climbableObject,
             bool climbUp,
             bool climbOnly,
@@ -910,7 +910,7 @@ namespace Pal3.Player
             Action onFinished = null)
         {
             yield return _playerActorMovementController
-                .MoveDirectlyTo(climbUp ? lowerPosition : upperPosition, 0, true);
+                .MoveDirectlyToAsync(climbUp ? lowerPosition : upperPosition, 0, true);
 
             _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
@@ -934,7 +934,7 @@ namespace Pal3.Player
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(upperLayer);
-                    yield return _playerActorMovementController.MoveDirectlyTo(upperStandingPosition, 0, true);
+                    yield return _playerActorMovementController.MoveDirectlyToAsync(upperStandingPosition, 0, true);
                     _playerActorGameObject.transform.position = upperStandingPosition;
                 }
             }
@@ -952,7 +952,7 @@ namespace Pal3.Player
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(lowerLayer);
-                    yield return _playerActorMovementController.MoveDirectlyTo(lowerStandingPosition, 0, true);
+                    yield return _playerActorMovementController.MoveDirectlyToAsync(lowerStandingPosition, 0, true);
                     _playerActorGameObject.transform.position = lowerStandingPosition;
                 }
             }
@@ -1103,7 +1103,7 @@ namespace Pal3.Player
 
             if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
             {
-                StartCoroutine(Jump());
+                StartCoroutine(JumpAsync());
             }
             else
             {

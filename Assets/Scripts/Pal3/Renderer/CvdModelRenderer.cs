@@ -358,19 +358,19 @@ namespace Pal3.Renderer
             }
         }
 
-        public IEnumerator PlayOneTimeAnimation(bool startFromBeginning, float timeScale = 1f)
+        public IEnumerator PlayOneTimeAnimationAsync(bool startFromBeginning, float timeScale = 1f)
         {
-            yield return PlayAnimation(timeScale, 1, 1f, startFromBeginning);
+            yield return PlayAnimationAsync(timeScale, 1, 1f, startFromBeginning);
         }
 
-        public void StartOneTimeAnimation(bool startFromBeginning, Action onFinished = null)
+        public void StartOneTimeAnimation(bool startFromBeginning, float timeScale = 1f, Action onFinished = null)
         {
-            StartCoroutine(PlayAnimation(1f, 1, 1f, startFromBeginning, onFinished));
+            StartCoroutine(PlayAnimationAsync(timeScale, 1, 1f, startFromBeginning, onFinished));
         }
 
         public void LoopAnimation(float timeScale = 1f)
         {
-            StartCoroutine(PlayAnimation(timeScale, -1, 1f, true));
+            StartCoroutine(PlayAnimationAsync(timeScale, -1, 1f, true));
         }
 
         /// <summary>
@@ -381,7 +381,7 @@ namespace Pal3.Renderer
         /// <param name="durationPercentage">1f: full length of the animation, .5f: half of the animation</param>
         /// <param name="startFromBeginning">Start the animation from beginning instead of current time</param>
         /// <param name="onFinished">On animation finished playing</param>
-        public IEnumerator PlayAnimation(float timeScale,
+        public IEnumerator PlayAnimationAsync(float timeScale,
             int loopCount,
             float durationPercentage,
             bool startFromBeginning,

@@ -610,7 +610,7 @@ namespace Pal3.Scene
                 GameObject sceneObjectGo = sceneObject.GetGameObject();
                 Vector3 offset = GameBoxInterpreter.ToUnityPosition(gameBoxPositionOffset);
                 Vector3 toPosition = sceneObjectGo.transform.position + offset;
-                StartCoroutine(AnimationHelper.MoveTransform(sceneObjectGo.transform, toPosition, command.Duration));
+                StartCoroutine(AnimationHelper.MoveTransformAsync(sceneObjectGo.transform, toPosition, command.Duration));
 
                 // Save the new position since it is moved by the script
                 CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -647,12 +647,8 @@ namespace Pal3.Scene
                 GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
                 if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
-                    // Set timeScale to be -1f to reverse the animation
-                    cvdMeshRenderer.PlayAnimation(timeScale: -1f,
-                        loopCount: 1,
-                        1f,
-                        true,
-                        null);
+                    cvdMeshRenderer.SetCurrentTime(cvdMeshRenderer.GetDefaultAnimationDuration());
+                    cvdMeshRenderer.StartOneTimeAnimation(true, timeScale: -1f);
                 }
             }
             else

@@ -75,10 +75,10 @@ namespace Pal3.Actor
                 ? _actor.GetMovementAction(0)
                 : _actor.GetMovementAction(1));
 
-            StartCoroutine(Fly(targetPosition, duration, waiter));
+            StartCoroutine(FlyAsync(targetPosition, duration, waiter));
         }
 
-        private IEnumerator Fly(Vector3 targetPosition, float duration, WaitUntilCanceled waiter = null)
+        private IEnumerator FlyAsync(Vector3 targetPosition, float duration, WaitUntilCanceled waiter = null)
         {
             Vector3 oldPosition = transform.position;
 

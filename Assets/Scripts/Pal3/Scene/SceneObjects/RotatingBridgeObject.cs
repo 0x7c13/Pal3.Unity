@@ -57,9 +57,9 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
+            yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
 
             GameObject bridgeObject = GetGameObject();
             Vector3 eulerAngles = bridgeObject.transform.rotation.eulerAngles;
@@ -68,7 +68,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wg004");
 
-            yield return AnimationHelper.RotateTransform(bridgeObject.transform,
+            yield return AnimationHelper.RotateTransformAsync(bridgeObject.transform,
                 Quaternion.Euler(targetRotation), ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
 
             SaveYRotation();

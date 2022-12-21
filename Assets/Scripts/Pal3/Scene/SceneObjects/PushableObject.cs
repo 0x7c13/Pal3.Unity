@@ -102,7 +102,7 @@ namespace Pal3.Scene.SceneObjects
             return closetDirection;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -122,7 +122,7 @@ namespace Pal3.Scene.SceneObjects
             actorMovementController.CancelMovement();
             Vector3 actorHoldingPosition = pushableObjectTransform.position + -movingDirection * (movingDistance * 0.8f);
             actorHoldingPosition.y = playerActorTransform.position.y;
-            yield return actorMovementController.MoveDirectlyTo(actorHoldingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorHoldingPosition, 0, true);
 
             playerActorTransform.forward = movingDirection;
             var actorActionController = ctx.PlayerActorGameObject.GetComponent<ActorActionController>();
@@ -134,7 +134,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("we025", 3);
 
-            yield return AnimationHelper.EnumerateValue(0f, movingDistance, PUSH_ANIMATION_DURATION,
+            yield return AnimationHelper.EnumerateValueAsync(0f, movingDistance, PUSH_ANIMATION_DURATION,
                 AnimationCurveType.Linear, value =>
                 {
                     pushableObjectTransform.position = objectInitPosition + movingDirection * value;
@@ -143,9 +143,9 @@ namespace Pal3.Scene.SceneObjects
 
             // Move player actor back a bit to avoid collision with the pushable object again.
             Vector3 actorFinalPosition = actorInitPosition + movingDirection * (movingDistance - 1f);
-            yield return actorMovementController.MoveDirectlyTo(actorFinalPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorFinalPosition, 0, true);
 
-            yield return ExecuteScriptAndWaitForFinishIfAny();
+            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
             _isInteractionInProgress = false;
         }

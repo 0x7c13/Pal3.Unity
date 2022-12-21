@@ -31,7 +31,7 @@ namespace Pal3.Scene.SceneObjects
             return false;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -55,7 +55,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
+                GetCvdModelRenderer().StartOneTimeAnimation(true, 1f, () =>
                 {
                     ChangeAndSaveActivationState(false);
                 });

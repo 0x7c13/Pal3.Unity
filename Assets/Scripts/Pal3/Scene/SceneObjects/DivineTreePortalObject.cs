@@ -63,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
 
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
-            Pal3.Instance.StartCoroutine(CountDownForInteraction(_cancellationTokenSource.Token));
+            Pal3.Instance.StartCoroutine(CountDownForInteractionAsync(_cancellationTokenSource.Token));
         }
 
         private void OnPlayerActorExited(object sender, GameObject playerActorGameObject)
@@ -72,7 +72,7 @@ namespace Pal3.Scene.SceneObjects
             _cancellationTokenSource.Cancel();
         }
 
-        private IEnumerator CountDownForInteraction(CancellationToken cancellationToken)
+        private IEnumerator CountDownForInteractionAsync(CancellationToken cancellationToken)
         {
             yield return new WaitForSeconds(3f);
             if (cancellationToken.IsCancellationRequested) yield break;
@@ -80,7 +80,7 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             var upperLevelScriptId = ObjectInfo.Parameters[0];
             var lowerLevelScriptId = ObjectInfo.Parameters[1];
@@ -112,12 +112,12 @@ namespace Pal3.Scene.SceneObjects
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
-            yield return actorMovementController.MoveDirectlyTo(actorStandingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             Vector3 finalPosition = portalObject.transform.position;
             finalPosition.y += shouldGoUp.Value ? 10f : -10f;
 
-            yield return AnimationHelper.MoveTransform(platformController.transform,
+            yield return AnimationHelper.MoveTransformAsync(platformController.transform,
                 finalPosition,
                 MOVEMENT_ANIMATION_DURATION,
                 AnimationCurveType.Sine);

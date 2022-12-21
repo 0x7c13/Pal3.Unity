@@ -32,7 +32,7 @@ namespace Core.Animation
             };
         }
 
-        public static IEnumerator EnumerateValue(float from,
+        public static IEnumerator EnumerateValueAsync(float from,
             float to,
             float duration,
             AnimationCurveType curveType,
@@ -62,7 +62,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator MoveTransform(Transform target,
+        public static IEnumerator MoveTransformAsync(Transform target,
             Vector3 toPosition,
             float duration,
             AnimationCurveType curveType = AnimationCurveType.Linear,
@@ -83,7 +83,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator ShakeTransform(Transform target,
+        public static IEnumerator ShakeTransformAsync(Transform target,
             float duration,
             float amplitude,
             bool shakeOnXAxis,
@@ -107,7 +107,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator OrbitTransformAroundCenterPoint(Transform target,
+        public static IEnumerator OrbitTransformAroundCenterPointAsync(Transform target,
             Quaternion toRotation,
             Vector3 centerPoint,
             float duration,
@@ -143,7 +143,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator RotateTransform(Transform target,
+        public static IEnumerator RotateTransformAsync(Transform target,
             Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,

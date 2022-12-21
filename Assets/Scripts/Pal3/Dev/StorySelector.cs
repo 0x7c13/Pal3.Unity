@@ -2177,11 +2177,11 @@ namespace Pal3.Dev
             }
             else
             {
-                StartCoroutine(ExecuteDeferredCommandsAfterSceneScriptFinished(command.SceneScriptId));
+                StartCoroutine(ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(command.SceneScriptId));
             }
         }
 
-        private IEnumerator ExecuteDeferredCommandsAfterSceneScriptFinished(uint scriptId)
+        private IEnumerator ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(uint scriptId)
         {
             yield return new WaitUntilScriptFinished(PalScriptType.Scene, scriptId);
             if (_deferredExecutionCommands.Count > 0)

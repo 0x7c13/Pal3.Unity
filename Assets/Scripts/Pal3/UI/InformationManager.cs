@@ -88,11 +88,11 @@ namespace Pal3.UI
                 Mathf.Ceil(_fpsCounter.GetFps()));
         }
 
-        private IEnumerator AnimateNoteUI()
+        private IEnumerator AnimateNoteUIAsync()
         {
             _noteCanvasGroup.alpha = 1f;
             yield return new WaitForSeconds(NOTE_LAST_TIME_IN_SECONDS);
-            yield return AnimationHelper.EnumerateValue(
+            yield return AnimationHelper.EnumerateValueAsync(
                 1f, 0f, NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS, AnimationCurveType.Linear,
                 alpha =>
                 {
@@ -129,7 +129,7 @@ namespace Pal3.UI
                 _noteText.text = command.Note;
             }
 
-            _noteAnimation = StartCoroutine(AnimateNoteUI());
+            _noteAnimation = StartCoroutine(AnimateNoteUIAsync());
         }
 
         public void Execute(SceneLeavingCurrentSceneNotification command)

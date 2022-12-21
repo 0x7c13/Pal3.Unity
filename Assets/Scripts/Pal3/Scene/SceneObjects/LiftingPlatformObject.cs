@@ -59,11 +59,11 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        public override IEnumerator Interact(InteractionContext ctx)
+        public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            yield return MoveCameraToLookAtObjectAndFocus(ctx.PlayerActorGameObject);
+            yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
 
             GameObject liftingMechanismGameObject = GetGameObject();
             Vector3 position = liftingMechanismGameObject.transform.position;
@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            yield return AnimationHelper.EnumerateValue(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
+            yield return AnimationHelper.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
                 offset =>
                 {
                     liftingMechanismGameObject.transform.position =
