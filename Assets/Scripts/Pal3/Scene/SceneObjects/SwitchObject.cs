@@ -80,7 +80,10 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && distance < MAX_INTERACTION_DISTANCE && ObjectInfo.Times > 0;
+            return Activated &&
+                   distance < MAX_INTERACTION_DISTANCE &&
+                   ObjectInfo.Times > 0 &&
+                   ObjectInfo.Parameters[1] == 0;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
