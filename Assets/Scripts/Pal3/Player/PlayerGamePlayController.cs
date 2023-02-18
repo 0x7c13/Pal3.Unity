@@ -291,9 +291,9 @@ namespace Pal3.Player
         /// <summary>
         /// Adjust some degrees to the inputDirection to prevent player actor
         /// from hitting into the wall and gets blocked.
-        /// This process is purely for improving the user experience.
+        /// This process is purely for improving the gameplay experience.
         /// </summary>
-        /// <param name="inputDirection">Camera based user input direction</param>
+        /// <param name="inputDirection">User input direction in game space</param>
         /// <param name="movementMode">Player actor movement mode</param>
         /// <returns>MovementResult</returns>
         private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, int movementMode)
@@ -305,6 +305,9 @@ namespace Pal3.Player
             if (result != MovementResult.Blocked) return result;
 
             if (_playerActorMovementController.IsDuringCollision()) return result;
+
+            // Don't adjust direction if player actor is inside jumpable area
+            if (IsPlayerActorInsideJumpableArea()) return result;
 
             // Try change direction a little bit to see if it works
             for (var degrees = 2; degrees <= 80; degrees+= 2)
@@ -369,10 +372,7 @@ namespace Pal3.Player
             }
             else
             {
-                var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-                Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
-
-                if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+                if (IsPlayerActorInsideJumpableArea())
                 {
                     JumpToTapPosition();
                 }
@@ -398,10 +398,7 @@ namespace Pal3.Player
                 return;
             }
 
-            var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-            Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
-
-            if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+            if (IsPlayerActorInsideJumpableArea())
             {
                 StartCoroutine(JumpAsync());
             }
@@ -428,7 +425,7 @@ namespace Pal3.Player
                 if (tilemap.TryGetTile(position, layerIndex, out NavTile tile) &&
                     tile.IsWalkable())
                 {
-                    yPosition = Mathf.Abs(GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition));
+                    yPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
 
                     if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
 
@@ -829,6 +826,11 @@ namespace Pal3.Player
             }
         }
 
+        private bool IsPlayerActorInsideJumpableArea()
+        {
+            return _jumpableAreaEnterCount > 0;
+        }
+
         public void Execute(PlayerInteractWithObjectCommand command)
         {
             Scene currentScene = _sceneManager.GetCurrentScene();
@@ -1061,12 +1063,13 @@ namespace Pal3.Player
                 }
             }
 
-            // Reset known states
+            // Reset states
             _lastKnownPosition = null;
             _lastKnownTilePosition = null;
             _lastKnownPlayerActorAction = string.Empty;
 
-            if (_jumpableAreaEnterCount > 0)
+            // Resetting/re-applying jumpable area enter count for new player actor
+            if (IsPlayerActorInsideJumpableArea())
             {
                 _jumpableAreaEnterCount--;
                 PlayerActorEnteredJumpableArea();
@@ -1096,12 +1099,9 @@ namespace Pal3.Player
             }
         }
 
-        public void Execute(PlayerInteractionRequest command)
+        public void Execute(PlayerInteractionRequest _)
         {
-            var actorLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-            Vector2Int actorTilePosition = _playerActorMovementController.GetTilePosition();
-
-            if (_sceneManager.GetCurrentScene().IsPositionInsideJumpableArea(actorLayerIndex, actorTilePosition))
+            if (IsPlayerActorInsideJumpableArea())
             {
                 StartCoroutine(JumpAsync());
             }

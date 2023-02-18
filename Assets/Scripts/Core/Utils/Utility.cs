@@ -53,18 +53,13 @@ namespace Core.Utils
         {
             var structSize = Marshal.SizeOf(typeof(T));
             byte[] buffer = new byte[structSize];
-            stream.Read(buffer);
+            _ = stream.Read(buffer);
             return ReadStructInternal<T>(buffer);
         }
 
         public static T ReadStruct<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct
         {
             return ReadStructInternal<T>(bytes, offset);
-
-        }
-        public static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
-        {
-            return a1.SequenceEqual(a2);
         }
 
         private static unsafe T ReadStructInternal<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct

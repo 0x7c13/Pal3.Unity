@@ -172,11 +172,11 @@ namespace Pal3.Scene
 
         public void MarkFloorKindAsObstacle(NavFloorKind floorKind, bool isObstacle)
         {
-            for (int i = 0; i < _navFile.TileLayers.Length; i++)
+            for (var i = 0; i < _navFile.TileLayers.Length; i++)
             {
                 var newTiles = new NavTile[_navFile.TileLayers[i].Tiles.Length];
 
-                for (int j = 0; j < _navFile.TileLayers[i].Tiles.Length; j++)
+                for (var j = 0; j < _navFile.TileLayers[i].Tiles.Length; j++)
                 {
                     NavTile navTile = _navFile.TileLayers[i].Tiles[j];
 
