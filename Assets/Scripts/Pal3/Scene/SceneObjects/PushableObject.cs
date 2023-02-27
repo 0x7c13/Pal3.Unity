@@ -9,26 +9,36 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using System.Collections.Generic;
     using Actor;
+    using Command;
+    using Command.InternalCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Services;
     using Data;
     using MetaData;
+    using State;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
     {
-        private const float PUSH_ANIMATION_DURATION = 2.5f;
+        private const float PUSH_ANIMATION_DURATION = 2f;
 
         private BoundsTriggerController _triggerController;
 
+        private readonly SceneStateManager _sceneStateManager;
+
         private bool _isInteractionInProgress;
+
+        private int _bidirectionalPushableCurrentState;
+        private int _bidirectionalPushableGoalState;
 
         public PushableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+            _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -57,7 +67,26 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_isInteractionInProgress) return;
             _isInteractionInProgress = true;
-            RequestForInteraction();
+
+            GameObject pushableObject = GetGameObject();
+            Transform playerActorTransform =  playerGameObject.transform;
+            Transform pushableObjectTransform = pushableObject.transform;
+
+            Bounds bounds = GetMeshBounds();
+            float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
+
+            Vector3 relativeDirection = pushableObjectTransform.position - playerActorTransform.position;
+            relativeDirection.y = 0f; // Ignore y axis
+            Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
+
+            if (IsTargetDirectionValid(pushableObjectTransform.position, movingDirection, movingDistance))
+            {
+                RequestForInteraction();
+            }
+            else
+            {
+                _isInteractionInProgress = false;
+            }
         }
 
         private Vector3 GetClosetMovableDirection(Vector3 vector)
@@ -147,11 +176,93 @@ namespace Pal3.Scene.SceneObjects
 
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
+            // Trigger script based on bidirectional pushable object state
+            if (ObjectInfo.Parameters[0] == 2)
+            {
+                switch (_bidirectionalPushableGoalState)
+                {
+                    case -1:
+                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[1]);
+                        break;
+                    case 1:
+                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[2]);
+                        break;
+                    case 0:
+                        switch (_bidirectionalPushableCurrentState)
+                        {
+                            case -1:
+                                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[1]);
+                                break;
+                            case 1:
+                                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[2]);
+                                break;
+                        }
+                        break;
+                }
+
+                _bidirectionalPushableCurrentState = 0;
+                _bidirectionalPushableGoalState = 0;
+            }
+
+            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId)
+            {
+                SaveCurrentPosition();
+            }
+
             _isInteractionInProgress = false;
+        }
+
+        private bool IsTargetDirectionValid(Vector3 objectPosition, Vector3 direction, float distance)
+        {
+            if (ObjectInfo.Parameters[0] == 2)
+            {
+                if (_sceneStateManager.TryGetSceneObjectStateOverride(SceneInfo.CityName,
+                        SceneInfo.SceneName, ObjectInfo.Id, out SceneObjectStateOverride state) &&
+                    state.BidirectionalPushableObjectState.HasValue)
+                {
+                    switch (state.BidirectionalPushableObjectState.Value)
+                    {
+                        case 1:
+                            if (GetGameObject().transform.forward == direction)
+                            {
+                                return false;
+                            }
+                            break;
+                        case -1:
+                            if (GetGameObject().transform.forward == -direction)
+                            {
+                                return false;
+                            }
+                            break;
+                    }
+
+                    _bidirectionalPushableCurrentState = state.BidirectionalPushableObjectState.Value;
+                }
+
+                _bidirectionalPushableGoalState = _bidirectionalPushableCurrentState
+                                                  + (GetGameObject().transform.forward == direction ? 1 : -1);
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
+                        SceneInfo.CityName,
+                        SceneInfo.SceneName,
+                        ObjectInfo.Id,
+                        _bidirectionalPushableGoalState));
+
+                return true;
+            }
+            else
+            {
+
+            }
+
+            return true;
         }
 
         public override void Deactivate()
         {
+            _bidirectionalPushableCurrentState = 0;
+            _bidirectionalPushableGoalState = 0;
             _isInteractionInProgress = false;
 
             if (_triggerController != null)

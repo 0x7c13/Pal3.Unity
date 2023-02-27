@@ -135,7 +135,7 @@ namespace Pal3.Scene.SceneObjects
 
             ExecuteScriptIfAny();
 
-            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
+            yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
 
             // Special handling for master flower switch located in
             // the scene m16 4

@@ -67,7 +67,7 @@ namespace Pal3.Scene.SceneObjects
 
             yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
+            yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
 
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 

@@ -354,21 +354,21 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.SwitchState));
         }
 
-        internal IEnumerator ActivateOrInteractWithLinkedObjectIfAnyAsync(InteractionContext ctx)
+        internal IEnumerator ActivateOrInteractWithObjectIfAnyAsync(InteractionContext ctx, ushort objectId)
         {
-            if (ObjectInfo.LinkedObjectId == 0xFFFF) yield break;
+            if (objectId == 0xFFFF) yield break;
 
             Scene scene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
             var allActivatedSceneObjects = scene.GetAllActivatedSceneObjects();
 
-            if (!allActivatedSceneObjects.Contains(ObjectInfo.LinkedObjectId))
+            if (!allActivatedSceneObjects.Contains(objectId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneActivateObjectCommand(ObjectInfo.LinkedObjectId, 1));
+                    new SceneActivateObjectCommand(objectId, 1));
             }
             else
             {
-                yield return scene.GetSceneObject(ObjectInfo.LinkedObjectId).InteractAsync(ctx);
+                yield return scene.GetSceneObject(objectId).InteractAsync(ctx);
             }
         }
 

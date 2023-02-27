@@ -5,7 +5,9 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Common;
+    using Core.Animation;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
@@ -28,24 +30,22 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
-        // public override IEnumerator InteractAsync(InteractionContext ctx)
-        // {
-        //     if (!IsInteractableBasedOnTimesCount()) return;
-        //
-        //     CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand("wg005", 1));
-        //
-        //     if (ModelType == SceneObjectModelType.CvdModel)
-        //     {
-        //         GetCvdModelRenderer().StartOneTimeAnimation(true, () =>
-        //         {
-        //             ChangeActivationState(false);
-        //         });
-        //     }
-        //     else
-        //     {
-        //         ChangeActivationState(false);
-        //     }
-        // }
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            if (!IsInteractableBasedOnTimesCount()) yield break;
+
+            PlaySfx("wg005");
+
+            GameObject doorObject = GetGameObject();
+            Vector3 currentPosition = doorObject.transform.position;
+            Vector3 toPosition = currentPosition +
+                (ObjectInfo.SwitchState == 0 ? Vector3.down : Vector3.up) * (GetMeshBounds().size.y + 0.5f);
+
+            yield return AnimationHelper.MoveTransformAsync(doorObject.transform, toPosition, 2f);
+
+            ToggleAndSaveSwitchState();
+            SaveCurrentPosition();
+        }
 
         public override void Deactivate()
         {

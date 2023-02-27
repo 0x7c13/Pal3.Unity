@@ -24,6 +24,9 @@ namespace Pal3.State
         public Vector3? GameBoxPosition { get; set; }
         public float? GameBoxYRotation { get; set; }
 
+        // Object specific states
+        public int? BidirectionalPushableObjectState { get; set; }
+
         public ScnObjectInfo ApplyOverrides(ScnObjectInfo objectInfo)
         {
             if (SwitchState.HasValue) objectInfo.SwitchState = SwitchState.Value;
@@ -66,6 +69,11 @@ namespace Pal3.State
                 yield return new SceneSaveGlobalObjectYRotationCommand(
                     info.cityName, info.sceneName, info.objectId, GameBoxYRotation.Value);
             }
+            if (BidirectionalPushableObjectState.HasValue)
+            {
+                yield return new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
+                    info.cityName, info.sceneName, info.objectId, BidirectionalPushableObjectState.Value);
+            }
         }
     }
 
@@ -76,6 +84,7 @@ namespace Pal3.State
         ICommandExecutor<SceneSaveGlobalObjectLayerIndexCommand>,
         ICommandExecutor<SceneSaveGlobalObjectPositionCommand>,
         ICommandExecutor<SceneSaveGlobalObjectYRotationCommand>,
+        ICommandExecutor<SceneSaveGlobalBidirectionalPushableObjectStateCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private readonly Dictionary<(string cityName, string sceneName, int objectId), SceneObjectStateOverride>
@@ -162,6 +171,13 @@ namespace Pal3.State
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].GameBoxYRotation = command.GameBoxYRotation;
+        }
+
+        public void Execute(SceneSaveGlobalBidirectionalPushableObjectStateCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].BidirectionalPushableObjectState = command.State;
         }
 
         public void Execute(ResetGameStateCommand command)

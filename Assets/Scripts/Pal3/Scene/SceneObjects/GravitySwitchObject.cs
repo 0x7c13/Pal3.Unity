@@ -102,7 +102,7 @@ namespace Pal3.Scene.SceneObjects
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
-            yield return ActivateOrInteractWithLinkedObjectIfAnyAsync(ctx);
+            yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
         }
 
         public override void Deactivate()
