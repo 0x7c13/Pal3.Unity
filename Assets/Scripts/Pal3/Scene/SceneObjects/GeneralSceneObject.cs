@@ -12,7 +12,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
-    [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
     [ScnSceneObject(ScnSceneObjectType.Billboard)]
     [ScnSceneObject(ScnSceneObjectType.WindBlower)]

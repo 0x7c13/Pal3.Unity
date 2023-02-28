@@ -60,7 +60,7 @@ namespace Pal3.Camera
         private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
         private const float CAMERA_SMOOTH_FOLLOW_TIME = 0.2f;
-        private const float CAMERA_SMOOTH_FOLLOW_MAX_DISTANCE = 3f;
+        private const float CAMERA_SMOOTH_FOLLOW_MAX_DISTANCE = 7f;
 
         private Camera _camera;
         private Image _curtainImage;

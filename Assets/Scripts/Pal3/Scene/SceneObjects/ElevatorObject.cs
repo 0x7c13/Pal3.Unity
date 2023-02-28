@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Elevator)]
     public sealed class ElevatorObject : SceneObject
     {
-        private const float ELEVATOR_SPEED = 6f;
+        private const float ELEVATOR_SPEED = 9f;
 
         private TilemapTriggerController _triggerController;
 

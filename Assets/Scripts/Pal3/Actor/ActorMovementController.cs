@@ -478,7 +478,17 @@ namespace Pal3.Actor
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 
-            Vector3 newPosition = Vector3.MoveTowards(currentPosition, targetPosition, moveSpeed * Time.deltaTime);
+            var currentXZPosition = new Vector2(currentPosition.x, currentPosition.z);
+            var targetXZPosition = new Vector2(targetPosition.x, targetPosition.z);
+
+            Vector2 goalXZPosition = Vector2.MoveTowards(currentXZPosition, targetXZPosition,moveSpeed * Time.deltaTime);
+
+            float goalYPosition = Mathf.Abs(targetPosition.y - currentPosition.y) < 0.01f ? targetPosition.y :
+                (Vector2.Distance(goalXZPosition, currentXZPosition) /
+                 Vector2.Distance(targetXZPosition, currentXZPosition)) *
+                 (targetPosition.y - currentPosition.y) + currentPosition.y;
+
+            var newPosition = new Vector3(goalXZPosition.x, goalYPosition, goalXZPosition.y);
 
             // If actor is moving towards a collider, check if the new position is still inside the collider.
             // If yes, don't move the actor. This is to prevent the actor from moving through the collider

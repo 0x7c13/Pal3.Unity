@@ -61,6 +61,15 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            // Fix a bug in m22-4 where the script can interact with the platform
+            // even though the platform is already activated with correct height.
+            // This is to prevent the unwanted interaction triggered by the script
+            // since the platform is not interactable in this scene by the player anyway.
+            if (SceneInfo.Is("m22", "4"))
+            {
+                yield break;
+            }
+
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
             yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
