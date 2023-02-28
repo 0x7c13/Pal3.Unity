@@ -57,6 +57,20 @@ namespace Pal3.Scene.SceneObjects
             {
                 sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }
+            // All general objects (except indicators) in M22 scene should block player
+            if (ObjectInfo.Type == ScnSceneObjectType.General &&
+                SceneInfo.IsCity("m22") &&
+                ObjectInfo.Parameters[0] == 0)
+            {
+                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
+            // All general objects (except indicators) in M24 scene should block player
+            if (ObjectInfo.Type == ScnSceneObjectType.General &&
+                SceneInfo.IsCity("m24") &&
+                ObjectInfo.Parameters[0] == 0)
+            {
+                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
             #endif
 
             return sceneGameObject;
