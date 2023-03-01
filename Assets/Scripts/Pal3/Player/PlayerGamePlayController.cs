@@ -276,8 +276,8 @@ namespace Pal3.Player
             var movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
             if (movement == Vector2.zero) return;
 
-            var movementMode = movement.magnitude < 0.7f ? 0 : 1;
-            ActorActionType movementAction = movementMode == 0 ? ActorActionType.Walk : ActorActionType.Run;
+            MovementMode movementMode = movement.magnitude < 0.7f ? MovementMode.Walk : MovementMode.Run;
+            ActorActionType movementAction = movementMode == MovementMode.Walk ? ActorActionType.Walk : ActorActionType.Run;
             _playerActorMovementController.CancelMovement();
             Transform cameraTransform = _camera.transform;
             Vector3 inputDirection = cameraTransform.forward * movement.y +
@@ -296,7 +296,7 @@ namespace Pal3.Player
         /// <param name="inputDirection">User input direction in game space</param>
         /// <param name="movementMode">Player actor movement mode</param>
         /// <returns>MovementResult</returns>
-        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, int movementMode)
+        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, MovementMode movementMode)
         {
             Vector3 playerActorPosition = _playerActorGameObject.transform.position;
             MovementResult result = _playerActorMovementController.MoveTowards(

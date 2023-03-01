@@ -131,8 +131,8 @@ namespace Pal3.Actor
 
                 _actorActionController.PerformAction(
                     Vector3.Distance(myNewPosition, transform.position) < FOLLOW_TARGET_FLY_SPEED_CHANEG_DISTANCE - 1f
-                        ? _actor.GetMovementAction(0)
-                        : _actor.GetMovementAction(1));
+                        ? _actor.GetMovementAction(MovementMode.Walk)
+                        : _actor.GetMovementAction(MovementMode.Run));
 
                 transform.position = Vector3.MoveTowards(transform.position,
                     myNewPosition,

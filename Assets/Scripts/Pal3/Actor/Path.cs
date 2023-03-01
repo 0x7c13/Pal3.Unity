@@ -17,7 +17,7 @@ namespace Pal3.Actor
 
     public class Path
     {
-        public int MovementMode { get; private set; }
+        public MovementMode MovementMode { get; private set; }
 
         public EndOfPathActionType EndOfPathAction { get; private set; }
 
@@ -28,7 +28,7 @@ namespace Pal3.Actor
         private int _currentWayPointIndex;
 
         public void SetPath(Vector3[] wayPoints,
-            int movementMode,
+            MovementMode movementMode,
             EndOfPathActionType endOfPathAction,
             bool ignoreObstacle)
         {

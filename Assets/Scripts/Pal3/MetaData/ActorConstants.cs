@@ -49,7 +49,7 @@ namespace Pal3.MetaData
         Stand = 0,        // 站立
         Walk,             // 行走
         Run,              // 奔跑
-        Back,             // 后退
+        StepBack,         // 后退
         Jump,             // 起跳
         Climb,            // 攀爬
         ClimbDown,        // 向下爬
@@ -119,7 +119,7 @@ namespace Pal3.MetaData
         Stand = 0,        // 站立
         Walk,             // 行走
         Run,              // 奔跑
-        Back,             // 后退
+        StepBack,         // 后退
         Jump,             // 起跳
         Climb,            // 攀爬
         ClimbDown,        // 向下爬
@@ -263,7 +263,7 @@ namespace Pal3.MetaData
             { ActorActionType.Stand,             "c01"  },   // 站立
             { ActorActionType.Walk,              "c02"  },   // 行走
             { ActorActionType.Run,               "c03"  },   // 奔跑
-            { ActorActionType.Back,              "c15"  },   // 后退
+            { ActorActionType.StepBack,          "c15"  },   // 后退
             { ActorActionType.Jump,              "c04"  },   // 起跳
             { ActorActionType.Climb,             "c05"  },   // 攀爬
             { ActorActionType.ClimbDown,         "c052" },   // 向下攀爬
@@ -333,7 +333,7 @@ namespace Pal3.MetaData
             { ActorActionType.Stand,             "c01"  },   // 站立
             { ActorActionType.Walk,              "c02"  },   // 行走
             { ActorActionType.Run,               "c03"  },   // 奔跑
-            { ActorActionType.Back,              "c15"  },   // 后退
+            { ActorActionType.StepBack,          "c15"  },   // 后退
             { ActorActionType.Jump,              "c05"  },   // 起跳
             { ActorActionType.Climb,             "c04a" },   // 向上攀爬
             { ActorActionType.ClimbDown,         "c04b" },   // 向下攀爬
@@ -412,7 +412,7 @@ namespace Pal3.MetaData
             { ActorActionType.Stand,             WeaponArmType.None },   // 站立
             { ActorActionType.Walk,              WeaponArmType.None },   // 行走
             { ActorActionType.Run,               WeaponArmType.None },   // 奔跑
-            { ActorActionType.Back,              WeaponArmType.None },   // 后退
+            { ActorActionType.StepBack,          WeaponArmType.None },   // 后退
             { ActorActionType.Jump,              WeaponArmType.None },   // 起跳
             { ActorActionType.Climb,             WeaponArmType.None },   // 攀爬
             { ActorActionType.ClimbDown,         WeaponArmType.None },   // 向下攀爬
@@ -482,7 +482,7 @@ namespace Pal3.MetaData
             { ActorActionType.Stand,             WeaponArmType.None },   // 站立
             { ActorActionType.Walk,              WeaponArmType.None },   // 行走
             { ActorActionType.Run,               WeaponArmType.None },   // 奔跑
-            { ActorActionType.Back,              WeaponArmType.None },   // 后退
+            { ActorActionType.StepBack,          WeaponArmType.None },   // 后退
             { ActorActionType.Jump,              WeaponArmType.None },   // 起跳
             { ActorActionType.Climb,             WeaponArmType.None },   // 向上攀爬
             { ActorActionType.ClimbDown,         WeaponArmType.None },   // 向下攀爬

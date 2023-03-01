@@ -40,38 +40,39 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            // Don't cast shadow on the map entrance/exit indicator.
-            // Those indicators are general objects which have Info.Parameters[0] set to 1
-            if (ObjectInfo.Type == ScnSceneObjectType.General && ObjectInfo.Parameters[0] == 1)
+            if (ObjectInfo.Type == ScnSceneObjectType.General)
             {
-                foreach (MeshRenderer meshRenderer in sceneGameObject.GetComponentsInChildren<MeshRenderer>())
+                // Don't cast shadow on the map entrance/exit indicator.
+                // Those indicators are general objects which have Info.Parameters[0] set to 1
+                if (ObjectInfo.Parameters[0] == 1)
                 {
-                    meshRenderer.receiveShadows = false;
+                    foreach (MeshRenderer meshRenderer in sceneGameObject.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        meshRenderer.receiveShadows = false;
+                    }
                 }
-            }
 
-            #if PAL3
-            // The general object 15 in M15 2 scene should block player
-            if (ObjectInfo is { Type: ScnSceneObjectType.General, Id: 15 } &&
-                SceneInfo.Is("m15", "2"))
-            {
-                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                #if PAL3
+                // The general object 15 in M15 2 scene should block player
+                if (ObjectInfo is { Id: 15 } &&
+                    SceneInfo.Is("m15", "2"))
+                {
+                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+                // All general objects (except indicators) in M22 scene should block player
+                if (SceneInfo.IsCity("m22") &&
+                    ObjectInfo.Parameters[0] == 0)
+                {
+                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+                // All general objects (except indicators) in M24 scene should block player
+                if (SceneInfo.IsCity("m24") &&
+                    ObjectInfo.Parameters[0] == 0)
+                {
+                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+                #endif
             }
-            // All general objects (except indicators) in M22 scene should block player
-            if (ObjectInfo.Type == ScnSceneObjectType.General &&
-                SceneInfo.IsCity("m22") &&
-                ObjectInfo.Parameters[0] == 0)
-            {
-                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            }
-            // All general objects (except indicators) in M24 scene should block player
-            if (ObjectInfo.Type == ScnSceneObjectType.General &&
-                SceneInfo.IsCity("m24") &&
-                ObjectInfo.Parameters[0] == 0)
-            {
-                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            }
-            #endif
 
             return sceneGameObject;
         }

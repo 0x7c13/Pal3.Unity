@@ -57,15 +57,16 @@ namespace Pal3.Scene.SceneObjects
                 waypoints[i] = GameBoxInterpreter.ToUnityPosition(ObjectInfo.Path.GameBoxWaypoints[i]);
             }
 
+            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
+            movementController.CancelMovement();
+
             var actorController = playerActorGameObject.GetComponent<ActorController>();
             uint originalSpeed = actorController.GetActor().Info.Speed;
 
             // Temporarily set the speed to a higher value to make the actor slide
             actorController.GetActor().Info.Speed = ACTOR_SLIDE_SPEED;
 
-            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
-            movementController.CancelMovement();
-            movementController.SetupPath(waypoints, 1, EndOfPathActionType.Idle, ignoreObstacle: true);
+            movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
 
             while (movementController.IsMovementInProgress())
             {

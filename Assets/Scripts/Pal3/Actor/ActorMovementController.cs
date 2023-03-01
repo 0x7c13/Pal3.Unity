@@ -451,10 +451,12 @@ namespace Pal3.Actor
                 targetPosition = tapPoints.First().Value.point;
             }
 
-            var moveMode = isDoubleTap ? 1 : 0;
-            // Keep running when actor is already in running mode
-            if (_currentPath?.MovementMode == 1) moveMode = 1;
-            SetupPath(new[] { targetPosition }, moveMode, EndOfPathActionType.Idle, ignoreObstacle: false);
+            MovementMode mode = isDoubleTap ? MovementMode.Run : MovementMode.Walk;
+
+            // Keep running when actor is already in running mode regardless of the tap behavior
+            if (_currentPath?.MovementMode == MovementMode.Run) mode = MovementMode.Run;
+
+            SetupPath(new[] { targetPosition }, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
         private bool IsNearPortalAreaOfLayer(Vector3 position, int layerIndex)
@@ -468,13 +470,13 @@ namespace Pal3.Actor
                 _tilemap.IsInsidePortalArea(tilePosition + DirectionUtils.ToVector2Int(direction), layerIndex));
         }
 
-        public MovementResult MoveTowards(Vector3 targetPosition, int movementMode, bool ignoreObstacle = false)
+        public MovementResult MoveTowards(Vector3 targetPosition, MovementMode movementMode, bool ignoreObstacle = false)
         {
             Transform currentTransform = transform;
             Vector3 currentPosition = currentTransform.position;
 
             // TODO: Use speed info from datascript\scene.txt file when _actor.Info.Speed == 0
-            var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == 1 ? 11f : 5f) : _actor.Info.Speed / 11f;
+            var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == MovementMode.Run ? 11f : 5f) : _actor.Info.Speed / 11f;
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 
@@ -532,7 +534,7 @@ namespace Pal3.Actor
             return MovementResult.InProgress;
         }
 
-        private void RotateTowards(Vector3 currentPosition, Vector3 targetPosition, int movementMode)
+        private void RotateTowards(Vector3 currentPosition, Vector3 targetPosition, MovementMode movementMode)
         {
             Transform currentTransform = transform;
 
@@ -541,8 +543,8 @@ namespace Pal3.Actor
                 0f,
                 targetPosition.z - currentPosition.z).normalized;
 
-            // Special handling for moving backwards
-            if (movementMode == 2)
+            // Special handling for stepping backwards
+            if (movementMode == MovementMode.StepBack)
             {
                 currentTransform.forward = moveDirection;
             }
@@ -657,7 +659,7 @@ namespace Pal3.Actor
         }
 
         public void SetupPath(Vector3[] wayPoints,
-            int mode,
+            MovementMode mode,
             EndOfPathActionType endOfPathAction,
             bool ignoreObstacle,
             string specialAction = null)
@@ -690,8 +692,8 @@ namespace Pal3.Actor
                 }
             }
 
-            // Special handling for final rotation after moving backwards
-            if (_currentPath.MovementMode == 2)
+            // Special handling for final rotation after stepping backwards
+            if (_currentPath.MovementMode == MovementMode.StepBack)
             {
                 Transform actorTransform = transform;
                 actorTransform.forward = -actorTransform.forward;
@@ -700,7 +702,7 @@ namespace Pal3.Actor
             _currentPath.Clear();
         }
 
-        private IEnumerator WaitForSomeTimeAndFollowPathAsync(Vector3[] waypoints, int mode, CancellationToken cancellationToken)
+        private IEnumerator WaitForSomeTimeAndFollowPathAsync(Vector3[] waypoints, MovementMode mode, CancellationToken cancellationToken)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
             yield return new WaitUntil(() => !_isMovementOnHold);
@@ -710,7 +712,7 @@ namespace Pal3.Actor
             }
         }
 
-        public IEnumerator MoveDirectlyToAsync(Vector3 position, int mode, bool ignoreObstacle)
+        public IEnumerator MoveDirectlyToAsync(Vector3 position, MovementMode mode, bool ignoreObstacle)
         {
             _currentPath.Clear();
             MovementResult result;
@@ -724,7 +726,7 @@ namespace Pal3.Actor
         }
 
         private IEnumerator FindPathAndMoveToTilePositionAsync(Vector2Int toTilePosition,
-            int mode,
+            MovementMode mode,
             EndOfPathActionType endOfPathAction,
             CancellationToken cancellationToken,
             bool moveTowardsPositionIfNoPathFound = false,
@@ -791,12 +793,12 @@ namespace Pal3.Actor
             SetupPath(wayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
         }
 
-        private void MoveToTilePosition(Vector2Int position, int mode)
+        private void MoveToTilePosition(Vector2Int position, MovementMode mode)
         {
             MoveTo(_tilemap.GetWorldPosition(position, _currentLayerIndex), mode);
         }
 
-        private void MoveTo(Vector3 position, int mode)
+        private void MoveTo(Vector3 position, MovementMode mode)
         {
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
@@ -865,7 +867,7 @@ namespace Pal3.Actor
             _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePositionAsync(new Vector2Int(command.TileXPosition, command.TileYPosition),
-                command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
+                (MovementMode)command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
 
         #if PAL3A
@@ -883,7 +885,7 @@ namespace Pal3.Actor
         public void Execute(ActorMoveToCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            MoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition), command.Mode);
+            MoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition), (MovementMode)command.Mode);
         }
 
         public void Execute(ActorMoveBackwardsCommand command)
@@ -891,7 +893,7 @@ namespace Pal3.Actor
             if (_actor.Info.Id != command.ActorId) return;
             var moveDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
-            MoveTo(newPosition, 2);
+            MoveTo(newPosition, MovementMode.StepBack);
         }
 
         public void Execute(ActorMoveOutOfScreenCommand command)
@@ -904,7 +906,7 @@ namespace Pal3.Actor
 
             StartCoroutine(FindPathAndMoveToTilePositionAsync(
                 new Vector2Int(command.TileXPosition, command.TileYPosition),
-                command.Mode,
+                (MovementMode)command.Mode,
                 EndOfPathActionType.DisposeSelf,
                 _movementCts.Token,
                 true));

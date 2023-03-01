@@ -352,6 +352,8 @@ namespace Pal3.Data
             Texture2D texture = GetActorAvatarTexture(
                 actorName, avatarName);
 
+            if (texture == null) return null;
+
             var avatarSprite = Sprite.Create(texture,
                 // Cut 2f to hide artifacts near edges for some of the avatar textures
                 new Rect(2f, 0f, texture.width - 2f, texture.height),
@@ -620,7 +622,7 @@ namespace Pal3.Data
                 ActorConstants.ActionNames[ActorActionType.Stand],
                 ActorConstants.ActionNames[ActorActionType.Walk],
                 ActorConstants.ActionNames[ActorActionType.Run],
-                ActorConstants.ActionNames[ActorActionType.Back],
+                ActorConstants.ActionNames[ActorActionType.StepBack],
             };
 
             foreach (var name in ActorConstants.MainActorNameMap.Values)

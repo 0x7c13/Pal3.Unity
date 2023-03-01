@@ -72,8 +72,8 @@ namespace Pal3.Actor
             var duration = distance / DefaultFlySpeed;
 
             _actionController.PerformAction(distance < FLYING_MOVEMENT_MODE_SWITCH_DISTANCE
-                ? _actor.GetMovementAction(0)
-                : _actor.GetMovementAction(1));
+                ? _actor.GetMovementAction(MovementMode.Walk)
+                : _actor.GetMovementAction(MovementMode.Run));
 
             StartCoroutine(FlyAsync(targetPosition, duration, waiter));
         }

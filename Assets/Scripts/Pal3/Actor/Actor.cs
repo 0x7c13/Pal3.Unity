@@ -70,17 +70,17 @@ namespace Pal3.Actor
             return ActorConstants.ActionNames[ActorActionType.NpcStand1];
         }
 
-        public string GetMovementAction(int mode)
+        public string GetMovementAction(MovementMode mode)
         {
             if (IsMainActor())
             {
                 return mode switch
                 {
-                    0 => ActorConstants.ActionNames[ActorActionType.Walk],
-                    1 => HasAction(ActorConstants.ActionNames[ActorActionType.Run])
+                    MovementMode.Walk => ActorConstants.ActionNames[ActorActionType.Walk],
+                    MovementMode.Run => HasAction(ActorConstants.ActionNames[ActorActionType.Run])
                         ? ActorConstants.ActionNames[ActorActionType.Run]
                         : ActorConstants.ActionNames[ActorActionType.Walk],
-                    2 => ActorConstants.ActionNames[ActorActionType.Back],
+                    MovementMode.StepBack => ActorConstants.ActionNames[ActorActionType.StepBack],
                     _ => ActorConstants.ActionNames[ActorActionType.Walk]
                 };
             }
@@ -92,8 +92,8 @@ namespace Pal3.Actor
 
             return mode switch
             {
-                0 => ActorConstants.ActionNames[ActorActionType.NpcWalk],
-                1 => ActorConstants.ActionNames[ActorActionType.NpcRun],
+                MovementMode.Walk => ActorConstants.ActionNames[ActorActionType.NpcWalk],
+                MovementMode.Run => ActorConstants.ActionNames[ActorActionType.NpcRun],
                 _ => ActorConstants.ActionNames[ActorActionType.NpcWalk]
             };
         }
