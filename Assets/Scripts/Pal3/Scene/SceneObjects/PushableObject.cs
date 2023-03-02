@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Common;
     using Core.Animation;
+    using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
@@ -27,48 +28,63 @@ namespace Pal3.Scene.SceneObjects
         private const float PUSH_ANIMATION_DURATION = 2f;
 
         private BoundsTriggerController _triggerController;
+        private StandingPlatformController _standingPlatformController;
 
         private readonly SceneStateManager _sceneStateManager;
+        private readonly SceneManager _sceneManager;
 
         private bool _isInteractionInProgress;
 
         private int _bidirectionalPushableCurrentState;
         private int _bidirectionalPushableGoalState;
 
+        private readonly RaycastHit[] _raycastHits = new RaycastHit[10];
+
         public PushableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
+            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
 
-            #if PAL3
-            // Temporarily disable pushable boxes in PAL3 m02 3 scene.
-            // TODO: proper impl
-            if (SceneInfo.Is("m02", "3"))
-            {
-                return new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_Placeholder");
-            }
-            #endif
-
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
+            Bounds meshBounds = GetMeshBounds();
+
             _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
-            _triggerController.SetupCollider(GetMeshBounds(), false);
+            _triggerController.SetupCollider(meshBounds, false);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+
+            // For pushable object player can stand on
+            // Boxes in PAL3 M24-3 scene
+            if (ObjectInfo.Parameters[0] == 1)
+            {
+                Bounds platformBounds = meshBounds;
+                platformBounds.size *= 1.5f;
+                _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
+                _standingPlatformController.SetBounds(platformBounds, ObjectInfo.LayerIndex, -0.3f);
+            }
 
             return sceneGameObject;
         }
 
         private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
         {
+            GameObject pushableObject = GetGameObject();
+
+            // Don't allow player to push object if it's not on the same "layer"
+            if (Math.Abs(playerGameObject.transform.position.y - pushableObject.transform.position.y) > 1f)
+            {
+                return;
+            }
+
             if (_isInteractionInProgress) return;
             _isInteractionInProgress = true;
 
-            GameObject pushableObject = GetGameObject();
             Transform playerActorTransform =  playerGameObject.transform;
             Transform pushableObjectTransform = pushableObject.transform;
 
@@ -79,7 +95,7 @@ namespace Pal3.Scene.SceneObjects
             relativeDirection.y = 0f; // Ignore y axis
             Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
 
-            if (IsTargetDirectionValid(pushableObjectTransform.position, movingDirection, movingDistance))
+            if (CanPushTo(movingDirection, movingDistance))
             {
                 RequestForInteraction();
             }
@@ -91,22 +107,24 @@ namespace Pal3.Scene.SceneObjects
 
         private Vector3 GetClosetMovableDirection(Vector3 vector)
         {
-            List<Vector3> validDirections;
+            List<Vector3> validPushingDirections;
+            GameObject pushableObject = GetGameObject();
 
+            // Bi-directional pushable object
             if (ObjectInfo.Parameters[0] == 2)
             {
-                var forwardDirection = GetGameObject().transform.forward;
-                validDirections = new List<Vector3>()
+                Vector3 forwardDirection = pushableObject.transform.forward;
+                validPushingDirections = new List<Vector3>()
                 {
                     forwardDirection,
                     -forwardDirection,
                 };
             }
-            else
+            else // Normal pushable object
             {
-                var forwardDirection = GetGameObject().transform.forward;
-                var rightDirection = GetGameObject().transform.right;
-                validDirections = new List<Vector3>()
+                Vector3 forwardDirection = pushableObject.transform.forward;
+                Vector3 rightDirection = pushableObject.transform.right;
+                validPushingDirections = new List<Vector3>()
                 {
                     forwardDirection,
                     -forwardDirection,
@@ -115,12 +133,12 @@ namespace Pal3.Scene.SceneObjects
                 };
             }
 
-            float smallestAngle = float.MaxValue;
-            Vector3 closetDirection = Vector3.forward;
+            var smallestAngle = float.MaxValue;
+            Vector3 closetDirection = validPushingDirections[0];
 
-            foreach (Vector3 direction in validDirections)
+            foreach (Vector3 direction in validPushingDirections)
             {
-                float facingAngle = Vector3.Angle(direction, vector);
+                var facingAngle = Vector3.Angle(direction, vector);
                 if (facingAngle < smallestAngle)
                 {
                     smallestAngle = facingAngle;
@@ -212,8 +230,11 @@ namespace Pal3.Scene.SceneObjects
             _isInteractionInProgress = false;
         }
 
-        private bool IsTargetDirectionValid(Vector3 objectPosition, Vector3 direction, float distance)
+        private bool CanPushTo(Vector3 direction, float distance)
         {
+            GameObject pushableObject = GetGameObject();
+
+            // Bi-directional pushable object
             if (ObjectInfo.Parameters[0] == 2)
             {
                 if (_sceneStateManager.TryGetSceneObjectStateOverride(SceneInfo.CityName,
@@ -223,13 +244,13 @@ namespace Pal3.Scene.SceneObjects
                     switch (state.BidirectionalPushableObjectState.Value)
                     {
                         case 1:
-                            if (GetGameObject().transform.forward == direction)
+                            if (pushableObject.transform.forward == direction)
                             {
                                 return false;
                             }
                             break;
                         case -1:
-                            if (GetGameObject().transform.forward == -direction)
+                            if (pushableObject.transform.forward == -direction)
                             {
                                 return false;
                             }
@@ -240,7 +261,7 @@ namespace Pal3.Scene.SceneObjects
                 }
 
                 _bidirectionalPushableGoalState = _bidirectionalPushableCurrentState
-                                                  + (GetGameObject().transform.forward == direction ? 1 : -1);
+                                                  + (pushableObject.transform.forward == direction ? 1 : -1);
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
@@ -251,12 +272,77 @@ namespace Pal3.Scene.SceneObjects
 
                 return true;
             }
-            else
+            else // Normal pushable object
             {
+                // Check if target position is blocked by another object or not
+                // distance x 2 because we need to consider the size of the other
+                // pushable object as well
+                if (IsDirectionBlockedByOtherObjects(direction, distance * 2f)) return false;
 
+                // Also check if other direction has blocker or not since player
+                // needs to walk to the pushing position first
+                if (IsDirectionBlockedByOtherObjects(-direction, distance)) return false;
+
+                // Check if there is any pushable object on top of the current one
+                if (IsDirectionBlockedByOtherObjects(Vector3.up, distance * 2f)) return false;
+
+                // Check if there is any pushable object below the current one
+                if (IsDirectionBlockedByOtherObjects(Vector3.down, distance * 2f)) return false;
+
+                // Check if target position is within the scene bounds
+                Vector3 targetPosition = pushableObject.transform.position + direction * distance;
+                if (!_sceneManager.GetCurrentScene()
+                        .GetTilemap()
+                        .TryGetTile(targetPosition, ObjectInfo.LayerIndex, out NavTile tile) ||
+                    !tile.IsWalkable())
+                {
+                    return false;
+                }
             }
 
             return true;
+        }
+
+        private bool IsDirectionBlockedByOtherObjects(Vector3 direction, float distanceCheckRange)
+        {
+            GameObject pushableObject = GetGameObject();
+
+            Bounds meshBounds = GetMeshBounds();
+            Bounds rendererBounds = GetRendererBounds();
+
+            var hitCount = Physics.BoxCastNonAlloc(rendererBounds.center,
+                new Vector3(meshBounds.size.x / 2f * 0.8f,
+                    meshBounds.size.y / 2f * 0.8f,  // 0.8f is to make sure the boxcast is
+                    meshBounds.size.z / 2f * 0.8f), // smaller than the mesh for tolerance
+                direction,
+                _raycastHits,
+                Quaternion.LookRotation(direction));
+
+            int raycastOnlyLayer = LayerMask.NameToLayer("RaycastOnly");
+
+            if (hitCount > 0)
+            {
+                for (var i = 0; i < hitCount; i++)
+                {
+                    GameObject colliderObject = _raycastHits[i].collider.gameObject;
+
+                    // Ignore raycast only objects (NavMesh in this case) or self
+                    if (colliderObject.layer == raycastOnlyLayer ||
+                        colliderObject.gameObject == pushableObject)
+                    {
+                        continue;
+                    }
+
+                    // Can't push if there is an object in front of it within the distance
+                    if (Vector3.Distance(pushableObject.transform.position,
+                            colliderObject.transform.position) < distanceCheckRange)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public override void Deactivate()
