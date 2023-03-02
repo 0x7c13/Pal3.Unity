@@ -357,6 +357,11 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_triggerController);
             }
 
+            if (_standingPlatformController != null)
+            {
+                Object.Destroy(_standingPlatformController);
+            }
+
             base.Deactivate();
         }
     }

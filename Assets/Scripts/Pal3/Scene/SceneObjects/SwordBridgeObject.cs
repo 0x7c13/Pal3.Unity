@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System;
+    using System.Collections;
     using Common;
     using Core.DataReader.Scn;
     using Data;
@@ -15,6 +16,8 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
     public sealed class SwordBridgeObject : SceneObject
     {
+        private const float EXTEND_LENGTH = 6f;
+
         private StandingPlatformController _platformController;
 
         public SwordBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -31,7 +34,9 @@ namespace Pal3.Scene.SceneObjects
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
             var heightOffset = 0f;
 
-            if (ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
+            #if PAL3
+            if (SceneInfo.IsCity("m11") &&
+                ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
             {
                 bounds = new Bounds
                 {
@@ -39,7 +44,8 @@ namespace Pal3.Scene.SceneObjects
                     size = new Vector3(6f, 1f, 14.5f),
                 };
             }
-            else if (ObjectInfo.Name.Equals("_g.pol", StringComparison.OrdinalIgnoreCase))
+            else if (SceneInfo.IsCity("m15") &&
+                     ObjectInfo.Name.Equals("_g.pol", StringComparison.OrdinalIgnoreCase))
             {
                 bounds = new Bounds
                 {
@@ -48,11 +54,29 @@ namespace Pal3.Scene.SceneObjects
                 };
                 heightOffset = -1.7f;
             }
+            #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, heightOffset);
 
             return sceneGameObject;
+        }
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            PlaySfx("wg005");
+
+            GameObject bridgeObject = GetGameObject();
+            bridgeObject.transform.Translate(new Vector3(0f, 0f, EXTEND_LENGTH));
+
+            SaveCurrentPosition();
+
+            yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+        }
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted()
+        {
+            return false; // Bridge can extend itself in gameplay mode
         }
 
         public override void Deactivate()

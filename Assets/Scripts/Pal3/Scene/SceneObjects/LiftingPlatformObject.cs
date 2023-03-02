@@ -126,6 +126,8 @@ namespace Pal3.Scene.SceneObjects
                         GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
             }
 
+            yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+
             ResetCamera();
         }
 

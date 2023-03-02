@@ -263,11 +263,13 @@ namespace Pal3.Scene
                 return;
             }
 
+            int raycastOnlyLayer = LayerMask.NameToLayer("RaycastOnly");
+
             for (var i = 0; i < NavFile.FaceLayers.Length; i++)
             {
                 var navMesh = new GameObject($"NavMesh_Layer_{i}")
                 {
-                    layer = LayerMask.NameToLayer("RaycastOnly")
+                    layer = raycastOnlyLayer
                 };
                 navMesh.transform.SetParent(_parent.transform, false);
 

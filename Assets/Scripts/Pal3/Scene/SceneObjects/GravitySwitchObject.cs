@@ -66,6 +66,10 @@ namespace Pal3.Scene.SceneObjects
             // Check if total team members are equal to or greater than required headcount
             if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
             {
+                // Gravity switch can only be activated once, but there is one in PAL3 M24-3
+                // scene that can be activated multiple times, we should fix it here.
+                if (ObjectInfo.Times == 0xFF) ObjectInfo.Times = 1;
+
                 if (!IsInteractableBasedOnTimesCount()) return;
                 RequestForInteraction();
             }
@@ -103,6 +107,8 @@ namespace Pal3.Scene.SceneObjects
                 AnimationCurveType.Sine);
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+
+            ExecuteScriptIfAny();
         }
 
         public override void Deactivate()
