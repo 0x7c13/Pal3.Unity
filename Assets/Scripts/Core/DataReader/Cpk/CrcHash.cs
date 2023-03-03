@@ -25,17 +25,11 @@ namespace Core.DataReader.Cpk
             for (uint i = 0; i < CRC_TABLE_MAX; i++)
             {
                 var crcAccum = i << 24;
-
                 for (var j = 0; j < 8; j++)
                 {
-                    if ((crcAccum & 0x80000000L) != 0)
-                    {
-                        crcAccum = (crcAccum << 1) ^ POLYNOMIAL;
-                    }
-                    else
-                    {
-                        crcAccum = (crcAccum << 1);
-                    }
+                    crcAccum = (crcAccum & 0x80000000L) != 0 ?
+                        (crcAccum << 1) ^ POLYNOMIAL :
+                        crcAccum << 1;
                 }
                 CrcTable[i] = crcAccum;
             }
@@ -51,35 +45,29 @@ namespace Core.DataReader.Cpk
 
         private unsafe uint ComputeCrc32HashInternal(byte[] data)
         {
-            if (!_initialized) throw new Exception("CrcHash not initialized yet.");
+            if (!_initialized) throw new InvalidOperationException("CrcHash not initialized yet.");
 
-            var length = data.Length;
-            if (length == 0 || data[0] == 0) return 0;
-
-            var index = 0;
-            fixed (byte* srcStart = &data[0])
+            if (data == null || data.Length == 0 || data[0] == 0)
             {
-                var p = srcStart;
-                uint result  = (uint)(*(p + index++) << 24);
-                if (index < length && *(p + index) != 0)
-                {
-                    result |= (uint)(*(p + index++) << 16);
+                return 0;
+            }
 
-                    if(index < length && *(p + index) != 0)
-                    {
-                        result |= (uint)(*(p + index++) << 8);
-                        if (index < length && *(p + index) != 0)
-                        {
-                            result |= *(p + index++);
-                        }
-                    }
+            fixed (byte* srcStart = data)
+            {
+                byte* ptr = srcStart;
+                uint result = (uint)(*ptr++ << 24);
+
+                for (int i = 1; i < 4 && i < data.Length; i++)
+                {
+                    if (*ptr == 0) break;
+                    result |= (uint)(*ptr++ << (24 - 8 * i));
                 }
+
                 result = ~result;
 
-                while (index < length && *(p + index) != 0)
+                for (int i = 4; i < data.Length && *ptr != 0; i++, ptr++)
                 {
-                    result = (result << 8 | *(p + index)) ^ CrcTable[result >> 24];
-                    index++;
+                    result = (result << 8 | *ptr) ^ CrcTable[result >> 24];
                 }
 
                 return ~result;

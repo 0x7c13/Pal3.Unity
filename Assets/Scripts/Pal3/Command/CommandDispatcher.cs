@@ -36,23 +36,19 @@ namespace Pal3.Command
         /// </summary>
         public void Dispatch<T>(T command) where T : TCommand
         {
-            var executed = false;
-
             // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
             var executors = _commandExecutorRegistry.GetRegisteredExecutors<T>().ToList();
 
-            foreach (var commandExecutor in executors)
+            if (executors.Any())
             {
-                commandExecutor.Execute(command);
-                executed = true;
-            }
-
-            if (!executed)
-            {
-                if (Attribute.GetCustomAttribute(typeof(T), typeof(SceCommandAttribute)) != null)
+                foreach (var executor in executors)
                 {
-                    Debug.LogWarning($"No command executor found for sce command: {typeof(T).Name}");
+                    executor.Execute(command);
                 }
+            }
+            else if (Attribute.GetCustomAttribute(typeof(T), typeof(SceCommandAttribute)) != null)
+            {
+                Debug.LogWarning($"No command executor found for sce command: {typeof(T).Name}");
             }
         }
 
@@ -63,26 +59,22 @@ namespace Pal3.Command
         {
             Type commandExecutorType = typeof(ICommandExecutor<>).MakeGenericType(command.GetType());
 
-            var executed = false;
-
             // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
             var executors = _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType).ToList();
 
-            foreach (var commandExecutor in executors)
+            if (executors.Any())
             {
-                if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)
+                foreach (var executor in executors)
                 {
-                    method.Invoke(commandExecutor, new object[] {command});
-                    executed = true;
+                    if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)
+                    {
+                        method.Invoke(executor, new object[] {command});
+                    }
                 }
             }
-
-            if (!executed)
+            else if (Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
             {
-                if (Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
-                {
-                    Debug.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
-                }
+                Debug.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
             }
         }
 

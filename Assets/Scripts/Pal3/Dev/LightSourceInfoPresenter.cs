@@ -13,6 +13,6 @@ namespace Pal3.Dev
     /// </summary>
     public class LightSourceInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public LightNode LightNode;
+        [SerializeField] public LightNode lightNode;
     }
 }

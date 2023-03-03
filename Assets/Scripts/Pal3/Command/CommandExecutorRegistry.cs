@@ -23,11 +23,7 @@ namespace Pal3.Command
 
         private CommandExecutorRegistry() { }
 
-        /// <summary>
-        /// Register a ICommandExecutor instance.
-        /// </summary>
-        /// <param name="executor">ICommandExecutor instance</param>
-        /// <typeparam name="T">TCommand instance type</typeparam>
+        /// <inheritdoc />
         public void Register<T>(ICommandExecutor<T> executor) where T : TCommand
         {
             if (_executors.ContainsKey(typeof(ICommandExecutor<T>)))
@@ -44,10 +40,7 @@ namespace Pal3.Command
             }
         }
 
-        /// <summary>
-        /// Automatically register all ICommandExecutor types for the given instance.
-        /// </summary>
-        /// <param name="executor">ICommandExecutor instance</param>
+        /// <inheritdoc />
         public void Register(object executor)
         {
             var executorTypes = executor.GetType().GetInterfaces()
@@ -76,11 +69,7 @@ namespace Pal3.Command
             }
         }
 
-        /// <summary>
-        /// Unregister a ICommandExecutor instance.
-        /// </summary>
-        /// <param name="executor">ICommandExecutor instance</param>
-        /// <typeparam name="T">TCommand instance type</typeparam>
+        /// <inheritdoc />
         public void UnRegister<T>(ICommandExecutor<T> executor) where T : TCommand
         {
             if (!_executors.ContainsKey(typeof(ICommandExecutor<T>)))
@@ -95,10 +84,7 @@ namespace Pal3.Command
             }
         }
 
-        /// <summary>
-        /// Automatically unregister all ICommandExecutor types for the given instance.
-        /// </summary>
-        /// <param name="executor">ICommandExecutor instance</param>
+        /// <inheritdoc />
         public void UnRegister(object executor)
         {
             var executorTypes = executor.GetType().GetInterfaces()
@@ -125,11 +111,7 @@ namespace Pal3.Command
             }
         }
 
-        /// <summary>
-        /// Get all registered ICommandExecutor based on ICommand instance type.
-        /// </summary>
-        /// <typeparam name="T">TCommand instance type</typeparam>
-        /// <returns>ICommandExecutors</returns>
+        /// <inheritdoc />
         public IEnumerable<ICommandExecutor<T>> GetRegisteredExecutors<T>() where T : TCommand
         {
             Type handlerType = typeof(ICommandExecutor<T>);
@@ -142,11 +124,7 @@ namespace Pal3.Command
             }
         }
 
-        /// <summary>
-        /// Get all registered ICommandExecutor based on TCommand instance type.
-        /// using reflection
-        /// </summary>
-        /// <returns>ICommandExecutors</returns>
+        /// <inheritdoc />
         public IEnumerable<object> GetRegisteredExecutors(Type type)
         {
             if (!_executors.ContainsKey(type)) yield break;
