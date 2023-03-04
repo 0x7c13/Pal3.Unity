@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Core.Services;
+    using Data;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.EyeBall)]
@@ -21,8 +22,16 @@ namespace Pal3.Scene.SceneObjects
         public EyeBallObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
+        }
+
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
+        {
+            if (Activated) return GetGameObject();
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+            return sceneGameObject;
         }
 
         public void Execute(PlayerActorTilePositionUpdatedNotification command)

@@ -25,7 +25,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
     {
-        private const float PUSH_ANIMATION_DURATION = 2f;
+        private const float PUSH_ANIMATION_DURATION = 1.5f;
 
         private BoundsTriggerController _triggerController;
         private StandingPlatformController _standingPlatformController;

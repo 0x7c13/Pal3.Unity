@@ -15,9 +15,11 @@ namespace ResourceViewer
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
+    using Core.DataReader.Gdb;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
+    using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -57,8 +59,8 @@ namespace ResourceViewer
         private IList<string> _mp3Files = new List<string>();
         private static readonly Random Random = new ();
 
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page,
-                                               // change it to 950 to supports Traditional Chinese (Big5)
+        private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page,
+                                                   // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
 
         private void OnEnable()
@@ -101,6 +103,39 @@ namespace ResourceViewer
             DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
             DebugLogConsole.AddCommand("ExtractAllCpkArchives", "Extract all .cpk archives into the output directory.", ExtractAllCpkArchives);
             #endif
+
+            //__Malicious__Dev_Only__();
+        }
+
+        private void __Malicious__Dev_Only__()
+        {
+            // foreach (var scnFilePath in _fileSystem.Search(".scn"))
+            // {
+            //     using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
+            //     ScnFile scnFile = ScnFileReader.Read(scnFileStream, DEFAULT_CODE_PAGE);
+            //     if (scnFile.ObjectInfos.Any(_ => _.Type == ScnSceneObjectType.FallableObstacle))
+            //     {
+            //         Debug.Log(scnFilePath);
+            //     }
+            // }
+
+            // HashSet<char> charSet = File.ReadAllText("charset.txt", Encoding.UTF8).ToHashSet();
+            // var newChars = new HashSet<char>();
+            //
+            // foreach (GameItem item in _resourceProvider.GetGameItems().Values)
+            // {
+            //     foreach (var nameChar in item.Name.Where(nameChar => !charSet.Contains(nameChar)))
+            //     {
+            //         newChars.Add(nameChar);
+            //     }
+            //     foreach (var descChar in item.Description.Where(descChar => !charSet.Contains(descChar)))
+            //     {
+            //         newChars.Add(descChar);
+            //     }
+            // }
+            // var sb = new StringBuilder();
+            // foreach (var ch in newChars) sb.Append(ch);
+            // Debug.Log(sb.ToString());
         }
 
         private void Update()
@@ -349,7 +384,7 @@ namespace ResourceViewer
 
             try
             {
-                sceFile = SceFileReader.Read(sceFileStream, GBK_CODE_PAGE);
+                sceFile = SceFileReader.Read(sceFileStream, DEFAULT_CODE_PAGE);
             }
             catch (Exception ex)
             {
@@ -370,7 +405,7 @@ namespace ResourceViewer
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
 
-                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, GBK_CODE_PAGE);
+                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, DEFAULT_CODE_PAGE);
 
                     output.Append($"{currentPosition} {command.GetType().Name.Replace("Command", "")} " +
                                   $"{JsonConvert.SerializeObject(command)}\n");

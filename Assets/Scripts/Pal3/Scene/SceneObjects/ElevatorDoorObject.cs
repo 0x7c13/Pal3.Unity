@@ -26,7 +26,8 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+            // Add collider to block player
+            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             return sceneGameObject;
         }
 

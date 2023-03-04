@@ -12,11 +12,6 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
-    [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
-    [ScnSceneObject(ScnSceneObjectType.Billboard)]
-    [ScnSceneObject(ScnSceneObjectType.WindBlower)]
-    [ScnSceneObject(ScnSceneObjectType.PreciseTrigger)]
-    [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj47)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj48)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj49)]

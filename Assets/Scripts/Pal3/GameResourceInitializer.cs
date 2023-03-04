@@ -37,7 +37,8 @@ namespace Pal3
         [SerializeField] private TextMeshProUGUI loadingText;
 
         private const string CUSTOM_GAME_FOLDER_PATH_FILE_NAME = "CustomGameFolderPath.txt";
-        private const int GBK_CODE_PAGE = 936; // GBK Encoding's code page
+        private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page
+                                                   // change it to 950 to supports Traditional Chinese (Big5)
 
         private string GetCustomGameFolderPathFilePath()
         {
@@ -103,7 +104,7 @@ namespace Pal3
             loadingText.text = "Loading game assets...";
 
             // TODO: let user to choose language? Or auto-detect encoding?
-            var codepage = GBK_CODE_PAGE;
+            var codepage = DEFAULT_CODE_PAGE;
 
             yield return InitResourceAsync(GetGameFolderPath(), crcHash, codepage);
         }
