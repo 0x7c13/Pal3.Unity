@@ -34,7 +34,8 @@ namespace Pal3.Scene.SceneObjects
 
             Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
 
-            if (ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
+            if (SceneInfo.Is("m17", "3") &&
+                ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
             {
                 bounds = new Bounds
                 {
@@ -42,7 +43,8 @@ namespace Pal3.Scene.SceneObjects
                     size = new Vector3(3.5f, 1.2f, 19f),
                 };
             }
-            else if (ObjectInfo.Name.Equals("_a.pol", StringComparison.OrdinalIgnoreCase))
+            else if (SceneInfo.IsCity("m19") &&
+                     ObjectInfo.Name.Equals("_a.pol", StringComparison.OrdinalIgnoreCase))
             {
                 bounds = new Bounds
                 {

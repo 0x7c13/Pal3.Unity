@@ -25,13 +25,13 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
     {
-        private const float PUSH_ANIMATION_DURATION = 1.5f;
+        private const float PUSH_ANIMATION_DURATION = 1.7f;
 
         private BoundsTriggerController _triggerController;
         private StandingPlatformController _standingPlatformController;
 
         private readonly SceneStateManager _sceneStateManager;
-        private readonly SceneManager _sceneManager;
+        private readonly Tilemap _tilemap;
 
         private bool _isInteractionInProgress;
 
@@ -44,7 +44,7 @@ namespace Pal3.Scene.SceneObjects
             : base(objectInfo, sceneInfo)
         {
             _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
-            _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
+            _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -291,9 +291,7 @@ namespace Pal3.Scene.SceneObjects
 
                 // Check if target position is within the scene bounds
                 Vector3 targetPosition = pushableObject.transform.position + direction * distance;
-                if (!_sceneManager.GetCurrentScene()
-                        .GetTilemap()
-                        .TryGetTile(targetPosition, ObjectInfo.LayerIndex, out NavTile tile) ||
+                if (!_tilemap.TryGetTile(targetPosition, ObjectInfo.LayerIndex, out NavTile tile) ||
                     !tile.IsWalkable())
                 {
                     return false;

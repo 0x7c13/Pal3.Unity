@@ -107,8 +107,7 @@ namespace Pal3.Scene.SceneObjects
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
                     yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
                         waypoints[i],
-                        duration,
-                        AnimationCurveType.Linear);
+                        duration);
                 }
             }
 
@@ -159,8 +158,7 @@ namespace Pal3.Scene.SceneObjects
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
                     yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
                         waypoints[i],
-                        duration,
-                        AnimationCurveType.Linear);
+                        duration);
                 }
 
                 Vector3 lastSectionForwardVector = (waypoints[^1] - waypoints[^2]).normalized;
