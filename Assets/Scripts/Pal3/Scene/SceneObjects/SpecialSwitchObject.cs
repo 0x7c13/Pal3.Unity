@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using Actor;
     using Command;
@@ -59,6 +60,8 @@ namespace Pal3.Scene.SceneObjects
         {
             PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject
                 .GetComponent<ActorController>().GetActor().Info.Id;
+
+            if (!Enum.IsDefined(typeof(PlayerActorId), actorId)) yield break;
 
             // Only specified actor can interact with this object
             if ((int) actorId != ObjectInfo.Parameters[0])

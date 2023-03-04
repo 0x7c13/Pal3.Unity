@@ -167,6 +167,8 @@ namespace Pal3.Player
 
         public void Execute(TeamAddOrRemoveActorCommand command)
         {
+            if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId)) return;
+
             var actor = (PlayerActorId) command.ActorId;
 
             if (command.IsIn == 1)
