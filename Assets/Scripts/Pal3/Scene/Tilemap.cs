@@ -68,6 +68,12 @@ namespace Pal3.Scene
         {
             tile = default;
             Vector2Int tilePosition = GetTilePosition(position, layerIndex);
+            return TryGetTile(tilePosition, layerIndex, out tile);
+        }
+
+        public bool TryGetTile(Vector2Int tilePosition, int layerIndex, out NavTile tile)
+        {
+            tile = default;
             if (!IsTilePositionInsideTileMap(tilePosition, layerIndex)) return false;
             tile = GetTile(tilePosition, layerIndex);
             return true;

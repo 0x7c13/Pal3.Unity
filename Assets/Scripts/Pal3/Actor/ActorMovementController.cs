@@ -839,13 +839,23 @@ namespace Pal3.Actor
 
             var tilePosition = new Vector2Int(command.TileXPosition, command.TileYPosition);
 
-            // Check if position at current layer exists,
-            // if not, auto switch to next layer (if tile at next layer is walkable)
+            // Check if position at current layer exists, if not, auto switch
+            // to next layer (if tile at next layer is valid).
+            // If position at both layers are valid, switch to next layer.
+            // If current layer is not walkable but next layer is walkable.
             if (_tilemap.GetLayerCount() > 1)
             {
-                var isTileInsideCurrentLayer = _tilemap.IsTilePositionInsideTileMap(tilePosition, _currentLayerIndex);
-                var isTileInsideAtNextLayer = _tilemap.IsTilePositionInsideTileMap(tilePosition, (_currentLayerIndex + 1) % 2);
-                if (!isTileInsideCurrentLayer && isTileInsideAtNextLayer)
+                bool isTileExistsInCurrentLayer = _tilemap.TryGetTile(tilePosition,
+                    _currentLayerIndex, out NavTile tileAtCurrentLayer);
+                bool isTileExistsInNextLayer = _tilemap.TryGetTile(tilePosition,
+                    (_currentLayerIndex + 1) % 2, out NavTile tileAtNextLayer);
+
+                if (!isTileExistsInCurrentLayer && isTileExistsInNextLayer)
+                {
+                    SetNavLayer((_currentLayerIndex + 1) % 2);
+                }
+                else if (isTileExistsInCurrentLayer && isTileExistsInNextLayer &&
+                         !tileAtCurrentLayer.IsWalkable() && tileAtNextLayer.IsWalkable())
                 {
                     SetNavLayer((_currentLayerIndex + 1) % 2);
                 }
