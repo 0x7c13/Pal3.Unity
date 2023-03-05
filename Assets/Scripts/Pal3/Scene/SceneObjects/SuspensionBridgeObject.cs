@@ -49,7 +49,9 @@ namespace Pal3.Scene.SceneObjects
             if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
+                yield return MoveCameraToLookAtPointAsync(GetGameObject().transform.position,
+                    ctx.PlayerActorGameObject);
+                CameraFocusOnObject(ObjectInfo.Id);
             }
 
             PlaySfxIfAny();

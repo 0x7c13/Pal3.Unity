@@ -109,15 +109,40 @@ namespace ResourceViewer
 
         private void __Malicious__Dev_Only__()
         {
+            // var objectInfoDic = new Dictionary<ScnSceneObjectType, HashSet<string>>();
+            // var sb = new StringBuilder();
+            //
+            // foreach (ScnSceneObjectType objectType in Enum.GetValues(typeof(ScnSceneObjectType)).Cast<ScnSceneObjectType>())
+            // {
+            //     objectInfoDic[objectType] = new HashSet<string>();
+            // }
+            //
             // foreach (var scnFilePath in _fileSystem.Search(".scn"))
             // {
             //     using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
             //     ScnFile scnFile = ScnFileReader.Read(scnFileStream, DEFAULT_CODE_PAGE);
-            //     if (scnFile.ObjectInfos.Any(_ => _.Type == ScnSceneObjectType.FallableObstacle))
+            //
+            //     foreach (ScnSceneObjectType objectType in Enum.GetValues(typeof(ScnSceneObjectType)).Cast<ScnSceneObjectType>())
             //     {
-            //         Debug.Log(scnFilePath);
+            //         if (scnFile.ObjectInfos.Any(_ => _.Type == objectType))
+            //         {
+            //             objectInfoDic[objectType].Add(scnFilePath);
+            //         }
             //     }
             // }
+            //
+            //  // Print objectInfoDic to console
+            //  foreach (var (objectType, scnFilePaths) in objectInfoDic)
+            //  {
+            //      sb.Append($"{objectType}:");
+            //      foreach (var path in scnFilePaths)
+            //      {
+            //          sb.Append($" {Path.GetFileName(path)}");
+            //      }
+            //      sb.Append("\n");
+            //  }
+            //
+            // File.WriteAllText(@"E:\Workspace\objectDic.txt", sb.ToString());
 
             // HashSet<char> charSet = File.ReadAllText("charset.txt", Encoding.UTF8).ToHashSet();
             // var newChars = new HashSet<char>();

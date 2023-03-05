@@ -16,6 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Core.Services;
     using Data;
     using MetaData;
@@ -26,13 +27,17 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 5f;
+        private const float MAX_INTERACTION_DISTANCE = 4f;
 
         private SceneObjectMeshCollider _meshCollider;
+
+        #if PAL3
         private readonly string _interactionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
                                                                  CpkConstants.DirectorySeparator + "g03.cvd";
         private CvdModelRenderer _interactionIndicatorRenderer;
         private GameObject _interactionIndicatorGameObject;
+        #endif
+
         private readonly Scene _currentScene;
 
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
@@ -46,6 +51,18 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
+            #if PAL3A
+            // All switches in PAL3A have 0xFF as Times, which means infinite times.
+            // but all switches in PAL3A can only be interacted once.
+            // So we set Times to 1 here.
+            // We can also disable the switch when SwitchState == 1 for PAL3A,
+            // but this way is simpler.
+            if (ObjectInfo.Times == 0xFF)
+            {
+                ObjectInfo.Times = 1;
+            }
+            #endif
+
             if (ObjectInfo.IsNonBlocking == 0)
             {
                 if (!(ObjectInfo.SwitchState == 1 && ObjectInfo.Parameters[0] == 1) &&
@@ -56,6 +73,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
+            #if PAL3
             // Add interaction indicator when switch times is greater than 0
             // and Parameter[1] is 0 (1 means the switch is not directly interactable)
             if (ObjectInfo.Times > 0 && ObjectInfo.Parameters[1] == 0)
@@ -74,6 +92,7 @@ namespace Pal3.Scene.SceneObjects
                     tintColor);
                 _interactionIndicatorRenderer.LoopAnimation();
             }
+            #endif
 
             return sceneGameObject;
         }
@@ -91,24 +110,33 @@ namespace Pal3.Scene.SceneObjects
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
             var shouldResetCamera = false;
+
+            #if PAL3
             if (ctx.InitObjectId != ObjectInfo.Id && !IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
+                yield return MoveCameraToLookAtPointAsync(
+                    GetGameObject().transform.position,
+                    ctx.PlayerActorGameObject);
+                CameraFocusOnObject(ObjectInfo.Id);
             }
+            #endif
 
             var currentSwitchState = ObjectInfo.SwitchState;
 
             ToggleAndSaveSwitchState();
 
+            #if PAL3
             if (ObjectInfo.Times == 0 && _interactionIndicatorGameObject != null)
             {
                 _interactionIndicatorRenderer.Dispose();
                 Object.Destroy(_interactionIndicatorRenderer);
                 Object.Destroy(_interactionIndicatorGameObject);
             }
+            #endif
 
-            if (ctx.InitObjectId == ObjectInfo.Id)
+            if (ctx.InitObjectId == ObjectInfo.Id &&
+                ObjectInfo.Parameters[1] == 0)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -133,10 +161,33 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
+            #if PAL3
             ExecuteScriptIfAny();
-
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+            #elif PAL3A
+            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            {
+                SceneObject linkedObject = _currentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
 
+                shouldResetCamera = true;
+
+                yield return MoveCameraToLookAtPointAsync(
+                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
+                    ctx.PlayerActorGameObject);
+
+                if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
+                }
+
+                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+
+                yield return new WaitForSeconds(1);
+            }
+            ExecuteScriptIfAny();
+            #endif
+
+            #if PAL3
             // Special handling for master flower switch located in
             // the scene m16 4
             if (IsDivineTreeMasterFlower())
@@ -159,6 +210,7 @@ namespace Pal3.Scene.SceneObjects
                     _currentScene.ActivateSceneObject(flowerObject.Key);
                 }
             }
+            #endif
 
             if (shouldResetCamera)
             {
@@ -180,6 +232,7 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_meshCollider);
             }
 
+            #if PAL3
             if (_interactionIndicatorRenderer != null)
             {
                 _interactionIndicatorRenderer.Dispose();
@@ -190,6 +243,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 Object.Destroy(_interactionIndicatorGameObject);
             }
+            #endif
 
             base.Deactivate();
         }

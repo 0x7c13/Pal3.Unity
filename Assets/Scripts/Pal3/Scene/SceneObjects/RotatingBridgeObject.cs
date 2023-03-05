@@ -7,6 +7,8 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using System.Collections;
+    using Command;
+    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
@@ -61,9 +63,13 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
-
             GameObject bridgeObject = GetGameObject();
+
+            yield return MoveCameraToLookAtPointAsync(
+                bridgeObject.transform.position,
+                ctx.PlayerActorGameObject);
+            CameraFocusOnObject(ObjectInfo.Id);
+
             Vector3 eulerAngles = bridgeObject.transform.rotation.eulerAngles;
             var targetYRotation = (eulerAngles.y  + 90f) % 360f;
             var targetRotation = new Vector3(eulerAngles.x, targetYRotation, eulerAngles.z);

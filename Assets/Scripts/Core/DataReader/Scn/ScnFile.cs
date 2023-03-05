@@ -52,7 +52,11 @@ namespace Core.DataReader.Scn
     {
         AutoTrigger                   =  0,   // 自动触发点
         Shakeable                     =  1,   // 碰到后摇晃的物品
+        #if PAL3
         Collidable                    =  2,   // 碰到后翻倒的物品
+        #elif PAL3A
+        Switch                        =  2,   // 开关
+        #endif
         Arrow                         =  3,   // 飞箭类 (霹雳堂总舵飞剑)
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)
@@ -77,7 +81,11 @@ namespace Core.DataReader.Scn
                                               // 通用参数[1]:升起后到高层
                                               // 通用参数[2]:平台上的其他物件编号
                                               // 通用参数[3]:初始为可通过?)
+        #if PAL3
         Switch                        = 23,   // 开关 (可触发其他机关)
+        #elif PAL3A
+        NotUsed                       = 23,   // 弃用
+        #endif
         Collectable                   = 24,   // 可以拣起的道具 (通用参数[0]:得到物品的数据库ID)
         General                       = 25,   // 普通物品
         RareChest                     = 26,   // 迷宫大宝箱

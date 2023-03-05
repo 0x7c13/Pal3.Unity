@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Command;
     using Command.InternalCommands;
+    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
@@ -72,9 +73,13 @@ namespace Pal3.Scene.SceneObjects
 
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            yield return MoveCameraToLookAtObjectAndFocusAsync(ctx.PlayerActorGameObject);
-
             GameObject liftingMechanismGameObject = GetGameObject();
+
+            yield return MoveCameraToLookAtPointAsync(
+                liftingMechanismGameObject.transform.position,
+                ctx.PlayerActorGameObject);
+            CameraFocusOnObject(ObjectInfo.Id);
+
             Vector3 position = liftingMechanismGameObject.transform.position;
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 

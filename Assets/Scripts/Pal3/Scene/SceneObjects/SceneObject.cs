@@ -136,7 +136,9 @@ namespace Pal3.Scene.SceneObjects
                 var initTime = 0f;
 
                 if (ObjectInfo.Type is ScnSceneObjectType.Switch
+                        #if PAL3
                         or ScnSceneObjectType.Collidable
+                        #endif
                         or ScnSceneObjectType.Shakeable
                     && ObjectInfo.SwitchState == 1)
                 {
@@ -400,20 +402,24 @@ namespace Pal3.Scene.SceneObjects
                     GameBoxInterpreter.ToGameBoxYRotation(_sceneObjectGameObject.transform.rotation.eulerAngles.y)));
         }
 
-        internal IEnumerator MoveCameraToLookAtObjectAndFocusAsync(GameObject playerActorGameObject)
+        internal IEnumerator MoveCameraToLookAtPointAsync(
+            Vector3 position,
+            GameObject playerActorGameObject)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(0));
 
-            Vector3 offset = GetGameObject().transform.position - playerActorGameObject.transform.position;
+            Vector3 offset = position - playerActorGameObject.transform.position;
             Transform cameraTransform = Camera.main!.transform;
             Vector3 cameraCurrentPosition = cameraTransform.position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
             yield return AnimationHelper.MoveTransformAsync(cameraTransform,
                 targetPosition, 1.5f, AnimationCurveType.Sine);
+        }
 
+        internal void CameraFocusOnObject(int objectId)
+        {
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFocusOnSceneObjectCommand(ObjectInfo.Id));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFocusOnSceneObjectCommand(objectId));
         }
 
         internal void ResetCamera()

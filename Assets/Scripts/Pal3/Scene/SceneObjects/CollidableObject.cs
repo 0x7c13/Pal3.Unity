@@ -12,7 +12,9 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
     using Object = UnityEngine.Object;
 
+    #if PAL3
     [ScnSceneObject(ScnSceneObjectType.Collidable)]
+    #endif
     [ScnSceneObject(ScnSceneObjectType.Shakeable)]
     public sealed class CollidableObject : SceneObject
     {
