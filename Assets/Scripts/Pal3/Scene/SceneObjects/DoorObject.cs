@@ -30,14 +30,19 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            // This is to prevent player from entering back to previous
-            // scene when holding the stick while transferring between scenes.
-            // We simply disable the auto trigger for a short time window after
-            // a fresh scene load.
-            var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
-            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
-            _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+            #if PAL3A
+            if (!(ObjectInfo.Parameters[1] == 1 && ObjectInfo.Parameters[2] == 1))
+            #endif
+            {
+                // This is to prevent player from entering back to previous
+                // scene when holding the stick while transferring between scenes.
+                // We simply disable the auto trigger for a short time window after
+                // a fresh scene load.
+                var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
+                _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+                _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
+                _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+            }
 
             return sceneGameObject;
         }
@@ -51,6 +56,16 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            #if PAL3A
+            // Some door objects in PAL3A have parameters[1] and parameters[2] set to 1
+            // which means they should deactivate themselves when interaction triggerred.
+            if (ObjectInfo.Parameters[1] == 1 && ObjectInfo.Parameters[2] == 1)
+            {
+                ChangeAndSaveActivationState(false);
+                yield break;
+            }
+            #endif
+
             // There are doors controlled by the script for it's behaviour & animation which have
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
             if (ObjectInfo.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
