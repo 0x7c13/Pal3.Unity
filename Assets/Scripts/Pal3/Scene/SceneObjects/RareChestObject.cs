@@ -7,9 +7,11 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using MetaData;
 
     [ScnSceneObject(ScnSceneObjectType.RareChest)]
     public sealed class RareChestObject : SceneObject
@@ -28,7 +30,18 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            if (!IsInteractableBasedOnTimesCount()) yield break;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                    ActorConstants.ActionNames[ActorActionType.Check], 1));
+
+            if (ModelType == SceneObjectModelType.CvdModel)
+            {
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
+            }
 
             PlaySfx("wa006");
 
@@ -40,17 +53,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            if (ModelType == SceneObjectModelType.CvdModel)
-            {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, 1f, () =>
-                {
-                    ChangeAndSaveActivationState(false);
-                });
-            }
-            else
-            {
-                ChangeAndSaveActivationState(false);
-            }
+            ChangeAndSaveActivationState(false);
         }
     }
 }
