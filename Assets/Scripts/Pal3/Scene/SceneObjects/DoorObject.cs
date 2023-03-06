@@ -19,6 +19,10 @@ namespace Pal3.Scene.SceneObjects
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
 
+        #if PAL3A
+        private SceneObjectMeshCollider _meshCollider;
+        #endif
+
         public DoorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -43,6 +47,14 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
+
+            #if PAL3A
+            if (ObjectInfo.IsNonBlocking == 0)
+            {
+                // Add collider to block player
+                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
+            #endif
 
             return sceneGameObject;
         }
@@ -88,6 +100,13 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 Object.Destroy(_triggerController);
             }
+
+            #if PAL3A
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+            }
+            #endif
 
             base.Deactivate();
         }

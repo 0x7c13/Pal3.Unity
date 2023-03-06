@@ -181,10 +181,9 @@ namespace Pal3.Scene.SceneObjects
                 }
 
                 yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
-
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
                 yield return new WaitForSeconds(1);
             }
-            ExecuteScriptIfAny();
             #endif
 
             #if PAL3

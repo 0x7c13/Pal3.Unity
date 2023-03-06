@@ -51,6 +51,16 @@ namespace Pal3.Scene.SceneObjects
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
+            #if PAL3A
+            if (ObjectInfo.Parameters[0] == 1)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                        ActorConstants.ActionNames[ActorActionType.Check], 1));
+                yield return new WaitForSeconds(1);
+            }
+            #endif
+
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
         }
     }
