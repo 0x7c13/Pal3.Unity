@@ -94,9 +94,8 @@ namespace Pal3.Scene.SceneObjects
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
 
             GameObject elevatorGameObject = GetGameObject();
-            var platformController = GetGameObject().GetComponent<StandingPlatformController>();
-            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
-            var platformHeight = platformController.GetCollider().bounds.size.y / 2f;
+            Vector3 platformCenterPosition = _platformController.GetCollider().bounds.center;
+            var platformHeight = _platformController.GetCollider().bounds.size.y / 2f;
 
             var actorStandingPosition = new Vector3(platformCenterPosition.x, positions[fromLayer].y, platformCenterPosition.z);
             var platformFinalPosition = new Vector3(platformCenterPosition.x, positions[toLayer].y + platformHeight, platformCenterPosition.z);

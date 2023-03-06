@@ -82,11 +82,10 @@ namespace Pal3.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject gravityTriggerGo = GetGameObject();
-            var platformController = gravityTriggerGo.GetComponent<StandingPlatformController>();
-            Vector3 platformPosition = platformController.transform.position;
+            Vector3 platformPosition = _platformController.transform.position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
-                platformController.GetPlatformHeight(),
+                _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();

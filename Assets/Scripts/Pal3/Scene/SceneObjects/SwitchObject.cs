@@ -38,12 +38,9 @@ namespace Pal3.Scene.SceneObjects
         private GameObject _interactionIndicatorGameObject;
         #endif
 
-        private readonly Scene _currentScene;
-
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _currentScene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -167,7 +164,7 @@ namespace Pal3.Scene.SceneObjects
             #elif PAL3A
             if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {
-                SceneObject linkedObject = _currentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
+                SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
 
                 shouldResetCamera = true;
 
@@ -198,15 +195,15 @@ namespace Pal3.Scene.SceneObjects
                         ObjectInfo.Id,
                         ObjectInfo.SwitchState));
 
-                var allActivatedSceneObjects = _currentScene.GetAllActivatedSceneObjects();
-                var allFlowerObjects = _currentScene.GetAllSceneObjects().Where(
+                var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
+                var allFlowerObjects = ctx.CurrentScene.GetAllSceneObjects().Where(
                     _ => allActivatedSceneObjects.Contains(_.Key) &&
                          _.Value.ObjectInfo.Type == ScnSceneObjectType.DivineTreeFlower);
                 foreach (var flowerObject in allFlowerObjects)
                 {
                     // Re-activate all flowers in current scene to refresh their state
-                    _currentScene.DeactivateSceneObject(flowerObject.Key);
-                    _currentScene.ActivateSceneObject(flowerObject.Key);
+                    ctx.CurrentScene.DeactivateSceneObject(flowerObject.Key);
+                    ctx.CurrentScene.ActivateSceneObject(flowerObject.Key);
                 }
             }
             #endif

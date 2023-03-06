@@ -70,16 +70,15 @@ namespace Pal3.Scene.SceneObjects
                 yield break;
             }
 
-            var platformController = carrierObject.GetComponent<StandingPlatformController>();
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
             var waypoints = new List<Vector3>();
 
             // Move player to center of the carrier
             {
-                Vector3 platformPosition = platformController.transform.position;
+                Vector3 platformPosition = _platformController.transform.position;
                 var actorStandingPosition = new Vector3(
                     platformPosition.x,
-                    platformController.GetPlatformHeight(),
+                    _platformController.GetPlatformHeight(),
                     platformPosition.z);
 
                 yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
@@ -111,7 +110,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            Bounds bounds = platformController.GetCollider().bounds;
+            Bounds bounds = _platformController.GetCollider().bounds;
             Vector3 actorPositionOnCarrier = ctx.PlayerActorGameObject.transform.position;
 
             // Move actor out of carrier to the final standing position

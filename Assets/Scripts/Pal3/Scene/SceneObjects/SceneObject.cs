@@ -360,17 +360,25 @@ namespace Pal3.Scene.SceneObjects
         {
             if (objectId == 0xFFFF) yield break;
 
-            Scene scene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
-            var allActivatedSceneObjects = scene.GetAllActivatedSceneObjects();
+            var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
 
             if (!allActivatedSceneObjects.Contains(objectId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneActivateObjectCommand(objectId, 1));
+
+                #if PAL3A
+                // PAL3A has additional activation logic for chained objects
+                ushort nextLinkedObjectId = ctx.CurrentScene.GetSceneObject(objectId).ObjectInfo.LinkedObjectId;
+                if (nextLinkedObjectId != 0xFFFF)
+                {
+                    yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
+                }
+                #endif
             }
             else
             {
-                yield return scene.GetSceneObject(objectId).InteractAsync(ctx);
+                yield return ctx.CurrentScene.GetSceneObject(objectId).InteractAsync(ctx);
             }
         }
 

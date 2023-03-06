@@ -93,11 +93,10 @@ namespace Pal3.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject pedalSwitchGo = GetGameObject();
-            var platformController = pedalSwitchGo.GetComponent<StandingPlatformController>();
-            Vector3 platformCenterPosition = platformController.GetCollider().bounds.center;
+            Vector3 platformCenterPosition = _platformController.GetCollider().bounds.center;
             var actorStandingPosition = new Vector3(
                 platformCenterPosition.x,
-                platformController.GetPlatformHeight(),
+                _platformController.GetPlatformHeight(),
                 platformCenterPosition.z);
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();

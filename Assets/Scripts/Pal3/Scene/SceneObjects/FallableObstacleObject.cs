@@ -23,15 +23,12 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float FALLING_DURATION = 1.1f;
 
-        private readonly Tilemap _tilemap;
-
         private SceneObjectMeshCollider _meshCollider;
         private TilemapTriggerController _triggerController;
 
         public FallableObstacleObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider,
@@ -69,7 +66,9 @@ namespace Pal3.Scene.SceneObjects
             Vector3 currentPosition = obstacleObject.transform.position;
 
             var finalYPosition = ctx.PlayerActorGameObject.transform.position.y;
-            if (_tilemap.TryGetTile(currentPosition, ObjectInfo.LayerIndex, out NavTile tile))
+            if (ctx.CurrentScene.GetTilemap().TryGetTile(currentPosition,
+                    ObjectInfo.LayerIndex,
+                    out NavTile tile))
             {
                 finalYPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
             }
