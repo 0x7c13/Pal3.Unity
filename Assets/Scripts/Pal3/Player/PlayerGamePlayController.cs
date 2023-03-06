@@ -1034,10 +1034,9 @@ namespace Pal3.Player
 
             #if PAL3
             // LongKui should stay blue form when player control is enabled
-            if (command.ActorId == (int)PlayerActorId.LongKui &&
-                _playerActorGameObject.GetComponent<LongKuiController>() is { } longKuiController)
+            if (command.ActorId == (int)PlayerActorId.LongKui)
             {
-                longKuiController.Execute(new LongKuiSwitchModeCommand(0));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(0));
             }
             #endif
 
@@ -1183,6 +1182,10 @@ namespace Pal3.Player
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }
+
+            #if PAL3
+            CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
+            #endif
         }
 
         public void Execute(ResetGameStateCommand command)
