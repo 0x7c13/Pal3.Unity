@@ -41,6 +41,17 @@ namespace Pal3.Scene.SceneObjects
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (Activated) return GetGameObject();
+
+            Color subObjectTintColor = tintColor;
+
+            #if PAL3
+            // Fix the color(texture) issue of impulsive mechanism in M11-2 which uses _r.pol as the main model
+            if (string.Equals(ModelFilePath, @"M11.cpk\2\_r.pol", StringComparison.OrdinalIgnoreCase))
+            {
+                tintColor = new Color(0.9f, 0.45f, 0f, 0.1f);
+            }
+            #endif
+
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
@@ -51,7 +62,7 @@ namespace Pal3.Scene.SceneObjects
             subObjectModelRenderer.Render(poly.PolFile,
                 resourceProvider.GetMaterialFactory(),
                 poly.TextureProvider,
-                tintColor);
+                subObjectTintColor);
 
             _subObjectController = _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>();
             _subObjectController.Init();
