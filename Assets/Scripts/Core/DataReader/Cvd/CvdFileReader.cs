@@ -422,12 +422,12 @@ namespace Core.DataReader.Cvd
 
             var numberOfIndices = reader.ReadInt32();
 
-            var indices = new (short x, short y, short z)[numberOfIndices];
+            var indices = new (ushort x, ushort y, ushort z)[numberOfIndices];
             for (var i = 0; i < numberOfIndices; i++)
             {
-                var x = reader.ReadInt16();
-                var y = reader.ReadInt16();
-                var z = reader.ReadInt16();
+                var x = reader.ReadUInt16();
+                var y = reader.ReadUInt16();
+                var z = reader.ReadUInt16();
                 indices[i] = (x, y, z);
             }
 
@@ -489,7 +489,7 @@ namespace Core.DataReader.Cvd
         }
 
         private static (List<int> triangles, List<int> indexBuffer) CalculateTriangles(
-            (short x, short y, short z)[] allIndices)
+            (ushort x, ushort y, ushort z)[] allIndices)
         {
             var indexBuffer = new List<int>();
             var triangles = new List<int>();

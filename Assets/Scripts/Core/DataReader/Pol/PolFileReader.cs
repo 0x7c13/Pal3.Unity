@@ -258,20 +258,18 @@ namespace Core.DataReader.Pol
                 textureNames[i] = textureName;
             }
 
-            var indexBits = reader.ReadInt32();
-            if (indexBits != 16) throw new Exception($"IndexBits is invalid: {indexBits}");
-
-            var vertStart = reader.ReadInt32();
-            var vertEnd = reader.ReadInt32();
+            _ = reader.ReadInt32();
+            var vertStart = reader.ReadUInt32();
+            var vertEnd = reader.ReadUInt32();
             var numberOfFaces = reader.ReadInt32();
 
             var triangles = new int[numberOfFaces * 3];
             for (var i = 0; i < numberOfFaces; i++)
             {
                 var index = i * 3;
-                triangles[index] = reader.ReadInt16();
-                triangles[index + 1] = reader.ReadInt16();
-                triangles[index + 2] = reader.ReadInt16();
+                triangles[index] = reader.ReadUInt16();
+                triangles[index + 1] = reader.ReadUInt16();
+                triangles[index + 2] = reader.ReadUInt16();
             }
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
