@@ -10,11 +10,15 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Data;
+    using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Chest)]
     public sealed class ChestObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
+
+        private SceneObjectMeshCollider _meshCollider;
 
         public ChestObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -29,6 +33,14 @@ namespace Pal3.Scene.SceneObjects
         public override bool ShouldGoToCutsceneWhenInteractionStarted()
         {
             return false;
+        }
+
+        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        {
+            if (Activated) return GetGameObject();
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            return sceneGameObject;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
@@ -64,6 +76,16 @@ namespace Pal3.Scene.SceneObjects
             {
                 ChangeAndSaveActivationState(false);
             }
+        }
+
+        public override void Deactivate()
+        {
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+            }
+
+            base.Deactivate();
         }
     }
 }
