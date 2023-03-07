@@ -99,7 +99,8 @@ namespace Pal3.Scene.SceneObjects
             return Activated &&
                    distance < MAX_INTERACTION_DISTANCE &&
                    ObjectInfo.Times > 0 &&
-                   ObjectInfo.Parameters[1] == 0;
+                   ObjectInfo.Parameters[1] is 0 or 2; // 0 means directly interactable,
+                                                       // 2 means interactable but executing script only
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
@@ -109,6 +110,11 @@ namespace Pal3.Scene.SceneObjects
             var shouldResetCamera = false;
 
             #if PAL3
+            if (ObjectInfo.Parameters[1] == 2) // 2 means interactable but executing script only
+            {
+                ExecuteScriptIfAny();
+                yield break;
+            }
             if (ctx.InitObjectId != ObjectInfo.Id && !IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
