@@ -85,17 +85,23 @@ namespace Pal3.Scene.SceneObjects
             if (_isInteractionInProgress) return;
             _isInteractionInProgress = true;
 
-            Transform playerActorTransform =  playerGameObject.transform;
-            Transform pushableObjectTransform = pushableObject.transform;
+            Vector3 playerActorPosition =  playerGameObject.transform.position;
+            Vector3 pushableObjectPosition = pushableObject.transform.position;
 
             Bounds bounds = GetMeshBounds();
             float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
 
-            Vector3 relativeDirection = pushableObjectTransform.position - playerActorTransform.position;
+            Vector3 relativeDirection = pushableObjectPosition - playerActorPosition;
             relativeDirection.y = 0f; // Ignore y axis
             Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
 
-            if (CanPushTo(movingDirection, movingDistance))
+            Vector3 actorHoldingPosition = pushableObjectPosition + -movingDirection * (movingDistance * 0.8f);
+            actorHoldingPosition.y = playerActorPosition.y;
+
+            // Only allow player to push object if it's close enough to the pushing location
+            // and there's no obstacle in the way.
+            if (Vector3.Distance(playerActorPosition, actorHoldingPosition) < 1.5f &&
+                CanPushTo(movingDirection, movingDistance))
             {
                 RequestForInteraction();
             }
