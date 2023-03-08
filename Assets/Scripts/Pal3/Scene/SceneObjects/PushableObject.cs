@@ -222,7 +222,10 @@ namespace Pal3.Scene.SceneObjects
                 _bidirectionalPushableGoalState = 0;
             }
 
-            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId)
+            // Do not persist position if the object is triggered by script
+            // or if the pushable object is in m02.
+            if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId &&
+                !SceneInfo.IsCity("m02"))
             {
                 SaveCurrentPosition();
             }
