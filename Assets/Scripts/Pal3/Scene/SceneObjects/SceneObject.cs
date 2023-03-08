@@ -7,7 +7,9 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -369,10 +371,31 @@ namespace Pal3.Scene.SceneObjects
 
                 #if PAL3A
                 // PAL3A has additional activation logic for chained objects
+                // When all objects linked to a child object are activated, the child object will be activated
                 ushort nextLinkedObjectId = ctx.CurrentScene.GetSceneObject(objectId).ObjectInfo.LinkedObjectId;
                 if (nextLinkedObjectId != 0xFFFF)
                 {
-                    yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
+                    HashSet<int> activatedObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
+                    if (ctx.CurrentScene.GetAllSceneObjects()
+                        .Where(_ => _.Value.ObjectInfo.LinkedObjectId == nextLinkedObjectId)
+                        .All(_ => activatedObjects.Contains(_.Key)))
+                    {
+                        SceneObject nextLinkedObject = ctx.CurrentScene.GetSceneObject(nextLinkedObjectId);
+
+                        yield return new WaitForSeconds(1);
+                        ResetCamera(); // Make sure camera is looking at the player before moving
+                        yield return null; // Wait for one frame to make sure camera is reset
+
+                        yield return MoveCameraToLookAtPointAsync(
+                            GameBoxInterpreter.ToUnityPosition(nextLinkedObject.ObjectInfo.GameBoxPosition),
+                            ctx.PlayerActorGameObject);
+
+                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
+                        yield return new WaitForSeconds(1);
+
+                        ResetCamera(); // Reset again
+                        yield return null; // Wait for one frame to make sure camera is reset
+                    }
                 }
                 #endif
             }
