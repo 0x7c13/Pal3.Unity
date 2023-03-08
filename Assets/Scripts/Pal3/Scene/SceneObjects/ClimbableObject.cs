@@ -100,6 +100,13 @@ namespace Pal3.Scene.SceneObjects
                 yield break;
             }
 
+            // We should not execute further if interaction is initially
+            // triggered by another object.
+            if (ctx.InitObjectId != ObjectInfo.Id)
+            {
+                yield break;
+            }
+
             var fromTilePosition = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
             var toTilePosition = new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
             var crossLayer = ObjectInfo.Parameters[4] == 1;

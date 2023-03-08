@@ -167,29 +167,7 @@ namespace Pal3.Scene.SceneObjects
             #if PAL3
             ExecuteScriptIfAny();
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
-            #elif PAL3A
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
-            {
-                SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
 
-                shouldResetCamera = true;
-
-                yield return MoveCameraToLookAtPointAsync(
-                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
-                    ctx.PlayerActorGameObject);
-
-                if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
-                }
-
-                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
-                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
-                yield return new WaitForSeconds(1);
-            }
-            #endif
-
-            #if PAL3
             // Special handling for master flower switch located in
             // the scene m16 4
             if (IsDivineTreeMasterFlower())
@@ -211,6 +189,33 @@ namespace Pal3.Scene.SceneObjects
                     ctx.CurrentScene.DeactivateSceneObject(flowerObject.Key);
                     ctx.CurrentScene.ActivateSceneObject(flowerObject.Key);
                 }
+            }
+            #elif PAL3A
+            // Disable associated effect object if any
+            if (ObjectInfo.EffectModelType != 0)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
+            }
+            // Interact with linked object if any
+            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            {
+                SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
+
+                shouldResetCamera = true;
+
+                yield return MoveCameraToLookAtPointAsync(
+                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
+                    ctx.PlayerActorGameObject);
+
+                if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
+                }
+
+                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
+                yield return new WaitForSeconds(1);
             }
             #endif
 
