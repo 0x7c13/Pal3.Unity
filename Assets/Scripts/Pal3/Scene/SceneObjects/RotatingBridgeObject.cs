@@ -34,7 +34,7 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
+            Bounds bounds = GetMeshBounds();
 
             if (SceneInfo.Is("m17", "3") &&
                 ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))

@@ -5,9 +5,12 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using Actor;
+    using Command;
+    using Command.SceCommands;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
@@ -36,12 +39,23 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
+            Bounds bounds = GetMeshBounds();
             bounds.size *= 1.35f; // Make it a little bigger
-            var yOffset = -0.15f;
+
+            #if PAL3
+            if (SceneInfo.Is("m23", "5") &&
+                ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
+            {
+                bounds = new Bounds
+                {
+                    center = bounds.center,
+                    size = new Vector3(8.5f, 13.5f, 8.5f),
+                };
+            }
+            #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, yOffset);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             return sceneGameObject;
@@ -56,6 +70,14 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            #if PAL3
+            if (SceneInfo.Is("m23", "5") &&
+                ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("中途不停车哦~"));
+            }
+            #endif
+
             GameObject carrierObject = GetGameObject();
             var isNearFirstWaypoint = IsNearFirstWaypoint();
 

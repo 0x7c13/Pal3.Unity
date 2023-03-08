@@ -37,7 +37,7 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            Bounds bounds = GetPolyModelRenderer().GetMeshBounds();
+            Bounds bounds = GetMeshBounds();
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
