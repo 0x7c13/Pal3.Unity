@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Data;
+    using Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -38,8 +39,14 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.SetupCollider(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
-            else
+            else if (ObjectInfo.SwitchState == 1)
             {
+                if (ModelType == SceneObjectModelType.CvdModel)
+                {
+                    CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
+                    cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
+                }
+
                 if (ObjectInfo.IsNonBlocking == 0)
                 {
                     _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();

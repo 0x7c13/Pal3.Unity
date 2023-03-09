@@ -6,9 +6,12 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
+    using Command;
+    using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
     using Data;
+    using MetaData;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.AutoTrigger)]
@@ -53,13 +56,26 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
+            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                ExecuteScriptIfAny();
+                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
+            }
+            else
+            {
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
+            }
+
             _isInteractionInProgress = false;
         }
 
         public override bool ShouldGoToCutsceneWhenInteractionStarted()
         {
-            return false; // Do not go to cutscene when auto trigger is executed, let the script decide.
+            // If object has a linked object, we should go to cutscene
+            // else we should not.
+            return ObjectInfo.LinkedObjectId != 0xFFFF;
         }
 
         public override void Deactivate()

@@ -44,7 +44,7 @@ namespace Core.DataReader.Scn
     {
         StoryA = 0,  // 情节关城市村镇
         StoryB,      // 情节关建筑内部
-        Maze,        // 战斗（迷宫）场景
+        Maze,        // 迷宫场景
     }
 
     [System.Serializable]
@@ -55,7 +55,7 @@ namespace Core.DataReader.Scn
         #if PAL3
         Collidable                    =  2,   // 碰到后翻倒的物品
         #elif PAL3A
-        Switch                        =  2,   // 开关
+        WuLingSwitch                  =  2,   // 五灵开关 (可触发其他机关,外传独有)
         #endif
         Arrow                         =  3,   // 飞箭类 (霹雳堂总舵飞剑)
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
@@ -81,15 +81,15 @@ namespace Core.DataReader.Scn
                                               // 通用参数[1]:升起后到高层
                                               // 通用参数[2]:平台上的其他物件编号
                                               // 通用参数[3]:初始为可通过?)
-        #if PAL3
-        Switch                        = 23,   // 开关 (可触发其他机关)
-        #elif PAL3A
-        NotUsed                       = 23,   // 弃用
-        #endif
+        Switch                        = 23,   // 普通开关 (可触发其他机关,正传特有)
         Collectable                   = 24,   // 可以拣起的道具 (通用参数[0]:得到物品的数据库ID)
         General                       = 25,   // 普通物品
         RareChest                     = 26,   // 迷宫大宝箱
+        #if PAL3
         WishPool                      = 27,   // 许愿池
+        #elif PAL3A
+        ToggleSwitch                  = 27,   // 普通开关的变种 (可触发其他机关,外传特有)
+        #endif
         ColdWeapon                    = 28,   // (M24)剑或锤
         GravitySwitch                 = 29,   // 重力机关（乌龟）
         ElevatorDoor                  = 30,   // 升降机关门
@@ -109,9 +109,10 @@ namespace Core.DataReader.Scn
         JumpableArea                  = 44,   // 可跳跃区域
 
         // PAL3A new scene objects
+        // 以下所有均为仙三外传中新增的场景物件类型
         UnknownObj47                  = 47,   // PAL3A m19 8
         UnknownObj48                  = 48,   // PAL3A m19 8
-        UnknownObj49                  = 49,   // PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
+        ElevatorFloorOrBlocker        = 49,   // 可升降或者是经过之后阻挡物 PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
         UnknownObj51                  = 51,   // PAL3A m10 2
         UnknownObj52                  = 52,   // PAL3A m01 1
         UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
@@ -308,7 +309,7 @@ namespace Core.DataReader.Scn
         // 在哪个地层
         public byte LayerIndex;
 
-        // 五灵属性,0~5代表,用于大宝箱
+        // 五灵属性,0~5代表,用于大宝箱和三外中具有五灵属性的机关
         public byte WuLing;
 
         /*

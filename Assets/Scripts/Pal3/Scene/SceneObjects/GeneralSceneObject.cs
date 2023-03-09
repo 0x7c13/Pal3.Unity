@@ -14,7 +14,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj47)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj48)]
-    [ScnSceneObject(ScnSceneObjectType.UnknownObj49)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj51)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj52)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj53)]

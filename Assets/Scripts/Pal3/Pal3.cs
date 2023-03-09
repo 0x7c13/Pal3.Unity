@@ -329,6 +329,7 @@ namespace Pal3
             DebugLogConsole.AddCommand("state", "Get current game state in commands form.", PrintCurrentGameStateInCommandsForm);
             DebugLogConsole.AddCommand("info", "Get current game info.", PrintCurrentGameInfo);
             DebugLogConsole.AddCommand<int>("fps", "Set target FPS.", SetTargetFps);
+            DebugLogConsole.AddCommand<float>("fov", "Set camera FOV.", SetCameraFov);
 
             DisableInGameDebugConsoleButtonNavigation();
 
@@ -461,6 +462,11 @@ namespace Pal3
         private void SetTargetFps(int targetFps)
         {
             Application.targetFrameRate = targetFps;
+        }
+
+        private void SetCameraFov(float fieldOfView)
+        {
+            mainCamera.fieldOfView = fieldOfView;
         }
     }
 }

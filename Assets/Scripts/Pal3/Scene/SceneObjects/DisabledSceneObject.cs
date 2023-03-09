@@ -12,7 +12,9 @@ namespace Pal3.Scene.SceneObjects
     /// Disabled scene objects will not be loaded to the scene.
     /// </summary>
     [ScnSceneObject(ScnSceneObjectType.SavingPoint)]
+    #if PAL3
     [ScnSceneObject(ScnSceneObjectType.WishPool)]
+    #endif
     [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
     [ScnSceneObject(ScnSceneObjectType.Arrow)]
     [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]

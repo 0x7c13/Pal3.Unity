@@ -11,6 +11,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Data;
+    using Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Door)]
@@ -49,10 +50,19 @@ namespace Pal3.Scene.SceneObjects
             }
 
             #if PAL3A
-            if (ObjectInfo.IsNonBlocking == 0)
+            if (ObjectInfo.Parameters[1] == 1 &&
+                ObjectInfo.Parameters[2] == 1)
             {
-                // Add collider to block player
-                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                if (ObjectInfo.SwitchState == 0)
+                {
+                    // Add collider to block player
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+                else if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
+                {
+                    CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
+                    cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
+                }
             }
             #endif
 
@@ -69,11 +79,34 @@ namespace Pal3.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             #if PAL3A
-            // Some door objects in PAL3A have parameters[1] and parameters[2] set to 1
-            // which means they should deactivate themselves when interaction triggerred.
-            if (ObjectInfo.Parameters[1] == 1 && ObjectInfo.Parameters[2] == 1)
+            if (ObjectInfo.Parameters[1] == 1 &&
+                ObjectInfo.Parameters[2] == 1)
             {
-                ChangeAndSaveActivationState(false);
+                if (ModelType == SceneObjectModelType.PolModel)
+                {
+                    ChangeAndSaveActivationState(false);
+                }
+                else if (ModelType == SceneObjectModelType.CvdModel)
+                {
+                    var switchStateBeforeInteraction = ObjectInfo.SwitchState;
+
+                    yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,
+                        switchStateBeforeInteraction == 0 ? 1f : -1f);
+
+                    ToggleAndSaveSwitchState();
+
+                    if (ObjectInfo.SwitchState == 1 && _meshCollider != null)
+                    {
+                        Object.Destroy(_meshCollider);
+                        _meshCollider = null;
+                    }
+                    else if (ObjectInfo.SwitchState == 0 && _meshCollider == null)
+                    {
+                        _meshCollider = GetGameObject().AddComponent<SceneObjectMeshCollider>();
+                    }
+                }
+
+                _isInteractionInProgress = false;
                 yield break;
             }
             #endif
@@ -82,9 +115,10 @@ namespace Pal3.Scene.SceneObjects
             // parameters[0] set to 1, so we are only playing the animation if parameters[0] == 0.
             if (ObjectInfo.Parameters[0] == 0 && ModelType == SceneObjectModelType.CvdModel)
             {
-                var timeScale = 2f; // Make the animation 2X faster for better user experience
-                var durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
-                yield return GetCvdModelRenderer().PlayAnimationAsync(timeScale, loopCount: 1, durationPercentage, true);
+                const float timeScale = 2f; // Make the animation 2X faster for better user experience
+                const float durationPercentage = 0.7f; // Just play 70% of the whole animation (good enough).
+                yield return GetCvdModelRenderer().PlayAnimationAsync(timeScale,
+                    loopCount: 1, durationPercentage, true);
             }
 
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();

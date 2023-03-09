@@ -40,7 +40,7 @@ namespace Pal3.Scene.SceneObjects
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
-            bounds.size *= 1.35f; // Make it a little bigger
+            bounds.size += new Vector3(0.6f, 0.2f, 0.6f); // Extend the bounds a little bit
 
             #if PAL3
             if (SceneInfo.Is("m23", "5") &&

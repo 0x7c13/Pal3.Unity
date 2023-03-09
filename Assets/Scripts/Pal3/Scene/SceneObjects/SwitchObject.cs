@@ -5,7 +5,6 @@
 
 namespace Pal3.Scene.SceneObjects
 {
-    using System;
     using System.Collections;
     using System.Linq;
     using Command;
@@ -16,8 +15,6 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Services;
     using Data;
     using MetaData;
     using Renderer;
@@ -31,12 +28,10 @@ namespace Pal3.Scene.SceneObjects
 
         private SceneObjectMeshCollider _meshCollider;
 
-        #if PAL3
         private readonly string _interactionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
                                                                  CpkConstants.DirectorySeparator + "g03.cvd";
         private CvdModelRenderer _interactionIndicatorRenderer;
         private GameObject _interactionIndicatorGameObject;
-        #endif
 
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -48,17 +43,11 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            #if PAL3A
-            // All switches in PAL3A have 0xFF as Times, which means infinite times.
-            // but all switches in PAL3A can only be interacted once.
-            // So we set Times to 1 here.
-            // We can also disable the switch when SwitchState == 1 for PAL3A,
-            // but this way is simpler.
-            if (ObjectInfo.Times == 0xFF)
+            if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
-                ObjectInfo.Times = 1;
+                CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
+                cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
             }
-            #endif
 
             if (ObjectInfo.IsNonBlocking == 0)
             {
@@ -70,7 +59,6 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            #if PAL3
             // Add interaction indicator when switch times is greater than 0
             // and Parameter[1] is 0 (1 means the switch is not directly interactable)
             if (ObjectInfo.Times > 0 && ObjectInfo.Parameters[1] == 0)
@@ -89,7 +77,6 @@ namespace Pal3.Scene.SceneObjects
                     tintColor);
                 _interactionIndicatorRenderer.LoopAnimation();
             }
-            #endif
 
             return sceneGameObject;
         }
@@ -109,12 +96,12 @@ namespace Pal3.Scene.SceneObjects
 
             var shouldResetCamera = false;
 
-            #if PAL3
             if (ObjectInfo.Parameters[1] == 2) // 2 means interactable but executing script only
             {
                 ExecuteScriptIfAny();
                 yield break;
             }
+
             if (ctx.InitObjectId != ObjectInfo.Id && !IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
@@ -123,20 +110,17 @@ namespace Pal3.Scene.SceneObjects
                     ctx.PlayerActorGameObject);
                 CameraFocusOnObject(ObjectInfo.Id);
             }
-            #endif
 
-            var currentSwitchState = ObjectInfo.SwitchState;
+            var switchStateBeforeInteraction = ObjectInfo.SwitchState;
 
             ToggleAndSaveSwitchState();
 
-            #if PAL3
             if (ObjectInfo.Times == 0 && _interactionIndicatorGameObject != null)
             {
                 _interactionIndicatorRenderer.Dispose();
                 Object.Destroy(_interactionIndicatorRenderer);
                 Object.Destroy(_interactionIndicatorGameObject);
             }
-            #endif
 
             if (ctx.InitObjectId == ObjectInfo.Id &&
                 ObjectInfo.Parameters[1] == 0)
@@ -155,7 +139,7 @@ namespace Pal3.Scene.SceneObjects
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,
-                    currentSwitchState == 0 ? 1f : -1f);
+                    switchStateBeforeInteraction == 0 ? 1f : -1f);
 
                 // Remove collider to allow player to pass through
                 if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
@@ -164,7 +148,6 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            #if PAL3
             ExecuteScriptIfAny();
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
 
@@ -190,34 +173,6 @@ namespace Pal3.Scene.SceneObjects
                     ctx.CurrentScene.ActivateSceneObject(flowerObject.Key);
                 }
             }
-            #elif PAL3A
-            // Disable associated effect object if any
-            if (ObjectInfo.EffectModelType != 0)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
-            }
-            // Interact with linked object if any
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
-            {
-                SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
-
-                shouldResetCamera = true;
-
-                yield return MoveCameraToLookAtPointAsync(
-                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
-                    ctx.PlayerActorGameObject);
-
-                if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
-                {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
-                }
-
-                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
-                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
-                yield return new WaitForSeconds(1);
-            }
-            #endif
 
             if (shouldResetCamera)
             {
@@ -239,7 +194,6 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_meshCollider);
             }
 
-            #if PAL3
             if (_interactionIndicatorRenderer != null)
             {
                 _interactionIndicatorRenderer.Dispose();
@@ -250,7 +204,6 @@ namespace Pal3.Scene.SceneObjects
             {
                 Object.Destroy(_interactionIndicatorGameObject);
             }
-            #endif
 
             base.Deactivate();
         }

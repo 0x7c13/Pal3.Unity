@@ -134,24 +134,10 @@ namespace Pal3.Scene.SceneObjects
             {
                 (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(ModelFilePath);
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
-
-                var initTime = 0f;
-
-                if (ObjectInfo.Type is ScnSceneObjectType.Switch
-                        #if PAL3
-                        or ScnSceneObjectType.Collidable
-                        #endif
-                        or ScnSceneObjectType.Shakeable
-                    && ObjectInfo.SwitchState == 1)
-                {
-                    initTime = cvd.CvdFile.AnimationDuration;
-                }
-
                 _cvdModelRenderer.Init(cvd.CvdFile,
                     resourceProvider.GetMaterialFactory(),
                     cvd.TextureProvider,
-                    tintColor,
-                    initTime);
+                    tintColor);
 
                 if (ObjectInfo.Type == ScnSceneObjectType.General)
                 {
@@ -368,20 +354,28 @@ namespace Pal3.Scene.SceneObjects
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneActivateObjectCommand(objectId, 1));
+            }
+            else
+            {
+                yield return ctx.CurrentScene.GetSceneObject(objectId).InteractAsync(ctx);
+            }
 
-                #if PAL3A
-                // PAL3A has additional activation logic for chained objects
-                // When all objects linked to a child object are activated, the child object will be activated
-                ushort nextLinkedObjectId = ctx.CurrentScene.GetSceneObject(objectId).ObjectInfo.LinkedObjectId;
-                if (nextLinkedObjectId != 0xFFFF)
+            #if PAL3A
+            // PAL3A has additional activation logic for chained objects
+            // When all objects linked to a child object are activated, the child object will be activated
+            SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(objectId);
+            ushort nextLinkedObjectId = linkedObject.ObjectInfo.LinkedObjectId;
+            if (nextLinkedObjectId != 0xFFFF)
+            {
+                HashSet<int> activatedObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
+                if (ctx.CurrentScene.GetAllSceneObjects()
+                    .Where(_ => _.Value.ObjectInfo.LinkedObjectId == nextLinkedObjectId)
+                    .All(_ => activatedObjects.Contains(_.Key)))
                 {
-                    HashSet<int> activatedObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
-                    if (ctx.CurrentScene.GetAllSceneObjects()
-                        .Where(_ => _.Value.ObjectInfo.LinkedObjectId == nextLinkedObjectId)
-                        .All(_ => activatedObjects.Contains(_.Key)))
-                    {
-                        SceneObject nextLinkedObject = ctx.CurrentScene.GetSceneObject(nextLinkedObjectId);
+                    SceneObject nextLinkedObject = ctx.CurrentScene.GetSceneObject(nextLinkedObjectId);
 
+                    if (linkedObject.ObjectInfo.Type != nextLinkedObject.ObjectInfo.Type)
+                    {
                         yield return new WaitForSeconds(1);
                         ResetCamera(); // Make sure camera is looking at the player before moving
                         yield return null; // Wait for one frame to make sure camera is reset
@@ -396,13 +390,13 @@ namespace Pal3.Scene.SceneObjects
                         ResetCamera(); // Reset again
                         yield return null; // Wait for one frame to make sure camera is reset
                     }
+                    else
+                    {
+                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
+                    }
                 }
-                #endif
             }
-            else
-            {
-                yield return ctx.CurrentScene.GetSceneObject(objectId).InteractAsync(ctx);
-            }
+            #endif
         }
 
         internal void ChangeAndSaveNavLayerIndex(byte layerIndex)
@@ -444,7 +438,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 cameraCurrentPosition = cameraTransform.position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
             yield return AnimationHelper.MoveTransformAsync(cameraTransform,
-                targetPosition, 1.5f, AnimationCurveType.Sine);
+                targetPosition, 2.5f, AnimationCurveType.Sine);
         }
 
         internal void CameraFocusOnObject(int objectId)
