@@ -102,11 +102,17 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.LinkedObjectId != 0xFFFF)
             {
                 SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
+                Vector3 linkedObjectGameBoxPosition = linkedObject.ObjectInfo.GameBoxPosition;
+
+                if (linkedObject.ObjectInfo.Type == ScnSceneObjectType.ElevatorFloorOrBlocker)
+                {
+                    linkedObjectGameBoxPosition.y = ObjectInfo.Parameters[0] * ObjectInfo.Parameters[4];
+                }
 
                 shouldResetCamera = true;
 
                 yield return MoveCameraToLookAtPointAsync(
-                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
+                    GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),
                     ctx.PlayerActorGameObject);
 
                 if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
@@ -122,7 +128,10 @@ namespace Pal3.Scene.SceneObjects
                 else
                 {
                     ExecuteScriptIfAny();
-                    yield return new WaitForSeconds(1);
+                    if (SceneInfo.Is("m06", "2"))
+                    {
+                        yield return new WaitForSeconds(1);
+                    }
                     yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
                 }
 

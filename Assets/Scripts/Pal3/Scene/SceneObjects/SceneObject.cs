@@ -438,7 +438,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 cameraCurrentPosition = cameraTransform.position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
             yield return AnimationHelper.MoveTransformAsync(cameraTransform,
-                targetPosition, 2.5f, AnimationCurveType.Sine);
+                targetPosition, 2f, AnimationCurveType.Sine);
         }
 
         internal void CameraFocusOnObject(int objectId)
