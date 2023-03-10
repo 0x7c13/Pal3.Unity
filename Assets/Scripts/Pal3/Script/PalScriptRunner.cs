@@ -71,7 +71,7 @@ namespace Pal3.Script
 
         private readonly int _codepage;
         private readonly BinaryReader _scriptDataReader;
-        private PalScriptExecutionMode _executionMode;
+        private ScriptExecutionMode _executionMode;
         private readonly object[] _registers;
         private readonly Dictionary<int, int> _globalVariables;
         private readonly Dictionary<int, int> _localVariables = new ();
@@ -102,7 +102,7 @@ namespace Pal3.Script
             SceScriptBlock scriptBlock,
             Dictionary<int, int> globalVariables,
             int codepage,
-            PalScriptExecutionMode executionMode = PalScriptExecutionMode.Break)
+            ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
         {
             ScriptType = scriptType;
             ScriptId = scriptId;
@@ -181,7 +181,7 @@ namespace Pal3.Script
                    _scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
             {
                 ExecuteNextCommand();
-                if (_executionMode == PalScriptExecutionMode.Break) break;
+                if (_executionMode == ScriptExecutionMode.Asynchronous) break;
             }
 
             _isExecuting = false;
@@ -363,7 +363,7 @@ namespace Pal3.Script
         public void Execute(ScriptChangeExecutionModeCommand command)
         {
             if (!_isExecuting) return;
-            _executionMode = (PalScriptExecutionMode)command.Mode;
+            _executionMode = (ScriptExecutionMode)command.Mode;
         }
 
         #if PAL3

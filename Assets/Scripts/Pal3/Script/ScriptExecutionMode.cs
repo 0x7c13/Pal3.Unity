@@ -5,9 +5,9 @@
 
 namespace Pal3.Script
 {
-    public enum PalScriptExecutionMode
+    public enum ScriptExecutionMode
     {
-        Break = 1,
-        Continue = 2,
+        Asynchronous = 1,
+        Synchronous = 2,
     }
 }
