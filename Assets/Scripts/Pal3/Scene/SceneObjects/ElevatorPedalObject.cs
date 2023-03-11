@@ -70,7 +70,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!IsInteractableBasedOnTimesCount()) return;
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
 
             RequestForInteraction();
         }

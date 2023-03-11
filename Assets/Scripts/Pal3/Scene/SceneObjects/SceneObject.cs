@@ -337,7 +337,7 @@ namespace Pal3.Scene.SceneObjects
             // so no need to dispatch a SceneSaveGlobalObjectActivationStateCommand here
         }
 
-        internal void ToggleAndSaveSwitchState()
+        internal void FlipAndSaveSwitchState()
         {
             ObjectInfo.SwitchState = ObjectInfo.SwitchState == 0 ? (byte) 1 : (byte) 0;
             CommandDispatcher<ICommand>.Instance.Dispatch(

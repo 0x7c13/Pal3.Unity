@@ -24,7 +24,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 4f;
+        private const float MAX_INTERACTION_DISTANCE = 3f;
 
         private SceneObjectMeshCollider _meshCollider;
 
@@ -113,7 +113,7 @@ namespace Pal3.Scene.SceneObjects
 
             var switchStateBeforeInteraction = ObjectInfo.SwitchState;
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
 
             if (ObjectInfo.Times == 0 && _interactionIndicatorGameObject != null)
             {

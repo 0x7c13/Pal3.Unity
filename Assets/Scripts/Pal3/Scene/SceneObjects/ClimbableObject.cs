@@ -23,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Climbable)]
     public sealed class ClimbableObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 6f;
+        private const float MAX_INTERACTION_DISTANCE = 5f;
 
         private readonly PlayerGamePlayController _playerGamePlayController;
 

@@ -116,6 +116,10 @@ namespace Pal3.Scene.SceneObjects
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
 
+            #if PAL3A
+            FlipAndSaveSwitchState();
+            #endif
+
             _isInteractionInProgress = false;
         }
 

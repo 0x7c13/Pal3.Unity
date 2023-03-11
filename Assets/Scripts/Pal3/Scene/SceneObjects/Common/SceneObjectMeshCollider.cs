@@ -12,16 +12,12 @@ namespace Pal3.Scene.SceneObjects.Common
     {
         private BoxCollider _collider;
         private Vector3 _meshBoundsSize;
-        private float _boundsScale = 1.0f;
+        private Vector3 _boundsSizeOffset;
 
-        public void SetBoundsScale(float boundsScale)
+        public void SetBoundsSizeOffset(Vector3 sizeOffset)
         {
-            _boundsScale = boundsScale;
-
-            if (_collider != null)
-            {
-                _collider.size = _meshBoundsSize * _boundsScale;
-            }
+            _boundsSizeOffset = sizeOffset;
+            UpdateBounds();
         }
 
         private void Start()
@@ -29,7 +25,7 @@ namespace Pal3.Scene.SceneObjects.Common
             UpdateBounds();
         }
 
-        public void UpdateBounds()
+        private void UpdateBounds()
         {
             Bounds bounds;
 
@@ -54,7 +50,7 @@ namespace Pal3.Scene.SceneObjects.Common
             _meshBoundsSize = bounds.size;
 
             _collider.center = bounds.center;
-            _collider.size = _meshBoundsSize * _boundsScale;
+            _collider.size = _meshBoundsSize + _boundsSizeOffset;
         }
 
         private void OnDisable()

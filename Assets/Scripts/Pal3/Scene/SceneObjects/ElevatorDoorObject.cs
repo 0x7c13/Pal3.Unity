@@ -44,7 +44,7 @@ namespace Pal3.Scene.SceneObjects
 
             yield return AnimationHelper.MoveTransformAsync(doorObject.transform, toPosition, 2f);
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
             SaveCurrentPosition();
         }
 

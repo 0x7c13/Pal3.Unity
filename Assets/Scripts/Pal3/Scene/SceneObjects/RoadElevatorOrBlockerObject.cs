@@ -46,15 +46,15 @@ namespace Pal3.Scene.SceneObjects
                     _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
             }
-            else // This is a elevator floor object
+            else // This is a road elevator object
             {
                 // Add a standing platform controller so that the player can stand on the floor
                 _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
                 _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
 
-                // Add a mesh collider to block the player from falling through the floor object
+                // Add a mesh collider to block the player from walking into the object
                 _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-                _meshCollider.SetBoundsScale(0.95f);
+                _meshCollider.SetBoundsSizeOffset(new Vector3(-0.3f, -0.8f, -0.3f));
             }
 
             return sceneGameObject;
@@ -69,7 +69,7 @@ namespace Pal3.Scene.SceneObjects
             // This is a blocker object
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                ToggleAndSaveSwitchState();
+                FlipAndSaveSwitchState();
 
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
 

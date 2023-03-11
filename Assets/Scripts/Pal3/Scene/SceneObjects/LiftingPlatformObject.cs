@@ -22,6 +22,7 @@ namespace Pal3.Scene.SceneObjects
         private const float LIFTING_ANIMATION_DURATION = 2.5f;
 
         private StandingPlatformController _platformController;
+        private SceneObjectMeshCollider _meshCollider;
 
         public LiftingPlatformObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -44,18 +45,18 @@ namespace Pal3.Scene.SceneObjects
             }
 
             Bounds bounds = GetMeshBounds();
-
             // Some tweaks to the bounds to make sure actor won't stuck
             // near the edge of the platform
-            Vector3 tweakedBoundsSize = bounds.size;
-            tweakedBoundsSize.x += 0.6f;
-            tweakedBoundsSize.y += 0.3f;
-            var yOffset = -0.1f;
-            tweakedBoundsSize.z += 0.6f;
-            bounds.size = tweakedBoundsSize;
+            bounds.size += new Vector3(0.6f, 0.2f, 0.6f);
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, yOffset);
+            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+
+            #if PAL3A
+            // Add a mesh collider to block the player from walking into the object
+            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider.SetBoundsSizeOffset(new Vector3(-0.3f, -0.8f, -0.3f));
+            #endif
 
             return sceneGameObject;
         }
@@ -90,7 +91,8 @@ namespace Pal3.Scene.SceneObjects
                 ObjectInfo.GameBoxPosition.y);
             var yOffset = finalYPosition - position.y;
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
+
             PlaySfxIfAny();
 
             var hasObjectOnPlatform = false;
@@ -143,6 +145,11 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 Object.Destroy(_platformController);
+            }
+
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
             }
 
             base.Deactivate();

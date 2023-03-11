@@ -18,11 +18,14 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using MetaData;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.SpecialSwitch)]
     public sealed class SpecialSwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;
+
+        private SceneObjectMeshCollider _meshCollider;
 
         public SpecialSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -36,17 +39,18 @@ namespace Pal3.Scene.SceneObjects
 
             // Add collider to block player, also make the bounds of the collider a little bit bigger
             // to make sure the player can't walk through the collider
-            var boundsScale = (PlayerActorId) ObjectInfo.Parameters[0] switch
+            Vector3 boundsSizeOffset = (PlayerActorId) ObjectInfo.Parameters[0] switch
             {
-                PlayerActorId.JingTian => 1.5f,
-                PlayerActorId.XueJian => 1.5f,
-                PlayerActorId.LongKui => 1.2f,
-                PlayerActorId.ZiXuan => 1.2f,
-                PlayerActorId.ChangQing => 1.7f,
-                _ => 1f
+                PlayerActorId.JingTian => new Vector3(1.5f, 0f, 1.5f),
+                PlayerActorId.XueJian => new Vector3(1f, 0f, 1f),
+                PlayerActorId.LongKui => new Vector3(2.5f, 0f, 2.5f),
+                PlayerActorId.ZiXuan => new Vector3(0.8f, 0f, 0.8f),
+                PlayerActorId.ChangQing => new Vector3(2.3f, 0f, 2.3f),
+                _ => Vector3.one
             };
 
-            sceneGameObject.AddComponent<SceneObjectMeshCollider>().SetBoundsScale(boundsScale);
+            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider.SetBoundsSizeOffset(boundsSizeOffset);
 
             return sceneGameObject;
         }
@@ -102,6 +106,16 @@ namespace Pal3.Scene.SceneObjects
             }
 
             ChangeAndSaveActivationState(false);
+        }
+
+        public override void Deactivate()
+        {
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+            }
+
+            base.Deactivate();
         }
     }
 }

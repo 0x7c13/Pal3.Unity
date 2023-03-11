@@ -23,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.WuLingSwitch)]
     public sealed class WuLingSwitchObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 4f;
+        private const float MAX_INTERACTION_DISTANCE = 3f;
 
         private SceneObjectMeshCollider _meshCollider;
 
@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
             // TODO: Implement WuLing interaction logic for this switch
             // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
 
             if (ctx.InitObjectId == ObjectInfo.Id &&
                 ObjectInfo.Parameters[1] == 0)

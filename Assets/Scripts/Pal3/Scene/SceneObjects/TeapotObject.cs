@@ -39,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (ObjectInfo.SwitchState == 1) yield break;
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
 
             PlaySfxIfAny();
 

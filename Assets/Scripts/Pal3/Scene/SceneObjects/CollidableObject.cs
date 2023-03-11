@@ -70,7 +70,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            ToggleAndSaveSwitchState();
+            FlipAndSaveSwitchState();
 
             PlaySfxIfAny();
 

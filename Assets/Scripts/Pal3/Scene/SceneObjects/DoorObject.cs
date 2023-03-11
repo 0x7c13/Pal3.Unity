@@ -95,7 +95,7 @@ namespace Pal3.Scene.SceneObjects
                     yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,
                         switchStateBeforeInteraction == 0 ? 1f : -1f);
 
-                    ToggleAndSaveSwitchState();
+                    FlipAndSaveSwitchState();
 
                     if (ObjectInfo.SwitchState == 1 && _meshCollider != null)
                     {

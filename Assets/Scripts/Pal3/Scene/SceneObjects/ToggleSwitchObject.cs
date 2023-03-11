@@ -23,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 4f;
+        private const float MAX_INTERACTION_DISTANCE = 3f;
 
         private SceneObjectMeshCollider _meshCollider;
 
@@ -58,6 +58,9 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            // TODO: Implement WuLing interaction logic for this switch
+            // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
+
             if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
                 ObjectInfo.Parameters[1] == 1)
             {
@@ -66,12 +69,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            var shouldResetCamera = false;
-
-            if (ObjectInfo.Parameters[1] == 1)
-            {
-                ToggleAndSaveSwitchState();
-            }
+            FlipAndSaveSwitchState();
 
             if (ctx.InitObjectId == ObjectInfo.Id)
             {
@@ -97,6 +95,8 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
             }
+
+            var shouldResetCamera = false;
 
             // Interact with linked object if any
             if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)
