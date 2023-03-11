@@ -32,14 +32,24 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            // This is to prevent player from entering back to previous
-            // scene when holding the stick while transferring between scenes.
-            // We simply disable the auto trigger for a short time window after
-            // a fresh scene load.
-            var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
-            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
-            _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+            if (ObjectInfo.TileMapTriggerRect.IsEmpty)
+            {
+                if (ModelType == SceneObjectModelType.CvdModel)
+                {
+                    GetCvdModelRenderer().LoopAnimation();
+                }
+            }
+            else
+            {
+                // This is to prevent player from entering back to previous
+                // scene when holding the stick while transferring between scenes.
+                // We simply disable the auto trigger for a short time window after
+                // a fresh scene load.
+                var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
+                _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+                _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
+                _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+            }
 
             return sceneGameObject;
         }
@@ -56,7 +66,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -75,7 +85,7 @@ namespace Pal3.Scene.SceneObjects
         {
             // If object has a linked object, we should go to cutscene
             // else we should not.
-            return ObjectInfo.LinkedObjectId != 0xFFFF;
+            return ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID;
         }
 
         public override void Deactivate()

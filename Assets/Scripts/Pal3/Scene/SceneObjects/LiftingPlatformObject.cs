@@ -62,6 +62,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            #if PAL3
             // Fix a bug in m22-4 where the script can interact with the platform
             // even though the platform is already activated with correct height.
             // This is to prevent the unwanted interaction triggered by the script
@@ -70,6 +71,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 yield break;
             }
+            #endif
 
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
@@ -106,8 +108,8 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            yield return AnimationHelper.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION, AnimationCurveType.Sine,
-                offset =>
+            yield return AnimationHelper.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION,
+                AnimationCurveType.Sine, offset =>
                 {
                     liftingMechanismGameObject.transform.position =
                         new Vector3(position.x, position.y + offset, position.z);

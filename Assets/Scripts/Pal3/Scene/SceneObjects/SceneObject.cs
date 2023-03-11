@@ -41,6 +41,9 @@ namespace Pal3.Scene.SceneObjects
 
     public abstract class SceneObject
     {
+        internal const ushort INVALID_SCENE_OBJECT_ID = 0xFFFF;
+        internal const byte INFINITE_TIMES_COUNT = 0xFF;
+
         public ScnObjectInfo ObjectInfo;
         public ScnSceneInfo SceneInfo;
         public GraphicsEffect GraphicsEffect { get; }
@@ -284,7 +287,7 @@ namespace Pal3.Scene.SceneObjects
         {
             switch (ObjectInfo.Times)
             {
-                case 0xFF:
+                case INFINITE_TIMES_COUNT:
                     return true;
                 case <= 0:
                     return false;
@@ -346,7 +349,7 @@ namespace Pal3.Scene.SceneObjects
 
         internal IEnumerator ActivateOrInteractWithObjectIfAnyAsync(InteractionContext ctx, ushort objectId)
         {
-            if (objectId == 0xFFFF) yield break;
+            if (objectId == INVALID_SCENE_OBJECT_ID) yield break;
 
             var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
 
@@ -365,7 +368,7 @@ namespace Pal3.Scene.SceneObjects
             // When all objects linked to a child object are activated, the child object will be activated
             SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(objectId);
             ushort nextLinkedObjectId = linkedObject.ObjectInfo.LinkedObjectId;
-            if (nextLinkedObjectId != 0xFFFF)
+            if (nextLinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
                 HashSet<int> activatedObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
                 if (ctx.CurrentScene.GetAllSceneObjects()

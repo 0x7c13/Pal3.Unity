@@ -109,7 +109,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             // Interact with linked object if any
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
                 SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
 

@@ -10,7 +10,11 @@ namespace Pal3.Command.SceCommands
                     "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine）")]
     public class CameraOrbitCommand : ICommand
     {
-        public CameraOrbitCommand(float yaw, float pitch, float duration, int curveType)
+        public CameraOrbitCommand(
+            float yaw,
+            float pitch,
+            float duration,
+            int curveType)
         {
             Yaw = yaw;
             Pitch = pitch;

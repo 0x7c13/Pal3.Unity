@@ -109,15 +109,18 @@ namespace ResourceViewer
 
         private void __Malicious__Dev_Only__()
         {
-            // var objectInfoDic = new Dictionary<ScnSceneObjectType, HashSet<string>>();
+            // var objectInfoDic = new Dictionary<ScnSceneObjectType, HashSet<ScnFile>>();
             // var sb = new StringBuilder();
             //
             // foreach (ScnSceneObjectType objectType in Enum.GetValues(typeof(ScnSceneObjectType)).Cast<ScnSceneObjectType>())
             // {
-            //     objectInfoDic[objectType] = new HashSet<string>();
+            //     objectInfoDic[objectType] = new HashSet<ScnFile>();
             // }
             //
-            // foreach (var scnFilePath in _fileSystem.Search(".scn"))
+            // var scnFilePaths = _fileSystem.Search(".scn").ToList();
+            // scnFilePaths.Sort();
+            //
+            // foreach (var scnFilePath in scnFilePaths)
             // {
             //     using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
             //     ScnFile scnFile = ScnFileReader.Read(scnFileStream, DEFAULT_CODE_PAGE);
@@ -126,18 +129,18 @@ namespace ResourceViewer
             //     {
             //         if (scnFile.ObjectInfos.Any(_ => _.Type == objectType))
             //         {
-            //             objectInfoDic[objectType].Add(scnFilePath);
+            //             objectInfoDic[objectType].Add(scnFile);
             //         }
             //     }
             // }
             //
             //  // Print objectInfoDic to console
-            //  foreach (var (objectType, scnFilePaths) in objectInfoDic)
+            //  foreach (var (objectType, scnFiles) in objectInfoDic)
             //  {
             //      sb.Append($"{objectType}:");
-            //      foreach (var path in scnFilePaths)
+            //      foreach (var scnFile in scnFiles)
             //      {
-            //          sb.Append($" {Path.GetFileName(path)}");
+            //          sb.Append($" {scnFile.SceneInfo.CityName}-{scnFile.SceneInfo.SceneName}");
             //      }
             //      sb.Append("\n");
             //  }

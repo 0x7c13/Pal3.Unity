@@ -46,6 +46,11 @@ namespace Core.GameBox
         public int Top;
         public int Right;
         public int Bottom;
+
+        public bool IsEmpty => Left == 0 &&
+                               Top == 0 &&
+                               Right == 0 &&
+                               Bottom == 0;
     }
 
     public static class GameBoxVertexType

@@ -7,15 +7,15 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(189, "???")]
-    public class UnknownCommand189 : ICommand
+    [SceCommand(189, "相机移动至默认焦距点（主角）")]
+    public class CameraMoveToDefaultLookAtPointCommand : ICommand
     {
-        public UnknownCommand189(int unknown)
+        public CameraMoveToDefaultLookAtPointCommand(int duration)
         {
-            Unknown = unknown;
+            Duration = duration;
         }
 
-        public int Unknown { get; }
+        public int Duration { get; }
     }
     #endif
 }

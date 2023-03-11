@@ -82,7 +82,7 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
             switch (_parameters[2])
             {

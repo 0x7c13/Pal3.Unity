@@ -17,13 +17,13 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    [ScnSceneObject(ScnSceneObjectType.ElevatorFloorOrBlocker)]
-    public sealed class ElevatorFloorOrBlockerObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.RoadElevatorOrBlocker)]
+    public sealed class RoadElevatorOrBlockerObject : SceneObject
     {
         private StandingPlatformController _platformController;
         private SceneObjectMeshCollider _meshCollider;
 
-        public ElevatorFloorOrBlockerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public RoadElevatorOrBlockerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }

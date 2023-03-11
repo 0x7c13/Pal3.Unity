@@ -58,7 +58,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            if (ObjectInfo.Times == 0xFF &&
+            if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
                 ObjectInfo.Parameters[1] == 1)
             {
                 ObjectInfo.Times = 1;
@@ -99,25 +99,18 @@ namespace Pal3.Scene.SceneObjects
             }
 
             // Interact with linked object if any
-            if (ObjectInfo.LinkedObjectId != 0xFFFF)
+            if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
                 SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
                 Vector3 linkedObjectGameBoxPosition = linkedObject.ObjectInfo.GameBoxPosition;
 
-                if (linkedObject.ObjectInfo.Type == ScnSceneObjectType.ElevatorFloorOrBlocker)
-                {
-                    linkedObjectGameBoxPosition.y = ObjectInfo.Parameters[0] * ObjectInfo.Parameters[4];
-                }
-
                 shouldResetCamera = true;
 
-                yield return MoveCameraToLookAtPointAsync(
-                    GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),
-                    ctx.PlayerActorGameObject);
-
-                if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
+                if (!SceneInfo.Is("m06", "2"))
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
+                    yield return MoveCameraToLookAtPointAsync(
+                        GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),
+                        ctx.PlayerActorGameObject);
                 }
 
                 if (ObjectInfo.Parameters[1] == 1)
@@ -136,6 +129,10 @@ namespace Pal3.Scene.SceneObjects
                 }
 
                 yield return new WaitForSeconds(1);
+            }
+            else
+            {
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
             }
 
             if (shouldResetCamera)

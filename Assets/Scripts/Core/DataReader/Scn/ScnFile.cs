@@ -62,11 +62,11 @@ namespace Core.DataReader.Scn
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)
         Trap                          =  6,   // 陷阱 (调用脚本切换场景)
         RotatingBridge                =  7,   // 旋传石梁 (一字型)
-        RotatingWall                  =  8,   // 旋转墙 (折尺型)
+        Teapot                        =  8,   // 茶壶 (外传独有)
         PreciseTrigger                =  9,   // 精确触发点
         WindBlower                    = 10,   // 风口
         Pushable                      = 11,   // 推箱子
-        SpecialSwitch                 = 12,   // 主角特技机关
+        SpecialSwitch                 = 12,   // 主角特技机关(仙三独有)
         Impulsive                     = 13,   // 冲撞类机关
         Door                          = 14,   // 门，场景切换点
         Climbable                     = 15,   // 藤蔓或梯子 (可爬物)
@@ -88,7 +88,7 @@ namespace Core.DataReader.Scn
         #if PAL3
         WishPool                      = 27,   // 许愿池
         #elif PAL3A
-        ToggleSwitch                  = 27,   // 普通开关的变种 (可触发其他机关,外传特有)
+        ToggleSwitch                  = 27,   // 普通开关的变种 (可触发其他机关,外传独有)
         #endif
         ColdWeapon                    = 28,   // (M24)剑或锤
         GravitySwitch                 = 29,   // 重力机关（乌龟）
@@ -112,7 +112,7 @@ namespace Core.DataReader.Scn
         // 以下所有均为仙三外传中新增的场景物件类型
         UnknownObj47                  = 47,   // PAL3A m19 8
         UnknownObj48                  = 48,   // PAL3A m19 8
-        ElevatorFloorOrBlocker        = 49,   // 可升降或者是经过之后阻挡物 PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
+        RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物 PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
         UnknownObj51                  = 51,   // PAL3A m10 2
         UnknownObj52                  = 52,   // PAL3A m01 1
         UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
@@ -361,9 +361,9 @@ namespace Core.DataReader.Scn
         public byte DependentObjectId;
 
         public Bounds Bounds;
-        public float GameBoxXRotation;            // 绕X轴旋转
+        public float GameBoxXRotation;      // 绕X轴旋转
         #if PAL3A
-        public float GameBoxZRotation;            // 绕Z轴旋转
+        public float GameBoxZRotation;     // 绕Z轴旋转
         #endif
         public string SfxName;             // 音效文件名
 

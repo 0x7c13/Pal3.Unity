@@ -36,6 +36,8 @@ namespace Pal3.Camera
         #if PAL3A
         ICommandExecutor<CameraOrbitHorizontalCommand>,
         ICommandExecutor<CameraOrbitVerticalCommand>,
+        ICommandExecutor<CameraMoveToLookAtPointCommand>,
+        ICommandExecutor<CameraMoveToDefaultLookAtPointCommand>,
         #endif
         ICommandExecutor<CameraFadeInCommand>,
         ICommandExecutor<CameraFadeInWhiteCommand>,
@@ -270,12 +272,11 @@ namespace Pal3.Camera
 
         private IEnumerator MoveAsync(Vector3 position,
             float duration,
-            int mode,
+            AnimationCurveType curveType,
             WaitUntilCanceled waiter = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            var curveType = (AnimationCurveType) mode;
             Transform cameraTransform = _camera.transform;
             Vector3 oldPosition = cameraTransform.position;
             yield return AnimationHelper.MoveTransformAsync(cameraTransform, position, duration, curveType, cancellationToken);
@@ -562,66 +563,6 @@ namespace Pal3.Camera
             #endif
         }
 
-        #if PAL3A
-        public void Execute(CameraOrbitHorizontalCommand command)
-        {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-
-            var oldDistance = _cameraOffset.magnitude;
-            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
-            var distanceDelta = newDistance - oldDistance;
-
-            if (command.Synchronous == 1)
-            {
-                var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
-            }
-            else
-            {
-                _asyncCameraAnimationCts = new CancellationTokenSource();
-                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation,
-                    command.Duration,
-                    (AnimationCurveType)command.CurveType,
-                    distanceDelta,
-                    waiter: null,
-                    _asyncCameraAnimationCts.Token));
-            }
-        }
-        #endif
-
-        #if PAL3A
-        public void Execute(CameraOrbitVerticalCommand command)
-        {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-
-            var oldDistance = _cameraOffset.magnitude;
-            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
-            var distanceDelta = newDistance - oldDistance;
-
-            if (command.Synchronous == 1)
-            {
-                var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
-            }
-            else
-            {
-                _asyncCameraAnimationCts = new CancellationTokenSource();
-                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation,
-                    command.Duration,
-                    (AnimationCurveType)command.CurveType,
-                    distanceDelta,
-                    waiter: null,
-                    _asyncCameraAnimationCts.Token));
-            }
-        }
-        #endif
-
         public void Execute(CameraFadeInCommand command)
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
@@ -703,7 +644,7 @@ namespace Pal3.Camera
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition));
-                StartCoroutine(MoveAsync(position, command.Duration, command.Mode, waiter));
+                StartCoroutine(MoveAsync(position, command.Duration, (AnimationCurveType)command.CurveType, waiter));
             }
             #if PAL3A
             else
@@ -715,7 +656,7 @@ namespace Pal3.Camera
                     command.GameBoxZPosition));
                 StartCoroutine(MoveAsync(position,
                     command.Duration,
-                    command.Mode,
+                    (AnimationCurveType)command.CurveType,
                     waiter: null,
                     _asyncCameraAnimationCts.Token));
             }
@@ -794,5 +735,113 @@ namespace Pal3.Camera
             _cameraLastKnownSceneState.Clear();
             _free = true;
         }
+
+        #if PAL3A
+        public void Execute(CameraOrbitHorizontalCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
+            var oldDistance = _cameraOffset.magnitude;
+            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
+            var distanceDelta = newDistance - oldDistance;
+
+            if (command.Synchronous == 1)
+            {
+                var waiter = new WaitUntilCanceled();
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+            }
+            else
+            {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
+                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(OrbitAsync(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
+            }
+        }
+
+        public void Execute(CameraOrbitVerticalCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
+            var oldDistance = _cameraOffset.magnitude;
+            var newDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
+            var distanceDelta = newDistance - oldDistance;
+
+            if (command.Synchronous == 1)
+            {
+                var waiter = new WaitUntilCanceled();
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+            }
+            else
+            {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
+                Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+                StartCoroutine(OrbitAsync(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
+            }
+        }
+
+        public void Execute(CameraMoveToLookAtPointCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
+            _free = false;
+            const float duration = 1f;
+
+            if (command.Synchronous == 1)
+            {
+                var waiter = new WaitUntilCanceled();
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Vector3 position = _cameraOffset + GameBoxInterpreter.ToUnityPosition(new Vector3(
+                    command.GameBoxXPosition,
+                    command.GameBoxYPosition,
+                    command.GameBoxZPosition));
+                StartCoroutine(MoveAsync(position, duration, AnimationCurveType.Sine, waiter));
+            }
+            else
+            {
+                _asyncCameraAnimationCts = new CancellationTokenSource();
+                Vector3 position = _cameraOffset + GameBoxInterpreter.ToUnityPosition(new Vector3(
+                    command.GameBoxXPosition,
+                    command.GameBoxYPosition,
+                    command.GameBoxZPosition));
+                StartCoroutine(MoveAsync(position,
+                    duration,
+                    AnimationCurveType.Sine,
+                    waiter: null,
+                    _asyncCameraAnimationCts.Token));
+            }
+        }
+
+        public void Execute(CameraMoveToDefaultLookAtPointCommand command)
+        {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
+            var waiter = new WaitUntilCanceled();
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+
+            if (_gamePlayController.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            {
+                Vector3 position = _cameraOffset + playerActorPosition;
+                StartCoroutine(MoveAsync(position, command.Duration, AnimationCurveType.Sine, waiter));
+            }
+            else
+            {
+                _free = true;
+            }
+        }
+        #endif
     }
 }

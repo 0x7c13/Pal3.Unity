@@ -10,7 +10,10 @@ namespace Pal3.Command.SceCommands
                     "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     public class CameraFocusOnPositionCommand : ICommand
     {
-        public CameraFocusOnPositionCommand(float gameBoxXPosition, float gameBoxYPosition, float gameBoxZPosition)
+        public CameraFocusOnPositionCommand(
+            float gameBoxXPosition,
+            float gameBoxYPosition,
+            float gameBoxZPosition)
         {
             GameBoxXPosition = gameBoxXPosition;
             GameBoxYPosition = gameBoxYPosition;

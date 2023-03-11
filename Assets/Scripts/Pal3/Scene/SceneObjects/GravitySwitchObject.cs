@@ -68,7 +68,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 // Gravity switch can only be activated once, but there is one in PAL3 M24-3
                 // scene that can be activated multiple times, we should fix it here.
-                if (ObjectInfo.Times == 0xFF) ObjectInfo.Times = 1;
+                if (ObjectInfo.Times == INFINITE_TIMES_COUNT) ObjectInfo.Times = 1;
 
                 if (!IsInteractableBasedOnTimesCount()) return;
                 RequestForInteraction();

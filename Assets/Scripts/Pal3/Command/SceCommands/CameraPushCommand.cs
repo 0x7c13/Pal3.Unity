@@ -11,7 +11,10 @@ namespace Pal3.Command.SceCommands
                     "参数：最后from与lookAt之间的距离（原GameBox引擎下的距离单位），动作时间，插值类型（0：Linear，1：Sine）")]
     public class CameraPushCommand : ICommand
     {
-        public CameraPushCommand(float gameBoxDistance, float duration, int curveType)
+        public CameraPushCommand(
+            float gameBoxDistance,
+            float duration,
+            int curveType)
         {
             GameBoxDistance = gameBoxDistance;
             Duration = duration;
@@ -28,7 +31,11 @@ namespace Pal3.Command.SceCommands
                     "参数：最后from与lookAt之间的距离（原GameBox引擎下的距离单位），动作时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
     public class CameraPushCommand : ICommand
     {
-        public CameraPushCommand(float gameBoxDistance, float duration, int curveType, int synchronous)
+        public CameraPushCommand(
+            float gameBoxDistance,
+            float duration,
+            int curveType,
+            int synchronous)
         {
             GameBoxDistance = gameBoxDistance;
             Duration = duration;

@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System;
@@ -36,13 +38,11 @@ namespace Pal3.Scene.SceneObjects
             // to make sure the player can't walk through the collider
             var boundsScale = (PlayerActorId) ObjectInfo.Parameters[0] switch
             {
-                #if PAL3
                 PlayerActorId.JingTian => 1.5f,
                 PlayerActorId.XueJian => 1.5f,
                 PlayerActorId.LongKui => 1.2f,
                 PlayerActorId.ZiXuan => 1.2f,
                 PlayerActorId.ChangQing => 1.7f,
-                #endif
                 _ => 1f
             };
 
@@ -81,7 +81,6 @@ namespace Pal3.Scene.SceneObjects
 
             yield return new WaitForSeconds(1.2f); // Wait for actor animation to finish
 
-            #if PAL3
             var sfxName = actorId switch
             {
                 PlayerActorId.JingTian => "we026",
@@ -96,7 +95,6 @@ namespace Pal3.Scene.SceneObjects
             {
                 PlaySfx(sfxName);
             }
-            #endif
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
@@ -107,3 +105,5 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
+
+#endif

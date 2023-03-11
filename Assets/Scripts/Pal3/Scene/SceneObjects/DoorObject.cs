@@ -82,6 +82,8 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.Parameters[1] == 1 &&
                 ObjectInfo.Parameters[2] == 1)
             {
+                PlaySfxIfAny();
+
                 if (ModelType == SceneObjectModelType.PolModel)
                 {
                     ChangeAndSaveActivationState(false);

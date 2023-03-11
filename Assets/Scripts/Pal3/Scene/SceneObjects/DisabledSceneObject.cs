@@ -21,7 +21,6 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.WindBlower)]
     [ScnSceneObject(ScnSceneObjectType.Billboard)]
     [ScnSceneObject(ScnSceneObjectType.PreciseTrigger)]
-    [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
     public sealed class DisabledSceneObject : SceneObject
     {
         public DisabledSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

@@ -11,7 +11,11 @@ namespace Pal3.Command.SceCommands
                     "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine）")]
     public class CameraRotateCommand : ICommand
     {
-        public CameraRotateCommand(float yaw, float pitch, float duration, int curveType)
+        public CameraRotateCommand(
+            float yaw,
+            float pitch,
+            float duration,
+            int curveType)
         {
             Yaw = yaw;
             Pitch = pitch;
@@ -30,7 +34,12 @@ namespace Pal3.Command.SceCommands
                     "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
     public class CameraRotateCommand : ICommand
     {
-        public CameraRotateCommand(float yaw, float pitch, float duration, int curveType, int synchronous)
+        public CameraRotateCommand(
+            float yaw,
+            float pitch,
+            float duration,
+            int curveType,
+            int synchronous)
         {
             Yaw = yaw;
             Pitch = pitch;
