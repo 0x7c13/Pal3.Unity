@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
     [ScnSceneObject(ScnSceneObjectType.UnknownObj47)]
@@ -21,6 +22,8 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.UnknownObj59)]
     public sealed class GeneralSceneObject : SceneObject
     {
+        private SceneObjectMeshCollider _meshCollider;
+
         public GeneralSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
@@ -49,24 +52,41 @@ namespace Pal3.Scene.SceneObjects
                 if (ObjectInfo is { Id: 15 } &&
                     SceneInfo.Is("m15", "2"))
                 {
-                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
                 // All general objects (except indicators) in M22 scene should block player
                 if (SceneInfo.IsCity("m22") &&
                     ObjectInfo.Parameters[0] == 0)
                 {
-                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
                 // All general objects (except indicators) in M24 scene should block player
                 if (SceneInfo.IsCity("m24") &&
                     ObjectInfo.Parameters[0] == 0)
                 {
-                    sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                }
+                #elif PAL3A
+                // Object 15 in scene M12-1 should block player
+                if (SceneInfo.Is("m12", "1") && ObjectInfo.Id == 15)
+                {
+                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider.Init(new Vector3(2.5f, 0f, 0f));
                 }
                 #endif
             }
 
             return sceneGameObject;
+        }
+
+        public override void Deactivate()
+        {
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+            }
+
+            base.Deactivate();
         }
     }
 }

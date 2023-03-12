@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     public sealed class MovableCarrierObject : SceneObject
     {
-        private float MOVE_SPEED = 3.5f;
+        private float MOVE_SPEED = 5f;
 
         private StandingPlatformController _platformController;
 

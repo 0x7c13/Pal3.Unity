@@ -13,7 +13,9 @@ namespace Pal3.Scene.SceneObjects
     using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Services;
     using Data;
+    using State;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.LiftingPlatform)]
@@ -33,6 +35,24 @@ namespace Pal3.Scene.SceneObjects
         {
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            #if PAL3A
+            if (!string.IsNullOrEmpty(ObjectInfo.DependentSceneName))
+            {
+                var sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
+                if (sceneStateManager.TryGetSceneObjectStateOverride(
+                        SceneInfo.CityName,
+                        ObjectInfo.DependentSceneName,
+                        ObjectInfo.DependentObjectId,
+                        out SceneObjectStateOverride stateOverride))
+                {
+                    if (stateOverride.SwitchState == 1)
+                    {
+                        ObjectInfo.SwitchState = 1;
+                    }
+                }
+            }
+            #endif
 
             // Set to final position if the platform is already activated
             if (ObjectInfo.SwitchState == 1)

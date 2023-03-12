@@ -12,6 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.Animation;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Data;
@@ -62,7 +63,11 @@ namespace Pal3.Scene.SceneObjects
             // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
 
             if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
-                (ObjectInfo.Parameters[1] == 1 || SceneInfo.Is("m10", "2")))
+                (ObjectInfo.Parameters[1] == 1 ||
+                 ObjectInfo.Parameters[1] == 180 ||
+                 SceneInfo.Is("m10", "2") ||
+                 SceneInfo.Is("m11", "9") ||
+                 SceneInfo.Is("m11", "7")))
             {
                 ObjectInfo.Times = 1;
             }
@@ -88,6 +93,17 @@ namespace Pal3.Scene.SceneObjects
             {
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
             }
+            else if (ObjectInfo.Parameters[1] == 180) // Special case for M12-2
+            {
+                Transform objectTransform = GetGameObject().transform;
+                Quaternion rotation = objectTransform.rotation;
+                Quaternion targetRotation = rotation * Quaternion.Euler(0, 180, 0);
+
+                yield return AnimationHelper.RotateTransformAsync(objectTransform,
+                    targetRotation, 3f, AnimationCurveType.Sine);
+
+                SaveYRotation();
+            }
 
             // Disable associated effect object if any
             if (ObjectInfo.EffectModelType != 0)
@@ -106,7 +122,10 @@ namespace Pal3.Scene.SceneObjects
 
                 shouldResetCamera = true;
 
-                if (!SceneInfo.Is("m06", "2"))
+                if (!SceneInfo.Is("m06", "2") &&
+                    linkedObject.ObjectInfo.Type
+                        is not ScnSceneObjectType.LiftingPlatform
+                        and not ScnSceneObjectType.MovableCarrier)
                 {
                     yield return MoveCameraToLookAtPointAsync(
                         GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),
