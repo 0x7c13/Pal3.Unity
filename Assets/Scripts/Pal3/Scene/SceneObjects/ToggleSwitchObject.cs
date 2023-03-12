@@ -62,7 +62,7 @@ namespace Pal3.Scene.SceneObjects
             // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
 
             if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
-                ObjectInfo.Parameters[1] == 1)
+                (ObjectInfo.Parameters[1] == 1 || SceneInfo.Is("m10", "2")))
             {
                 ObjectInfo.Times = 1;
             }

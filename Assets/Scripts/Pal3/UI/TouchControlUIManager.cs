@@ -39,7 +39,12 @@ namespace Pal3.UI
             _storySelectionButton = storySelectionButton != null ? storySelectionButton : throw new ArgumentNullException(nameof(storySelectionButton));
 
             _touchControlUI.enabled = false;
+
+            #if UNITY_EDITOR
+            _isTouchSupported = true;
+            #else
             _isTouchSupported = Utility.IsHandheldDevice();
+            #endif
 
             if (_isTouchSupported)
             {

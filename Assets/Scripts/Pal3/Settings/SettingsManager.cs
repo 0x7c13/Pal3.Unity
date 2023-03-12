@@ -24,19 +24,21 @@ namespace Pal3.Settings
             //QualitySettings.vSyncCount = 1;
 
             #if UNITY_2022_1_OR_NEWER
-            var monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            var targetFrameRate = (int)Screen.currentResolution.refreshRateRatio.value;
             #else
-            var monitorRefreshRate = Screen.currentResolution.refreshRate;
+            var targetFrameRate = Screen.currentResolution.refreshRate;
             #endif
+
+            targetFrameRate = Mathf.Max(targetFrameRate, 60); // 60Hz is the minimum
 
             Application.targetFrameRate = Application.platform switch
             {
-                RuntimePlatform.WindowsEditor => monitorRefreshRate,
-                RuntimePlatform.WindowsPlayer => monitorRefreshRate,
-                RuntimePlatform.OSXEditor => monitorRefreshRate,
-                RuntimePlatform.OSXPlayer => monitorRefreshRate,
-                RuntimePlatform.LinuxEditor => monitorRefreshRate,
-                RuntimePlatform.LinuxPlayer => monitorRefreshRate,
+                RuntimePlatform.WindowsEditor => targetFrameRate,
+                RuntimePlatform.WindowsPlayer => targetFrameRate,
+                RuntimePlatform.OSXEditor => targetFrameRate,
+                RuntimePlatform.OSXPlayer => targetFrameRate,
+                RuntimePlatform.LinuxEditor => targetFrameRate,
+                RuntimePlatform.LinuxPlayer => targetFrameRate,
                 RuntimePlatform.IPhonePlayer => 120,
                 RuntimePlatform.Android => 120,
                 RuntimePlatform.Switch => 60,

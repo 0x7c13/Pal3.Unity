@@ -52,9 +52,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         public float GetPlatformHeight()
         {
-            // A little bit lower than the collider bounds just to make sure
-            // the actor is always inside the collider when standing on the platform.
-            return _collider.bounds.max.y - 0.05f + _heightOffset;
+            return _collider.bounds.max.y + _heightOffset;
         }
 
         private void OnTriggerEnter(Collider otherCollider)

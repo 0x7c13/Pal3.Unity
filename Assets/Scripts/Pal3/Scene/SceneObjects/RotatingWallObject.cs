@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
             if (Activated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            // Add mesh collider to the main object.
+            // Add mesh collider to block player
             _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             _meshCollider.Init(new Vector3(-1f, 0f, 0f));
 
@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
                     poly.TextureProvider,
                     tintColor);
 
-                // Add mesh collider to the sub-component.
+                // Sub-object should block player as well, so let's add mesh collider to it
                 _subObjectMeshCollider = _subObjectGameObject.AddComponent<SceneObjectMeshCollider>();
                 _subObjectMeshCollider.Init(new Vector3(0f, 0f, -1f));
 
@@ -71,7 +71,7 @@ namespace Pal3.Scene.SceneObjects
             Quaternion targetRotation = rotation * Quaternion.Euler(0, -ObjectInfo.Parameters[1], 0);
 
             yield return AnimationHelper.RotateTransformAsync(objectTransform,
-                targetRotation, 2.5f, AnimationCurveType.Sine);
+                targetRotation, 2.2f, AnimationCurveType.Sine);
 
             SaveYRotation();
         }

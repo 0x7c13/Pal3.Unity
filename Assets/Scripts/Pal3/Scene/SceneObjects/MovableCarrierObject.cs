@@ -52,6 +52,17 @@ namespace Pal3.Scene.SceneObjects
                     size = new Vector3(8.5f, 13.5f, 8.5f),
                 };
             }
+            #elif PAL3A
+            if (SceneInfo.Is("m10", "2") &&
+                (ObjectInfo.Name.Equals("_f.pol", StringComparison.OrdinalIgnoreCase) ||
+                 ObjectInfo.Name.Equals("_g.pol", StringComparison.OrdinalIgnoreCase)))
+            {
+                bounds = new Bounds
+                {
+                    center = new Vector3(0f, -0.3f, 0f),
+                    size = new Vector3(6f, 0.7f, 6f),
+                };
+            }
             #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
