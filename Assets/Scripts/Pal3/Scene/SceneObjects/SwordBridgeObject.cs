@@ -57,7 +57,7 @@ namespace Pal3.Scene.SceneObjects
             #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex, heightOffset);
+            _platformController.Init(bounds, ObjectInfo.LayerIndex, heightOffset);
 
             return sceneGameObject;
         }

@@ -26,9 +26,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex)
         {
-            _tileMapTriggerRect = tileMapTriggerRect;
-            _layerIndex = layerIndex;
-            _effectiveTime = Time.realtimeSinceStartupAsDouble;
+            Init(tileMapTriggerRect, layerIndex, Time.realtimeSinceStartupAsDouble);
         }
 
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex, double effectiveTime)

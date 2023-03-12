@@ -20,7 +20,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         private BoxCollider _collider;
         private Bounds _triggerBounds;
-        private float _heightOffset;
+        private float _platformHeightOffset;
 
         private PlayerManager _playerManager;
 
@@ -29,11 +29,11 @@ namespace Pal3.Scene.SceneObjects.Common
             _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
         }
 
-        public void SetBounds(Bounds triggerBounds, int layerIndex, float heightOffset = 0f)
+        public void Init(Bounds triggerBounds, int layerIndex, float platformHeightOffset = 0f)
         {
             _triggerBounds = triggerBounds;
             LayerIndex = layerIndex;
-            _heightOffset = heightOffset;
+            _platformHeightOffset = platformHeightOffset;
 
             if (_collider == null)
             {
@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         public float GetPlatformHeight()
         {
-            return _collider.bounds.max.y + _heightOffset;
+            return _collider.bounds.max.y + _platformHeightOffset;
         }
 
         private void OnTriggerEnter(Collider otherCollider)

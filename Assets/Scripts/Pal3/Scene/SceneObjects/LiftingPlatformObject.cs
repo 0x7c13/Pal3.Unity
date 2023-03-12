@@ -70,7 +70,7 @@ namespace Pal3.Scene.SceneObjects
             bounds.size += new Vector3(0.6f, 0.2f, 0.6f);
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+            _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
             #if PAL3A
             // Add a mesh collider to block the player from walking into the object

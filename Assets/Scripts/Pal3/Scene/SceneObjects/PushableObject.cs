@@ -66,7 +66,7 @@ namespace Pal3.Scene.SceneObjects
                 Bounds platformBounds = meshBounds;
                 platformBounds.size *= 1.5f;
                 _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
-                _standingPlatformController.SetBounds(platformBounds, ObjectInfo.LayerIndex, -0.3f);
+                _standingPlatformController.Init(platformBounds, ObjectInfo.LayerIndex, -0.3f);
             }
 
             return sceneGameObject;

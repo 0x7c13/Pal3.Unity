@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System;
@@ -62,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
                 };
 
                 _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-                _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+                _platformController.Init(bounds, ObjectInfo.LayerIndex);
             }
 
             return sceneGameObject;
@@ -79,3 +81,5 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
+
+#endif

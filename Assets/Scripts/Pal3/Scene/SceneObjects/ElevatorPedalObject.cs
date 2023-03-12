@@ -40,7 +40,7 @@ namespace Pal3.Scene.SceneObjects
             Bounds bounds = GetMeshBounds();
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+            _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             Tilemap tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();

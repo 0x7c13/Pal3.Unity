@@ -50,7 +50,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 // Add a standing platform controller so that the player can stand on the floor
                 _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-                _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+                _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
                 // Add a mesh collider to block the player from walking into the object
                 _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();

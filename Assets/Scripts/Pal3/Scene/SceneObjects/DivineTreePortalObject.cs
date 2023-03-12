@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#if PAL3
-
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
@@ -47,7 +45,7 @@ namespace Pal3.Scene.SceneObjects
             };
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+            _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
             _platformController.OnPlayerActorExited += OnPlayerActorExited;
 
@@ -96,11 +94,13 @@ namespace Pal3.Scene.SceneObjects
                 shouldGoUp = true;
             }
 
+            #if PAL3
             if (!shouldGoUp.HasValue)
             {
                 shouldGoUp = (PlayerActorId) ctx.PlayerActorGameObject.GetComponent<ActorController>().GetActor().Info.Id is
                     PlayerActorId.JingTian or PlayerActorId.XueJian;
             }
+            #endif
 
             GameObject portalObject = GetGameObject();
             var platformController = portalObject.GetComponent<StandingPlatformController>();
@@ -145,5 +145,3 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
-
-#endif

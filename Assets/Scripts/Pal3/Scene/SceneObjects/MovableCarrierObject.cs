@@ -66,7 +66,7 @@ namespace Pal3.Scene.SceneObjects
             #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
-            _platformController.SetBounds(bounds, ObjectInfo.LayerIndex);
+            _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             return sceneGameObject;

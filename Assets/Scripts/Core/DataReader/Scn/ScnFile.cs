@@ -116,8 +116,8 @@ namespace Core.DataReader.Scn
         RetractableBlocker            = 51,   // 可收回路障 PAL3A m10-2
         RotatingWall                  = 52,   // T形旋转石门 PAL3A m09-1, m09-2
         UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
-        UnknownObj54                  = 54,   // PAL3A m13 1, m13 2, m13 3, m13 4
-        UnknownObj55                  = 55,   // PAL3A m13 1, m13 2, m13 3, m13 4
+        ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13 1, m13 2, m13 3, m13 4
+        ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13 1, m13 2, m13 3, m13 4
         UnknownObj56                  = 56,   // PAL3A m15 1
         UnknownObj59                  = 59,   // PAL3A m15 2
     }

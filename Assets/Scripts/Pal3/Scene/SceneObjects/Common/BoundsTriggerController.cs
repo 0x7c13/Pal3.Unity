@@ -55,12 +55,12 @@ namespace Pal3.Scene.SceneObjects.Common
             }
         }
 
-        private void OnTriggerEnter(Collider collider)
+        private void OnTriggerEnter(Collider otherCollider)
         {
-            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, collider.gameObject);
+                OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
             }
         }
 
@@ -73,12 +73,12 @@ namespace Pal3.Scene.SceneObjects.Common
             }
         }
 
-        private void OnTriggerExit(Collider collider)
+        private void OnTriggerExit(Collider otherCollider)
         {
-            if (collider.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, collider.gameObject);
+                OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
             }
         }
     }
