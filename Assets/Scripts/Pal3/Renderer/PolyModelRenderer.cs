@@ -116,7 +116,11 @@ namespace Pal3.Renderer
                 var textures = new List<(string name, Texture2D texture)>();
                 foreach (var textureName in mesh.Textures[i].TextureNames)
                 {
-                    if (string.IsNullOrEmpty(textureName)) continue;
+                    if (string.IsNullOrEmpty(textureName))
+                    {
+                        textures.Add((textureName, Texture2D.whiteTexture));
+                        continue;
+                    }
 
                     if (_textureCache.ContainsKey(textureName))
                     {
