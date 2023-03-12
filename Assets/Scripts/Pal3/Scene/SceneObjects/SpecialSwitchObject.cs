@@ -50,7 +50,7 @@ namespace Pal3.Scene.SceneObjects
             };
 
             _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            _meshCollider.SetBoundsSizeOffset(boundsSizeOffset);
+            _meshCollider.Init(boundsSizeOffset);
 
             return sceneGameObject;
         }

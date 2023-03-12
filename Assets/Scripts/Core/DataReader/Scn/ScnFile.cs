@@ -110,11 +110,11 @@ namespace Core.DataReader.Scn
 
         // PAL3A new scene objects
         // 以下所有均为仙三外传中新增的场景物件类型
-        UnknownObj47                  = 47,   // PAL3A m19 8
-        UnknownObj48                  = 48,   // PAL3A m19 8
-        RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物 PAL3A m05 3, m06 2, m17 2, m17 3, m17 4, m18 1, m18 2
-        UnknownObj51                  = 51,   // PAL3A m10 2
-        UnknownObj52                  = 52,   // PAL3A m01 1
+        UnknownObj47                  = 47,   // PAL3A m19-8
+        UnknownObj48                  = 48,   // PAL3A m19-8
+        RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物
+        UnknownObj51                  = 51,   // PAL3A m10-2
+        RotatingWall                  = 52,   // T形旋转石门 PAL3A m09-1, m09-2
         UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
         UnknownObj54                  = 54,   // PAL3A m13 1, m13 2, m13 3, m13 4
         UnknownObj55                  = 55,   // PAL3A m13 1, m13 2, m13 3, m13 4
@@ -361,7 +361,7 @@ namespace Core.DataReader.Scn
         public byte DependentObjectId;
 
         public Bounds Bounds;
-        public float GameBoxXRotation;      // 绕X轴旋转
+        public float GameBoxXRotation;     // 绕X轴旋转
         #if PAL3A
         public float GameBoxZRotation;     // 绕Z轴旋转
         #endif

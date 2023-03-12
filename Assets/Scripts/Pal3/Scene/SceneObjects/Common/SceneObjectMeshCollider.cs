@@ -14,15 +14,26 @@ namespace Pal3.Scene.SceneObjects.Common
         private Vector3 _meshBoundsSize;
         private Vector3 _boundsSizeOffset;
 
-        public void SetBoundsSizeOffset(Vector3 sizeOffset)
+        private bool _initialized;
+
+        /// <summary>
+        /// Init with a size offset.
+        /// Note: This method is not required to be called.
+        /// </summary>
+        /// <param name="sizeOffset">A size offset to the bounds based on model</param>
+        public void Init(Vector3 sizeOffset)
         {
             _boundsSizeOffset = sizeOffset;
             UpdateBounds();
+            _initialized = true;
         }
 
         private void Start()
         {
-            UpdateBounds();
+            if (!_initialized)
+            {
+                UpdateBounds();
+            }
         }
 
         private void UpdateBounds()
