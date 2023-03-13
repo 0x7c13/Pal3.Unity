@@ -59,26 +59,26 @@ namespace Pal3.Scene.SceneObjects
         {
             return Activated &&
                    distance < MAX_INTERACTION_DISTANCE &&
-                   ObjectInfo is {SwitchState: 0, Times: > 0} &&
+                   ObjectInfo.Times > 0 &&
                    ObjectInfo.Parameters[1] is 0 or 2; // 0 means directly interactable,
                                                        // 2 means interactable but executing script only
         }
 
+        // TODO: Implement WuLing interaction logic for this switch
+        // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            if (ObjectInfo is { Times: INFINITE_TIMES_COUNT, CanOnlyBeTriggeredOnce: 1 })
+            {
+                ObjectInfo.Times = 1;
+            }
+
             if (!IsInteractableBasedOnTimesCount()) yield break;
-            if (ObjectInfo.SwitchState == 1) yield break;
-
-            var shouldResetCamera = false;
-
-            // TODO: Implement WuLing interaction logic for this switch
-            // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
 
             FlipAndSaveSwitchState();
 
             if (ctx.StartedByPlayer &&
-                ctx.InitObjectId == ObjectInfo.Id &&
-                ObjectInfo.Parameters[1] == 0)
+                ctx.InitObjectId == ObjectInfo.Id)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -108,6 +108,8 @@ namespace Pal3.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
             }
+
+            var shouldResetCamera = false;
 
             // Interact with linked object if any
             if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)

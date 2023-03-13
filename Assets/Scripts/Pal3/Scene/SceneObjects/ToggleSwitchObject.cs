@@ -54,23 +54,14 @@ namespace Pal3.Scene.SceneObjects
         {
             return Activated &&
                    distance < MAX_INTERACTION_DISTANCE &&
-                   ObjectInfo is {Times: > 0};
+                   ObjectInfo.Times > 0;
         }
 
+        // TODO: Implement WuLing interaction logic for this switch
+        // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            // TODO: Implement WuLing interaction logic for this switch
-            // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
-
-            // TODO: Figure out which toggle switches can be toggled multiple times
-            // using a better way, instead of hard-coding them here.
-            if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
-                (ObjectInfo.Parameters[1] == 1 ||
-                 ObjectInfo.Parameters[1] == 180 ||
-                 SceneInfo.Is("m10", "2") ||
-                 SceneInfo.Is("m11", "9") ||
-                 SceneInfo.Is("m11", "7") ||
-                 SceneInfo.Is("m13", "5")))
+            if (ObjectInfo is { Times: INFINITE_TIMES_COUNT, CanOnlyBeTriggeredOnce: 1 })
             {
                 ObjectInfo.Times = 1;
             }

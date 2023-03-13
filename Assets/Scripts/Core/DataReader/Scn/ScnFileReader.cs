@@ -129,7 +129,7 @@ namespace Core.DataReader.Scn
             #endif
 
             #if PAL3A
-            var unknown1 = reader.ReadUInt32(); // TODO
+            var notUsed = reader.ReadUInt32();
             #endif
 
             var requireSpecialAction = reader.ReadByte();
@@ -145,7 +145,7 @@ namespace Core.DataReader.Scn
             _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
             #if PAL3A
-            var unknown2 = reader.ReadUInt32(); // TODO
+            var unknown = reader.ReadUInt32(); // TODO
             #endif
 
             var scriptId = reader.ReadUInt32();
@@ -180,7 +180,7 @@ namespace Core.DataReader.Scn
             var scriptMoved = reader.ReadUInt32();
 
             #if PAL3A
-            var unknown3 = reader.ReadUInt32(); // TODO
+            var canOnlyBeTriggeredOnce = reader.ReadUInt32();
             #endif
 
             #if PAL3
@@ -213,7 +213,7 @@ namespace Core.DataReader.Scn
                 Parameters = parameters,
 
                 #if PAL3A
-                Unknown1 = unknown1, // TODO
+                NotUsed = notUsed,
                 #endif
 
                 RequireSpecialAction = requireSpecialAction,
@@ -226,7 +226,7 @@ namespace Core.DataReader.Scn
                 FailedMessage = failedMessage,
 
                 #if PAL3A
-                Unknown2 = unknown2, // TODO
+                Unknown = unknown, // TODO
                 #endif
 
                 ScriptId = scriptId,
@@ -252,7 +252,7 @@ namespace Core.DataReader.Scn
                 ScriptMoved = scriptMoved,
 
                 #if PAL3A
-                Unknown3 = unknown3, // TODO
+                CanOnlyBeTriggeredOnce = canOnlyBeTriggeredOnce,
                 #endif
 
                 Reserved = reserved,

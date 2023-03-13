@@ -43,6 +43,7 @@ namespace Pal3.Scene.SceneObjects
 
             Bounds bounds = GetMeshBounds();
 
+            #if PAL3
             if (SceneInfo.IsCity("m11") &&
                 ObjectInfo.Name.Equals("_h1.pol", StringComparison.OrdinalIgnoreCase))
             {
@@ -61,6 +62,7 @@ namespace Pal3.Scene.SceneObjects
                     size = new Vector3(3.5f, 0.5f, 6f),
                 };
             }
+            #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);

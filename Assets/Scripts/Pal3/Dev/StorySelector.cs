@@ -1650,7 +1650,7 @@ namespace Pal3.Dev
                 ActorEnablePlayerControl -1
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 301 192
+                ActorSetTilePosition -1 144 53
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1

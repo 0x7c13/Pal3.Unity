@@ -61,7 +61,7 @@ namespace Core.DataReader.Scn
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)
         Trap                          =  6,   // 陷阱 (调用脚本切换场景)
-        RotatingBridge                =  7,   // 旋传石梁 (一字型)
+        RotatingBridge                =  7,   // 旋传石梁 (一字型,仙三独有)
         Teapot                        =  8,   // 茶壶 (外传独有)
         PreciseTrigger                =  9,   // 精确触发点
         WindBlower                    = 10,   // 风口
@@ -81,7 +81,7 @@ namespace Core.DataReader.Scn
                                               // 通用参数[1]:升起后到高层
                                               // 通用参数[2]:平台上的其他物件编号
                                               // 通用参数[3]:初始为可通过?)
-        Switch                        = 23,   // 普通开关 (可触发其他机关,正传特有)
+        Switch                        = 23,   // 普通开关 (可触发其他机关,仙三独有)
         Collectable                   = 24,   // 可以拣起的道具 (通用参数[0]:得到物品的数据库ID)
         General                       = 25,   // 普通物品
         RareChest                     = 26,   // 迷宫大宝箱
@@ -333,7 +333,7 @@ namespace Core.DataReader.Scn
         public int[] Parameters;
 
         #if PAL3A
-        public uint Unknown1; // always 0
+        public uint NotUsed; // always 0
         #endif
 
         // 触发条件
@@ -346,7 +346,7 @@ namespace Core.DataReader.Scn
         public string FailedMessage;               // char[16] 失败提示字符串名称
 
         #if PAL3A
-        public uint Unknown2;
+        public uint Unknown; // TODO
         #endif
 
         public uint ScriptId;
@@ -373,7 +373,7 @@ namespace Core.DataReader.Scn
         public uint ScriptMoved;
 
         #if PAL3A
-        public uint Unknown3;
+        public uint CanOnlyBeTriggeredOnce;
         #endif
 
         public uint[] Reserved;            // PAL3: 52 DWORDs PAL3A: 44 DWORDs
