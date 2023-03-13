@@ -45,7 +45,7 @@ namespace Pal3.Camera
         ICommandExecutor<CameraFadeOutWhiteCommand>,
         ICommandExecutor<CameraPushCommand>,
         ICommandExecutor<CameraMoveCommand>,
-        ICommandExecutor<CameraFreeCommand>,
+        ICommandExecutor<CameraFollowPlayerCommand>,
         ICommandExecutor<CameraSetYawCommand>,
         ICommandExecutor<CameraFocusOnActorCommand>,
         ICommandExecutor<CameraFocusOnSceneObjectCommand>,
@@ -77,7 +77,7 @@ namespace Pal3.Camera
         private Vector3 _cameraOffset = Vector3.zero;
         private float _lookAtPointYOffset;
 
-        private bool _free = true;
+        private bool _cameraFollowPlayer = true;
 
         private PlayerInputActions _inputActions;
         private PlayerGamePlayController _gamePlayController;
@@ -140,7 +140,7 @@ namespace Pal3.Camera
 
         private void LateUpdate()
         {
-            if (!_free)
+            if (!_cameraFollowPlayer)
             {
                 _shouldResetVelocity = true;
                 return;
@@ -480,7 +480,7 @@ namespace Pal3.Camera
 
             ApplyDefaultSettings(command.Option);
             _currentAppliedDefaultTransformOption = command.Option;
-            _free = true;
+            _cameraFollowPlayer = true;
         }
 
         public void Execute(CameraSetTransformCommand command)
@@ -503,16 +503,16 @@ namespace Pal3.Camera
 
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
             {
-                _free = false;
+                _cameraFollowPlayer = false;
             }
         }
 
-        public void Execute(CameraFreeCommand command)
+        public void Execute(CameraFollowPlayerCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
             _lookAtGameObject = null;
-            _free = command.Free == 1;
+            _cameraFollowPlayer = command.Follow == 1;
         }
 
         public void Execute(CameraShakeEffectCommand command)
@@ -674,7 +674,7 @@ namespace Pal3.Camera
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             // Remember the current scene's camera position and rotation
-            if (_free && currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
+            if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
             {
                 var cameraTransform = _camera.transform;
                 _cameraLastKnownSceneState.Add((
@@ -696,7 +696,7 @@ namespace Pal3.Camera
             ApplySceneSettings(notification.NewSceneInfo);
 
             // Apply the last known scene state if found in record.
-            if (_free && notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
+            if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
             {
                 if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))
@@ -727,13 +727,16 @@ namespace Pal3.Camera
 
         public void Execute(GameStateChangedNotification command)
         {
-            if (command.NewState == GameState.Gameplay) _free = true;
+            if (command.NewState == GameState.Gameplay)
+            {
+                _cameraFollowPlayer = true;
+            }
         }
 
         public void Execute(ResetGameStateCommand command)
         {
             _cameraLastKnownSceneState.Clear();
-            _free = true;
+            _cameraFollowPlayer = true;
         }
 
         #if PAL3A
@@ -797,7 +800,7 @@ namespace Pal3.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            _free = false;
+            _cameraFollowPlayer = false;
             const float duration = 1f;
 
             if (command.Synchronous == 1)
@@ -839,7 +842,7 @@ namespace Pal3.Camera
             }
             else
             {
-                _free = true;
+                _cameraFollowPlayer = true;
             }
         }
         #endif

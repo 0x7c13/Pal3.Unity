@@ -564,7 +564,7 @@ namespace Pal3.Player
                 {
                     //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
                     nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithSceneObjectAsync(sceneObject);
+                    interactionRoutine = InteractWithSceneObjectAsync(sceneObject, startedByPlayer: true);
                 }
             }
 
@@ -601,7 +601,7 @@ namespace Pal3.Player
             }
         }
 
-        private IEnumerator InteractWithSceneObjectAsync(SceneObject sceneObject)
+        private IEnumerator InteractWithSceneObjectAsync(SceneObject sceneObject, bool startedByPlayer)
         {
             var correlationId = Guid.NewGuid();
             var requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
@@ -617,7 +617,8 @@ namespace Pal3.Player
                 CorrelationId = correlationId,
                 InitObjectId = sceneObject.ObjectInfo.Id,
                 PlayerActorGameObject = _playerActorGameObject,
-                CurrentScene = _sceneManager.GetCurrentScene()
+                CurrentScene = _sceneManager.GetCurrentScene(),
+                StartedByPlayer = startedByPlayer,
             });
 
             if (requiresStateChange)
@@ -836,7 +837,8 @@ namespace Pal3.Player
             Scene currentScene = _sceneManager.GetCurrentScene();
             if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
             {
-                StartCoroutine(InteractWithSceneObjectAsync(currentScene.GetSceneObject(command.SceneObjectId)));
+                StartCoroutine(InteractWithSceneObjectAsync(
+                    currentScene.GetSceneObject(command.SceneObjectId), startedByPlayer: false));
             }
             else
             {

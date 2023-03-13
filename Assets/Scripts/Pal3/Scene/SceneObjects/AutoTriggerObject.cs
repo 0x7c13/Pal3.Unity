@@ -51,6 +51,13 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
 
+            #if PAL3A
+            if (ObjectInfo.Parameters[2] == 1 && GraphicsEffect == GraphicsEffect.Portal)
+            {
+                sceneGameObject.transform.rotation *= Quaternion.Euler(180, 0, 0);
+            }
+            #endif
+
             return sceneGameObject;
         }
 

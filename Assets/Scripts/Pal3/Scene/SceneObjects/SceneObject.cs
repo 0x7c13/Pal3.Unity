@@ -37,6 +37,7 @@ namespace Pal3.Scene.SceneObjects
         public int InitObjectId;
         public Scene CurrentScene;
         public GameObject PlayerActorGameObject;
+        public bool StartedByPlayer;
     }
 
     public abstract class SceneObject
@@ -421,7 +422,7 @@ namespace Pal3.Scene.SceneObjects
                     GameBoxInterpreter.ToGameBoxPosition(_sceneObjectGameObject.transform.position)));
         }
 
-        internal void SaveYRotation()
+        internal void SaveCurrentYRotation()
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneSaveGlobalObjectYRotationCommand(SceneInfo.CityName,
@@ -434,7 +435,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 position,
             GameObject playerActorGameObject)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
 
             Vector3 offset = position - playerActorGameObject.transform.position;
             Transform cameraTransform = Camera.main!.transform;
@@ -446,13 +447,13 @@ namespace Pal3.Scene.SceneObjects
 
         internal void CameraFocusOnObject(int objectId)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(1));
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFocusOnSceneObjectCommand(objectId));
         }
 
         internal void ResetCamera()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFreeCommand(1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(1));
         }
 
         internal bool IsFullyVisibleToCamera()

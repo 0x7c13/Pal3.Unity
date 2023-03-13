@@ -81,7 +81,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(0));
+                new CameraFollowPlayerCommand(0));
             RequestForInteraction();
         }
 
@@ -105,7 +105,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Parameters[0],
                     ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(1));
+                new CameraFollowPlayerCommand(1));
 
             _isDuringInteraction = false;
         }

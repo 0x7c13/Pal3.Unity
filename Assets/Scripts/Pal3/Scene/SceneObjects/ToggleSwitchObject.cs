@@ -62,12 +62,15 @@ namespace Pal3.Scene.SceneObjects
             // TODO: Implement WuLing interaction logic for this switch
             // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
 
+            // TODO: Figure out which toggle switches can be toggled multiple times
+            // using a better way, instead of hard-coding them here.
             if (ObjectInfo.Times == INFINITE_TIMES_COUNT &&
                 (ObjectInfo.Parameters[1] == 1 ||
                  ObjectInfo.Parameters[1] == 180 ||
                  SceneInfo.Is("m10", "2") ||
                  SceneInfo.Is("m11", "9") ||
-                 SceneInfo.Is("m11", "7")))
+                 SceneInfo.Is("m11", "7") ||
+                 SceneInfo.Is("m13", "5")))
             {
                 ObjectInfo.Times = 1;
             }
@@ -76,7 +79,7 @@ namespace Pal3.Scene.SceneObjects
 
             FlipAndSaveSwitchState();
 
-            if (ctx.InitObjectId == ObjectInfo.Id)
+            if (ctx.StartedByPlayer && ctx.InitObjectId == ObjectInfo.Id)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -102,7 +105,7 @@ namespace Pal3.Scene.SceneObjects
                 yield return AnimationHelper.RotateTransformAsync(objectTransform,
                     targetRotation, 3f, AnimationCurveType.Sine);
 
-                SaveYRotation();
+                SaveCurrentYRotation();
             }
 
             // Disable associated effect object if any

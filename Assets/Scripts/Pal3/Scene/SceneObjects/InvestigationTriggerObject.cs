@@ -45,7 +45,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            if (ctx.InitObjectId == ObjectInfo.Id)
+            if (ctx.StartedByPlayer && ctx.InitObjectId == ObjectInfo.Id)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));

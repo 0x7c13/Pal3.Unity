@@ -5,25 +5,28 @@
 
 namespace Pal3.Command.InternalCommands
 {
-    #if PAL3
+    #if PAL3A
     [AvailableInConsole]
-    public class SceneSaveGlobalBidirectionalPushableObjectStateCommand : ICommand
+    public class SceneSaveGlobalThreePhaseSwitchStateCommand : ICommand
     {
-        public SceneSaveGlobalBidirectionalPushableObjectStateCommand(string cityName,
+        public SceneSaveGlobalThreePhaseSwitchStateCommand(string cityName,
             string sceneName,
             int objectId,
-            int state)
+            int previousState,
+            int currentState)
         {
             CityName = cityName;
             SceneName = sceneName;
             ObjectId = objectId;
-            State = state;
+            PreviousState = previousState;
+            CurrentState = currentState;
         }
 
         public string CityName { get; }
         public string SceneName { get; }
         public int ObjectId { get; }
-        public int State { get; }
+        public int PreviousState { get; }
+        public int CurrentState { get; }
     }
     #endif
 }

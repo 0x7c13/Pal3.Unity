@@ -79,7 +79,7 @@ namespace Pal3.Scene.SceneObjects
             yield return AnimationHelper.RotateTransformAsync(bridgeObject.transform,
                 Quaternion.Euler(targetRotation), ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
 
-            SaveYRotation();
+            SaveCurrentYRotation();
 
             ResetCamera();
         }

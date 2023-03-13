@@ -6,14 +6,15 @@
 namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
-    [SceCommand(250, "取消镜头锁定")]
-    public class CameraFreeCommand : ICommand
+    [SceCommand(250, "镜头是否锁定并跟随在主角身上，" +
+                     "参数：1锁定并跟随，0解锁")]
+    public class CameraFollowPlayerCommand : ICommand
     {
-        public CameraFreeCommand(int free)
+        public CameraFollowPlayerCommand(int follow)
         {
-            Free = free;
+            Follow = follow;
         }
 
-        public int Free { get; }
+        public int Follow { get; }
     }
 }

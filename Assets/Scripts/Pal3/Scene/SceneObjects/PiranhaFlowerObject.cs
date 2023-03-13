@@ -81,7 +81,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Parameters[0],
                     ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(1));
+                new CameraFocusOnSceneObjectCommand(1));
             #elif PAL3A
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
@@ -104,7 +104,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetWorldPositionCommand(-1, worldPosition.x, worldPosition.z));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFreeCommand(1));
+                new CameraFollowPlayerCommand(1));
             #endif
         }
 

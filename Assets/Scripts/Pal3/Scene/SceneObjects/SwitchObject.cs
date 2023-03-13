@@ -122,7 +122,8 @@ namespace Pal3.Scene.SceneObjects
                 Object.Destroy(_interactionIndicatorGameObject);
             }
 
-            if (ctx.InitObjectId == ObjectInfo.Id &&
+            if (ctx.StartedByPlayer &&
+                ctx.InitObjectId == ObjectInfo.Id &&
                 ObjectInfo.Parameters[1] == 0)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(

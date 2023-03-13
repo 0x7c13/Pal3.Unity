@@ -24,8 +24,13 @@ namespace Pal3.State
         public Vector3? GameBoxPosition { get; set; }
         public float? GameBoxYRotation { get; set; }
 
-        // Object specific states
+        // Special object states
+        #if PAL3
         public int? BidirectionalPushableObjectState { get; set; }
+        #elif PAL3A
+        public int? ThreePhaseSwitchPreviousState { get; set; }
+        public int? ThreePhaseSwitchCurrentState { get; set; }
+        #endif
 
         public ScnObjectInfo ApplyOverrides(ScnObjectInfo objectInfo)
         {
@@ -69,11 +74,20 @@ namespace Pal3.State
                 yield return new SceneSaveGlobalObjectYRotationCommand(
                     info.cityName, info.sceneName, info.objectId, GameBoxYRotation.Value);
             }
+            #if PAL3
             if (BidirectionalPushableObjectState.HasValue)
             {
                 yield return new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
                     info.cityName, info.sceneName, info.objectId, BidirectionalPushableObjectState.Value);
             }
+            #elif PAL3A
+            if (ThreePhaseSwitchPreviousState.HasValue && ThreePhaseSwitchCurrentState.HasValue)
+            {
+                yield return new SceneSaveGlobalThreePhaseSwitchStateCommand(
+                    info.cityName, info.sceneName, info.objectId,
+                    ThreePhaseSwitchPreviousState.Value, ThreePhaseSwitchCurrentState.Value);
+            }
+            #endif
         }
     }
 
@@ -84,7 +98,11 @@ namespace Pal3.State
         ICommandExecutor<SceneSaveGlobalObjectLayerIndexCommand>,
         ICommandExecutor<SceneSaveGlobalObjectPositionCommand>,
         ICommandExecutor<SceneSaveGlobalObjectYRotationCommand>,
+        #if PAL3
         ICommandExecutor<SceneSaveGlobalBidirectionalPushableObjectStateCommand>,
+        #elif PAL3A
+        ICommandExecutor<SceneSaveGlobalThreePhaseSwitchStateCommand>,
+        #endif
         ICommandExecutor<ResetGameStateCommand>
     {
         private readonly Dictionary<(string cityName, string sceneName, int objectId), SceneObjectStateOverride>
@@ -173,12 +191,22 @@ namespace Pal3.State
             _sceneObjectStateOverrides[key].GameBoxYRotation = command.GameBoxYRotation;
         }
 
+        #if PAL3
         public void Execute(SceneSaveGlobalBidirectionalPushableObjectStateCommand command)
         {
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].BidirectionalPushableObjectState = command.State;
         }
+        #elif PAL3A
+        public void Execute(SceneSaveGlobalThreePhaseSwitchStateCommand command)
+        {
+            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            InitKeyIfNotExists(key);
+            _sceneObjectStateOverrides[key].ThreePhaseSwitchPreviousState = command.PreviousState;
+            _sceneObjectStateOverrides[key].ThreePhaseSwitchCurrentState = command.CurrentState;
+        }
+        #endif
 
         public void Execute(ResetGameStateCommand command)
         {

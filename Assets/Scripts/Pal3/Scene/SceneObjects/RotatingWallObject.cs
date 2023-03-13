@@ -73,7 +73,7 @@ namespace Pal3.Scene.SceneObjects
             yield return AnimationHelper.RotateTransformAsync(objectTransform,
                 targetRotation, 2.2f, AnimationCurveType.Sine);
 
-            SaveYRotation();
+            SaveCurrentYRotation();
         }
 
         public override void Deactivate()

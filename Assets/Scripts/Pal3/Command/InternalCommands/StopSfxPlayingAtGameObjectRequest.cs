@@ -16,7 +16,7 @@ namespace Pal3.Command.InternalCommands
             AudioSourceName = audioSourceName;
             DisposeSource = disposeSource;
         }
-        
+
         [JsonIgnore] public GameObject Parent { get; }
         public string AudioSourceName { get; }
         public bool DisposeSource { get; }
