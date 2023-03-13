@@ -75,8 +75,14 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
             if (_isInteractionInProgress) return;
-            _isInteractionInProgress = true;
-            RequestForInteraction();
+
+            // Make sure player is at the same height as the platform
+            if (Mathf.Abs(playerActorGameObject.transform.position.y -
+                          _platformController.GetPlatformHeight()) <= 0.5f)
+            {
+                _isInteractionInProgress = true;
+                RequestForInteraction();
+            }
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
