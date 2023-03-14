@@ -46,6 +46,7 @@ namespace Pal3.Scene.SceneObjects
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
+
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
             _platformController.OnPlayerActorExited += OnPlayerActorExited;
 
@@ -56,9 +57,13 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_isInteractionInProgress) return;
 
+            #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new UIDisplayNoteCommand("等待三秒后，根据当前人物，会向上或向下传送哦。"));
-
+            #elif PAL3A
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new UIDisplayNoteCommand("等待三秒后，会开始传送哦。"));
+            #endif
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
             Pal3.Instance.StartCoroutine(CountDownForInteractionAsync(_cancellationTokenSource.Token));
@@ -80,6 +85,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
+            #if PAL3
             var upperLevelScriptId = ObjectInfo.Parameters[0];
             var lowerLevelScriptId = ObjectInfo.Parameters[1];
 
@@ -94,20 +100,20 @@ namespace Pal3.Scene.SceneObjects
                 shouldGoUp = true;
             }
 
-            #if PAL3
             if (!shouldGoUp.HasValue)
             {
                 shouldGoUp = (PlayerActorId) ctx.PlayerActorGameObject.GetComponent<ActorController>().GetActor().Info.Id is
                     PlayerActorId.JingTian or PlayerActorId.XueJian;
             }
+            #elif PAL3A
+            bool? shouldGoUp = ObjectInfo.Parameters[0] == 1;
             #endif
 
             GameObject portalObject = GetGameObject();
-            var platformController = portalObject.GetComponent<StandingPlatformController>();
-            Vector3 platformPosition = platformController.transform.position;
+            Vector3 platformPosition = _platformController.transform.position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
-                platformController.GetPlatformHeight(),
+                _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
@@ -117,15 +123,19 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = portalObject.transform.position;
             finalPosition.y += shouldGoUp.Value ? 10f : -10f;
 
-            yield return AnimationHelper.MoveTransformAsync(platformController.transform,
+            yield return AnimationHelper.MoveTransformAsync(_platformController.transform,
                 finalPosition,
                 MOVEMENT_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
             yield return null;
 
+            #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand(shouldGoUp.Value ? upperLevelScriptId : lowerLevelScriptId));
+            #elif PAL3A
+            ExecuteScriptIfAny();
+            #endif
 
             _isInteractionInProgress = false;
         }
@@ -138,6 +148,7 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                _platformController.OnPlayerActorExited -= OnPlayerActorExited;
                 Object.Destroy(_platformController);
             }
 

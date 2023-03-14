@@ -86,6 +86,16 @@ namespace Pal3.Scene.SceneObjects
                 yield return null;
             }
         }
+
+        public override void Deactivate()
+        {
+            if (_platformController != null)
+            {
+                Object.Destroy(_platformController);
+            }
+
+            base.Deactivate();
+        }
     }
 }
 

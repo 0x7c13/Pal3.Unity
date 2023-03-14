@@ -119,7 +119,7 @@ namespace Core.DataReader.Scn
         ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13-1, m13-2, m13-3, m13-4
         ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13-1, m13-2, m13-3, m13-4
         MushroomBridge                = 56,   // 蘑菇桥 PAL3A m15-1
-        UnknownObj59                  = 59,   // PAL3A m15 2
+        SectorBridge                  = 59,   // 扇型桥 PAL3A m15-2
     }
 
     // SCN (.scn) file header

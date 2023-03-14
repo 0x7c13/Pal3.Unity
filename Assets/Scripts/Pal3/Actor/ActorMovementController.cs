@@ -597,9 +597,13 @@ namespace Pal3.Actor
                 {
                     var targetYPosition = platformInfo.Platform.GetPlatformHeight();
 
+                    // Tolerance is used to allow the actor to be able to walk
+                    // on a standing platform that has a slight slope
+                    const float tolerance = 0.3f;
+
                     // Make sure actor is on top of the platform
                     if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
-                            new Vector3(newPosition.x, targetYPosition, newPosition.z)) &&
+                            new Vector3(newPosition.x, targetYPosition, newPosition.z), tolerance) &&
                         Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
                     {
                         newYPosition = targetYPosition;
