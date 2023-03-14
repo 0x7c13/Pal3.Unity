@@ -73,9 +73,12 @@ namespace Pal3.Scene.SceneObjects
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
             #if PAL3A
-            // Add a mesh collider to block the player from walking into the object
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            _meshCollider.Init(new Vector3(-0.3f, -0.8f, -0.3f));
+            if (bounds.size.y > 1f)
+            {
+                // Add a mesh collider to block the player from walking into the object
+                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                _meshCollider.Init(new Vector3(-0.3f, -0.8f, -0.3f));
+            }
             #endif
 
             return sceneGameObject;
