@@ -37,9 +37,10 @@ namespace Pal3.Scene.SceneObjects
             bounds.size += new Vector3(0.6f, 0.2f, 0.6f); // Extend the bounds a little bit
 
             // This is a blocker object
-            if (ModelType == SceneObjectModelType.CvdModel)
+            if (ObjectInfo.Parameters[4] == 1 &&
+                ObjectInfo.Parameters[5] == 1)
             {
-                if (ObjectInfo.SwitchState == 1)
+                if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
                 {
                     CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
                     cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
@@ -67,11 +68,21 @@ namespace Pal3.Scene.SceneObjects
             GameObject floorObject = GetGameObject();
 
             // This is a blocker object
-            if (ModelType == SceneObjectModelType.CvdModel)
+            if (ObjectInfo.Parameters[4] == 1 &&
+                ObjectInfo.Parameters[5] == 1)
             {
                 FlipAndSaveSwitchState();
 
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
+
+                if (ObjectInfo.Parameters[2] != 0)
+                {
+                    Transform transform = floorObject.transform;
+                    float yOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
+                    Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
+                    yield return AnimationHelper.MoveTransformAsync(floorObject.transform, finalPosition, 0.5f);
+                    SaveCurrentPosition();
+                }
 
                 if (_meshCollider == null)
                 {
