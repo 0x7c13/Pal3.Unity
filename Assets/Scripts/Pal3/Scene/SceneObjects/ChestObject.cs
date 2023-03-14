@@ -48,7 +48,20 @@ namespace Pal3.Scene.SceneObjects
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
             PlaySfx("wg011");
-            PlaySfx("wa006");
+
+            if (ModelType == SceneObjectModelType.CvdModel)
+            {
+                GetCvdModelRenderer().StartOneTimeAnimation(true, 1f, () =>
+                {
+                    ExecuteScriptIfAny();
+                    ChangeAndSaveActivationState(false);
+                });
+            }
+            else
+            {
+                ExecuteScriptIfAny();
+                ChangeAndSaveActivationState(false);
+            }
 
             for (int i = 0; i < 4; i++)
             {
@@ -65,19 +78,7 @@ namespace Pal3.Scene.SceneObjects
             }
             #endif
 
-            if (ModelType == SceneObjectModelType.CvdModel)
-            {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, 1f, () =>
-                {
-                    ExecuteScriptIfAny();
-                    ChangeAndSaveActivationState(false);
-                });
-            }
-            else
-            {
-                ExecuteScriptIfAny();
-                ChangeAndSaveActivationState(false);
-            }
+            PlaySfx("wa006");
         }
 
         public override void Deactivate()

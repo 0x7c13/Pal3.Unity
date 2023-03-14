@@ -50,6 +50,8 @@ namespace Pal3.Scene.SceneObjects
                 new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionNames[ActorActionType.Check], 1));
 
+            PlaySfx("wg011");
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
