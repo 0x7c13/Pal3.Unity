@@ -119,7 +119,8 @@ namespace Pal3.Scene.SceneObjects
                 if (!SceneInfo.Is("m06", "2") &&
                     linkedObject.ObjectInfo.Type
                         is not ScnSceneObjectType.LiftingPlatform
-                        and not ScnSceneObjectType.MovableCarrier)
+                        and not ScnSceneObjectType.MovableCarrier
+                        and not ScnSceneObjectType.WaterSurface)
                 {
                     yield return MoveCameraToLookAtPointAsync(
                         GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),

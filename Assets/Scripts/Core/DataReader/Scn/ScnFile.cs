@@ -93,7 +93,7 @@ namespace Core.DataReader.Scn
         ColdWeapon                    = 28,   // (M24)剑或锤
         GravitySwitch                 = 29,   // 重力机关（乌龟,仙三独有）
         ElevatorDoor                  = 30,   // 升降机关门(仙三独有)
-        WaterSurface                  = 31,   // 水面机关(仙三独有)
+        WaterSurfaceRoadBlocker       = 31,   // 水面机关/路障(仙三独有)
         PiranhaFlower                 = 32,   // 食人花
         PedalSwitch                   = 33,   // 踏板开关
         SwordBridge                   = 34,   // 剑桥（触发后向前伸,仙三独有）
@@ -113,9 +113,9 @@ namespace Core.DataReader.Scn
         UnknownObj47                  = 47,   // PAL3A m19-8
         UnknownObj48                  = 48,   // PAL3A m19-8
         RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物
-        RetractableBlocker            = 51,   // 可收回路障 PAL3A m10-2
-        RotatingWall                  = 52,   // T形旋转石门 PAL3A m09-1, m09-2
-        UnknownObj53                  = 53,   // PAL3A m17-1, m17-2, m17-3, m17-4
+        RetractableBlocker            = 51,   // 可收回路障 m10-2
+        RotatingWall                  = 52,   // T形旋转石门 m09-1, m09-2
+        WaterSurface                  = 53,   // 升降水面 m17-1, m17-2, m17-3, m17-4
         ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13-1, m13-2, m13-3, m13-4
         ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13-1, m13-2, m13-3, m13-4
         MushroomBridge                = 56,   // 蘑菇桥 PAL3A m15-1
