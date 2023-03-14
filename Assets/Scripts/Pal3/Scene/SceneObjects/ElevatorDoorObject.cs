@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
@@ -59,3 +61,5 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
+
+#endif

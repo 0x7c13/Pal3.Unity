@@ -53,7 +53,7 @@ namespace Core.DataReader.Scn
         AutoTrigger                   =  0,   // 自动触发点
         Shakeable                     =  1,   // 碰到后摇晃的物品
         #if PAL3
-        Collidable                    =  2,   // 碰到后翻倒的物品
+        Collidable                    =  2,   // 碰到后翻倒的物品(仙三独有)
         #elif PAL3A
         WuLingSwitch                  =  2,   // 五灵开关 (可触发其他机关,外传独有)
         #endif
@@ -61,21 +61,21 @@ namespace Core.DataReader.Scn
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
         MovableCarrier                =  5,   // 移动浮板 (固定速度和路线往复移动,可载人)
         Trap                          =  6,   // 陷阱 (调用脚本切换场景)
-        RotatingBridge                =  7,   // 旋传石梁 (一字型,仙三独有)
+        RotatingBridge                =  7,   // 旋传石梁 (仙三独有)
         Teapot                        =  8,   // 茶壶 (外传独有)
         PreciseTrigger                =  9,   // 精确触发点
         WindBlower                    = 10,   // 风口
-        Pushable                      = 11,   // 推箱子
+        Pushable                      = 11,   // 推箱子(仙三独有)
         SpecialSwitch                 = 12,   // 主角特技机关(仙三独有)
-        Impulsive                     = 13,   // 冲撞类机关
+        Impulsive                     = 13,   // 冲撞类机关(仙三独有)
         Door                          = 14,   // 门，场景切换点
         Climbable                     = 15,   // 藤蔓或梯子 (可爬物)
         InvestigationTrigger          = 16,   // 调查触发物体
         StaticOrAnimated              = 17,   // 死物体或者随机动画播放(通用参数[0]:对应的地面是否可通过)
         Billboard                     = 18,   // 公告板
-        SuspensionBridge              = 19,   // 吊桥 (壁山)
+        SuspensionBridge              = 19,   // 吊桥 (仙三独有)
         VirtualInvestigationTrigger   = 20,   // 虚拟BOX调查触发
-        EyeBall                       = 21,   // 锁妖塔:眼球
+        EyeBall                       = 21,   // 锁妖塔:眼球(仙三独有)
         LiftingPlatform               = 22,   // 锁妖塔:升降铁链或平台
                                               // 通用参数[0]:为升起后的高度,需要用其他开关间接触发
                                               // 通用参数[1]:升起后到高层
@@ -86,23 +86,23 @@ namespace Core.DataReader.Scn
         General                       = 25,   // 普通物品
         RareChest                     = 26,   // 迷宫大宝箱
         #if PAL3
-        WishPool                      = 27,   // 许愿池
+        WishPool                      = 27,   // 许愿池(仙三独有)
         #elif PAL3A
-        ToggleSwitch                  = 27,   // 普通开关的变种 (可触发其他机关,外传独有)
+        ToggleSwitch                  = 27,   // 普通开关的变种(可触发其他机关,外传独有)
         #endif
         ColdWeapon                    = 28,   // (M24)剑或锤
-        GravitySwitch                 = 29,   // 重力机关（乌龟）
-        ElevatorDoor                  = 30,   // 升降机关门
-        WaterSurface                  = 31,   // 水面机关
+        GravitySwitch                 = 29,   // 重力机关（乌龟,仙三独有）
+        ElevatorDoor                  = 30,   // 升降机关门(仙三独有)
+        WaterSurface                  = 31,   // 水面机关(仙三独有)
         PiranhaFlower                 = 32,   // 食人花
         PedalSwitch                   = 33,   // 踏板开关
-        SwordBridge                   = 34,   // (m24)剑桥（触发后向前伸）
+        SwordBridge                   = 34,   // 剑桥（触发后向前伸,仙三独有）
         SlideWay                      = 35,   // 滑道
-        FallableObstacle              = 36,   // 坠落的障碍物
-        DivineTreeFlower              = 37,   // (神树)花
-        DivineTreePortal              = 38,   // (神树)传送点
-        Elevator                      = 39,   // (神魔之井)电梯
-        ElevatorPedal                 = 40,   // 上下传送板
+        FallableObstacle              = 36,   // 坠落的障碍物(仙三独有)
+        DivineTreeFlower              = 37,   // 神树花(仙三独有)
+        DivineTreePortal              = 38,   // 神树传送点
+        Elevator                      = 39,   // 神魔之井电梯(仙三独有)
+        ElevatorPedal                 = 40,   // 上下传送板(仙三独有)
         Chest                         = 41,   // 小宝箱
         SavingPoint                   = 42,   // 存盘点
         SceneSfx                      = 43,   // 场景音效
@@ -115,10 +115,10 @@ namespace Core.DataReader.Scn
         RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物
         RetractableBlocker            = 51,   // 可收回路障 PAL3A m10-2
         RotatingWall                  = 52,   // T形旋转石门 PAL3A m09-1, m09-2
-        UnknownObj53                  = 53,   // PAL3A m17 1, m17 2, m17 3, m17 4
-        ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13 1, m13 2, m13 3, m13 4
-        ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13 1, m13 2, m13 3, m13 4
-        UnknownObj56                  = 56,   // PAL3A m15 1
+        UnknownObj53                  = 53,   // PAL3A m17-1, m17-2, m17-3, m17-4
+        ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13-1, m13-2, m13-3, m13-4
+        ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13-1, m13-2, m13-3, m13-4
+        MushroomBridge                = 56,   // 蘑菇桥 PAL3A m15-1
         UnknownObj59                  = 59,   // PAL3A m15 2
     }
 

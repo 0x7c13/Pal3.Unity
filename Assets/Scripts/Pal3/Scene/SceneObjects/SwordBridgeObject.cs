@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System;
@@ -34,7 +36,6 @@ namespace Pal3.Scene.SceneObjects
             Bounds bounds = GetMeshBounds();
             var heightOffset = 0f;
 
-            #if PAL3
             if (SceneInfo.IsCity("m11") &&
                 ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))
             {
@@ -54,7 +55,6 @@ namespace Pal3.Scene.SceneObjects
                 };
                 heightOffset = -1.7f;
             }
-            #endif
 
             _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex, heightOffset);
@@ -90,3 +90,5 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
+
+#endif

@@ -58,7 +58,7 @@ namespace Pal3.Scene.SceneObjects
             Bounds meshBounds = GetMeshBounds();
 
             _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
-            _triggerController.SetupCollider(meshBounds, false);
+            _triggerController.SetBounds(meshBounds, false);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // For pushable object player can stand on

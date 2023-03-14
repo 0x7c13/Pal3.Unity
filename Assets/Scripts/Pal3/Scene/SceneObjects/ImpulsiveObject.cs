@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System;
@@ -151,7 +153,7 @@ namespace Pal3.Scene.SceneObjects
             };
 
             _triggerController = gameObject.AddComponent<BoundsTriggerController>();
-            _triggerController.SetupCollider(bounds, true);
+            _triggerController.SetBounds(bounds, true);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // Set initial position
@@ -227,3 +229,5 @@ namespace Pal3.Scene.SceneObjects
         }
     }
 }
+
+#endif

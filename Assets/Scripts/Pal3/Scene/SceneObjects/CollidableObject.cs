@@ -36,7 +36,7 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.SwitchState == 0)
             {
                 _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
-                _triggerController.SetupCollider(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
+                _triggerController.SetBounds(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
             else if (ObjectInfo.SwitchState == 1)
@@ -81,7 +81,7 @@ namespace Pal3.Scene.SceneObjects
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
             // Reset collider since bounds may change after animation
-            _triggerController.SetupCollider(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
+            _triggerController.SetBounds(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
         }
 
         public override void Deactivate()

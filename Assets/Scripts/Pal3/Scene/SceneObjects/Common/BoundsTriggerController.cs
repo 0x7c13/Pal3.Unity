@@ -21,7 +21,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         private PlayerManager _playerManager;
 
-        public void SetupCollider(Bounds bounds, bool isTrigger)
+        public void SetBounds(Bounds bounds, bool isTrigger)
         {
             if (_collider == null)
             {

@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+#if PAL3
+
 namespace Pal3.Scene.SceneObjects
 {
     using System;
@@ -68,14 +70,14 @@ namespace Pal3.Scene.SceneObjects
         // * 当水面机关开启之后，需要将地砖类型为土壤的地砖设置为可通过
         private void UpdateTileMapWhenConditionMet(bool setSoilFloorAsObstacle)
         {
-            #if PAL3
             if (SceneInfo.IsCity("m09"))
             {
                 _sceneManager.GetCurrentScene()
                     .GetTilemap()
                     .MarkFloorKindAsObstacle(NavFloorKind.Soil, setSoilFloorAsObstacle);
             }
-            #endif
         }
     }
 }
+
+#endif
