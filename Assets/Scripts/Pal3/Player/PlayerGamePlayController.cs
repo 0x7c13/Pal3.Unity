@@ -418,25 +418,26 @@ namespace Pal3.Player
             Scene currentScene = _sceneManager.GetCurrentScene();
             Tilemap tilemap = currentScene.GetTilemap();
 
-            bool IsPositionCanJumpTo(Vector3 position, int layerIndex, out float yPosition)
+            bool IsPositionCanJumpTo(Vector3 position, int layerIndex, out float yPosition, out int distanceToObstacle)
             {
                 Vector2Int tilePosition = tilemap.GetTilePosition(position, layerIndex);
 
                 if (tilemap.TryGetTile(position, layerIndex, out NavTile tile) &&
                     tile.IsWalkable())
                 {
+                    distanceToObstacle = tile.DistanceToNearestObstacle;
                     yPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
 
                     if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
 
-                    if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition) ||
-                        tile.DistanceToNearestObstacle > 1)
+                    if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition))
                     {
                         return true;
                     }
                 }
 
                 yPosition = 0f;
+                distanceToObstacle = 0;
                 return false;
             }
 
@@ -450,27 +451,38 @@ namespace Pal3.Player
                 _playerActorGameObject.transform.forward = jumpDirection;
             }
 
-            var validJumpTargetPositions = new List<(Vector3 position, int layerIndex)>();
-            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.2f)
+            var validJumpTargetPositions = new List<(Vector3 position, int layerIndex, int distanceToObstacle)>();
+
+            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.15f)
             {
                 Vector3 targetPosition = currentPosition + jumpDirection * i;
 
                 for (var j = 0; j < tilemap.GetLayerCount(); j++)
                 {
-                    if (IsPositionCanJumpTo(targetPosition, j, out var yPosition))
+                    if (IsPositionCanJumpTo(targetPosition, j,
                     {
                         Vector3 position = targetPosition;
                         position.y = yPosition;
-                        validJumpTargetPositions.Add((position, j));
+                        validJumpTargetPositions.Add((position, j, distanceToObstacle));
                     }
                 }
             }
 
-            var jumpTargetLayer = _playerActorMovementController.GetCurrentLayerIndex();
+            var currentLayer = _playerActorMovementController.GetCurrentLayerIndex();
+            var jumpTargetLayer = currentLayer;
             if (validJumpTargetPositions.Count > 0)
             {
-                // Pick a position that is closer to the farthest position
-                (jumpTargetPosition, jumpTargetLayer) = validJumpTargetPositions[(int)(validJumpTargetPositions.Count * (2f / 3f))];
+                if (validJumpTargetPositions.Any(_ => _.layerIndex != currentLayer))
+                {
+                    validJumpTargetPositions = validJumpTargetPositions.Where(_ => _.layerIndex != currentLayer).ToList();
+                }
+
+                validJumpTargetPositions.Sort((a, b) => b.distanceToObstacle.CompareTo(a.distanceToObstacle));
+
+                // Pick a position that is farthest from obstacles
+                var bestPosition = validJumpTargetPositions.First();
+                jumpTargetPosition = bestPosition.position;
+                jumpTargetLayer = bestPosition.layerIndex;
             }
             else
             {
@@ -480,13 +492,17 @@ namespace Pal3.Player
             _playerActorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Jump],
                  overwrite: true, loopCount: 1);
             yield return new WaitForSeconds(0.7f);
-            var distanceOffset = Vector3.Distance(jumpTargetPosition.Value, currentPosition);
+
+            var xzOffset = Vector2.Distance(
+                new Vector2(jumpTargetPosition.Value.x, jumpTargetPosition.Value.z),
+                new Vector2(currentPosition.x, currentPosition.z));
             var startingYPosition = currentPosition.y;
             var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
+
             yield return AnimationHelper.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
                 value =>
                 {
-                    Vector3 calculatedPosition = currentPosition + jumpDirection * (distanceOffset * value);
+                    Vector3 calculatedPosition = currentPosition + jumpDirection * (xzOffset * value);
                     calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
                     _playerActorGameObject.transform.position = calculatedPosition;
                 });
