@@ -42,9 +42,9 @@ namespace Core.DataReader.Scn
     [System.Serializable]
     public enum ScnSceneType
     {
-        StoryA = 0,  // 情节关城市村镇
-        StoryB,      // 情节关建筑内部
-        Maze,        // 迷宫场景
+        OutDoor = 0,  // 情节关城市村镇
+        InDoor,       // 情节关建筑内部
+        Maze,         // 迷宫场景
     }
 
     [System.Serializable]
@@ -110,16 +110,16 @@ namespace Core.DataReader.Scn
 
         // PAL3A new scene objects
         // 以下所有均为仙三外传中新增的场景物件类型
-        UnknownObj47                  = 47,   // PAL3A m19-8
-        UnknownObj48                  = 48,   // PAL3A m19-8
-        RoadElevatorOrBlocker         = 49,   // 可升降或者是经过之后阻挡物
-        RetractableBlocker            = 51,   // 可收回路障 m10-2
-        RotatingWall                  = 52,   // T形旋转石门 m09-1, m09-2
-        WaterSurface                  = 53,   // 升降水面 m17-1, m17-2, m17-3, m17-4
-        ThreePhaseBridge              = 54,   // 三相桥 PAL3A m13-1, m13-2, m13-3, m13-4
-        ThreePhaseSwitch              = 55,   // 三相开关 PAL3A m13-1, m13-2, m13-3, m13-4
-        MushroomBridge                = 56,   // 蘑菇桥 PAL3A m15-1
-        SectorBridge                  = 59,   // 扇型桥 PAL3A m15-2
+        PaperweightDesk               = 47,   // 镇尺桌
+        Paperweight                   = 48,   // 镇尺
+        RoadElevatorOrBlocker         = 49,   // 可升降路面或者是阻挡物
+        RetractableBlocker            = 51,   // 可收回路障
+        RotatingWall                  = 52,   // T形旋转石门
+        WaterSurface                  = 53,   // 升降水面
+        ThreePhaseBridge              = 54,   // 三相桥
+        ThreePhaseSwitch              = 55,   // 三相开关
+        MushroomBridge                = 56,   // 蘑菇桥
+        SectorBridge                  = 59,   // 扇型桥
     }
 
     // SCN (.scn) file header

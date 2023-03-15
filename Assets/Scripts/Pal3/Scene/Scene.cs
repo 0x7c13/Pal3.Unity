@@ -289,18 +289,18 @@ namespace Pal3.Scene
         private void SetupEnvironmentLighting()
         {
             Vector3 mainLightPosition = new Vector3(0, 20f, 0);
-            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB ?
+            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor ?
                     Quaternion.Euler(120f, -20f, 0f) :
                     Quaternion.Euler(70f, -30f, 0f);
 
-            if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB && IsNightScene())
+            if (ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor && IsNightScene())
             {
                 mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
             }
 
             // Most in-door scenes have a single spot light source where we can find in the LGT file,
             // which can be used as the main light source for the scene.
-            // if (ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB &&
+            // if (ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor &&
             //     LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
             // {
             //     float w = Mathf.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
@@ -329,12 +329,12 @@ namespace Pal3.Scene
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(220f / 255f, 210f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB) ? 0.75f : 1f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.75f : 1f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.StoryB) ? 0.65f : 1f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.65f : 1f;
             #endif
 
             // Ambient light

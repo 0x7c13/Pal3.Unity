@@ -55,9 +55,9 @@ namespace Pal3.Camera
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
-        private const float SCENE_STORY_B_ROOM_FLOOR_HEIGHT = 1.6f;
+        private const float SCENE_IN_DOOR_ROOM_FLOOR_HEIGHT = 1.6f;
         private const float CAMERA_DEFAULT_DISTANCE = 46f;
-        private const float CAMERA_SCENE_STORY_B_DISTANCE = 34f;
+        private const float CAMERA_IN_DOOR_DISTANCE = 34f;
         private const float CAMERA_ROTATION_SPEED_KEY_PRESS = 120f;
         private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
@@ -66,28 +66,24 @@ namespace Pal3.Camera
 
         private Camera _camera;
         private Image _curtainImage;
+
+        private GameObject _lookAtGameObject;
         private Vector3 _lastLookAtPoint = Vector3.zero;
         private Vector3 _cameraMoveVelocity = Vector3.zero;
-
-        private bool _shouldResetVelocity = false;
-
         private Vector3 _actualPosition = Vector3.zero;
         private Vector3 _actualLookAtPoint = Vector3.zero;
-
         private Vector3 _cameraOffset = Vector3.zero;
         private float _lookAtPointYOffset;
 
+        private bool _freeToRotate;
         private bool _cameraFollowPlayer = true;
+        private bool _shouldResetVelocity = false;
+        private int _currentAppliedDefaultTransformOption = 0;
 
         private PlayerInputActions _inputActions;
         private PlayerGamePlayController _gamePlayController;
         private SceneManager _sceneManager;
         private GameStateManager _gameStateManager;
-        private bool _freeToRotate;
-
-        private GameObject _lookAtGameObject;
-
-        private int _currentAppliedDefaultTransformOption = 0;
 
         private RectTransform _joyStickRect;
         private float _joyStickMovementRange;
@@ -391,22 +387,19 @@ namespace Pal3.Camera
         {
             switch (sceneInfo.SceneType)
             {
-                case ScnSceneType.StoryB:
-                    _freeToRotate = false;
-                    _lookAtPointYOffset = SCENE_STORY_B_ROOM_FLOOR_HEIGHT;
-                    _camera.nearClipPlane = 1f;
-                    _camera.farClipPlane = 500f;
-                    ApplyDefaultSettings(1);
-                    break;
-                case ScnSceneType.StoryA:
-                    _freeToRotate = true;
+                case ScnSceneType.OutDoor:
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(0);
                     break;
+                case ScnSceneType.InDoor:
+                    _lookAtPointYOffset = SCENE_IN_DOOR_ROOM_FLOOR_HEIGHT;
+                    _camera.nearClipPlane = 1f;
+                    _camera.farClipPlane = 500f;
+                    ApplyDefaultSettings(1);
+                    break;
                 case ScnSceneType.Maze:
-                    _freeToRotate = true;
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
@@ -432,23 +425,27 @@ namespace Pal3.Camera
             switch (option)
             {
                 case 0:
+                    _freeToRotate = true;
                     cameraFov = HorizontalToVerticalFov(26.0f, 4f/3f);
                     cameraDistance = CAMERA_DEFAULT_DISTANCE;
                     cameraRotation = GameBoxInterpreter.ToUnityRotation(-30.37f, -52.65f, 0f);
                     break;
                 case 1:
+                    _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraDistance = CAMERA_IN_DOOR_DISTANCE;
                     cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 33.24f, 0f);
                     break;
                 case 2:
+                    _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraDistance = CAMERA_IN_DOOR_DISTANCE;
                     cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, -33.24f, 0f);
                     break;
                 case 3:
+                    _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
-                    cameraDistance = CAMERA_SCENE_STORY_B_DISTANCE;
+                    cameraDistance = CAMERA_IN_DOOR_DISTANCE;
                     cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 0f, 0f);
                     break;
                 default:
@@ -674,7 +671,7 @@ namespace Pal3.Camera
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             // Remember the current scene's camera position and rotation
-            if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != ScnSceneType.StoryB)
+            if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != ScnSceneType.InDoor)
             {
                 var cameraTransform = _camera.transform;
                 _cameraLastKnownSceneState.Add((
@@ -696,7 +693,7 @@ namespace Pal3.Camera
             ApplySceneSettings(notification.NewSceneInfo);
 
             // Apply the last known scene state if found in record.
-            if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != ScnSceneType.StoryB)
+            if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != ScnSceneType.InDoor)
             {
                 if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))

@@ -35,9 +35,7 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
-            #if PAL3A
-            if (!(ObjectInfo.Parameters[1] == 1 && ObjectInfo.Parameters[2] == 1))
-            #endif
+            if (!ObjectInfo.TileMapTriggerRect.IsEmpty)
             {
                 // This is to prevent player from entering back to previous
                 // scene when holding the stick while transferring between scenes.
@@ -58,10 +56,17 @@ namespace Pal3.Scene.SceneObjects
                     // Add collider to block player
                     _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
                 }
-                else if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
+                else if (ObjectInfo.SwitchState == 1)
                 {
-                    CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
-                    cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
+                    if (ModelType == SceneObjectModelType.CvdModel)
+                    {
+                        CvdModelRenderer cvdModelRenderer = GetCvdModelRenderer();
+                        cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
+                    }
+                    else if (ModelType == SceneObjectModelType.PolModel)
+                    {
+                        GetPolyModelRenderer().Dispose();
+                    }
                 }
             }
             #endif
@@ -72,8 +77,22 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
             if (_isInteractionInProgress) return; // Prevent re-entry
+
+            #if PAL3
             _isInteractionInProgress = true;
             RequestForInteraction();
+            #elif PAL3A
+            if (ObjectInfo.Parameters[1] == 1 &&
+                ObjectInfo.Parameters[2] == 1)
+            {
+                // Do nothing
+            }
+            else
+            {
+                _isInteractionInProgress = true;
+                RequestForInteraction();
+            }
+            #endif
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
@@ -82,31 +101,32 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.Parameters[1] == 1 &&
                 ObjectInfo.Parameters[2] == 1)
             {
+                if (ObjectInfo.SwitchState == 1)
+                {
+                    _isInteractionInProgress = false;
+                    yield break;
+                }
+
                 PlaySfxIfAny();
 
                 if (ModelType == SceneObjectModelType.PolModel)
                 {
-                    ChangeAndSaveActivationState(false);
+                    GetPolyModelRenderer().Dispose();
                 }
                 else if (ModelType == SceneObjectModelType.CvdModel)
                 {
-                    var switchStateBeforeInteraction = ObjectInfo.SwitchState;
-
-                    yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,
-                        switchStateBeforeInteraction == 0 ? 1f : -1f);
-
-                    FlipAndSaveSwitchState();
-
-                    if (ObjectInfo.SwitchState == 1 && _meshCollider != null)
-                    {
-                        Object.Destroy(_meshCollider);
-                        _meshCollider = null;
-                    }
-                    else if (ObjectInfo.SwitchState == 0 && _meshCollider == null)
-                    {
-                        _meshCollider = GetGameObject().AddComponent<SceneObjectMeshCollider>();
-                    }
+                    yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
                 }
+
+                if (_meshCollider != null)
+                {
+                    Object.Destroy(_meshCollider);
+                    _meshCollider = null;
+                }
+
+                FlipAndSaveSwitchState();
+
+                yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
                 _isInteractionInProgress = false;
                 yield break;
