@@ -424,7 +424,9 @@ namespace Pal3.Script
         public void Execute(ScriptGetMoneyCommand command)
         {
             if (!_isExecuting) return;
-            var totalMoney = ServiceLocator.Instance.Get<InventoryManager>().GetTotalMoney();
+            // TODO: Remove this and uncomment the following line
+            var totalMoney = 777777;
+            // var totalMoney = ServiceLocator.Instance.Get<InventoryManager>().GetTotalMoney();
             SetVariableValue(command.Variable, totalMoney);
         }
 

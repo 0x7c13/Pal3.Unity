@@ -71,8 +71,7 @@ namespace Pal3.Player
 
         public int GetTotalMoney()
         {
-            return 7777777; // TODO: Remove this and uncomment the following line
-            //return _items[MoneyItemID];
+            return _items[MoneyItemID];
         }
 
         public IEnumerable<KeyValuePair<int, int>> GetAllItems()
