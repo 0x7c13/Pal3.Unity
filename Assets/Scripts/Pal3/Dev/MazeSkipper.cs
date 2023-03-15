@@ -1019,14 +1019,6 @@ namespace Pal3.Dev
                 _mazeSkipperCanvasGroup.alpha = 0f;
                 _mazeSkipperCanvasGroup.interactable = false;
             }
-
-            // TODO: Remove when all scene objects are implemented for PAL3A
-            #if PAL3A
-            if (command.NewSceneInfo.SceneType == ScnSceneType.Maze)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("外传迷宫中的部分机关还未实现，敬请期待！"));
-            }
-            #endif
         }
     }
 }

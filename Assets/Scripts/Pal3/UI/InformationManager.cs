@@ -52,6 +52,12 @@ namespace Pal3.UI
 
         private void OnEnable()
         {
+            #if UNITY_2022_1_OR_NEWER
+            var refreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            #else
+            var refreshRate = Screen.currentResolution.refreshRate;
+            #endif
+
             var deviceInfo =
                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
                 $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores)\n" +
@@ -60,7 +66,7 @@ namespace Pal3.UI
                 $"{GameConstants.ContactInfo}\n" +
                 $"Version: Alpha v{Application.version}\n";
 
-            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2})";
+            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
 
             _fpsCounter = GetComponent<FpsCounter>();
 
