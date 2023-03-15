@@ -8,7 +8,6 @@ namespace Pal3.Actor
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using Command;
     using Command.InternalCommands;
@@ -448,7 +447,7 @@ namespace Pal3.Actor
 
             if (!targetPositionFound)
             {
-                targetPosition = tapPoints.First().Value.point;
+                targetPosition = tapPoints[0].point;
             }
 
             MovementMode mode = isDoubleTap ? MovementMode.Run : MovementMode.Walk;
@@ -457,17 +456,6 @@ namespace Pal3.Actor
             if (_currentPath?.MovementMode == MovementMode.Run) mode = MovementMode.Run;
 
             SetupPath(new[] { targetPosition }, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
-        }
-
-        private bool IsNearPortalAreaOfLayer(Vector3 position, int layerIndex)
-        {
-            Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
-
-            if (_tilemap.IsInsidePortalArea(tilePosition, layerIndex)) return true;
-
-            // Check nearby 8 directions
-            return Enum.GetValues(typeof(Direction)).Cast<Direction>().Any(direction =>
-                _tilemap.IsInsidePortalArea(tilePosition + DirectionUtils.ToVector2Int(direction), layerIndex));
         }
 
         public MovementResult MoveTowards(Vector3 targetPosition, MovementMode movementMode, bool ignoreObstacle = false)
@@ -652,8 +640,8 @@ namespace Pal3.Actor
             }
 
             // Special handling for moving between layers (Across portal area)
-            if (IsNearPortalAreaOfLayer(newPosition, _currentLayerIndex) ||
-                IsNearPortalAreaOfLayer(newPosition, nextLayer))
+            if (_tilemap.IsPositionInsidePortalArea(newPosition, _currentLayerIndex) ||
+                _tilemap.IsPositionInsidePortalArea(newPosition, nextLayer))
             {
                 newYPosition = currentPosition.y;
                 return true;

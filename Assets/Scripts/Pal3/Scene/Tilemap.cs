@@ -7,7 +7,7 @@ namespace Pal3.Scene
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+
     using Core.Algorithm.PathFinding;
     using Core.DataReader.Nav;
     using Core.GameBox;
@@ -29,13 +29,6 @@ namespace Pal3.Scene
         public int GetLayerCount()
         {
             return _navFile.TileLayers.Length;
-        }
-
-        public bool IsInsidePortalArea(Vector2Int position, int layerIndex)
-        {
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
-            return currentLayer.Portals.Any(portal =>
-                GameBoxInterpreter.IsPointInsideRect(portal, position));
         }
 
         public bool IsTilePositionInsideTileMap(Vector2Int tilePosition, int layerIndex)
@@ -83,6 +76,36 @@ namespace Pal3.Scene
         {
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
+        }
+
+        public bool IsPositionInsidePortalArea(Vector3 position, int layerIndex)
+        {
+            Vector2Int tilePosition = GetTilePosition(position, layerIndex);
+
+            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+
+            foreach (GameBoxRect portalRect in currentLayer.Portals)
+            {
+                // The original game gives two adjacent portals a 1 unit gap,
+                // so we need to smartly tweak the portal rect to make sure
+                // the gap is removed, so that player can walk between two
+                // adjacent portals freely.
+
+                int horizontalLength = portalRect.Right - portalRect.Left;
+                int verticalLength = portalRect.Bottom - portalRect.Top;
+
+                GameBoxRect tweakedRect = new()
+                {
+                    Left = horizontalLength > verticalLength ? portalRect.Left : portalRect.Left - 1,
+                    Right = horizontalLength > verticalLength ? portalRect.Right : portalRect.Right + 1,
+                    Top = horizontalLength < verticalLength ? portalRect.Top : portalRect.Top - 1,
+                    Bottom = horizontalLength < verticalLength ? portalRect.Bottom : portalRect.Bottom + 1
+                };
+
+                if (GameBoxInterpreter.IsPointInsideRect(tweakedRect, tilePosition)) return true;
+            }
+
+            return false;
         }
 
         public Vector2Int[] FindPathToTilePositionThreadSafe(Vector2Int from,
@@ -161,7 +184,7 @@ namespace Pal3.Scene
         // Get a walkable tile right next to the tile if any.
         public bool TryGetAdjacentWalkableTile(Vector2Int position, int layerIndex, out Vector2Int nearestWalkableTile)
         {
-            foreach (Direction direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+            foreach (Direction direction in DirectionUtils.AllDirections)
             {
                 Vector2Int tile = position + DirectionUtils.ToVector2Int(direction);
                 if (!IsTilePositionInsideTileMap(tile, layerIndex)) continue;

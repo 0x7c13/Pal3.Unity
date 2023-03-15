@@ -509,7 +509,7 @@ namespace Pal3.Scene
                 obstacles.Add(actorTile);
 
                 // Mark 8 tiles right next to the actor tile as obstacles
-                foreach (Direction direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+                foreach (Direction direction in DirectionUtils.AllDirections)
                 {
                     Vector2Int neighbourTile = actorTile + DirectionUtils.ToVector2Int(direction);
                     if (_tilemap.IsTilePositionInsideTileMap(neighbourTile, layerIndex))

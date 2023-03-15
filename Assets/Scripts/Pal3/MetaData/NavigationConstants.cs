@@ -6,6 +6,8 @@
 namespace Pal3.MetaData
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
 
     /*
@@ -33,6 +35,8 @@ namespace Pal3.MetaData
 
     public static class DirectionUtils
     {
+        public static IEnumerable<Direction> AllDirections => Enum.GetValues(typeof(Direction)).Cast<Direction>();
+
         public static Direction GetDirectionFromVector2Int(Vector2Int vector)
         {
             return (vector.x, vector.y) switch
