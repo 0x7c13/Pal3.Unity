@@ -1051,6 +1051,10 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 342 137
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"绿萝山-蜀山", @"
                 ScriptVarSetValue -32768 30900
@@ -1068,6 +1072,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 2 2
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"地脉门户-少阳三焦", @"
                 ScriptVarSetValue -32768 40200
@@ -1084,6 +1092,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 2 2
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"第一次进入里蜀山", @"
                 ScriptVarSetValue -32768 41100
@@ -1102,6 +1114,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"打完狸猫回废屋休息", @"
                 ScriptVarSetValue -32768 41600
@@ -1120,6 +1136,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山外城南-厥阴心包", @"
                 ScriptVarSetValue -32768 50200
@@ -1138,6 +1158,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"厥阴心包-胜州", @"
                 ScriptVarSetValue -32768 50500
@@ -1156,6 +1180,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"胜州祭坛欢庆盛典", @"
                 ScriptVarSetValue -32768 51100
@@ -1177,6 +1205,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"胜州-蜀山", @"
                 ScriptVarSetValue -32768 60100
@@ -1198,6 +1230,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"蜀山-深夜去经库", @"
                 ScriptVarSetValue -32768 60500
@@ -1218,6 +1254,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"地脉门户大厅-阳名百纳", @"
                 ScriptVarSetValue -32768 70100
@@ -1237,6 +1277,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"血濡回魂-初入京城", @"
                 ScriptVarSetValue -32768 70700
@@ -1256,6 +1300,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"血濡回魂-蜀山深夜", @"
                 ScriptVarSetValue -32768 71501
@@ -1275,6 +1323,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"血濡回魂-梦醒", @"
                 ScriptVarSetValue -32768 72001
@@ -1295,6 +1347,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"失散-双溪", @"
                 ScriptVarSetValue -32768 80100
@@ -1317,6 +1373,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"双溪-里蜀山", @"
                 ScriptVarSetValue -32768 80700
@@ -1340,6 +1400,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山外城南-太阴归尘", @"
                 ScriptVarSetValue -32768 80700
@@ -1363,6 +1427,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"太阴归尘-蜀山故道", @"
                 ScriptVarSetValue -32768 90300
@@ -1384,6 +1452,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"蜀山故道-蜀山", @"
                 ScriptVarSetValue -32768 91000
@@ -1405,6 +1477,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"蜀山深夜-养父常纪房间", @"
                 ScriptVarSetValue -32768 100400
@@ -1428,6 +1504,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"无极阁找掌门去锁妖塔", @"
                 ScriptVarSetValue -32768 100701
@@ -1452,6 +1532,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 CameraSetDefaultTransform 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"新安当", @"
                 ScriptVarSetValue -32768 101500
@@ -1477,6 +1561,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 12 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"蜀山回无极阁", @"
                 ScriptVarSetValue -32768 101600
@@ -1500,6 +1588,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"地脉门户-太阳华池", @"
                 ScriptVarSetValue -32768 110200
@@ -1522,6 +1614,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"小秘屋会和", @"
                 ScriptVarSetValue -32768 120300
@@ -1545,6 +1641,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山-魔界之门", @"
                 ScriptVarSetValue -32768 120400
@@ -1569,6 +1669,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"回秘密基地看望星璇", @"
                 ScriptVarSetValue -32768 121100
@@ -1593,6 +1697,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山外城北-少阴凝碧", @"
                 ScriptVarSetValue -32768 130100
@@ -1617,6 +1725,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"施洞", @"
                 ScriptVarSetValue -32768 140200
@@ -1642,6 +1754,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"出发去月光城", @"
                 ScriptVarSetValue -32768 140400
@@ -1667,6 +1783,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"从施洞回到蜀山", @"
                 ScriptVarSetValue -32768 150100
@@ -1692,6 +1812,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"蜀山-绿萝山", @"
                 ScriptVarSetValue -32768 150300
@@ -1717,6 +1841,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"地脉门户-少阳参天", @"
                 ScriptVarSetValue -32768 150400
@@ -1741,6 +1869,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"回里蜀山秘密基地", @"
                 ScriptVarSetValue -32768 160101
@@ -1766,6 +1898,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山见燎日", @"
                 ScriptVarSetValue -32768 161200
@@ -1792,6 +1928,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"里蜀山内城到厥阴蔽日", @"
                 ScriptVarSetValue -32768 170200
@@ -1818,6 +1958,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"地脉门户-蜀山前山", @"
                 ScriptVarSetValue -32768 171200
@@ -1842,6 +1986,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"花圃找王蓬絮\n(温慧好感度最高)", @"
                 ScriptVarSetValue -32768 180600
@@ -1868,6 +2016,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 14 2
                 FavorAdd 1 50
                 FavorAdd 2 10
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             {"花圃找王蓬絮\n(王蓬絮好感度最高)", @"
                 ScriptVarSetValue -32768 180600
@@ -1894,6 +2046,10 @@ namespace Pal3.Dev
                 BigMapEnableRegion 14 2
                 FavorAdd 1 10
                 FavorAdd 2 50
+                SceneSaveGlobalObjectSwitchState m02 1 35 1
+                SceneSaveGlobalObjectTimesCount m02 1 35 0
+                SceneSaveGlobalObjectActivationState m02 1 36 False
+                SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
             #endif
         };
@@ -1994,8 +2150,10 @@ namespace Pal3.Dev
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = story.Key;
 
+                ButtonType buttonType = ButtonType.Normal;
                 if (story.Key is "关闭" or "保存当前游戏进度" or "退出游戏" or "新的游戏" or "继续游戏")
                 {
+                    buttonType = ButtonType.Highlighted;
                     buttonTextUI.fontStyle = FontStyles.Underline;
                 }
 
@@ -2003,7 +2161,7 @@ namespace Pal3.Dev
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
                 button.navigation = buttonNavigation;
-                button.colors = UITheme.GetButtonColors();
+                button.colors = UITheme.GetButtonColors(buttonType);
                 button.onClick.AddListener(delegate { StorySelectionButtonClicked(story.Key);});
                 _selectionButtons.Add(selectionButton);
             }
