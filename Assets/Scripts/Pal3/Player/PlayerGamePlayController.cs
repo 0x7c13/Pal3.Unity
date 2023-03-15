@@ -46,7 +46,7 @@ namespace Pal3.Player
         ICommandExecutor<ToggleBigMapRequest>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const float MIN_JUMP_DISTANCE = 1.5f;
+        private const float MIN_JUMP_DISTANCE = 1.2f;
         private const float MAX_JUMP_DISTANCE = 8f;
         private const float MAX_JUMP_Y_DIFFERENTIAL = 3.5f;
         private const float JUMP_HEIGHT = 6f;
@@ -453,7 +453,7 @@ namespace Pal3.Player
 
             var validJumpTargetPositions = new List<(Vector3 position, int layerIndex, int distanceToObstacle)>();
 
-            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.15f)
+            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.1f)
             {
                 Vector3 targetPosition = currentPosition + jumpDirection * i;
 
