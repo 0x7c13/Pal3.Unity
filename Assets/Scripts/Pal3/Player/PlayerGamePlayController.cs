@@ -460,6 +460,7 @@ namespace Pal3.Player
                 for (var j = 0; j < tilemap.GetLayerCount(); j++)
                 {
                     if (IsPositionCanJumpTo(targetPosition, j,
+                            out float yPosition, out int distanceToObstacle))
                     {
                         Vector3 position = targetPosition;
                         position.y = yPosition;
