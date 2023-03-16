@@ -167,9 +167,23 @@ namespace Pal3.Player
 
         public void Execute(TeamAddOrRemoveActorCommand command)
         {
-            if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId)) return;
+            if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
+            {
+                Debug.LogError($"Cannot add non-player actor to the team.");
+                return;
+            }
 
-            var actor = (PlayerActorId) command.ActorId;
+            PlayerActorId actor = (PlayerActorId) command.ActorId;
+
+            #if PAL3
+            if (actor == PlayerActorId.HuaYing)
+            #elif PAL3A
+            if (actor == PlayerActorId.TaoZi)
+            #endif
+            {
+                Debug.LogError($"{actor} cannot be added to the team.");
+                return;
+            }
 
             if (command.IsIn == 1)
             {

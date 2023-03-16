@@ -1044,8 +1044,7 @@ namespace Pal3.Player
 
             // Set target actor as player actor
             _playerActor = _sceneManager.GetCurrentScene().GetActor(command.ActorId);
-            _playerActorGameObject = _sceneManager.GetCurrentScene()
-                .GetActorGameObject(command.ActorId);
+            _playerActorGameObject = _sceneManager.GetCurrentScene().GetActorGameObject(command.ActorId);
             _playerActorController = _playerActorGameObject.GetComponent<ActorController>();
             _playerActorActionController = _playerActorGameObject.GetComponent<ActorActionController>();
             _playerActorMovementController = _playerActorGameObject.GetComponent<ActorMovementController>();

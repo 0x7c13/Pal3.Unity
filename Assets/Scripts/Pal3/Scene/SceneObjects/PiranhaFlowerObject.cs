@@ -81,7 +81,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.Parameters[0],
                     ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFocusOnSceneObjectCommand(1));
+                new CameraFollowPlayerCommand(1));
             #elif PAL3A
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
