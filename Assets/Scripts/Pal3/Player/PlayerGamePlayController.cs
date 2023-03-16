@@ -473,15 +473,16 @@ namespace Pal3.Player
             var jumpTargetLayer = currentLayer;
             if (validJumpTargetPositions.Count > 0)
             {
+                // If there are valid jump target positions in different layers,
+                // only pick positions in the other layer
                 if (validJumpTargetPositions.Any(_ => _.layerIndex != currentLayer))
                 {
                     validJumpTargetPositions = validJumpTargetPositions.Where(_ => _.layerIndex != currentLayer).ToList();
                 }
 
-                validJumpTargetPositions.Sort((a, b) => b.distanceToObstacle.CompareTo(a.distanceToObstacle));
-
                 // Pick a position that is farthest from obstacles
-                var bestPosition = validJumpTargetPositions.First();
+                int maxDistanceToObstacle = validJumpTargetPositions.Max(_ => _.distanceToObstacle);
+                var bestPosition = validJumpTargetPositions.First(_ => _.distanceToObstacle == maxDistanceToObstacle);
                 jumpTargetPosition = bestPosition.position;
                 jumpTargetLayer = bestPosition.layerIndex;
             }
@@ -512,9 +513,7 @@ namespace Pal3.Player
             _playerActorMovementController.SetNavLayer(jumpTargetLayer);
 
             PlayerActorTilePositionChanged(jumpTargetLayer,
-                tilemap.GetTilePosition(jumpTargetPosition.Value,
-                    jumpTargetLayer),
-                false);
+                tilemap.GetTilePosition(jumpTargetPosition.Value, jumpTargetLayer), false);
 
             _gameStateManager.GoToState(GameState.Gameplay);
         }
@@ -1005,7 +1004,7 @@ namespace Pal3.Player
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
                 Debug.LogError($"Cannot enable player control for actor {command.ActorId} " +
-                               $"since actor is not player actor.");
+                               $"since actor is not a player actor.");
                 return;
             }
 

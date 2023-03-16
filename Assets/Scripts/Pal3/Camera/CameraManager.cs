@@ -52,6 +52,7 @@ namespace Pal3.Camera
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<GameStateChangedNotification>,
+        ICommandExecutor<CameraSetInitialStateOnNextSceneLoadCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
@@ -93,11 +94,13 @@ namespace Pal3.Camera
         private CancellationTokenSource _asyncCameraAnimationCts = new ();
         private CancellationTokenSource _cameraFadeAnimationCts = new ();
 
-        private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 1;
+        private Quaternion? _initRotationOnSceneLoad = null;
+        private int? _initTransformOptionOnSceneLoad = null;
+
+        private const int CAMERA_LAST_KNOWN_STATE_LIST_MAX_LENGTH = 1;
         private readonly List<(ScnSceneInfo sceneInfo,
-            Vector3 cameraPosition,
             Quaternion cameraRotation,
-            Vector3 cameraOffset)> _cameraLastKnownSceneState = new ();
+            int transformOption)> _cameraLastKnownState = new ();
 
         public void Init(PlayerInputActions inputActions,
             PlayerGamePlayController gamePlayController,
@@ -383,7 +386,13 @@ namespace Pal3.Camera
             return _currentAppliedDefaultTransformOption;
         }
 
-        private void ApplySceneSettings(ScnSceneInfo sceneInfo)
+        public Camera GetMainCamera()
+        {
+            return _camera;
+        }
+
+        private void ApplySceneSettings(ScnSceneInfo sceneInfo,
+            int? initTransformOption = null, Quaternion? initRotation = null)
         {
             switch (sceneInfo.SceneType)
             {
@@ -391,33 +400,35 @@ namespace Pal3.Camera
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
-                    ApplyDefaultSettings(0);
+                    ApplyDefaultSettings(initTransformOption ?? 0, initRotation);
                     break;
                 case ScnSceneType.InDoor:
                     _lookAtPointYOffset = SCENE_IN_DOOR_ROOM_FLOOR_HEIGHT;
                     _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
-                    ApplyDefaultSettings(1);
+                    ApplyDefaultSettings(initTransformOption ?? 1, initRotation);
                     break;
                 case ScnSceneType.Maze:
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
-                    ApplyDefaultSettings(0);
+                    ApplyDefaultSettings(initTransformOption ?? 0, initRotation);
                     break;
                 default:
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
-                    ApplyDefaultSettings(0);
+                    ApplyDefaultSettings(initTransformOption ?? 0, initRotation);
                     break;
             }
 
             _shouldResetVelocity = true;
         }
 
-        private void ApplyDefaultSettings(int option)
+        private void ApplyDefaultSettings(int option, Quaternion? initRotation = null)
         {
+            _currentAppliedDefaultTransformOption = option;
+
             float cameraDistance;
             Quaternion cameraRotation;
             float cameraFov;
@@ -428,25 +439,25 @@ namespace Pal3.Camera
                     _freeToRotate = true;
                     cameraFov = HorizontalToVerticalFov(26.0f, 4f/3f);
                     cameraDistance = CAMERA_DEFAULT_DISTANCE;
-                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-30.37f, -52.65f, 0f);
+                    cameraRotation = initRotation ?? GameBoxInterpreter.ToUnityRotation(-30.37f, -52.65f, 0f);
                     break;
                 case 1:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 33.24f, 0f);
+                    cameraRotation = initRotation ?? GameBoxInterpreter.ToUnityRotation(-19.48f, 33.24f, 0f);
                     break;
                 case 2:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, -33.24f, 0f);
+                    cameraRotation = initRotation ?? GameBoxInterpreter.ToUnityRotation(-19.48f, -33.24f, 0f);
                     break;
                 case 3:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = GameBoxInterpreter.ToUnityRotation(-19.48f, 0f, 0f);
+                    cameraRotation = initRotation ?? GameBoxInterpreter.ToUnityRotation(-19.48f, 0f, 0f);
                     break;
                 default:
                     return;
@@ -476,7 +487,6 @@ namespace Pal3.Camera
             }
 
             ApplyDefaultSettings(command.Option);
-            _currentAppliedDefaultTransformOption = command.Option;
             _cameraFollowPlayer = true;
         }
 
@@ -674,37 +684,48 @@ namespace Pal3.Camera
             if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != ScnSceneType.InDoor)
             {
                 var cameraTransform = _camera.transform;
-                _cameraLastKnownSceneState.Add((
+                _cameraLastKnownState.Add((
                     currentScene.GetSceneInfo(),
-                    cameraTransform.position,
                     cameraTransform.rotation,
-                    _cameraOffset));
+                    _currentAppliedDefaultTransformOption));
 
-                if (_cameraLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
+                if (_cameraLastKnownState.Count > CAMERA_LAST_KNOWN_STATE_LIST_MAX_LENGTH)
                 {
-                    _cameraLastKnownSceneState.RemoveAt(0);
+                    _cameraLastKnownState.RemoveAt(0);
                 }
             }
         }
 
+        public void Execute(CameraSetInitialStateOnNextSceneLoadCommand command)
+        {
+            _initRotationOnSceneLoad = Quaternion.Euler(command.InitRotationInEulerAngles);
+            _initTransformOptionOnSceneLoad = command.InitTransformOption;
+        }
+
         public void Execute(ScenePreLoadingNotification notification)
         {
-            _currentAppliedDefaultTransformOption = 0;
-            ApplySceneSettings(notification.NewSceneInfo);
+            Quaternion? initRotation = _initRotationOnSceneLoad;
+            int? initTransformOption = _initTransformOptionOnSceneLoad;
 
-            // Apply the last known scene state if found in record.
+            // Use the last known camera rotation based on last known state found in record.
             if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != ScnSceneType.InDoor)
             {
-                if (_cameraLastKnownSceneState.Count > 0 && _cameraLastKnownSceneState.Any(_ =>
+                if (_cameraLastKnownState.Count > 0 && _cameraLastKnownState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))
                 {
-                    (ScnSceneInfo _, Vector3 cameraPosition, Quaternion cameraRotation, Vector3 cameraOffset) =
-                        _cameraLastKnownSceneState.Last(_ => _.sceneInfo.ModelEquals(notification.NewSceneInfo));
+                    (ScnSceneInfo _, Quaternion cameraRotation, int transformOption) =
+                        _cameraLastKnownState.Last(_ => _.sceneInfo.ModelEquals(notification.NewSceneInfo));
 
-                    _camera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
-                    _cameraOffset = cameraOffset;
+                    initRotation = cameraRotation;
+                    initTransformOption = transformOption;
                 }
             }
+
+            ApplySceneSettings(notification.NewSceneInfo, initTransformOption, initRotation);
+
+            // Reset
+            _initTransformOptionOnSceneLoad = null;
+            _initRotationOnSceneLoad = null;
         }
 
         public void Execute(CameraFocusOnActorCommand command)
@@ -732,7 +753,10 @@ namespace Pal3.Camera
 
         public void Execute(ResetGameStateCommand command)
         {
-            _cameraLastKnownSceneState.Clear();
+            _currentAppliedDefaultTransformOption = 0;
+            _initTransformOptionOnSceneLoad = null;
+            _initRotationOnSceneLoad = null;
+            _cameraLastKnownState.Clear();
             _cameraFollowPlayer = true;
         }
 

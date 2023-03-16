@@ -37,7 +37,7 @@ namespace Pal3.State
     public class SaveManager
     {
         private const string SAVE_FILE_NAME = "save.txt";
-        
+
         private readonly SceneManager _sceneManager;
         private readonly PlayerManager _playerManager;
         private readonly TeamManager _teamManager;
@@ -177,6 +177,12 @@ namespace Pal3.State
                 commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));
             }
 
+            // Save current camera state
+            int currentCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
+            Vector3 cameraCurrentRotationInEulerAngles = _cameraManager.GetMainCamera().transform.rotation.eulerAngles;
+            commands.Add(new CameraSetInitialStateOnNextSceneLoadCommand(
+                cameraCurrentRotationInEulerAngles, currentCameraTransformOption));
+
             // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()
             {
@@ -296,13 +302,6 @@ namespace Pal3.State
                     (int)huaYingGameObject.transform.rotation.eulerAngles.y));
             }
             #endif
-
-            // Save current applied camera settings
-            var defaultCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
-            if (defaultCameraTransformOption != 0)
-            {
-                commands.Add(new CameraSetDefaultTransformCommand(defaultCameraTransformOption));
-            }
 
             // Good to have
             commands.Add(new CameraFadeInCommand());
