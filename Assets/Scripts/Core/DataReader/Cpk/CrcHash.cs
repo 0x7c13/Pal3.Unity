@@ -6,6 +6,7 @@
 namespace Core.DataReader.Cpk
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
 
     /// <summary>
@@ -18,6 +19,9 @@ namespace Core.DataReader.Cpk
 
         private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX];
         private bool _initialized;
+
+        // Cache the crc32 hash result for string since it's expensive to compute.
+        private readonly Dictionary<string, uint> _crcResultCache = new();
 
         public void Init()
         {
@@ -37,10 +41,25 @@ namespace Core.DataReader.Cpk
             _initialized = true;
         }
 
-        public uint ComputeCrc32Hash(string str, int codepage)
+        public uint ComputeCrc32Hash(string str, int codepage, bool useCache = true)
         {
-            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
+            if (!useCache)
+            {
+                return ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
+            }
+
+            var cacheKey = $"{str}-{codepage}";
+
+            if (_crcResultCache.ContainsKey(cacheKey))
+            {
+                return _crcResultCache[cacheKey];
+            }
+
+            uint result = ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
+
+            _crcResultCache[cacheKey] = result;
+
+            return result;
         }
 
         private unsafe uint ComputeCrc32HashInternal(byte[] data)
