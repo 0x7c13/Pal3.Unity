@@ -100,9 +100,9 @@ namespace Pal3.Scene.SceneObjects
             Vector3 actorHoldingPosition = pushableObjectPosition + -movingDirection * (movingDistance * 0.8f);
             actorHoldingPosition.y = playerActorPosition.y;
 
-            // Only allow player to push object if it's close enough to the pushing location
-            // and there's no obstacle in the way.
-            if (Vector3.Distance(playerActorPosition, actorHoldingPosition) < 1.5f &&
+            // Only allow player to push object if actor is close enough
+            // to the holding position and there's no obstacle in the way.
+            if (Vector3.Distance(playerActorPosition, actorHoldingPosition) < 1f &&
                 CanPushTo(movingDirection, movingDistance))
             {
                 RequestForInteraction();
