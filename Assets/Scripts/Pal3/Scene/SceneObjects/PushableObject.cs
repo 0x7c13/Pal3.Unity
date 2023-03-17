@@ -57,6 +57,17 @@ namespace Pal3.Scene.SceneObjects
 
             Bounds meshBounds = GetMeshBounds();
 
+            // For pushable object player can stand on
+            // Boxes in PAL3 M24-3 scene
+            if (ObjectInfo.Parameters[0] == 1)
+            {
+                meshBounds = new Bounds
+                {
+                    center = new Vector3(0f, 1.1f, 0f),
+                    size = new Vector3(2.5f, 2f, 2.5f),
+                };
+            }
+
             _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
             _triggerController.SetBounds(meshBounds, false);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
@@ -65,10 +76,29 @@ namespace Pal3.Scene.SceneObjects
             // Boxes in PAL3 M24-3 scene
             if (ObjectInfo.Parameters[0] == 1)
             {
-                Bounds platformBounds = meshBounds;
-                platformBounds.size *= 1.5f;
+                Bounds platformBounds = new()
+                {
+                    center = new Vector3(0f, 2.8f, 0f),
+                    size = new Vector3(3.5f, 0.7f, 1.3f),
+                };
+
+                // Hack for object 13 in PAL3 M24-3 scene,
+                // to block player from walking over the box without pushing it
+                if (ObjectInfo.Id == 13)
+                {
+                    Vector3 currentPosition = sceneGameObject.transform.position;
+                    if (Math.Abs(currentPosition.x - (-49.04671f)) < 0.01f)
+                    {
+                        sceneGameObject.transform.position = new Vector3(-47.5f,
+                            currentPosition.y,
+                            currentPosition.z);
+                    }
+                    platformBounds.center = new Vector3(0f, 2.8f, 0f);
+                    platformBounds.size = new Vector3(1.3f, 0.7f, 3.5f);
+                }
+
                 _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
-                _standingPlatformController.Init(platformBounds, ObjectInfo.LayerIndex, -0.3f);
+                _standingPlatformController.Init(platformBounds, ObjectInfo.LayerIndex, -0.4f);
             }
 
             return sceneGameObject;
@@ -177,7 +207,15 @@ namespace Pal3.Scene.SceneObjects
             actorMovementController.CancelMovement();
             Vector3 actorHoldingPosition = pushableObjectTransform.position + -movingDirection * (movingDistance * 0.8f);
             actorHoldingPosition.y = playerActorTransform.position.y;
-            yield return actorMovementController.MoveDirectlyToAsync(actorHoldingPosition, 0, true);
+            yield return actorMovementController.MoveDirectlyToAsync(actorHoldingPosition, 0, false);
+
+            Vector3 actorCurrentPosition = actorMovementController.GetWorldPosition();
+            if (Vector2.Distance(new Vector2(actorHoldingPosition.x, actorHoldingPosition.z)
+                    , new Vector2(actorCurrentPosition.x, actorCurrentPosition.z)) > 0.1f)
+            {
+                _isInteractionInProgress = false;
+                yield break; // Actor cannot reach the holding position, abort.
+            }
 
             playerActorTransform.forward = movingDirection;
             var actorActionController = ctx.PlayerActorGameObject.GetComponent<ActorActionController>();
@@ -294,11 +332,15 @@ namespace Pal3.Scene.SceneObjects
                 // needs to walk to the pushing position first
                 if (IsDirectionBlockedByOtherObjects(-direction, distance)) return false;
 
-                // Check if there is any pushable object on top of the current one
-                if (IsDirectionBlockedByOtherObjects(Vector3.up, distance * 2f)) return false;
+                // Ignore the vertical raycast check for boxes in PAL3 M24-3 scene
+                if (ObjectInfo.Parameters[0] != 1)
+                {
+                    // Check if there is any pushable object on top of the current one
+                    if (IsDirectionBlockedByOtherObjects(Vector3.up, distance * 2f)) return false;
 
-                // Check if there is any pushable object below the current one
-                if (IsDirectionBlockedByOtherObjects(Vector3.down, distance * 2f)) return false;
+                    // Check if there is any pushable object below the current one
+                    if (IsDirectionBlockedByOtherObjects(Vector3.down, distance * 2f)) return false;
+                }
 
                 // Check if target position is within the scene bounds
                 Vector3 targetPosition = pushableObject.transform.position + direction * distance;

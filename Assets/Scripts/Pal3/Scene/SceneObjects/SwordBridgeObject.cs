@@ -34,6 +34,7 @@ namespace Pal3.Scene.SceneObjects
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
+            bounds.size += new Vector3(0.1f, 0.1f, 0.1f);
             var heightOffset = 0f;
 
             if (SceneInfo.IsCity("m11") &&

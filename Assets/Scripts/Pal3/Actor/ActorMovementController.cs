@@ -711,8 +711,18 @@ namespace Pal3.Actor
             _actionController.PerformAction(_actor.GetMovementAction(mode));
             do
             {
+                Vector3 currentPosition = transform.position;
+
                 result = MoveTowards(position, mode, ignoreObstacle);
                 yield return null;
+
+                Vector3 newPosition = transform.position;
+                if (result == MovementResult.InProgress &&
+                    currentPosition == newPosition)
+                {
+                    // No movement, gets blocked by collider
+                    break;
+                }
             } while (result == MovementResult.InProgress);
             _actionController.PerformAction(_actor.GetIdleAction());
         }
