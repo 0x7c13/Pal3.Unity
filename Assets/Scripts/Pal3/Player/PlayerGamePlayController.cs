@@ -434,6 +434,14 @@ namespace Pal3.Player
                     {
                         return true;
                     }
+
+                    #if PAL3
+                    // Special case for PAL3 M15-B1
+                    if (_sceneManager.GetCurrentScene().GetSceneInfo().Is("m15", "b1"))
+                    {
+                        return true;
+                    }
+                    #endif
                 }
 
                 yPosition = 0f;
