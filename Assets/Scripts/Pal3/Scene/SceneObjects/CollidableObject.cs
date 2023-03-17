@@ -80,8 +80,13 @@ namespace Pal3.Scene.SceneObjects
 
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
-            // Reset collider since bounds may change after animation
-            _triggerController.SetBounds(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
+            // Reset collider since bounds may change after animation.
+            // isTrigger should depend on the object's IsNonBlocking flag
+            // but here we just set it to true to avoid the player from
+            // getting stuck in the object after the animation.
+            // When next time scene is loaded, the object will be set to
+            // the correct state (to block player if IsNonBlocking is 0).
+            _triggerController.SetBounds(GetMeshBounds(), isTrigger: true);
         }
 
         public override void Deactivate()
