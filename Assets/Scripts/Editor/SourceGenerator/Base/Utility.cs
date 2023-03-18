@@ -36,7 +36,7 @@ namespace Editor.SourceGenerator.Base
             return argListStr;
         }
 
-        public static string ToLowerFirstChar(string input)
+        private static string ToLowerFirstChar(string input)
         {
             if (string.IsNullOrEmpty(input)) return input;
             return char.ToLower(input[0]) + input[1..];

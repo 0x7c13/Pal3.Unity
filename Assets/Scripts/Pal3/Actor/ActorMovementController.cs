@@ -8,6 +8,7 @@ namespace Pal3.Actor
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Command;
     using Command.InternalCommands;
@@ -447,7 +448,7 @@ namespace Pal3.Actor
 
             if (!targetPositionFound)
             {
-                targetPosition = tapPoints[0].point;
+                targetPosition = tapPoints.First().Value.point;
             }
 
             MovementMode mode = isDoubleTap ? MovementMode.Run : MovementMode.Walk;

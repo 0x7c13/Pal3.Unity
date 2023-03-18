@@ -40,8 +40,8 @@ namespace Pal3.Script
         ICommandExecutor<ScriptVarInBetweenCommand>,
         ICommandExecutor<ScriptVarDistractValueCommand>,
         ICommandExecutor<ScriptVarAddValueCommand>,
-        ICommandExecutor<ScriptTestGotoCommand>,
         ICommandExecutor<ScriptGotoCommand>,
+        ICommandExecutor<ScriptGotoIfConditionFailedCommand>,
         ICommandExecutor<ScriptWaitUntilTimeCommand>,
         ICommandExecutor<ScriptRunnerAddWaiterRequest>,
         ICommandExecutor<ScriptVarSetValueCommand>,
@@ -112,7 +112,7 @@ namespace Pal3.Script
             _executionMode = executionMode;
 
             _registers = new object[MAX_REGISTER_COUNT];
-            _registers[(int) RegisterOperations.Operator] = 0; // Init operator
+            _registers[(int) RegisterOperationType.Operator] = 0; // Init operator
 
             _scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.ScriptData));
 
@@ -212,13 +212,13 @@ namespace Pal3.Script
 
         private void SetVarValueBasedOnOperationResult(bool boolValue)
         {
-            var operatorType = _registers[(int) RegisterOperations.Operator];
-            _registers[(int) RegisterOperations.Value] = operatorType switch
+            var operatorType = _registers[(int) RegisterOperationType.Operator];
+            _registers[(int) RegisterOperationType.Value] = operatorType switch
             {
                 0 => boolValue,
-                1 => boolValue && (bool) _registers[(int) RegisterOperations.Value],
-                2 => boolValue || (bool) _registers[(int) RegisterOperations.Value],
-                _ => throw new Exception($"{ScriptId}: Invalid register operation: {operatorType}")
+                1 => boolValue && (bool) _registers[(int) RegisterOperationType.Value],
+                2 => boolValue || (bool) _registers[(int) RegisterOperationType.Value],
+                _ => throw new Exception($"{ScriptId}: Invalid register operator type: {operatorType}")
             };
         }
 
@@ -259,7 +259,7 @@ namespace Pal3.Script
         public void Execute(ScriptSetOperatorCommand command)
         {
             if (!_isExecuting) return;
-            _registers[(int) RegisterOperations.Operator] = command.OperatorType;
+            _registers[(int) RegisterOperationType.Operator] = command.OperatorType;
         }
 
         public void Execute(ScriptVarGreaterThanCommand command)
@@ -350,11 +350,11 @@ namespace Pal3.Script
             _scriptDataReader.BaseStream.Seek(command.Offset, SeekOrigin.Begin);
         }
 
-        public void Execute(ScriptTestGotoCommand command)
+        public void Execute(ScriptGotoIfConditionFailedCommand command)
         {
             if (!_isExecuting) return;
-            if (_registers[(int) RegisterOperations.Value] != null &&
-                !(bool)_registers[(int) RegisterOperations.Value])
+            if (_registers[(int) RegisterOperationType.Value] != null &&
+                !(bool)_registers[(int) RegisterOperationType.Value])
             {
                 _scriptDataReader.BaseStream.Seek(command.Offset, SeekOrigin.Begin);
             }

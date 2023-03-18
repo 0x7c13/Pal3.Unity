@@ -97,6 +97,7 @@ namespace Pal3.UI
                 Hide();
             }
         }
+
         public bool IsVisible()
         {
             return _isVisible;

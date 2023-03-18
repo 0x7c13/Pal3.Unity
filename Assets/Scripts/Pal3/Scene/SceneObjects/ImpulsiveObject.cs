@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
             PlaySfx("wb002");
 
             ctx.PlayerActorGameObject.GetComponent<ActorActionController>()
-                .PerformAction(ActorActionType.BeAttack);
+                .PerformAction(ActorActionType.BeAttack, true, 1);
 
             Vector3 targetPosition = ctx.PlayerActorGameObject.transform.position +
                                      (_subObjectGameObject.transform.forward * 6f) + Vector3.up * 2f;

@@ -129,9 +129,12 @@ namespace Pal3.Actor
             return _collider;
         }
 
-        public void PerformAction(ActorActionType actorActionType)
+        public void PerformAction(ActorActionType actorActionType,
+            bool overwrite = false,
+            int loopCount = -1,
+            WaitUntilCanceled waiter = null)
         {
-            PerformAction(ActorConstants.ActionNames[actorActionType]);
+            PerformAction(ActorConstants.ActionNames[actorActionType], overwrite, loopCount, waiter);
         }
 
         public void PerformAction(string actionName,

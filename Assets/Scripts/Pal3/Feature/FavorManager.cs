@@ -12,6 +12,7 @@ namespace Pal3.Feature
     using Command.InternalCommands;
     using Command.SceCommands;
     using MetaData;
+    using UnityEngine;
 
     public sealed class FavorManager : IDisposable,
         ICommandExecutor<FavorAddCommand>,
@@ -34,11 +35,16 @@ namespace Pal3.Feature
 
         private void Init()
         {
-            foreach (var actorId in Enum.GetValues(typeof(PlayerActorId)).Cast<int>())
-            {
-                if (actorId == 0) continue; // Skip for the main actor
-                _actorFavor[actorId] = 0;
-            }
+            // Only female characters are supported (by OG game design)
+            #if PAL3
+            _actorFavor[(int)PlayerActorId.XueJian] = 0;
+            _actorFavor[(int)PlayerActorId.LongKui] = 0;
+            _actorFavor[(int)PlayerActorId.ZiXuan] = 0;
+            _actorFavor[(int)PlayerActorId.HuaYing] = 0;
+            #elif PAL3A
+            _actorFavor[(int)PlayerActorId.WenHui] = 0;
+            _actorFavor[(int)PlayerActorId.WangPengXu] = 0;
+            #endif
         }
 
         public Dictionary<int, int> GetAllActorFavorInfo()
@@ -49,7 +55,8 @@ namespace Pal3.Feature
         public int GetFavorByActor(int actorId)
         {
             return _actorFavor.ContainsKey(actorId) ?
-                _actorFavor[actorId] + BASE_FAVOR_AMOUNT : BASE_FAVOR_AMOUNT;
+                _actorFavor[actorId] + BASE_FAVOR_AMOUNT :
+                BASE_FAVOR_AMOUNT;
         }
 
         public void Execute(FavorAddCommand command)
@@ -60,14 +67,15 @@ namespace Pal3.Feature
             }
             else
             {
-                _actorFavor[command.ActorId] = command.ChangeAmount;
+                Debug.LogError($"Actor ID {command.ActorId} is not supported for favor system. " +
+                               $"Valid IDs are: {string.Join(", ", _actorFavor.Keys)}");
             }
         }
 
         public void Execute(ResetGameStateCommand command)
         {
             _actorFavor.Clear();
-            Init();
+            Init(); // Re-init the favor values.
         }
 
         public int GetMostFavorableActorId()

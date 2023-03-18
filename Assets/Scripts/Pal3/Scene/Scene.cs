@@ -110,7 +110,10 @@ namespace Pal3.Scene
                 Destroy(actor.Value);
             }
 
-            if (_skyBoxRenderer != null) Destroy(_skyBoxRenderer);
+            if (_skyBoxRenderer != null)
+            {
+                Destroy(_skyBoxRenderer);
+            }
         }
 
         public void Load(ScnFile scnFile, GameObject parent)
@@ -251,7 +254,14 @@ namespace Pal3.Scene
         {
             if (ScnFile.SceneInfo.SkyBox == 0) return;
             _skyBoxRenderer = _mainCamera.gameObject.AddComponent<SkyBoxRenderer>();
-            _skyBoxRenderer.Render(_resourceProvider.GetSkyBoxTextures((int)ScnFile.SceneInfo.SkyBox));
+            Texture2D[] skyBoxTextures = _resourceProvider.GetSkyBoxTextures((int) ScnFile.SceneInfo.SkyBox);
+            _skyBoxRenderer.Render(_mainCamera,
+                skyBoxTextures[0],
+                skyBoxTextures[1],
+                skyBoxTextures[2],
+                skyBoxTextures[3],
+                skyBoxTextures[4],
+                skyBoxTextures[5]);
         }
 
         private void SetupNavMesh()

@@ -66,6 +66,11 @@ namespace Pal3.Script
             return _globalVariables;
         }
 
+        public int GetGlobalVariable(int variable)
+        {
+            return _globalVariables.TryGetValue(variable, out int value) ? value : 0;
+        }
+
         public int GetNumberOfRunningScripts()
         {
             return _pendingScripts.Count + _runningScripts.Count;

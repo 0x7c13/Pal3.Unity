@@ -37,8 +37,8 @@ namespace Pal3.Scene.SceneObjects
 
         private bool _isInteractionInProgress;
 
-        private int _bidirectionalPushableCurrentState;
-        private int _bidirectionalPushableGoalState;
+        private int _bidiPushableCurrentState;
+        private int _bidiPushableGoalState;
 
         private readonly RaycastHit[] _raycastHits = new RaycastHit[10];
 
@@ -243,29 +243,20 @@ namespace Pal3.Scene.SceneObjects
             // Trigger script based on bidirectional pushable object state
             if (ObjectInfo.Parameters[0] == 2)
             {
-                switch (_bidirectionalPushableGoalState)
-                {
-                    case -1:
-                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[1]);
-                        break;
-                    case 1:
-                        yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[2]);
-                        break;
-                    case 0:
-                        switch (_bidirectionalPushableCurrentState)
-                        {
-                            case -1:
-                                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[1]);
-                                break;
-                            case 1:
-                                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, (ushort)ObjectInfo.Parameters[2]);
-                                break;
-                        }
-                        break;
-                }
+                ushort leftLinkedObjectId = (ushort)ObjectInfo.Parameters[1];
+                ushort rightLinkedObjectId = (ushort)ObjectInfo.Parameters[2];
 
-                _bidirectionalPushableCurrentState = 0;
-                _bidirectionalPushableGoalState = 0;
+                yield return _bidiPushableGoalState switch
+                {
+                    -1 => ActivateOrInteractWithObjectIfAnyAsync(ctx, leftLinkedObjectId),
+                    1 => ActivateOrInteractWithObjectIfAnyAsync(ctx, rightLinkedObjectId),
+                    0 when _bidiPushableCurrentState == -1 => ActivateOrInteractWithObjectIfAnyAsync(ctx, leftLinkedObjectId),
+                    0 when _bidiPushableCurrentState == 1 => ActivateOrInteractWithObjectIfAnyAsync(ctx, rightLinkedObjectId),
+                    _ => throw new NotSupportedException($"Unsupported bidirectional pushable state: {_bidiPushableGoalState}")
+                };
+
+                _bidiPushableCurrentState = 0;
+                _bidiPushableGoalState = 0;
             }
 
             // Do not persist position if the object is triggered by script
@@ -290,34 +281,28 @@ namespace Pal3.Scene.SceneObjects
                         SceneInfo.SceneName, ObjectInfo.Id, out SceneObjectStateOverride state) &&
                     state.BidirectionalPushableObjectState.HasValue)
                 {
-                    switch (state.BidirectionalPushableObjectState.Value)
-                    {
-                        case 1:
-                            if (pushableObject.transform.forward == direction)
-                            {
-                                return false;
-                            }
-                            break;
-                        case -1:
-                            if (pushableObject.transform.forward == -direction)
-                            {
-                                return false;
-                            }
-                            break;
-                    }
+                    Vector3 pushableObjectForwardDirection = pushableObject.transform.forward;
 
-                    _bidirectionalPushableCurrentState = state.BidirectionalPushableObjectState.Value;
+                    bool canPush = state.BidirectionalPushableObjectState.Value switch
+                    {
+                        1 when pushableObjectForwardDirection == direction => false,
+                        -1 when pushableObjectForwardDirection == -direction => false,
+                        _ => true
+                    };
+                    if (!canPush) return false;
+
+                    _bidiPushableCurrentState = state.BidirectionalPushableObjectState.Value;
                 }
 
-                _bidirectionalPushableGoalState = _bidirectionalPushableCurrentState
-                                                  + (pushableObject.transform.forward == direction ? 1 : -1);
+                _bidiPushableGoalState = _bidiPushableCurrentState +
+                                         (pushableObject.transform.forward == direction ? 1 : -1);
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
                         SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Id,
-                        _bidirectionalPushableGoalState));
+                        _bidiPushableGoalState));
 
                 return true;
             }
@@ -398,8 +383,8 @@ namespace Pal3.Scene.SceneObjects
 
         public override void Deactivate()
         {
-            _bidirectionalPushableCurrentState = 0;
-            _bidirectionalPushableGoalState = 0;
+            _bidiPushableCurrentState = 0;
+            _bidiPushableGoalState = 0;
             _isInteractionInProgress = false;
 
             if (_triggerController != null)

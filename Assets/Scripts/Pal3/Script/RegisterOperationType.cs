@@ -5,7 +5,7 @@
 
 namespace Pal3.Script
 {
-    public enum RegisterOperations
+    public enum RegisterOperationType
     {
         Operator = 0,
         Value = 1,

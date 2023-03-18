@@ -17,23 +17,29 @@ namespace Editor
     {
         #if PAL3
         private const string GAME_VARIANT_SYMBOL = "PAL3";
-        private static string OutputFileName = $"Pal3DebugConsoleCommands";
+        private static string OutputFileName = "ConsoleCommands.PAL3.generated";
         #elif PAL3A
         private const string GAME_VARIANT_SYMBOL = "PAL3A";
-        private static string OutputFileName = $"Pal3ADebugConsoleCommands";
+        private static string OutputFileName = "ConsoleCommands.PAL3A.generated";
         #endif
 
-        [MenuItem("Pal3/Source Generator/Generate DebugConsoleCommands.cs")]
-        public static void GenerateDebugConsoleCommands()
+        #if PAL3
+        [MenuItem("PAL3/Source Generator/Generate ConsoleCommands.PAL3.generated.cs")]
+        #elif PAL3A
+        [MenuItem("PAL3A/Source Generator/Generate ConsoleCommands.PAL3A.generated.cs")]
+        #endif
+        public static void GenerateConsoleCommands()
         {
             var writePath = $"Assets/Scripts/PAL3/Command/{OutputFileName}.cs";
             var nameSpace = "Pal3.Command";
-            ISourceGenerator sourceGenerator = new DebugCommandsAutoGen<ICommand>();
-            GenerateSourceInternal(OutputFileName, writePath, nameSpace, sourceGenerator, true);
+            var className = "ConsoleCommands";
+            ISourceGenerator sourceGenerator = new ConsoleCommandsAutoGen<ICommand>();
+            GenerateSourceInternal(OutputFileName, writePath, className, nameSpace, sourceGenerator, true);
         }
 
         private static void GenerateSourceInternal(string fileName,
             string writePath,
+            string className,
             string nameSpace,
             ISourceGenerator sourceGenerator,
             bool overwrite)
@@ -52,7 +58,7 @@ namespace Editor
                 SpacesPerIndentLevel = 4,
             };
 
-            sourceGenerator.GenerateSourceClass(writer, fileName, nameSpace);
+            sourceGenerator.GenerateSourceClass(writer, className, nameSpace);
 
             // Final output string
             var output = $"#if {GAME_VARIANT_SYMBOL}\n\n{writer.Buffer}\n#endif";

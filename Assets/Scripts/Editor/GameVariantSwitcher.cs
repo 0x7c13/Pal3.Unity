@@ -14,7 +14,11 @@ namespace Editor
 
     public static class GameVariantSwitcher
     {
-        [MenuItem("Pal3/Switch Variant/PAL3", priority = 1)]
+        #if PAL3
+        [MenuItem("PAL3/Switch Variant/PAL3", priority = 1)]
+        #elif PAL3A
+        [MenuItem("PAL3A/Switch Variant/PAL3", priority = 1)]
+        #endif
         public static void SwitchToPal3()
         {
             SymbolsHelper.RemoveSymbol("PAL3A");
@@ -23,13 +27,21 @@ namespace Editor
             AssetDatabase.SaveAssets();
         }
 
-        [MenuItem("Pal3/Switch Variant/PAL3", true)]
+        #if PAL3
+        [MenuItem("PAL3/Switch Variant/PAL3", true)]
+        #elif PAL3A
+        [MenuItem("PAL3A/Switch Variant/PAL3", true)]
+        #endif
         static bool ValidateSwitchToPal3()
         {
             return !SymbolsHelper.HasSymbol("PAL3");
         }
 
-        [MenuItem("Pal3/Switch Variant/PAL3A", priority = 2)]
+        #if PAL3
+        [MenuItem("PAL3/Switch Variant/PAL3A", priority = 2)]
+        #elif PAL3A
+        [MenuItem("PAL3A/Switch Variant/PAL3A", priority = 2)]
+        #endif
         public static void SwitchToPal3A()
         {
             SymbolsHelper.RemoveSymbol("PAL3");
@@ -38,7 +50,11 @@ namespace Editor
             AssetDatabase.SaveAssets();
         }
 
-        [MenuItem("Pal3/Switch Variant/PAL3A", true)]
+        #if PAL3
+        [MenuItem("PAL3/Switch Variant/PAL3A", true)]
+        #elif PAL3A
+        [MenuItem("PAL3A/Switch Variant/PAL3A", true)]
+        #endif
         static bool ValidateSwitchToPal3A()
         {
             return !SymbolsHelper.HasSymbol("PAL3A");

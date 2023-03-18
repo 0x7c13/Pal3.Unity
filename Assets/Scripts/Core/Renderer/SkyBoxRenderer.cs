@@ -19,15 +19,16 @@ namespace Core.Renderer
         private static readonly int UpTexturePropertyID = Shader.PropertyToID("_UpTex");
         private static readonly int DownTexturePropertyID = Shader.PropertyToID("_DownTex");
 
-        public void Render(Texture2D[] textures)
+        public void Render(Camera targetCamera,
+            Texture2D rightTex,
+            Texture2D backTex,
+            Texture2D leftTex,
+            Texture2D frontTex,
+            Texture2D upTex,
+            Texture2D downTex)
         {
-            var mainCamera = GetComponent<Camera>();
-            if (mainCamera == null)
-            {
-                throw new Exception("SkyBoxRenderer needs to be attached to a camera game object.");
-            }
-            Material material = CreateSkyboxMaterial(textures);
-            _skybox = mainCamera.gameObject.AddComponent<Skybox>();
+            Material material = CreateSkyboxMaterial(rightTex, backTex, leftTex, frontTex, upTex, downTex);
+            _skybox = targetCamera.gameObject.AddComponent<Skybox>();
             _skybox.material = material;
         }
 
@@ -36,15 +37,20 @@ namespace Core.Renderer
             if (_skybox != null) Destroy(_skybox);
         }
 
-        private static Material CreateSkyboxMaterial(Texture2D[] textures)
+        private static Material CreateSkyboxMaterial(Texture2D rightTex,
+            Texture2D backTex,
+            Texture2D leftTex,
+            Texture2D frontTex,
+            Texture2D upTex,
+            Texture2D downTex)
         {
             var material = new Material(Shader.Find("Skybox/6 Sided"));
-            material.SetTexture(RightTexturePropertyID, textures[0]);
-            material.SetTexture(BackTexturePropertyID, textures[1]);
-            material.SetTexture(LeftTexturePropertyID, textures[2]);
-            material.SetTexture(FrontTexturePropertyID, textures[3]);
-            material.SetTexture(UpTexturePropertyID, textures[4]);
-            material.SetTexture(DownTexturePropertyID, textures[5]);
+            material.SetTexture(RightTexturePropertyID, rightTex);
+            material.SetTexture(BackTexturePropertyID, backTex);
+            material.SetTexture(LeftTexturePropertyID, leftTex);
+            material.SetTexture(FrontTexturePropertyID, frontTex);
+            material.SetTexture(UpTexturePropertyID, upTex);
+            material.SetTexture(DownTexturePropertyID, downTex);
             return material;
         }
     }

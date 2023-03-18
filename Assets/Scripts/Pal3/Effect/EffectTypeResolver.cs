@@ -6,6 +6,7 @@
 namespace Pal3.Effect
 {
     using System;
+    using System.Globalization;
     using MetaData;
 
     public static class EffectTypeResolver
@@ -29,7 +30,7 @@ namespace Pal3.Effect
             if (!string.IsNullOrEmpty(name) && name.StartsWith('+'))
             {
                 var hexName = '0' + name[^1..];
-                var effect = int.Parse(hexName, System.Globalization.NumberStyles.HexNumber);
+                var effect = int.Parse(hexName, NumberStyles.HexNumber);
                 return (GraphicsEffect)effect;
             }
             else

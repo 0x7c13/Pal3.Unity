@@ -319,7 +319,7 @@ namespace Pal3.Renderer
         {
             uint startTick = 0;
 
-            if (loopCount == -1)
+            if (loopCount == -1) // Infinite loop until cancelled
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -335,7 +335,7 @@ namespace Pal3.Renderer
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
-            else if (loopCount == -2)
+            else if (loopCount == -2) // Play until action holding point
             {
                 _actionHoldingTick = _events.LastOrDefault(e =>
                     e.Name.Equals(MV3_ANIMATION_HOLD_EVENT_NAME, StringComparison.OrdinalIgnoreCase)).Tick;

@@ -473,20 +473,28 @@ namespace Pal3.Renderer
         {
             if (nodePositionInfo.Length == 1) return nodePositionInfo[0].Position;
 
-            // TODO: Use binary search and interpolate value based on curve type
-            for (var i = 0; i < nodePositionInfo.Length - 1; i++)
+            // Find the two keyframes that the current time lies between
+            // using binary search
+            int startIndex = 0;
+            int endIndex = nodePositionInfo.Length - 1;
+            while (endIndex - startIndex > 1)
             {
-                CvdAnimationPositionKeyFrame toKeyFrame = nodePositionInfo[i + 1];
-                if (time < toKeyFrame.Time)
+                int midIndex = (startIndex + endIndex) / 2;
+                if (nodePositionInfo[midIndex].Time > time)
                 {
-                    CvdAnimationPositionKeyFrame fromKeyFrame =  nodePositionInfo[i];
-                    var influence = (time - fromKeyFrame.Time) /
-                                    (toKeyFrame.Time - fromKeyFrame.Time);
-                    return Vector3.Lerp(fromKeyFrame.Position, toKeyFrame.Position, influence);
+                    endIndex = midIndex;
+                }
+                else
+                {
+                    startIndex = midIndex;
                 }
             }
 
-            return nodePositionInfo[^1].Position;
+            // Interpolate between the two keyframes based on the time
+            CvdAnimationPositionKeyFrame fromKeyFrame = nodePositionInfo[startIndex];
+            CvdAnimationPositionKeyFrame toKeyFrame = nodePositionInfo[endIndex];
+            float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
+            return Vector3.Lerp(fromKeyFrame.Position, toKeyFrame.Position, influence);
         }
 
         private (Vector3 Scale, Quaternion Rotation) GetScale(float time,
@@ -498,25 +506,30 @@ namespace Pal3.Renderer
                 return (scaleKeyFrame.Scale, scaleKeyFrame.Rotation);
             }
 
-            // TODO: Use binary search and interpolate value based on curve type
-            for (var i = 0; i < nodeScaleInfo.Length - 1; i++)
+            // Find the two keyframes that the current time lies between
+            // using binary search
+            int startIndex = 0;
+            int endIndex = nodeScaleInfo.Length - 1;
+            while (endIndex - startIndex > 1)
             {
-                CvdAnimationScaleKeyFrame toKeyFrame = nodeScaleInfo[i + 1];
-                if (time < toKeyFrame.Time)
+                int midIndex = (startIndex + endIndex) / 2;
+                if (nodeScaleInfo[midIndex].Time > time)
                 {
-                    CvdAnimationScaleKeyFrame fromKeyFrame = nodeScaleInfo[i];
-                    var influence = (time - fromKeyFrame.Time) /
-                                    (toKeyFrame.Time - fromKeyFrame.Time);
-                    Quaternion calculatedRotation = Quaternion.Lerp(
-                        fromKeyFrame.Rotation,
-                        toKeyFrame.Rotation,
-                        influence);
-                    return (Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence), calculatedRotation);
+                    endIndex = midIndex;
+                }
+                else
+                {
+                    startIndex = midIndex;
                 }
             }
 
-            CvdAnimationScaleKeyFrame lastKeyFrame = nodeScaleInfo[^1];
-            return (lastKeyFrame.Scale, lastKeyFrame.Rotation);
+            // Interpolate between the two keyframes based on the time
+            CvdAnimationScaleKeyFrame fromKeyFrame = nodeScaleInfo[startIndex];
+            CvdAnimationScaleKeyFrame toKeyFrame = nodeScaleInfo[endIndex];
+            float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
+            Quaternion calculatedRotation = Quaternion.Lerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
+            Vector3 calculatedScale = Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence);
+            return (calculatedScale, calculatedRotation);
         }
 
         private Quaternion GetRotation(float time,
@@ -524,23 +537,27 @@ namespace Pal3.Renderer
         {
             if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].Rotation;
 
-            // TODO: Use binary search and interpolate value based on curve type
-            for (var i = 0; i < nodeRotationInfo.Length - 1; i++)
+            // Find the two keyframes that the current time lies between
+            int startIndex = 0;
+            int endIndex = nodeRotationInfo.Length - 1;
+            while (endIndex - startIndex > 1)
             {
-                CvdAnimationRotationKeyFrame toKeyFrame = nodeRotationInfo[i + 1];
-                if (time < toKeyFrame.Time)
+                int midIndex = (startIndex + endIndex) / 2;
+                if (nodeRotationInfo[midIndex].Time > time)
                 {
-                    CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[i];
-                    var influence = (time - fromKeyFrame.Time) /
-                                    (toKeyFrame.Time - fromKeyFrame.Time);
-                    return Quaternion.Lerp(
-                        fromKeyFrame.Rotation,
-                        toKeyFrame.Rotation,
-                        influence);
+                    endIndex = midIndex;
+                }
+                else
+                {
+                    startIndex = midIndex;
                 }
             }
 
-            return nodeRotationInfo[^1].Rotation;
+            // Interpolate between the two keyframes based on the curve type
+            CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[startIndex];
+            CvdAnimationRotationKeyFrame toKeyFrame = nodeRotationInfo[endIndex];
+            float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
+            return Quaternion.Lerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
         }
 
         public void StopCurrentAnimation()
