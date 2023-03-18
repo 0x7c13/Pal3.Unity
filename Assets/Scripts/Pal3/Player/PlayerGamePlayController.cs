@@ -1026,13 +1026,7 @@ namespace Pal3.Player
                         disposeSource: true));
             }
 
-            // Dispose current game play indicator
-            if (_jumpIndicatorGameObject != null)
-            {
-                Destroy(_jumpIndicatorGameObject);
-                _jumpIndicatorGameObject = null;
-                _jumpIndicatorRenderer = null;
-            }
+            DisposeGamePlayIndicators();
 
             Vector3? lastActivePlayerActorPosition = null;
             Quaternion? lastActivePlayerActorRotation = null;
@@ -1165,6 +1159,10 @@ namespace Pal3.Player
                         disposeSource: true));
             }
 
+            // Remove game play indicators
+            _jumpableAreaEnterCount = 0;
+            DisposeGamePlayIndicators();
+
             _playerActorLastKnownSceneState.Add((
                 currentScene.GetSceneInfo(),
                 _playerActorMovementController.GetCurrentLayerIndex(),
@@ -1213,8 +1211,27 @@ namespace Pal3.Player
             #endif
         }
 
+        private void DisposeGamePlayIndicators()
+        {
+            if (_jumpIndicatorRenderer != null)
+            {
+                _jumpIndicatorRenderer.StopAnimation();
+                Destroy(_jumpIndicatorRenderer);
+                _jumpIndicatorRenderer = null;
+            }
+
+            if (_jumpIndicatorGameObject != null)
+            {
+                Destroy(_jumpIndicatorGameObject);
+                _jumpIndicatorGameObject = null;
+            }
+        }
+
         public void Execute(ResetGameStateCommand command)
         {
+            _jumpableAreaEnterCount = 0;
+            DisposeGamePlayIndicators();
+
             _playerActorLastKnownSceneState.Clear();
 
             _currentMovementSfxAudioName = string.Empty;
@@ -1234,8 +1251,6 @@ namespace Pal3.Player
             _playerActorController = null;
             _playerActorActionController = null;
             _playerActorMovementController = null;
-
-            _jumpableAreaEnterCount = 0;
         }
 
         // TODO: Remove this
