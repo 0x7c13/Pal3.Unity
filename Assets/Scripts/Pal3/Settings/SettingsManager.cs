@@ -9,6 +9,8 @@ namespace Pal3.Settings
     using System.ComponentModel;
     using System.IO;
     using System.Reflection;
+    using Command;
+    using Command.InternalCommands;
     using Core.Utils;
     using IngameDebugConsole;
     using MetaData;
@@ -36,6 +38,10 @@ namespace Pal3.Settings
                 "设置分辨率缩放设定（0.1：10%分辨率，0.5：50%分辨率，1.0：100%分辨率）", _ => ResolutionScale = _);
             DebugLogConsole.AddCommand<int>("Settings.FullScreenMode",
                 "设置全屏模式设定（0：Windows独占全屏，1：全屏，2：MacOS全屏，3：窗口", _ => FullScreenMode = (FullScreenMode) _);
+            DebugLogConsole.AddCommand<float>("Settings.MusicVolume",
+                "设置音乐音量设定（0.0：静音，1.0：最大音量）", _ => MusicVolume = _);
+            DebugLogConsole.AddCommand<float>("Settings.SfxVolume",
+                "设置音效音量设定（0.0：静音，1.0：最大音量）", _ => SfxVolume = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsRealtimeLightingAndShadowsEnabled",
                 "设置实时光照和阴影设定（true：开启，false：关闭）", _ => IsRealtimeLightingAndShadowsEnabled = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsAmbientOcclusionEnabled",
@@ -55,52 +61,61 @@ namespace Pal3.Settings
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            if (args.PropertyName == nameof(VSyncCount))
+            string settingName = args.PropertyName;
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(settingName));
+
+            if (settingName == nameof(VSyncCount))
             {
                 QualitySettings.vSyncCount = VSyncCount;
-                _settingsStore.Set(args.PropertyName, VSyncCount);
+                _settingsStore.Set(settingName, VSyncCount);
             }
-            else if (args.PropertyName == nameof(AntiAliasing))
+            else if (settingName == nameof(AntiAliasing))
             {
                 QualitySettings.antiAliasing = AntiAliasing;
-                _settingsStore.Set(args.PropertyName, AntiAliasing);
+                _settingsStore.Set(settingName, AntiAliasing);
             }
-            else if (args.PropertyName == nameof(TargetFrameRate))
+            else if (settingName == nameof(TargetFrameRate))
             {
                 Application.targetFrameRate = TargetFrameRate;
-                _settingsStore.Set(args.PropertyName, TargetFrameRate);
+                _settingsStore.Set(settingName, TargetFrameRate);
             }
-            else if (args.PropertyName == nameof(ResolutionScale))
+            else if (settingName == nameof(ResolutionScale))
             {
                 Screen.SetResolution(
                     (int) (Screen.currentResolution.width * ResolutionScale),
                     (int) (Screen.currentResolution.height * ResolutionScale),
                     Screen.fullScreenMode);
-                _settingsStore.Set(args.PropertyName, ResolutionScale);
+                _settingsStore.Set(settingName, ResolutionScale);
             }
-            else if (args.PropertyName == nameof(FullScreenMode))
+            else if (settingName == nameof(FullScreenMode))
             {
                 Screen.fullScreenMode = FullScreenMode;
-                _settingsStore.Set(args.PropertyName, FullScreenMode);
+                _settingsStore.Set(settingName, FullScreenMode);
             }
-            else if (args.PropertyName == nameof(IsRealtimeLightingAndShadowsEnabled))
+            else if (settingName == nameof(MusicVolume))
             {
-                // TODO: Implement this
-                _settingsStore.Set(args.PropertyName, IsRealtimeLightingAndShadowsEnabled);
+                _settingsStore.Set(settingName, MusicVolume);
             }
-            else if (args.PropertyName == nameof(IsAmbientOcclusionEnabled))
+            else if (settingName == nameof(SfxVolume))
             {
-                // TODO: Implement this
-                _settingsStore.Set(args.PropertyName, IsAmbientOcclusionEnabled);
+                _settingsStore.Set(settingName, SfxVolume);
             }
-            else if (args.PropertyName == nameof(IsVoiceOverEnabled))
+            else if (settingName == nameof(IsRealtimeLightingAndShadowsEnabled))
             {
-                // TODO: Implement this
-                _settingsStore.Set(args.PropertyName, IsVoiceOverEnabled);
+                _settingsStore.Set(settingName, IsRealtimeLightingAndShadowsEnabled);
             }
-            else if (args.PropertyName == nameof(GameDataFolderPath))
+            else if (settingName == nameof(IsAmbientOcclusionEnabled))
             {
-                _settingsStore.Set(args.PropertyName, GameDataFolderPath);
+                _settingsStore.Set(settingName, IsAmbientOcclusionEnabled);
+            }
+            else if (settingName == nameof(IsVoiceOverEnabled))
+            {
+                _settingsStore.Set(settingName, IsVoiceOverEnabled);
+            }
+            else if (settingName == nameof(GameDataFolderPath))
+            {
+                _settingsStore.Set(settingName, GameDataFolderPath);
             }
         }
 
@@ -180,6 +195,26 @@ namespace Pal3.Settings
                     : FullScreenMode.FullScreenWindow;
             }
 
+            if (_settingsStore.TryGet(nameof(MusicVolume), out float musicVolume))
+            {
+                MusicVolume = musicVolume;
+            }
+            else
+            {
+                // 50% music volume by default
+                MusicVolume = 0.5f;
+            }
+
+            if (_settingsStore.TryGet(nameof(SfxVolume), out float sfxVolume))
+            {
+                SfxVolume = sfxVolume;
+            }
+            else
+            {
+                // 50% sfx volume by default
+                SfxVolume = 0.5f;
+            }
+
             if (_settingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
                     out bool isRealtimeLightingAndShadowsEnabled))
             {
@@ -247,6 +282,8 @@ namespace Pal3.Settings
 
         public void PrintSettings()
         {
+            Debug.Log("Current game settings:");
+
             foreach (PropertyInfo property in typeof(SettingsBase).GetProperties())
             {
                 Debug.Log($"{property.Name}: {property.GetValue(this)}");

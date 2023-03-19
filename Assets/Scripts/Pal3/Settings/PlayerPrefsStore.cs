@@ -34,7 +34,7 @@ namespace Pal3.Settings
             }
             else
             {
-                throw new System.NotSupportedException("Unsupported type: " + typeof(T).Name);
+                throw new NotSupportedException("Unsupported type: " + typeof(T).Name);
             }
         }
 

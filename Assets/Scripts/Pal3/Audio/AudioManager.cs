@@ -19,6 +19,7 @@ namespace Pal3.Audio
     using Data;
     using MetaData;
     using Scene;
+    using Settings;
     using State;
     using UnityEngine;
 
@@ -31,17 +32,20 @@ namespace Pal3.Audio
         ICommandExecutor<StopMusicCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
-        ICommandExecutor<ResetGameStateCommand>
+        ICommandExecutor<ResetGameStateCommand>,
+        ICommandExecutor<SettingChangedNotification>
     {
-        public float DefaultMusicVolume { get; set; } = 0.45f;
-        public float DefaultSoundVolume { get; set; } = 0.65f;
-
         private Camera _mainCamera;
         private AudioSource _musicPlayer;
         private GameResourceProvider _resourceProvider;
         private SceneManager _sceneManager;
+        private SettingsManager _settingsManager;
 
         private const string STOP_MUSIC_NAME = "NONE";
+
+        private float _musicVolume;
+        private float _sfxVolume;
+
         private string _currentMusicClipName = string.Empty;
         private string _currentScriptMusic = string.Empty;
         private readonly List<string> _playingSfxSourceNames = new ();
@@ -55,12 +59,17 @@ namespace Pal3.Audio
         public void Init(Camera mainCamera,
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
-            AudioSource musicSource)
+            AudioSource musicSource,
+            SettingsManager settingsManager)
         {
             _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _musicPlayer = musicSource != null ? musicSource : throw new ArgumentNullException(nameof(musicSource));
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+
+            _musicVolume = _settingsManager.MusicVolume;
+            _sfxVolume = _settingsManager.SfxVolume;
         }
 
         private void OnEnable()
@@ -71,6 +80,19 @@ namespace Pal3.Audio
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
+        public void Execute(SettingChangedNotification command)
+        {
+            if (command.SettingName == nameof(_settingsManager.MusicVolume))
+            {
+                _musicVolume = _settingsManager.MusicVolume;
+                _musicPlayer.volume = _musicVolume;
+            }
+            else if (command.SettingName == nameof(_settingsManager.SfxVolume))
+            {
+                _sfxVolume = _settingsManager.SfxVolume;
+            }
         }
 
         private IEnumerator PlaySceneMusicAsync(string cityName, string sceneName)
@@ -240,7 +262,7 @@ namespace Pal3.Audio
             if (musicClip == null ||
                 !string.Equals(_currentMusicClipName, musicName, StringComparison.OrdinalIgnoreCase)) yield break;
 
-            yield return PlayAudioClipAsync(_musicPlayer, musicClip, loopCount, 0f, DefaultMusicVolume,
+            yield return PlayAudioClipAsync(_musicPlayer, musicClip, loopCount, 0f, _musicVolume,
                 new CancellationToken(false)); // Should not stop music during scene switch
         }
 
@@ -315,7 +337,7 @@ namespace Pal3.Audio
                         _resourceProvider.GetSfxFilePath(sfxName),
                         sfxName, // use sfx name as audio source name
                         loopCount: -1, // loop indefinitely
-                        DefaultSoundVolume,
+                        _sfxVolume,
                         interval: 0f,
                         _sceneAudioCts.Token));
                     break;
@@ -335,7 +357,7 @@ namespace Pal3.Audio
                         sfxFilePath,
                         sfxName, // use sfx name as audio source name
                         loopCount,
-                        DefaultSoundVolume,
+                        _sfxVolume,
                         interval: 0f,
                         cancellationToken));
                     break;

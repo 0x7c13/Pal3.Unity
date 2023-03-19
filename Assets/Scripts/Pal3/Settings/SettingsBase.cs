@@ -31,7 +31,7 @@ namespace Pal3.Settings
             set
             {
                 if (_vSyncCount != value &&
-                    _vSyncCount >= 0)
+                    value >= 0)
                 {
                     _vSyncCount = value;
                     NotifyPropertyChanged();
@@ -46,7 +46,7 @@ namespace Pal3.Settings
             set
             {
                 if (_antiAliasing != value &&
-                    _antiAliasing >= 0)
+                    value >= 0)
                 {
                     _antiAliasing = value;
                     NotifyPropertyChanged();
@@ -61,7 +61,7 @@ namespace Pal3.Settings
             set
             {
                 if (_targetFrameRate != value &&
-                    _targetFrameRate > 0 || _targetFrameRate == -1)
+                    value > 0 || value == -1)
                 {
                     _targetFrameRate = value;
                     NotifyPropertyChanged();
@@ -76,7 +76,7 @@ namespace Pal3.Settings
             set
             {
                 if (Math.Abs(_resolutionScale - value) > float.Epsilon &&
-                    _resolutionScale is > 0 and <= 1.0f)
+                    value is > 0 and <= 1.0f)
                 {
                     _resolutionScale = value;
                     NotifyPropertyChanged();
@@ -94,6 +94,36 @@ namespace Pal3.Settings
                     Enum.IsDefined(typeof(FullScreenMode), value))
                 {
                     _fullScreenMode = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private float _musicVolume = 0.5f; // Default to half volume
+        public float MusicVolume
+        {
+            get => _musicVolume;
+            set
+            {
+                if (Math.Abs(_musicVolume - value) > float.Epsilon &&
+                    value is >= 0 and <= 1.0f)
+                {
+                    _musicVolume = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private float _sfxVolume = 0.5f; // Default to half volume
+        public float SfxVolume
+        {
+            get => _sfxVolume;
+            set
+            {
+                if (Math.Abs(_sfxVolume - value) > float.Epsilon &&
+                    value is >= 0 and <= 1.0f)
+                {
+                    _sfxVolume = value;
                     NotifyPropertyChanged();
                 }
             }

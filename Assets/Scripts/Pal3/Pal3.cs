@@ -5,6 +5,7 @@
 
 namespace Pal3
 {
+    using System;
     using System.Linq;
     using System.Text;
     using Actor;
@@ -105,6 +106,7 @@ namespace Pal3
         private readonly TextureCache _textureCache = new ();
 
         // Core game systems
+        private SettingsManager _settingsManager;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
         private FileSystemCacheManager _fileSystemCacheManager;
@@ -150,10 +152,9 @@ namespace Pal3
         private MazeSkipper _mazeSkipper;
         private StorySelector _storySelector;
 
-        private SettingsManager _settingsManager;
-
         private void OnEnable()
         {
+            _settingsManager = ServiceLocator.Instance.Get<SettingsManager>();
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
@@ -237,7 +238,8 @@ namespace Pal3
             _audioManager.Init(mainCamera,
                 _gameResourceProvider,
                 _sceneManager,
-                musicSource);
+                musicSource,
+                _settingsManager);
             ServiceLocator.Instance.Register(_audioManager);
 
             _informationManager = gameObject.AddComponent<InformationManager>();
