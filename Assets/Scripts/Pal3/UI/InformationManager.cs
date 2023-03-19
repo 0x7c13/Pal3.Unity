@@ -64,7 +64,7 @@ namespace Pal3.UI
                 $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType})\n" +
                 $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
                 $"{GameConstants.ContactInfo}\n" +
-                $"Version: Alpha v{Application.version}\n";
+                $"Version: v{Application.version} Alpha (Unity {Application.unityVersion})\n";
 
             _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
 

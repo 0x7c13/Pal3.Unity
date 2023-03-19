@@ -333,10 +333,6 @@ namespace Pal3
 
             DisableInGameDebugConsoleButtonNavigation();
 
-            _settingsManager = new SettingsManager();
-            _settingsManager.ApplyDefaultRenderingSettings();
-            _settingsManager.ApplyPlatformSpecificSettings();
-
             _storySelector.Show();
         }
 

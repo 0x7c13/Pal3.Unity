@@ -19,6 +19,7 @@ namespace Pal3
     using Data;
     using MetaData;
     using Renderer;
+    using Settings;
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -111,8 +112,14 @@ namespace Pal3
 
         private IEnumerator InitResourceAsync(string gameRootPath, CrcHash crcHash, int codepage)
         {
-            ICpkFileSystem cpkFileSystem = null;
+            // Init settings manager
+            SettingsManager settingsManager = new (new PlayerPrefsStore());
+            settingsManager.LoadUserSettings();
+            settingsManager.ApplySettings();
+            ServiceLocator.Instance.Register<SettingsManager>(settingsManager);
+
             // Init file system
+            ICpkFileSystem cpkFileSystem = null;
             yield return InitFileSystemAsync(gameRootPath, crcHash, codepage, (fileSystem) =>
             {
                 cpkFileSystem = fileSystem;
@@ -121,7 +128,7 @@ namespace Pal3
             ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
 
             // Init TextureLoaderFactory
-            var textureLoaderFactory = new TextureLoaderFactory();
+            TextureLoaderFactory textureLoaderFactory = new ();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init Game resource provider
