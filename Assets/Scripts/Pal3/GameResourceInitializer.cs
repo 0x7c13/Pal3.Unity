@@ -112,10 +112,15 @@ namespace Pal3
 
         private IEnumerator InitResourceAsync(string gameRootPath, CrcHash crcHash, int codepage)
         {
+            #if UNITY_EDITOR
+            ITransactionalKeyValueStore settingsStore = new InMemoryKeyValueStore();
+            #else
+            ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
+            #endif
+
             // Init settings manager
-            SettingsManager settingsManager = new (new PlayerPrefsStore());
-            settingsManager.LoadUserSettings();
-            settingsManager.ApplySettings();
+            SettingsManager settingsManager = new (settingsStore);
+            settingsManager.InitSettings();
             ServiceLocator.Instance.Register<SettingsManager>(settingsManager);
 
             // Init file system

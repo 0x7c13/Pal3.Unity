@@ -8,7 +8,7 @@ namespace Pal3.Settings
     using System;
     using UnityEngine;
 
-    public class PlayerPrefsStore : ITransactionalKeyValueStore
+    public sealed class PlayerPrefsStore : ITransactionalKeyValueStore
     {
         public void Set<T>(string key, T value)
         {
@@ -40,6 +40,7 @@ namespace Pal3.Settings
 
         public bool TryGet<T>(string key, out T value)
         {
+            // If the key doesn't exist, return the default value
             if (!PlayerPrefs.HasKey(key))
             {
                 value = default;
@@ -72,7 +73,14 @@ namespace Pal3.Settings
                 return true;
             }
 
-            throw new NotSupportedException("Unsupported type: " + typeof(T).Name);
+            Debug.LogError("Unsupported type: " + typeof(T).Name);
+            value = default;
+            return false;
+        }
+
+        public void DeleteKey(string key)
+        {
+            PlayerPrefs.DeleteKey(key);
         }
 
         public void Save()

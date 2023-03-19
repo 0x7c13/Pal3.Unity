@@ -8,6 +8,7 @@ namespace Core.Utils
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
     using UnityEngine;
@@ -235,6 +236,33 @@ namespace Core.Utils
             Debug.DrawLine(p2, p6, Color.gray, duration);
             Debug.DrawLine(p3, p7, Color.green, duration);
             Debug.DrawLine(p4, p8, Color.cyan, duration);
+        }
+
+        public static bool IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(int sdkVersion)
+        {
+            if (Application.platform != RuntimePlatform.Android) return false;
+
+            try
+            {
+                int GetAndroidSdkLevel()
+                {
+                    IntPtr versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
+                    IntPtr sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
+                    var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
+                    return sdkLevel;
+                }
+
+                if (GetAndroidSdkLevel() <= sdkVersion)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            return false;
         }
     }
 }

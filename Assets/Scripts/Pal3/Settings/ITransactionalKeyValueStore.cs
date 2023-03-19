@@ -11,6 +11,8 @@ namespace Pal3.Settings
 
         bool TryGet<T>(string key, out T value);
 
+        public void DeleteKey(string key);
+
         void Save();
     }
 }
