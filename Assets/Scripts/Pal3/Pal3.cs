@@ -106,7 +106,7 @@ namespace Pal3
         private readonly TextureCache _textureCache = new ();
 
         // Core game systems
-        private SettingsManager _settingsManager;
+        private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
         private FileSystemCacheManager _fileSystemCacheManager;
@@ -154,7 +154,7 @@ namespace Pal3
 
         private void OnEnable()
         {
-            _settingsManager = ServiceLocator.Instance.Get<SettingsManager>();
+            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
@@ -239,7 +239,7 @@ namespace Pal3
                 _gameResourceProvider,
                 _sceneManager,
                 musicSource,
-                _settingsManager);
+                _gameSettings);
             ServiceLocator.Instance.Register(_audioManager);
 
             _informationManager = gameObject.AddComponent<InformationManager>();
@@ -340,6 +340,7 @@ namespace Pal3
 
         private void OnDisable()
         {
+            _gameSettings.Dispose();
             _gameResourceProvider.Dispose();
             _fileSystemCacheManager.Dispose();
             _inputManager.Dispose();

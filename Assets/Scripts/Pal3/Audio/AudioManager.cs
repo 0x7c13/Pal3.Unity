@@ -39,7 +39,7 @@ namespace Pal3.Audio
         private AudioSource _musicPlayer;
         private GameResourceProvider _resourceProvider;
         private SceneManager _sceneManager;
-        private SettingsManager _settingsManager;
+        private GameSettings _gameSettings;
 
         private const string STOP_MUSIC_NAME = "NONE";
 
@@ -60,16 +60,16 @@ namespace Pal3.Audio
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
             AudioSource musicSource,
-            SettingsManager settingsManager)
+            GameSettings gameSettings)
         {
             _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
             _musicPlayer = musicSource != null ? musicSource : throw new ArgumentNullException(nameof(musicSource));
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
 
-            _musicVolume = _settingsManager.MusicVolume;
-            _sfxVolume = _settingsManager.SfxVolume;
+            _musicVolume = _gameSettings.MusicVolume;
+            _sfxVolume = _gameSettings.SfxVolume;
         }
 
         private void OnEnable()
@@ -84,14 +84,14 @@ namespace Pal3.Audio
 
         public void Execute(SettingChangedNotification command)
         {
-            if (command.SettingName == nameof(_settingsManager.MusicVolume))
+            if (command.SettingName == nameof(_gameSettings.MusicVolume))
             {
-                _musicVolume = _settingsManager.MusicVolume;
+                _musicVolume = _gameSettings.MusicVolume;
                 _musicPlayer.volume = _musicVolume;
             }
-            else if (command.SettingName == nameof(_settingsManager.SfxVolume))
+            else if (command.SettingName == nameof(_gameSettings.SfxVolume))
             {
-                _sfxVolume = _settingsManager.SfxVolume;
+                _sfxVolume = _gameSettings.SfxVolume;
             }
         }
 

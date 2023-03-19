@@ -60,13 +60,13 @@ namespace Pal3
             // Init settings store
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
 
-            // Init settings manager
-            SettingsManager settingsManager = new (settingsStore);
-            settingsManager.InitSettings();
-            ServiceLocator.Instance.Register<SettingsManager>(settingsManager);
+            // Init settings
+            GameSettings gameSettings = new (settingsStore);
+            gameSettings.InitOrLoadSettings();
+            ServiceLocator.Instance.Register<GameSettings>(gameSettings);
 
             // Init file system
-            string gameDataFolderPath = settingsManager.GameDataFolderPath;
+            string gameDataFolderPath = gameSettings.GameDataFolderPath;
             ICpkFileSystem cpkFileSystem = null;
 
             while (cpkFileSystem == null)
@@ -81,20 +81,17 @@ namespace Pal3
                 {
                     // Failed to init file system, ask user to pick game root path again
                     #if UNITY_EDITOR
-                    if (Utility.IsDesktopDevice())
-                    {
-                        string newRootPath = EditorUtility.OpenFolderPanel(
-                            title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
-                            folder: "",
-                            defaultName: GameConstants.AppName);
+                    string newRootPath = EditorUtility.OpenFolderPanel(
+                        title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
+                        folder: "",
+                        defaultName: GameConstants.AppName);
 
-                        if (!string.IsNullOrEmpty(newRootPath))
-                        {
-                            gameDataFolderPath = newRootPath;
-                            loadingText.text = "Loading game assets...";
-                            yield return null; // Wait for next frame to make sure the text is updated
-                            continue; // Retry when new root path is picked
-                        }
+                    if (!string.IsNullOrEmpty(newRootPath))
+                    {
+                        gameDataFolderPath = newRootPath;
+                        loadingText.text = "Loading game assets...";
+                        yield return null; // Wait for next frame to make sure the text is updated
+                        continue; // Retry when new root path is picked
                     }
                     #endif
 
@@ -103,8 +100,10 @@ namespace Pal3
 
                 ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
 
-                // Save game data folder path when file system initialized successfully
-                settingsManager.GameDataFolderPath = gameDataFolderPath;
+                // Save game data folder path when file system initialized successfully,
+                // since it's possible that user changed the game data folder path
+                // during the file system initialization
+                gameSettings.GameDataFolderPath = gameDataFolderPath;
             }
 
             // Init TextureLoaderFactory

@@ -16,14 +16,10 @@ namespace Pal3.Settings
     using MetaData;
     using UnityEngine;
 
-    public sealed class SettingsManager : SettingsBase
+    public sealed class GameSettings : SettingsBase, IDisposable
     {
-        private readonly ITransactionalKeyValueStore _settingsStore;
-
-        public SettingsManager(ITransactionalKeyValueStore settingsStore)
+        public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
         {
-            _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
-
             InitDefaultSettings();
 
             PropertyChanged += OnPropertyChanged;
@@ -63,22 +59,17 @@ namespace Pal3.Settings
         {
             string settingName = args.PropertyName;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(settingName));
-
             if (settingName == nameof(VSyncCount))
             {
                 QualitySettings.vSyncCount = VSyncCount;
-                _settingsStore.Set(settingName, VSyncCount);
             }
             else if (settingName == nameof(AntiAliasing))
             {
                 QualitySettings.antiAliasing = AntiAliasing;
-                _settingsStore.Set(settingName, AntiAliasing);
             }
             else if (settingName == nameof(TargetFrameRate))
             {
                 Application.targetFrameRate = TargetFrameRate;
-                _settingsStore.Set(settingName, TargetFrameRate);
             }
             else if (settingName == nameof(ResolutionScale))
             {
@@ -86,37 +77,14 @@ namespace Pal3.Settings
                     (int) (Screen.currentResolution.width * ResolutionScale),
                     (int) (Screen.currentResolution.height * ResolutionScale),
                     Screen.fullScreenMode);
-                _settingsStore.Set(settingName, ResolutionScale);
             }
             else if (settingName == nameof(FullScreenMode))
             {
                 Screen.fullScreenMode = FullScreenMode;
-                _settingsStore.Set(settingName, FullScreenMode);
             }
-            else if (settingName == nameof(MusicVolume))
-            {
-                _settingsStore.Set(settingName, MusicVolume);
-            }
-            else if (settingName == nameof(SfxVolume))
-            {
-                _settingsStore.Set(settingName, SfxVolume);
-            }
-            else if (settingName == nameof(IsRealtimeLightingAndShadowsEnabled))
-            {
-                _settingsStore.Set(settingName, IsRealtimeLightingAndShadowsEnabled);
-            }
-            else if (settingName == nameof(IsAmbientOcclusionEnabled))
-            {
-                _settingsStore.Set(settingName, IsAmbientOcclusionEnabled);
-            }
-            else if (settingName == nameof(IsVoiceOverEnabled))
-            {
-                _settingsStore.Set(settingName, IsVoiceOverEnabled);
-            }
-            else if (settingName == nameof(GameDataFolderPath))
-            {
-                _settingsStore.Set(settingName, GameDataFolderPath);
-            }
+
+            // Broadcast the setting change notification.
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(settingName));
         }
 
         private void InitDefaultSettings()
@@ -131,9 +99,9 @@ namespace Pal3.Settings
             }
         }
 
-        public void InitSettings()
+        public void InitOrLoadSettings()
         {
-            if (_settingsStore.TryGet(nameof(VSyncCount), out int vSyncCount))
+            if (SettingsStore.TryGet(nameof(VSyncCount), out int vSyncCount))
             {
                 VSyncCount = vSyncCount;
             }
@@ -143,7 +111,7 @@ namespace Pal3.Settings
                 VSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
             }
 
-            if (_settingsStore.TryGet(nameof(AntiAliasing), out int antiAliasing))
+            if (SettingsStore.TryGet(nameof(AntiAliasing), out int antiAliasing))
             {
                 AntiAliasing = antiAliasing;
             }
@@ -153,7 +121,7 @@ namespace Pal3.Settings
                 AntiAliasing = Utility.IsDesktopDevice() ? 2 : 0;
             }
 
-            if (_settingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate))
+            if (SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate))
             {
                 TargetFrameRate = targetFrameRate;
             }
@@ -169,7 +137,7 @@ namespace Pal3.Settings
                 TargetFrameRate = Mathf.Max(screenRefreshRate, 60); // 60Hz is the minimum
             }
 
-            if (_settingsStore.TryGet(nameof(ResolutionScale), out float resolutionScale))
+            if (SettingsStore.TryGet(nameof(ResolutionScale), out float resolutionScale))
             {
                 ResolutionScale = resolutionScale;
             }
@@ -180,7 +148,7 @@ namespace Pal3.Settings
                 ResolutionScale = Utility.IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(23) ? 0.75f : 1.0f;
             }
 
-            if (_settingsStore.TryGet(nameof(FullScreenMode), out FullScreenMode fullScreenMode))
+            if (SettingsStore.TryGet(nameof(FullScreenMode), out FullScreenMode fullScreenMode))
             {
                 FullScreenMode = fullScreenMode;
             }
@@ -195,7 +163,7 @@ namespace Pal3.Settings
                     : FullScreenMode.FullScreenWindow;
             }
 
-            if (_settingsStore.TryGet(nameof(MusicVolume), out float musicVolume))
+            if (SettingsStore.TryGet(nameof(MusicVolume), out float musicVolume))
             {
                 MusicVolume = musicVolume;
             }
@@ -205,7 +173,7 @@ namespace Pal3.Settings
                 MusicVolume = 0.5f;
             }
 
-            if (_settingsStore.TryGet(nameof(SfxVolume), out float sfxVolume))
+            if (SettingsStore.TryGet(nameof(SfxVolume), out float sfxVolume))
             {
                 SfxVolume = sfxVolume;
             }
@@ -215,7 +183,7 @@ namespace Pal3.Settings
                 SfxVolume = 0.5f;
             }
 
-            if (_settingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
+            if (SettingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
                     out bool isRealtimeLightingAndShadowsEnabled))
             {
                 IsRealtimeLightingAndShadowsEnabled = isRealtimeLightingAndShadowsEnabled;
@@ -226,7 +194,7 @@ namespace Pal3.Settings
                 IsRealtimeLightingAndShadowsEnabled = Utility.IsDesktopDevice();
             }
 
-            if (_settingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
+            if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
             {
                 IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
             }
@@ -236,7 +204,7 @@ namespace Pal3.Settings
                 IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
             }
 
-            if (_settingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
+            if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
             {
                 IsVoiceOverEnabled = isVoiceOverEnabled;
             }
@@ -246,7 +214,7 @@ namespace Pal3.Settings
                 IsVoiceOverEnabled = true;
             }
 
-            if (_settingsStore.TryGet(nameof(GameDataFolderPath), out string gameDataFolderPath))
+            if (SettingsStore.TryGet(nameof(GameDataFolderPath), out string gameDataFolderPath))
             {
                 GameDataFolderPath = gameDataFolderPath;
             }
@@ -262,7 +230,7 @@ namespace Pal3.Settings
 
         public void SaveSettings()
         {
-            _settingsStore.Save();
+            SettingsStore.Save();
         }
 
         public void ResetSettings()
@@ -270,11 +238,11 @@ namespace Pal3.Settings
             // Delete all settings keys
             foreach (PropertyInfo property in typeof(SettingsBase).GetProperties())
             {
-                _settingsStore.DeleteKey(property.Name);
+                SettingsStore.DeleteKey(property.Name);
             }
 
             // Re-initialize settings
-            InitSettings();
+            InitOrLoadSettings();
 
             // Save settings
             SaveSettings();
@@ -288,6 +256,11 @@ namespace Pal3.Settings
             {
                 Debug.Log($"{property.Name}: {property.GetValue(this)}");
             }
+        }
+
+        public void Dispose()
+        {
+            PropertyChanged -= OnPropertyChanged;
         }
     }
 }

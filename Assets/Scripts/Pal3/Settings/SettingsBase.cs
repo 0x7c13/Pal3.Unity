@@ -17,6 +17,13 @@ namespace Pal3.Settings
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        internal readonly ITransactionalKeyValueStore SettingsStore;
+
+        internal SettingsBase(ITransactionalKeyValueStore settingsStore)
+        {
+            SettingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
+        }
+
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -34,6 +41,7 @@ namespace Pal3.Settings
                     value >= 0)
                 {
                     _vSyncCount = value;
+                    SettingsStore.Set(nameof(VSyncCount), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -49,6 +57,7 @@ namespace Pal3.Settings
                     value >= 0)
                 {
                     _antiAliasing = value;
+                    SettingsStore.Set(nameof(AntiAliasing), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -64,6 +73,7 @@ namespace Pal3.Settings
                     value > 0 || value == -1)
                 {
                     _targetFrameRate = value;
+                    SettingsStore.Set(nameof(TargetFrameRate), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -79,6 +89,7 @@ namespace Pal3.Settings
                     value is > 0 and <= 1.0f)
                 {
                     _resolutionScale = value;
+                    SettingsStore.Set(nameof(ResolutionScale), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -94,6 +105,7 @@ namespace Pal3.Settings
                     Enum.IsDefined(typeof(FullScreenMode), value))
                 {
                     _fullScreenMode = value;
+                    SettingsStore.Set(nameof(FullScreenMode), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -109,6 +121,7 @@ namespace Pal3.Settings
                     value is >= 0 and <= 1.0f)
                 {
                     _musicVolume = value;
+                    SettingsStore.Set(nameof(MusicVolume), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -124,12 +137,13 @@ namespace Pal3.Settings
                     value is >= 0 and <= 1.0f)
                 {
                     _sfxVolume = value;
+                    SettingsStore.Set(nameof(SfxVolume), value);
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        private bool _isRealtimeLightingAndShadowsEnabled = false; // Default to false for realtime lighting and shadows
+        private bool _isRealtimeLightingAndShadowsEnabled = false; // Default disable realtime lighting and shadows
         public bool IsRealtimeLightingAndShadowsEnabled
         {
             get => _isRealtimeLightingAndShadowsEnabled;
@@ -138,12 +152,13 @@ namespace Pal3.Settings
                 if (_isRealtimeLightingAndShadowsEnabled != value)
                 {
                     _isRealtimeLightingAndShadowsEnabled = value;
+                    SettingsStore.Set(nameof(IsRealtimeLightingAndShadowsEnabled), value);
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        private bool _isAmbientOcclusionEnabled = false; // Default to false for ambient occlusion
+        private bool _isAmbientOcclusionEnabled = false; // Default to disable ambient occlusion
         public bool IsAmbientOcclusionEnabled
         {
             get => _isAmbientOcclusionEnabled;
@@ -152,12 +167,13 @@ namespace Pal3.Settings
                 if (_isAmbientOcclusionEnabled != value)
                 {
                     _isAmbientOcclusionEnabled = value;
+                    SettingsStore.Set(nameof(IsAmbientOcclusionEnabled), value);
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        private bool _isVoiceOverEnabled = true; // Default to true for voice over
+        private bool _isVoiceOverEnabled = true; // Default to enable voice over
         public bool IsVoiceOverEnabled
         {
             get => _isVoiceOverEnabled;
@@ -166,6 +182,7 @@ namespace Pal3.Settings
                 if (_isVoiceOverEnabled != value)
                 {
                     _isVoiceOverEnabled = value;
+                    SettingsStore.Set(nameof(IsVoiceOverEnabled), value);
                     NotifyPropertyChanged();
                 }
             }
@@ -180,6 +197,7 @@ namespace Pal3.Settings
                 if (_gameDataFolderPath != value)
                 {
                     _gameDataFolderPath = value;
+                    SettingsStore.Set(nameof(GameDataFolderPath), value);
                     NotifyPropertyChanged();
                 }
             }
