@@ -37,86 +37,28 @@ namespace Pal3
         [SerializeField] private Image backgroundImage;
         [SerializeField] private TextMeshProUGUI loadingText;
 
-        private const string CUSTOM_GAME_FOLDER_PATH_FILE_NAME = "CustomGameFolderPath.txt";
         private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page
                                                    // change it to 950 to supports Traditional Chinese (Big5)
 
-        private string GetCustomGameFolderPathFilePath()
-        {
-            return Application.persistentDataPath +
-                   Path.DirectorySeparatorChar +
-                   CUSTOM_GAME_FOLDER_PATH_FILE_NAME;
-        }
-
-        private string GetDefaultGameFolderPath()
-        {
-            return Application.persistentDataPath +
-                   Path.DirectorySeparatorChar +
-                   GameConstants.AppName +
-                   Path.DirectorySeparatorChar;
-        }
-
-        private string GetGameFolderPath()
-        {
-            string gameFolderRootPath;
-
-            if (Utility.IsDesktopDevice())
-            {
-                gameFolderRootPath = File.Exists(GetCustomGameFolderPathFilePath()) ?
-                    File.ReadAllText(GetCustomGameFolderPathFilePath()).Trim() :
-                    #if UNITY_EDITOR
-                    PickGameRootPath();
-                    #else
-                    GetDefaultGameFolderPath();
-                    #endif
-            }
-            else
-            {
-                gameFolderRootPath = GetDefaultGameFolderPath();
-            }
-
-            if (Utility.IsHandheldDevice())
-            {
-                string fileName = Application.persistentDataPath + Path.DirectorySeparatorChar +
-                                  $"把{GameConstants.AppNameCNShort}文件夹{GameConstants.AppName}拖到这里";
-                StreamWriter fileWriter = File.CreateText(fileName);
-                fileWriter.WriteLine($"把{GameConstants.AppNameCNShort}文件夹{GameConstants.AppName}拖到这里");
-                fileWriter.Close();
-            }
-
-            return gameFolderRootPath;
-        }
-
-        #if UNITY_EDITOR
-        private string PickGameRootPath()
-        {
-            return EditorUtility.OpenFolderPanel($"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
-                "", GameConstants.AppName);
-        }
-        #endif
-
         private IEnumerator Start()
         {
+            loadingText.text = "Loading game assets...";
+            yield return null; // Wait for next frame to make sure the text is updated
+            yield return InitResourceAsync();
+        }
+
+        private IEnumerator InitResourceAsync()
+        {
+            // TODO: let user to choose language? Or auto-detect encoding?
+            int codepage = DEFAULT_CODE_PAGE;
+
             // Create and init CRC hash
-            var crcHash = new CrcHash();
+            CrcHash crcHash = new ();
             crcHash.Init();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
 
-            loadingText.text = "Loading game assets...";
-
-            // TODO: let user to choose language? Or auto-detect encoding?
-            var codepage = DEFAULT_CODE_PAGE;
-
-            yield return InitResourceAsync(GetGameFolderPath(), crcHash, codepage);
-        }
-
-        private IEnumerator InitResourceAsync(string gameRootPath, CrcHash crcHash, int codepage)
-        {
-            #if UNITY_EDITOR
-            ITransactionalKeyValueStore settingsStore = new InMemoryKeyValueStore();
-            #else
+            // Init settings store
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
-            #endif
 
             // Init settings manager
             SettingsManager settingsManager = new (settingsStore);
@@ -124,13 +66,46 @@ namespace Pal3
             ServiceLocator.Instance.Register<SettingsManager>(settingsManager);
 
             // Init file system
+            string gameDataFolderPath = settingsManager.GameDataFolderPath;
             ICpkFileSystem cpkFileSystem = null;
-            yield return InitFileSystemAsync(gameRootPath, crcHash, codepage, (fileSystem) =>
+
+            while (cpkFileSystem == null)
             {
-                cpkFileSystem = fileSystem;
-            });
-            if (cpkFileSystem == null) yield break;
-            ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
+                yield return InitFileSystemAsync(gameDataFolderPath,
+                    crcHash, codepage, fileSystem =>
+                {
+                    cpkFileSystem = fileSystem;
+                });
+
+                if (cpkFileSystem == null)
+                {
+                    // Failed to init file system, ask user to pick game root path again
+                    #if UNITY_EDITOR
+                    if (Utility.IsDesktopDevice())
+                    {
+                        string newRootPath = EditorUtility.OpenFolderPanel(
+                            title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
+                            folder: "",
+                            defaultName: GameConstants.AppName);
+
+                        if (!string.IsNullOrEmpty(newRootPath))
+                        {
+                            gameDataFolderPath = newRootPath;
+                            loadingText.text = "Loading game assets...";
+                            yield return null; // Wait for next frame to make sure the text is updated
+                            continue; // Retry when new root path is picked
+                        }
+                    }
+                    #endif
+
+                    yield break; // Stop initialization if failed to init file system
+                }
+
+                ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
+
+                // Save game data folder path when file system initialized successfully
+                settingsManager.GameDataFolderPath = gameDataFolderPath;
+            }
 
             // Init TextureLoaderFactory
             TextureLoaderFactory textureLoaderFactory = new ();
@@ -156,32 +131,30 @@ namespace Pal3
 
             yield return FadeTextAndBackgroundImageAsync();
 
-            if (Utility.IsDesktopDevice())
-            {
-                File.WriteAllText(GetCustomGameFolderPathFilePath(), gameRootPath);
-            }
-
-            Dispose();
+            FinalizeInit();
         }
 
-        private void Dispose()
+        private void FinalizeInit()
         {
             foreach (Transform child in transform)
             {
                 Destroy(child.gameObject);
             }
 
+            // Since everything except for ServiceLocator will be destroyed,
+            // we can just name the current game object as ServiceLocator
             gameObject.name = nameof(ServiceLocator);
+
             Destroy(this);
         }
 
-        private IEnumerator InitFileSystemAsync(string gameRootPath,
+        private IEnumerator InitFileSystemAsync(string gameDataFolderPath,
             CrcHash crcHash,
             int codepage,
             Action<ICpkFileSystem> callback)
         {
             ICpkFileSystem cpkFileSystem = null;
-            var path = gameRootPath;
+            var path = gameDataFolderPath;
             Exception exception = null;
 
             var fileSystemInitThread = new Thread(() =>
@@ -200,7 +173,7 @@ namespace Pal3
                 }
                 finally
                 {
-                    System.GC.Collect();
+                    GC.Collect();
                 }
             })
             {
@@ -221,18 +194,7 @@ namespace Pal3
             else
             {
                 loadingText.text = $"{exception.Message}";
-
-                #if UNITY_EDITOR
-                if (Utility.IsDesktopDevice())
-                {
-                    gameRootPath = PickGameRootPath();
-
-                    if (!string.IsNullOrEmpty(gameRootPath))
-                    {
-                        StartCoroutine(InitResourceAsync(gameRootPath, crcHash, codepage));
-                    }
-                }
-                #endif
+                yield return null; // Wait for next frame to make sure the text is updated
             }
         }
 

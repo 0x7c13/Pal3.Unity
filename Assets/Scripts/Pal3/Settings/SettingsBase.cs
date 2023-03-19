@@ -141,6 +141,20 @@ namespace Pal3.Settings
             }
         }
 
+        private string _gameDataFolderPath = string.Empty;
+        public string GameDataFolderPath
+        {
+            get => _gameDataFolderPath;
+            set
+            {
+                if (_gameDataFolderPath != value)
+                {
+                    _gameDataFolderPath = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         #endregion
     }
 }

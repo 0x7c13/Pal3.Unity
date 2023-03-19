@@ -7,9 +7,11 @@ namespace Pal3.Settings
 {
     using System;
     using System.ComponentModel;
+    using System.IO;
     using System.Reflection;
     using Core.Utils;
     using IngameDebugConsole;
+    using MetaData;
     using UnityEngine;
 
     public sealed class SettingsManager : SettingsBase
@@ -40,6 +42,8 @@ namespace Pal3.Settings
                 "设置环境光遮蔽设定（true：开启，false：关闭）", _ => IsAmbientOcclusionEnabled = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsVoiceOverEnabled",
                 "设置角色配音设定（true：开启，false：关闭）", _ => IsVoiceOverEnabled = _);
+            DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
+                "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
 
             DebugLogConsole.AddCommand("Settings.Save",
                 "保存所有设置", SaveSettings);
@@ -93,6 +97,10 @@ namespace Pal3.Settings
             {
                 // TODO: Implement this
                 _settingsStore.Set(args.PropertyName, IsVoiceOverEnabled);
+            }
+            else if (args.PropertyName == nameof(GameDataFolderPath))
+            {
+                _settingsStore.Set(args.PropertyName, GameDataFolderPath);
             }
         }
 
@@ -201,6 +209,19 @@ namespace Pal3.Settings
             {
                 // Enable voice over by default
                 IsVoiceOverEnabled = true;
+            }
+
+            if (_settingsStore.TryGet(nameof(GameDataFolderPath), out string gameDataFolderPath))
+            {
+                GameDataFolderPath = gameDataFolderPath;
+            }
+            else
+            {
+                // Set game data folder path to persistent data path by default
+                GameDataFolderPath = Application.persistentDataPath +
+                                     Path.DirectorySeparatorChar +
+                                     GameConstants.AppName +
+                                     Path.DirectorySeparatorChar;
             }
         }
 
