@@ -38,6 +38,7 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
                 _triggerController.SetBounds(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+                _triggerController.OnPlayerActorExited += OnPlayerActorExited;
             }
             else if (ObjectInfo.SwitchState == 1)
             {
@@ -64,6 +65,17 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
+        private void OnPlayerActorExited(object sender, GameObject playerGameObject)
+        {
+            if (ObjectInfo is {SwitchState: 1, IsNonBlocking: 0})
+            {
+                if (_meshCollider == null)
+                {
+                    _meshCollider = GetGameObject().AddComponent<SceneObjectMeshCollider>();
+                }
+            }
+        }
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (ObjectInfo.SwitchState == 1) yield break;
@@ -80,13 +92,17 @@ namespace Pal3.Scene.SceneObjects
 
             yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
 
-            // Reset collider since bounds may change after animation.
+            // Reset colliders since bounds may change after animation.
             // isTrigger should depend on the object's IsNonBlocking flag
             // but here we just set it to true to avoid the player from
             // getting stuck in the object after the animation.
-            // When next time scene is loaded, the object will be set to
-            // the correct state (to block player if IsNonBlocking is 0).
             _triggerController.SetBounds(GetMeshBounds(), isTrigger: true);
+
+            if (_meshCollider != null)
+            {
+                Object.Destroy(_meshCollider);
+                _meshCollider = null;
+            }
         }
 
         public override void Deactivate()
@@ -94,6 +110,7 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                _triggerController.OnPlayerActorExited -= OnPlayerActorExited;
                 Object.Destroy(_triggerController);
             }
 
