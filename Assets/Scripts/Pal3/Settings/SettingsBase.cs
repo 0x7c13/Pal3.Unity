@@ -91,21 +91,6 @@ namespace Pal3.Settings
             }
         }
 
-        private FullScreenMode _fullScreenMode = FullScreenMode.FullScreenWindow; // Default to full screen window
-        public FullScreenMode FullScreenMode
-        {
-            get => _fullScreenMode;
-            internal set
-            {
-                if (_fullScreenMode != value && Enum.IsDefined(typeof(FullScreenMode), value))
-                {
-                    _fullScreenMode = value;
-                    SettingsStore.Set(nameof(FullScreenMode), value);
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
         private float _musicVolume = 0.5f; // Default to half volume
         public float MusicVolume
         {

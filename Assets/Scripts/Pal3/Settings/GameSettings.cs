@@ -32,8 +32,6 @@ namespace Pal3.Settings
                 "设置目标帧率设定（-1：不限制，30：30帧，60：60帧）", _ => TargetFrameRate = _);
             DebugLogConsole.AddCommand<float>("Settings.ResolutionScale",
                 "设置分辨率缩放设定（0.1：10%分辨率，0.5：50%分辨率，1.0：100%分辨率）", _ => ResolutionScale = _);
-            DebugLogConsole.AddCommand<int>("Settings.FullScreenMode",
-                "设置全屏模式设定（0：Windows独占全屏，1：全屏，2：MacOS全屏，3：窗口", _ => FullScreenMode = (FullScreenMode) _);
             DebugLogConsole.AddCommand<float>("Settings.MusicVolume",
                 "设置音乐音量设定（0.0：静音，1.0：最大音量）", _ => MusicVolume = _);
             DebugLogConsole.AddCommand<float>("Settings.SfxVolume",
@@ -73,14 +71,14 @@ namespace Pal3.Settings
             }
             else if (settingName == nameof(ResolutionScale))
             {
+                // Let OS to handle and persist the resolution change
+                // on Windows, macOS and Linux.
+                #if !UNITY_STANDALONE
                 Screen.SetResolution(
                     (int) (Screen.currentResolution.width * ResolutionScale),
                     (int) (Screen.currentResolution.height * ResolutionScale),
                     Screen.fullScreenMode);
-            }
-            else if (settingName == nameof(FullScreenMode))
-            {
-                Screen.fullScreenMode = FullScreenMode;
+                #endif
             }
 
             // Broadcast the setting change notification.
@@ -146,21 +144,6 @@ namespace Pal3.Settings
                 // Full resolution by default unless on Android with SDK version lower than 23 (old devices)
                 // SDK version 23 is Android 6.0 Marshmallow
                 ResolutionScale = Utility.IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(23) ? 0.75f : 1.0f;
-            }
-
-            if (SettingsStore.TryGet(nameof(FullScreenMode), out FullScreenMode fullScreenMode))
-            {
-                FullScreenMode = fullScreenMode;
-            }
-            else
-            {
-                // Windowed by default on desktop devices
-                FullScreenMode = Application.platform
-                    is RuntimePlatform.WindowsPlayer
-                    or RuntimePlatform.LinuxPlayer
-                    or RuntimePlatform.OSXPlayer
-                    ? FullScreenMode.Windowed
-                    : FullScreenMode.FullScreenWindow;
             }
 
             if (SettingsStore.TryGet(nameof(MusicVolume), out float musicVolume))
