@@ -1,13 +1,8 @@
 {
-    "name": "Pal3",
+    "name": "SimpleFileBrowser.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:7533bfa30c50146279c8ba7caae699e6",
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:3de88c88fbbb8f944b9210d496af9762",
-        "GUID:d60799ab2a985554ea1a39cd38695018",
-        "GUID:c685d05731421f64287ad6d13be5af0e"
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

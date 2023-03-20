@@ -1,0 +1,12 @@
+The following sprites are taken from external sources and licensed under the CC0 License:
+
+- ArchiveIcon: https://www.pngrepo.com/svg/227623/zip
+- AudioFileIcon: https://www.pngrepo.com/svg/293355/music
+- DefaultFileIcon: https://www.pngrepo.com/svg/200084/file-sheet
+- DriveIcon: https://www.pngrepo.com/svg/152885/hard-drive-device
+- ExecutableIcon: Created from scratch
+- FolderIcon: https://www.pngrepo.com/svg/229838/folder
+- ImageFileIcon: https://www.pngrepo.com/svg/231128/picture-image
+- PdfFileIcon: https://www.pngrepo.com/svg/28209/pdf
+- TextFileIcon: https://www.pngrepo.com/svg/241790/file-document
+- VideoFileIcon: https://www.pngrepo.com/svg/79032/play-video

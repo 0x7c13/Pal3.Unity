@@ -19,6 +19,9 @@ namespace Pal3
     using MetaData;
     using Renderer;
     using Settings;
+    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID
+    using SimpleFileBrowser;
+    #endif
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -78,21 +81,36 @@ namespace Pal3
 
                 if (cpkFileSystem == null)
                 {
-                    // Failed to init file system, ask user to pick game root path again
-                    #if UNITY_EDITOR
-                    string newRootPath = EditorUtility.OpenFolderPanel(
-                        title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
-                        folder: "",
-                        defaultName: GameConstants.AppName);
+                    string userPickedGameDataFolderPath = null;
 
-                    if (!string.IsNullOrEmpty(newRootPath))
+                    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID
+                    yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Folders,
+                         allowMultiSelection: false,
+                         initialPath: null,
+                         initialFilename: GameConstants.AppName,
+                         title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
+                        loadButtonText: "选择");
+                    if (FileBrowser.Success && FileBrowser.Result.Length == 1)
+		            {
+                        userPickedGameDataFolderPath = FileBrowser.Result[0];
+		            }
+                    #endif
+
+                    if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
                     {
-                        gameDataFolderPath = newRootPath;
+                        gameDataFolderPath = userPickedGameDataFolderPath;
                         loadingText.text = "Loading game assets...";
                         yield return null; // Wait for next frame to make sure the text is updated
                         continue; // Retry when new root path is picked
                     }
-                    #endif
+                    else
+                    {
+                        #if UNITY_EDITOR
+                        EditorApplication.ExitPlaymode();
+                        #elif UNITY_STANDALONE
+                        Application.Quit();
+                        #endif
+                    }
 
                     yield break; // Stop initialization if failed to init file system
                 }
