@@ -105,7 +105,7 @@ namespace Pal3.State
 
         public string LoadFromSaveFile()
         {
-            return !SaveFileExists() ? null : File.ReadAllText(GetSaveFilePath());
+            return SaveFileExists() ? File.ReadAllText(GetSaveFilePath()) : null;
         }
 
         public List<ICommand> ConvertCurrentGameStateToCommands(SaveLevel saveLevel)

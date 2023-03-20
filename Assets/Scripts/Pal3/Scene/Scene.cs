@@ -60,6 +60,7 @@ namespace Pal3.Scene
 
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
+        private bool _isLightingEnabled;
         private Camera _mainCamera;
         private SkyBoxRenderer _skyBoxRenderer;
 
@@ -67,11 +68,13 @@ namespace Pal3.Scene
 
         public void Init(GameResourceProvider resourceProvider,
             SceneStateManager sceneStateManager,
+            bool isLightingEnabled,
             Camera mainCamera,
             HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
             _sceneStateManager = sceneStateManager;
+            _isLightingEnabled = isLightingEnabled;
             _mainCamera = mainCamera;
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
             _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
@@ -144,9 +147,10 @@ namespace Pal3.Scene
 
             RenderSkyBox();
             SetupNavMesh();
-            #if RTX_ON
-            SetupEnvironmentLighting();
-            #endif
+            if (_isLightingEnabled)
+            {
+                SetupEnvironmentLighting();
+            }
             //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -446,15 +450,16 @@ namespace Pal3.Scene
             GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
             sceneObjectGameObject.transform.SetParent(_parent.transform, false);
 
-            #if RTX_ON
-            if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
-                sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
-                fireEffect.EffectGameObject != null)
+            if (_isLightingEnabled)
             {
-                var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
-                AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
+                if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
+                    sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
+                    fireEffect.EffectGameObject != null)
+                {
+                    var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
+                    AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
+                }
             }
-            #endif
 
             _activatedSceneObjects.Add(sceneObject.ObjectInfo.Id);
         }
@@ -464,13 +469,12 @@ namespace Pal3.Scene
             if (!_activatedSceneObjects.Contains(id)) return;
             _activatedSceneObjects.Remove(id);
 
-            #if RTX_ON
-            if (SceneObjects[id].GetGameObject().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
+            if (_isLightingEnabled &&
+                SceneObjects[id].GetGameObject().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
             {
                 _pointLights.Remove(pointLight);
                 StripPointLightShadowsIfNecessary();
             }
-            #endif
 
             SceneObjects[id].Deactivate();
         }
@@ -479,7 +483,11 @@ namespace Pal3.Scene
         {
             if (_actorObjects.ContainsKey(actor.Info.Id)) return;
             GameObject actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider,
-                actor, tileMap, tintColor, GetAllActiveActorBlockingTilePositions);
+                actor,
+                tileMap,
+                isDropShadowEnabled: !_isLightingEnabled,
+                tintColor,
+                GetAllActiveActorBlockingTilePositions);
             actorGameObject.transform.SetParent(_parent.transform, false);
             _actorObjects[actor.Info.Id] = actorGameObject;
         }

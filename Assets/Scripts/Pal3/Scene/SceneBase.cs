@@ -100,13 +100,12 @@ namespace Pal3.Scene
                 SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
             }
 
-            #if RTX_ON
-            // Check if light file exists
+            // The light file in the original game data does not have good enough
+            // information to be used for lighting, so we are not using it for now.
             // if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
             // {
             //     LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
             // }
-            #endif
         }
 
         private void InitNavData()

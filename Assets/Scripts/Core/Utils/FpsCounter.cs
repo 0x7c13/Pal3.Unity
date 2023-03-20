@@ -9,21 +9,22 @@ namespace Core.Utils
 
     public class FpsCounter : MonoBehaviour
     {
+        private const float UPDATE_INTERVAL = 0.2f;
+
         private int _frameCount = 0;
         private float _deltaTime = 0f;
         private float _fps = 0f;
-        private float _updateInterval = 0.2f;
 
         private void Update()
         {
             _frameCount++;
             _deltaTime += Time.deltaTime / Time.timeScale;
 
-            if (_deltaTime >= _updateInterval)
+            if (_deltaTime >= UPDATE_INTERVAL)
             {
                 _fps = _frameCount / _deltaTime;
                 _frameCount = 0;
-                _deltaTime -= _updateInterval;
+                _deltaTime -= UPDATE_INTERVAL;
             }
         }
 

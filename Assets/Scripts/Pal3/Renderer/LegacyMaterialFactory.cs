@@ -9,6 +9,10 @@ namespace Pal3.Renderer
     using UnityEngine;
     using UnityEngine.Rendering;
 
+    /// <summary>
+    /// Legacy material factory for achieving the
+    /// same effect as the original game
+    /// </summary>
     public class LegacyMaterialFactory : MaterialFactoryBase, IMaterialFactory
     {
         // Pal3 legacy shaders

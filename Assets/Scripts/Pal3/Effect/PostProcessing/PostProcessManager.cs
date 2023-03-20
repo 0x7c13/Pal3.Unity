@@ -10,15 +10,18 @@ namespace Pal3.Effect.PostProcessing
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Utils;
+    using Settings;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
     public sealed class PostProcessManager : MonoBehaviour,
         ICommandExecutor<EffectSetScreenEffectCommand>,
-        ICommandExecutor<ResetGameStateCommand>
+        ICommandExecutor<ResetGameStateCommand>,
+        ICommandExecutor<SettingChangedNotification>
     {
         private PostProcessVolume _postProcessVolume;
         private PostProcessLayer _postProcessLayer;
+        private GameSettings _gameSettings;
 
         private Bloom _bloom;
         private AmbientOcclusion _ambientOcclusion;
@@ -29,35 +32,59 @@ namespace Pal3.Effect.PostProcessing
         private int _currentAppliedEffectMode = -1;
 
         public void Init(PostProcessVolume volume,
-            PostProcessLayer postProcessLayer)
+            PostProcessLayer postProcessLayer,
+            GameSettings gameSettings)
         {
             _postProcessVolume = volume != null ? volume : throw new ArgumentNullException(nameof(volume));
             _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
+            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
 
             _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
-            #if RTX_ON
-            _bloom.active = false; // Pointless when lighting is on
-            #else
-            _bloom.active = Utility.IsDesktopDevice(); // Enable bloom for better VFX visual fidelity on desktop devices
-            #endif
+            ToggleBloomBasedOnSetting();
 
             _ambientOcclusion = _postProcessVolume.profile.GetSetting<AmbientOcclusion>();
-            #if RTX_ON && !UNITY_ANDROID // AO not working well with OpenGL on Android
-            _ambientOcclusion.active = Utility.IsDesktopDevice(); // Enable AmbientOcclusion for better visual fidelity on desktop devices
-            #else
-            _ambientOcclusion.active = false; // Pointless when lighting is off
-            #endif
+            ToggleAmbientOcclusionBasedOnSetting();
 
-            _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
-            _colorGrading.active = false;
+            // These are effects that are controlled and used by the game scripts
+            {
+                _colorGrading = _postProcessVolume.profile.GetSetting<ColorGrading>();
+                _colorGrading.active = false;
 
-            _vignette = _postProcessVolume.profile.GetSetting<Vignette>();
-            _vignette.active = false;
+                _vignette = _postProcessVolume.profile.GetSetting<Vignette>();
+                _vignette.active = false;
 
-            _distortion = _postProcessVolume.profile.GetSetting<Distortion>();
-            _distortion.active = false;
+                _distortion = _postProcessVolume.profile.GetSetting<Distortion>();
+                _distortion.active = false;
+            }
 
             TogglePostProcessLayerWhenNeeded();
+        }
+
+        private void ToggleBloomBasedOnSetting()
+        {
+            if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+            {
+                // Pointless when lighting is on
+                _bloom.active = false;
+            }
+            else
+            {
+                // Enable bloom for better VFX visual fidelity on desktop devices
+                _bloom.active = Utility.IsDesktopDevice();
+            }
+        }
+
+        private void ToggleAmbientOcclusionBasedOnSetting()
+        {
+            if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+            {
+                _ambientOcclusion.active = _gameSettings.IsAmbientOcclusionEnabled;
+            }
+            else
+            {
+                // Pointless when lighting is off
+                _ambientOcclusion.active = false;
+            }
         }
 
         private void TogglePostProcessLayerWhenNeeded()
@@ -125,6 +152,17 @@ namespace Pal3.Effect.PostProcessing
         public void Execute(ResetGameStateCommand command)
         {
             Execute(new EffectSetScreenEffectCommand(-1));
+        }
+
+        public void Execute(SettingChangedNotification command)
+        {
+            if (command.SettingName is nameof(GameSettings.IsRealtimeLightingAndShadowsEnabled)
+                or nameof(GameSettings.IsAmbientOcclusionEnabled))
+            {
+                ToggleBloomBasedOnSetting();
+                ToggleAmbientOcclusionBasedOnSetting();
+                TogglePostProcessLayerWhenNeeded();
+            }
         }
     }
 }

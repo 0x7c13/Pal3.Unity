@@ -19,6 +19,7 @@ namespace Pal3.Dev
     using Scene;
     using Script;
     using Script.Waiter;
+    using Settings;
     using State;
     using TMPro;
     using UI;
@@ -33,6 +34,7 @@ namespace Pal3.Dev
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ScenePostLoadingNotification>
     {
+        private GameSettings _gameSettings;
         private InputManager _inputManager;
         private EventSystem _eventSystem;
         private PlayerInputActions _playerInputActions;
@@ -56,6 +58,7 @@ namespace Pal3.Dev
             {"继续游戏", ""},
             {"保存当前游戏进度", ""},
             {"新的游戏", ""},
+            {"开启/关闭实时光影", ""},
             #if PAL3
             {"永安当-去客房找赵文昌", @"
                 ScriptVarSetValue -32768 10202
@@ -1210,31 +1213,6 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"胜州-蜀山", @"
-                ScriptVarSetValue -32768 60100
-                SceneLoad q05 q05
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 391 283
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
             {"蜀山-深夜去经库", @"
                 ScriptVarSetValue -32768 60500
                 SceneLoad q02 qY
@@ -2054,7 +2032,8 @@ namespace Pal3.Dev
             #endif
         };
 
-        public void Init(InputManager inputManager,
+        public void Init(GameSettings gameSettings,
+            InputManager inputManager,
             EventSystem eventSystem,
             SceneManager sceneManager,
             GameStateManager gameStateManager,
@@ -2065,6 +2044,7 @@ namespace Pal3.Dev
             CanvasGroup storySelectorCanvas,
             GameObject storySelectorButtonPrefab)
         {
+            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
             _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
             _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
             _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
@@ -2135,11 +2115,11 @@ namespace Pal3.Dev
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            var hideCloseButton = _sceneManager.GetCurrentScene() == null;
+            var isOnMainMenu = _sceneManager.GetCurrentScene() == null;
 
             foreach (var story in _storySelections)
             {
-                if (hideCloseButton && story.Key is "关闭" or "保存当前游戏进度") continue;
+                if (isOnMainMenu && story.Key is "关闭" or "保存当前游戏进度") continue;
 
                 #if !UNITY_STANDALONE || UNITY_EDITOR
                 if (story.Key == "退出游戏") continue;
@@ -2151,7 +2131,12 @@ namespace Pal3.Dev
                 buttonTextUI.text = story.Key;
 
                 ButtonType buttonType = ButtonType.Normal;
-                if (story.Key is "关闭" or "保存当前游戏进度" or "退出游戏" or "新的游戏" or "继续游戏")
+                if (story.Key is "关闭"
+                    or "保存当前游戏进度"
+                    or "退出游戏"
+                    or "新的游戏"
+                    or "继续游戏"
+                    or "开启/关闭实时光影")
                 {
                     buttonType = ButtonType.Highlighted;
                     buttonTextUI.fontStyle = FontStyles.Underline;
@@ -2187,10 +2172,12 @@ namespace Pal3.Dev
 
         private void StorySelectionButtonClicked(string story)
         {
+            var isOnMainMenu = _sceneManager.GetCurrentScene() == null;
+
             switch (story)
             {
                 case "关闭":
-                    if (_sceneManager.GetCurrentScene() == null) return;
+                    if (isOnMainMenu) return;
                     _gameStateManager.GoToState(GameState.Gameplay);
                     break;
                 case "退出游戏":
@@ -2208,15 +2195,15 @@ namespace Pal3.Dev
                     }
                     else
                     {
-                        var commands = _saveManager.LoadFromSaveFile();
-                        if (commands == null)
+                        var saveFileContent = _saveManager.LoadFromSaveFile();
+                        if (saveFileContent == null)
                         {
                             CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                             StartNewGame();
                         }
                         else
                         {
-                            ExecuteCommandsFromSaveFile(commands);
+                            ExecuteCommandsFromSaveFile(saveFileContent);
                         }
                     }
                     break;
@@ -2225,6 +2212,25 @@ namespace Pal3.Dev
                         ? new UIDisplayNoteCommand("游戏保存成功")
                         : new UIDisplayNoteCommand("游戏保存失败"));
                     _gameStateManager.GoToState(GameState.Gameplay);
+                    break;
+                case "开启/关闭实时光影":
+                    _gameSettings.IsRealtimeLightingAndShadowsEnabled =
+                        !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
+                    // Reload current scene to apply the change if game is running
+                    if (!isOnMainMenu)
+                    {
+                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
+                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+                        ExecuteCommandsFromSaveFile(saveFileContent);
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
+                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                    }
+                    else
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
+                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                        return; // Don't hide the story selector
+                    }
                     break;
                 default:
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
@@ -2260,7 +2266,7 @@ namespace Pal3.Dev
             }
         }
 
-        private void ExecuteCommandsFromSaveFile(string commands)
+        private void ExecuteCommandsFromSaveFile(string saveFileContent)
         {
             _informationManager.EnableNoteDisplay(false);
 
@@ -2268,7 +2274,7 @@ namespace Pal3.Dev
 
             var commandsToExecute = new List<string>();
 
-            foreach (var command in commands.Split('\n'))
+            foreach (var command in saveFileContent.Split('\n'))
             {
                 if (string.IsNullOrEmpty(command)) continue;
 

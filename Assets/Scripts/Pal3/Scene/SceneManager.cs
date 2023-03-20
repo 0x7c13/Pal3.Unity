@@ -17,6 +17,7 @@ namespace Pal3.Scene
     using MetaData;
     using Newtonsoft.Json;
     using Script;
+    using Settings;
     using State;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
@@ -27,10 +28,11 @@ namespace Pal3.Scene
         ICommandExecutor<SceneObjectDoNotLoadFromSaveStateCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly Camera _mainCamera;
         private readonly GameResourceProvider _resourceProvider;
         private readonly SceneStateManager _sceneStateManager;
         private readonly ScriptManager _scriptManager;
+        private readonly GameSettings _gameSettings;
+        private readonly Camera _mainCamera;
 
         private GameObject _currentSceneRoot;
         private Scene _currentScene;
@@ -40,11 +42,13 @@ namespace Pal3.Scene
         public SceneManager(GameResourceProvider resourceProvider,
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
+            GameSettings gameSettings,
             Camera mainCamera)
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _sceneStateManager = sceneStateManager ?? throw new ArgumentNullException(nameof(sceneStateManager));
             _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
             _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -81,6 +85,7 @@ namespace Pal3.Scene
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
             _currentScene.Init(_resourceProvider,
                 _sceneStateManager,
+                _gameSettings.IsRealtimeLightingAndShadowsEnabled,
                 _mainCamera,
                 _sceneObjectIdsToNotLoadFromSaveState);
             _currentScene.Load(scnFile, _currentSceneRoot);

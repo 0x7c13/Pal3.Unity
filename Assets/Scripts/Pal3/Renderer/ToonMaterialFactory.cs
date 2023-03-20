@@ -8,6 +8,10 @@ namespace Pal3.Renderer
     using Core.GameBox;
     using UnityEngine;
 
+    /// <summary>
+    /// Toon material factory for generating materials
+    /// used in the game when lighting and shadow are enabled
+    /// </summary>
     public class ToonMaterialFactory : MaterialFactoryBase, IMaterialFactory
     {
         // Toon material uniforms
@@ -17,9 +21,9 @@ namespace Pal3.Renderer
         private readonly Material _toonMaterial;
         private readonly Shader _toonShader;
 
-        public ToonMaterialFactory()
+        public ToonMaterialFactory(Material toonMaterial)
         {
-            _toonMaterial = Resources.Load<Material>("Materials/Toon");
+            _toonMaterial = toonMaterial;
             _toonShader = _toonMaterial.shader;
         }
 

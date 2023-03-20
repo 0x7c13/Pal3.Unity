@@ -190,8 +190,19 @@ namespace Pal3.Settings
             }
             else
             {
-                // Enable realtime lighting and shadows by default on desktop devices
-                IsRealtimeLightingAndShadowsEnabled = Utility.IsDesktopDevice();
+                // Check if Toon material is available
+                // (Note: Toon material is not available on GitHub since it's a paid asset)
+                if (Resources.Load<Material>("Materials/Toon") == null)
+                {
+                    Debug.LogWarning("Toon material not found. Cannot enable realtime lighting and shadows. " +
+                                     "Falling back to baked lighting and shadows.");
+                    IsRealtimeLightingAndShadowsEnabled = false;
+                }
+                else
+                {
+                    // Enable realtime lighting and shadows by default on desktop devices
+                    IsRealtimeLightingAndShadowsEnabled = Utility.IsDesktopDevice();
+                }
             }
 
             if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
@@ -200,8 +211,12 @@ namespace Pal3.Settings
             }
             else
             {
+                #if UNITY_ANDROID // AO not working well with OpenGL on Android
+                _ambientOcclusion.active = false;
+                #else
                 // Enable ambient occlusion by default on desktop devices
                 IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
+                #endif
             }
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))

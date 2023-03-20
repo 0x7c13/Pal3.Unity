@@ -171,7 +171,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_gameStateManager);
             _sceneStateManager = new SceneStateManager();
             ServiceLocator.Instance.Register(_sceneStateManager);
-            _sceneManager = new SceneManager(_gameResourceProvider, _sceneStateManager, _scriptManager, mainCamera);
+            _sceneManager = new SceneManager(_gameResourceProvider,
+                _sceneStateManager, _scriptManager, _gameSettings, mainCamera);
             ServiceLocator.Instance.Register(_sceneManager);
             _playerManager = new PlayerManager();
             ServiceLocator.Instance.Register(_playerManager);
@@ -284,7 +285,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_bigMapManager);
 
             _postProcessManager = gameObject.AddComponent<PostProcessManager>();
-            _postProcessManager.Init(postProcessVolume, postProcessLayer);
+            _postProcessManager.Init(postProcessVolume, postProcessLayer, _gameSettings);
             ServiceLocator.Instance.Register(_postProcessManager);
 
             _effectManager = gameObject.AddComponent<EffectManager>();
@@ -313,6 +314,7 @@ namespace Pal3
 
             _storySelector = gameObject.AddComponent<StorySelector>();
             _storySelector.Init(
+                _gameSettings,
                 _inputManager,
                 eventSystem,
                 _sceneManager,

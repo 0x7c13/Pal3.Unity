@@ -110,14 +110,27 @@ namespace Pal3
             TextureLoaderFactory textureLoaderFactory = new ();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
+            // Init material factories
+            IMaterialFactory unlitMaterialFactory = new LegacyMaterialFactory();
+            IMaterialFactory litMaterialFactory;
+
+            // Check if toon material is present
+            if (Resources.Load<Material>("Materials/Toon") is { } toonMaterial)
+            {
+                litMaterialFactory = new ToonMaterialFactory(toonMaterial);
+            }
+            else
+            {
+                // Fallback to legacy material factory
+                litMaterialFactory = new LegacyMaterialFactory();
+            }
+
             // Init Game resource provider
             var resourceProvider = new GameResourceProvider(cpkFileSystem,
                 new TextureLoaderFactory(),
-                #if RTX_ON
-                new ToonMaterialFactory(),
-                #else
-                new LegacyMaterialFactory(),
-                #endif
+                unlitMaterialFactory,
+                litMaterialFactory,
+                gameSettings,
                 codepage);
             ServiceLocator.Instance.Register(resourceProvider);
 

@@ -30,6 +30,7 @@ namespace ResourceViewer
     using Pal3.MetaData;
     using Pal3.Renderer;
     using Pal3.Script;
+    using Pal3.Settings;
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -53,6 +54,8 @@ namespace ResourceViewer
 
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _resourceProvider;
+        private GameSettings _gameSettings;
+
         private IList<string> _polFiles = new List<string>();
         private IList<string> _cvdFiles = new List<string>();
         private IList<string> _mv3Files = new List<string>();
@@ -67,6 +70,7 @@ namespace ResourceViewer
         {
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _resourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
+            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
 
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
@@ -82,10 +86,11 @@ namespace ResourceViewer
                 DebugLogManager.Instance.PopupEnabled = true;
             }
 
-            #if RTX_ON
-            RenderSettings.ambientIntensity = 1f;
-            RenderSettings.ambientLight = Color.white;
-            #endif
+            if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+            {
+                RenderSettings.ambientIntensity = 1f;
+                RenderSettings.ambientLight = Color.white;
+            }
 
             _polFiles = _fileSystem.Search(".pol").ToList();
             _cvdFiles = _fileSystem.Search(".cvd").ToList();

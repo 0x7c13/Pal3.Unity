@@ -18,6 +18,7 @@ namespace Pal3.Actor
         public static GameObject CreateActorGameObject(GameResourceProvider resourceProvider,
             Actor actor,
             Tilemap tilemap,
+            bool isDropShadowEnabled,
             Color tintColor,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
@@ -39,7 +40,7 @@ namespace Pal3.Actor
             #endif
 
             var actionController = actorGameObject.AddComponent<ActorActionController>();
-            actionController.Init(resourceProvider, actor, hasColliderAndRigidBody, tintColor);
+            actionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();
             movementController.Init(actor, tilemap, actionController, getAllActiveActorBlockingTilePositions);

@@ -46,6 +46,7 @@ namespace Pal3.Actor
         private GameResourceProvider _resourceProvider;
         private Actor _actor;
         private Color _tintColor;
+        private bool _isDropShadowEnabled;
         private GameObject _shadow;
         private SpriteRenderer _shadowSpriteRenderer;
 
@@ -68,11 +69,13 @@ namespace Pal3.Actor
         public void Init(GameResourceProvider resourceProvider,
             Actor actor,
             bool hasColliderAndRigidBody,
+            bool isDropShadowEnabled,
             Color tintColor)
         {
             _resourceProvider = resourceProvider;
             _actor = actor;
             _hasColliderAndRigidBody = hasColliderAndRigidBody;
+            _isDropShadowEnabled = isDropShadowEnabled;
             _tintColor = tintColor;
         }
 
@@ -212,9 +215,10 @@ namespace Pal3.Actor
             ActorActionType action = ActorConstants.ActionNames
                 .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
-            #if !RTX_ON
-            SetupShadow(action);
-            #endif
+            if (_isDropShadowEnabled)
+            {
+                SetupShadow(action);
+            }
 
             if (_hasColliderAndRigidBody)
             {

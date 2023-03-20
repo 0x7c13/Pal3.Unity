@@ -35,10 +35,9 @@ namespace Pal3.Settings
         public int VSyncCount
         {
             get => _vSyncCount;
-            set
+            internal set
             {
-                if (_vSyncCount != value &&
-                    value >= 0)
+                if (_vSyncCount != value && value >= 0)
                 {
                     _vSyncCount = value;
                     SettingsStore.Set(nameof(VSyncCount), value);
@@ -51,10 +50,9 @@ namespace Pal3.Settings
         public int AntiAliasing
         {
             get => _antiAliasing;
-            set
+            internal set
             {
-                if (_antiAliasing != value &&
-                    value >= 0)
+                if (_antiAliasing != value && value >= 0)
                 {
                     _antiAliasing = value;
                     SettingsStore.Set(nameof(AntiAliasing), value);
@@ -67,10 +65,9 @@ namespace Pal3.Settings
         public int TargetFrameRate
         {
             get => _targetFrameRate;
-            set
+            internal set
             {
-                if (_targetFrameRate != value &&
-                    value > 0 || value == -1)
+                if (_targetFrameRate != value && value is > 0 or -1)
                 {
                     _targetFrameRate = value;
                     SettingsStore.Set(nameof(TargetFrameRate), value);
@@ -83,10 +80,9 @@ namespace Pal3.Settings
         public float ResolutionScale
         {
             get => _resolutionScale;
-            set
+            internal set
             {
-                if (Math.Abs(_resolutionScale - value) > float.Epsilon &&
-                    value is > 0 and <= 1.0f)
+                if (Math.Abs(_resolutionScale - value) > float.Epsilon && value is > 0 and <= 1.0f)
                 {
                     _resolutionScale = value;
                     SettingsStore.Set(nameof(ResolutionScale), value);
@@ -99,10 +95,9 @@ namespace Pal3.Settings
         public FullScreenMode FullScreenMode
         {
             get => _fullScreenMode;
-            set
+            internal set
             {
-                if (_fullScreenMode != value &&
-                    Enum.IsDefined(typeof(FullScreenMode), value))
+                if (_fullScreenMode != value && Enum.IsDefined(typeof(FullScreenMode), value))
                 {
                     _fullScreenMode = value;
                     SettingsStore.Set(nameof(FullScreenMode), value);
@@ -115,10 +110,9 @@ namespace Pal3.Settings
         public float MusicVolume
         {
             get => _musicVolume;
-            set
+            internal set
             {
-                if (Math.Abs(_musicVolume - value) > float.Epsilon &&
-                    value is >= 0 and <= 1.0f)
+                if (Math.Abs(_musicVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
                 {
                     _musicVolume = value;
                     SettingsStore.Set(nameof(MusicVolume), value);
@@ -131,10 +125,9 @@ namespace Pal3.Settings
         public float SfxVolume
         {
             get => _sfxVolume;
-            set
+            internal set
             {
-                if (Math.Abs(_sfxVolume - value) > float.Epsilon &&
-                    value is >= 0 and <= 1.0f)
+                if (Math.Abs(_sfxVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
                 {
                     _sfxVolume = value;
                     SettingsStore.Set(nameof(SfxVolume), value);
@@ -147,7 +140,7 @@ namespace Pal3.Settings
         public bool IsRealtimeLightingAndShadowsEnabled
         {
             get => _isRealtimeLightingAndShadowsEnabled;
-            set
+            internal set
             {
                 if (_isRealtimeLightingAndShadowsEnabled != value)
                 {
@@ -162,7 +155,7 @@ namespace Pal3.Settings
         public bool IsAmbientOcclusionEnabled
         {
             get => _isAmbientOcclusionEnabled;
-            set
+            internal set
             {
                 if (_isAmbientOcclusionEnabled != value)
                 {
@@ -177,7 +170,7 @@ namespace Pal3.Settings
         public bool IsVoiceOverEnabled
         {
             get => _isVoiceOverEnabled;
-            set
+            internal set
             {
                 if (_isVoiceOverEnabled != value)
                 {
@@ -192,7 +185,7 @@ namespace Pal3.Settings
         public string GameDataFolderPath
         {
             get => _gameDataFolderPath;
-            set
+            internal set
             {
                 if (_gameDataFolderPath != value)
                 {

@@ -29,6 +29,7 @@ namespace Pal3.Data
     using Core.Utils;
     using MetaData;
     using Renderer;
+    using Settings;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
     using Object = UnityEngine.Object;
@@ -47,7 +48,9 @@ namespace Pal3.Data
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
-        private readonly IMaterialFactory _materialFactory;
+        private readonly IMaterialFactory _unlitMaterialFactory;
+        private readonly IMaterialFactory _litMaterialFactory;
+        private readonly GameSettings _gameSettings;
 
         private readonly GdbFile _gameDatabase;
         private readonly int _codepage;
@@ -85,12 +88,16 @@ namespace Pal3.Data
 
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
-            IMaterialFactory materialFactory,
+            IMaterialFactory unlitMaterialFactory,
+            IMaterialFactory litMaterialFactory,
+            GameSettings gameSettings,
             int codepage)
         {
             _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
-            _materialFactory = materialFactory ?? throw new ArgumentNullException(nameof(materialFactory));
+            _unlitMaterialFactory = unlitMaterialFactory ?? throw new ArgumentNullException(nameof(unlitMaterialFactory));
+            _litMaterialFactory = litMaterialFactory ?? throw new ArgumentNullException(nameof(litMaterialFactory));
+            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
             _codepage = codepage;
 
             var gdbFilePath =
@@ -130,7 +137,9 @@ namespace Pal3.Data
 
         public IMaterialFactory GetMaterialFactory()
         {
-            return _materialFactory;
+            return _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
+                _litMaterialFactory :
+                _unlitMaterialFactory;
         }
 
         private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
