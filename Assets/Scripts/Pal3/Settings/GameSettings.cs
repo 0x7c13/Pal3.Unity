@@ -8,6 +8,7 @@ namespace Pal3.Settings
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using Command;
     using Command.InternalCommands;
@@ -18,8 +19,18 @@ namespace Pal3.Settings
 
     public sealed class GameSettings : SettingsBase, IDisposable
     {
+        private static Resolution _nativeResolution;
+
         public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
         {
+            #if UNITY_STANDALONE
+            // Last resolution is the full native resolution on desktop platforms
+            _nativeResolution = Screen.resolutions.Last();
+            #else
+            // Current resolution is the full native resolution on other platforms
+            _nativeResolution = Screen.currentResolution;
+            #endif
+
             InitDefaultSettings();
 
             PropertyChanged += OnPropertyChanged;
@@ -75,9 +86,19 @@ namespace Pal3.Settings
                 // on Windows, macOS and Linux.
                 #if !UNITY_STANDALONE
                 Screen.SetResolution(
-                    (int) (Screen.currentResolution.width * ResolutionScale),
-                    (int) (Screen.currentResolution.height * ResolutionScale),
+                    (int) (_nativeResolution.width * ResolutionScale),
+                    (int) (_nativeResolution.height * ResolutionScale),
                     Screen.fullScreenMode);
+                #else
+                if (Screen.fullScreenMode
+                    is FullScreenMode.ExclusiveFullScreen
+                    or FullScreenMode.FullScreenWindow)
+                {
+                    Screen.SetResolution(
+                        (int) (_nativeResolution.width * ResolutionScale),
+                        (int) (_nativeResolution.height * ResolutionScale),
+                        Screen.fullScreenMode);
+                }
                 #endif
             }
 
