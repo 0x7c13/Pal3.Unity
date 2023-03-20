@@ -2119,7 +2119,7 @@ namespace Pal3.Dev
 
             foreach (var story in _storySelections)
             {
-                if (isOnMainMenu && story.Key is "关闭" or "保存当前游戏进度") continue;
+                if (isOnMainMenu && story.Key is "关闭" or "保存当前游戏进度" or "开启/关闭实时光影") continue;
 
                 #if !UNITY_STANDALONE || UNITY_EDITOR
                 if (story.Key == "退出游戏") continue;
