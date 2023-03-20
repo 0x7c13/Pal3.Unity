@@ -196,7 +196,7 @@ namespace Pal3.Settings
             else
             {
                 #if UNITY_ANDROID // AO not working well with OpenGL on Android
-                _ambientOcclusion.active = false;
+                IsAmbientOcclusionEnabled = false;
                 #else
                 // Enable ambient occlusion by default on desktop devices
                 IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
