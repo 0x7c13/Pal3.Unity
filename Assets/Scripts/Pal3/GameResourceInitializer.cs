@@ -15,7 +15,6 @@ namespace Pal3
     using Core.DataReader.Cpk;
     using Core.FileSystem;
     using Core.Services;
-    using Core.Utils;
     using Data;
     using MetaData;
     using Renderer;
@@ -111,18 +110,24 @@ namespace Pal3
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init material factories
-            IMaterialFactory unlitMaterialFactory = new LegacyMaterialFactory();
+            IMaterialFactory unlitMaterialFactory = new UnlitMaterialFactory();
             IMaterialFactory litMaterialFactory;
 
-            // Check if toon material is present
-            if (Resources.Load<Material>("Materials/Toon") is { } toonMaterial)
+            // Check if toon materials are present
+            if (Resources.Load<Material>("Materials/ToonDefault") is { } toonDefaultMaterial &&
+                Resources.Load<Material>("Materials/ToonTransparent") is { } toonTransparentMaterial )
             {
-                litMaterialFactory = new ToonMaterialFactory(toonMaterial);
+                litMaterialFactory = new LitMaterialFactory(toonDefaultMaterial, toonTransparentMaterial);
             }
             else
             {
-                // Fallback to legacy material factory
-                litMaterialFactory = new LegacyMaterialFactory();
+                // Fallback to unlit material factory
+                litMaterialFactory = new UnlitMaterialFactory();
+
+                Debug.LogWarning("Toon materials not found. " +
+                                 "Cannot create LitMaterialFactory. " +
+                                 "Falling back to UnlitMaterialFactory instead. " +
+                                 "Lighting and shadow may not work properly when enabled.");
             }
 
             // Init Game resource provider

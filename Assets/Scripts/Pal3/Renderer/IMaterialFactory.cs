@@ -34,8 +34,8 @@ namespace Pal3.Renderer
         /// <returns>Materials</returns>
         public Material[] CreateStandardMaterials(
             RendererType rendererType,
-            Texture2D mainTexture,
-            Texture2D shadowTexture,
+            (string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture,
             Color tintColor,
             GameBoxBlendFlag blendFlag);
 
@@ -46,8 +46,9 @@ namespace Pal3.Renderer
         /// <param name="shadowTexture">Shadow texture</param>
         /// <param name="alpha">Opacity</param>
         /// <returns>Material</returns>
-        public Material CreateWaterMaterial(Texture2D mainTexture,
-            Texture2D shadowTexture,
+        public Material CreateWaterMaterial(
+            (string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture,
             float alpha);
 
         /// <summary>

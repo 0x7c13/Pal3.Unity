@@ -15,5 +15,6 @@ namespace Pal3.Dev
     {
         [SerializeField] public GameBoxBlendFlag blendFlag;
         [SerializeField] public GameBoxMaterial material;
+        [SerializeField] public string[] textureNames;
     }
 }

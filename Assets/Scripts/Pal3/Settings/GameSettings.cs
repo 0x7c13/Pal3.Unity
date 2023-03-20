@@ -190,11 +190,12 @@ namespace Pal3.Settings
             }
             else
             {
-                // Check if Toon material is available
-                // (Note: Toon material is not available on GitHub since it's a paid asset)
-                if (Resources.Load<Material>("Materials/Toon") == null)
+                // Check if Toon materials are available
+                // (Note: Toon materials are not open sourced on GitHub since it's a paid asset)
+                if (Resources.Load<Material>("Materials/ToonDefault") == null ||
+                    Resources.Load<Material>("Materials/ToonTransparent") == null)
                 {
-                    Debug.LogWarning("Toon material not found. Cannot enable realtime lighting and shadows. " +
+                    Debug.LogWarning("Toon materials not found. Cannot enable realtime lighting and shadows. " +
                                      "Falling back to baked lighting and shadows.");
                     IsRealtimeLightingAndShadowsEnabled = false;
                 }

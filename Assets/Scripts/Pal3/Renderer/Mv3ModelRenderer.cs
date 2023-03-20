@@ -146,15 +146,16 @@ namespace Pal3.Renderer
             materialInfoPresenter.blendFlag = _textureHasAlphaChannel[index] ?
                 GameBoxBlendFlag.AlphaBlend :
                 GameBoxBlendFlag.Opaque;
-            materialInfoPresenter.material = _gbMaterials[index] ;
+            materialInfoPresenter.material = _gbMaterials[index];
+            materialInfoPresenter.textureNames = material.TextureNames;
             #endif
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Mv3,
-                _textures[index],
-                shadowTexture: null, // MV3 models don't have shadow textures
+                (textureName, _textures[index]),
+                shadowTexture: (null, null), // MV3 models don't have shadow textures
                 _tintColor,
                 _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
 

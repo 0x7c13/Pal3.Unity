@@ -242,12 +242,13 @@ namespace Pal3.Renderer
                     var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
                     materialInfoPresenter.blendFlag = meshSection.BlendFlag;
                     materialInfoPresenter.material = meshSection.Material;
+                    materialInfoPresenter.textureNames = new[] {meshSection.TextureName};
                     #endif
 
                     Material[] materials = materialFactory.CreateStandardMaterials(
                         RendererType.Cvd,
-                        textureCache[meshSection.TextureName],
-                        shadowTexture: null, // CVD models don't have shadow textures
+                        (meshSection.TextureName, textureCache[meshSection.TextureName]),
+                        shadowTexture: (null, null), // CVD models don't have shadow textures
                         _tintColor,
                         meshSection.BlendFlag);
 
