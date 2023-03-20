@@ -19,7 +19,7 @@ namespace Pal3
     using MetaData;
     using Renderer;
     using Settings;
-    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID
+    #if UNITY_EDITOR || UNITY_STANDALONE
     using SimpleFileBrowser;
     #endif
     using TMPro;
@@ -83,12 +83,12 @@ namespace Pal3
                 {
                     string userPickedGameDataFolderPath = null;
 
-                    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID
+                    #if UNITY_EDITOR || UNITY_STANDALONE
                     yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Folders,
                          allowMultiSelection: false,
                          initialPath: null,
                          initialFilename: GameConstants.AppName,
-                         title: $"请选择{GameConstants.AppNameCNFull}原始游戏文件夹根目录",
+                         title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
                         loadButtonText: "选择");
                     if (FileBrowser.Success && FileBrowser.Result.Length == 1)
 		            {
