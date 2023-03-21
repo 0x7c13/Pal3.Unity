@@ -89,7 +89,7 @@ namespace Pal3
                          initialPath: null,
                          initialFilename: GameConstants.AppName,
                          title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
-                        loadButtonText: "选择");
+                         loadButtonText: "选择");
                     if (FileBrowser.Success && FileBrowser.Result.Length == 1)
 		            {
                         userPickedGameDataFolderPath = FileBrowser.Result[0];

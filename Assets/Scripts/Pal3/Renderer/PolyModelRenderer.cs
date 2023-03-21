@@ -172,7 +172,8 @@ namespace Pal3.Renderer
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[0],
                             shadowTexture: (null, null),
-                            waterSurfaceOpacity);
+                            waterSurfaceOpacity,
+                            blendFlag);
                         StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
                     else
@@ -208,7 +209,8 @@ namespace Pal3.Renderer
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[1],
                             textures[0],
-                            waterSurfaceOpacity);
+                            waterSurfaceOpacity,
+                            blendFlag);
                         StartWaterSurfaceAnimation(materials[0], textures[1].texture);
                     }
                     else

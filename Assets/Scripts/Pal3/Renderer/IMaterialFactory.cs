@@ -45,11 +45,13 @@ namespace Pal3.Renderer
         /// <param name="mainTexture">Main texture</param>
         /// <param name="shadowTexture">Shadow texture</param>
         /// <param name="alpha">Opacity</param>
+        /// <param name="blendFlag">Blend flag</param>
         /// <returns>Material</returns>
         public Material CreateWaterMaterial(
             (string name, Texture2D texture) mainTexture,
             (string name, Texture2D texture) shadowTexture,
-            float alpha);
+            float alpha,
+            GameBoxBlendFlag blendFlag);
 
         /// <summary>
         /// Update existing material with new texture.

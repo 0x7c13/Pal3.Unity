@@ -19,17 +19,46 @@ namespace Pal3.Renderer
         private const string OPAQUE_SHADER_PATH = "Pal3/Opaque";
         private const string TRANSPARENT_SHADER_PATH = "Pal3/Transparent";
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
+        private const string WATER_SHADER_PATH = "Pal3/Water";
+
+        // Water material uniforms
+        private static readonly int WaterMainTexPropId = Shader.PropertyToID("_MainTex");
+        private static readonly int WaterShadowTexPropId = Shader.PropertyToID("_ShadowTex");
+        private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
+        private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
 
         // Standard material uniforms for Pal3 unlit shaders
+        private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
+        private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
         private static readonly int TintColorPropertyId = Shader.PropertyToID("_TintColor");
         private static readonly int TransparentThresholdPropertyId = Shader.PropertyToID("_Threshold");
         private static readonly int HasShadowTexturePropertyId = Shader.PropertyToID("_HasShadowTex");
         private static readonly int ShadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
-        private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
-        private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
 
         private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
+
+        /// <inheritdoc/>
+        public Material CreateWaterMaterial(
+            (string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture,
+            float alpha,
+            GameBoxBlendFlag blendFlag)
+        {
+            var material = new Material(GetShader(WATER_SHADER_PATH));
+            material.SetTexture(WaterMainTexPropId,mainTexture.texture);
+            material.SetFloat(WaterAlphaPropId, alpha);
+            if (shadowTexture.texture != null)
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 1.0f);
+                material.SetTexture(WaterShadowTexPropId, shadowTexture.texture);
+            }
+            else
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 0.5f);
+            }
+            return material;
+        }
 
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
