@@ -63,6 +63,7 @@ namespace Pal3.Scene
         private bool _isLightingEnabled;
         private Camera _mainCamera;
         private SkyBoxRenderer _skyBoxRenderer;
+        private IMaterialFactory _materialFactory;
 
         private Tilemap _tilemap;
 
@@ -79,6 +80,7 @@ namespace Pal3.Scene
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
             _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
                                 (1 << LayerMask.NameToLayer("VFX"));
+            _materialFactory = resourceProvider.GetMaterialFactory();
         }
 
         private void OnEnable()
@@ -238,15 +240,16 @@ namespace Pal3.Scene
             _mesh.transform.SetParent(_parent.transform, false);
 
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
-                _resourceProvider.GetMaterialFactory(),
+                _materialFactory,
                 ScenePolyMesh.TextureProvider,
-                Color.white);
+                Color.white,
+                IsWaterSurfaceOpaque());
 
             if (SceneCvdMesh != null)
             {
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
-                    _resourceProvider.GetMaterialFactory(),
+                    _materialFactory,
                     SceneCvdMesh.Value.TextureProvider,
                     Color.white,
                     0f);
@@ -538,6 +541,34 @@ namespace Pal3.Scene
             }
 
             return obstacles;
+        }
+
+        /// <summary>
+        /// Opaque water surface looks better in some scenes.
+        /// This method is to override the default transparent
+        /// water surface if necessary when lit shader is used.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsWaterSurfaceOpaque()
+        {
+            if (_materialFactory.ShaderType == MaterialShaderType.Lit)
+            {
+                #if PAL3
+                if (ScnFile.SceneInfo.Is("q17", "q17"))
+                {
+                    return true;
+                }
+                #elif PAL3A
+                if (ScnFile.SceneInfo.IsCity("m07") ||
+                    ScnFile.SceneInfo.IsCity("m12"))
+                {
+                    return true;
+                }
+                #endif
+            }
+
+            // Default to transparent water surface
+            return false;
         }
 
         public void Execute(SceneActivateObjectCommand command)

@@ -56,6 +56,9 @@ namespace Pal3.Scene.SceneObjects
             Vector3 upperPosition = new Vector3(climbablePosition.x, bounds.max.y, climbablePosition.z) +
                                     sceneGameObject.transform.forward * 0.7f;
 
+            IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
+
+            // Upper indicator
             {
                 _upperInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Upper");
                 _upperInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
@@ -65,7 +68,7 @@ namespace Pal3.Scene.SceneObjects
                     resourceProvider.GetCvd(_interactionIndicatorModelPath);
                 _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _upperInteractionIndicatorRenderer.Init(cvdFile,
-                    resourceProvider.GetMaterialFactory(),
+                    materialFactory,
                     textureProvider,
                     tintColor);
                 _upperInteractionIndicatorRenderer.LoopAnimation();
@@ -74,6 +77,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 lowerPosition = new Vector3(climbablePosition.x, bounds.min.y + 1f, climbablePosition.z) +
                                     sceneGameObject.transform.forward * 0.7f;
 
+            // Lower indicator
             {
                 _lowerInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Lower");
                 _lowerInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
@@ -83,7 +87,7 @@ namespace Pal3.Scene.SceneObjects
                     resourceProvider.GetCvd(_interactionIndicatorModelPath);
                 _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _lowerInteractionIndicatorRenderer.Init(cvdFile,
-                    resourceProvider.GetMaterialFactory(),
+                    materialFactory,
                     textureProvider,
                     tintColor);
                 _lowerInteractionIndicatorRenderer.LoopAnimation();

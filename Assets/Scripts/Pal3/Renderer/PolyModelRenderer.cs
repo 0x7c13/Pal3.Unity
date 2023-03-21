@@ -10,6 +10,7 @@ namespace Pal3.Renderer
     using System.Collections.Generic;
     using Core.DataLoader;
     using Core.DataReader.Pol;
+    using Core.GameBox;
     using Core.Renderer;
     using Dev;
     using UnityEngine;
@@ -32,17 +33,20 @@ namespace Pal3.Renderer
         private Dictionary<string, Texture2D> _textureCache = new ();
 
         private Color _tintColor;
+        private bool _isWaterSurfaceOpaque;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
 
         public void Render(PolFile polFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
-            Color tintColor)
+            Color tintColor,
+            bool isWaterSurfaceOpaque = false)
         {
             _materialFactory = materialFactory;
             _textureProvider = textureProvider;
             _tintColor = tintColor;
+            _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
             _textureCache = BuildTextureCache(polFile, textureProvider);
 
             for (var i = 0; i < polFile.Meshes.Length; i++)
@@ -98,7 +102,7 @@ namespace Pal3.Renderer
 
                         Texture2D texture2D;
 
-                        if (_materialFactory is LitMaterialFactory)
+                        if (_materialFactory.ShaderType == MaterialShaderType.Lit)
                         {
                             // No need to load pre-baked shadow texture if
                             // material is lit material, since shadow texture
@@ -167,8 +171,13 @@ namespace Pal3.Renderer
                     if (isWaterSurface)
                     {
                         materials = new Material[1];
-                        // get alpha from first pixel of the water texture
-                        float waterSurfaceOpacity = textures[0].texture.GetPixel(0, 0).a;
+
+                        // Use alpha from first pixel of the water texture
+                        // if _isWaterSurfaceOpaque is false.
+                        float waterSurfaceOpacity = _isWaterSurfaceOpaque ? 1.0f : textures[0].texture.GetPixel(0, 0).a;
+                        // Override blend flag if _isWaterSurfaceOpaque is true.
+                        blendFlag = _isWaterSurfaceOpaque ? GameBoxBlendFlag.Opaque : blendFlag;
+
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[0],
                             shadowTexture: (null, null),
@@ -204,8 +213,13 @@ namespace Pal3.Renderer
                     if (isWaterSurface)
                     {
                         materials = new Material[1];
-                        // get alpha from first pixel of the water texture
-                        float waterSurfaceOpacity = textures[1].texture.GetPixel(0, 0).a;
+
+                        // Use alpha from first pixel of the water texture
+                        // if _isWaterSurfaceOpaque is false.
+                        float waterSurfaceOpacity = _isWaterSurfaceOpaque ? 1.0f : textures[1].texture.GetPixel(0, 0).a;
+                        // Override blend flag if _isWaterSurfaceOpaque is true.
+                        blendFlag = _isWaterSurfaceOpaque ? GameBoxBlendFlag.Opaque : blendFlag;
+
                         materials[0] = _materialFactory.CreateWaterMaterial(
                             textures[1],
                             textures[0],

@@ -8,8 +8,16 @@ namespace Pal3.Renderer
     using Core.GameBox;
     using UnityEngine;
 
+    public enum MaterialShaderType
+    {
+        Unlit,
+        Lit,
+    }
+
     public interface IMaterialFactory
     {
+        public MaterialShaderType ShaderType { get; }
+
         /// <summary>
         /// Create a material for effect sprite without alpha channel.
         /// </summary>
@@ -44,13 +52,13 @@ namespace Pal3.Renderer
         /// </summary>
         /// <param name="mainTexture">Main texture</param>
         /// <param name="shadowTexture">Shadow texture</param>
-        /// <param name="alpha">Opacity</param>
+        /// <param name="opacity">Opacity</param>
         /// <param name="blendFlag">Blend flag</param>
         /// <returns>Material</returns>
         public Material CreateWaterMaterial(
             (string name, Texture2D texture) mainTexture,
             (string name, Texture2D texture) shadowTexture,
-            float alpha,
+            float opacity,
             GameBoxBlendFlag blendFlag);
 
         /// <summary>

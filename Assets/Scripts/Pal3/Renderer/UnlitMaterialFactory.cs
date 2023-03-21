@@ -38,16 +38,18 @@ namespace Pal3.Renderer
 
         private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
 
+        public MaterialShaderType ShaderType { get; } = MaterialShaderType.Unlit;
+
         /// <inheritdoc/>
         public Material CreateWaterMaterial(
             (string name, Texture2D texture) mainTexture,
             (string name, Texture2D texture) shadowTexture,
-            float alpha,
+            float opacity,
             GameBoxBlendFlag blendFlag)
         {
             var material = new Material(GetShader(WATER_SHADER_PATH));
             material.SetTexture(WaterMainTexPropId,mainTexture.texture);
-            material.SetFloat(WaterAlphaPropId, alpha);
+            material.SetFloat(WaterAlphaPropId, opacity);
             if (shadowTexture.texture != null)
             {
                 material.SetFloat(WaterHasShadowTexPropId, 1.0f);

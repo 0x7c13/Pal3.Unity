@@ -44,6 +44,7 @@ namespace Pal3.Actor
         private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
 
         private GameResourceProvider _resourceProvider;
+        private IMaterialFactory _materialFactory;
         private Actor _actor;
         private Color _tintColor;
         private bool _isDropShadowEnabled;
@@ -77,6 +78,7 @@ namespace Pal3.Actor
             _hasColliderAndRigidBody = hasColliderAndRigidBody;
             _isDropShadowEnabled = isDropShadowEnabled;
             _tintColor = tintColor;
+            _materialFactory = resourceProvider.GetMaterialFactory();
         }
 
         private void OnEnable()
@@ -191,7 +193,7 @@ namespace Pal3.Actor
 
                 (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
                 _mv3AnimationRenderer.Init(mv3File,
-                    _resourceProvider.GetMaterialFactory(),
+                    _materialFactory,
                     textureProvider,
                     _tintColor,
                     polFile,
@@ -201,7 +203,7 @@ namespace Pal3.Actor
             else
             {
                 _mv3AnimationRenderer.Init(mv3File,
-                    _resourceProvider.GetMaterialFactory(),
+                    _materialFactory,
                     textureProvider,
                     _tintColor);
             }

@@ -39,6 +39,8 @@ namespace Pal3.Renderer
             _toonTransparentShader = toonTransparentMaterial.shader;
         }
 
+        public MaterialShaderType ShaderType { get; } = MaterialShaderType.Lit;
+
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
             RendererType rendererType,
@@ -111,36 +113,25 @@ namespace Pal3.Renderer
         public Material CreateWaterMaterial(
             (string name, Texture2D texture) mainTexture,
             (string name, Texture2D texture) shadowTexture,
-            float alpha,
+            float opacity,
             GameBoxBlendFlag blendFlag)
         {
             if (blendFlag == GameBoxBlendFlag.Opaque)
             {
-                alpha = 1.0f;
+                opacity = 1.0f;
             }
 
             // This is a tweak to make the water surface look better
             // when lit materials are used
-            alpha = alpha < 0.8f ? 0.8f : alpha;
+            opacity = opacity < 0.8f ? 0.8f : opacity;
 
             // No need to use transparent material if alpha is close to 1
-            bool useTransparentMaterial = alpha < 0.9f;
-
-            #if PAL3A
-            // There are water surfaces that are better to be opaque
-            // but have alpha values less than 1 and blend flag set to
-            // alpha blend. This is a hack to fix that.
-            if (mainTexture.name == "w0001.tga" &&
-                shadowTexture.name is "^L_Object02.bmp")
-            {
-                useTransparentMaterial = false;
-            }
-            #endif
+            bool useTransparentMaterial = opacity < 0.9f;
 
             if (useTransparentMaterial)
             {
                 Material material = CreateBaseTransparentMaterial(mainTexture);
-                material.SetFloat(OpacityPropertyId, alpha);
+                material.SetFloat(OpacityPropertyId, opacity);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId, 0.3f);
                 return material;
             }
