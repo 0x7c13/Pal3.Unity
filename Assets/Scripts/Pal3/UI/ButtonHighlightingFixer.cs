@@ -11,22 +11,13 @@ namespace Pal3.UI
 
     // Taken from https://forum.unity.com/threads/button-keyboard-and-mouse-highlighting.294147/
     [RequireComponent(typeof(Selectable))]
-    public class ButtonHighlightingFixer : MonoBehaviour, IPointerEnterHandler, IDeselectHandler, IPointerExitHandler
+    public class ButtonHighlightingFixer : MonoBehaviour, IPointerEnterHandler, IDeselectHandler
     {
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (!EventSystem.current.alreadySelecting)
             {
                 EventSystem.current.SetSelectedGameObject(gameObject);
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (EventSystem.current.currentSelectedGameObject == gameObject &&
-                !EventSystem.current.alreadySelecting)
-            {
-                EventSystem.current.SetSelectedGameObject(null);
             }
         }
 
