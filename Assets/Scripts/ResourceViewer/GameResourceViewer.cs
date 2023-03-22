@@ -26,6 +26,7 @@ namespace ResourceViewer
     using IngameDebugConsole;
     using Newtonsoft.Json;
     using Pal3.Command;
+    using Pal3.Command.SceCommands;
     using Pal3.Data;
     using Pal3.MetaData;
     using Pal3.Renderer;
@@ -105,8 +106,15 @@ namespace ResourceViewer
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
             #if UNITY_EDITOR
-            DebugLogConsole.AddCommand("DecompileAllSceScripts", "Decompile all .sce scripts into txt format.", DecompileAllSceScripts);
-            DebugLogConsole.AddCommand("ExtractAllCpkArchives", "Extract all .cpk archives into the output directory.", ExtractAllCpkArchives);
+            DebugLogConsole.AddCommand("DecompileAllSceScripts",
+                "Decompile all .sce scripts into txt format.",
+                () => DecompileAllSceScripts(dialogueOnly: false));
+            DebugLogConsole.AddCommand("DecompileAllDialogues",
+                "Decompile all dialogues in .sce scripts into txt format.",
+                () => DecompileAllSceScripts(dialogueOnly: true));
+            DebugLogConsole.AddCommand("ExtractAllCpkArchives",
+                "Extract all .cpk archives into the output directory.",
+                ExtractAllCpkArchives);
             #endif
 
             //__Malicious__Dev_Only__();
@@ -355,20 +363,22 @@ namespace ResourceViewer
         }
 
         #if UNITY_EDITOR
-        private void DecompileAllSceScripts()
+        private void DecompileAllSceScripts(bool dialogueOnly)
         {
             var sceFiles = _fileSystem.Search(".sce")
                 .Where(_ => !_.Contains(".bak", StringComparison.OrdinalIgnoreCase));
 
-            var outputFolderPath = EditorUtility.SaveFolderPanel("选择脚本导出目录", "", "");
-            outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}";
+            string title = dialogueOnly ? "选择脚本导出目录(仅对话)" : "选择脚本导出目录";
+
+            var outputFolderPath = EditorUtility.SaveFolderPanel(title, "", "");
+            outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}" + (dialogueOnly ? "_对话脚本" : "");
 
             if (!Directory.Exists(outputFolderPath))
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
 
-            foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath)) break;
+            foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
         }
 
         private void ExtractAllCpkArchives()
@@ -407,7 +417,8 @@ namespace ResourceViewer
         }
         #endif
 
-        private bool DecompileSce(string filePath, string outputFolderPath)
+        private readonly Dictionary<string, int> _actorDialogueCountMap = new ();
+        private bool DecompileSce(string filePath, string outputFolderPath, bool dialogueOnly)
         {
             var output = new StringBuilder();
 
@@ -432,6 +443,9 @@ namespace ResourceViewer
 
                 using var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
 
+                int dialogueIndex = 1;
+                ICommand lastCommand = null;
+
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
                     var currentPosition = scriptDataReader.BaseStream.Position;
@@ -440,11 +454,54 @@ namespace ResourceViewer
 
                     ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, DEFAULT_CODE_PAGE);
 
-                    output.Append($"{currentPosition} {command.GetType().Name.Replace("Command", "")} " +
-                                  $"{JsonConvert.SerializeObject(command)}\n");
+                    if (dialogueOnly && command is DialogueRenderTextCommand
+                            or DialogueRenderTextWithTimeLimitCommand)
+                    {
+                        string dialogueText = command is DialogueRenderTextCommand textCommand
+                            ? textCommand.DialogueText
+                            : ((DialogueRenderTextWithTimeLimitCommand) command).DialogueText;
+
+                        bool isTimeLimited = command is DialogueRenderTextWithTimeLimitCommand;
+
+                        string avatarTextureName = lastCommand is DialogueRenderActorAvatarCommand avatarCommand
+                            ? avatarCommand.AvatarTextureName
+                            : string.Empty;
+
+                        if (dialogueText.Contains("龙葵") && avatarTextureName.StartsWith("106"))
+                        {
+                            dialogueText = dialogueText.Replace("龙葵", "龙葵(红)");
+                        }
+
+                        dialogueText = dialogueText
+                            .Replace("\\n", "")
+                            .Replace("\\i", "")
+                            .Replace("\\r", "");
+
+                        output.Append(isTimeLimited
+                            ? $"{dialogueIndex:000} [限时对话] {dialogueText}\n"
+                            : $"{dialogueIndex:000} {dialogueText}\n");
+
+                        if (dialogueText.Contains("："))
+                        {
+                            var actorName = dialogueText.Substring(0, dialogueText.IndexOf("：", StringComparison.Ordinal));
+                            if (_actorDialogueCountMap.ContainsKey(actorName)) _actorDialogueCountMap[actorName]++;
+                            else _actorDialogueCountMap.Add(actorName, 1);
+                        }
+
+                        dialogueIndex++;
+                    }
+                    else if (!dialogueOnly)
+                    {
+                        output.Append($"{currentPosition} {command.GetType().Name.Replace("Command", "")} " +
+                                      $"{JsonConvert.SerializeObject(command)}\n");
+                    }
+
+                    lastCommand = command;
                 }
 
-                output.Append($"{scriptDataReader.BaseStream.Length} __END__\n");
+                output.Append(dialogueOnly
+                    ? $"共{dialogueIndex - 1}句对话 \n"
+                    : $"{scriptDataReader.BaseStream.Length} __END__\n");
             }
 
             var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparator) + 1).Replace(".sce", "");
@@ -452,10 +509,22 @@ namespace ResourceViewer
             var sceneName = SceneConstants.SceneCpkNameInfos
                 .FirstOrDefault(_ => string.Equals(_.cpkName, cpkFileName + CpkConstants.FileExtension, StringComparison.OrdinalIgnoreCase)).sceneName;
 
+            if (dialogueOnly && _actorDialogueCountMap.Count > 0)
+            {
+                output.AppendLine().AppendLine();
+                output.Append("-----角色对话统计----\n");
+                foreach (var actorDialogueCount in from entry
+                             in _actorDialogueCountMap orderby entry.Value descending select entry)
+                {
+                    output.Append($"{actorDialogueCount.Key} - {actorDialogueCount.Value}句\n");
+                }
+            }
+
             File.WriteAllText(string.IsNullOrEmpty(sceneName)
                     ? $"{outputFolderPath}{Path.DirectorySeparatorChar}{cpkFileName}.txt"
                     : $"{outputFolderPath}{Path.DirectorySeparatorChar}{cpkFileName}_{sceneName}.txt", output.ToString());
 
+            _actorDialogueCountMap.Clear();
             return true;
         }
 
