@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8486152655749950645}
   - component: {fileID: 5457408955285932580}
   - component: {fileID: 3588581382288908559}
+  - component: {fileID: 3965248316395714309}
   m_Layer: 0
   m_Name: StorySelectionButton
   m_TagString: Untagged
@@ -122,6 +123,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3965248316395714309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799485479191424804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15a694426cb54e98813a4c9a84640435, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8820756242259669652
 GameObject:
   m_ObjectHideFlags: 0
