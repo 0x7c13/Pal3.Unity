@@ -86,7 +86,7 @@ namespace Pal3.Camera
         private SceneManager _sceneManager;
         private GameStateManager _gameStateManager;
 
-        private RectTransform _joyStickRect;
+        private RectTransform _joyStickRectTransform;
         private float _joyStickMovementRange;
         private bool _isTouchEnabled;
 
@@ -121,10 +121,11 @@ namespace Pal3.Camera
             _curtainImage = curtainImage;
 
             _isTouchEnabled = Utility.IsHandheldDevice();
+
             var onScreenStick = touchControlUI.GetComponentInChildren<OnScreenStick>();
             _joyStickMovementRange = onScreenStick.movementRange;
             var joyStickImage = onScreenStick.gameObject.GetComponent<Image>();
-            _joyStickRect = joyStickImage.rectTransform;
+            _joyStickRectTransform = joyStickImage.rectTransform;
         }
 
         private void OnEnable()
@@ -215,13 +216,9 @@ namespace Pal3.Camera
             var touch0Delta = _inputActions.Gameplay.Touch0Delta.ReadValue<float>();
             if (touch0Delta != 0)
             {
-                var touchStartPosition = _inputActions.Gameplay.Touch0Start.ReadValue<Vector2>();
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _joyStickRect, touchStartPosition, null, out Vector2 localPoint);
-                if (localPoint.x < -_joyStickMovementRange ||
-                    localPoint.x > _joyStickRect.rect.width + _joyStickMovementRange ||
-                    localPoint.y < -_joyStickMovementRange ||
-                    localPoint.y > _joyStickRect.rect.height + _joyStickMovementRange)
+                var startPosition = _inputActions.Gameplay.Touch0Start.ReadValue<Vector2>();
+
+                if (IsTouchPositionOutsideVirtualJoyStickRange(startPosition))
                 {
                     RotateToOrbitPoint(touch0Delta * Time.deltaTime * CAMERA_ROTATION_SPEED_DRAG);
                 }
@@ -230,17 +227,28 @@ namespace Pal3.Camera
             var touch1Delta = _inputActions.Gameplay.Touch1Delta.ReadValue<float>();
             if (touch1Delta != 0)
             {
-                var touchStartPosition = _inputActions.Gameplay.Touch1Start.ReadValue<Vector2>();
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _joyStickRect, touchStartPosition, null, out Vector2 localPoint);
-                if (localPoint.x < -_joyStickMovementRange ||
-                    localPoint.x > _joyStickRect.rect.width + _joyStickMovementRange ||
-                    localPoint.y < -_joyStickMovementRange ||
-                    localPoint.y > _joyStickRect.rect.height + _joyStickMovementRange)
+                var startPosition = _inputActions.Gameplay.Touch1Start.ReadValue<Vector2>();
+
+                if (IsTouchPositionOutsideVirtualJoyStickRange(startPosition))
                 {
                     RotateToOrbitPoint(touch1Delta * Time.deltaTime * CAMERA_ROTATION_SPEED_DRAG);
                 }
             }
+        }
+
+        private bool IsTouchPositionOutsideVirtualJoyStickRange(Vector2 touchPosition)
+        {
+            if (touchPosition == Vector2.zero) return false;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _joyStickRectTransform, touchPosition, null, out Vector2 localPoint);
+
+            Rect joyStickRect = _joyStickRectTransform.rect;
+
+            return localPoint.x < -_joyStickMovementRange ||
+                   localPoint.x > joyStickRect.width + _joyStickMovementRange ||
+                   localPoint.y < -_joyStickMovementRange ||
+                   localPoint.y > joyStickRect.height + _joyStickMovementRange;
         }
 
         private void RotateToOrbitPoint(float yaw)

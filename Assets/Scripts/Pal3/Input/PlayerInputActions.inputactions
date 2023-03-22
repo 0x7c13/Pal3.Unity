@@ -96,6 +96,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Touch0Start",
+                    "type": "PassThrough",
+                    "id": "e1366eef-a6e7-40e4-957a-164a14ea2ebf",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Touch0Delta",
                     "type": "PassThrough",
                     "id": "b62e6eea-8404-487e-b001-552b823dfa28",
@@ -117,15 +126,6 @@
                     "name": "Touch1Delta",
                     "type": "PassThrough",
                     "id": "7d51ada6-770d-4abb-bccb-7f9a60d45860",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Touch0Start",
-                    "type": "PassThrough",
-                    "id": "e1366eef-a6e7-40e4-957a-164a14ea2ebf",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -413,17 +413,6 @@
                 },
                 {
                     "name": "",
-                    "id": "eee33256-f6ae-4bd6-8777-a5c521602aa4",
-                    "path": "<Touchscreen>/touch0/startPosition",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Touch0Start",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "1774904c-7f70-4079-96dd-d2c66aaec6b4",
                     "path": "<Touchscreen>/touch1/delta/x",
                     "interactions": "",
@@ -529,6 +518,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SwitchToNextPlayerActor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eee33256-f6ae-4bd6-8777-a5c521602aa4",
+                    "path": "<Touchscreen>/touch0/startPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Touch0Start",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
