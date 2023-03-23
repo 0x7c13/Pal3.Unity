@@ -3,12 +3,15 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX && UNITY_STANDALONE_OSX
 
 namespace Build.Editor
 {
+    using System;
     using System.IO;
     using UnityEditor;
+    using UnityEditor.Build;
+    using UnityEditor.Build.Reporting;
     using UnityEditor.Callbacks;
     using UnityEditor.iOS.Xcode;
     using UnityEngine;
@@ -23,11 +26,13 @@ namespace Build.Editor
         {
             if (buildTarget != BuildTarget.StandaloneOSX) return;
 
+            bool isBuiltProjectXCodeProject = !pathToBuiltProject.EndsWith(".app", StringComparison.OrdinalIgnoreCase);
+
             // Get plist
             #if PAL3
-            string plistPath = pathToBuiltProject + "/PAL3/Info.plist";
+            string plistPath = pathToBuiltProject + (isBuiltProjectXCodeProject ? "/PAL3" : "/Contents") + "/Info.plist";
             #elif PAL3A
-            string plistPath = pathToBuiltProject + "/PAL3A/Info.plist";
+            string plistPath = pathToBuiltProject + (isBuiltProjectXCodeProject ? "/PAL3A" : "/Contents") + "/Info.plist";
             #endif
 
             PlistDocument plist = new PlistDocument();
@@ -42,6 +47,20 @@ namespace Build.Editor
             File.WriteAllText(plistPath, plist.WriteToString());
 
             Debug.Log("NSPrefersDisplaySafeAreaCompatibilityMode set to NO.");
+        }
+    }
+
+    public class MyPostprocessor : IPostprocessBuildWithReport
+    {
+        public int callbackOrder => int.MaxValue;
+
+        public void OnPostprocessBuild(BuildReport report)
+        {
+            if (report.summary.platform != BuildTarget.StandaloneOSX) return;
+            if (!report.summary.outputPath.EndsWith(".app",  StringComparison.OrdinalIgnoreCase)) return;
+
+            UnityEditor.OSXStandalone.MacOSCodeSigning.CodeSignAppBundle(report.summary.outputPath);
+            Debug.Log($"Code re-signed for macOS app: {report.summary.outputPath}");
         }
     }
 }
