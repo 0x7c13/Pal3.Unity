@@ -13,6 +13,7 @@ namespace Pal3.Script
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Sce;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Newtonsoft.Json;
@@ -37,7 +38,7 @@ namespace Pal3.Script
 
         public ScriptManager(GameResourceProvider resourceProvider)
         {
-            resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _systemSceFile = resourceProvider.GetSystemSce();
             _bigMapSceFile = resourceProvider.GetBigMapSce();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

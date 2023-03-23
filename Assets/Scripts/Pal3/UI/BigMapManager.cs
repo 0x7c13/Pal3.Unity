@@ -12,6 +12,7 @@ namespace Pal3.UI
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.Utils;
     using Input;
     using Script;
     using MetaData;
@@ -54,14 +55,15 @@ namespace Pal3.UI
             CanvasGroup bigMapCanvas,
             GameObject bigMapRegionButtonPrefab)
         {
-            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
+            _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _bigMapCanvas = Requires.IsNotNull(bigMapCanvas, nameof(bigMapCanvas));
+            _bigMapRegionButtonPrefab = Requires.IsNotNull(bigMapRegionButtonPrefab, nameof(bigMapRegionButtonPrefab));
+
             _playerInputActions = inputManager.GetPlayerInputActions();
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _bigMapCanvas = bigMapCanvas != null ? bigMapCanvas : throw new ArgumentNullException(nameof(bigMapCanvas));
-            _bigMapRegionButtonPrefab = bigMapRegionButtonPrefab != null ? bigMapRegionButtonPrefab : throw new ArgumentNullException(nameof(bigMapRegionButtonPrefab));
 
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;

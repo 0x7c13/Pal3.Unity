@@ -8,6 +8,7 @@ namespace Pal3.UI
     using System;
     using Command;
     using Command.InternalCommands;
+    using Core.Utils;
     using Data;
     using UnityEngine;
     using UnityEngine.InputSystem;
@@ -20,7 +21,7 @@ namespace Pal3.UI
 
         public void Init(GameResourceProvider gameResourceProvider)
         {
-            gameResourceProvider = gameResourceProvider ?? throw new ArgumentNullException(nameof(gameResourceProvider));
+            gameResourceProvider = Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
             _cursorTextureNormal = gameResourceProvider.GetCursorTexture();
             Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, CursorMode.Auto);
         }

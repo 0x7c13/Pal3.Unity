@@ -16,6 +16,7 @@ namespace Pal3.Audio
     using Core.DataReader.Cpk;
     using Core.DataReader.Scn;
     using Core.Extensions;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Scene;
@@ -62,11 +63,11 @@ namespace Pal3.Audio
             AudioSource musicSource,
             GameSettings gameSettings)
         {
-            _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _musicPlayer = musicSource != null ? musicSource : throw new ArgumentNullException(nameof(musicSource));
-            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
+            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _musicPlayer = Requires.IsNotNull(musicSource, nameof(musicSource));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
             _musicVolume = _gameSettings.MusicVolume;
             _sfxVolume = _gameSettings.SfxVolume;

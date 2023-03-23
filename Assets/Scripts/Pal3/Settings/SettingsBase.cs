@@ -8,7 +8,7 @@ namespace Pal3.Settings
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using UnityEngine;
+    using Core.Utils;
 
     /// <summary>
     /// Base class to hold all settings properties.
@@ -21,7 +21,7 @@ namespace Pal3.Settings
 
         internal SettingsBase(ITransactionalKeyValueStore settingsStore)
         {
-            SettingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
+            SettingsStore = Requires.IsNotNull(settingsStore, nameof(settingsStore));
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)

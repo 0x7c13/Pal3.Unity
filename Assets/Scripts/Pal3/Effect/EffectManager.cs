@@ -11,6 +11,7 @@ namespace Pal3.Effect
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Scene;
@@ -32,8 +33,8 @@ namespace Pal3.Effect
         public void Init(GameResourceProvider resourceProvider,
             SceneManager sceneManager)
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
         }
 
         private void OnEnable()

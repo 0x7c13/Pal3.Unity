@@ -13,6 +13,7 @@ namespace Pal3.UI
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using Data;
     using Input;
     using MetaData;
@@ -81,24 +82,24 @@ namespace Pal3.UI
             Canvas dialogueSelectionButtonsCanvas,
             GameObject dialogueSelectionButtonPrefab)
         {
-            _dialogueCanvas = dialogueCanvas != null ? dialogueCanvas : throw new ArgumentNullException(nameof(dialogueCanvas));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            _dialogueBackgroundImage = dialogueBackgroundImage != null ? dialogueBackgroundImage : throw new ArgumentNullException(nameof(dialogueBackgroundImage));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
+            _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
 
-            _avatarImageLeft = avatarImageLeft != null ? avatarImageLeft : throw new ArgumentNullException(nameof(avatarImageLeft));
-            _avatarImageRight = avatarImageRight != null ? avatarImageRight : throw new ArgumentNullException(nameof(avatarImageRight));
+            _dialogueCanvas = Requires.IsNotNull(dialogueCanvas, nameof(dialogueCanvas));
+            _dialogueBackgroundImage = Requires.IsNotNull(dialogueBackgroundImage, nameof(dialogueBackgroundImage));
 
-            _dialogueTextLeft = textLeft != null ? textLeft : throw new ArgumentNullException(nameof(textLeft));
-            _dialogueTextRight = textRight != null ? textRight : throw new ArgumentNullException(nameof(textRight));
-            _dialogueTextDefault = textDefault != null ? textDefault : throw new ArgumentNullException(nameof(textDefault));
+            _avatarImageLeft = Requires.IsNotNull(avatarImageLeft, nameof(avatarImageLeft));
+            _avatarImageRight = Requires.IsNotNull(avatarImageRight, nameof(avatarImageRight));
 
-            _dialogueSelectionButtonsCanvas = dialogueSelectionButtonsCanvas != null ? dialogueSelectionButtonsCanvas : throw new ArgumentNullException(nameof(dialogueSelectionButtonsCanvas));
-            _dialogueSelectionButtonPrefab = dialogueSelectionButtonPrefab != null ? dialogueSelectionButtonPrefab : throw new ArgumentNullException(nameof(dialogueSelectionButtonPrefab));
+            _dialogueTextLeft = Requires.IsNotNull(textLeft, nameof(textLeft));
+            _dialogueTextRight = Requires.IsNotNull(textRight, nameof(textRight));
+            _dialogueTextDefault = Requires.IsNotNull(textDefault, nameof(textDefault));
 
-            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
+            _dialogueSelectionButtonsCanvas = Requires.IsNotNull(dialogueSelectionButtonsCanvas, nameof(dialogueSelectionButtonsCanvas));
+            _dialogueSelectionButtonPrefab = Requires.IsNotNull(dialogueSelectionButtonPrefab, nameof(dialogueSelectionButtonPrefab));
 
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
@@ -454,7 +455,7 @@ namespace Pal3.UI
 
         public void Execute(DialogueAddSelectionsCommand command)
         {
-            _gameStateManager.GoToState(GameState.UI);
+            _gameStateManager.GoToState(GameState.MenuShowing);
 
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));

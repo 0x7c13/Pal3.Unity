@@ -29,6 +29,7 @@ namespace Core.Utils
                 {
                     name = typeof(T).ToString()
                 };
+
                 _instance = singletonObj.AddComponent<T>();
 
                 return _instance;

@@ -16,40 +16,36 @@ namespace Pal3.Data
     {
         private readonly Dictionary<string, (Texture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
 
-        public void Add(string textureFullPath, Texture2D texture, bool hasAlphaChannel)
+        public void Add(string key, Texture2D texture, bool hasAlphaChannel)
         {
             if (texture == null) return;
 
-            textureFullPath = textureFullPath.ToLower();
+            key = key.ToLowerInvariant();
 
-            if (Contains(textureFullPath))
+            if (_textureCache.ContainsKey(key))
             {
-                Debug.LogError($"Texture {textureFullPath} already existed in cache.");
+                Debug.LogError($"Texture {key} already existed in cache.");
             }
             else
             {
                 texture.hideFlags = HideFlags.HideAndDontSave;
-                _textureCache[textureFullPath] = new (texture, hasAlphaChannel);
+                _textureCache[key] = new (texture, hasAlphaChannel);
             }
         }
 
-        public bool Contains(string textureFullPath)
+        public bool TryGetTextureFromCache(string key,
+            out (Texture2D texture, bool hasAlphaChannel) texture)
         {
-            textureFullPath = textureFullPath.ToLower();
-            return _textureCache.ContainsKey(textureFullPath);
-        }
+            key = key.ToLowerInvariant();
 
-        public (Texture2D texture, bool hasAlphaChannel) GetTextureFromCache(string textureFullPath)
-        {
-            textureFullPath = textureFullPath.ToLower();
-            if (Contains(textureFullPath))
+            if (_textureCache.ContainsKey(key))
             {
-                return _textureCache[textureFullPath];
+                texture = _textureCache[key];
+                return true;
             }
-            else
-            {
-                throw new ArgumentException($"Texture {textureFullPath} does not exist in cache.");
-            }
+
+            texture = default;
+            return false;
         }
 
         public void DisposeAll()

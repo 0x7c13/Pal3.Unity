@@ -10,6 +10,7 @@ namespace Pal3.State
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using Input;
     using Script;
     using UnityEngine;
@@ -34,10 +35,10 @@ namespace Pal3.State
 
         public GameStateManager(InputManager inputManager, ScriptManager scriptManager)
         {
-            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _previousState = GameState.UI;
-            _currentState = GameState.UI;
+            _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _previousState = GameState.MenuShowing; // Initial state
+            _currentState = GameState.MenuShowing; // Initial state
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -106,7 +107,7 @@ namespace Pal3.State
         public void EnterDebugState()
         {
             _isDebugging = true;
-            _inputManager.SwitchCurrentActionMap(GameState.UI);
+            _inputManager.SwitchCurrentActionMap(GameState.MenuShowing);
         }
 
         public void LeaveDebugState()

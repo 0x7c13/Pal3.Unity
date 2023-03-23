@@ -13,6 +13,7 @@ namespace Pal3.Player
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.Utils;
     using MetaData;
     using Scene;
     using UnityEngine;
@@ -52,8 +53,8 @@ namespace Pal3.Player
 
         public TeamManager(PlayerManager playerManager, SceneManager sceneManager)
         {
-            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

@@ -93,11 +93,11 @@ namespace Pal3.Data
             GameSettings gameSettings,
             int codepage)
         {
-            _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-            _textureLoaderFactory = textureLoaderFactory ?? throw new ArgumentNullException(nameof(textureLoaderFactory));
-            _unlitMaterialFactory = unlitMaterialFactory ?? throw new ArgumentNullException(nameof(unlitMaterialFactory));
-            _litMaterialFactory = litMaterialFactory ?? throw new ArgumentNullException(nameof(litMaterialFactory));
-            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
+            _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
+            _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
+            _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
+            _litMaterialFactory = Requires.IsNotNull(litMaterialFactory, nameof(litMaterialFactory));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _codepage = codepage;
 
             var gdbFilePath =

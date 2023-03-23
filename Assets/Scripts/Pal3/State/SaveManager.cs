@@ -17,6 +17,7 @@ namespace Pal3.State
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Utils;
     using Effect;
     using Effect.PostProcessing;
     using Feature;
@@ -62,17 +63,17 @@ namespace Pal3.State
             AudioManager audioManager,
             PostProcessManager postProcessManager)
         {
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
-            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
-            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
-            _sceneStateManager = sceneStateManager ?? throw new ArgumentNullException(nameof(sceneStateManager));
-            _bigMapManager = bigMapManager != null ? bigMapManager : throw new ArgumentNullException(nameof(bigMapManager));
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _favorManager = favorManager ?? throw new ArgumentNullException(nameof(favorManager));
-            _cameraManager = cameraManager != null ? cameraManager : throw new ArgumentNullException(nameof(cameraManager));
-            _audioManager = audioManager != null ? audioManager : throw new ArgumentNullException(nameof(audioManager));
-            _postProcessManager = postProcessManager != null ? postProcessManager : throw new ArgumentNullException(nameof(postProcessManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
+            _inventoryManager = Requires.IsNotNull(inventoryManager, nameof(inventoryManager));
+            _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
+            _bigMapManager = Requires.IsNotNull(bigMapManager, nameof(bigMapManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _favorManager = Requires.IsNotNull(favorManager, nameof(favorManager));
+            _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
+            _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
+            _postProcessManager = Requires.IsNotNull(postProcessManager, nameof(postProcessManager));
         }
 
         private string GetSaveFilePath()

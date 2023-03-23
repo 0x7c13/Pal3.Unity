@@ -10,6 +10,7 @@ namespace Pal3.MiniGame
     using System;
     using Command;
     using Command.SceCommands;
+    using Core.Utils;
     using Script;
 
     public sealed class SkiMiniGame : IDisposable,
@@ -19,7 +20,7 @@ namespace Pal3.MiniGame
 
         public SkiMiniGame(ScriptManager scriptManager)
         {
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

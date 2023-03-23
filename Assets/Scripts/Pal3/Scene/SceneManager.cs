@@ -13,6 +13,7 @@ namespace Pal3.Scene
     using Command.SceCommands;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Newtonsoft.Json;
@@ -45,11 +46,11 @@ namespace Pal3.Scene
             GameSettings gameSettings,
             Camera mainCamera)
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _sceneStateManager = sceneStateManager ?? throw new ArgumentNullException(nameof(sceneStateManager));
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
-            _mainCamera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
+            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

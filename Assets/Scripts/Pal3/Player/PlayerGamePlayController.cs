@@ -18,6 +18,7 @@ namespace Pal3.Player
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Renderer;
+    using Core.Utils;
     using Data;
     using Input;
     using MetaData;
@@ -96,13 +97,13 @@ namespace Pal3.Player
             SceneManager sceneManager,
             Camera mainCamera)
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            _playerManager = playerManager ?? throw new ArgumentNullException(nameof(playerManager));
-            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
-            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _camera = mainCamera != null ? mainCamera : throw new ArgumentNullException(nameof(mainCamera));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
+            _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _camera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
 
             _inputActions.Gameplay.OnTap.performed += OnTapPerformed;
             _inputActions.Gameplay.OnMove.performed += OnMovePerformed;

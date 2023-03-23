@@ -10,6 +10,7 @@ namespace Pal3.Video
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using Data;
     using Input;
     using Script.Waiter;
@@ -34,11 +35,11 @@ namespace Pal3.Video
             Canvas videoPlayerUI,
             VideoPlayer videoPlayer)
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
-            _videoPlayerUI = videoPlayerUI != null ? videoPlayerUI : throw new ArgumentNullException(nameof(videoPlayerUI));
-            _videoPlayer = videoPlayer != null ? videoPlayer : throw new ArgumentNullException(nameof(videoPlayer));
+            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
+            _videoPlayerUI = Requires.IsNotNull(videoPlayerUI, nameof(videoPlayerUI));
+            _videoPlayer = Requires.IsNotNull(videoPlayer, nameof(videoPlayer));
 
             _videoPlayerUI.enabled = false;
             _videoPlayer.loopPointReached += StopVideoInternal;

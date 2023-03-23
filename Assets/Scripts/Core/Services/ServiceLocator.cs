@@ -25,6 +25,7 @@ namespace Core.Services
         /// </summary>
         /// <typeparam name="T">The type of the service to lookup</typeparam>
         /// <returns>The service instance</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the service is not registered.</exception>
         public T Get<T>()
         {
             if (!_services.ContainsKey(typeof(T)))
@@ -41,11 +42,14 @@ namespace Core.Services
         /// </summary>
         /// <typeparam name="T">Service typ.</typeparam>
         /// <param name="service">Service instance</param>
+        /// <exception cref="ArgumentNullException">Thrown if the service is null.</exception>
         public void Register<T>(T service)
         {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+
             if (_services.ContainsKey(typeof(T)))
             {
-                Debug.LogError($"{typeof(T)} already registered.");
+                Debug.LogWarning($"{typeof(T)} already registered.");
                 return;
             }
 
@@ -60,7 +64,7 @@ namespace Core.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                Debug.LogError($"Failed to unregister since {typeof(T)} is not registered yet.");
+                Debug.LogWarning($"Failed to unregister since {typeof(T)} is not registered yet.");
                 return;
             }
 

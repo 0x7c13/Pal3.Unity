@@ -35,17 +35,16 @@ namespace Pal3.Data
             _textureCache = textureCache;
         }
 
-        private Texture2D GetTextureInCache(string textureFullPath, out bool hasAlphaChannel)
+        private bool TryGetTextureFromCache(string textureFullPath,
+            out (Texture2D texture, bool hasAlphaChannel) texture)
         {
-            if (_textureCache != null && _textureCache.Contains(textureFullPath))
+            if (_textureCache != null)
             {
-                (Texture2D texture, bool hasAlpha) = _textureCache.GetTextureFromCache(textureFullPath);
-                hasAlphaChannel = hasAlpha;
-                return texture;
+                return _textureCache.TryGetTextureFromCache(textureFullPath, out texture);
             }
 
-            hasAlphaChannel = false;
-            return null;
+            texture = default;
+            return false;
         }
 
         public string GetTexturePath(string name)
@@ -87,15 +86,19 @@ namespace Pal3.Data
             if (_textureCache != null)
             {
                 // Check if dds texture exists in cache
-                if (GetTextureInCache(ddsTexturePath, out hasAlphaChannel) is { } ddsTextureInCache)
+                if (TryGetTextureFromCache(ddsTexturePath,
+                        out (Texture2D texture, bool hasAlphaChannel) ddsTextureInCache))
                 {
-                    return ddsTextureInCache;
+                    hasAlphaChannel = ddsTextureInCache.hasAlphaChannel;
+                    return ddsTextureInCache.texture;
                 }
 
                 // Check if texture exists in cache
-                if (GetTextureInCache(texturePath, out hasAlphaChannel) is { } textureInCache)
+                if (TryGetTextureFromCache(texturePath,
+                        out (Texture2D texture, bool hasAlphaChannel) textureInCache))
                 {
-                    return textureInCache;
+                    hasAlphaChannel = textureInCache.hasAlphaChannel;
+                    return textureInCache.texture;
                 }
             }
 

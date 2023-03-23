@@ -8,6 +8,7 @@ namespace Pal3.Input
     using System;
     using Command;
     using Command.InternalCommands;
+    using Core.Utils;
     using State;
     using UnityEngine.InputSystem;
 
@@ -18,8 +19,11 @@ namespace Pal3.Input
 
         public InputManager(PlayerInputActions playerInputActions)
         {
-            _playerInputActions = playerInputActions ?? throw new ArgumentNullException(nameof(playerInputActions));
-            SwitchCurrentActionMap(GameState.UI);
+            _playerInputActions = Requires.IsNotNull(playerInputActions, nameof(playerInputActions));
+
+            // Goto initial state
+            SwitchCurrentActionMap(GameState.MenuShowing);
+
             InputSystem.onActionChange += OnInputActionChange;
         }
 
@@ -59,10 +63,10 @@ namespace Pal3.Input
 
             InputActionMap inputActionMap = state switch
             {
+                GameState.MenuShowing  => _playerInputActions.UI.Get(),
                 GameState.Gameplay     => _playerInputActions.Gameplay.Get(),
                 GameState.Cutscene     => _playerInputActions.Cutscene.Get(),
                 GameState.VideoPlaying => _playerInputActions.VideoPlaying.Get(),
-                GameState.UI           => _playerInputActions.UI.Get(),
                 _ => null
             };
 

@@ -35,9 +35,9 @@ namespace Pal3.Effect.PostProcessing
             PostProcessLayer postProcessLayer,
             GameSettings gameSettings)
         {
-            _postProcessVolume = volume != null ? volume : throw new ArgumentNullException(nameof(volume));
-            _postProcessLayer = postProcessLayer != null ? postProcessLayer : throw new ArgumentNullException(nameof(postProcessLayer));
-            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
+            _postProcessVolume = Requires.IsNotNull(volume, nameof(volume));
+            _postProcessLayer = Requires.IsNotNull(postProcessLayer, nameof(postProcessLayer));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
             _bloom = _postProcessVolume.profile.GetSetting<Bloom>();
             ToggleBloomBasedOnSetting();

@@ -24,9 +24,9 @@ namespace Editor
         #endif
 
         #if PAL3
-        [MenuItem("PAL3/Source Generator/Generate ConsoleCommands.PAL3.generated.cs")]
+        [MenuItem("PAL3/Source Generator/Generate ConsoleCommands.PAL3.generated.cs", priority = 2)]
         #elif PAL3A
-        [MenuItem("PAL3A/Source Generator/Generate ConsoleCommands.PAL3A.generated.cs")]
+        [MenuItem("PAL3A/Source Generator/Generate ConsoleCommands.PAL3A.generated.cs", priority = 2)]
         #endif
         public static void GenerateConsoleCommands()
         {
@@ -69,6 +69,7 @@ namespace Editor
 
             Debug.Log($"{fileName}.cs generated.");
 
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
     }

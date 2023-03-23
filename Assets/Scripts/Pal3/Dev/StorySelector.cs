@@ -12,6 +12,7 @@ namespace Pal3.Dev
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using IngameDebugConsole;
     using Input;
     using MetaData;
@@ -2044,18 +2045,19 @@ namespace Pal3.Dev
             CanvasGroup storySelectorCanvas,
             GameObject storySelectorButtonPrefab)
         {
-            _gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
-            _inputManager = inputManager ?? throw new ArgumentNullException(nameof(inputManager));
-            _eventSystem = eventSystem != null ? eventSystem : throw new ArgumentNullException(nameof(eventSystem));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
+            _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
+            _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
+            _saveManager = Requires.IsNotNull(saveManager, nameof(saveManager));
+            _informationManager = Requires.IsNotNull(informationManager, nameof(informationManager));
+            _storySelectorCanvas = Requires.IsNotNull(storySelectorCanvas, nameof(storySelectorCanvas));
+            _storySelectorButtonPrefab = Requires.IsNotNull(storySelectorButtonPrefab, nameof(storySelectorButtonPrefab));
+
             _playerInputActions = inputManager.GetPlayerInputActions();
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _teamManager = teamManager ?? throw new ArgumentNullException(nameof(teamManager));
-            _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
-            _informationManager = informationManager != null ? informationManager : throw new ArgumentNullException(nameof(informationManager));
-            _storySelectorCanvas = storySelectorCanvas != null ? storySelectorCanvas : throw new ArgumentNullException(nameof(storySelectorCanvas));
-            _storySelectorButtonPrefab = storySelectorButtonPrefab != null ? storySelectorButtonPrefab : throw new ArgumentNullException(nameof(storySelectorButtonPrefab));
 
             _storySelectorCanvas.alpha = 0f;
             _storySelectorCanvas.interactable = false;

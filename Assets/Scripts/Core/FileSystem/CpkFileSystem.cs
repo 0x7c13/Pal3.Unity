@@ -13,6 +13,7 @@ namespace Core.FileSystem
     using System.Threading.Tasks;
     using DataReader.Cpk;
     using UnityEngine;
+    using Utils;
 
     /// <summary>
     /// File system wrapper for CPack archives
@@ -27,8 +28,8 @@ namespace Core.FileSystem
 
         public CpkFileSystem(string rootPath, CrcHash crcHash)
         {
-            rootPath = !string.IsNullOrEmpty(rootPath) ? rootPath : throw new ArgumentNullException(nameof(rootPath));
-            crcHash = crcHash ?? throw new ArgumentNullException(nameof(crcHash));
+            rootPath = Requires.IsNotNullOrEmpty(rootPath, nameof(rootPath));
+            crcHash = Requires.IsNotNull(crcHash, nameof(crcHash));
 
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {

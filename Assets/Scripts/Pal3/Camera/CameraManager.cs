@@ -110,10 +110,10 @@ namespace Pal3.Camera
             Canvas touchControlUI,
             Image curtainImage)
         {
-            _inputActions = inputActions ?? throw new ArgumentNullException(nameof(inputActions));
-            _gamePlayController = gamePlayController != null ? gamePlayController : throw new ArgumentNullException(nameof(gamePlayController));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
+            _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
+            _gamePlayController = Requires.IsNotNull(gamePlayController, nameof(gamePlayController));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
 
             _camera = mainCamera;
             _camera!.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);

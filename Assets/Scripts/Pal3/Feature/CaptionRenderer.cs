@@ -11,6 +11,7 @@ namespace Pal3.Feature
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Utils;
     using Data;
     using Input;
     using Script.Waiter;
@@ -37,9 +38,9 @@ namespace Pal3.Feature
             PlayerInputActions playerInputActions,
             Image captionImage)
         {
-            _gameResourceProvider = gameResourceProvider ?? throw new ArgumentNullException(nameof(gameResourceProvider));
-            _playerInputActions = playerInputActions ?? throw new ArgumentNullException(nameof(playerInputActions));
-            _captionImage = captionImage != null ? captionImage : throw new ArgumentNullException(nameof(captionImage));
+            _gameResourceProvider = Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
+            _playerInputActions = Requires.IsNotNull(playerInputActions, nameof(playerInputActions));
+            _captionImage = Requires.IsNotNull(captionImage, nameof(captionImage));
 
             _captionImage.preserveAspect = true;
             _playerInputActions.Cutscene.Continue.performed += CutsceneContinueOnPerformed;

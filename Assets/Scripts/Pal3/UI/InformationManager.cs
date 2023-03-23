@@ -41,9 +41,9 @@ namespace Pal3.UI
 
         public void Init(CanvasGroup noteCanvasGroup, TextMeshProUGUI noteText, TextMeshProUGUI debugInfo)
         {
-            _noteCanvasGroup = noteCanvasGroup != null ? noteCanvasGroup : throw new ArgumentNullException(nameof(noteCanvasGroup));
-            _noteText = noteText != null ? noteText : throw new ArgumentNullException(nameof(noteText));
-            _debugInfo = debugInfo != null ? debugInfo : throw new ArgumentNullException(nameof(debugInfo));
+            _noteCanvasGroup = Requires.IsNotNull(noteCanvasGroup, nameof(noteCanvasGroup));
+            _noteText = Requires.IsNotNull(noteText, nameof(noteText));
+            _debugInfo = Requires.IsNotNull(debugInfo, nameof(debugInfo));
 
             _noteCanvasGroup.alpha = 0f;
             _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);

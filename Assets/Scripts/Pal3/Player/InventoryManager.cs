@@ -13,6 +13,7 @@ namespace Pal3.Player
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Gdb;
+    using Core.Utils;
     using Data;
     using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace Pal3.Player
 
         public InventoryManager(GameResourceProvider resourceProvider)
         {
-            _ = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameItemsInfo = resourceProvider.GetGameItems();
             _items[MoneyItemID] = 0; // init money
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

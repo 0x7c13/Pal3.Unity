@@ -13,6 +13,7 @@ namespace Pal3.Dev
     using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.Services;
+    using Core.Utils;
     using MetaData;
     using Scene;
     using Script;
@@ -900,11 +901,11 @@ namespace Pal3.Dev
             Button mazeEntranceButton,
             Button mazeExitButton)
         {
-            _gameStateManager = gameStateManager ?? throw new ArgumentNullException(nameof(gameStateManager));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
-            _mazeSkipperCanvasGroup = mazeSkipperCanvasGroup != null ? mazeSkipperCanvasGroup : throw new ArgumentNullException(nameof(mazeSkipperCanvasGroup));
-            _mazeEntranceButton = mazeEntranceButton != null ? mazeEntranceButton : throw new ArgumentNullException(nameof(mazeEntranceButton));
-            _mazeExitButton = mazeExitButton != null ? mazeExitButton : throw new ArgumentNullException(nameof(mazeExitButton));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _mazeSkipperCanvasGroup = Requires.IsNotNull(mazeSkipperCanvasGroup, nameof(mazeSkipperCanvasGroup));
+            _mazeEntranceButton = Requires.IsNotNull(mazeEntranceButton, nameof(mazeEntranceButton));
+            _mazeExitButton = Requires.IsNotNull(mazeExitButton, nameof(mazeExitButton));
 
             _mazeSkipperCanvasGroup.alpha = 0f;
             _mazeSkipperCanvasGroup.interactable = false;

@@ -25,6 +25,8 @@ namespace Editor
             SymbolsHelper.AddSymbol("PAL3");
             ApplyPlayerSettingsForVariant("PAL3");
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("Switched to PAL3");
         }
 
         #if PAL3
@@ -38,9 +40,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Switch Variant/PAL3A", priority = 2)]
+        [MenuItem("PAL3/Switch Variant/PAL3A", priority = 1)]
         #elif PAL3A
-        [MenuItem("PAL3A/Switch Variant/PAL3A", priority = 2)]
+        [MenuItem("PAL3A/Switch Variant/PAL3A", priority = 1)]
         #endif
         public static void SwitchToPal3A()
         {
@@ -48,6 +50,8 @@ namespace Editor
             SymbolsHelper.AddSymbol("PAL3A");
             ApplyPlayerSettingsForVariant("PAL3A");
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("Switched to PAL3A");
         }
 
         #if PAL3

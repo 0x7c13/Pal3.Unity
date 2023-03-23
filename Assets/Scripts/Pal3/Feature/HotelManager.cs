@@ -9,6 +9,7 @@ namespace Pal3.Feature
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Utils;
     using MetaData;
     using Scene;
     using Script;
@@ -23,8 +24,8 @@ namespace Pal3.Feature
 
         public void Init(ScriptManager scriptManager, SceneManager sceneManager)
         {
-            _scriptManager = scriptManager ?? throw new ArgumentNullException(nameof(scriptManager));
-            _sceneManager = sceneManager ?? throw new ArgumentNullException(nameof(sceneManager));
+            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
         }
 
         private void OnEnable()

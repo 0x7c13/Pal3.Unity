@@ -10,6 +10,7 @@ namespace Pal3.Data
     using Command.InternalCommands;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
+    using Core.Utils;
 
     /// <summary>
     /// Cache/dispose Cpk archive into memory based on scenarios.
@@ -23,7 +24,7 @@ namespace Pal3.Data
 
         public FileSystemCacheManager(ICpkFileSystem fileSystem)
         {
-            _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+            _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
