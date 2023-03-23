@@ -124,7 +124,7 @@ namespace Editor
                 new { Platform = Pal3BuildTarget.Windows_x86, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows },
                 new { Platform = Pal3BuildTarget.Windows_x64, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows64 },
                 new { Platform = Pal3BuildTarget.Linux_x86_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneLinux64 },
-                new { Platform = Pal3BuildTarget.MacOS_arm64_x64, Extension = ".app", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneOSX },
+                new { Platform = Pal3BuildTarget.MacOS_arm64_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneOSX },
                 new { Platform = Pal3BuildTarget.Android, Extension = ".apk", Group = BuildTargetGroup.Android, Target = BuildTarget.Android },
                 new { Platform = Pal3BuildTarget.iOS, Extension = "", Group = BuildTargetGroup.iOS, Target = BuildTarget.iOS },
             };
@@ -175,6 +175,7 @@ namespace Editor
             {
                 #if UNITY_2020_2_OR_NEWER && UNITY_STANDALONE_OSX
                 UserBuildSettings.architecture = OSArchitecture.x64ARM64;
+                UserBuildSettings.createXcodeProject = true;
                 #endif
             }
 
