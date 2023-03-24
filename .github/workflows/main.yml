@@ -3,7 +3,7 @@ name: Pal3.Unity CI
 on: [push, pull_request]
 
 jobs:
-  build_PAL3:
+  build_pal3:
     name: Build PAL3 for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
@@ -18,6 +18,8 @@ jobs:
           - Android # Build an Android .apk standalone app.
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
+        buildName: 'PAL3'
+        versioning: Semantic
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,7 +39,7 @@ jobs:
         with:
           name: PAL3-Mono-Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
-  build_PAL3A:
+  build_pal3a:
     name: Build PAL3A for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
@@ -52,16 +54,25 @@ jobs:
           - Android # Build an Android .apk standalone app.
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
+        buildName: 'PAL3A'
+        versioning: Semantic
     steps:
       - uses: actions/checkout@v2
-      - name: Find and Replace
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Switch define symbol from PAL3 to PAL3A
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "PAL3"
           replace: "PAL3A"
           include: "**ProjectSettings.asset"
-          fetch-depth: 0
-          lfs: true
+      - name: Replace PAL3 game icon with PAL3A one
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "6b32649dccc45df4ebe8e3f8eccee249"
+          replace: "d03d417e5660d5849939c8fe43732dbd"
+          include: "**ProjectSettings.asset"
       - uses: actions/cache@v2
         with:
           path: Library
