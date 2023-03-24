@@ -19,11 +19,11 @@ jobs:
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/cache@v3
+      - uses: actions/cache@v3.3.1
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
@@ -35,8 +35,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3
           versioning: Semantic
-          chownFilesTo: 1000:1000
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: PAL3-Mono-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
@@ -57,7 +56,7 @@ jobs:
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
           lfs: true
@@ -73,7 +72,7 @@ jobs:
           find: "6b32649dccc45df4ebe8e3f8eccee249"
           replace: "d03d417e5660d5849939c8fe43732dbd"
           include: "**ProjectSettings.asset"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v3.3.1
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
@@ -86,8 +85,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3A
           versioning: Semantic
-          chownFilesTo: 1000:1000
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.23
         with:
           name: PAL3A-Mono-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
