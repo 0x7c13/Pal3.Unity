@@ -19,11 +19,16 @@ jobs:
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
     steps:
-      - uses: actions/checkout@v2
+      - name: Get runner's uid and gid
+        id: runner-info
+        run: |
+          echo "::set-output name=uid::$(id -u)"
+          echo "::set-output name=gid::$(id -g)"
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
@@ -35,10 +40,12 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3
           versioning: Semantic
-      - uses: actions/upload-artifact@v2
+          chownFilesTo: ${{ steps.runner-info.outputs.uid }}:${{ steps.runner-info.outputs.gid }}
+      - uses: actions/upload-artifact@v3
         with:
           name: PAL3-Mono-Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
+          retention-days: 14
   build_pal3a:
     name: Build PAL3A for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
@@ -55,7 +62,12 @@ jobs:
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
     steps:
-      - uses: actions/checkout@v2
+      - name: Get runner's uid and gid
+        id: runner-info
+        run: |
+          echo "::set-output name=uid::$(id -u)"
+          echo "::set-output name=gid::$(id -g)"
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           lfs: true
@@ -71,7 +83,7 @@ jobs:
           find: "6b32649dccc45df4ebe8e3f8eccee249"
           replace: "d03d417e5660d5849939c8fe43732dbd"
           include: "**ProjectSettings.asset"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
@@ -84,7 +96,9 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3A
           versioning: Semantic
-      - uses: actions/upload-artifact@v2
+          chownFilesTo: ${{ steps.runner-info.outputs.uid }}:${{ steps.runner-info.outputs.gid }}
+      - uses: actions/upload-artifact@v3
         with:
           name: PAL3A-Mono-Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
+          retention-days: 14
