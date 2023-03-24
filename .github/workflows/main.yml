@@ -18,8 +18,6 @@ jobs:
           - Android # Build an Android .apk standalone app.
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
-        buildName: PAL3
-        versioning: Semantic
     steps:
       - uses: actions/checkout@v2
         with:
@@ -35,6 +33,8 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: PAL3
+          versioning: Semantic
       - uses: actions/upload-artifact@v2
         with:
           name: PAL3-Mono-Build-${{ matrix.targetPlatform }}
@@ -54,8 +54,6 @@ jobs:
           - Android # Build an Android .apk standalone app.
         exclude:
           - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
-        buildName: PAL3A
-        versioning: Semantic
     steps:
       - uses: actions/checkout@v2
         with:
@@ -84,6 +82,8 @@ jobs:
         with:
           allowDirtyBuild: true
           targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: PAL3A
+          versioning: Semantic
       - uses: actions/upload-artifact@v2
         with:
           name: PAL3A-Mono-Build-${{ matrix.targetPlatform }}
