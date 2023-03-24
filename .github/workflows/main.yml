@@ -34,7 +34,7 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3
-          versioning: Tag
+          versioning: Semantic
           chownFilesTo: 1000:1000
       - uses: actions/upload-artifact@v3
         with:
@@ -85,7 +85,7 @@ jobs:
           allowDirtyBuild: true
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3A
-          versioning: Tag
+          versioning: Semantic
           chownFilesTo: 1000:1000
       - uses: actions/upload-artifact@v3
         with:
