@@ -1,0 +1,75 @@
+<p align="center">
+  <img width="128" align="center" src="Assets/Resources/UI/game-icon-PAL3.png">
+  +
+  <img width="128" align="center" src="Assets/Resources/UI/game-icon-PAL3A.png">
+</p>
+<h1 align="center">
+  Pal3.Unity
+</h1>
+<p align="center">
+  The Legend of Sword and Fairy 3 & The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian re-implementation using C#/Unity
+</p>
+<p align="center">
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/unity-2022.2.12-blue?style=flat-square" alt="Unity Version" />
+  </a>
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
+  </a>
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/license-GPL--3.0-green?style=flat-square" alt="License" />
+  </a>
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
+  </a>
+  <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/main.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/main.yml" alt="Size" />
+  </a>
+</p>
+
+README: [简体中文](README.md) | English
+
+# Intro
+This is an open-source project that re-implements [The Legend of Sword and Fairy 3](https://en.wikipedia.org/wiki/Chinese_Paladin_3) and [The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian](https://en.wikipedia.org/wiki/Chinese_Paladin_3_Gaiden:_Wenqing_Pian) using C#/Unity. The implementation involves rewriting of the game logic, loading and utilizing the original game assets, and recreating the original game's behavior and effects. Please refer to the source code to see how it is been made.
+
+Note: The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are original works of Softstar Technology (Shanghai) Co., Ltd., with copyrights belonging to Softstar Technology (Shanghai) Co., Ltd. and Softstar International Inc. (I might be wrong but please verify yourself). This project does not contain any game data from the original game. The project is under the GPL-3.0 license but is limited to the code of this project excluding Unity assets and other assets and plugins that I used and get from Unity Asset Store. Any textures, audio, video, or game data related to The Legend of Sword and Fairy 3 or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are not covered by this license.
+
+## Why make this
+After learning Unity for a few weeks, I've been looking for a project to practice. After sometme, I discovered the [PAL3patch](https://github.com/zhangboyang/PAL3patch) project by created by zby and the [OpenPAL3](https://github.com/dontpanic92/OpenPAL3) project created by dontpanic92, which made the re-implementation of a remake for The Legend of Sword and Fairy 3 possible. As for why I chose C#/Unity, there are two reasons: First, Unity has excellent cross-platform support and packaging, and second, Unity provides native IDE support for Mac with M1/M2 chips (Why? I spend about half of my time coding on a Macbook). Although this project barely uses most of Unity's engine features, especially its editor features, since it's almost 100% code-based, it could theoretically be ported to other engines that support C# scripting with minimal effort.
+
+## How to run the project
+Open the current project folder using Unity 2022.2.X. For the specific Unity version required for the current project, please check the badge displayed above. In theory, any Unity 2022.2+ version should work. You can also try a lower version to see if it builds.
+Since the project itself does not contain any game data from the original game, you will need a copy of the original game files for The Legend of Sword and Fairy 3 or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian (Link to the game on Steam: [The Legend of Sword and Fairy 3](https://store.steampowered.com/app/1536070) and [The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian](https://store.steampowered.com/app/1536080); Note: currently the build only supports Simplified Chinese version).
+
+After opening the Unity project for the first time, double-click to select "Scenes\Game" as the current scene, and then press the play button. If you select "Scenes\ResourceViewer", it will open the game resource viewer.
+The first time you open it, a folder selection window will automatically pop up. Please select the installation folder for The Legend of Sword and Fairy 3 (or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian) on your computer.
+Since the original game's cutscene videos are in Bink format, which Unity does not natively support, please convert the videos to a format supported by Unity and place them in the movie folder at the game's root directory (most devices and platforms support mainstream formats like .mp4, while Linux only supports .webm format).
+Linux users can use FFmpeg to convert videos to .webm format (vp8 + vorbis): ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm
+Note: You need to first decompress the OG game data to get the .bik videos. You can do this by running "ExtractAllCpkArchives" command under "Scenes\ResourceViewer" scene.
+
+## How to Run the game on Handheld Devices
+In runtime, all platforms use the Application.persistentDataPath directory to read the orignal game data by default. For the specific location of this directory, please refer to the Unity documentation: [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html)
+After installing the game on a handheld device for the first time, run it once, then connect the handheld device to your computer and copy the entire The Legend of Sword and Fairy 3 original game directory to the persistent directory. If it is The Legend of Sword and Fairy 3, the folder name must be PAL3; if it is The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian, the folder name must be PAL3A.
+For iOS devices, use iTunes to share the folder with the game application. You can also copy the files into [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) and use it for the build.
+
+## How to Switch Between two variants of the game
+The version switching is implemented through [Custom scripting symbols](https://docs.unity3d.com/2022.2/Documentation/Manual/CustomScriptingSymbols.html). PAL3 corresponds to The Legend of Sword and Fairy 3, and PAL3A corresponds to The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian. I added a shortcut button in the Unity editor menu bar for one-click switching (Menu bar->Pal3->Switch Variant->PAL3A). After switching, the corresponding game folder will automatically change from PAL3 to PAL3A.
+
+## Screenshots with realtime lighting and toon shading enabled
+![PAL3 卡通渲染+光影](Screenshots/PAL3_ToonShading_Lighting.png?raw=true)
+![PAL3A 卡通渲染+光影](Screenshots/PAL3A_ToonShading_Lighting.png?raw=true)
+![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
+
+## About VFX and Toon Rendering
+Note: All currently implemented special effects and toon rendering in the game use resources from the Unity Asset Store, so there is no way to open-source this part of the implementation (VFX Prefabs and Toon shader). The project will use the open-source Shader for rendering by default (consistent with the original game's rendering style), and VFX will not be displayed in your cloned project (it won't affect the build and run of the project).
+
+## Controls and Operations
+- Mouse and keyboard: Left mouse button to click and control character movement (arrow keys can also be used), A/D to control camera rotation, Spacebar to interact with nearby items or NPCs (also used as the jump button when available), M key to toggle the big map, U key or ESC key to open the story selection menu, Tab key to switch characters (in the maze).
+- Gamepad: Left joystick to control character movement, right joystick to control camera rotation, use gamepad south button to interact, menu and select buttons corresponding to the map and story selection menu, LB/RB to switch to the previous/next character (in the maze).
+- Touchscreen: Only enabled on handheld devices with a touch screen, virtual joystick for movement, interaction button for interaction.
+
+## Project State and Roadmap
+The story parts of The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are complete. Both games can be played entirely from start to finish to experience the story, and the story selection menu provided in the game can be used to jump to different story points in the game. Most of the switches and puzzles in the mazes in both games have also been implemented, but combat, mini-games, and various systems and features related to supporting the combat system have not been implemented. In addition, the main menu and most of the UI/UX need to be redesigned and implemented.
+
+## How to Contribute?
+Since the project is still in the early stages of implementation, many systems have not yet been implemented, and I am temporarily not accepting large Pull Requests, especially feature ones. If you have good ideas, suggestions, or have discovered bugs, please feel free to submit an issue or leave a message in the discussion page.
