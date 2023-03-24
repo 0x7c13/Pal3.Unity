@@ -35,7 +35,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
       - uses: actions/upload-artifact@v2
         with:
-          name: Build-${{ matrix.targetPlatform }}
+          name: PAL3-Mono-Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
   build_PAL3A:
     name: Build PAL3A for ${{ matrix.targetPlatform }}
@@ -75,5 +75,5 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
       - uses: actions/upload-artifact@v2
         with:
-          name: Build-${{ matrix.targetPlatform }}
+          name: PAL3A-Mono-Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
