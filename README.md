@@ -22,6 +22,9 @@
   <a style="text-decoration:none">
     <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
   </a>
+  <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/main.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/main.yml" alt="Size" />
+  </a>
 </p>
 
 # 简介
