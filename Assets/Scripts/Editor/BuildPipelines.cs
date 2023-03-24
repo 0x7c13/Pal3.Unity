@@ -8,6 +8,7 @@ namespace Editor
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using Pal3.MetaData;
     using UnityEditor;
     using UnityEditor.Build;
@@ -33,10 +34,12 @@ namespace Editor
     {
         private static readonly string[] BuildLevels = { "Assets/Scenes/Game.unity" };
 
+        private static readonly char PathSeparator = Path.DirectorySeparatorChar;
+
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build Windows_x86")]
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build Windows x86")]
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
         #endif
         public static void Build_Windows_x86()
         {
@@ -44,9 +47,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build Windows_x64")]
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build Windows x64")]
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable")]
         #endif
         public static void Build_Windows_x64()
         {
@@ -54,9 +57,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build Linux_x86_x64")]
+        [MenuItem("PAL3/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build Linux x86_x64")]
+        [MenuItem("PAL3A/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable")]
         #endif
         public static void Build_Linux_x86_x64()
         {
@@ -64,9 +67,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build MacOS_arm64_x64")]
+        [MenuItem("PAL3/Build Pipelines/Build [MacOS_arm64_x64] IL2CPP XCode Project")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build MacOS arm64_x64")]
+        [MenuItem("PAL3A/Build Pipelines/Build [MacOS_arm64_x64] IL2CPP XCode Project")]
         #endif
         public static void Build_MacOS_arm64_x64()
         {
@@ -74,9 +77,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build Android")]
+        [MenuItem("PAL3/Build Pipelines/Build [Android] IL2CPP Release APK")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build Android")]
+        [MenuItem("PAL3A/Build Pipelines/Build [Android] IL2CPP Release APK")]
         #endif
         public static void Build_Android()
         {
@@ -84,9 +87,9 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build iOS")]
+        [MenuItem("PAL3/Build Pipelines/Build [iOS] IL2CPP XCode Project")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build iOS")]
+        [MenuItem("PAL3A/Build Pipelines/Build [iOS] IL2CPP XCode Project")]
         #endif
         public static void Build_iOS()
         {
@@ -98,7 +101,7 @@ namespace Editor
         #elif PAL3A
         [MenuItem("PAL3A/Build Pipelines/Build All [Windows, Linux, MacOS, Android, iOS]")]
         #endif
-        public static void Build_All()
+        public static void BuildAll()
         {
             BuildGame(Pal3BuildTarget.Windows_x86 |
                       Pal3BuildTarget.Windows_x64 |
@@ -106,6 +109,16 @@ namespace Editor
                       Pal3BuildTarget.MacOS_arm64_x64 |
                       Pal3BuildTarget.Android |
                       Pal3BuildTarget.iOS);
+        }
+
+        #if PAL3
+        [MenuItem("PAL3/Build Pipelines/Zip Release files [Windows, Linux, Android]")]
+        #elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Zip Release files [Windows, Linux, Android]")]
+        #endif
+        public static void ZipAll()
+        {
+            ZipReleaseFiles();
         }
 
         private static void BuildGame(Pal3BuildTarget buildTarget)
@@ -117,7 +130,7 @@ namespace Editor
 
             if (string.IsNullOrEmpty(buildOutputPath)) return;
 
-            buildOutputPath += $"{Path.DirectorySeparatorChar}{PlayerSettings.bundleVersion}{Path.DirectorySeparatorChar}";
+            buildOutputPath += $"{PathSeparator}{PlayerSettings.bundleVersion}{PathSeparator}";
 
             var buildConfigurations = new[]
             {
@@ -162,14 +175,14 @@ namespace Editor
             List<Action> logActions,
             bool deletePdbFiles = true)
         {
-            string outputFolder = buildOutputPath + $"{GameConstants.AppName}{Path.DirectorySeparatorChar}" +
-                                $"{folderName}{Path.DirectorySeparatorChar}";
+            string outputFolder = buildOutputPath + $"{GameConstants.AppName}{PathSeparator}" +
+                                $"{folderName}{PathSeparator}";
 
             if (buildTarget is BuildTarget.StandaloneWindows
                 or BuildTarget.StandaloneWindows64
                 or BuildTarget.StandaloneLinux64)
             {
-                outputFolder += $"{GameConstants.AppName}{Path.DirectorySeparatorChar}";
+                outputFolder += $"{GameConstants.AppName}{PathSeparator}";
             }
             else if (buildTarget is BuildTarget.StandaloneOSX)
             {
@@ -213,10 +226,64 @@ namespace Editor
                     logActions.Add(() => Debug.LogWarning(cancelReport));
                     break;
                 case BuildResult.Unknown:
-                    string unknownReport = $"Build [{report.summary.platform}] skipped or not completed. " +
-                                           $"Platform not supported or error during build process.";
+                    string unknownReport = $"Build [{report.summary.platform}] skipped or not completed.";
                     logActions.Add(() => Debug.LogWarning(unknownReport));
                     break;
+            }
+        }
+
+        private static void ZipReleaseFiles()
+        {
+            string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game",
+                $"{PlayerSettings.bundleVersion}", $"{PlayerSettings.bundleVersion}");
+
+            if (string.IsNullOrEmpty(buildOutputPath)) return;
+
+            if (!buildOutputPath.EndsWith($"{PlayerSettings.bundleVersion}"))
+            {
+                Debug.LogError($"Invalid build output path: {buildOutputPath}. " +
+                               $"Please choose the current release build folder \"{PlayerSettings.bundleVersion}\"");
+                return;
+            }
+
+            string releaseDirPath = $"{buildOutputPath}{PathSeparator}Release";
+            Directory.CreateDirectory(releaseDirPath);
+
+            List<(string FolderPath, Pal3BuildTarget Target)> buildTargets = new()
+            {
+                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Android.ToString()}{PathSeparator}{GameConstants.AppName}.apk", Pal3BuildTarget.Android),
+                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Windows_x86.ToString()}", Pal3BuildTarget.Windows_x86),
+                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Windows_x64.ToString()}", Pal3BuildTarget.Windows_x64),
+                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Linux_x86_x64.ToString()}", Pal3BuildTarget.Linux_x86_x64)
+            };
+
+            foreach ((string folderPath, Pal3BuildTarget target) in buildTargets)
+            {
+                string fullPath = $"{buildOutputPath}{PathSeparator}{folderPath}";
+                string zipFileName = $"{GameConstants.AppName}_v{PlayerSettings.bundleVersion}_{target.ToString()}.zip";
+                string zipFilePath = $"{releaseDirPath}{PathSeparator}{zipFileName}";
+
+                if (File.Exists(fullPath) || Directory.Exists(fullPath))
+                {
+                    File.Delete(zipFilePath);
+
+                    if (target == Pal3BuildTarget.Android)
+                    {
+                        using FileStream fileStream = new(zipFilePath, FileMode.Create);
+                        using ZipArchive archive = new(fileStream, ZipArchiveMode.Create);
+                        archive.CreateEntryFromFile(fullPath, $"{GameConstants.AppName}.apk");
+                    }
+                    else
+                    {
+                        ZipFile.CreateFromDirectory(fullPath, zipFilePath);
+                    }
+
+                    Debug.Log($"{target.ToString()} build zipped to {zipFilePath}");
+                }
+                else
+                {
+                    Debug.LogWarning($"{target.ToString()} release folder not found at {fullPath}. Skipped.");
+                }
             }
         }
     }
