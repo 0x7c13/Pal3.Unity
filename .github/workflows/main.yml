@@ -1,10 +1,10 @@
-name: Build Pal3.Unity
+name: Pal3.Unity CI
 
 on: [push, pull_request]
 
 jobs:
-  buildForAllSupportedPlatforms:
-    name: Build for ${{ matrix.targetPlatform }}
+  build_PAL3:
+    name: Build PAL3 for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -16,9 +16,50 @@ jobs:
           - StandaloneLinux64 # Build a Linux 64-bit standalone.
           - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
+        exclude:
+          - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
     steps:
       - uses: actions/checkout@v2
         with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/cache@v2
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+  build_PAL3A:
+    name: Build PAL3A for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+          - StandaloneWindows # Build a Windows standalone.
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk standalone app.
+        exclude:
+          - targetPlatform: Android # Re-enable this once Unity fixed JDK path issue with headless build.
+    steps:
+      - uses: actions/checkout@v2
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "PAL3"
+          replace: "PAL3A"
+          include: "**ProjectSettings.asset"
           fetch-depth: 0
           lfs: true
       - uses: actions/cache@v2
