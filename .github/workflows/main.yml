@@ -1,4 +1,4 @@
-name: Build PAL3.Unity Project
+name: Build Pal3.Unity
 
 on: [push, pull_request]
 
