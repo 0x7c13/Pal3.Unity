@@ -251,9 +251,14 @@ namespace Core.DataReader.Scn
         public string InitAction;
 
         // uint[3] 怪物种类ID
-        public uint[] MonsterId;
-        public ushort MonsterNumber;
-        public ushort MonsterRepeat;
+        public uint[] MonsterIds;
+        public byte NumberOfMonsters;
+        public byte MonsterCanRespawn;
+
+        // Empty byte between the memory addresses to align the data in memory.
+        // NumberOfMonsters and MonsterCanRespawn take 2 bytes in memory, thus we need to
+        // add 2 more bytes here to align the data in memory (4 bytes).
+        internal byte[] PaddingBytes;
 
         public ScnPath Path;
 

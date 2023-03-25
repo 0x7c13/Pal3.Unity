@@ -78,9 +78,10 @@ namespace Core.DataReader.Scn
                 ScriptId = reader.ReadUInt32(),
                 GameBoxYPosition = reader.ReadSingle(),
                 InitAction = reader.ReadString(16, codepage),
-                MonsterId = reader.ReadUInt32Array(3),
-                MonsterNumber = reader.ReadUInt16(),
-                MonsterRepeat = reader.ReadUInt16(),
+                MonsterIds = reader.ReadUInt32Array(3),
+                NumberOfMonsters = reader.ReadByte(),
+                MonsterCanRespawn = reader.ReadByte(),
+                PaddingBytes = reader.ReadBytes(2), // Empty padding bytes to complete 4-byte alignment
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),

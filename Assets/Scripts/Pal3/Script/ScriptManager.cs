@@ -211,6 +211,8 @@ namespace Pal3.Script
 
         public void Execute(ResetGameStateCommand command)
         {
+            _pendingSceneScriptExecution = false;
+
             foreach (PalScriptRunner script in _pendingScripts)
             {
                 script.OnCommandExecutionRequested -= OnCommandExecutionRequested;

@@ -17,7 +17,6 @@ namespace Pal3.Actor
     using Input;
     using MetaData;
     using Player;
-    using Scene;
     using Script.Waiter;
     using UnityEngine;
 
@@ -167,9 +166,7 @@ namespace Pal3.Actor
         private void OnCollisionEnter(Collision collision)
         {
             if (_actor.Info.Kind == ScnActorKind.CombatNpc &&
-                ServiceLocator.Instance.Get<SceneManager>()
-                    .GetCurrentScene()
-                    .GetSceneInfo().SceneType == ScnSceneType.Maze &&
+                (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
                 collision.gameObject.GetComponent<ActorController>() is {} actorController &&
                 (byte) ServiceLocator.Instance.Get<PlayerManager>()
                     .GetPlayerActor() == actorController.GetActor().Info.Id)

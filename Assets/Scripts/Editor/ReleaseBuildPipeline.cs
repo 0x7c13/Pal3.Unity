@@ -30,7 +30,7 @@ namespace Editor
         iOS              = 1 << 5,
     }
 
-    public static class BuildPipelines
+    public static class ReleaseBuildPipeline
     {
         private static readonly string[] BuildLevels = { "Assets/Scenes/Game.unity" };
 
