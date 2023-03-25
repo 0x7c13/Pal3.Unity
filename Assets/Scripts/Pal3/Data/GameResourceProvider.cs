@@ -96,7 +96,7 @@ namespace Pal3.Data
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
             _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
-            _litMaterialFactory = Requires.IsNotNull(litMaterialFactory, nameof(litMaterialFactory));
+            _litMaterialFactory = litMaterialFactory; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _codepage = codepage;
 
@@ -137,7 +137,7 @@ namespace Pal3.Data
 
         public IMaterialFactory GetMaterialFactory()
         {
-            return _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
+            return !_gameSettings.IsOpenSourceVersion && _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
                 _litMaterialFactory :
                 _unlitMaterialFactory;
         }

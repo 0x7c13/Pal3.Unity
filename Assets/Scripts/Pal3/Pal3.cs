@@ -150,7 +150,7 @@ namespace Pal3
 
         // Dev tools
         private MazeSkipper _mazeSkipper;
-        private StorySelector _storySelector;
+        private MainMenu _mainMenu;
 
         private void OnEnable()
         {
@@ -312,8 +312,8 @@ namespace Pal3
                 mazeExitButton);
             ServiceLocator.Instance.Register(_mazeSkipper);
 
-            _storySelector = gameObject.AddComponent<StorySelector>();
-            _storySelector.Init(
+            _mainMenu = gameObject.AddComponent<MainMenu>();
+            _mainMenu.Init(
                 _gameSettings,
                 _inputManager,
                 eventSystem,
@@ -325,7 +325,7 @@ namespace Pal3
                 _informationManager,
                 storySelectionCanvasGroup,
                 storySelectionButtonPrefab);
-            ServiceLocator.Instance.Register(_storySelector);
+            ServiceLocator.Instance.Register(_mainMenu);
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
@@ -337,7 +337,7 @@ namespace Pal3
 
             DisableInGameDebugConsoleButtonNavigation();
 
-            _storySelector.Show();
+            _mainMenu.Show();
         }
 
         private void OnDisable()
@@ -376,10 +376,10 @@ namespace Pal3
             Destroy(_dialogueManager);
             Destroy(_hotelManager);
             Destroy(_bigMapManager);
-            Destroy(_storySelector);
             Destroy(_captionRenderer);
             Destroy(_postProcessManager);
             Destroy(_effectManager);
+            Destroy(_mainMenu);
 
             if (_cursorManager != null)
             {

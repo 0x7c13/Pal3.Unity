@@ -42,10 +42,18 @@ namespace Pal3
         private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page
                                                    // change it to 950 to supports Traditional Chinese (Big5)
 
+        // Optional materials that are used in the game but not open sourced
+        private Material _toonDefaultMaterial;
+        private Material _toonTransparentMaterial;
+
         private IEnumerator Start()
         {
             loadingText.text = "Loading game assets...";
             yield return null; // Wait for next frame to make sure the text is updated
+
+            _toonDefaultMaterial = Resources.Load<Material>("Materials/ToonDefault");
+            _toonTransparentMaterial = Resources.Load<Material>("Materials/ToonTransparent");
+
             yield return InitResourceAsync();
         }
 
@@ -59,11 +67,14 @@ namespace Pal3
             crcHash.Init();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
 
+            // If toon materials are not present, it's an open source build
+            bool isOpenSourceVersion = _toonDefaultMaterial == null || _toonTransparentMaterial == null;
+
             // Init settings store
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
 
             // Init settings
-            GameSettings gameSettings = new (settingsStore);
+            GameSettings gameSettings = new (settingsStore, isOpenSourceVersion);
             gameSettings.InitOrLoadSettings();
             ServiceLocator.Instance.Register<GameSettings>(gameSettings);
 
@@ -129,23 +140,12 @@ namespace Pal3
 
             // Init material factories
             IMaterialFactory unlitMaterialFactory = new UnlitMaterialFactory();
-            IMaterialFactory litMaterialFactory;
+            IMaterialFactory litMaterialFactory = null;
 
-            // Check if toon materials are present
-            if (Resources.Load<Material>("Materials/ToonDefault") is { } toonDefaultMaterial &&
-                Resources.Load<Material>("Materials/ToonTransparent") is { } toonTransparentMaterial )
+            // Only create litMaterialFactory when toon materials are present
+            if (_toonDefaultMaterial != null && _toonTransparentMaterial != null)
             {
-                litMaterialFactory = new LitMaterialFactory(toonDefaultMaterial, toonTransparentMaterial);
-            }
-            else
-            {
-                // Fallback to unlit material factory
-                litMaterialFactory = new UnlitMaterialFactory();
-
-                Debug.LogWarning("Toon materials not found. " +
-                                 "Cannot create LitMaterialFactory. " +
-                                 "Falling back to UnlitMaterialFactory instead. " +
-                                 "Lighting and shadow may not work properly when enabled.");
+                litMaterialFactory = new LitMaterialFactory(_toonDefaultMaterial, _toonTransparentMaterial);
             }
 
             // Init Game resource provider

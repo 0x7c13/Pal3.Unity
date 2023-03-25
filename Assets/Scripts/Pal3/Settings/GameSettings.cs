@@ -21,8 +21,12 @@ namespace Pal3.Settings
     {
         private static Resolution _nativeResolution;
 
-        public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
+        public bool IsOpenSourceVersion { get; }
+
+        public GameSettings(ITransactionalKeyValueStore settingsStore, bool isOpenSourceVersion) : base(settingsStore)
         {
+            IsOpenSourceVersion = isOpenSourceVersion;
+
             #if UNITY_STANDALONE
             // Last resolution is the full native resolution on desktop platforms
             _nativeResolution = Screen.resolutions.Last();
@@ -47,14 +51,18 @@ namespace Pal3.Settings
                 "设置音乐音量设定（0.0：静音，1.0：最大音量）", _ => MusicVolume = _);
             DebugLogConsole.AddCommand<float>("Settings.SfxVolume",
                 "设置音效音量设定（0.0：静音，1.0：最大音量）", _ => SfxVolume = _);
-            DebugLogConsole.AddCommand<bool>("Settings.IsRealtimeLightingAndShadowsEnabled",
-                "设置实时光照和阴影设定（true：开启，false：关闭）", _ => IsRealtimeLightingAndShadowsEnabled = _);
-            DebugLogConsole.AddCommand<bool>("Settings.IsAmbientOcclusionEnabled",
-                "设置环境光遮蔽设定（true：开启，false：关闭）", _ => IsAmbientOcclusionEnabled = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsVoiceOverEnabled",
                 "设置角色配音设定（true：开启，false：关闭）", _ => IsVoiceOverEnabled = _);
             DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
                 "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
+
+            if (!IsOpenSourceVersion)
+            {
+                DebugLogConsole.AddCommand<bool>("Settings.IsRealtimeLightingAndShadowsEnabled",
+                    "设置实时光照和阴影设定（true：开启，false：关闭）", _ => IsRealtimeLightingAndShadowsEnabled = _);
+                DebugLogConsole.AddCommand<bool>("Settings.IsAmbientOcclusionEnabled",
+                    "设置环境光遮蔽设定（true：开启，false：关闭）", _ => IsAmbientOcclusionEnabled = _);
+            }
 
             DebugLogConsole.AddCommand("Settings.Save",
                 "保存所有设置", SaveSettings);
@@ -187,21 +195,18 @@ namespace Pal3.Settings
                 SfxVolume = 0.5f;
             }
 
-            if (SettingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
-                    out bool isRealtimeLightingAndShadowsEnabled))
+            if (IsOpenSourceVersion)
             {
-                IsRealtimeLightingAndShadowsEnabled = isRealtimeLightingAndShadowsEnabled;
+                // Toon materials are available in closed source builds only
+                // so there will be no lit shader variants in the build for lighting to work
+                IsRealtimeLightingAndShadowsEnabled = false;
             }
             else
             {
-                // Check if Toon materials are available
-                // (Note: Toon materials are not open sourced on GitHub since it's a paid asset)
-                if (Resources.Load<Material>("Materials/ToonDefault") == null ||
-                    Resources.Load<Material>("Materials/ToonTransparent") == null)
+                if (SettingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
+                        out bool isRealtimeLightingAndShadowsEnabled))
                 {
-                    Debug.LogWarning("Toon materials not found. Cannot enable realtime lighting and shadows. " +
-                                     "Falling back to baked lighting and shadows.");
-                    IsRealtimeLightingAndShadowsEnabled = false;
+                    IsRealtimeLightingAndShadowsEnabled = isRealtimeLightingAndShadowsEnabled;
                 }
                 else
                 {
@@ -210,18 +215,28 @@ namespace Pal3.Settings
                 }
             }
 
-            if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
+            if (IsOpenSourceVersion)
             {
-                IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
+                // Toon materials are available in closed source builds only
+                // so there will be no lit shader variants in the build for lighting to work
+                // thus AO will not work anyway
+                IsAmbientOcclusionEnabled = false;
             }
             else
             {
-                #if UNITY_ANDROID // AO not working well with OpenGL on Android
-                IsAmbientOcclusionEnabled = false;
-                #else
-                // Enable ambient occlusion by default on desktop devices
-                IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
-                #endif
+                if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
+                {
+                    IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
+                }
+                else
+                {
+                    #if UNITY_ANDROID // AO not working well with OpenGL on Android
+                    IsAmbientOcclusionEnabled = false;
+                    #else
+                    // Enable ambient occlusion by default on desktop devices
+                    IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
+                    #endif
+                }
             }
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))

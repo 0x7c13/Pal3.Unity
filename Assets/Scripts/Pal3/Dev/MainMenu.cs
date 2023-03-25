@@ -30,7 +30,7 @@ namespace Pal3.Dev
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
-    public sealed class StorySelector : MonoBehaviour,
+    public sealed class MainMenu : MonoBehaviour,
         ICommandExecutor<ToggleStorySelectorRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ScenePostLoadingNotification>
@@ -2065,6 +2065,13 @@ namespace Pal3.Dev
             _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
             _playerInputActions.Cutscene.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
             _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideStorySelectorOnPerformed;
+
+            // Toon materials are not available in open source build.
+            // so lighting and shadow will not work, thus we remove the option.
+            if (_gameSettings.IsOpenSourceVersion)
+            {
+                _storySelections.Remove("开启/关闭实时光影");
+            }
         }
 
         private void OnEnable()
