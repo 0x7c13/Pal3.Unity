@@ -16,6 +16,9 @@
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/unity-2022.2.12-blue?style=flat-square" alt="Unity Version" />
   </a>
+  <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/releases">
+    <img src="https://img.shields.io/github/v/release/0x7c13/Pal3.Unity.svg?label=alpha&style=flat-square&color=yellow" alt="Releases" />
+  </a>
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Win%20%7C%20Mac%20%7C%20iOS%20%7C%20Android-orange?style=flat-square" alt="Platform" />
   </a>
