@@ -10,6 +10,9 @@
   The Legend of Sword and Fairy 3 & The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian re-implementation using C#/Unity
 </p>
 <p align="center">
+  <a href="README.md">简体中文</a> | English
+</p>
+<p align="center">
   <a style="text-decoration:none">
     <img src="https://img.shields.io/badge/unity-2022.2.12-blue?style=flat-square" alt="Unity Version" />
   </a>
@@ -22,20 +25,18 @@
   <a style="text-decoration:none">
     <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
   </a>
-  <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/main.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/main.yml" alt="Size" />
-  </a>
 </p>
-
-README: [简体中文](README.md) | English
 
 # Intro
 This is an open-source project that re-implements [The Legend of Sword and Fairy 3](https://en.wikipedia.org/wiki/Chinese_Paladin_3) and [The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian](https://en.wikipedia.org/wiki/Chinese_Paladin_3_Gaiden:_Wenqing_Pian) using C#/Unity. The implementation involves rewriting of the game logic, loading and utilizing the original game assets, and recreating the original game's behavior and effects. Please refer to the source code to see how it is been made.
 
 Note: The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are original works of Softstar Technology (Shanghai) Co., Ltd., with copyrights belonging to Softstar Technology (Shanghai) Co., Ltd. and Softstar International Inc. (I might be wrong but please verify yourself). This project does not contain any game data from the original game. The project is under the GPL-3.0 license but is limited to the code of this project excluding Unity assets and other assets and plugins that I used and get from Unity Asset Store. Any textures, audio, video, or game data related to The Legend of Sword and Fairy 3 or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are not covered by this license.
 
-## Why make this
-After learning Unity for a few weeks, I've been looking for a project to practice. As I surfing the Internet, I discovered the [PAL3patch](https://github.com/zhangboyang/PAL3patch) project created by zby and the [OpenPAL3](https://github.com/dontpanic92/OpenPAL3) project created by dontpanic92, which made the re-implementation of a remake for The Legend of Sword and Fairy 3 possible. As for why I chose C#/Unity, there are two reasons: First, Unity has excellent cross-platform support and packaging, and second, Unity provides native IDE support for Mac with M1/M2 chips (Why? I spend about half of my time coding on a Macbook). Although this project barely uses most of Unity's engine features, especially its editor features, since it's almost 100% code-based, it could theoretically be ported to other engines that support C# scripting with minimal effort.
+## Build status
+| Game Variant            | Windows | Linux | MacOS | Android | iOS |
+|-------------------------|---------|-------|-------|---------|-----|
+| The Legend of Sword and Fairy 3  | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-ios.yml" alt="Size" /></a> |
+| The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## How to run the project
 Open the current project folder using Unity 2022.2.X. For the specific Unity version required for the current project, please check the badge displayed above. In theory, any Unity 2022.2+ version should work. You can also try a lower version to see if it builds.
@@ -50,12 +51,12 @@ ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm  // vp8 + vor
 ```
 Note: You need to first decompress the OG game data to get the .bik videos. You can do this by running "ExtractAllCpkArchives" command under "Scenes\ResourceViewer" scene, which decompress all the CPK archives in the OG game data folder to a destination folder you choose. All .bik videos will be extracted to the output location once complete.
 
-## How to Run the game on Handheld Devices
+## How to run the game on handheld devices
 In runtime, all platforms use the Application.persistentDataPath directory to read the orignal game data by default. For the specific location of this directory, please refer to the Unity documentation: [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html)
 After installing the game on a handheld device for the first time, run it once, then connect the handheld device to your computer and copy the entire The Legend of Sword and Fairy 3 original game directory to the persistent directory. If it is The Legend of Sword and Fairy 3, the folder name must be PAL3; if it is The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian, the folder name must be PAL3A.
 For iOS devices, use iTunes to share the folder with the game application. You can also copy the files into [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) and use it for the build.
 
-## How to Switch Between two variants of the game
+## How to switch between two variants of the game
 The version switching is implemented through [Custom scripting symbols](https://docs.unity3d.com/2022.2/Documentation/Manual/CustomScriptingSymbols.html). PAL3 corresponds to The Legend of Sword and Fairy 3, and PAL3A corresponds to The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian. I added a shortcut button in the Unity editor menu bar for one-click switching (Menu bar->Pal3->Switch Variant->PAL3A). After switching, the corresponding game folder will automatically change from PAL3 to PAL3A.
 
 ## Screenshots with realtime lighting and toon shading enabled
@@ -76,3 +77,6 @@ The story parts of The Legend of Sword and Fairy 3 and The Legend of Sword and F
 
 ## How to Contribute?
 Since the project is still in the early stages, many systems have not yet been implemented, thus I am temporarily not accepting large Pull Requests, especially feature ones. If you have good ideas, suggestions, or have discovered bugs, please feel free to submit an issue.
+
+## Why make this [TL;DR]
+After learning Unity for a few weeks, I've been looking for a project to practice. As I surfing the Internet, I discovered the [PAL3patch](https://github.com/zhangboyang/PAL3patch) project created by zby and the [OpenPAL3](https://github.com/dontpanic92/OpenPAL3) project created by dontpanic92, which made the re-implementation of a remake for The Legend of Sword and Fairy 3 possible. As for why I chose C#/Unity, there are two reasons: First, Unity has excellent cross-platform support and packaging, and second, Unity provides native IDE support for Mac with M1/M2 chips (Why? I spend about half of my time coding on a Macbook). Although this project barely uses most of Unity's engine features, especially its editor features, since it's almost 100% code-based, it could theoretically be ported to other engines that support C# scripting with minimal effort.

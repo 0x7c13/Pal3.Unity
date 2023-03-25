@@ -1,0 +1,48 @@
+name: Builds - PAL3A - Mono - MacOS
+
+on: [push, pull_request]
+
+jobs:
+  build_pal3a_mono_macos:
+    name: Build PAL3A for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+    steps:
+      - uses: actions/checkout@v3.5.0
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Switch define symbol from PAL3 to PAL3A
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "PAL3"
+          replace: "PAL3A"
+          include: "**ProjectSettings.asset"
+      - name: Replace PAL3 game icon with PAL3A one
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "6b32649dccc45df4ebe8e3f8eccee249"
+          replace: "d03d417e5660d5849939c8fe43732dbd"
+          include: "**ProjectSettings.asset"
+      - uses: actions/cache@v3.3.1
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          allowDirtyBuild: true
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: PAL3A
+          versioning: Semantic
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: PAL3A-Mono-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+          retention-days: 14

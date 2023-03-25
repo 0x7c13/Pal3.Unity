@@ -1,0 +1,35 @@
+name: Builds - PAL3 - Mono - Linux
+
+on: [push, pull_request]
+
+jobs:
+  build_pal3_mono_linux:
+    name: Build PAL3 for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+    steps:
+      - uses: actions/checkout@v3.5.0
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/cache@v3.3.1
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: PAL3
+          versioning: Semantic
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: PAL3-Mono-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+          retention-days: 14

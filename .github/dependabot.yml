@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    # default location of `.github/workflows`
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: 'action-deps: '

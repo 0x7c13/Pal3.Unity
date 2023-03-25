@@ -7,7 +7,10 @@
   Pal3.Unity
 </h1>
 <p align="center">
-  仙剑奇侠传三（以及外传）C#/Unity实现
+  <<仙剑奇侠传三>>和<<仙剑奇侠传三外传：问情篇>>C#/Unity实现
+</p>
+<p align="center">
+  简体中文 | <a href="README.en-US.md">English</a>
 </p>
 <p align="center">
   <a style="text-decoration:none">
@@ -22,20 +25,18 @@
   <a style="text-decoration:none">
     <img src="https://img.shields.io/github/repo-size/jasonstein/pal3.unity?style=flat-square" alt="Size" />
   </a>
-  <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/main.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/main.yml" alt="Size" />
-  </a>
 </p>
-
-README: 简体中文 | [English](README.en-US.md)
 
 # 简介
 这是一个使用C#/Unity重新实现的仙剑奇侠传三以及仙剑奇侠传三外传的开源项目（注意：不是移植，是重写）。实现方式为重写游戏逻辑和加载读取利用原始游戏资源并按照原始游戏的运行方式和效果进行的重新实现，具体实现方法请阅读源代码。
 
 注意：仙剑奇侠传三以及仙剑奇侠传三外传属于原上海软星作品，版权属于软星科技以及大宇公司所有，本项目不包含任何仙剑奇侠传三以及仙剑奇侠传三外传的游戏本体数据。本项目遵循GPL-3.0协议，但仅限于此项目的代码，任何与仙剑奇侠传三或者外传有关的图片，音视频，游戏数据均不在此范围，任何未经版权方许可的情况下使用仙剑奇侠传三或者外传游戏数据进行商业行为都是违法的。
 
-## 为什么要做这个？
-学了几周Unity之后，一直想找项目练手，一开始自己尝试做了一下新仙剑的第一关，大概了解了RPG游戏的制作流程，后因机缘巧合发现了zby大佬的[PAL3patch](https://github.com/zhangboyang/PAL3patch)项目以及dontpanic92大佬的[OpenPAL3](https://github.com/dontpanic92/OpenPAL3)项目，所以给技术上实现仙三复刻带来了可能。至于为什么选择C#/Unity？选择Unity的原因有两点，第一是Unity对全平台全端的支持和打包做的很好很方便，第二个是Unity提供Mac上arm64原生IDE支持（我大概有一半时间是在Mac上写代码的）。当然其实本项目的实现几乎没有用到Unity引擎的大部分功能，特别是编辑器功能，因为几乎是100%纯代码实现的，所以其实理论上不需要花太大的代价就可以把本项目移植到其他支持C#脚本的引擎中。
+## 主分支当前编译状态
+| 游戏版本                 | Windows | Linux | MacOS | Android | iOS |
+|-------------------------|---------|-------|-------|---------|-----|
+| 仙剑奇侠传三 | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3-mono-ios.yml" alt="Size" /></a> |
+| 仙剑奇侠传三外传：问情篇 | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## 如何运行项目
 使用 Unity 2022.2.X 打开当前项目文件夹即可，具体当前项目所需要的Unity版本请查看上面的Badge显示的版本，理论上任何Unity 2022.2+版本都没问题。
@@ -75,6 +76,9 @@ README: 简体中文 | [English](README.en-US.md)
 ## 如何贡献？
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
 另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
+
+## 为什么要做这个？[TL;DR]
+学了几周Unity之后，一直想找项目练手，一开始自己尝试做了一下新仙剑的第一关，大概了解了RPG游戏的制作流程，后因机缘巧合发现了zby大佬的[PAL3patch](https://github.com/zhangboyang/PAL3patch)项目以及dontpanic92大佬的[OpenPAL3](https://github.com/dontpanic92/OpenPAL3)项目，所以给技术上实现仙三复刻带来了可能。至于为什么选择C#/Unity？选择Unity的原因有两点，第一是Unity对全平台全端的支持和打包做的很好很方便，第二个是Unity提供Mac上arm64原生IDE支持（我大概有一半时间是在Mac上写代码的）。当然其实本项目的实现几乎没有用到Unity引擎的大部分功能，特别是编辑器功能，因为几乎是100%纯代码实现的，所以其实理论上不需要花太大的代价就可以把本项目移植到其他支持C#脚本的引擎中。
 
 ## 社区
 * 仙剑三（及外传）复刻版讨论群：252315306
