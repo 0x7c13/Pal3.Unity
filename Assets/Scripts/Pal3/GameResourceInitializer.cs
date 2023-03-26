@@ -19,9 +19,7 @@ namespace Pal3
     using MetaData;
     using Renderer;
     using Settings;
-    #if UNITY_EDITOR || UNITY_STANDALONE
     using SimpleFileBrowser;
-    #endif
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -79,59 +77,58 @@ namespace Pal3
             ServiceLocator.Instance.Register<GameSettings>(gameSettings);
 
             // Init file system
-            string gameDataFolderPath = gameSettings.GameDataFolderPath;
+            Queue<string> gameDataFolderSearchLocations = new(gameSettings.GetGameDataFolderSearchLocations());
             ICpkFileSystem cpkFileSystem = null;
 
-            while (cpkFileSystem == null)
+            if (gameDataFolderSearchLocations.Count == 0)
             {
+                Debug.LogError("No game data folder search locations found.");
+                yield break;
+            }
+
+            while (gameDataFolderSearchLocations.Count > 0)
+            {
+                string gameDataFolderPath = gameDataFolderSearchLocations.Dequeue();
+
                 yield return InitFileSystemAsync(gameDataFolderPath,
                     crcHash, codepage, fileSystem =>
                 {
                     cpkFileSystem = fileSystem;
                 });
 
-                if (cpkFileSystem == null)
+                if (cpkFileSystem != null) // Init file system successfully
                 {
-                    string userPickedGameDataFolderPath = null;
+                    ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
 
-                    #if UNITY_EDITOR || UNITY_STANDALONE
-                    yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Folders,
-                         allowMultiSelection: false,
-                         initialPath: null,
-                         initialFilename: GameConstants.AppName,
-                         title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
-                         loadButtonText: "选择");
-                    if (FileBrowser.Success && FileBrowser.Result.Length == 1)
-		            {
-                        userPickedGameDataFolderPath = FileBrowser.Result[0];
-		            }
-                    #endif
+                    // Save game data folder path when file system initialized successfully,
+                    // since it's possible that user changed the game data folder path
+                    // during the file system initialization
+                    gameSettings.GameDataFolderPath = gameDataFolderPath;
 
-                    if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
-                    {
-                        gameDataFolderPath = userPickedGameDataFolderPath;
-                        loadingText.text = "Loading game assets...";
-                        yield return null; // Wait for next frame to make sure the text is updated
-                        continue; // Retry when new root path is picked
-                    }
-                    else
-                    {
-                        #if UNITY_EDITOR
-                        EditorApplication.ExitPlaymode();
-                        #elif UNITY_STANDALONE
-                        Application.Quit();
-                        #endif
-                    }
-
-                    yield break; // Stop initialization if failed to init file system
+                    break; // Stop searching when file system is initialized successfully
                 }
 
-                ServiceLocator.Instance.Register<ICpkFileSystem>(cpkFileSystem);
+                // If file system is not initialized successfully, retry with next search
+                // location when there is any
+                if (gameDataFolderSearchLocations.Count > 0) continue;
 
-                // Save game data folder path when file system initialized successfully,
-                // since it's possible that user changed the game data folder path
-                // during the file system initialization
-                gameSettings.GameDataFolderPath = gameDataFolderPath;
+                string userPickedGameDataFolderPath = null;
+
+                yield return WaitForUserToPickGameDataFolder((path) => userPickedGameDataFolderPath = path);
+
+                if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
+                {
+                    // Enqueue the user picked game data folder path to the search
+                    // locations and retry
+                    gameDataFolderSearchLocations.Enqueue(userPickedGameDataFolderPath);
+                    loadingText.text = "Loading game assets...";
+                    yield return null; // Wait for next frame to make sure the text is updated
+                    continue; // Retry when new root path is picked
+                }
+                else
+                {
+                    yield break; // Stop initialization if failed to init file system
+                }
             }
 
             // Init TextureLoaderFactory
@@ -167,6 +164,25 @@ namespace Pal3
             yield return FadeTextAndBackgroundImageAsync();
 
             FinalizeInit();
+        }
+
+        private IEnumerator WaitForUserToPickGameDataFolder(Action<string> callback)
+        {
+            string userPickedGameDataFolderPath = null;
+
+            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Folders,
+                allowMultiSelection: false,
+                initialPath: null,
+                initialFilename: GameConstants.AppName,
+                title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
+                loadButtonText: "选择");
+
+            if (FileBrowser.Success && FileBrowser.Result.Length == 1)
+            {
+                userPickedGameDataFolderPath = FileBrowser.Result[0];
+            }
+
+            callback.Invoke(userPickedGameDataFolderPath);
         }
 
         private void FinalizeInit()
