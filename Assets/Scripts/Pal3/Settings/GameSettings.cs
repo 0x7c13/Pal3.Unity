@@ -6,6 +6,7 @@
 namespace Pal3.Settings
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
@@ -249,33 +250,33 @@ namespace Pal3.Settings
                 IsVoiceOverEnabled = true;
             }
 
-            // Only allow game data folder path to be customized on standalone platforms
-            #if UNITY_STANDALONE
             if (SettingsStore.TryGet(nameof(GameDataFolderPath), out string gameDataFolderPath))
             {
                 GameDataFolderPath = gameDataFolderPath;
             }
-            else
-            #endif
+        }
+
+        public IEnumerable<string> GetGameDataFolderSearchLocations()
+        {
+            // Use game data folder path if it is not empty
+            // GameDataFolderPath is either set by the user or the last
+            // successfully loaded game data folder path
+            if (!string.IsNullOrEmpty(GameDataFolderPath))
             {
-                // Set game data folder path to persistent data path by default
-                // Note: On iOS, I am using streaming assets path instead of persistent
-                // data path because I ship game data with the app bundle for TestFlight.
-                // You can change this to persistent data path if you want to upload
-                // game data to the device via iTunes File Sharing. This is useful for
-                // locally testing and debugging since you can rebuild and update the
-                // app without having to re-upload the game data every time (XCode will
-                // re-upload game data to your device for every new build if data is
-                // stored inside streaming assets folder).
-                #if UNITY_IOS
-                GameDataFolderPath = Application.streamingAssetsPath +
-                #else
-                GameDataFolderPath = Application.persistentDataPath +
-                #endif
-                                     Path.DirectorySeparatorChar +
-                                     GameConstants.AppName +
-                                     Path.DirectorySeparatorChar;
+                yield return GameDataFolderPath;
             }
+
+            // Streaming assets path
+            yield return Application.streamingAssetsPath +
+                         Path.DirectorySeparatorChar +
+                         GameConstants.AppName +
+                         Path.DirectorySeparatorChar;
+
+            // Persistent data path
+            yield return Application.persistentDataPath +
+                         Path.DirectorySeparatorChar +
+                         GameConstants.AppName +
+                         Path.DirectorySeparatorChar;
         }
 
         public void SaveSettings()
