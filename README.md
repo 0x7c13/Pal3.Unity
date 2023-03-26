@@ -52,10 +52,9 @@
   ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm  // vp8 + vorbis
   ```
 
-## 如何在手持设备上运行
-- 在打包后的运行时，所有平台都默认使用Application.persistentDataPath目录读取仙剑三文件，具体这个目录在哪里，根据平台决定，请阅读Unity文档：[Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html)
-- 第一次安装游戏到手持设备后，请先运行一次，然后将手持设备连接电脑，拷贝整个仙剑奇侠三（或者外传）原游戏目录到游戏App目录下即可，如果是仙剑三，文件夹的名必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。
-- iOS设备请使用iTunes将文件夹共享给游戏应用或者自己打包游戏原始数据到 [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) 文件夹下。
+## 如何在终端设备上运行游戏
+- 在打包后的运行时，第一次游戏启动的时候，游戏会搜索 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 目录或者 [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) 目录来检测游戏数据是否存在。如果未能检测到原始游戏的数据文件，游戏则会弹出文件夹选择窗口，请选择当前设备上原游戏安装文件的根目录即可。
+- 如果上一步未成功，请拷贝整个仙剑奇侠三（或者外传）原游戏目录到 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 下即可。注意：如果自行拷贝游戏数据至这个目录的话，如果是仙剑三，文件夹的名称必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。iOS设备请使用iTunes将文件夹共享给游戏应用（这个位置就是persistentDataPath所在的地方）或者在编译时自行打包游戏原始数据到StreamingAssets文件夹下也可。
 
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
 两部游戏版本在项目中的切换是靠 [Custom scripting symbols](https://docs.unity3d.com/2022.2/Documentation/Manual/CustomScriptingSymbols.html) 实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。切换的过程中，包括Symbol，图标和应用程序名在内的所有名称和标示都会由PAL3变为PAL3A。
