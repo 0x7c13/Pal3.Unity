@@ -53,7 +53,7 @@
   ```
 
 ## 如何在终端设备上运行游戏
-- 在打包后的运行时，第一次游戏启动的时候，游戏会搜索 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 目录或者 [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) 目录来检测游戏数据是否存在。如果未能检测到原始游戏的数据文件，游戏则会弹出文件夹选择窗口，请选择当前设备上原游戏安装文件的根目录即可。
+- 在打包后的运行时，第一次游戏启动的时候，游戏会搜索 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 目录或者 [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) 目录来检测游戏数据是否存在。在桌面版本的游戏中，如果未能检测到原始游戏的数据文件，游戏则会弹出文件夹选择窗口，请选择当前设备上原游戏安装文件的根目录即可。
 - 如果上一步未成功，请拷贝整个仙剑奇侠三（或者外传）原游戏目录到 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 下即可。注意：如果自行拷贝游戏数据至这个目录的话，如果是仙剑三，文件夹的名称必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。iOS设备请使用iTunes将文件夹共享给游戏应用（这个位置就是persistentDataPath所在的地方）或者在编译时自行打包游戏原始数据到StreamingAssets文件夹下也可。
 
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传

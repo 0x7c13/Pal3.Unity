@@ -19,7 +19,6 @@ namespace Pal3
     using MetaData;
     using Renderer;
     using Settings;
-    using SimpleFileBrowser;
     using TMPro;
     using UnityEditor;
     using UnityEngine;
@@ -114,7 +113,10 @@ namespace Pal3
 
                 string userPickedGameDataFolderPath = null;
 
+                // Allow user to pick a custom game data folder path on desktop devices
+                #if UNITY_EDITOR || UNITY_STANDALONE
                 yield return WaitForUserToPickGameDataFolder((path) => userPickedGameDataFolderPath = path);
+                #endif
 
                 if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
                 {
@@ -170,16 +172,18 @@ namespace Pal3
         {
             string userPickedGameDataFolderPath = null;
 
-            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Folders,
+            yield return SimpleFileBrowser.FileBrowser.WaitForLoadDialog(
+                SimpleFileBrowser.FileBrowser.PickMode.Folders,
                 allowMultiSelection: false,
                 initialPath: null,
                 initialFilename: GameConstants.AppName,
                 title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
                 loadButtonText: "选择");
 
-            if (FileBrowser.Success && FileBrowser.Result.Length == 1)
+            if (SimpleFileBrowser.FileBrowser.Success &&
+                SimpleFileBrowser.FileBrowser.Result.Length == 1)
             {
-                userPickedGameDataFolderPath = FileBrowser.Result[0];
+                userPickedGameDataFolderPath = SimpleFileBrowser.FileBrowser.Result[0];
             }
 
             callback.Invoke(userPickedGameDataFolderPath);
