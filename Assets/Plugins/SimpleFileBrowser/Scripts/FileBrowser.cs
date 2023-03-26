@@ -301,7 +301,7 @@ namespace SimpleFileBrowser
 			}
 		}
 
-		private static string m_foldersFilterText = "Folders";
+		private static string m_foldersFilterText = "文件夹";
 		public static string FoldersFilterText
 		{
 			get { return m_foldersFilterText; }
@@ -1027,7 +1027,7 @@ namespace SimpleFileBrowser
 			if( FileBrowserHelpers.ShouldUseSAF )
 			{
 				AddQuickLink( m_skin.DriveIcon, PickFolderQuickLinkText, SAF_PICK_FOLDER_QUICK_LINK_PATH );
-				
+
 				try
 				{
 					FetchPersistedSAFQuickLinks();
@@ -1145,7 +1145,7 @@ namespace SimpleFileBrowser
 						//	{
 						//		driveName = "Drive " + driveIndex++;
 						//	}
-						//}	
+						//}
 
 						string driveName;
 						if( !defaultPathInitialized )

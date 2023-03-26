@@ -536,7 +536,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: "\u53D6\u6D88"
 --- !u!1 &1000010571070120
 GameObject:
   m_ObjectHideFlags: 0
@@ -1806,7 +1806,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Search...
+  m_Text: "\u641C\u7D22..."
 --- !u!1 &1000011474259412
 GameObject:
   m_ObjectHideFlags: 0
@@ -5094,7 +5094,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Show hidden files
+  m_Text: "\u663E\u793A\u9690\u85CF\u6587\u4EF6"
 --- !u!1 &1017798384541682
 GameObject:
   m_ObjectHideFlags: 0
@@ -6640,7 +6640,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 114938008637452676}
   m_OnClick:
     m_PersistentCalls:
