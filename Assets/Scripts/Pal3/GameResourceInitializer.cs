@@ -80,6 +80,12 @@ namespace Pal3
             Queue<string> gameDataFolderSearchLocations = new(gameSettings.GetGameDataFolderSearchLocations());
             ICpkFileSystem cpkFileSystem = null;
 
+            if (gameDataFolderSearchLocations.Count == 0)
+            {
+                Debug.LogError("No game data folder search locations found.");
+                yield break;
+            }
+
             while (gameDataFolderSearchLocations.Count > 0)
             {
                 string gameDataFolderPath = gameDataFolderSearchLocations.Dequeue();
