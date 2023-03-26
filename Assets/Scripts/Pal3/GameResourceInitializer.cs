@@ -19,8 +19,8 @@ namespace Pal3
     using MetaData;
     using Renderer;
     using Settings;
+    using SimpleFileBrowser;
     using TMPro;
-    using UnityEditor;
     using UnityEngine;
     using UnityEngine.UI;
     using Debug = UnityEngine.Debug;
@@ -45,7 +45,7 @@ namespace Pal3
 
         private IEnumerator Start()
         {
-            loadingText.text = "Loading game assets...";
+            loadingText.text = "正在加载游戏数据...";
             yield return null; // Wait for next frame to make sure the text is updated
 
             _toonDefaultMaterial = Resources.Load<Material>("Materials/ToonDefault");
@@ -88,11 +88,13 @@ namespace Pal3
             while (gameDataFolderSearchLocations.Count > 0)
             {
                 string gameDataFolderPath = gameDataFolderSearchLocations.Dequeue();
+                Exception exception = null;
 
                 yield return InitFileSystemAsync(gameDataFolderPath,
-                    crcHash, codepage, fileSystem =>
+                    crcHash, codepage, (fileSystem, ex) =>
                 {
                     cpkFileSystem = fileSystem;
+                    exception = ex;
                 });
 
                 if (cpkFileSystem != null) // Init file system successfully
@@ -113,22 +115,19 @@ namespace Pal3
 
                 string userPickedGameDataFolderPath = null;
 
-                // Allow user to pick a custom game data folder path on desktop devices
-                #if UNITY_EDITOR || UNITY_STANDALONE
                 yield return WaitForUserToPickGameDataFolder((path) => userPickedGameDataFolderPath = path);
-                #endif
 
                 if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
                 {
                     // Enqueue the user picked game data folder path to the search
                     // locations and retry
                     gameDataFolderSearchLocations.Enqueue(userPickedGameDataFolderPath);
-                    loadingText.text = "Loading game assets...";
+                    loadingText.text = "正在重新加载游戏数据...";
                     yield return null; // Wait for next frame to make sure the text is updated
-                    continue; // Retry when new root path is picked
                 }
                 else
                 {
+                    loadingText.text = exception == null ? "游戏数据加载失败，未能找到原游戏数据文件" : $"{exception.Message}";
                     yield break; // Stop initialization if failed to init file system
                 }
             }
@@ -172,18 +171,46 @@ namespace Pal3
         {
             string userPickedGameDataFolderPath = null;
 
-            yield return SimpleFileBrowser.FileBrowser.WaitForLoadDialog(
-                SimpleFileBrowser.FileBrowser.PickMode.Folders,
+            yield return FileBrowser.WaitForLoadDialog(
+                FileBrowser.PickMode.Folders,
                 allowMultiSelection: false,
                 initialPath: null,
-                initialFilename: GameConstants.AppName,
+                initialFilename: null,
                 title: $"请选择<<{GameConstants.AppNameCNFull}>>原始游戏文件夹根目录",
                 loadButtonText: "选择");
 
-            if (SimpleFileBrowser.FileBrowser.Success &&
-                SimpleFileBrowser.FileBrowser.Result.Length == 1)
+            if (FileBrowser.Success &&
+                FileBrowser.Result.Length == 1)
             {
-                userPickedGameDataFolderPath = SimpleFileBrowser.FileBrowser.Result[0];
+                #if !UNITY_EDITOR && UNITY_ANDROID
+                // On Android 10+, the result is a content URI of the selected folder in
+                // SAF (Storage Access Framework) format, so we need to copy it to the
+                // persistent data path in order to use it with System.IO APIs
+                if (FileBrowserHelpers.ShouldUseSAF)
+                {
+                    string persistentDataPath = Application.persistentDataPath +
+                         Path.DirectorySeparatorChar +
+                         GameConstants.AppName +
+                         Path.DirectorySeparatorChar;
+
+                    // Delete the old folder if it exists
+                    if (Directory.Exists(persistentDataPath))
+                    {
+                        Directory.Delete(persistentDataPath, true);
+                    }
+
+                    loadingText.text = "正在拷贝游戏数据至游戏可访问目录（预计需要几分钟）...";
+                    yield return null; // Wait for next frame to make sure the text is updated
+
+                    FileBrowserHelpers.CopyDirectory(FileBrowser.Result[0], persistentDataPath);
+
+                    userPickedGameDataFolderPath = persistentDataPath;
+                }
+                else
+                #endif
+                {
+                    userPickedGameDataFolderPath = FileBrowser.Result[0];
+                }
             }
 
             callback.Invoke(userPickedGameDataFolderPath);
@@ -206,7 +233,7 @@ namespace Pal3
         private IEnumerator InitFileSystemAsync(string gameDataFolderPath,
             CrcHash crcHash,
             int codepage,
-            Action<ICpkFileSystem> callback)
+            Action<ICpkFileSystem, Exception> callback)
         {
             ICpkFileSystem cpkFileSystem = null;
             var path = gameDataFolderPath;
@@ -242,15 +269,7 @@ namespace Pal3
                 yield return null;
             }
 
-            if (cpkFileSystem != null)
-            {
-                callback?.Invoke(cpkFileSystem);
-            }
-            else
-            {
-                loadingText.text = $"{exception.Message}";
-                yield return null; // Wait for next frame to make sure the text is updated
-            }
+            callback?.Invoke(cpkFileSystem, exception);
         }
 
         private IEnumerator FadeTextAndBackgroundImageAsync()

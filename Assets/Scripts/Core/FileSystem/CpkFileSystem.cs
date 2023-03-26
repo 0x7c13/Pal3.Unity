@@ -38,8 +38,7 @@ namespace Core.FileSystem
 
             if (!Directory.Exists(rootPath))
             {
-                var error = "Failed to initialize CpkFileSystem" +
-                            $" since application's root directory does not exists: {rootPath}";
+                var error = $"游戏数据加载失败，原始游戏数据根目录不存在: {rootPath}";
                 Debug.LogError(error);
                 throw new ArgumentException(error);
             }
