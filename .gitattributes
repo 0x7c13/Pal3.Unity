@@ -1,0 +1,24 @@
+# * text=auto
+
+# Unity files
+*.anim                  text eol=lf
+*.asmdef                text eol=lf
+*.asset                 text eol=lf
+*.controller            text eol=lf
+*.mat                   text eol=lf
+*.meta                  text eol=lf
+*.overrideController    text eol=lf
+*.prefab                text eol=lf
+*.preset                text eol=lf
+*.spriteatlas           text eol=lf
+*.unity                 text eol=lf
+*.mixer                 text eol=lf
+*.renderTexture         text eol=lf
+*.json                  text eol=lf
+*.xml                   text eol=lf
+
+# Source files
+*.sln                   text eol=crlf
+*.csproj                text eol=crlf
+*.cs                    text eol=crlf
+*.shader                text eol=crlf
