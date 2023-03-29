@@ -25,13 +25,14 @@ namespace Pal3.Dev
     using TMPro;
     using UI;
     using UnityEngine;
+    using UnityEngine.Events;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
     public sealed class MainMenu : MonoBehaviour,
-        ICommandExecutor<ToggleStorySelectorRequest>,
+        ICommandExecutor<ToggleMainMenuRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ScenePostLoadingNotification>
     {
@@ -45,23 +46,21 @@ namespace Pal3.Dev
         private SceneManager _sceneManager;
         private SaveManager _saveManager;
         private InformationManager _informationManager;
-        private CanvasGroup _storySelectorCanvas;
-        private GameObject _storySelectorButtonPrefab;
+        private CanvasGroup _mainMenuCanvasGroup;
+        private GameObject _mainMenuButtonPrefab;
+        private RectTransform _contentTransform;
+        private GridLayoutGroup _contentGridLayoutGroup;
+        private ScrollRect _contentScrollRect;
 
         private readonly List<string> _deferredExecutionCommands = new();
 
-        private readonly List<GameObject> _selectionButtons = new();
+        private readonly List<GameObject> _menuItems = new();
 
+        #region Story Selections
         private readonly Dictionary<string, string> _storySelections = new()
         {
-            {"关闭", ""},
-            {"退出游戏", ""},
-            {"继续游戏", ""},
-            {"保存当前游戏进度", ""},
-            {"新的游戏", ""},
-            {"开启/关闭实时光影", ""},
             #if PAL3
-            {"永安当-去客房找赵文昌", @"
+            {"永安当\n\n去客房找赵文昌", @"
                 ScriptVarSetValue -32768 10202
                 SceneLoad q01 y
                 ActorActivate -1 1
@@ -71,7 +70,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 77 175
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"渝州-去唐家堡找雪见", @"
+            {"渝州\n\n去唐家堡找雪见", @"
                 ScriptVarSetValue -32768 10401
                 SceneLoad q01 b
                 ActorActivate -1 1
@@ -81,7 +80,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 195 212
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"渝州-第一次见重楼前", @"
+            {"渝州\n\n第一次见重楼前", @"
                 ScriptVarSetValue -32768 10800
                 SceneLoad q01 ba
                 ActorActivate -1 1
@@ -91,7 +90,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 190 230
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"渝州西南-入住客栈过夜", @"
+            {"渝州西南\n\n入住客栈过夜", @"
                 ScriptVarSetValue -32768 11101
                 SceneLoad q01 xa
                 ActorActivate -1 1
@@ -102,7 +101,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"宾化-寻找雪见", @"
+            {"宾化\n\n寻找雪见", @"
                 ScriptVarSetValue -32768 20200
                 SceneLoad q02 q02
                 ActorActivate -1 1
@@ -123,7 +122,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"镇江-第一次进入", @"
+            {"镇江\n\n第一次进入", @"
                 ScriptVarSetValue -32768 20901
                 SceneLoad q03 q03
                 ActorActivate -1 1
@@ -136,7 +135,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 4 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"蓬莱御剑堂-初遇邪剑仙", @"
+            {"蓬莱御剑堂\n\n初遇邪剑仙", @"
                 ScriptVarSetValue -32768 21300
                 SceneLoad q04 q04
                 ActorActivate -1 1
@@ -148,19 +147,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"蓬莱-离开前往唐家堡", @"
-                ScriptVarSetValue -32768 21500
-                SceneLoad M06 1
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 22 99
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 3 1
-                CameraFadeIn"},
-            {"渝州-从后门返回家中", @"
+            {"渝州\n\n从后门返回家中", @"
                 ScriptVarSetValue -32768 30500
                 SceneLoad q01 b
                 ActorActivate -1 1
@@ -170,7 +157,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 204 78
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"渝州-第一次见龙葵前", @"
+            {"渝州\n\n第一次见龙葵前", @"
                 ScriptVarSetValue -32768 30800
                 SceneLoad q01 ba
                 ActorActivate -1 1
@@ -180,7 +167,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 277 293
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"渝州西南-找到雪见", @"
+            {"渝州西南\n\n找到雪见", @"
                 ScriptVarSetValue -32768 31100
                 SceneLoad q01 x
                 ActorActivate -1 1
@@ -191,7 +178,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
                 CameraFadeIn"},
-            {"德阳-第一次进入", @"
+            {"德阳\n\n第一次进入", @"
                 ScriptVarSetValue -32768 40100
                 SceneLoad q06 q06
                 ActorActivate -1 1
@@ -203,7 +190,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"安宁村-第一次进入", @"
+            {"安宁村\n\n第一次进入", @"
                 ScriptVarSetValue -32768 40400
                 SceneLoad Q07 Q07a
                 ActorActivate -1 1
@@ -216,20 +203,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"古藤林-遇万玉枝", @"
-                ScriptVarSetValue -32768 40900
-                SceneLoad m10 1
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 231 38
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 3 1
-                CameraFadeIn"},
-            {"安宁村-返回万玉枝家", @"
+            {"安宁村\n\n返回万玉枝家", @"
                 ScriptVarSetValue -32768 50100
                 SceneLoad Q07 Q07
                 ActorActivate -1 1
@@ -242,7 +216,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"蜀山故道-初入蜀山前", @"
+            {"蜀山故道\n\n初入蜀山前", @"
                 ScriptVarSetValue -32768 50300
                 SceneLoad M11 2
                 ActorActivate -1 1
@@ -255,7 +229,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"唐家堡-从蜀山返回", @"
+            {"唐家堡\n\n从蜀山返回", @"
                 ScriptVarSetValue -32768 60100
                 SceneLoad q05 q05
                 ActorActivate -1 1
@@ -268,7 +242,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
                 CameraFadeIn"},
-            {"雷州-第一次进入", @"
+            {"雷州\n\n第一次进入", @"
                 ScriptVarSetValue -32768 70100
                 SceneLoad q09 c
                 ActorActivate -1 1
@@ -281,19 +255,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"雷州-去临风楼找雪见", @"
-                ScriptVarSetValue -32768 70800
-                SceneLoad q09 c
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 86 146
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 4 1
-                TeamAddOrRemoveActor 2 1
-                CameraFadeIn"},
-            {"刺史府-去神魔之井前", @"
+            {"刺史府\n\n去神魔之井前", @"
                 ScriptVarSetValue -32768 71402
                 SceneLoad q09 f
                 ActorActivate -1 1
@@ -306,7 +268,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"神界天门-第一次进入", @"
+            {"神界天门\n\n第一次进入", @"
                 ScriptVarSetValue -32768 72100
                 SceneLoad q10 q10
                 ActorActivate -1 1
@@ -319,20 +281,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"蜀山-从神界返回", @"
-                ScriptVarSetValue -32768 90200
-                SceneLoad q08 q08p
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 1
-                ActorSetTilePosition -1 305 298
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 4 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                CameraFadeIn"},
-            {"锁妖塔-第一次进入", @"
+            {"锁妖塔\n\n第一次进入", @"
                 ScriptVarSetValue -32768 90500
                 SceneLoad m17 1
                 ActorActivate -1 1
@@ -345,21 +294,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 CameraFadeIn"},
-            {"锁妖塔-返回蜀山", @"
-                ScriptVarSetValue -32768 90501
-                SceneLoad m17 10
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 64 9
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 3 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                SceneActivateObject 2 1
-                CameraFadeIn"},
-            {"蛮州-第一次进入", @"
+            {"蛮州\n\n第一次进入", @"
                 ScriptVarSetValue -32768 100400
                 SceneLoad q11 q11
                 ActorActivate -1 1
@@ -371,7 +306,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
                 CameraFadeIn"},
-            {"古城镇-第一次进入", @"
+            {"古城镇\n\n第一次进入", @"
                 ScriptVarSetValue -32768 110300
                 SceneLoad q12 q12
                 ActorActivate -1 1
@@ -383,7 +318,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
                 CameraFadeIn"},
-            {"古城镇-上祭坛之前\n(雪见最高好感)", @"
+            {"上祭坛之前\n\n雪见最高好感", @"
                 ScriptVarSetValue -32768 110600
                 SceneLoad q12 q12
                 ActorActivate -1 1
@@ -396,7 +331,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 FavorAdd 1 50
                 CameraFadeIn"},
-            {"古城镇-上祭坛之前\n(龙葵最高好感)", @"
+            {"上祭坛之前\n\n龙葵最高好感", @"
                 ScriptVarSetValue -32768 110600
                 SceneLoad q12 q12
                 ActorActivate -1 1
@@ -409,46 +344,7 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 FavorAdd 2 50
                 CameraFadeIn"},
-            {"蜀山-从古城镇返回", @"
-                ScriptVarSetValue -32768 111000
-                SceneLoad q08 q08p
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 1
-                ActorSetTilePosition -1 156 389
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                CameraFadeIn"},
-            {"酆都-第一次进入", @"
+            {"酆都\n\n第一次进入", @"
                 ScriptVarSetValue -32768 120100
                 SceneLoad q13 q13
                 ActorActivate -1 1
@@ -488,7 +384,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 37 2
                 BigMapEnableRegion 10 2
                 CameraFadeIn"},
-            {"鬼界外围-第一次进入", @"
+            {"鬼界外围\n\n第一次进入", @"
                 ScriptVarSetValue -32768 120400
                 SceneLoad q14 q14
                 ActorActivate -1 1
@@ -528,51 +424,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 13 1
                 CameraFadeIn"},
-            {"鬼界外围-从地狱返回", @"
-                ScriptVarSetValue -32768 121100
-                SceneLoad q14 q14
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 25 71
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                CameraFadeIn"},
-            {"蜀山-从黄泉路返回后", @"
+            {"蜀山\n\n从黄泉路返回后", @"
                 ScriptVarSetValue -32768 121200
                 SceneLoad q08 q08p
                 ActorActivate -1 1
@@ -616,7 +468,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 25 1
                 BigMapEnableRegion 15 1
                 CameraFadeIn"},
-            {"雪岭镇-第一次进入", @"
+            {"雪岭镇\n\n第一次进入", @"
                 ScriptVarSetValue -32768 130200
                 SceneLoad q15 q15
                 ActorActivate -1 1
@@ -661,53 +513,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 15 1
                 BigMapEnableRegion 35 2
                 CameraFadeIn"},
-            {"蜀山-从雪岭镇返回", @"
-                ScriptVarSetValue -32768 131001
-                SceneLoad q08 q08p
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 1
-                ActorSetTilePosition -1 156 387
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                CameraFadeIn"},
-            {"安溪-第一次进入", @"
+            {"安溪\n\n第一次进入", @"
                 ScriptVarSetValue -32768 131100
                 SceneLoad q16 q16
                 ActorActivate -1 1
@@ -754,55 +560,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 1 2
                 CameraFadeIn"},
-            {"安溪-从海底城返回", @"
-                ScriptVarSetValue -32768 140500
-                SceneLoad q16 q16
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 371 81
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 14 2
-                CameraFadeIn"},
-            {"双剑选择名场面\n(雪见好感度最高)", @"
+            {"双剑选择\n\n雪见最高好感", @"
                 ScriptVarSetValue -32768 140900
                 SceneLoad m24 6
                 ActorActivate -1 1
@@ -852,7 +610,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 16 2
                 FavorAdd 1 50
                 CameraFadeIn"},
-            {"双剑选择名场面\n(龙葵好感度最高)", @"
+            {"双剑选择\n\n龙葵最高好感", @"
                 ScriptVarSetValue -32768 140900
                 SceneLoad m24 6
                 ActorActivate -1 1
@@ -902,7 +660,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 16 2
                 FavorAdd 2 50
                 CameraFadeIn"},
-            {"双剑选择名场面\n(紫萱好感度最高)", @"
+            {"双剑选择\n\n紫萱最高好感", @"
                 ScriptVarSetValue -32768 140900
                 SceneLoad m24 6
                 ActorActivate -1 1
@@ -953,7 +711,7 @@ namespace Pal3.Dev
                 FavorAdd 3 50
                 FavorAdd 1 10
                 CameraFadeIn"},
-            {"双剑选择名场面\n(花楹好感度最高)", @"
+            {"双剑选择\n\n花楹最高好感", @"
                 ScriptVarSetValue -32768 140900
                 SceneLoad m24 6
                 ActorActivate -1 1
@@ -1015,7 +773,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 96 169
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"唐家堡-登云麓", @"
+            {"唐家堡\n\n登云麓", @"
                 ScriptVarSetValue -32768 10800
                 SceneLoad Q01 Q01
                 ActorActivate -1 1
@@ -1025,17 +783,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 190 20
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"蜀山-找酒剑仙", @"
-                ScriptVarSetValue -32768 20200
-                SceneLoad q02 xH
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 332 185
-                TeamAddOrRemoveActor 0 1
-                CameraFadeIn"},
-            {"蜀山-第一次回家", @"
+            {"蜀山\n\n第一次回家", @"
                 ScriptVarSetValue -32768 20800
                 SceneLoad q02 qH
                 ActorActivate -1 1
@@ -1045,7 +793,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 91 114
                 TeamAddOrRemoveActor 0 1
                 CameraFadeIn"},
-            {"蜀山-绿萝嶂", @"
+            {"蜀山\n\n绿萝嶂", @"
                 ScriptVarSetValue -32768 30101
                 SceneLoad Q02 HH
                 ActorActivate -1 1
@@ -1060,28 +808,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"绿萝山-蜀山", @"
-                ScriptVarSetValue -32768 30900
-                SceneLoad q03 q03
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 94 179
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 0
-                BigMapEnableRegion 1 0
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"地脉门户-少阳三焦", @"
+            {"地脉门户\n\n少阳三焦", @"
                 ScriptVarSetValue -32768 40200
                 SceneLoad m02 2
                 ActorActivate -1 1
@@ -1145,7 +872,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"里蜀山外城南-厥阴心包", @"
+            {"里蜀山外城南\n\n厥阴心包", @"
                 ScriptVarSetValue -32768 50200
                 SceneLoad q04 wn
                 ActorActivate -1 1
@@ -1167,7 +894,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"厥阴心包-胜州", @"
+            {"厥阴心包\n\n胜州", @"
                 ScriptVarSetValue -32768 50500
                 SceneLoad M05 4
                 ActorActivate -1 1
@@ -1189,32 +916,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"胜州祭坛欢庆盛典", @"
-                ScriptVarSetValue -32768 51100
-                SceneLoad q05 q05
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 417 177
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"蜀山-深夜去经库", @"
+            {"蜀山\n\n深夜去经库", @"
                 ScriptVarSetValue -32768 60500
                 SceneLoad q02 qY
                 ActorActivate -1 1
@@ -1238,7 +940,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"地脉门户大厅-阳名百纳", @"
+            {"地脉门户大厅\n\n阳名百纳", @"
                 ScriptVarSetValue -32768 70100
                 SceneLoad m02 2
                 ActorActivate -1 1
@@ -1261,7 +963,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"血濡回魂-初入京城", @"
+            {"血濡回魂\n\n初入京城", @"
                 ScriptVarSetValue -32768 70700
                 SceneLoad q06 q06
                 ActorActivate -1 1
@@ -1284,30 +986,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"血濡回魂-蜀山深夜", @"
-                ScriptVarSetValue -32768 71501
-                SceneLoad Q11 Q11
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 1
-                ActorSetTilePosition -1 82 221
-                TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"血濡回魂-梦醒", @"
+            {"血濡回魂\n\n梦醒", @"
                 ScriptVarSetValue -32768 72001
                 SceneLoad m07 3
                 ActorActivate -1 1
@@ -1331,7 +1010,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"失散-双溪", @"
+            {"失散\n\n双溪", @"
                 ScriptVarSetValue -32768 80100
                 SceneLoad m07 3
                 ActorActivate -1 1
@@ -1357,7 +1036,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"双溪-里蜀山", @"
+            {"双溪\n\n里蜀山", @"
                 ScriptVarSetValue -32768 80700
                 SceneLoad q04 wb
                 ActorActivate -1 1
@@ -1384,7 +1063,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"里蜀山外城南-太阴归尘", @"
+            {"里蜀山外城南\n\n太阴归尘", @"
                 ScriptVarSetValue -32768 80700
                 SceneLoad q04 wn
                 ActorActivate -1 1
@@ -1411,7 +1090,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"太阴归尘-蜀山故道", @"
+            {"太阴归尘\n\n蜀山故道", @"
                 ScriptVarSetValue -32768 90300
                 SceneLoad m10 1
                 ActorActivate -1 1
@@ -1436,32 +1115,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"蜀山故道-蜀山", @"
-                ScriptVarSetValue -32768 91000
-                SceneLoad m10 2
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 192 27
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"蜀山深夜-养父常纪房间", @"
+            {"蜀山深夜\n\n养父常纪房间", @"
                 ScriptVarSetValue -32768 100400
                 SceneLoad q02 qTY
                 ActorActivate -1 1
@@ -1545,7 +1199,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"蜀山回无极阁", @"
+            {"蜀山\n\n回无极阁", @"
                 ScriptVarSetValue -32768 101600
                 SceneLoad Q02 HT
                 ActorActivate -1 1
@@ -1572,7 +1226,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"地脉门户-太阳华池", @"
+            {"地脉门户\n\n太阳华池", @"
                 ScriptVarSetValue -32768 110200
                 SceneLoad m12 1
                 ActorActivate -1 1
@@ -1625,7 +1279,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"里蜀山-魔界之门", @"
+            {"里蜀山\n\n魔界之门", @"
                 ScriptVarSetValue -32768 120400
                 SceneLoad q04 wn
                 ActorActivate -1 1
@@ -1653,35 +1307,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"回秘密基地看望星璇", @"
-                ScriptVarSetValue -32768 121100
-                SceneLoad q04 wn
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 113 161
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"里蜀山外城北-少阴凝碧", @"
+            {"里蜀山外城北\n\n少阴凝碧", @"
                 ScriptVarSetValue -32768 130100
                 SceneLoad m14 1
                 ActorActivate -1 1
@@ -1767,36 +1393,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"从施洞回到蜀山", @"
-                ScriptVarSetValue -32768 150100
-                SceneLoad Q02 HS
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 342 136
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"蜀山-绿萝山", @"
+            {"蜀山\n\n重回绿萝山", @"
                 ScriptVarSetValue -32768 150300
                 SceneLoad Q02 HS
                 ActorActivate -1 1
@@ -1825,7 +1422,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"地脉门户-少阳参天", @"
+            {"地脉门户\n\n少阳参天", @"
                 ScriptVarSetValue -32768 150400
                 SceneLoad m02 2
                 ActorActivate -1 1
@@ -1912,7 +1509,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"里蜀山内城到厥阴蔽日", @"
+            {"里蜀山内城\n\n厥阴蔽日", @"
                 ScriptVarSetValue -32768 170200
                 SceneLoad Q04 N
                 ActorActivate -1 1
@@ -1942,7 +1539,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"地脉门户-蜀山前山", @"
+            {"地脉门户\n\n蜀山前山", @"
                 ScriptVarSetValue -32768 171200
                 SceneLoad m02 1
                 ActorActivate -1 1
@@ -1970,7 +1567,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"花圃找王蓬絮\n(温慧好感度最高)", @"
+            {"花圃找王蓬絮\n\n温慧最高好感", @"
                 ScriptVarSetValue -32768 180600
                 SceneLoad q02 q
                 ActorActivate -1 1
@@ -2000,7 +1597,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"花圃找王蓬絮\n(王蓬絮好感度最高)", @"
+            {"花圃找王蓬絮\n\n王蓬絮最高好感", @"
                 ScriptVarSetValue -32768 180600
                 SceneLoad q02 q
                 ActorActivate -1 1
@@ -2032,6 +1629,7 @@ namespace Pal3.Dev
                 CameraFadeIn"},
             #endif
         };
+        #endregion
 
         public void Init(GameSettings gameSettings,
             InputManager inputManager,
@@ -2042,8 +1640,10 @@ namespace Pal3.Dev
             TeamManager teamManager,
             SaveManager saveManager,
             InformationManager informationManager,
-            CanvasGroup storySelectorCanvas,
-            GameObject storySelectorButtonPrefab)
+            CanvasGroup mainMenuCanvasGroup,
+            GameObject mainMenuButtonPrefab,
+            ScrollRect contentScrollRect,
+            RectTransform contentTransform)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
@@ -2054,24 +1654,22 @@ namespace Pal3.Dev
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _saveManager = Requires.IsNotNull(saveManager, nameof(saveManager));
             _informationManager = Requires.IsNotNull(informationManager, nameof(informationManager));
-            _storySelectorCanvas = Requires.IsNotNull(storySelectorCanvas, nameof(storySelectorCanvas));
-            _storySelectorButtonPrefab = Requires.IsNotNull(storySelectorButtonPrefab, nameof(storySelectorButtonPrefab));
+            _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
+            _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
+            _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
+            _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
+
+            _contentGridLayoutGroup = Requires.IsNotNull(
+                _contentTransform.GetComponent<GridLayoutGroup>(), "ContentTransform's GridLayoutGroup");
 
             _playerInputActions = inputManager.GetPlayerInputActions();
 
-            _storySelectorCanvas.alpha = 0f;
-            _storySelectorCanvas.interactable = false;
+            _mainMenuCanvasGroup.alpha = 0f;
+            _mainMenuCanvasGroup.interactable = false;
 
-            _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
-            _playerInputActions.Cutscene.ToggleStorySelector.performed += ToggleStorySelectorOnPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideStorySelectorOnPerformed;
-
-            // Toon materials are not available in open source build.
-            // so lighting and shadow will not work, thus we remove the option.
-            if (_gameSettings.IsOpenSourceVersion)
-            {
-                _storySelections.Remove("开启/关闭实时光影");
-            }
+            _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleMainMenuPerformed;
+            _playerInputActions.Cutscene.ToggleStorySelector.performed += ToggleMainMenuPerformed;
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideMainMenuPerformed;
         }
 
         private void OnEnable()
@@ -2082,32 +1680,32 @@ namespace Pal3.Dev
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            _playerInputActions.Gameplay.ToggleStorySelector.performed -= ToggleStorySelectorOnPerformed;
-            _playerInputActions.Cutscene.ToggleStorySelector.performed -= ToggleStorySelectorOnPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideStorySelectorOnPerformed;
+            _playerInputActions.Gameplay.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
+            _playerInputActions.Cutscene.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
+            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideMainMenuPerformed;
         }
 
-        private void ToggleStorySelectorOnPerformed(InputAction.CallbackContext _)
+        private void ToggleMainMenuPerformed(InputAction.CallbackContext _)
         {
-            ToggleStorySelector();
+            ToggleMainMenu();
         }
 
-        private void HideStorySelectorOnPerformed(InputAction.CallbackContext _)
+        private void HideMainMenuPerformed(InputAction.CallbackContext _)
         {
             if (_sceneManager.GetCurrentScene() == null) return;
 
-            if (_storySelectorCanvas.interactable)
+            if (_mainMenuCanvasGroup.interactable)
             {
                 Hide();
                 _gameStateManager.GoToState(GameState.Gameplay);
             }
         }
 
-        private void ToggleStorySelector()
+        private void ToggleMainMenu()
         {
             if (_sceneManager.GetCurrentScene() == null) return;
 
-            if (_storySelectorCanvas.interactable)
+            if (_mainMenuCanvasGroup.interactable)
             {
                 Hide();
                 _gameStateManager.GoToState(GameState.Gameplay);
@@ -2123,44 +1721,125 @@ namespace Pal3.Dev
             _gameStateManager.GoToState(GameState.Cutscene);
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            SetupMainMenuButtons();
+            _mainMenuCanvasGroup.alpha = 1f;
+            _mainMenuCanvasGroup.interactable = true;
+        }
 
-            var isOnMainMenu = _sceneManager.GetCurrentScene() == null;
+        public void Hide()
+        {
+            _mainMenuCanvasGroup.alpha = 0f;
+            _mainMenuCanvasGroup.interactable = false;
+            DestroyAllMenuItems();
+        }
 
-            foreach (var story in _storySelections)
+        public void SetupMainMenuButtons()
+        {
+            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            _contentGridLayoutGroup.constraintCount = 1;
+            _contentGridLayoutGroup.cellSize = new Vector2(400, 100);
+            _contentGridLayoutGroup.spacing = new Vector2(20, 20);
+            _contentScrollRect.horizontal = false;
+            _contentScrollRect.vertical = false;
+
+            var isGameRunning = _sceneManager.GetCurrentScene() != null;
+
+            GameObject CreateMainMenuButton(string text, UnityAction onSelection)
             {
-                if (isOnMainMenu && story.Key is "关闭" or "保存当前游戏进度" or "开启/关闭实时光影") continue;
+                GameObject menuButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
 
-                #if !UNITY_STANDALONE || UNITY_EDITOR
-                if (story.Key == "退出游戏") continue;
-                #endif
-
-                GameObject selectionButton = Instantiate(_storySelectorButtonPrefab, _storySelectorCanvas.transform);
-
-                var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
-                buttonTextUI.text = story.Key;
+                var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
+                buttonTextUI.text = text;
 
                 ButtonType buttonType = ButtonType.Normal;
-                if (story.Key is "关闭"
-                    or "保存当前游戏进度"
-                    or "退出游戏"
-                    or "新的游戏"
-                    or "继续游戏"
-                    or "开启/关闭实时光影")
-                {
-                    buttonType = ButtonType.Highlighted;
-                    buttonTextUI.fontStyle = FontStyles.Underline;
-                }
+                buttonTextUI.fontStyle = FontStyles.Underline;
 
-                var button = selectionButton.GetComponent<Button>();
+                var button = menuButton.GetComponent<Button>();
                 Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
+                buttonNavigation.mode = Navigation.Mode.Vertical;
                 button.navigation = buttonNavigation;
                 button.colors = UITheme.GetButtonColors(buttonType);
-                button.onClick.AddListener(delegate { StorySelectionButtonClicked(story.Key);});
-                _selectionButtons.Add(selectionButton);
+                button.onClick.AddListener(onSelection);
+
+                return menuButton;
             }
 
-            var firstButton = _selectionButtons.First().GetComponent<Button>();
+            _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+                StartNewGame();
+                Hide();
+            }));
+
+            if (_saveManager.SaveFileExists())
+            {
+                _menuItems.Add(CreateMainMenuButton("继续游戏", delegate
+                {
+                    var saveFileContent = _saveManager.LoadFromSaveFile();
+                    if (saveFileContent == null)
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+                        StartNewGame();
+                    }
+                    else
+                    {
+                        ExecuteCommandsFromSaveFile(saveFileContent);
+                    }
+                    Hide();
+                }));
+            }
+
+            if (isGameRunning)
+            {
+                _menuItems.Add(CreateMainMenuButton("保存游戏", delegate
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
+                        ? new UIDisplayNoteCommand("游戏保存成功")
+                        : new UIDisplayNoteCommand("游戏保存失败"));
+                    _gameStateManager.GoToState(GameState.Gameplay);
+                    Hide();
+                }));
+
+                // Toon materials are not available in open source build.
+                // so lighting and shadow will not work, thus we remove the option.
+                if (!_gameSettings.IsOpenSourceVersion)
+                {
+                    var buttonText = _gameSettings.IsRealtimeLightingAndShadowsEnabled ? "关闭实时光影" : "开启实时光影";
+
+                    _menuItems.Add(CreateMainMenuButton(buttonText, delegate
+                    {
+                        _gameSettings.IsRealtimeLightingAndShadowsEnabled =
+                            !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
+                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
+                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+                        ExecuteCommandsFromSaveFile(saveFileContent);
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
+                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                        Hide();
+                    }));
+                }
+            }
+
+            _menuItems.Add(CreateMainMenuButton("剧情测试选项", delegate
+            {
+                DestroyAllMenuItems();
+                SetupStorySelectionButtons();
+            }));
+
+            #if UNITY_STANDALONE && !UNITY_EDITOR
+            _menuItems.Add(CreateMainMenuButton("退出游戏", Application.Quit));
+            #endif
+
+            if (isGameRunning)
+            {
+                _menuItems.Add(CreateMainMenuButton("关闭菜单", delegate
+                {
+                    Hide();
+                    _gameStateManager.GoToState(GameState.Gameplay);
+                }));
+            }
+
+            var firstButton = _menuItems.First().GetComponent<Button>();
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
@@ -2174,80 +1853,74 @@ namespace Pal3.Dev
             {
                 _eventSystem.firstSelectedGameObject = null;
             }
-
-            _storySelectorCanvas.alpha = 1f;
-            _storySelectorCanvas.interactable = true;
         }
 
-        private void StorySelectionButtonClicked(string story)
+        private void SetupStorySelectionButtons()
         {
-            var isOnMainMenu = _sceneManager.GetCurrentScene() == null;
+            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+            _contentGridLayoutGroup.constraintCount = 1;
+            _contentGridLayoutGroup.cellSize = new Vector2(40, 500);
+            _contentGridLayoutGroup.spacing = new Vector2(10, 30);
+            _contentScrollRect.horizontal = true;
+            _contentScrollRect.vertical = false;
 
-            switch (story)
+            GameObject CreateStorySelectionButton(string text, UnityAction onSelection)
             {
-                case "关闭":
-                    if (isOnMainMenu) return;
-                    _gameStateManager.GoToState(GameState.Gameplay);
-                    break;
-                case "退出游戏":
-                    Application.Quit();
-                    break;
-                case "新的游戏":
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                    StartNewGame();
-                    break;
-                case "继续游戏":
-                    if (!_saveManager.SaveFileExists())
-                    {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                        StartNewGame();
-                    }
-                    else
-                    {
-                        var saveFileContent = _saveManager.LoadFromSaveFile();
-                        if (saveFileContent == null)
-                        {
-                            CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                            StartNewGame();
-                        }
-                        else
-                        {
-                            ExecuteCommandsFromSaveFile(saveFileContent);
-                        }
-                    }
-                    break;
-                case "保存当前游戏进度":
-                    CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
-                        ? new UIDisplayNoteCommand("游戏保存成功")
-                        : new UIDisplayNoteCommand("游戏保存失败"));
-                    _gameStateManager.GoToState(GameState.Gameplay);
-                    break;
-                case "开启/关闭实时光影":
-                    _gameSettings.IsRealtimeLightingAndShadowsEnabled =
-                        !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
-                    // Reload current scene to apply the change if game is running
-                    if (!isOnMainMenu)
-                    {
-                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
-                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
-                        ExecuteCommandsFromSaveFile(saveFileContent);
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
-                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                    }
-                    else
-                    {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
-                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                        return; // Don't hide the story selector
-                    }
-                    break;
-                default:
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                    ExecuteCommands(_storySelections[story]);
-                    break;
+                GameObject selectionButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
+
+                var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
+                buttonTextUI.text = text;
+                ButtonType buttonType = ButtonType.Normal;
+                var button = selectionButton.GetComponent<Button>();
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.Horizontal;
+                button.navigation = buttonNavigation;
+                button.colors = UITheme.GetButtonColors(buttonType);
+                button.onClick.AddListener(onSelection);
+
+                return selectionButton;
             }
 
-            Hide();
+            _menuItems.Add(CreateStorySelectionButton("返回", delegate
+            {
+                DestroyAllMenuItems();
+                SetupMainMenuButtons();
+            }));
+
+            foreach (var story in _storySelections)
+            {
+                _menuItems.Add(CreateStorySelectionButton(story.Key, delegate
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+                    ExecuteCommands(story.Value);
+                    Hide();
+                }));
+            }
+
+            var firstButton = _menuItems.First().GetComponent<Button>();
+
+            InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
+            if (lastActiveInputDevice == Keyboard.current ||
+                lastActiveInputDevice == Gamepad.current ||
+                lastActiveInputDevice == DualShockGamepad.current)
+            {
+                _eventSystem.firstSelectedGameObject = firstButton.gameObject;
+                firstButton.Select();
+            }
+            else
+            {
+                _eventSystem.firstSelectedGameObject = null;
+            }
+        }
+
+        private void DestroyAllMenuItems()
+        {
+            foreach (GameObject item in _menuItems)
+            {
+                item.GetComponent<Button>().onClick.RemoveAllListeners();
+                Destroy(item);
+            }
+            _menuItems.Clear();
         }
 
         private void StartNewGame()
@@ -2316,27 +1989,14 @@ namespace Pal3.Dev
             _informationManager.EnableNoteDisplay(true);
         }
 
-        public void Hide()
+        public void Execute(ToggleMainMenuRequest command)
         {
-            _storySelectorCanvas.alpha = 0f;
-            _storySelectorCanvas.interactable = false;
-
-            foreach (GameObject button in _selectionButtons)
-            {
-                button.GetComponent<Button>().onClick.RemoveAllListeners();
-                Destroy(button);
-            }
-            _selectionButtons.Clear();
-        }
-
-        public void Execute(ToggleStorySelectorRequest command)
-        {
-            ToggleStorySelector();
+            ToggleMainMenu();
         }
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {
-            if (!_storySelectorCanvas.interactable) Show();
+            if (!_mainMenuCanvasGroup.interactable) Show();
         }
 
         public void Execute(ScenePostLoadingNotification command)

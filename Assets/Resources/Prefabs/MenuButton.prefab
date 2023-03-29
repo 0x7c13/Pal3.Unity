@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3588581382288908559}
   - component: {fileID: 3965248316395714309}
   m_Layer: 0
-  m_Name: StorySelectionButton
+  m_Name: MenuButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

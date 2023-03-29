@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 147356288}
   - component: {fileID: 147356290}
   - component: {fileID: 147356289}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BlackImage
   m_TagString: Curtain
   m_Icon: {fileID: 0}
@@ -406,6 +406,184 @@ MonoBehaviour:
   m_AfterStackBundles:
   - assemblyQualifiedName: Pal3.Effect.PostProcessing.Distortion, Pal3, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!1 &547426358569454562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1396044973851031465}
+  - component: {fileID: 1571578476567396300}
+  - component: {fileID: 8374998735291348270}
+  m_Layer: 5
+  m_Name: ScrollView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1396044973851031465
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547426358569454562}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 990422549647191827}
+  m_Father: {fileID: 5034920729594334697}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1571578476567396300
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547426358569454562}
+  m_CullTransparentMesh: 1
+--- !u!114 &8374998735291348270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547426358569454562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Content: {fileID: 3491202665095195611}
+  m_Horizontal: 0
+  m_Vertical: 1
+  m_MovementType: 1
+  m_Elasticity: 0.1
+  m_Inertia: 1
+  m_DecelerationRate: 0.135
+  m_ScrollSensitivity: 10
+  m_Viewport: {fileID: 990422549647191827}
+  m_HorizontalScrollbar: {fileID: 0}
+  m_VerticalScrollbar: {fileID: 0}
+  m_HorizontalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 2
+  m_HorizontalScrollbarSpacing: -3
+  m_VerticalScrollbarSpacing: -3
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!1 &655927226129044345
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4831900014021994492}
+  - component: {fileID: 1058073198643936064}
+  - component: {fileID: 7992866985381271434}
+  - component: {fileID: 3386464828350598965}
+  m_Layer: 5
+  m_Name: Canvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4831900014021994492
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655927226129044345}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8627381932629902483}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!223 &1058073198643936064
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655927226129044345}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &7992866985381271434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655927226129044345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!114 &3386464828350598965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655927226129044345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &768200630232143376
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,7 +596,7 @@ GameObject:
   - component: {fileID: 1398116650379626629}
   - component: {fileID: 563685377028863311}
   - component: {fileID: 969092368579633812}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TouchControlCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -520,7 +698,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7157762956599921952}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TopBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -560,7 +738,7 @@ GameObject:
   - component: {fileID: 8356540748214320212}
   - component: {fileID: 811857531129035875}
   - component: {fileID: 2629186827427555584}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InteractionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -680,7 +858,7 @@ GameObject:
   - component: {fileID: 6936565495695538149}
   - component: {fileID: 7743109608717552568}
   - component: {fileID: 7580806740173732748}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: NoteText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -816,7 +994,7 @@ GameObject:
   - component: {fileID: 7745361989416368628}
   - component: {fileID: 698644093036189801}
   - component: {fileID: 6830648806760211154}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MazeEntranceButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -938,7 +1116,7 @@ GameObject:
   - component: {fileID: 1806521128227818516}
   - component: {fileID: 4235859795444777566}
   - component: {fileID: 1491893541225834398}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: LeftControlStick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1038,6 +1216,82 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+--- !u!1 &1351121374931973387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3491202665095195611}
+  - component: {fileID: 7865536272934450689}
+  - component: {fileID: 3299165872608937759}
+  m_Layer: 5
+  m_Name: Content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3491202665095195611
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351121374931973387}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 990422549647191827}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7865536272934450689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351121374931973387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 100
+    m_Bottom: 100
+  m_ChildAlignment: 4
+  m_StartCorner: 0
+  m_StartAxis: 1
+  m_CellSize: {x: 400, y: 100}
+  m_Spacing: {x: 30, y: 30}
+  m_Constraint: 1
+  m_ConstraintCount: 1
+--- !u!114 &3299165872608937759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351121374931973387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &1497448014832900950
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,7 +1304,7 @@ GameObject:
   - component: {fileID: 7026193403521485537}
   - component: {fileID: 6160639219648397353}
   - component: {fileID: 2730615582071918200}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MazeExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1169,7 +1423,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8954138631489322986}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1209,7 +1463,7 @@ GameObject:
   - component: {fileID: 7538646213706180448}
   - component: {fileID: 4735222888979631634}
   - component: {fileID: 602165767982334751}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CurtainCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1313,7 +1567,7 @@ GameObject:
   - component: {fileID: 8902125904834637846}
   - component: {fileID: 5465112869207690353}
   - component: {fileID: 6941303344842138483}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: NoteCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1442,7 +1696,7 @@ GameObject:
   - component: {fileID: 3974264404118627425}
   - component: {fileID: 4063106792528428755}
   - component: {fileID: 3596785283706710040}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueBackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1518,7 +1772,7 @@ GameObject:
   - component: {fileID: 5857989589679279840}
   - component: {fileID: 2846599825120119961}
   - component: {fileID: 7982252679968600500}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MazeSkipperCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1597,7 +1851,7 @@ GameObject:
   - component: {fileID: 5102776189801015787}
   - component: {fileID: 7513262873870597287}
   - component: {fileID: 2171679609982885703}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: VideoPlayerCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1701,7 +1955,7 @@ GameObject:
   - component: {fileID: 4620009790764474620}
   - component: {fileID: 6995534155497517785}
   - component: {fileID: 7720626964756419014}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DebugCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1817,7 +2071,7 @@ GameObject:
   - component: {fileID: 7163131115976332701}
   - component: {fileID: 1912868425898846580}
   - component: {fileID: 1767121501957608327}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CaptionCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1946,9 +2200,8 @@ GameObject:
   - component: {fileID: 8129525453828779106}
   - component: {fileID: 8589830421423349413}
   - component: {fileID: 1901874775859308762}
-  - component: {fileID: 7538757967005698733}
-  m_Layer: 0
-  m_Name: StorySelectionCanvasGroup
+  m_Layer: 5
+  m_Name: MainMenuCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1965,9 +2218,10 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1396044973851031465}
   m_Father: {fileID: 8627381932629902483}
-  m_RootOrder: 8
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2048,30 +2302,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &7538757967005698733
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2941984844705338726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 75
-    m_Right: 75
-    m_Top: 25
-    m_Bottom: 25
-  m_ChildAlignment: 4
-  m_StartCorner: 0
-  m_StartAxis: 0
-  m_CellSize: {x: 250, y: 85}
-  m_Spacing: {x: 25, y: 25}
-  m_Constraint: 0
-  m_ConstraintCount: 2
 --- !u!1 &2968620507949174616
 GameObject:
   m_ObjectHideFlags: 0
@@ -2083,7 +2313,7 @@ GameObject:
   - component: {fileID: 3236712883547024924}
   - component: {fileID: 4866727822423620301}
   - component: {fileID: 1614348180326526211}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2219,7 +2449,7 @@ GameObject:
   - component: {fileID: 1400804844988559303}
   - component: {fileID: 6221833520067189390}
   - component: {fileID: 2620870746502671808}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: VideoTextureRawImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2305,7 +2535,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1126459600050429590}
   - component: {fileID: 4883717640244246670}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueDefault
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2367,8 +2597,8 @@ GameObject:
   - component: {fileID: 1504245117666915623}
   - component: {fileID: 6690033639981241035}
   - component: {fileID: 7186792160907318265}
-  m_Layer: 0
-  m_Name: StorySelectionButton
+  m_Layer: 5
+  m_Name: MainMenuButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2487,7 +2717,7 @@ GameObject:
   - component: {fileID: 2752362774692141791}
   - component: {fileID: 280950566019251211}
   - component: {fileID: 3159816150022739402}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueTextDefault
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2622,7 +2852,7 @@ GameObject:
   - component: {fileID: 2805789255595481173}
   - component: {fileID: 8762462625390650021}
   - component: {fileID: 4003657498685443356}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueTextLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2755,7 +2985,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6643911667603684870}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2844,7 +3074,7 @@ GameObject:
   - component: {fileID: 8747109929550768219}
   - component: {fileID: 5650567296555352649}
   - component: {fileID: 416810473558055248}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BigMapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2964,7 +3194,7 @@ GameObject:
   - component: {fileID: 6629950239246188284}
   - component: {fileID: 4706858086672999302}
   - component: {fileID: 2781395710253839768}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueAvatarImageRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3040,7 +3270,7 @@ GameObject:
   - component: {fileID: 4255555531165553146}
   - component: {fileID: 6710781364012794667}
   - component: {fileID: 3071742581265337525}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CaptionImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3116,7 +3346,7 @@ GameObject:
   - component: {fileID: 2518121778909046557}
   - component: {fileID: 8111469207586831260}
   - component: {fileID: 2858011271090605436}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueAvatarImageLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3278,7 +3508,7 @@ GameObject:
   - component: {fileID: 5086885063878418672}
   - component: {fileID: 4747574804430685575}
   - component: {fileID: 416814922443346847}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3416,7 +3646,7 @@ GameObject:
   - component: {fileID: 3762850722247335571}
   - component: {fileID: 6994295648662812940}
   - component: {fileID: 6856973301777993055}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BigMapCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3551,7 +3781,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2959112866268773121}
   - component: {fileID: 4844794614659113022}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: VideoPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3626,7 +3856,7 @@ GameObject:
   - component: {fileID: 2679516728184289285}
   - component: {fileID: 882591667526732793}
   - component: {fileID: 5846368339154605878}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3732,7 +3962,7 @@ GameObject:
   - component: {fileID: 1819667408409849386}
   - component: {fileID: 9134265810590542589}
   - component: {fileID: 7201205838446431847}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InformationCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3832,7 +4062,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2631067326830301932}
   - component: {fileID: 8378544136915806352}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueRightAligned
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3883,6 +4113,97 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &8219934591419117586
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 990422549647191827}
+  - component: {fileID: 6030256630782347251}
+  - component: {fileID: 5079821731710922840}
+  - component: {fileID: 6755826415259076160}
+  m_Layer: 5
+  m_Name: Viewport
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &990422549647191827
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219934591419117586}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3491202665095195611}
+  m_Father: {fileID: 1396044973851031465}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6030256630782347251
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219934591419117586}
+  m_CullTransparentMesh: 1
+--- !u!114 &5079821731710922840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219934591419117586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6755826415259076160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219934591419117586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
 --- !u!1 &8286511119046836558
 GameObject:
   m_ObjectHideFlags: 0
@@ -3894,7 +4215,7 @@ GameObject:
   - component: {fileID: 2074168396019022583}
   - component: {fileID: 4589217578395422043}
   - component: {fileID: 9135205958574637510}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DebugInfo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4061,6 +4382,7 @@ Transform:
   - {fileID: 20216136}
   - {fileID: 9166793672834059380}
   - {fileID: 5491488055271105370}
+  - {fileID: 4831900014021994492}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4099,12 +4421,14 @@ MonoBehaviour:
   mazeExitButton: {fileID: 2730615582071918200}
   bigMapCanvasGroup: {fileID: 6994295648662812940}
   bigMapRegionButtonPrefab: {fileID: 799485479191424804, guid: 6c6f55d45332bf34096a5ca9a5567681, type: 3}
-  storySelectionCanvasGroup: {fileID: 1901874775859308762}
-  storySelectionButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
+  mainMenuCanvasGroup: {fileID: 1901874775859308762}
+  mainMenuButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
+  contentTransform: {fileID: 3491202665095195611}
+  contentScrollRect: {fileID: 8374998735291348270}
   touchControlUI: {fileID: 1398116650379626629}
   interactionButton: {fileID: 2629186827427555584}
   bigMapButton: {fileID: 416810473558055248}
-  storySelectionButton: {fileID: 7186792160907318265}
+  mainMenuButton: {fileID: 7186792160907318265}
   eventSystem: {fileID: 20216138}
   postProcessVolume: {fileID: 8346885185333560231}
   postProcessLayer: {fileID: 7927220425085558669}
@@ -4129,7 +4453,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5886627391259666978}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4168,7 +4492,7 @@ GameObject:
   - component: {fileID: 7681748703137084981}
   - component: {fileID: 6439756746665821290}
   - component: {fileID: 9130211204287232842}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueTextRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4302,7 +4626,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3999692858221102514}
   - component: {fileID: 4602793290283543645}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DialogueLeftAligned
   m_TagString: Untagged
   m_Icon: {fileID: 0}

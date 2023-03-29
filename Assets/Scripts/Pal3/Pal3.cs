@@ -85,15 +85,17 @@ namespace Pal3
         [SerializeField] private CanvasGroup bigMapCanvasGroup;
         [SerializeField] private GameObject bigMapRegionButtonPrefab;
 
-        // Story selector
-        [SerializeField] private CanvasGroup storySelectionCanvasGroup;
-        [SerializeField] private GameObject storySelectionButtonPrefab;
+        // Main menu
+        [SerializeField] private CanvasGroup mainMenuCanvasGroup;
+        [SerializeField] private GameObject mainMenuButtonPrefab;
+        [SerializeField] private RectTransform contentTransform;
+        [SerializeField] private ScrollRect contentScrollRect;
 
         // Touch control
         [SerializeField] private Canvas touchControlUI;
         [SerializeField] private Button interactionButton;
         [SerializeField] private Button bigMapButton;
-        [SerializeField] private Button storySelectionButton;
+        [SerializeField] private Button mainMenuButton;
 
         // Event system
         [SerializeField] private EventSystem eventSystem;
@@ -181,7 +183,7 @@ namespace Pal3
             _teamManager = new TeamManager(_playerManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
             _touchControlUIManager = new TouchControlUIManager(touchControlUI,
-                interactionButton, bigMapButton, storySelectionButton);
+                interactionButton, bigMapButton, mainMenuButton);
             ServiceLocator.Instance.Register(_touchControlUIManager);
             _favorManager = new FavorManager();
             ServiceLocator.Instance.Register(_favorManager);
@@ -323,8 +325,10 @@ namespace Pal3
                 _teamManager,
                 _saveManager,
                 _informationManager,
-                storySelectionCanvasGroup,
-                storySelectionButtonPrefab);
+                mainMenuCanvasGroup,
+                mainMenuButtonPrefab,
+                contentScrollRect,
+                contentTransform);
             ServiceLocator.Instance.Register(_mainMenu);
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;

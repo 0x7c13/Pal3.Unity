@@ -6,8 +6,8 @@
 namespace Pal3.Command.InternalCommands
 {
     [AvailableInConsole]
-    public class ToggleStorySelectorRequest: ICommand
+    public class ToggleMainMenuRequest: ICommand
     {
-        public ToggleStorySelectorRequest() {}
+        public ToggleMainMenuRequest() {}
     }
 }

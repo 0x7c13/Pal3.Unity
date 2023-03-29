@@ -22,7 +22,7 @@ namespace Pal3.UI
         private readonly Canvas _touchControlUI;
         private readonly Button _interactionButton;
         private readonly Button _bigMapButton;
-        private readonly Button _storySelectionButton;
+        private readonly Button _mainMenuButton;
         private readonly bool _isTouchSupported;
 
         private bool _isInGamePlayState;
@@ -31,12 +31,12 @@ namespace Pal3.UI
         public TouchControlUIManager(Canvas touchControlUI,
             Button interactionButton,
             Button bigMapButton,
-            Button storySelectionButton)
+            Button mainMenuButton)
         {
             _touchControlUI = Requires.IsNotNull(touchControlUI, nameof(touchControlUI));
             _interactionButton = Requires.IsNotNull(interactionButton, nameof(interactionButton));
             _bigMapButton = Requires.IsNotNull(bigMapButton, nameof(bigMapButton));
-            _storySelectionButton = Requires.IsNotNull(storySelectionButton, nameof(storySelectionButton));
+            _mainMenuButton = Requires.IsNotNull(mainMenuButton, nameof(mainMenuButton));
 
             _touchControlUI.enabled = false;
 
@@ -51,7 +51,7 @@ namespace Pal3.UI
                 _lastActiveDeviceIsGamepadOrKeyboard = false;
                 _interactionButton.onClick.AddListener(InteractionButtonClicked);
                 _bigMapButton.onClick.AddListener(BigMapButtonClicked);
-                _storySelectionButton.onClick.AddListener(StorySelectionButtonClicked);
+                _mainMenuButton.onClick.AddListener(MainMenuButtonClicked);
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -67,9 +67,9 @@ namespace Pal3.UI
             CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerInteractionRequest());
         }
 
-        private void StorySelectionButtonClicked()
+        private void MainMenuButtonClicked()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleStorySelectorRequest());
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleMainMenuRequest());
         }
 
         public void Dispose()
@@ -80,7 +80,7 @@ namespace Pal3.UI
             {
                 _interactionButton.onClick.RemoveAllListeners();
                 _bigMapButton.onClick.RemoveAllListeners();
-                _storySelectionButton.onClick.RemoveAllListeners();
+                _mainMenuButton.onClick.RemoveAllListeners();
             }
         }
 
