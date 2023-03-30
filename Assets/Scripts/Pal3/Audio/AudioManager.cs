@@ -34,6 +34,7 @@ namespace Pal3.Audio
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>,
+        ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
         private Camera _mainCamera;
@@ -57,6 +58,8 @@ namespace Pal3.Audio
 
         private CancellationTokenSource _sceneAudioCts = new ();
 
+        private AudioClip _themeMusicClip;
+
         public void Init(Camera mainCamera,
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
@@ -71,6 +74,12 @@ namespace Pal3.Audio
 
             _musicVolume = _gameSettings.MusicVolume;
             _sfxVolume = _gameSettings.SfxVolume;
+
+            // Load and play the theme music on init
+            _themeMusicClip = Requires.IsNotNull(
+                Resources.Load<AudioClip>($"Music/{GameConstants.AppName}-Theme"),
+                $"Music/{GameConstants.AppName}-Theme");
+            PlayThemeMusic();
         }
 
         private void OnEnable()
@@ -81,6 +90,14 @@ namespace Pal3.Audio
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
+        private void PlayThemeMusic()
+        {
+            _musicPlayer.clip = _themeMusicClip;
+            _musicPlayer.volume = _musicVolume;
+            _musicPlayer.loop = true;
+            _musicPlayer.Play();
         }
 
         public void Execute(SettingChangedNotification command)
@@ -143,7 +160,10 @@ namespace Pal3.Audio
                 if (audioSource.clip != null)
                 {
                     audioSource.Stop();
-                    Destroy(audioSource.clip);
+                    if (audioSource.clip.name != _themeMusicClip.name)
+                    {
+                        Destroy(audioSource.clip);
+                    }
                 }
 
                 audioSource.clip = audioClip;
@@ -490,6 +510,11 @@ namespace Pal3.Audio
                 _musicPlayer.mute = false;
                 ChangeAllSfxAudioSourceMuteSetting(false);
             }
+        }
+
+        public void Execute(GameSwitchToMainMenuCommand command)
+        {
+            PlayThemeMusic();
         }
     }
 }

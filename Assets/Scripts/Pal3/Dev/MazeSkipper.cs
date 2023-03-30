@@ -22,16 +22,11 @@ namespace Pal3.Dev
     using UnityEngine;
     using UnityEngine.UI;
 
-    public sealed class MazeSkipper : IDisposable,
-        ICommandExecutor<ScenePostLoadingNotification>,
-        ICommandExecutor<GameStateChangedNotification>
+    public sealed class MazeSkipper
     {
-        private readonly GameStateManager _gameStateManager;
         private readonly SceneManager _sceneManager;
-        private readonly CanvasGroup _mazeSkipperCanvasGroup;
-        private readonly Button _mazeEntranceButton;
-        private readonly Button _mazeExitButton;
 
+        #region Maze skipper commands
         // _0 for entrance, _1 for exit
         #if PAL3
         private readonly Dictionary<string, IList<ICommand>> _skipperCommands = new()
@@ -894,46 +889,33 @@ namespace Pal3.Dev
             }},
         };
         #endif
+        #endregion
 
-        public MazeSkipper(GameStateManager gameStateManager,
-            SceneManager sceneManager,
-            CanvasGroup mazeSkipperCanvasGroup,
-            Button mazeEntranceButton,
-            Button mazeExitButton)
+        public MazeSkipper(SceneManager sceneManager)
         {
-            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
-            _mazeSkipperCanvasGroup = Requires.IsNotNull(mazeSkipperCanvasGroup, nameof(mazeSkipperCanvasGroup));
-            _mazeEntranceButton = Requires.IsNotNull(mazeEntranceButton, nameof(mazeEntranceButton));
-            _mazeExitButton = Requires.IsNotNull(mazeExitButton, nameof(mazeExitButton));
-
-            _mazeSkipperCanvasGroup.alpha = 0f;
-            _mazeSkipperCanvasGroup.interactable = false;
-
-            _mazeEntranceButton.colors = UITheme.GetButtonColors();
-            _mazeEntranceButton.onClick
-                .AddListener(EntranceButtonClicked);
-            _mazeExitButton.colors = UITheme.GetButtonColors();
-            _mazeExitButton.onClick
-                .AddListener(ExitButtonClicked);
-
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void EntranceButtonClicked()
+        public bool IsMazeSceneAndHasSkipperCommands(ScnSceneInfo sceneInfo)
         {
-            if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
+            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(sceneInfo);
+            return _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void PortalToEntrance()
+        {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
+
             foreach (ICommand command in _skipperCommands[GetCommandHashKeyPrefix(currentScene.GetSceneInfo()) + "0"])
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(command);
             }
+
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
-        private void ExitButtonClicked()
+        public void PortalToExitOrNextStoryPoint()
         {
-            if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             // This is how exit button works:
@@ -969,57 +951,9 @@ namespace Pal3.Dev
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
-        public void Dispose()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            _mazeEntranceButton.onClick
-                .RemoveListener(EntranceButtonClicked);
-            _mazeExitButton.onClick
-                .RemoveListener(ExitButtonClicked);
-        }
-
         private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)
         {
             return $"{sceneInfo.CityName}_{sceneInfo.SceneName}_".ToLower();
-        }
-
-        public void Execute(GameStateChangedNotification command)
-        {
-            if (command.NewState != GameState.Gameplay)
-            {
-                _mazeSkipperCanvasGroup.alpha = 0f;
-                _mazeSkipperCanvasGroup.interactable = false;
-                return;
-            }
-
-            if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
-
-            ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
-            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentSceneInfo);
-
-            if (command.NewState == GameState.Gameplay &&
-                _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
-            {
-                _mazeSkipperCanvasGroup.alpha = 1f;
-                _mazeSkipperCanvasGroup.interactable = true;
-            }
-        }
-
-        public void Execute(ScenePostLoadingNotification command)
-        {
-            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(command.NewSceneInfo);
-
-            if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase)))
-            {
-                _mazeSkipperCanvasGroup.alpha = 1f;
-                _mazeSkipperCanvasGroup.interactable = true;
-            }
-            else
-            {
-                _mazeSkipperCanvasGroup.alpha = 0f;
-                _mazeSkipperCanvasGroup.interactable = false;
-            }
         }
     }
 }

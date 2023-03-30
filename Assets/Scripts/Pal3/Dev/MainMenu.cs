@@ -46,8 +46,13 @@ namespace Pal3.Dev
         private SceneManager _sceneManager;
         private SaveManager _saveManager;
         private InformationManager _informationManager;
+        private MazeSkipper _mazeSkipper;
+
         private CanvasGroup _mainMenuCanvasGroup;
+        private CanvasGroup _backgroundCanvasGroup;
         private GameObject _mainMenuButtonPrefab;
+        private GameObject _menuButtonPrefab;
+        private GameObject _titlePrefab;
         private RectTransform _contentTransform;
         private GridLayoutGroup _contentGridLayoutGroup;
         private ScrollRect _contentScrollRect;
@@ -763,16 +768,6 @@ namespace Pal3.Dev
                 FavorAdd 2 10
                 CameraFadeIn"},
             #elif PAL3A
-            {"与温慧相遇后去酒馆", @"
-                ScriptVarSetValue -32768 10500
-                SceneLoad Q01 Q01
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 96 169
-                TeamAddOrRemoveActor 0 1
-                CameraFadeIn"},
             {"唐家堡\n\n登云麓", @"
                 ScriptVarSetValue -32768 10800
                 SceneLoad Q01 Q01
@@ -836,28 +831,6 @@ namespace Pal3.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 321 102
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"打完狸猫回废屋休息", @"
-                ScriptVarSetValue -32768 41600
-                SceneLoad q04 wn
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 183 290
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 0 1
@@ -981,30 +954,6 @@ namespace Pal3.Dev
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"血濡回魂\n\n梦醒", @"
-                ScriptVarSetValue -32768 72001
-                SceneLoad m07 3
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 30 90
-                TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
                 SceneSaveGlobalObjectSwitchState m02 1 35 1
                 SceneSaveGlobalObjectTimesCount m02 1 35 0
                 SceneSaveGlobalObjectActivationState m02 1 36 False
@@ -1193,33 +1142,6 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 12 1
-                BigMapEnableRegion 13 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
-            {"蜀山\n\n回无极阁", @"
-                ScriptVarSetValue -32768 101600
-                SceneLoad Q02 HT
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 365 194
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 SceneSaveGlobalObjectSwitchState m02 1 35 1
                 SceneSaveGlobalObjectTimesCount m02 1 35 0
@@ -1479,36 +1401,6 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"里蜀山见燎日", @"
-                ScriptVarSetValue -32768 161200
-                SceneLoad Q04 N
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 191 162
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
-                SceneSaveGlobalObjectSwitchState m02 1 35 1
-                SceneSaveGlobalObjectTimesCount m02 1 35 0
-                SceneSaveGlobalObjectActivationState m02 1 36 False
-                SceneSaveGlobalObjectSwitchState m02 1 36 1
-                CameraFadeIn"},
             {"里蜀山内城\n\n厥阴蔽日", @"
                 ScriptVarSetValue -32768 170200
                 SceneLoad Q04 N
@@ -1567,7 +1459,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"花圃找王蓬絮\n\n温慧最高好感", @"
+            {"花圃\n\n温慧最高好感", @"
                 ScriptVarSetValue -32768 180600
                 SceneLoad q02 q
                 ActorActivate -1 1
@@ -1597,7 +1489,7 @@ namespace Pal3.Dev
                 SceneSaveGlobalObjectActivationState m02 1 36 False
                 SceneSaveGlobalObjectSwitchState m02 1 36 1
                 CameraFadeIn"},
-            {"花圃找王蓬絮\n\n王蓬絮最高好感", @"
+            {"花圃\n\n王蓬絮最高好感", @"
                 ScriptVarSetValue -32768 180600
                 SceneLoad q02 q
                 ActorActivate -1 1
@@ -1640,8 +1532,12 @@ namespace Pal3.Dev
             TeamManager teamManager,
             SaveManager saveManager,
             InformationManager informationManager,
+            MazeSkipper mazeSkipper,
             CanvasGroup mainMenuCanvasGroup,
+            CanvasGroup backgroundCanvasGroup,
+            GameObject titlePrefab,
             GameObject mainMenuButtonPrefab,
+            GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
             RectTransform contentTransform)
         {
@@ -1654,8 +1550,12 @@ namespace Pal3.Dev
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _saveManager = Requires.IsNotNull(saveManager, nameof(saveManager));
             _informationManager = Requires.IsNotNull(informationManager, nameof(informationManager));
+            _mazeSkipper = Requires.IsNotNull(mazeSkipper, nameof(mazeSkipper));
             _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
+            _backgroundCanvasGroup = Requires.IsNotNull(backgroundCanvasGroup, nameof(backgroundCanvasGroup));
+            _titlePrefab = Requires.IsNotNull(titlePrefab, nameof(titlePrefab));
             _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
+            _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
 
@@ -1722,38 +1622,54 @@ namespace Pal3.Dev
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             SetupMainMenuButtons();
+
             _mainMenuCanvasGroup.alpha = 1f;
             _mainMenuCanvasGroup.interactable = true;
+
+            if (_sceneManager.GetCurrentScene() == null)
+            {
+                foreach (ImageScroller imageScroller in
+                         _backgroundCanvasGroup.GetComponentsInChildren<ImageScroller>())
+                {
+                    imageScroller.enabled = true;
+                }
+                _backgroundCanvasGroup.alpha = 1f;
+            }
         }
 
         public void Hide()
         {
+            foreach (ImageScroller imageScroller in
+                     _backgroundCanvasGroup.GetComponentsInChildren<ImageScroller>())
+            {
+                imageScroller.enabled = false;
+            }
+            _backgroundCanvasGroup.alpha = 0f;
+
             _mainMenuCanvasGroup.alpha = 0f;
             _mainMenuCanvasGroup.interactable = false;
             DestroyAllMenuItems();
         }
 
-        public void SetupMainMenuButtons()
+        private void SetupMainMenuButtons()
         {
             _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(400, 100);
+            _contentGridLayoutGroup.cellSize = new Vector2(900, 75);
             _contentGridLayoutGroup.spacing = new Vector2(20, 20);
             _contentScrollRect.horizontal = false;
             _contentScrollRect.vertical = false;
 
-            var isGameRunning = _sceneManager.GetCurrentScene() != null;
-
             GameObject CreateMainMenuButton(string text, UnityAction onSelection)
             {
                 GameObject menuButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
+                menuButton.AddComponent<MainMenuButtonScript>();
 
                 var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
+                buttonTextUI.overrideColorTags = true;
                 buttonTextUI.text = text;
 
                 ButtonType buttonType = ButtonType.Normal;
-                buttonTextUI.fontStyle = FontStyles.Underline;
-
                 var button = menuButton.GetComponent<Button>();
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Vertical;
@@ -1762,6 +1678,13 @@ namespace Pal3.Dev
                 button.onClick.AddListener(onSelection);
 
                 return menuButton;
+            }
+
+            var isGameRunning = _sceneManager.GetCurrentScene() != null;
+
+            if (!isGameRunning)
+            {
+                _menuItems.Add(Instantiate(_titlePrefab, _contentTransform));
             }
 
             _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
@@ -1773,7 +1696,7 @@ namespace Pal3.Dev
 
             if (_saveManager.SaveFileExists())
             {
-                _menuItems.Add(CreateMainMenuButton("继续游戏", delegate
+                _menuItems.Add(CreateMainMenuButton("从存档继续", delegate
                 {
                     var saveFileContent = _saveManager.LoadFromSaveFile();
                     if (saveFileContent == null)
@@ -1796,8 +1719,8 @@ namespace Pal3.Dev
                     CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
                         ? new UIDisplayNoteCommand("游戏保存成功")
                         : new UIDisplayNoteCommand("游戏保存失败"));
-                    _gameStateManager.GoToState(GameState.Gameplay);
                     Hide();
+                    _gameStateManager.GoToState(GameState.Gameplay);
                 }));
 
                 // Toon materials are not available in open source build.
@@ -1816,18 +1739,43 @@ namespace Pal3.Dev
                         CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
                             (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
                         Hide();
+                        _gameStateManager.GoToState(GameState.Gameplay);
                     }));
                 }
             }
 
-            _menuItems.Add(CreateMainMenuButton("剧情测试选项", delegate
+            _menuItems.Add(CreateMainMenuButton("剧情选择", delegate
             {
                 DestroyAllMenuItems();
                 SetupStorySelectionButtons();
             }));
 
-            #if UNITY_STANDALONE && !UNITY_EDITOR
-            _menuItems.Add(CreateMainMenuButton("退出游戏", Application.Quit));
+            if (isGameRunning &&
+                _mazeSkipper.IsMazeSceneAndHasSkipperCommands(_sceneManager.GetCurrentScene().GetSceneInfo()))
+            {
+                _menuItems.Add(CreateMainMenuButton("迷宫入口", delegate
+                {
+                    _mazeSkipper.PortalToEntrance();
+                    Hide();
+                    _gameStateManager.GoToState(GameState.Gameplay);
+                }));
+                _menuItems.Add(CreateMainMenuButton("迷宫出口或剧情点", delegate
+                {
+                    _mazeSkipper.PortalToExitOrNextStoryPoint();
+                    Hide();
+                    _gameStateManager.GoToState(GameState.Gameplay);
+                }));
+            }
+
+            #if UNITY_STANDALONE
+            _menuItems.Add(CreateMainMenuButton("退出游戏", delegate
+            {
+                #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                Application.Quit();
+                #endif
+            }));
             #endif
 
             if (isGameRunning)
@@ -1839,7 +1787,7 @@ namespace Pal3.Dev
                 }));
             }
 
-            var firstButton = _menuItems.First().GetComponent<Button>();
+            var firstButton = _menuItems.First(_ => _.GetComponent<Button>() != null).GetComponent<Button>();
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
@@ -1848,6 +1796,10 @@ namespace Pal3.Dev
             {
                 _eventSystem.firstSelectedGameObject = firstButton.gameObject;
                 firstButton.Select();
+                if (firstButton.GetComponentInChildren<TextMeshProUGUI>() is {} buttonText)
+                {
+                    buttonText.fontStyle = FontStyles.Underline;
+                }
             }
             else
             {
@@ -1859,14 +1811,14 @@ namespace Pal3.Dev
         {
             _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(40, 500);
+            _contentGridLayoutGroup.cellSize = new Vector2(45, 500);
             _contentGridLayoutGroup.spacing = new Vector2(10, 30);
             _contentScrollRect.horizontal = true;
             _contentScrollRect.vertical = false;
 
             GameObject CreateStorySelectionButton(string text, UnityAction onSelection)
             {
-                GameObject selectionButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
+                GameObject selectionButton = Instantiate(_menuButtonPrefab, _contentTransform);
 
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = text;
@@ -1917,7 +1869,7 @@ namespace Pal3.Dev
         {
             foreach (GameObject item in _menuItems)
             {
-                item.GetComponent<Button>().onClick.RemoveAllListeners();
+                item.GetComponent<Button>()?.onClick.RemoveAllListeners();
                 Destroy(item);
             }
             _menuItems.Clear();
@@ -1996,7 +1948,8 @@ namespace Pal3.Dev
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {
-            if (!_mainMenuCanvasGroup.interactable) Show();
+            DestroyAllMenuItems();
+            Show();
         }
 
         public void Execute(ScenePostLoadingNotification command)

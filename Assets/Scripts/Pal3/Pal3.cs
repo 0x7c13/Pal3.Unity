@@ -77,9 +77,6 @@ namespace Pal3
 
         // Debug
         [SerializeField] private TextMeshProUGUI debugInfo;
-        [SerializeField] private CanvasGroup mazeSkipperCanvasGroup;
-        [SerializeField] private Button mazeEntranceButton;
-        [SerializeField] private Button mazeExitButton;
 
         // BigMap
         [SerializeField] private CanvasGroup bigMapCanvasGroup;
@@ -87,9 +84,12 @@ namespace Pal3
 
         // Main menu
         [SerializeField] private CanvasGroup mainMenuCanvasGroup;
+        [SerializeField] private GameObject titlePrefab;
         [SerializeField] private GameObject mainMenuButtonPrefab;
+        [SerializeField] private GameObject menuButtonPrefab;
         [SerializeField] private RectTransform contentTransform;
         [SerializeField] private ScrollRect contentScrollRect;
+        [SerializeField] private CanvasGroup backgroundCanvasGroup;
 
         // Touch control
         [SerializeField] private Canvas touchControlUI;
@@ -307,11 +307,7 @@ namespace Pal3
                 _postProcessManager);
             ServiceLocator.Instance.Register(_saveManager);
 
-            _mazeSkipper = new MazeSkipper(_gameStateManager,
-                _sceneManager,
-                mazeSkipperCanvasGroup,
-                mazeEntranceButton,
-                mazeExitButton);
+            _mazeSkipper = new MazeSkipper(_sceneManager);
             ServiceLocator.Instance.Register(_mazeSkipper);
 
             _mainMenu = gameObject.AddComponent<MainMenu>();
@@ -325,8 +321,12 @@ namespace Pal3
                 _teamManager,
                 _saveManager,
                 _informationManager,
+                _mazeSkipper,
                 mainMenuCanvasGroup,
+                backgroundCanvasGroup,
+                titlePrefab,
                 mainMenuButtonPrefab,
+                menuButtonPrefab,
                 contentScrollRect,
                 contentTransform);
             ServiceLocator.Instance.Register(_mainMenu);
@@ -340,7 +340,10 @@ namespace Pal3
             DebugLogConsole.AddCommand<float>("fov", "Set camera FOV.", SetCameraFov);
 
             DisableInGameDebugConsoleButtonNavigation();
+        }
 
+        private void Start()
+        {
             _mainMenu.Show();
         }
 
@@ -360,7 +363,6 @@ namespace Pal3
             _sceneManager.Dispose();
             _touchControlUIManager.Dispose();
             _favorManager.Dispose();
-            _mazeSkipper.Dispose();
 
             #if PAL3
             _appraisalsMiniGame.Dispose();
