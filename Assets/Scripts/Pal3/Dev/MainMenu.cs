@@ -1780,7 +1780,7 @@ namespace Pal3.Dev
 
             if (isGameRunning)
             {
-                _menuItems.Add(CreateMainMenuButton("关闭菜单", delegate
+                _menuItems.Add(CreateMainMenuButton("返回游戏", delegate
                 {
                     Hide();
                     _gameStateManager.GoToState(GameState.Gameplay);
