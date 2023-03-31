@@ -9,12 +9,14 @@ namespace Pal3.UI
     using UnityEngine.UI;
 
     [RequireComponent(typeof(RectTransform))]
-    public class RoundedFrostedImage : MonoBehaviour
+    public class RoundedFrostedGlassImage : MonoBehaviour
     {
         private static readonly int BlurAmountPropertyId = Shader.PropertyToID("_BlurAmount");
         private static readonly int WidthHeightRadiusPropertyId = Shader.PropertyToID("_WidthHeightRadius");
         private static readonly int AdditiveColorPropertyId = Shader.PropertyToID("_AdditiveColor");
         private static readonly int MultiplyColorPropertyId = Shader.PropertyToID("_MultiplyColor");
+
+        private static Shader _shader;
 
         [SerializeField] public float blurAmount = 1;
         [SerializeField] public float cornerRadius;
@@ -27,8 +29,14 @@ namespace Pal3.UI
 
         private void OnValidate()
         {
-            Validate();
-            Refresh();
+            Init();
+            UpdateLayout();
+        }
+
+        private void OnEnable()
+        {
+            Init();
+            UpdateLayout();
         }
 
         private void OnDestroy()
@@ -38,25 +46,24 @@ namespace Pal3.UI
             _material = null;
         }
 
-        private void OnEnable()
-        {
-            Validate();
-            Refresh();
-        }
-
         private void OnRectTransformDimensionsChange()
         {
             if (enabled && _material != null)
             {
-                Refresh();
+                UpdateLayout();
             }
         }
 
-        private void Validate()
+        private void Init()
         {
+            if (_shader == null)
+            {
+                _shader = Shader.Find("Pal3/RoundedFrostedGlass");
+            }
+
             if (_material == null)
             {
-                _material = new Material(Shader.Find("Pal3/RoundedFrostedGlass"));
+                _material = new Material(_shader);
             }
 
             if (image == null)
@@ -70,10 +77,9 @@ namespace Pal3.UI
             }
         }
 
-        private void Refresh()
+        private void UpdateLayout()
         {
-            var rect = ((RectTransform)transform).rect;
-
+            Rect rect = ((RectTransform)transform).rect;
             _material.SetFloat(BlurAmountPropertyId, blurAmount);
             _material.SetColor(AdditiveColorPropertyId, additiveTintColor);
             _material.SetColor(MultiplyColorPropertyId, multiplyTintColor);

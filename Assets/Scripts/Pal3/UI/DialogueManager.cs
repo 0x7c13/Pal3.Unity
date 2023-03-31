@@ -13,6 +13,7 @@ namespace Pal3.UI
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Animation;
     using Core.Utils;
     using Data;
     using Input;
@@ -34,7 +35,10 @@ namespace Pal3.UI
         ICommandExecutor<DialogueRenderTextWithTimeLimitCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME = 4f;
+        private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS = 4f;
+        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.2f;
+        private const float DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET = -30f;
+
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
 
         private GameResourceProvider _resourceProvider;
@@ -44,7 +48,7 @@ namespace Pal3.UI
         private PlayerInputActions _inputActions;
 
         private EventSystem _eventSystem;
-        private Canvas _dialogueCanvas;
+        private CanvasGroup _dialogueCanvasGroup;
         private Canvas _dialogueSelectionButtonsCanvas;
         private GameObject _dialogueSelectionButtonPrefab;
         private Image _dialogueBackgroundImage;
@@ -72,7 +76,7 @@ namespace Pal3.UI
             SceneManager sceneManager,
             InputManager inputManager,
             EventSystem eventSystem,
-            Canvas dialogueCanvas,
+            CanvasGroup dialogueCanvasGroup,
             Image dialogueBackgroundImage,
             Image avatarImageLeft,
             Image avatarImageRight,
@@ -88,7 +92,7 @@ namespace Pal3.UI
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
 
-            _dialogueCanvas = Requires.IsNotNull(dialogueCanvas, nameof(dialogueCanvas));
+            _dialogueCanvasGroup = Requires.IsNotNull(dialogueCanvasGroup, nameof(dialogueCanvasGroup));
             _dialogueBackgroundImage = Requires.IsNotNull(dialogueBackgroundImage, nameof(dialogueBackgroundImage));
 
             _avatarImageLeft = Requires.IsNotNull(avatarImageLeft, nameof(avatarImageLeft));
@@ -103,6 +107,7 @@ namespace Pal3.UI
 
             _avatarImageLeft.preserveAspect = true;
             _avatarImageRight.preserveAspect = true;
+
             ResetUI();
 
             _inputActions = inputManager.GetPlayerInputActions();
@@ -127,7 +132,7 @@ namespace Pal3.UI
 
         public bool PlayerReactedInTimeForLimitTimeDialogue()
         {
-            return _totalTimeUsedBeforeSkippingTheLastDialogue < LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME;
+            return _totalTimeUsedBeforeSkippingTheLastDialogue < LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS;
         }
 
         IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
@@ -266,8 +271,12 @@ namespace Pal3.UI
             var timer = new Stopwatch();
             timer.Start();
             _dialogueBackgroundImage.enabled = true;
-            _dialogueCanvas.enabled = true;
+            _dialogueCanvasGroup.alpha = 0f;
+            _dialogueCanvasGroup.enabled = true;
             _isSkipDialogueRequested = false;
+
+            yield return StartDialogueAnimationAsync(true);
+            _isSkipDialogueRequested = false; // Ignore skip request during dialogue rendering animation
 
             foreach (var dialogue in GetSubDialoguesAsync(text))
             {
@@ -292,14 +301,43 @@ namespace Pal3.UI
                 _totalTimeUsedBeforeSkippingTheLastDialogue = timer.Elapsed.TotalSeconds;
             }
 
+            yield return StartDialogueAnimationAsync(false);
+
             ResetUI();
             waitUntilCanceled.CancelWait();
             _isDialoguePresenting = false;
         }
 
+        private IEnumerator StartDialogueAnimationAsync(bool showDialogue)
+        {
+            const float yOffset = DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET;
+            Transform dialogueCanvasGroupTransform = _dialogueCanvasGroup.transform;
+            Vector3 finalPosition = dialogueCanvasGroupTransform.position;
+            Vector3 startPosition = finalPosition + new Vector3(0f, yOffset, 0);
+
+            float startValue = showDialogue ? 0f : 1f;
+            float endValue = showDialogue ? 1f : 0f;
+
+            if (showDialogue)
+            {
+                dialogueCanvasGroupTransform.position = startPosition;
+            }
+
+            yield return AnimationHelper.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
+                AnimationCurveType.Linear, value =>
+                {
+                    _dialogueCanvasGroup.transform.position = finalPosition + new Vector3(0f, yOffset * (1 - value), 0);
+                    _dialogueCanvasGroup.alpha = value;
+                });
+
+            _dialogueCanvasGroup.transform.position = finalPosition; // Always set to final position
+            _dialogueCanvasGroup.alpha = showDialogue ? 1f : 0f;
+        }
+
         private void ResetUI()
         {
-            _dialogueCanvas.enabled = false;
+            _dialogueCanvasGroup.alpha = 0f;
+            _dialogueCanvasGroup.enabled = false;
 
             _dialogueTextLeft.text = string.Empty;
             _dialogueTextRight.text = string.Empty;
@@ -396,8 +434,8 @@ namespace Pal3.UI
             var skipDialogueWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
-            _dialogueRenderQueue.Enqueue(
-                RenderDialogueAndWaitAsync(GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
+                GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 
@@ -406,7 +444,8 @@ namespace Pal3.UI
             var skipDialogueWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
-            _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
+            _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
+                GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
             _lastAvatarCommand = null;
         }
 
@@ -520,7 +559,8 @@ namespace Pal3.UI
                 _eventSystem.firstSelectedGameObject = null;
             }
 
-            _dialogueCanvas.enabled = true;
+            _dialogueCanvasGroup.alpha = 1f;
+            _dialogueCanvasGroup.enabled = true;
             _dialogueSelectionButtonsCanvas.enabled = true;
         }
 
@@ -533,6 +573,7 @@ namespace Pal3.UI
         public void Execute(ResetGameStateCommand command)
         {
             _lastAvatarCommand = null;
+            _totalTimeUsedBeforeSkippingTheLastDialogue = 0f;
             _dialogueRenderQueue.Clear();
             ResetUI();
         }

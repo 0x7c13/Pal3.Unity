@@ -62,7 +62,7 @@ namespace Pal3
         [SerializeField] private TextMeshProUGUI noteText;
 
         // Dialogue
-        [SerializeField] private Canvas dialogueCanvas;
+        [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private Image dialogueBackgroundImage;
         [SerializeField] private Image dialogueAvatarImageLeft;
         [SerializeField] private Image dialogueAvatarImageRight;
@@ -255,7 +255,7 @@ namespace Pal3
                 _sceneManager,
                 _inputManager,
                 eventSystem,
-                dialogueCanvas,
+                dialogueCanvasGroup,
                 dialogueBackgroundImage,
                 dialogueAvatarImageLeft,
                 dialogueAvatarImageRight,
