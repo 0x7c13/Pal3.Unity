@@ -183,7 +183,6 @@ namespace Pal3.Effect.PostProcessing
         // shader to malfunction. This is a workaround to disable and re-enable SSAO to fix the issue.
         private IEnumerator ReloadAmbientOcclusionSetting()
         {
-            Debug.LogError("xxx");
             if (_gameSettings.IsAmbientOcclusionEnabled)
             {
                 yield return null;
