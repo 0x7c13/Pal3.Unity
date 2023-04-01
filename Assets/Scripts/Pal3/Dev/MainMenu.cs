@@ -2015,6 +2015,7 @@ namespace Pal3.Dev
 
             _menuItems.Add(CreateStorySelectionButton("返回", delegate
             {
+                _contentTransform.anchoredPosition = Vector2.zero;
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
             }));
