@@ -105,6 +105,7 @@ namespace Pal3
                     // since it's possible that user changed the game data folder path
                     // during the file system initialization
                     gameSettings.GameDataFolderPath = gameDataFolderPath;
+                    gameSettings.SaveSettings();
 
                     break; // Stop searching when file system is initialized successfully
                 }
