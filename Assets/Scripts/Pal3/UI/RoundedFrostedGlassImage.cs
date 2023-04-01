@@ -5,6 +5,7 @@
 
 namespace Pal3.UI
 {
+    using System;
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -39,6 +40,12 @@ namespace Pal3.UI
             UpdateLayout();
         }
 
+        private void Start()
+        {
+            Init();
+            UpdateLayout();
+        }
+
         private void OnDestroy()
         {
             Destroy(_material);
@@ -59,6 +66,11 @@ namespace Pal3.UI
             if (_shader == null)
             {
                 _shader = Shader.Find("Pal3/RoundedFrostedGlass");
+                if (_shader == null)
+                {
+                    Debug.LogError("Shader not found: Pal3/RoundedFrostedGlass");
+                    return;
+                }
             }
 
             if (_material == null)
@@ -79,6 +91,8 @@ namespace Pal3.UI
 
         private void UpdateLayout()
         {
+            if (_material == null) return;
+
             Rect rect = ((RectTransform)transform).rect;
             _material.SetFloat(BlurAmountPropertyId, blurAmount);
             _material.SetColor(AdditiveColorPropertyId, additiveTintColor);

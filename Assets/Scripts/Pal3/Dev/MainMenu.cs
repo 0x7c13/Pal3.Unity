@@ -34,7 +34,8 @@ namespace Pal3.Dev
     public sealed class MainMenu : MonoBehaviour,
         ICommandExecutor<ToggleMainMenuRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
-        ICommandExecutor<ScenePostLoadingNotification>
+        ICommandExecutor<ScenePostLoadingNotification>,
+        ICommandExecutor<GameStateChangedNotification>
     {
         private GameSettings _gameSettings;
         private InputManager _inputManager;
@@ -1684,14 +1685,15 @@ namespace Pal3.Dev
             _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                StartNewGame();
                 Hide();
+                StartNewGame();
             }));
 
             if (_saveManager.SaveFileExists())
             {
                 _menuItems.Add(CreateMainMenuButton("读取存档", delegate
                 {
+                    Hide();
                     var saveFileContent = _saveManager.LoadFromSaveFile();
                     if (saveFileContent == null)
                     {
@@ -1702,7 +1704,6 @@ namespace Pal3.Dev
                     {
                         ExecuteCommandsFromSaveFile(saveFileContent);
                     }
-                    Hide();
                 }));
             }
 
@@ -1838,8 +1839,6 @@ namespace Pal3.Dev
                         var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
                         var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
                         ExecuteCommandsFromSaveFile(saveFileContent);
-                        // Since we are not hiding the menu, we need to keep the game state as Cutscene
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
                     }
 
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
@@ -2024,9 +2023,9 @@ namespace Pal3.Dev
             {
                 _menuItems.Add(CreateStorySelectionButton(story.Key, delegate
                 {
+                    Hide();
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                     ExecuteCommands(story.Value);
-                    Hide();
                 }));
             }
 
@@ -2173,6 +2172,18 @@ namespace Pal3.Dev
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
+            }
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            // If menu is still active, go to cutscene state
+            // When turn on/off real time lighting and shadow, the game will reload the scene
+            // and run scene script again, so we need to check if the menu is still active
+            // and set the game state to cutscene
+            if (_mainMenuCanvasGroup.interactable)
+            {
+                _gameStateManager.GoToState(GameState.Cutscene);
             }
         }
     }
