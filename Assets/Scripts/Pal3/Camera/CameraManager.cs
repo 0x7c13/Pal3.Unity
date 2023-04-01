@@ -761,6 +761,7 @@ namespace Pal3.Camera
 
         public void Execute(ResetGameStateCommand command)
         {
+            _curtainImage.color = Color.black;
             _currentAppliedDefaultTransformOption = 0;
             _initTransformOptionOnSceneLoad = null;
             _initRotationOnSceneLoad = null;

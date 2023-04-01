@@ -87,6 +87,7 @@ namespace Pal3
         [SerializeField] private GameObject titlePrefab;
         [SerializeField] private GameObject mainMenuButtonPrefab;
         [SerializeField] private GameObject menuButtonPrefab;
+        [SerializeField] private RectTransform blurPanelTransform;
         [SerializeField] private RectTransform contentTransform;
         [SerializeField] private ScrollRect contentScrollRect;
         [SerializeField] private CanvasGroup backgroundCanvasGroup;
@@ -328,6 +329,7 @@ namespace Pal3
                 mainMenuButtonPrefab,
                 menuButtonPrefab,
                 contentScrollRect,
+                blurPanelTransform,
                 contentTransform);
             ServiceLocator.Instance.Register(_mainMenu);
 

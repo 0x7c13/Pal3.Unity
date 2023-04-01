@@ -1119,7 +1119,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u6C38\u5B89\u5F53"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
   m_sharedMaterial: {fileID: 2847917559404452115, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
@@ -1550,10 +1550,10 @@ RectTransform:
   m_Father: {fileID: 5034920729594334697}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 850, y: -240}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &152308537078124225
 CanvasRenderer:
@@ -1606,7 +1606,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blurAmount: 5
-  cornerRadius: 80
+  cornerRadius: 65
   additiveTintColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 1}
   multiplyTintColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   image: {fileID: 6514349001384511054}
@@ -1933,7 +1933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 5
+  blurAmount: 4
   cornerRadius: 35
   additiveTintColor: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
   multiplyTintColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
@@ -3857,7 +3857,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1001
   m_TargetDisplay: 0
 --- !u!114 &9134265810590542589
 MonoBehaviour:
@@ -4321,8 +4321,9 @@ MonoBehaviour:
   bigMapRegionButtonPrefab: {fileID: 799485479191424804, guid: 6c6f55d45332bf34096a5ca9a5567681, type: 3}
   mainMenuCanvasGroup: {fileID: 1901874775859308762}
   titlePrefab: {fileID: 2557184575522423845, guid: c079bb67890887a4d94631aef5560d32, type: 3}
-  mainMenuButtonPrefab: {fileID: 799485479191424804, guid: 9aca55e571f11e44c8c168aaaa7e1be6, type: 3}
+  mainMenuButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
   menuButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
+  blurPanelTransform: {fileID: 4335801449381553810}
   contentTransform: {fileID: 3491202665095195611}
   contentScrollRect: {fileID: 8374998735291348270}
   backgroundCanvasGroup: {fileID: 7808345524303526651}
@@ -4636,7 +4637,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled

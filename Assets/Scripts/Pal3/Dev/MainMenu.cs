@@ -53,6 +53,7 @@ namespace Pal3.Dev
         private GameObject _mainMenuButtonPrefab;
         private GameObject _menuButtonPrefab;
         private GameObject _titlePrefab;
+        private RectTransform _blurPanelTransform;
         private RectTransform _contentTransform;
         private GridLayoutGroup _contentGridLayoutGroup;
         private ScrollRect _contentScrollRect;
@@ -1539,6 +1540,7 @@ namespace Pal3.Dev
             GameObject mainMenuButtonPrefab,
             GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
+            RectTransform blurPanelTransform,
             RectTransform contentTransform)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
@@ -1557,6 +1559,7 @@ namespace Pal3.Dev
             _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
             _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
+            _blurPanelTransform = Requires.IsNotNull(blurPanelTransform, nameof(blurPanelTransform));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
 
             _contentGridLayoutGroup = Requires.IsNotNull(
@@ -1655,7 +1658,7 @@ namespace Pal3.Dev
         {
             _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(900, 75);
+            _contentGridLayoutGroup.cellSize = new Vector2(500, 75);
             _contentGridLayoutGroup.spacing = new Vector2(20, 20);
             _contentScrollRect.horizontal = false;
             _contentScrollRect.vertical = false;
@@ -1663,7 +1666,6 @@ namespace Pal3.Dev
             GameObject CreateMainMenuButton(string text, UnityAction onSelection)
             {
                 GameObject menuButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
-                menuButton.AddComponent<MainMenuButtonScript>();
 
                 var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.overrideColorTags = true;
@@ -1682,10 +1684,10 @@ namespace Pal3.Dev
 
             var isGameRunning = _sceneManager.GetCurrentScene() != null;
 
-            if (!isGameRunning)
-            {
-                _menuItems.Add(Instantiate(_titlePrefab, _contentTransform));
-            }
+            // if (!isGameRunning)
+            // {
+            //     _menuItems.Add(Instantiate(_titlePrefab, _contentTransform));
+            // }
 
             _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
             {
@@ -1696,7 +1698,7 @@ namespace Pal3.Dev
 
             if (_saveManager.SaveFileExists())
             {
-                _menuItems.Add(CreateMainMenuButton("从存档继续", delegate
+                _menuItems.Add(CreateMainMenuButton("读取存档", delegate
                 {
                     var saveFileContent = _saveManager.LoadFromSaveFile();
                     if (saveFileContent == null)
@@ -1722,26 +1724,6 @@ namespace Pal3.Dev
                     Hide();
                     _gameStateManager.GoToState(GameState.Gameplay);
                 }));
-
-                // Toon materials are not available in open source build.
-                // so lighting and shadow will not work, thus we remove the option.
-                if (!_gameSettings.IsOpenSourceVersion)
-                {
-                    var buttonText = _gameSettings.IsRealtimeLightingAndShadowsEnabled ? "关闭实时光影" : "开启实时光影";
-
-                    _menuItems.Add(CreateMainMenuButton(buttonText, delegate
-                    {
-                        _gameSettings.IsRealtimeLightingAndShadowsEnabled =
-                            !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
-                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
-                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
-                        ExecuteCommandsFromSaveFile(saveFileContent);
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
-                            (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                        Hide();
-                        _gameStateManager.GoToState(GameState.Gameplay);
-                    }));
-                }
             }
 
             _menuItems.Add(CreateMainMenuButton("剧情选择", delegate
@@ -1767,6 +1749,12 @@ namespace Pal3.Dev
                 }));
             }
 
+            _menuItems.Add(CreateMainMenuButton("游戏设置", delegate
+            {
+                DestroyAllMenuItems();
+                SetupSettingButtons();
+            }));
+
             #if UNITY_STANDALONE
             _menuItems.Add(CreateMainMenuButton("退出游戏", delegate
             {
@@ -1787,24 +1775,200 @@ namespace Pal3.Dev
                 }));
             }
 
-            var firstButton = _menuItems.First(_ => _.GetComponent<Button>() != null).GetComponent<Button>();
+            SelectFirstButtonForEventSystem();
 
-            InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
-            if (lastActiveInputDevice == Keyboard.current ||
-                lastActiveInputDevice == Gamepad.current ||
-                lastActiveInputDevice == DualShockGamepad.current)
+            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+                _contentGridLayoutGroup.cellSize.x + 100f,
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count + 100f);
+        }
+
+        private void SetupSettingButtons()
+        {
+            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            _contentGridLayoutGroup.constraintCount = 1;
+            _contentGridLayoutGroup.cellSize = new Vector2(500, 75);
+            _contentGridLayoutGroup.spacing = new Vector2(20, 20);
+            _contentScrollRect.horizontal = false;
+            _contentScrollRect.vertical = false;
+
+            GameObject CreateSettingButton(string text, UnityAction onSelection)
             {
-                _eventSystem.firstSelectedGameObject = firstButton.gameObject;
-                firstButton.Select();
-                if (firstButton.GetComponentInChildren<TextMeshProUGUI>() is {} buttonText)
+                GameObject menuButton = Instantiate(_menuButtonPrefab, _contentTransform);
+
+                var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
+                buttonTextUI.overrideColorTags = true;
+                buttonTextUI.text = text;
+
+                ButtonType buttonType = ButtonType.Normal;
+                var button = menuButton.GetComponent<Button>();
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.Vertical;
+                button.navigation = buttonNavigation;
+                button.colors = UITheme.GetButtonColors(buttonType);
+                button.onClick.AddListener(onSelection);
+
+                return menuButton;
+            }
+
+            var isGameRunning = _sceneManager.GetCurrentScene() != null;
+
+            const string lightingEnabledText = "实时光影：已开启";
+            const string lightingDisabledText = "实时光影：已关闭";
+            const string ssaoEnabledText = "环境光遮蔽(SSAO)：已开启";
+            const string ssaoDisabledText = "环境光遮蔽(SSAO)：已关闭";
+
+            // Toon materials are not available in open source build.
+            // so lighting and shadow will not work, thus we remove the option.
+            if (!_gameSettings.IsOpenSourceVersion)
+            {
+                string lightAndShadowButtonText = _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
+                    lightingEnabledText :
+                    lightingDisabledText;
+                _menuItems.Add(CreateSettingButton(lightAndShadowButtonText, delegate
                 {
-                    buttonText.fontStyle = FontStyles.Underline;
-                }
+                    _gameSettings.IsRealtimeLightingAndShadowsEnabled =
+                        !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
+
+                    if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+                    {
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: lightingDisabledText})!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = lightingEnabledText;
+                    }
+                    else
+                    {
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: lightingEnabledText})!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = lightingDisabledText;
+                    }
+
+                    // Should turn off SSAO if realtime lighting and shadows is disabled
+                    if (!_gameSettings.IsRealtimeLightingAndShadowsEnabled && _gameSettings.IsAmbientOcclusionEnabled)
+                    {
+                        _gameSettings.IsAmbientOcclusionEnabled = false;
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoEnabledText})!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoDisabledText;
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已关闭"));
+                    }
+
+                    if (isGameRunning) // reload scene to apply changes
+                    {
+                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
+                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+                        ExecuteCommandsFromSaveFile(saveFileContent);
+                    }
+
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
+                        (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                }));
+
+                #if !UNITY_ANDROID
+                string ssaoButtonText = _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
+                _menuItems.Add(CreateSettingButton(ssaoButtonText, delegate
+                {
+                    if (!_gameSettings.IsAmbientOcclusionEnabled && !_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("请先开启实时光影，再开启环境光遮蔽"));
+                        return;
+                    }
+
+                    _gameSettings.IsAmbientOcclusionEnabled =
+                        !_gameSettings.IsAmbientOcclusionEnabled;
+
+                    if (_gameSettings.IsAmbientOcclusionEnabled)
+                    {
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoDisabledText})!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoEnabledText;
+                    }
+                    else
+                    {
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoEnabledText})!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoDisabledText;
+                    }
+
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已" +
+                        (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                }));
+                #endif
             }
-            else
+
+            #if UNITY_STANDALONE
+            const string vsyncEnabledText = "垂直同步：已开启";
+            const string vsyncDisabledText = "垂直同步：已关闭";
+            string vsyncButtonText = _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
+            _menuItems.Add(CreateSettingButton(vsyncButtonText, delegate
             {
-                _eventSystem.firstSelectedGameObject = null;
-            }
+                _gameSettings.VSyncCount = _gameSettings.VSyncCount == 0 ? 1 : 0;
+
+                if (_gameSettings.VSyncCount == 0)
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: vsyncEnabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = vsyncDisabledText;
+                }
+                else
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: vsyncDisabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = vsyncEnabledText;
+                }
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("垂直同步已" +
+                    (_gameSettings.VSyncCount == 0 ? "关闭" : "开启") + ""));
+            }));
+            #endif
+
+            const string musicEnabledText = "音乐：已开启";
+            const string musicDisabledText = "音乐：已关闭";
+            string musicButtonText = _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
+            _menuItems.Add(CreateSettingButton(musicButtonText, delegate
+            {
+                _gameSettings.MusicVolume = _gameSettings.MusicVolume == 0f ? 0.5f : 0f;
+
+                if (_gameSettings.MusicVolume == 0f)
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: musicEnabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = musicDisabledText;
+                }
+                else
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: musicDisabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = musicEnabledText;
+                }
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音乐已" +
+                    (_gameSettings.MusicVolume == 0f ? "关闭" : "开启") + ""));
+            }));
+
+            const string sfxEnabledText = "音效：已开启";
+            const string sfxDisabledText = "音效：已关闭";
+            string sfxButtonText = _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
+            _menuItems.Add(CreateSettingButton(sfxButtonText, delegate
+            {
+                _gameSettings.SfxVolume = _gameSettings.SfxVolume == 0f ? 0.5f : 0f;
+
+                if (_gameSettings.SfxVolume == 0f)
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: sfxEnabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = sfxDisabledText;
+                }
+                else
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: sfxDisabledText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = sfxEnabledText;
+                }
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音效已" +
+                    (_gameSettings.SfxVolume == 0f ? "关闭" : "开启") + ""));
+            }));
+
+            _menuItems.Add(CreateSettingButton("返回", delegate
+            {
+                DestroyAllMenuItems();
+                SetupMainMenuButtons();
+            }));
+
+            SelectFirstButtonForEventSystem();
+
+            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+                _contentGridLayoutGroup.cellSize.x + 100f,
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count + 100f);
         }
 
         private void SetupStorySelectionButtons()
@@ -1849,13 +2013,29 @@ namespace Pal3.Dev
                 }));
             }
 
-            var firstButton = _menuItems.First().GetComponent<Button>();
+            SelectFirstButtonForEventSystem();
 
+            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+                (_contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.spacing.x) * _menuItems.Count + 100f,
+                _contentGridLayoutGroup.cellSize.y + 100f);
+        }
+
+        private void UpdateRectTransformWidthAndHeight(RectTransform rectTransform, float width, float height)
+        {
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+            rectTransform.ForceUpdateRectTransforms();
+        }
+
+        private void SelectFirstButtonForEventSystem()
+        {
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
+
             if (lastActiveInputDevice == Keyboard.current ||
                 lastActiveInputDevice == Gamepad.current ||
                 lastActiveInputDevice == DualShockGamepad.current)
             {
+                Button firstButton = _menuItems.First(_ => _.GetComponent<Button>() != null).GetComponent<Button>();
                 _eventSystem.firstSelectedGameObject = firstButton.gameObject;
                 firstButton.Select();
             }
@@ -1923,7 +2103,8 @@ namespace Pal3.Dev
                     arguments[0] + "Command" == nameof(ActorSetWorldPositionCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetYPositionCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetFacingCommand) ||
-                    arguments[0] + "Command" == nameof(ActorSetScriptCommand))
+                    arguments[0] + "Command" == nameof(ActorSetScriptCommand) ||
+                    arguments[0] + "Command" == nameof(CameraFadeInCommand))
                 {
                     _deferredExecutionCommands.Add(command);
                 }

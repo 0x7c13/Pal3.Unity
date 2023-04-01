@@ -36,7 +36,7 @@ namespace Pal3.UI
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS = 4f;
-        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.2f;
+        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.1f;
         private const float DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET = -30f;
 
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
