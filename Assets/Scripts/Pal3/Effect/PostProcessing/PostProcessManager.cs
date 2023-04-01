@@ -6,6 +6,7 @@
 namespace Pal3.Effect.PostProcessing
 {
     using System;
+    using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -59,6 +60,21 @@ namespace Pal3.Effect.PostProcessing
 
             TogglePostProcessLayerWhenNeeded();
         }
+
+        #if UNITY_IOS
+        // On iOS, the SSAO is causing the RoundedFrostedGlass shader to malfunction.
+        // This is a workaround to disable and re-enable SSAO to fix the issue.
+        private IEnumerator Start()
+        {
+            if (_gameSettings.IsAmbientOcclusionEnabled)
+            {
+                yield return null;
+                _gameSettings.IsAmbientOcclusionEnabled = false;
+                yield return null;
+                _gameSettings.IsAmbientOcclusionEnabled = true;
+            }
+        }
+        #endif
 
         private void ToggleBloomBasedOnSetting()
         {

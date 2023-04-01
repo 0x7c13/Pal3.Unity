@@ -104,7 +104,7 @@ Shader "Pal3/RoundedFrostedGlass"
                 float4 _MultiplyColor;
                 float4 _WidthHeightRadius;
 
-                half4 frag( v2f i ) : COLOR
+                half4 frag(v2f i) : COLOR
                 {
                     const float alpha = CalcAlpha(i.uvmain, _WidthHeightRadius.xy, _WidthHeightRadius.z);
                     half4 cutoffColor = mixAlpha(tex2D(_MainTex, i.uvmain), _AdditiveColor, alpha);
