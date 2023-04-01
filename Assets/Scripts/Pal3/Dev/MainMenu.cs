@@ -1629,6 +1629,7 @@ namespace Pal3.Dev
 
         public void Hide()
         {
+            _gameSettings.SaveSettings();
             foreach (ImageScroller imageScroller in
                      _backgroundCanvasGroup.GetComponentsInChildren<ImageScroller>())
             {
@@ -1971,6 +1972,7 @@ namespace Pal3.Dev
 
             _menuItems.Add(CreateSettingButton("返回", delegate
             {
+                _gameSettings.SaveSettings();
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
             }));
