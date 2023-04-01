@@ -152,16 +152,6 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 CameraFadeIn"},
-            {"渝州\n\n从后门返回家中", @"
-                ScriptVarSetValue -32768 30500
-                SceneLoad q01 b
-                ActorActivate -1 1
-                ActorEnablePlayerControl -1
-                PlayerEnableInput 1
-                ActorSetNavLayer -1 0
-                ActorSetTilePosition -1 204 78
-                TeamAddOrRemoveActor 0 1
-                CameraFadeIn"},
             {"渝州\n\n第一次见龙葵前", @"
                 ScriptVarSetValue -32768 30800
                 SceneLoad q01 ba
@@ -1681,10 +1671,14 @@ namespace Pal3.Dev
 
             var isGameRunning = _sceneManager.GetCurrentScene() != null;
 
-            // if (!isGameRunning)
-            // {
-            //     _menuItems.Add(Instantiate(_titlePrefab, _contentTransform));
-            // }
+            if (isGameRunning)
+            {
+                _menuItems.Add(CreateMainMenuButton("返回游戏", delegate
+                {
+                    Hide();
+                    _gameStateManager.GoToState(GameState.Gameplay);
+                }));
+            }
 
             _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
             {
@@ -1763,20 +1757,12 @@ namespace Pal3.Dev
             }));
             #endif
 
-            if (isGameRunning)
-            {
-                _menuItems.Add(CreateMainMenuButton("返回游戏", delegate
-                {
-                    Hide();
-                    _gameStateManager.GoToState(GameState.Gameplay);
-                }));
-            }
-
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_blurPanelTransform,
                 _contentGridLayoutGroup.cellSize.x + 100f,
-                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count + 100f);
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
+                - _contentGridLayoutGroup.spacing.y + 100f);
         }
 
         private void SetupSettingButtons()
@@ -1993,7 +1979,8 @@ namespace Pal3.Dev
 
             UpdateRectTransformWidthAndHeight(_blurPanelTransform,
                 _contentGridLayoutGroup.cellSize.x + 100f,
-                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count + 100f);
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
+                - _contentGridLayoutGroup.spacing.y + 100f);
         }
 
         private void SetupStorySelectionButtons()
@@ -2041,7 +2028,8 @@ namespace Pal3.Dev
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_blurPanelTransform,
-                (_contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.spacing.x) * _menuItems.Count + 100f,
+                (_contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.spacing.x) * _menuItems.Count
+                - _contentGridLayoutGroup.spacing.x + 100f,
                 _contentGridLayoutGroup.cellSize.y + 100f);
         }
 

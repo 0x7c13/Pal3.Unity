@@ -1248,7 +1248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7058824}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1605,9 +1605,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 5
+  blurAmount: 4
   cornerRadius: 65
-  additiveTintColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 1}
+  additiveTintColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   multiplyTintColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
   image: {fileID: 6514349001384511054}
 --- !u!1 &2165102651006652904
@@ -1933,10 +1933,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 4
+  blurAmount: 3
   cornerRadius: 35
   additiveTintColor: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
-  multiplyTintColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+  multiplyTintColor: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
   image: {fileID: 3596785283706710040}
 --- !u!1 &2430233534765130901
 GameObject:
@@ -4320,7 +4320,6 @@ MonoBehaviour:
   bigMapCanvasGroup: {fileID: 6994295648662812940}
   bigMapRegionButtonPrefab: {fileID: 799485479191424804, guid: 6c6f55d45332bf34096a5ca9a5567681, type: 3}
   mainMenuCanvasGroup: {fileID: 1901874775859308762}
-  titlePrefab: {fileID: 2557184575522423845, guid: c079bb67890887a4d94631aef5560d32, type: 3}
   mainMenuButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
   menuButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
   blurPanelTransform: {fileID: 4335801449381553810}
@@ -4637,7 +4636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled
