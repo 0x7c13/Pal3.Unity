@@ -1838,6 +1838,8 @@ namespace Pal3.Dev
                         var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
                         var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
                         ExecuteCommandsFromSaveFile(saveFileContent);
+                        // Since we are not hiding the menu, we need to keep the game state as Cutscene
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
                     }
 
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
