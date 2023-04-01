@@ -176,6 +176,16 @@ namespace Pal3.Settings
                 ResolutionScale = Utility.IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(23) ? 0.75f : 1.0f;
             }
 
+            #if UNITY_STANDALONE
+            // Reset resolution scale if not in fullscreen mode for desktop devices
+            if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen &&
+                Screen.fullScreenMode != FullScreenMode.FullScreenWindow &&
+                Math.Abs(ResolutionScale - 1.0f) > 0.01f)
+            {
+                ResolutionScale = 1.0f;
+            }
+            #endif
+
             if (SettingsStore.TryGet(nameof(MusicVolume), out float musicVolume))
             {
                 MusicVolume = musicVolume;

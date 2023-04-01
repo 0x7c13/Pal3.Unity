@@ -52,7 +52,6 @@ namespace Pal3.Dev
         private CanvasGroup _backgroundCanvasGroup;
         private GameObject _mainMenuButtonPrefab;
         private GameObject _menuButtonPrefab;
-        private GameObject _titlePrefab;
         private RectTransform _blurPanelTransform;
         private RectTransform _contentTransform;
         private GridLayoutGroup _contentGridLayoutGroup;
@@ -1536,7 +1535,6 @@ namespace Pal3.Dev
             MazeSkipper mazeSkipper,
             CanvasGroup mainMenuCanvasGroup,
             CanvasGroup backgroundCanvasGroup,
-            GameObject titlePrefab,
             GameObject mainMenuButtonPrefab,
             GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
@@ -1555,7 +1553,6 @@ namespace Pal3.Dev
             _mazeSkipper = Requires.IsNotNull(mazeSkipper, nameof(mazeSkipper));
             _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
             _backgroundCanvasGroup = Requires.IsNotNull(backgroundCanvasGroup, nameof(backgroundCanvasGroup));
-            _titlePrefab = Requires.IsNotNull(titlePrefab, nameof(titlePrefab));
             _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
             _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
@@ -1911,6 +1908,34 @@ namespace Pal3.Dev
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("垂直同步已" +
                     (_gameSettings.VSyncCount == 0 ? "关闭" : "开启") + ""));
+            }));
+            #endif
+
+            #if UNITY_IOS || UNITY_ANDROID
+            const string fullResolutionScaleText = "渲染分辨率：100%";
+            const string halfResolutionScaleText = "渲染分辨率：75%";
+            string resolutionButtonText = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f
+                ? fullResolutionScaleText
+                : halfResolutionScaleText;
+            _menuItems.Add(CreateSettingButton(resolutionButtonText, delegate
+            {
+                _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f : 1f;
+
+                if (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f)
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                            {text: halfResolutionScaleText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = fullResolutionScaleText;
+                }
+                else
+                {
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                            {text: fullResolutionScaleText})!
+                        .GetComponentInChildren<TextMeshProUGUI>().text = halfResolutionScaleText;
+                }
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("渲染分辨率已" +
+                    (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" : "调整为75%") + ""));
             }));
             #endif
 
