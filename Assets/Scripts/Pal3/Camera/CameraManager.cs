@@ -33,9 +33,9 @@ namespace Pal3.Camera
         ICommandExecutor<CameraShakeEffectCommand>,
         ICommandExecutor<CameraOrbitCommand>,
         ICommandExecutor<CameraRotateCommand>,
-        #if PAL3A
         ICommandExecutor<CameraOrbitHorizontalCommand>,
         ICommandExecutor<CameraOrbitVerticalCommand>,
+        #if PAL3A
         ICommandExecutor<CameraMoveToLookAtPointCommand>,
         ICommandExecutor<CameraMoveToDefaultLookAtPointCommand>,
         #endif
@@ -761,6 +761,8 @@ namespace Pal3.Camera
 
         public void Execute(ResetGameStateCommand command)
         {
+            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
+
             _curtainImage.color = Color.black;
             _currentAppliedDefaultTransformOption = 0;
             _initTransformOptionOnSceneLoad = null;
@@ -769,7 +771,6 @@ namespace Pal3.Camera
             _cameraFollowPlayer = true;
         }
 
-        #if PAL3A
         public void Execute(CameraOrbitHorizontalCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
@@ -826,6 +827,7 @@ namespace Pal3.Camera
             }
         }
 
+        #if PAL3A
         public void Execute(CameraMoveToLookAtPointCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();

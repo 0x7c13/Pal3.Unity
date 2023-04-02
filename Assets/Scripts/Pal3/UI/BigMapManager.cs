@@ -29,6 +29,7 @@ namespace Pal3.UI
         ICommandExecutor<BigMapEnableRegionCommand>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<GameSwitchRenderingStateCommand>,
+        ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ToggleBigMapRequest>
     {
         private EventSystem _eventSystem;
@@ -97,6 +98,7 @@ namespace Pal3.UI
             if (_isVisible)
             {
                 Hide();
+                _gameStateManager.GoToState(GameState.Gameplay);
             }
         }
 
@@ -117,6 +119,7 @@ namespace Pal3.UI
             if (_isVisible)
             {
                 Hide();
+                _gameStateManager.GoToState(GameState.Gameplay);
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
@@ -206,6 +209,7 @@ namespace Pal3.UI
                 _scriptManager.AddScript((uint)(100 + buttonIndex), true);
             }
             Hide();
+            _gameStateManager.GoToState(GameState.Gameplay);
         }
 
         public void Hide()
@@ -221,7 +225,6 @@ namespace Pal3.UI
             }
             _selectionButtons.Clear();
             _gameStateManager.RemoveGamePlayStateLocker(_stateLockerGuid);
-            _gameStateManager.GoToState(GameState.Gameplay);
         }
 
         public void Execute(BigMapEnableRegionCommand command)
@@ -245,6 +248,14 @@ namespace Pal3.UI
         public void Execute(ToggleBigMapRequest command)
         {
             ToggleBigMap();
+        }
+
+        public void Execute(GameSwitchToMainMenuCommand command)
+        {
+            if (_bigMapCanvas.interactable)
+            {
+                Hide();
+            }
         }
     }
 }

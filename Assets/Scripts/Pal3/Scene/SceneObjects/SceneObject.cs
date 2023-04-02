@@ -132,8 +132,8 @@ namespace Pal3.Scene.SceneObjects
                 (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(ModelFilePath);
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(poly.PolFile,
-                    materialFactory,
                     poly.TextureProvider,
+                    materialFactory,
                     tintColor);
             }
             else if (ModelType == SceneObjectModelType.CvdModel)

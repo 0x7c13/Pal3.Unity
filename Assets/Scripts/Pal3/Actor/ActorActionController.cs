@@ -197,8 +197,7 @@ namespace Pal3.Actor
                     textureProvider,
                     _tintColor,
                     polFile,
-                    weaponTextureProvider,
-                    Color.white);
+                    weaponTextureProvider);
             }
             else
             {

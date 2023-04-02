@@ -38,14 +38,14 @@ namespace Pal3.Renderer
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
 
         public void Render(PolFile polFile,
-            IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
-            Color tintColor,
-            bool isWaterSurfaceOpaque = false)
+            IMaterialFactory materialFactory,
+            Color? tintColor = default,
+            bool isWaterSurfaceOpaque = default)
         {
-            _materialFactory = materialFactory;
             _textureProvider = textureProvider;
-            _tintColor = tintColor;
+            _materialFactory = materialFactory;
+            _tintColor = tintColor ?? Color.white;
             _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
             _textureCache = BuildTextureCache(polFile, textureProvider);
 

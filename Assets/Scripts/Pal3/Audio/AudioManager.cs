@@ -34,7 +34,6 @@ namespace Pal3.Audio
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>,
-        ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
         private Camera _mainCamera;
@@ -79,7 +78,6 @@ namespace Pal3.Audio
             _themeMusicClip = Requires.IsNotNull(
                 Resources.Load<AudioClip>($"Music/{GameConstants.AppName}-Theme"),
                 $"Music/{GameConstants.AppName}-Theme");
-            PlayThemeMusic();
         }
 
         private void OnEnable()
@@ -92,7 +90,7 @@ namespace Pal3.Audio
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void PlayThemeMusic()
+        public void PlayThemeMusic()
         {
             _musicPlayer.clip = _themeMusicClip;
             _musicPlayer.volume = _musicVolume;
@@ -160,7 +158,7 @@ namespace Pal3.Audio
                 if (audioSource.clip != null)
                 {
                     audioSource.Stop();
-                    if (audioSource.clip.name != _themeMusicClip.name)
+                    if (audioSource.clip != _themeMusicClip)
                     {
                         Destroy(audioSource.clip);
                     }
@@ -510,11 +508,6 @@ namespace Pal3.Audio
                 _musicPlayer.mute = false;
                 ChangeAllSfxAudioSourceMuteSetting(false);
             }
-        }
-
-        public void Execute(GameSwitchToMainMenuCommand command)
-        {
-            PlayThemeMusic();
         }
     }
 }

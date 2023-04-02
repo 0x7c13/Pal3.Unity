@@ -7,6 +7,7 @@ namespace Pal3.Effect
 {
     using System;
     using Core.DataLoader;
+    using Core.DataReader.Pol;
     using Core.Renderer;
     using Data;
     using MetaData;
@@ -31,12 +32,11 @@ namespace Pal3.Effect
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
-                (Core.DataReader.Pol.PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(info.ModelPath);
+                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(info.ModelPath);
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(poly.PolFile,
-                    materialFactory,
                     poly.TextureProvider,
-                    Color.white);
+                    materialFactory);
             }
 
             if (!string.IsNullOrEmpty(info.TexturePathFormat))

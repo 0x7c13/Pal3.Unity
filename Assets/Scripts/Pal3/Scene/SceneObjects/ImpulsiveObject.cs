@@ -62,8 +62,8 @@ namespace Pal3.Scene.SceneObjects
             (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(subObjectModelPath);
             var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(poly.PolFile,
-                resourceProvider.GetMaterialFactory(),
                 poly.TextureProvider,
+                resourceProvider.GetMaterialFactory(),
                 subObjectTintColor);
 
             _subObjectController = _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>();

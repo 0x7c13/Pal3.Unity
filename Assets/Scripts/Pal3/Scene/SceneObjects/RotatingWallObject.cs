@@ -48,8 +48,8 @@ namespace Pal3.Scene.SceneObjects
                 (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(subObjectModelPath);
                 var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
                 subObjectModelRenderer.Render(poly.PolFile,
-                    resourceProvider.GetMaterialFactory(),
                     poly.TextureProvider,
+                    resourceProvider.GetMaterialFactory(),
                     tintColor);
 
                 // Sub-object should block player as well, so let's add mesh collider to it

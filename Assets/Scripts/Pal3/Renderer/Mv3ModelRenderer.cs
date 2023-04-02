@@ -116,8 +116,8 @@ namespace Pal3.Renderer
                     _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions.First().Name);
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
                     tagNodeRenderer.Render(tagNodePolFile,
-                        _materialFactory,
                         tagNodeTextureProvider,
+                        _materialFactory,
                         tagNodeTintColor);
 
                     _tagNodes[i].transform.SetParent(transform, true);

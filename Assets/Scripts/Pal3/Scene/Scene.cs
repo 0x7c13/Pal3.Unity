@@ -240,8 +240,8 @@ namespace Pal3.Scene
             _mesh.transform.SetParent(_parent.transform, false);
 
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
-                _materialFactory,
                 ScenePolyMesh.TextureProvider,
+                _materialFactory,
                 Color.white,
                 IsWaterSurfaceOpaque());
 
@@ -250,9 +250,7 @@ namespace Pal3.Scene
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
                     _materialFactory,
-                    SceneCvdMesh.Value.TextureProvider,
-                    Color.white,
-                    0f);
+                    SceneCvdMesh.Value.TextureProvider);
                 cvdMeshRenderer.LoopAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
         }

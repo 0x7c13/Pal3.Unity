@@ -33,11 +33,11 @@ namespace Pal3.Renderer
         public void Init(CvdFile cvdFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
-            Color tintColor,
+            Color? tintColor = default,
             float initTime = 0f)
         {
             _animationDuration = cvdFile.AnimationDuration;
-            _tintColor = tintColor;
+            _tintColor = tintColor ?? Color.white;
             _currentTime = initTime;
 
             foreach (CvdGeometryNode node in cvdFile.RootNodes)

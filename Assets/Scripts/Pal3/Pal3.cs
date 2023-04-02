@@ -89,7 +89,6 @@ namespace Pal3
         [SerializeField] private RectTransform blurPanelTransform;
         [SerializeField] private RectTransform contentTransform;
         [SerializeField] private ScrollRect contentScrollRect;
-        [SerializeField] private CanvasGroup backgroundCanvasGroup;
 
         // Touch control
         [SerializeField] private Canvas touchControlUI;
@@ -313,6 +312,7 @@ namespace Pal3
             _mainMenu = gameObject.AddComponent<MainMenu>();
             _mainMenu.Init(
                 _gameSettings,
+                _audioManager,
                 _inputManager,
                 eventSystem,
                 _sceneManager,
@@ -323,12 +323,12 @@ namespace Pal3
                 _informationManager,
                 _mazeSkipper,
                 mainMenuCanvasGroup,
-                backgroundCanvasGroup,
                 mainMenuButtonPrefab,
                 menuButtonPrefab,
                 contentScrollRect,
                 blurPanelTransform,
-                contentTransform);
+                contentTransform,
+                mainCamera);
             ServiceLocator.Instance.Register(_mainMenu);
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
@@ -344,7 +344,8 @@ namespace Pal3
 
         private void Start()
         {
-            _mainMenu.Show();
+            _mainMenu.ShowInitView();
+            _mainMenu.ShowMenu();
         }
 
         private void OnDisable()

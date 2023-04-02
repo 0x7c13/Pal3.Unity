@@ -221,8 +221,8 @@ namespace Pal3.Settings
                 }
                 else
                 {
-                    // Enable realtime lighting and shadows by default on desktop devices
-                    IsRealtimeLightingAndShadowsEnabled = Utility.IsDesktopDevice();
+                    // Enable realtime lighting and shadows by default
+                    IsRealtimeLightingAndShadowsEnabled = true;
                 }
             }
 

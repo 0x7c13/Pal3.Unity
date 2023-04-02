@@ -246,8 +246,8 @@ namespace ResourceViewer
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile,
-                    _resourceProvider.GetMaterialFactory(),
                     textureProvider,
+                    _resourceProvider.GetMaterialFactory(),
                     Color.white);
 
                 consoleTextUI.text = $"{filePath}";

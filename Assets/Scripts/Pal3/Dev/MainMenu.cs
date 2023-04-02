@@ -5,10 +5,11 @@
 
 namespace Pal3.Dev
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using Audio;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -38,6 +39,7 @@ namespace Pal3.Dev
         ICommandExecutor<GameStateChangedNotification>
     {
         private GameSettings _gameSettings;
+        private AudioManager _audioManager;
         private InputManager _inputManager;
         private EventSystem _eventSystem;
         private PlayerInputActions _playerInputActions;
@@ -50,13 +52,16 @@ namespace Pal3.Dev
         private MazeSkipper _mazeSkipper;
 
         private CanvasGroup _mainMenuCanvasGroup;
-        private CanvasGroup _backgroundCanvasGroup;
         private GameObject _mainMenuButtonPrefab;
         private GameObject _menuButtonPrefab;
         private RectTransform _blurPanelTransform;
         private RectTransform _contentTransform;
         private GridLayoutGroup _contentGridLayoutGroup;
         private ScrollRect _contentScrollRect;
+
+        private bool _isInInitView = true;
+        private CancellationTokenSource _initViewCameraOrbitAnimationCts = new ();
+        private Camera _mainCamera;
 
         private readonly List<string> _deferredExecutionCommands = new();
 
@@ -1515,6 +1520,7 @@ namespace Pal3.Dev
         #endregion
 
         public void Init(GameSettings gameSettings,
+            AudioManager audioManager,
             InputManager inputManager,
             EventSystem eventSystem,
             SceneManager sceneManager,
@@ -1525,14 +1531,15 @@ namespace Pal3.Dev
             InformationManager informationManager,
             MazeSkipper mazeSkipper,
             CanvasGroup mainMenuCanvasGroup,
-            CanvasGroup backgroundCanvasGroup,
             GameObject mainMenuButtonPrefab,
             GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
             RectTransform blurPanelTransform,
-            RectTransform contentTransform)
+            RectTransform contentTransform,
+            Camera mainCamera)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
+            _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
@@ -1543,12 +1550,12 @@ namespace Pal3.Dev
             _informationManager = Requires.IsNotNull(informationManager, nameof(informationManager));
             _mazeSkipper = Requires.IsNotNull(mazeSkipper, nameof(mazeSkipper));
             _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
-            _backgroundCanvasGroup = Requires.IsNotNull(backgroundCanvasGroup, nameof(backgroundCanvasGroup));
             _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
             _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
             _blurPanelTransform = Requires.IsNotNull(blurPanelTransform, nameof(blurPanelTransform));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
+            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
 
             _contentGridLayoutGroup = Requires.IsNotNull(
                 _contentTransform.GetComponent<GridLayoutGroup>(), "ContentTransform's GridLayoutGroup");
@@ -1583,31 +1590,97 @@ namespace Pal3.Dev
 
         private void HideMainMenuPerformed(InputAction.CallbackContext _)
         {
-            if (_sceneManager.GetCurrentScene() == null) return;
+            if (_isInInitView) return;
 
             if (_mainMenuCanvasGroup.interactable)
             {
-                Hide();
+                HideMenu();
                 _gameStateManager.GoToState(GameState.Gameplay);
             }
         }
 
         private void ToggleMainMenu()
         {
-            if (_sceneManager.GetCurrentScene() == null) return;
+            if (_isInInitView) return;
 
             if (_mainMenuCanvasGroup.interactable)
             {
-                Hide();
+                HideMenu();
                 _gameStateManager.GoToState(GameState.Gameplay);
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
-                Show();
+                ShowMenu();
             }
         }
 
-        public void Show()
+        public void ShowInitView()
+        {
+            #if PAL3
+            // 景天房间
+            _deferredExecutionCommands.Add("SceneActivateObject 14 0");
+            _deferredExecutionCommands.Add("SceneActivateObject 15 0");
+            _deferredExecutionCommands.Add("PlayerEnableInput 0");
+            _deferredExecutionCommands.Add("CameraFollowPlayer 0");
+            _deferredExecutionCommands.Add("CameraSetTransform -33.24 -19.48 688.0 308.31 229.44 480.61");
+            _deferredExecutionCommands.Add("CameraFadeIn");
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q01", "yn09a"));
+            #elif PAL3A
+            // 南宫煌房间
+            _deferredExecutionCommands.Add("PlayerEnableInput 0");
+            _deferredExecutionCommands.Add("CameraFollowPlayer 0");
+            _deferredExecutionCommands.Add("CameraSetTransform -21.69 -22.48 688.0 182.87 263.07 531.61");
+            _deferredExecutionCommands.Add("CameraFadeIn");
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q02", "qn08y"));
+            #endif
+
+            _audioManager.PlayThemeMusic();
+
+            if (!_initViewCameraOrbitAnimationCts.IsCancellationRequested)
+            {
+                _initViewCameraOrbitAnimationCts.Cancel();
+            }
+            _initViewCameraOrbitAnimationCts = new CancellationTokenSource();
+            StartCoroutine(StartCameraOrbitAnimation(_initViewCameraOrbitAnimationCts.Token));
+        }
+
+        private IEnumerator StartCameraOrbitAnimation(CancellationToken cancellationToken)
+        {
+            _mainCamera.fieldOfView = 15f;
+
+            yield return new WaitUntil(() => _deferredExecutionCommands.Count == 0);
+
+            if (!_isInInitView || cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            const float animationDuration = 20f;
+            WaitForSeconds waitDuration = new WaitForSeconds(animationDuration + 3f);
+
+            while (_isInInitView && !cancellationToken.IsCancellationRequested)
+            {
+                #if PAL3
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraOrbitHorizontalCommand(-39.99f, -27.73f, 688.0f, animationDuration, 1, 0));
+                #elif PAL3A
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraOrbitHorizontalCommand(-39.99f, -27.73f, 688.0f, animationDuration, 1, 0));
+                #endif
+                yield return waitDuration;
+                if (!_isInInitView || cancellationToken.IsCancellationRequested) { yield break; }
+                #if PAL3
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraOrbitHorizontalCommand(-33.24f, -19.48f, 688.0f, animationDuration, 1, 0));
+                #elif PAL3A
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CameraOrbitHorizontalCommand(-21.69f, -22.48f, 688.0f, animationDuration, 1, 0));
+                #endif
+                yield return waitDuration;
+            }
+        }
+
+        public void ShowMenu()
         {
             _gameStateManager.GoToState(GameState.Cutscene);
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -1616,31 +1689,21 @@ namespace Pal3.Dev
 
             _mainMenuCanvasGroup.alpha = 1f;
             _mainMenuCanvasGroup.interactable = true;
-
-            if (_sceneManager.GetCurrentScene() == null)
-            {
-                foreach (ImageScroller imageScroller in
-                         _backgroundCanvasGroup.GetComponentsInChildren<ImageScroller>())
-                {
-                    imageScroller.enabled = true;
-                }
-                _backgroundCanvasGroup.alpha = 1f;
-            }
         }
 
-        public void Hide()
+        public void HideMenu()
         {
             _gameSettings.SaveSettings();
-            foreach (ImageScroller imageScroller in
-                     _backgroundCanvasGroup.GetComponentsInChildren<ImageScroller>())
-            {
-                imageScroller.enabled = false;
-            }
-            _backgroundCanvasGroup.alpha = 0f;
 
             _mainMenuCanvasGroup.alpha = 0f;
             _mainMenuCanvasGroup.interactable = false;
             DestroyAllMenuItems();
+
+            _isInInitView = false;
+            if (!_initViewCameraOrbitAnimationCts.IsCancellationRequested)
+            {
+                _initViewCameraOrbitAnimationCts.Cancel();
+            }
         }
 
         private void SetupMainMenuButtons()
@@ -1671,13 +1734,11 @@ namespace Pal3.Dev
                 return menuButton;
             }
 
-            var isGameRunning = _sceneManager.GetCurrentScene() != null;
-
-            if (isGameRunning)
+            if (!_isInInitView)
             {
                 _menuItems.Add(CreateMainMenuButton("返回游戏", delegate
                 {
-                    Hide();
+                    HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
                 }));
             }
@@ -1685,7 +1746,7 @@ namespace Pal3.Dev
             _menuItems.Add(CreateMainMenuButton("新的游戏", delegate
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                Hide();
+                HideMenu();
                 StartNewGame();
             }));
 
@@ -1693,7 +1754,7 @@ namespace Pal3.Dev
             {
                 _menuItems.Add(CreateMainMenuButton("读取存档", delegate
                 {
-                    Hide();
+                    HideMenu();
                     var saveFileContent = _saveManager.LoadFromSaveFile();
                     if (saveFileContent == null)
                     {
@@ -1707,14 +1768,14 @@ namespace Pal3.Dev
                 }));
             }
 
-            if (isGameRunning)
+            if (!_isInInitView)
             {
                 _menuItems.Add(CreateMainMenuButton("保存游戏", delegate
                 {
                     CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
                         ? new UIDisplayNoteCommand("游戏保存成功")
                         : new UIDisplayNoteCommand("游戏保存失败"));
-                    Hide();
+                    HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
                 }));
             }
@@ -1725,19 +1786,19 @@ namespace Pal3.Dev
                 SetupStorySelectionButtons();
             }));
 
-            if (isGameRunning &&
+            if (!_isInInitView &&
                 _mazeSkipper.IsMazeSceneAndHasSkipperCommands(_sceneManager.GetCurrentScene().GetSceneInfo()))
             {
                 _menuItems.Add(CreateMainMenuButton("迷宫入口", delegate
                 {
                     _mazeSkipper.PortalToEntrance();
-                    Hide();
+                    HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
                 }));
                 _menuItems.Add(CreateMainMenuButton("迷宫出口或剧情点", delegate
                 {
                     _mazeSkipper.PortalToExitOrNextStoryPoint();
-                    Hide();
+                    HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
                 }));
             }
@@ -1795,8 +1856,6 @@ namespace Pal3.Dev
                 return menuButton;
             }
 
-            var isGameRunning = _sceneManager.GetCurrentScene() != null;
-
             const string lightingEnabledText = "实时光影：已开启";
             const string lightingDisabledText = "实时光影：已关闭";
             const string ssaoEnabledText = "环境光遮蔽：已开启";
@@ -1828,7 +1887,11 @@ namespace Pal3.Dev
                         CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已关闭"));
                     }
 
-                    if (isGameRunning) // reload scene to apply changes
+                    if (_isInInitView)
+                    {
+                        ShowInitView(); // Reload init scene to apply changes
+                    }
+                    else // reload scene to apply changes
                     {
                         var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
                         var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
@@ -2017,7 +2080,7 @@ namespace Pal3.Dev
             {
                 _menuItems.Add(CreateStorySelectionButton(story.Key, delegate
                 {
-                    Hide();
+                    HideMenu();
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                     ExecuteCommands(story.Value);
                 }));
@@ -2141,7 +2204,9 @@ namespace Pal3.Dev
         public void Execute(GameSwitchToMainMenuCommand command)
         {
             DestroyAllMenuItems();
-            Show();
+            _isInInitView = true;
+            ShowInitView();
+            ShowMenu();
         }
 
         public void Execute(ScenePostLoadingNotification command)
