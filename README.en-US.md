@@ -14,7 +14,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2022.2.13-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2022.2.X-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/releases">
     <img src="https://img.shields.io/github/v/release/0x7c13/Pal3.Unity.svg?label=alpha&style=flat-square&color=yellow" alt="Releases" />
@@ -42,7 +42,7 @@ Note: The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden
 | The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## How to run the project
-Open the current project folder using Unity 2022.2.X. For the specific Unity version required for the current project, please check the badge displayed above. In theory, any Unity 2022.2+ version should work. You can also try a lower version to see if it builds.
+Open the current project folder using Unity 2022.2.X. For the specific Unity version required for the current project, please check this file:  [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt). In theory, any Unity 2022.2+ version should work. You can also try a lower version to see if it builds (2021 LTS should work as well).
   - Since the project itself does not contain any game data from the original game, you will need a copy of the original game files for The Legend of Sword and Fairy 3 or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian (Link to the game on Steam: [The Legend of Sword and Fairy 3](https://store.steampowered.com/app/1536070) and [The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian](https://store.steampowered.com/app/1536080); Note: currently the build only supports Simplified Chinese version).
 
   - After opening the Unity project for the first time, double-click to select "Scenes\Game" as the current scene, and then press the play button. If you select "Scenes\ResourceViewer", it will open the game resource viewer.
