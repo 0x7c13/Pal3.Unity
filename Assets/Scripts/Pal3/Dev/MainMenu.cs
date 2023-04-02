@@ -1799,8 +1799,8 @@ namespace Pal3.Dev
 
             const string lightingEnabledText = "实时光影：已开启";
             const string lightingDisabledText = "实时光影：已关闭";
-            const string ssaoEnabledText = "环境光遮蔽(SSAO)：已开启";
-            const string ssaoDisabledText = "环境光遮蔽(SSAO)：已关闭";
+            const string ssaoEnabledText = "环境光遮蔽：已开启";
+            const string ssaoDisabledText = "环境光遮蔽：已关闭";
 
             // Toon materials are not available in open source build.
             // so lighting and shadow will not work, thus we remove the option.
@@ -1814,16 +1814,10 @@ namespace Pal3.Dev
                     _gameSettings.IsRealtimeLightingAndShadowsEnabled =
                         !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
 
-                    if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
-                    {
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: lightingDisabledText})!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = lightingEnabledText;
-                    }
-                    else
-                    {
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: lightingEnabledText})!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = lightingDisabledText;
-                    }
+                    // Update button text
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                        {} textUGUI && textUGUI.text.StartsWith("实时光影："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                        _gameSettings.IsRealtimeLightingAndShadowsEnabled ? lightingEnabledText : lightingDisabledText;
 
                     // Should turn off SSAO if realtime lighting and shadows is disabled
                     if (!_gameSettings.IsRealtimeLightingAndShadowsEnabled && _gameSettings.IsAmbientOcclusionEnabled)
@@ -1858,16 +1852,10 @@ namespace Pal3.Dev
                     _gameSettings.IsAmbientOcclusionEnabled =
                         !_gameSettings.IsAmbientOcclusionEnabled;
 
-                    if (_gameSettings.IsAmbientOcclusionEnabled)
-                    {
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoDisabledText})!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoEnabledText;
-                    }
-                    else
-                    {
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoEnabledText})!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoDisabledText;
-                    }
+                    // Update button text
+                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                        {} textUGUI && textUGUI.text.StartsWith("环境光遮蔽："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                        _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
 
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已" +
                         (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
@@ -1883,16 +1871,10 @@ namespace Pal3.Dev
             {
                 _gameSettings.VSyncCount = _gameSettings.VSyncCount == 0 ? 1 : 0;
 
-                if (_gameSettings.VSyncCount == 0)
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: vsyncEnabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = vsyncDisabledText;
-                }
-                else
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: vsyncDisabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = vsyncEnabledText;
-                }
+                // Update button text
+                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                        {} textUGUI && textUGUI.text.StartsWith("垂直同步："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                    _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("垂直同步已" +
                     (_gameSettings.VSyncCount == 0 ? "关闭" : "开启") + ""));
@@ -1909,23 +1891,47 @@ namespace Pal3.Dev
             {
                 _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f : 1f;
 
-                if (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f)
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                            {text: halfResolutionScaleText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = fullResolutionScaleText;
-                }
-                else
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                            {text: fullResolutionScaleText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = halfResolutionScaleText;
-                }
+                // Update button text
+                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is { } textUGUI &&
+                    textUGUI.text.StartsWith("渲染分辨率："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                    Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? fullResolutionScaleText : halfResolutionScaleText;
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("渲染分辨率已" +
                     (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" : "调整为75%") + ""));
             }));
             #endif
+
+            // #if UNITY_STANDALONE
+            // Dictionary<int, string> antiAliasingText = new ()
+            // {
+            //     [0] = "抗锯齿：关闭",
+            //     [2] = "抗锯齿：2x",
+            //     [4] = "抗锯齿：4x",
+            //     [8] = "抗锯齿：8x",
+            // };
+            //
+            // string antiAliasingButtonText = antiAliasingText[0];
+            // if (antiAliasingText.ContainsKey(_gameSettings.AntiAliasing))
+            // {
+            //     antiAliasingButtonText = antiAliasingText[_gameSettings.AntiAliasing];
+            // }
+            //
+            // _menuItems.Add(CreateSettingButton(antiAliasingButtonText, delegate
+            // {
+            //     _gameSettings.AntiAliasing = _gameSettings.AntiAliasing switch
+            //     {
+            //         0 => 2, 2 => 4, 4 => 8, 8 => 0, _ => 0,
+            //     };
+            //
+            //     _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is { } textUGUI &&
+            //         textUGUI.text.StartsWith("抗锯齿："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+            //         antiAliasingText[_gameSettings.AntiAliasing];
+            //
+            //     CommandDispatcher<ICommand>.Instance.Dispatch(_gameSettings.AntiAliasing == 0
+            //         ? new UIDisplayNoteCommand("抗锯齿已关闭")
+            //         : new UIDisplayNoteCommand("抗锯齿已开启，等级：" + _gameSettings.AntiAliasing));
+            // }));
+            // #endif
 
             const string musicEnabledText = "音乐：已开启";
             const string musicDisabledText = "音乐：已关闭";
@@ -1934,16 +1940,10 @@ namespace Pal3.Dev
             {
                 _gameSettings.MusicVolume = _gameSettings.MusicVolume == 0f ? 0.5f : 0f;
 
-                if (_gameSettings.MusicVolume == 0f)
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: musicEnabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = musicDisabledText;
-                }
-                else
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: musicDisabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = musicEnabledText;
-                }
+                // Update button text
+                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                        {} textUGUI && textUGUI.text.StartsWith("音乐："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                    _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音乐已" +
                     (_gameSettings.MusicVolume == 0f ? "关闭" : "开启") + ""));
@@ -1956,16 +1956,10 @@ namespace Pal3.Dev
             {
                 _gameSettings.SfxVolume = _gameSettings.SfxVolume == 0f ? 0.5f : 0f;
 
-                if (_gameSettings.SfxVolume == 0f)
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: sfxEnabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = sfxDisabledText;
-                }
-                else
-                {
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: sfxDisabledText})!
-                        .GetComponentInChildren<TextMeshProUGUI>().text = sfxEnabledText;
-                }
+                // Update button text
+                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                        {} textUGUI && textUGUI.text.StartsWith("音效："))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                    _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音效已" +
                     (_gameSettings.SfxVolume == 0f ? "关闭" : "开启") + ""));

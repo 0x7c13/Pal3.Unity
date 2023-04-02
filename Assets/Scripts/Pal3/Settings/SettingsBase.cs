@@ -52,7 +52,7 @@ namespace Pal3.Settings
             get => _antiAliasing;
             internal set
             {
-                if (_antiAliasing != value && value >= 0)
+                if (_antiAliasing != value && value is 0 or 2 or 4 or 8)
                 {
                     _antiAliasing = value;
                     SettingsStore.Set(nameof(AntiAliasing), value);

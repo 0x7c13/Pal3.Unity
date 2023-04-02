@@ -43,7 +43,7 @@ namespace Pal3.Settings
             DebugLogConsole.AddCommand<int>("Settings.VSyncCount",
                 "设置垂直同步设定（0：关闭，1：开启，2: 开启（每2帧刷新）)", _ => VSyncCount = _);
             DebugLogConsole.AddCommand<int>("Settings.AntiAliasing",
-                "设置抗锯齿设定（0：关闭，2：2倍抗锯齿，4：4倍抗锯齿，8：8倍抗锯齿, 16: 16倍抗锯齿)", _ => AntiAliasing = _);
+                "设置抗锯齿设定（0：关闭，2：2倍抗锯齿，4：4倍抗锯齿，8：8倍抗锯齿)", _ => AntiAliasing = _);
             DebugLogConsole.AddCommand<int>("Settings.TargetFrameRate",
                 "设置目标帧率设定（-1：不限制，30：30帧，60：60帧）", _ => TargetFrameRate = _);
             DebugLogConsole.AddCommand<float>("Settings.ResolutionScale",
