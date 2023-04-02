@@ -54,7 +54,7 @@ namespace Pal3.Dev
 
         private CanvasGroup _mainMenuCanvasGroup;
         private GameObject _menuButtonPrefab;
-        private RectTransform _blurPanelTransform;
+        private RectTransform _backgroundTransform;
         private RectTransform _contentTransform;
         private GridLayoutGroup _contentGridLayoutGroup;
         private ScrollRect _contentScrollRect;
@@ -1533,7 +1533,7 @@ namespace Pal3.Dev
             CanvasGroup mainMenuCanvasGroup,
             GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
-            RectTransform blurPanelTransform,
+            RectTransform backgroundTransform,
             RectTransform contentTransform,
             Camera mainCamera)
         {
@@ -1551,7 +1551,7 @@ namespace Pal3.Dev
             _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
             _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
-            _blurPanelTransform = Requires.IsNotNull(blurPanelTransform, nameof(blurPanelTransform));
+            _backgroundTransform = Requires.IsNotNull(backgroundTransform, nameof(backgroundTransform));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
 
@@ -1723,9 +1723,6 @@ namespace Pal3.Dev
 
                 ButtonType buttonType = ButtonType.Normal;
                 var button = menuButton.GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Vertical;
-                button.navigation = buttonNavigation;
                 button.colors = UITheme.GetButtonColors(buttonType);
                 button.onClick.AddListener(onSelection);
 
@@ -1818,9 +1815,11 @@ namespace Pal3.Dev
             }));
             #endif
 
+            SetupButtonNavigations(isUpAndDown: true);
+
             SelectFirstButtonForEventSystem();
 
-            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
                 _contentGridLayoutGroup.cellSize.x + 100f,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
                 - _contentGridLayoutGroup.spacing.y + 100f);
@@ -1845,9 +1844,6 @@ namespace Pal3.Dev
 
                 ButtonType buttonType = ButtonType.Normal;
                 var button = menuButton.GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Vertical;
-                button.navigation = buttonNavigation;
                 button.colors = UITheme.GetButtonColors(buttonType);
                 button.onClick.AddListener(onSelection);
 
@@ -2033,9 +2029,11 @@ namespace Pal3.Dev
                 SetupMainMenuButtons();
             }));
 
+            SetupButtonNavigations(isUpAndDown: true);
+
             SelectFirstButtonForEventSystem();
 
-            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
                 _contentGridLayoutGroup.cellSize.x + 100f,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
                 - _contentGridLayoutGroup.spacing.y + 100f);
@@ -2058,9 +2056,6 @@ namespace Pal3.Dev
                 buttonTextUI.text = text;
                 ButtonType buttonType = ButtonType.Normal;
                 var button = selectionButton.GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Horizontal;
-                button.navigation = buttonNavigation;
                 button.colors = UITheme.GetButtonColors(buttonType);
                 button.onClick.AddListener(onSelection);
 
@@ -2084,9 +2079,11 @@ namespace Pal3.Dev
                 }));
             }
 
+            SetupButtonNavigations(isUpAndDown: false);
+
             SelectFirstButtonForEventSystem();
 
-            UpdateRectTransformWidthAndHeight(_blurPanelTransform,
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
                 (_contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.spacing.x) * _menuItems.Count
                 - _contentGridLayoutGroup.spacing.x + 100f,
                 _contentGridLayoutGroup.cellSize.y + 100f);
@@ -2114,6 +2111,38 @@ namespace Pal3.Dev
             else
             {
                 _eventSystem.firstSelectedGameObject = null;
+            }
+        }
+
+        private void SetupButtonNavigations(bool isUpAndDown)
+        {
+            // Setup button navigation
+            void ConfigureButtonNavigation(Button button, int index, int count)
+            {
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.Explicit;
+
+                int previousIndex = index == 0 ? count - 1 : index - 1;
+                int NextIndex = index == count - 1 ? 0 : index + 1;
+
+                if (isUpAndDown)
+                {
+                    buttonNavigation.selectOnUp = _menuItems[previousIndex].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnDown = _menuItems[NextIndex].GetComponentInChildren<Button>();
+                }
+                else
+                {
+                    buttonNavigation.selectOnLeft = _menuItems[previousIndex].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnRight = _menuItems[NextIndex].GetComponentInChildren<Button>();
+                }
+
+                button.navigation = buttonNavigation;
+            }
+
+            for (var i = 0; i < _menuItems.Count; i++)
+            {
+                var button = _menuItems[i].GetComponentInChildren<Button>();
+                ConfigureButtonNavigation(button, i, _menuItems.Count);
             }
         }
 

@@ -39,7 +39,10 @@ namespace Pal3.UI
         private ScriptManager _scriptManager;
         private SceneManager _sceneManager;
         private CanvasGroup _bigMapCanvas;
+        private GridLayoutGroup _bigMapCanvasGridLayoutGroup;
         private GameObject _bigMapRegionButtonPrefab;
+        private RectTransform _bigMapBackgroundTransform;
+        private CanvasGroup _bigMapBackgroundCanvasGroup;
 
         private bool _isVisible;
 
@@ -54,7 +57,8 @@ namespace Pal3.UI
             InputManager inputManager,
             ScriptManager scriptManager,
             CanvasGroup bigMapCanvas,
-            GameObject bigMapRegionButtonPrefab)
+            GameObject bigMapRegionButtonPrefab,
+            GameObject bigMapBackground)
         {
             _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
@@ -62,12 +66,18 @@ namespace Pal3.UI
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _bigMapCanvas = Requires.IsNotNull(bigMapCanvas, nameof(bigMapCanvas));
+            _bigMapCanvasGridLayoutGroup = Requires.IsNotNull(_bigMapCanvas.GetComponent<GridLayoutGroup>(), "bigMapCanvasGridLayoutGroup");
             _bigMapRegionButtonPrefab = Requires.IsNotNull(bigMapRegionButtonPrefab, nameof(bigMapRegionButtonPrefab));
+
+            Requires.IsNotNull(bigMapBackground, nameof(bigMapBackground));
+            _bigMapBackgroundTransform = Requires.IsNotNull(bigMapBackground.GetComponent<RectTransform>(), "bigMapBackgroundRectTransform");
+            _bigMapBackgroundCanvasGroup = Requires.IsNotNull(bigMapBackground.GetComponent<CanvasGroup>(), "bigMapBackgroundCanvasGroup");
 
             _playerInputActions = inputManager.GetPlayerInputActions();
 
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
+            _bigMapBackgroundCanvasGroup.alpha = 0f;
             _isVisible = false;
 
             _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
@@ -154,11 +164,7 @@ namespace Pal3.UI
             GameObject exitButtonObj = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
             var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             exitButtonTextUI.text =  "关闭";
-            exitButtonTextUI.fontStyle = FontStyles.Underline;
             var exitButton = exitButtonObj.GetComponent<Button>();
-            Navigation exitButtonNavigation = exitButton.navigation;
-            exitButtonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
-            exitButton.navigation = exitButtonNavigation;
             exitButton.colors = UITheme.GetButtonColors();
             exitButton.onClick.AddListener(delegate { BigMapButtonClicked(-1);});
             _selectionButtons.Add(exitButtonObj);
@@ -171,9 +177,6 @@ namespace Pal3.UI
                 buttonTextUI.text = BigMapConstants.BigMapRegions[i];
                 var buttonIndex = i;
                 var button = selectionButton.GetComponent<Button>();
-                Navigation buttonNavigation = button.navigation;
-                buttonNavigation.mode = Navigation.Mode.Horizontal | Navigation.Mode.Vertical;
-                button.navigation = buttonNavigation;
                 button.colors = UITheme.GetButtonColors();
                 button.onClick.AddListener(delegate { BigMapButtonClicked(buttonIndex);});
                 _selectionButtons.Add(selectionButton);
@@ -194,10 +197,40 @@ namespace Pal3.UI
                 _eventSystem.firstSelectedGameObject = null;
             }
 
-            if (_selectionButtons.Count > 0)
+            if (_selectionButtons.Count > 1)
             {
+                // Setup button navigation
+                void ConfigureButtonNavigation(Button button, int index, int count)
+                {
+                    Navigation buttonNavigation = button.navigation;
+                    buttonNavigation.mode = Navigation.Mode.Explicit;
+
+                    int leftIndex = index == 0 ? count - 1 : index - 1;
+                    int rightIndex = index == count - 1 ? 0 : index + 1;
+
+                    buttonNavigation.selectOnLeft = _selectionButtons[leftIndex].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnRight = _selectionButtons[rightIndex].GetComponentInChildren<Button>();
+
+                    button.navigation = buttonNavigation;
+                }
+
+                for (var i = 0; i < _selectionButtons.Count; i++)
+                {
+                    var button = _selectionButtons[i].GetComponentInChildren<Button>();
+                    ConfigureButtonNavigation(button, i, _selectionButtons.Count);
+                }
+
+                float width = (_bigMapCanvasGridLayoutGroup.cellSize.x + _bigMapCanvasGridLayoutGroup.spacing.x) *
+                    _selectionButtons.Count - _bigMapCanvasGridLayoutGroup.spacing.x + 80f;
+                float height = _bigMapCanvasGridLayoutGroup.cellSize.y + 100f;
+
+                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                _bigMapBackgroundTransform.ForceUpdateRectTransforms();
+
                 _bigMapCanvas.alpha = 1f;
                 _bigMapCanvas.interactable = true;
+                _bigMapBackgroundCanvasGroup.alpha = 1f;
                 _isVisible = true;
             }
         }
@@ -216,6 +249,7 @@ namespace Pal3.UI
         {
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
+            _bigMapBackgroundCanvasGroup.alpha = 0f;
             _isVisible = false;
 
             foreach (GameObject button in _selectionButtons)

@@ -81,11 +81,12 @@ namespace Pal3
         // BigMap
         [SerializeField] private CanvasGroup bigMapCanvasGroup;
         [SerializeField] private GameObject bigMapRegionButtonPrefab;
+        [SerializeField] private GameObject bigMapBackground;
 
         // Main menu
         [SerializeField] private CanvasGroup mainMenuCanvasGroup;
         [SerializeField] private GameObject menuButtonPrefab;
-        [SerializeField] private RectTransform blurPanelTransform;
+        [SerializeField] private RectTransform backgroundTransform;
         [SerializeField] private RectTransform contentTransform;
         [SerializeField] private ScrollRect contentScrollRect;
 
@@ -281,7 +282,8 @@ namespace Pal3
                 _inputManager,
                 _scriptManager,
                 bigMapCanvasGroup,
-                bigMapRegionButtonPrefab);
+                bigMapRegionButtonPrefab,
+                bigMapBackground);
             ServiceLocator.Instance.Register(_bigMapManager);
 
             _postProcessManager = gameObject.AddComponent<PostProcessManager>();
@@ -324,7 +326,7 @@ namespace Pal3
                 mainMenuCanvasGroup,
                 menuButtonPrefab,
                 contentScrollRect,
-                blurPanelTransform,
+                backgroundTransform,
                 contentTransform,
                 mainCamera);
             ServiceLocator.Instance.Register(_mainMenu);

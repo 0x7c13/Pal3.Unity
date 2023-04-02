@@ -519,29 +519,24 @@ namespace Pal3.UI
             }
 
             // Setup button navigation
-            for (var i = 0; i < command.Selections.Count; i++)
+            void ConfigureButtonNavigation(Button button, int index, int count)
             {
-                var button = _selectionButtons[i].GetComponentInChildren<Button>();
                 Navigation buttonNavigation = button.navigation;
                 buttonNavigation.mode = Navigation.Mode.Explicit;
 
-                if (i == 0)
-                {
-                    buttonNavigation.selectOnUp = _selectionButtons[^1].GetComponentInChildren<Button>();
-                    buttonNavigation.selectOnDown = _selectionButtons[i + 1].GetComponentInChildren<Button>();
-                }
-                else if (i == command.Selections.Count - 1)
-                {
-                    buttonNavigation.selectOnUp = _selectionButtons[i - 1].GetComponentInChildren<Button>();
-                    buttonNavigation.selectOnDown = _selectionButtons[0].GetComponentInChildren<Button>();
-                }
-                else
-                {
-                    buttonNavigation.selectOnUp = _selectionButtons[i - 1].GetComponentInChildren<Button>();
-                    buttonNavigation.selectOnDown = _selectionButtons[i + 1].GetComponentInChildren<Button>();
-                }
+                int upIndex = index == 0 ? count - 1 : index - 1;
+                int downIndex = index == count - 1 ? 0 : index + 1;
+
+                buttonNavigation.selectOnUp = _selectionButtons[upIndex].GetComponentInChildren<Button>();
+                buttonNavigation.selectOnDown = _selectionButtons[downIndex].GetComponentInChildren<Button>();
 
                 button.navigation = buttonNavigation;
+            }
+
+            for (var i = 0; i < command.Selections.Count; i++)
+            {
+                var button = _selectionButtons[i].GetComponentInChildren<Button>();
+                ConfigureButtonNavigation(button, i, command.Selections.Count);
             }
 
             var firstButton = _selectionButtons.First().GetComponentInChildren<Button>();
