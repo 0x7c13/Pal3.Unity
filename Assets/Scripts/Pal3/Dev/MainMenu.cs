@@ -5,6 +5,7 @@
 
 namespace Pal3.Dev
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -52,7 +53,6 @@ namespace Pal3.Dev
         private MazeSkipper _mazeSkipper;
 
         private CanvasGroup _mainMenuCanvasGroup;
-        private GameObject _mainMenuButtonPrefab;
         private GameObject _menuButtonPrefab;
         private RectTransform _blurPanelTransform;
         private RectTransform _contentTransform;
@@ -1531,7 +1531,6 @@ namespace Pal3.Dev
             InformationManager informationManager,
             MazeSkipper mazeSkipper,
             CanvasGroup mainMenuCanvasGroup,
-            GameObject mainMenuButtonPrefab,
             GameObject menuButtonPrefab,
             ScrollRect contentScrollRect,
             RectTransform blurPanelTransform,
@@ -1550,7 +1549,6 @@ namespace Pal3.Dev
             _informationManager = Requires.IsNotNull(informationManager, nameof(informationManager));
             _mazeSkipper = Requires.IsNotNull(mazeSkipper, nameof(mazeSkipper));
             _mainMenuCanvasGroup = Requires.IsNotNull(mainMenuCanvasGroup, nameof(mainMenuCanvasGroup));
-            _mainMenuButtonPrefab = Requires.IsNotNull(mainMenuButtonPrefab, nameof(mainMenuButtonPrefab));
             _menuButtonPrefab = Requires.IsNotNull(menuButtonPrefab, nameof(menuButtonPrefab));
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
             _blurPanelTransform = Requires.IsNotNull(blurPanelTransform, nameof(blurPanelTransform));
@@ -1717,7 +1715,7 @@ namespace Pal3.Dev
 
             GameObject CreateMainMenuButton(string text, UnityAction onSelection)
             {
-                GameObject menuButton = Instantiate(_mainMenuButtonPrefab, _contentTransform);
+                GameObject menuButton = Instantiate(_menuButtonPrefab, _contentTransform);
 
                 var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.overrideColorTags = true;

@@ -84,7 +84,6 @@ namespace Pal3
 
         // Main menu
         [SerializeField] private CanvasGroup mainMenuCanvasGroup;
-        [SerializeField] private GameObject mainMenuButtonPrefab;
         [SerializeField] private GameObject menuButtonPrefab;
         [SerializeField] private RectTransform blurPanelTransform;
         [SerializeField] private RectTransform contentTransform;
@@ -323,7 +322,6 @@ namespace Pal3
                 _informationManager,
                 _mazeSkipper,
                 mainMenuCanvasGroup,
-                mainMenuButtonPrefab,
                 menuButtonPrefab,
                 contentScrollRect,
                 blurPanelTransform,
