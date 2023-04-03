@@ -672,6 +672,7 @@ namespace Pal3.Dev
                 _menuItems.Add(CreateMenuButton(story.Key, delegate
                 {
                     HideMenu();
+                    _saveManager.IsAutoSaveEnabled = false; // Disable auto save during loading
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                     ExecuteCommands(story.Value);
                 }));
