@@ -17,10 +17,6 @@ namespace Pal3.Dev
     using MetaData;
     using Scene;
     using Script;
-    using State;
-    using UI;
-    using UnityEngine;
-    using UnityEngine.UI;
 
     public sealed class MazeSkipper
     {

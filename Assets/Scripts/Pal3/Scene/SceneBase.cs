@@ -16,7 +16,7 @@ namespace Pal3.Scene
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Data;
-    using Player;
+    using GamePlay;
     using SceneObjects;
     using State;
     using UnityEngine;

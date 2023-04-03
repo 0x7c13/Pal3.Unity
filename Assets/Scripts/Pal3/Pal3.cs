@@ -19,10 +19,10 @@ namespace Pal3
     using Data;
     using Dev;
     using Effect;
-    using Feature;
+    using GamePlay;
+    using GameSystem;
     using Input;
     using IngameDebugConsole;
-    using Player;
     using Scene;
     using Script;
     using Settings;

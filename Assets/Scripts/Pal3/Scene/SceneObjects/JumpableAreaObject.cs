@@ -9,7 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
-    using Player;
+    using GamePlay;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.JumpableArea)]

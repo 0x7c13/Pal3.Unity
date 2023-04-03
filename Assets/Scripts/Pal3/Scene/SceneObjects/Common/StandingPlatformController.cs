@@ -8,7 +8,7 @@ namespace Pal3.Scene.SceneObjects.Common
     using System;
     using Actor;
     using Core.Services;
-    using Player;
+    using GamePlay;
     using UnityEngine;
 
     public class StandingPlatformController : MonoBehaviour

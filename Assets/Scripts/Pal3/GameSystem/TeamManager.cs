@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Player
+namespace Pal3.GameSystem
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +15,7 @@ namespace Pal3.Player
     using Core.DataReader.Scn;
     using Core.Utils;
     using MetaData;
+    using GamePlay;
     using Scene;
     using UnityEngine;
 

@@ -15,8 +15,8 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Core.Services;
+    using GameSystem;
     using MetaData;
-    using Player;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.PaperweightDesk)]

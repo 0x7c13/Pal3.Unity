@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Player
+namespace Pal3.GamePlay
 {
     using System;
     using Command;

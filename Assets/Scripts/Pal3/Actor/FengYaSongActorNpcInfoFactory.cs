@@ -5,7 +5,7 @@
 
 #if PAL3A
 
-namespace Pal3.Player
+namespace Pal3.Actor
 {
     using System;
     using System.Collections.Generic;

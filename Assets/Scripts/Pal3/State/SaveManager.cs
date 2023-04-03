@@ -20,9 +20,9 @@ namespace Pal3.State
     using Core.Utils;
     using Effect;
     using Effect.PostProcessing;
-    using Feature;
+    using GamePlay;
+    using GameSystem;
     using MetaData;
-    using Player;
     using Scene;
     using Script;
     using UI;

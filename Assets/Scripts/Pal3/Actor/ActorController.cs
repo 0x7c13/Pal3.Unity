@@ -16,7 +16,7 @@ namespace Pal3.Actor
     using Core.Services;
     using Input;
     using MetaData;
-    using Player;
+    using GamePlay;
     using Script.Waiter;
     using UnityEngine;
 

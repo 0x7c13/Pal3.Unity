@@ -16,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
-    using Player;
+    using GameSystem;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.GravitySwitch)]

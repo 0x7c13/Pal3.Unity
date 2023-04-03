@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.UI
+namespace Pal3.GameSystem
 {
     using System;
     using System.Collections.Generic;
@@ -19,6 +19,7 @@ namespace Pal3.UI
     using Scene;
     using State;
     using TMPro;
+    using UI;
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;

@@ -17,9 +17,9 @@ namespace Pal3.Camera
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Utils;
+    using GamePlay;
     using Input;
     using MetaData;
-    using Player;
     using Scene;
     using Script.Waiter;
     using State;

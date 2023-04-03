@@ -14,13 +14,13 @@ namespace Pal3.Script
     using Core.DataReader.Sce;
     using Core.Services;
     using Dev;
+    using GamePlay;
+    using GameSystem;
     using MetaData;
     #if PAL3
     using MiniGame;
     #endif
-    using Player;
     using UI;
-    using Feature;
     using Scene;
     using State;
     using UnityEngine;

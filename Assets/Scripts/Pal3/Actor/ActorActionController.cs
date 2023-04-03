@@ -20,7 +20,7 @@ namespace Pal3.Actor
     using Core.Services;
     using Data;
     using MetaData;
-    using Player;
+    using GamePlay;
     using Renderer;
     using Script.Waiter;
     using State;
