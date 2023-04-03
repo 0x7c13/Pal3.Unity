@@ -342,8 +342,7 @@ namespace ResourceViewer
                 {
                     mv3AnimationRenderer.Init(mv3File,
                         _resourceProvider.GetMaterialFactory(),
-                        textureProvider,
-                        Color.white);
+                        textureProvider);
                 }
 
                 mv3AnimationRenderer.StartAnimation();

@@ -364,6 +364,7 @@ namespace Pal3
             _sceneManager.Dispose();
             _touchControlUIManager.Dispose();
             _favorManager.Dispose();
+            _saveManager.Dispose();
 
             #if PAL3
             _appraisalsMiniGame.Dispose();

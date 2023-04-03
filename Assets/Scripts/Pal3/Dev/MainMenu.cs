@@ -39,6 +39,8 @@ namespace Pal3.Dev
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<GameStateChangedNotification>
     {
+        private const int SAVE_SLOT_COUNT = 5;
+
         private GameSettings _gameSettings;
         private AudioManager _audioManager;
         private InputManager _inputManager;
@@ -258,12 +260,7 @@ namespace Pal3.Dev
 
         private void SetupMainMenuButtons()
         {
-            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(500, 75);
-            _contentGridLayoutGroup.spacing = new Vector2(20, 20);
-            _contentScrollRect.horizontal = false;
-            _contentScrollRect.vertical = false;
+            SetupMenuLayout(isVertical: true);
 
             if (!_isInInitView)
             {
@@ -281,35 +278,20 @@ namespace Pal3.Dev
                 StartNewGame();
             }));
 
-            if (_saveManager.SaveFileExists())
-            {
-                _menuItems.Add(CreateMenuButton("读取存档", delegate
-                {
-                    HideMenu();
-                    var saveFileContent = _saveManager.LoadFromSaveFile();
-                    if (saveFileContent == null)
-                    {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
-                        StartNewGame();
-                    }
-                    else
-                    {
-                        ExecuteCommandsFromSaveFile(saveFileContent);
-                    }
-                }));
-            }
-
             if (!_isInInitView)
             {
                 _menuItems.Add(CreateMenuButton("保存游戏", delegate
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(_saveManager.SaveGameStateToFile()
-                        ? new UIDisplayNoteCommand("游戏保存成功")
-                        : new UIDisplayNoteCommand("游戏保存失败"));
-                    HideMenu();
-                    _gameStateManager.GoToState(GameState.Gameplay);
+                    DestroyAllMenuItems();
+                    SetupSaveMenuButtons();
                 }));
             }
+
+            _menuItems.Add(CreateMenuButton("读取存档", delegate
+            {
+                DestroyAllMenuItems();
+                SetupLoadMenuButtons();
+            }));
 
             _menuItems.Add(CreateMenuButton("剧情选择", delegate
             {
@@ -363,12 +345,7 @@ namespace Pal3.Dev
 
         private void SetupSettingButtons()
         {
-            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(500, 75);
-            _contentGridLayoutGroup.spacing = new Vector2(20, 20);
-            _contentScrollRect.horizontal = false;
-            _contentScrollRect.vertical = false;
+            SetupMenuLayout(isVertical: true);
 
             const string lightingEnabledText = "实时光影：已开启";
             const string lightingDisabledText = "实时光影：已关闭";
@@ -563,14 +540,124 @@ namespace Pal3.Dev
                 - _contentGridLayoutGroup.spacing.y + 100f);
         }
 
+        private void SetupSaveMenuButtons()
+        {
+            SetupMenuLayout(isVertical: true);
+
+            const string saveSlotButtonFormat = "存档位 {0}：{1}";
+            // 0 is reserved for auto-save
+            for (int i = 1; i <= SAVE_SLOT_COUNT; i++)
+            {
+                string slotButtonText = _saveManager.SaveSlotExists(i) ? string.Format(saveSlotButtonFormat, i,
+                    _saveManager.GetSaveSlotLastWriteTime(i)) : string.Format(saveSlotButtonFormat, i, "空");
+
+                var slotIndex = i;
+                _menuItems.Add(CreateMenuButton(slotButtonText, delegate
+                {
+                    IList<ICommand> gameStateCommands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
+                    bool success = _saveManager.SaveGameStateToSlot(slotIndex, gameStateCommands);
+                    CommandDispatcher<ICommand>.Instance.Dispatch(success
+                        ? new UIDisplayNoteCommand("游戏保存成功")
+                        : new UIDisplayNoteCommand("游戏保存失败"));
+                    if (success)
+                    {
+                        // Update button text
+                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
+                                { } textUGUI && textUGUI.text.Equals(slotButtonText, StringComparison.Ordinal))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                            string.Format(saveSlotButtonFormat, slotIndex, _saveManager.GetSaveSlotLastWriteTime(slotIndex));
+                    }
+                }));
+            }
+
+            _menuItems.Add(CreateMenuButton("返回", delegate
+            {
+                DestroyAllMenuItems();
+                SetupMainMenuButtons();
+            }));
+
+            SetupButtonNavigations(isUpAndDown: true);
+
+            SelectFirstButtonForEventSystem();
+
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
+                _contentGridLayoutGroup.cellSize.x + 100f,
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
+                - _contentGridLayoutGroup.spacing.y + 100f);
+        }
+
+        private void SetupLoadMenuButtons()
+        {
+            SetupMenuLayout(isVertical: true);
+
+            bool autoSaveSlotExists = _saveManager.SaveSlotExists(SaveManager.AutoSaveSlotIndex);
+            string autoSaveSlotButtonText = autoSaveSlotExists ? $"自动存档：{_saveManager.GetSaveSlotLastWriteTime(SaveManager.AutoSaveSlotIndex)}"
+                : "自动存档：无";
+
+            _menuItems.Add(CreateMenuButton(autoSaveSlotButtonText, delegate
+            {
+                if (!autoSaveSlotExists) return;
+                var saveFileContent = _saveManager.LoadFromSaveSlot(SaveManager.AutoSaveSlotIndex);
+                if (saveFileContent != null)
+                {
+                    HideMenu();
+                    ExecuteCommandsFromSaveFile(saveFileContent);
+                }
+                else
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch( new UIDisplayNoteCommand("存档文件不存在或读取失败"));
+                }
+            }));
+
+            const string saveSlotButtonFormat = "存档位 {0}：{1}";
+            // 0 is reserved for auto-save
+            for (int i = 1; i <= SAVE_SLOT_COUNT; i++)
+            {
+                bool slotExists = _saveManager.SaveSlotExists(i);
+                string slotButtonText = slotExists ? string.Format(saveSlotButtonFormat, i,
+                    _saveManager.GetSaveSlotLastWriteTime(i)) : string.Format(saveSlotButtonFormat, i, "空");
+
+                var slotIndex = i;
+                if (slotExists)
+                {
+                    _menuItems.Add(CreateMenuButton(slotButtonText, delegate
+                    {
+                        var saveFileContent = _saveManager.LoadFromSaveSlot(slotIndex);
+                        if (saveFileContent != null)
+                        {
+                            HideMenu();
+                            ExecuteCommandsFromSaveFile(saveFileContent);
+                        }
+                        else
+                        {
+                            CommandDispatcher<ICommand>.Instance.Dispatch( new UIDisplayNoteCommand("存档文件不存在或读取失败"));
+                        }
+                    }));
+                }
+                else
+                {
+                    _menuItems.Add(CreateMenuButton(slotButtonText, null));
+                }
+            }
+
+            _menuItems.Add(CreateMenuButton("返回", delegate
+            {
+                DestroyAllMenuItems();
+                SetupMainMenuButtons();
+            }));
+
+            SetupButtonNavigations(isUpAndDown: true);
+
+            SelectFirstButtonForEventSystem();
+
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
+                _contentGridLayoutGroup.cellSize.x + 100f,
+                (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
+                - _contentGridLayoutGroup.spacing.y + 100f);
+        }
+
         private void SetupStorySelectionButtons()
         {
-            _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
-            _contentGridLayoutGroup.constraintCount = 1;
-            _contentGridLayoutGroup.cellSize = new Vector2(45, 500);
-            _contentGridLayoutGroup.spacing = new Vector2(10, 30);
-            _contentScrollRect.horizontal = true;
-            _contentScrollRect.vertical = false;
+            SetupMenuLayout(isVertical: false);
 
             _menuItems.Add(CreateMenuButton("返回", delegate
             {
@@ -631,8 +718,33 @@ namespace Pal3.Dev
             buttonTextUI.text = text;
             var button = menuButton.GetComponent<Button>();
             button.colors = UITheme.GetButtonColors();
-            button.onClick.AddListener(onSelection);
+            if (onSelection != null)
+            {
+                button.onClick.AddListener(onSelection);
+            }
             return menuButton;
+        }
+
+        private void SetupMenuLayout(bool isVertical)
+        {
+            if (isVertical)
+            {
+                _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                _contentGridLayoutGroup.constraintCount = 1;
+                _contentGridLayoutGroup.cellSize = new Vector2(500, 75);
+                _contentGridLayoutGroup.spacing = new Vector2(20, 20);
+                _contentScrollRect.horizontal = false;
+                _contentScrollRect.vertical = false;
+            }
+            else
+            {
+                _contentGridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+                _contentGridLayoutGroup.constraintCount = 1;
+                _contentGridLayoutGroup.cellSize = new Vector2(45, 500);
+                _contentGridLayoutGroup.spacing = new Vector2(10, 30);
+                _contentScrollRect.horizontal = true;
+                _contentScrollRect.vertical = false;
+            }
         }
 
         private void SetupButtonNavigations(bool isUpAndDown)
@@ -751,8 +863,8 @@ namespace Pal3.Dev
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {
-            DestroyAllMenuItems();
             _isInInitView = true;
+            DestroyAllMenuItems();
             ShowInitView();
             ShowMenu();
         }
@@ -791,6 +903,10 @@ namespace Pal3.Dev
             if (_mainMenuCanvasGroup.interactable)
             {
                 _gameStateManager.GoToState(GameState.Cutscene);
+            }
+            else if (command.NewState == GameState.Gameplay)
+            {
+                _saveManager.IsAutoSaveEnabled = true;
             }
         }
     }

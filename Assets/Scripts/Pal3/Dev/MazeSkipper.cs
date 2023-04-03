@@ -656,7 +656,8 @@ namespace Pal3.Dev
             { "m11_4_1", new List<ICommand>()
             {
                 new ActorSetNavLayerCommand(-1, 1),
-                new ActorSetTilePositionCommand(-1, 118, 236)
+                new ActorSetTilePositionCommand(-1, 118, 236),
+                new PlayerInteractWithObjectCommand(10)
             }},
             { "m12_1_0", new List<ICommand>()
             {

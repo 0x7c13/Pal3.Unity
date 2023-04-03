@@ -18,14 +18,12 @@ namespace Pal3.State
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Utils;
-    using Effect;
     using Effect.PostProcessing;
     using GamePlay;
     using GameSystem;
     using MetaData;
     using Scene;
     using Script;
-    using UI;
     using UnityEngine;
     using Path = System.IO.Path;
 
@@ -35,9 +33,17 @@ namespace Pal3.State
         Full
     }
 
-    public class SaveManager
+    public class SaveManager : IDisposable,
+        ICommandExecutor<GameStateChangedNotification>,
+        ICommandExecutor<GameSwitchToMainMenuCommand>
     {
-        private const string SAVE_FILE_NAME = "save.txt";
+        public const int AutoSaveSlotIndex = 0;
+        public bool IsAutoSaveEnabled { get; set; } = false;
+
+        private const string LEGACY_SAVE_FILE_NAME = "save.txt";
+        private const string SAVE_FILE_FORMAT = "slot_{0}.txt";
+        private const string SAVE_FOLDER_NAME = "Saves";
+        private const float AUTO_SAVE_MIN_DURATION = 180f;
 
         private readonly SceneManager _sceneManager;
         private readonly PlayerManager _playerManager;
@@ -50,6 +56,8 @@ namespace Pal3.State
         private readonly CameraManager _cameraManager;
         private readonly AudioManager _audioManager;
         private readonly PostProcessManager _postProcessManager;
+
+        private double _lastAutoSaveTime = -AUTO_SAVE_MIN_DURATION;
 
         public SaveManager(SceneManager sceneManager,
             PlayerManager playerManager,
@@ -74,26 +82,59 @@ namespace Pal3.State
             _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
             _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _postProcessManager = Requires.IsNotNull(postProcessManager, nameof(postProcessManager));
+
+            string saveFolder = GetSaveFolderPath();
+            if (!Directory.Exists(saveFolder))
+            {
+                Directory.CreateDirectory(saveFolder);
+            }
+
+            // Migrate old save file if exists
+            // TODO: Remove this after a few versions
+            {
+                string legacySaveFilePath = Application.persistentDataPath +
+                                            Path.DirectorySeparatorChar + LEGACY_SAVE_FILE_NAME;
+                if (File.Exists(legacySaveFilePath))
+                {
+                    // Migrate old save file to slot 1
+                    File.Move(legacySaveFilePath, GetSaveFilePath(1));
+                }
+            }
+
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private string GetSaveFilePath()
+        public void Dispose()
         {
-            return Application.persistentDataPath +
-                   Path.DirectorySeparatorChar + SAVE_FILE_NAME;
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public bool SaveFileExists()
+        private string GetSaveFolderPath()
         {
-            return File.Exists(GetSaveFilePath());
+            return Application.persistentDataPath + Path.DirectorySeparatorChar + SAVE_FOLDER_NAME;
         }
 
-        public bool SaveGameStateToFile()
+        private string GetSaveFilePath(int slotIndex)
         {
-            string saveFilePath = GetSaveFilePath();
+            return GetSaveFolderPath() + Path.DirectorySeparatorChar + string.Format(SAVE_FILE_FORMAT, slotIndex);
+        }
+
+        public bool SaveSlotExists(int slotIndex)
+        {
+            return File.Exists(GetSaveFilePath(slotIndex));
+        }
+
+        public DateTime GetSaveSlotLastWriteTime(int slotIndex)
+        {
+            return File.GetLastWriteTime(GetSaveFilePath(slotIndex));
+        }
+
+        public bool SaveGameStateToSlot(int slotIndex, IList<ICommand> stateCommands)
+        {
+            string saveFilePath = GetSaveFilePath(slotIndex);
             try
             {
-                var commands = ConvertCurrentGameStateToCommands(SaveLevel.Full);
-                File.WriteAllText(saveFilePath, string.Join('\n', commands.Select(CommandExtensions.ToString).ToList()));
+                File.WriteAllText(saveFilePath, string.Join('\n', stateCommands.Select(CommandExtensions.ToString).ToList()));
                 Debug.Log($"Game state saved to: {saveFilePath}");
                 return true;
             }
@@ -104,9 +145,9 @@ namespace Pal3.State
             }
         }
 
-        public string LoadFromSaveFile()
+        public string LoadFromSaveSlot(int slotIndex)
         {
-            return SaveFileExists() ? File.ReadAllText(GetSaveFilePath()) : null;
+            return SaveSlotExists(slotIndex) ? File.ReadAllText(GetSaveFilePath(slotIndex)) : null;
         }
 
         public List<ICommand> ConvertCurrentGameStateToCommands(SaveLevel saveLevel)
@@ -306,7 +347,33 @@ namespace Pal3.State
 
             // Good to have
             commands.Add(new CameraFadeInCommand());
+
             return commands;
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (!IsAutoSaveEnabled) return;
+
+            // Auto save game state in auto-save slot when entering gameplay state
+            if (command.NewState == GameState.Gameplay &&
+                Time.realtimeSinceStartupAsDouble - _lastAutoSaveTime > AUTO_SAVE_MIN_DURATION)
+            {
+                IList<ICommand> gameStateCommands = ConvertCurrentGameStateToCommands(SaveLevel.Full);
+
+                bool success = SaveGameStateToSlot(AutoSaveSlotIndex, gameStateCommands);
+                if (success)
+                {
+                    _lastAutoSaveTime = Time.realtimeSinceStartupAsDouble;
+                }
+
+                Debug.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}.");
+            }
+        }
+
+        public void Execute(GameSwitchToMainMenuCommand command)
+        {
+            IsAutoSaveEnabled = false;
         }
     }
 }
