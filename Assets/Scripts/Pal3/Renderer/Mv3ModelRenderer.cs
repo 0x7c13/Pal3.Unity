@@ -60,16 +60,16 @@ namespace Pal3.Renderer
         public void Init(Mv3File mv3File,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
-            Color tintColor,
+            Color? tintColor = default,
             PolFile tagNodePolFile = default,
             ITextureResourceProvider tagNodeTextureProvider = default,
-            Color tagNodeTintColor = default)
+            Color? tagNodeTintColor = default)
         {
             DisposeAnimation();
 
             _materialFactory = materialFactory;
             _textureProvider = textureProvider;
-            _tintColor = tintColor;
+            _tintColor = tintColor ?? Color.white;
 
             _events = mv3File.AnimationEvents;
             _duration = mv3File.Duration;
