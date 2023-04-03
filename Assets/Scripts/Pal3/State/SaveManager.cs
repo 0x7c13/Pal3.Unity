@@ -356,7 +356,9 @@ namespace Pal3.State
             if (!IsAutoSaveEnabled) return;
 
             // Auto save game state in auto-save slot when entering gameplay state
+            // and no script is running
             if (command.NewState == GameState.Gameplay &&
+                _scriptManager.GetNumberOfRunningScripts() == 0 &&
                 Time.realtimeSinceStartupAsDouble - _lastAutoSaveTime > AUTO_SAVE_MIN_DURATION)
             {
                 IList<ICommand> gameStateCommands = ConvertCurrentGameStateToCommands(SaveLevel.Full);

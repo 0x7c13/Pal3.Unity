@@ -189,10 +189,10 @@ namespace Pal3.Dev
                 _initViewCameraOrbitAnimationCts.Cancel();
             }
             _initViewCameraOrbitAnimationCts = new CancellationTokenSource();
-            StartCoroutine(StartCameraOrbitAnimation(_initViewCameraOrbitAnimationCts.Token));
+            StartCoroutine(StartCameraOrbitAnimationAsync(_initViewCameraOrbitAnimationCts.Token));
         }
 
-        private IEnumerator StartCameraOrbitAnimation(CancellationToken cancellationToken)
+        private IEnumerator StartCameraOrbitAnimationAsync(CancellationToken cancellationToken)
         {
             #if PAL3
             _mainCamera.fieldOfView = 14f;
@@ -563,7 +563,8 @@ namespace Pal3.Dev
                     {
                         // Update button text
                         _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                                { } textUGUI && textUGUI.text.Equals(slotButtonText, StringComparison.Ordinal))!.GetComponentInChildren<TextMeshProUGUI>().text =
+                                { } textUGUI && textUGUI.text.Equals(slotButtonText, StringComparison.Ordinal))!
+                                .GetComponentInChildren<TextMeshProUGUI>().text =
                             string.Format(saveSlotButtonFormat, slotIndex, _saveManager.GetSaveSlotLastWriteTime(slotIndex));
                     }
                 }));
@@ -756,17 +757,17 @@ namespace Pal3.Dev
                 buttonNavigation.mode = Navigation.Mode.Explicit;
 
                 int previousIndex = index == 0 ? count - 1 : index - 1;
-                int NextIndex = index == count - 1 ? 0 : index + 1;
+                int nextIndex = index == count - 1 ? 0 : index + 1;
 
                 if (isUpAndDown)
                 {
                     buttonNavigation.selectOnUp = _menuItems[previousIndex].GetComponentInChildren<Button>();
-                    buttonNavigation.selectOnDown = _menuItems[NextIndex].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnDown = _menuItems[nextIndex].GetComponentInChildren<Button>();
                 }
                 else
                 {
                     buttonNavigation.selectOnLeft = _menuItems[previousIndex].GetComponentInChildren<Button>();
-                    buttonNavigation.selectOnRight = _menuItems[NextIndex].GetComponentInChildren<Button>();
+                    buttonNavigation.selectOnRight = _menuItems[nextIndex].GetComponentInChildren<Button>();
                 }
 
                 button.navigation = buttonNavigation;
@@ -817,6 +818,7 @@ namespace Pal3.Dev
         private void ExecuteCommandsFromSaveFile(string saveFileContent)
         {
             _informationManager.EnableNoteDisplay(false);
+            _saveManager.IsAutoSaveEnabled = false; // Disable auto save during loading
 
             _deferredExecutionCommands.Clear();
 
@@ -871,12 +873,23 @@ namespace Pal3.Dev
 
         public void Execute(ScenePostLoadingNotification command)
         {
-            if (_deferredExecutionCommands.Count == 0) return;
+            if (_deferredExecutionCommands.Count == 0)
+            {
+                if (!_isInInitView)
+                {
+                    _saveManager.IsAutoSaveEnabled = true;
+                }
+                return;
+            }
 
             if (command.SceneScriptId == ScriptConstants.InvalidScriptId)
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
+                if (!_isInInitView)
+                {
+                    _saveManager.IsAutoSaveEnabled = true;
+                }
             }
             else
             {
@@ -887,10 +900,16 @@ namespace Pal3.Dev
         private IEnumerator ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(uint scriptId)
         {
             yield return new WaitUntilScriptFinished(PalScriptType.Scene, scriptId);
+
             if (_deferredExecutionCommands.Count > 0)
             {
                 ExecuteCommands(string.Join('\n', _deferredExecutionCommands));
                 _deferredExecutionCommands.Clear();
+            }
+
+            if (!_isInInitView)
+            {
+                _saveManager.IsAutoSaveEnabled = true;
             }
         }
 
@@ -903,10 +922,6 @@ namespace Pal3.Dev
             if (_mainMenuCanvasGroup.interactable)
             {
                 _gameStateManager.GoToState(GameState.Cutscene);
-            }
-            else if (command.NewState == GameState.Gameplay)
-            {
-                _saveManager.IsAutoSaveEnabled = true;
             }
         }
     }
