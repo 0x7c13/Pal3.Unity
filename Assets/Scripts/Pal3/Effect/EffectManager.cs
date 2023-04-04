@@ -15,6 +15,7 @@ namespace Pal3.Effect
     using Data;
     using MetaData;
     using Scene;
+    using Script.Waiter;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -56,8 +57,12 @@ namespace Pal3.Effect
         {
             // In PAL3A, PreLoad command is always issued right before the effect is played.
             // So it is pointless to pre-load the effect here for PAL3A.
+            // Even with a waiter, we need to make sure waiter's current execution mode is set
+            // to synchronous otherwise the effect will be played before the pre-load is finished.
             #if PAL3
-            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
+            WaitUntilCanceled waiter = new ();
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId, () => waiter.CancelWait()));
             #endif
         }
 

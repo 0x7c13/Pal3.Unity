@@ -168,7 +168,7 @@ namespace Pal3.Effect.PostProcessing
             #if UNITY_IOS
             if (command.SettingName is nameof(GameSettings.ResolutionScale))
             {
-                StartCoroutine(ReloadAmbientOcclusionSetting());
+                StartCoroutine(ReloadAmbientOcclusionSettingAsync());
             }
             #endif
         }
@@ -176,12 +176,12 @@ namespace Pal3.Effect.PostProcessing
         #if UNITY_IOS
         private IEnumerator Start()
         {
-            yield return ReloadAmbientOcclusionSetting();
+            yield return ReloadAmbientOcclusionSettingAsync();
         }
 
         // On iOS, the SSAO and Resolution changing are causing the RoundedFrostedGlass
         // shader to malfunction. This is a workaround to disable and re-enable SSAO to fix the issue.
-        private IEnumerator ReloadAmbientOcclusionSetting()
+        private IEnumerator ReloadAmbientOcclusionSettingAsync()
         {
             if (_gameSettings.IsAmbientOcclusionEnabled)
             {

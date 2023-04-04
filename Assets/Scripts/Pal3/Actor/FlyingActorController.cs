@@ -5,12 +5,12 @@
 
 namespace Pal3.Actor
 {
+    using System;
     using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.GameBox;
-    using GamePlay;
     using Script.Waiter;
     using UnityEngine;
 
@@ -75,10 +75,10 @@ namespace Pal3.Actor
                 ? _actor.GetMovementAction(MovementMode.Walk)
                 : _actor.GetMovementAction(MovementMode.Run));
 
-            StartCoroutine(FlyAsync(targetPosition, duration, waiter));
+            StartCoroutine(FlyToAsync(targetPosition, duration, () => waiter.CancelWait()));
         }
 
-        private IEnumerator FlyAsync(Vector3 targetPosition, float duration, WaitUntilCanceled waiter = null)
+        private IEnumerator FlyToAsync(Vector3 targetPosition, float duration, Action onFinished = null)
         {
             Vector3 oldPosition = transform.position;
 
@@ -99,7 +99,7 @@ namespace Pal3.Actor
 
             transform.position = targetPosition;
             _actionController.PerformAction(_actor.GetIdleAction());
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
     }
 }

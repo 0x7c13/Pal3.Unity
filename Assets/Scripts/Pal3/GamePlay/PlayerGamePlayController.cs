@@ -918,12 +918,17 @@ namespace Pal3.GamePlay
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;
-            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject, climbUp,
-                climbAnimationOnly, climbableHeight, lowerPosition, lowerStandingPosition,
-                upperPosition, upperStandingPosition, currentPlayerLayer, currentPlayerLayer, () =>
-                {
-                    waiter.CancelWait();
-                }));
+            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
+                climbUp,
+                climbAnimationOnly,
+                climbableHeight,
+                lowerPosition,
+                lowerStandingPosition,
+                upperPosition,
+                upperStandingPosition,
+                currentPlayerLayer,
+                currentPlayerLayer,
+                () => waiter.CancelWait()));
         }
 
         public IEnumerator PlayerActorMoveToClimbableObjectAndClimbAsync(

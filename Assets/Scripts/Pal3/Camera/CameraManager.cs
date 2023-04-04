@@ -264,43 +264,51 @@ namespace Pal3.Camera
             return Mathf.Rad2Deg * 2 * Mathf.Atan(Mathf.Tan((horizontalFov * Mathf.Deg2Rad) / 2f) / aspect);
         }
 
-        private IEnumerator ShakeAsync(float duration, float amplitude, WaitUntilCanceled waiter = null)
+        private IEnumerator ShakeAsync(float duration, float amplitude, Action onFinished = null)
         {
             _cameraAnimationInProgress = true;
+
             yield return AnimationHelper.ShakeTransformAsync(_camera.transform,
                 duration,
                 amplitude,
                 false,
                 true,
                 false);
+
             _cameraAnimationInProgress = false;
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         private IEnumerator MoveAsync(Vector3 position,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null,
+            Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
             Transform cameraTransform = _camera.transform;
             Vector3 oldPosition = cameraTransform.position;
-            yield return AnimationHelper.MoveTransformAsync(cameraTransform, position, duration, curveType, cancellationToken);
+
+            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
+                position,
+                duration,
+                curveType,
+                cancellationToken);
+
             if (!cancellationToken.IsCancellationRequested)
             {
                 _lastLookAtPoint += position - oldPosition;
                 _cameraOffset = _camera.transform.position - _lastLookAtPoint;
             }
             _cameraAnimationInProgress = false;
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         private IEnumerator OrbitAsync(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
             float distanceDelta,
-            WaitUntilCanceled waiter = null,
+            Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
@@ -318,13 +326,13 @@ namespace Pal3.Camera
                 _cameraOffset = _camera.transform.position - lookAtPoint;
             }
             _cameraAnimationInProgress = false;
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         private IEnumerator RotateAsync(Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null,
+            Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
@@ -334,13 +342,13 @@ namespace Pal3.Camera
                 curveType,
                 cancellationToken);
             _cameraAnimationInProgress = false;
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         public IEnumerator PushAsync(float distance,
             float duration,
             AnimationCurveType curveType,
-            WaitUntilCanceled waiter = null,
+            Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
@@ -361,13 +369,13 @@ namespace Pal3.Camera
                 _cameraOffset = cameraTransform.position - _lastLookAtPoint;
             }
             _cameraAnimationInProgress = false;
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         public IEnumerator FadeAsync(bool fadeIn,
             float duration,
             Color color,
-            WaitUntilCanceled waiter = null,
+            Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
             _curtainImage.color = color;
@@ -386,7 +394,7 @@ namespace Pal3.Camera
                 _curtainImage.color = new Color(color.r, color.g, color.b, to);
             }
 
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         public int GetCurrentAppliedDefaultTransformOption()
@@ -536,7 +544,9 @@ namespace Pal3.Camera
 
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(ShakeAsync(command.Duration, GameBoxInterpreter.ToUnityDistance(command.Amplitude), waiter));
+            StartCoroutine(ShakeAsync(command.Duration,
+                GameBoxInterpreter.ToUnityDistance(command.Amplitude),
+                () => waiter.CancelWait()));
         }
 
         public void Execute(CameraOrbitCommand command)
@@ -546,7 +556,11 @@ namespace Pal3.Camera
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-            StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, 0f, waiter));
+            StartCoroutine(OrbitAsync(rotation,
+                command.Duration,
+                (AnimationCurveType)command.CurveType,
+                0f,
+                () => waiter.CancelWait()));
         }
 
         public void Execute(CameraRotateCommand command)
@@ -562,7 +576,10 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(RotateAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+                StartCoroutine(RotateAsync(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    () => waiter.CancelWait()));
             }
             #if PAL3A
             else
@@ -572,7 +589,7 @@ namespace Pal3.Camera
                 StartCoroutine(RotateAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
             #endif
@@ -584,7 +601,11 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(FadeAsync(true, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(true,
+                FADE_ANIMATION_DURATION,
+                Color.black,
+                () => waiter.CancelWait(),
+                _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeInWhiteCommand command)
@@ -593,7 +614,11 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(FadeAsync(true, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(true,
+                FADE_ANIMATION_DURATION,
+                Color.white,
+                () => waiter.CancelWait(),
+                _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutCommand command)
@@ -602,7 +627,11 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(FadeAsync(false, FADE_ANIMATION_DURATION, Color.black, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(false,
+                FADE_ANIMATION_DURATION,
+                Color.black,
+                () => waiter.CancelWait(),
+                _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraFadeOutWhiteCommand command)
@@ -611,7 +640,11 @@ namespace Pal3.Camera
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(FadeAsync(false, FADE_ANIMATION_DURATION, Color.white, waiter, _cameraFadeAnimationCts.Token));
+            StartCoroutine(FadeAsync(false,
+                FADE_ANIMATION_DURATION,
+                Color.white,
+                () => waiter.CancelWait(),
+                _cameraFadeAnimationCts.Token));
         }
 
         public void Execute(CameraPushCommand command)
@@ -627,7 +660,10 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 var distance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
-                StartCoroutine(PushAsync(distance, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+                StartCoroutine(PushAsync(distance,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    () => waiter.CancelWait()));
             }
             #if PAL3A
             else
@@ -637,7 +673,7 @@ namespace Pal3.Camera
                 StartCoroutine(PushAsync(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
             #endif
@@ -659,7 +695,10 @@ namespace Pal3.Camera
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition));
-                StartCoroutine(MoveAsync(position, command.Duration, (AnimationCurveType)command.CurveType, waiter));
+                StartCoroutine(MoveAsync(position,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    () => waiter.CancelWait()));
             }
             #if PAL3A
             else
@@ -672,7 +711,7 @@ namespace Pal3.Camera
                 StartCoroutine(MoveAsync(position,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
             #endif
@@ -784,7 +823,11 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+                StartCoroutine(OrbitAsync(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    () => waiter.CancelWait()));
             }
             else
             {
@@ -794,7 +837,7 @@ namespace Pal3.Camera
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     distanceDelta,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
         }
@@ -812,7 +855,11 @@ namespace Pal3.Camera
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
-                StartCoroutine(OrbitAsync(rotation, command.Duration, (AnimationCurveType)command.CurveType, distanceDelta, waiter));
+                StartCoroutine(OrbitAsync(rotation,
+                    command.Duration,
+                    (AnimationCurveType)command.CurveType,
+                    distanceDelta,
+                    () => waiter.CancelWait()));
             }
             else
             {
@@ -822,7 +869,7 @@ namespace Pal3.Camera
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
                     distanceDelta,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
         }
@@ -843,7 +890,10 @@ namespace Pal3.Camera
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition));
-                StartCoroutine(MoveAsync(position, duration, AnimationCurveType.Sine, waiter));
+                StartCoroutine(MoveAsync(position,
+                    duration,
+                    AnimationCurveType.Sine,
+                    () => waiter.CancelWait()));
             }
             else
             {
@@ -855,7 +905,7 @@ namespace Pal3.Camera
                 StartCoroutine(MoveAsync(position,
                     duration,
                     AnimationCurveType.Sine,
-                    waiter: null,
+                    onFinished: null,
                     _asyncCameraAnimationCts.Token));
             }
         }
@@ -870,7 +920,10 @@ namespace Pal3.Camera
             if (_gamePlayController.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
             {
                 Vector3 position = _cameraOffset + playerActorPosition;
-                StartCoroutine(MoveAsync(position, command.Duration, AnimationCurveType.Sine, waiter));
+                StartCoroutine(MoveAsync(position,
+                    command.Duration,
+                    AnimationCurveType.Sine,
+                    () => waiter.CancelWait()));
             }
             else
             {

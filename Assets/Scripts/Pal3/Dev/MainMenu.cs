@@ -561,11 +561,14 @@ namespace Pal3.Dev
                         : new UIDisplayNoteCommand("游戏保存失败"));
                     if (success)
                     {
+                        string newButtonText = string.Format(saveSlotButtonFormat, slotIndex,
+                            _saveManager.GetSaveSlotLastWriteTime(slotIndex));
                         // Update button text
+                        var currentButtonText = slotButtonText;
                         _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                                { } textUGUI && textUGUI.text.Equals(slotButtonText, StringComparison.Ordinal))!
-                                .GetComponentInChildren<TextMeshProUGUI>().text =
-                            string.Format(saveSlotButtonFormat, slotIndex, _saveManager.GetSaveSlotLastWriteTime(slotIndex));
+                                { } textUGUI && textUGUI.text.Equals(currentButtonText, StringComparison.Ordinal))!
+                            .GetComponentInChildren<TextMeshProUGUI>().text = newButtonText;
+                        slotButtonText = newButtonText;
                     }
                 }));
             }

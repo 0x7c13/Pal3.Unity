@@ -180,14 +180,14 @@ namespace Pal3.Actor
             }
         }
 
-        private IEnumerator AnimateScaleAsync(float toScale, float duration, WaitUntilCanceled waiter = null)
+        private IEnumerator AnimateScaleAsync(float toScale, float duration, Action onFinished = null)
         {
             yield return AnimationHelper.EnumerateValueAsync(transform.localScale.x,
                 toScale, duration, AnimationCurveType.Linear, value =>
                 {
                     transform.localScale = new Vector3(value, value, value);
                 });
-            waiter?.CancelWait();
+            onFinished?.Invoke();
         }
 
         public void Execute(ActorSetFacingCommand command)
@@ -259,9 +259,8 @@ namespace Pal3.Actor
         {
             if (command.ActorId != _actor.Info.Id) return;
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(AnimateScaleAsync(command.Scale, 2f, waiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            StartCoroutine(AnimateScaleAsync(command.Scale, 2f, () => waiter.CancelWait()));
         }
 
         public void Execute(ActorSetYPositionCommand command)

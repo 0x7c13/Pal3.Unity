@@ -313,7 +313,10 @@ namespace Pal3.Data
             return sfxFilePath;
         }
 
-        public IEnumerator LoadAudioClipAsync(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
+        public IEnumerator LoadAudioClipAsync(string filePath,
+            AudioType audioType,
+            bool streamAudio,
+            Action<AudioClip> onLoaded)
         {
             var fileName = Path.GetFileName(filePath);
             var shouldCache = _audioClipCacheList.Contains(fileName);
@@ -322,19 +325,22 @@ namespace Pal3.Data
             {
                 if (_audioClipCache[fileName] != null) // check if clip has been destroyed
                 {
-                    callback?.Invoke(_audioClipCache[fileName]);
+                    onLoaded?.Invoke(_audioClipCache[fileName]);
                     yield break;
                 }
             }
 
-            yield return AudioClipLoader.LoadAudioClipAsync(filePath, audioType, streamAudio, audioClip =>
+            yield return AudioClipLoader.LoadAudioClipAsync(filePath,
+                audioType,
+                streamAudio,
+                audioClip =>
             {
                 if (shouldCache && audioClip != null)
                 {
                     _audioClipCache[fileName] = audioClip;
                 }
 
-                callback?.Invoke(audioClip);
+                onLoaded?.Invoke(audioClip);
             });
         }
 
@@ -577,19 +583,17 @@ namespace Pal3.Data
             }
 
             Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
-            if (vfxPrefab != null)
-            {
-                _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
-                return vfxPrefab;
-            }
-            else
+
+            if (vfxPrefab == null)
             {
                 Debug.LogWarning("VFX prefab not found: " + effectGroupId);
-                return null;
             }
+
+            _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
+            return vfxPrefab;
         }
 
-        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
+        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId, Action onFinished = null)
         {
             if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
             {
@@ -603,11 +607,17 @@ namespace Pal3.Data
                 yield return request;
             }
 
-            if (request.asset != null)
+            if (request.asset == null)
             {
-                _vfxEffectPrefabCache[effectGroupId] = request.asset;
+                Debug.LogWarning("VFX prefab not found: " + effectGroupId);
+            }
+            else
+            {
                 Debug.Log("VFX prefab preloaded: " + effectGroupId);
             }
+
+            _vfxEffectPrefabCache[effectGroupId] = request.asset;
+            onFinished?.Invoke();
         }
 
         public Texture2D GetCursorTexture()

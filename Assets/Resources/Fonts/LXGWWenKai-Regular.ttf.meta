@@ -4,7 +4,7 @@ TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
   fontSize: 16
-  forceTextureCase: -2
+  forceTextureCase: 3
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1

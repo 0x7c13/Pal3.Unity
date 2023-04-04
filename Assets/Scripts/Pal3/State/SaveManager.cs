@@ -43,7 +43,7 @@ namespace Pal3.State
         private const string LEGACY_SAVE_FILE_NAME = "save.txt";
         private const string SAVE_FILE_FORMAT = "slot_{0}.txt";
         private const string SAVE_FOLDER_NAME = "Saves";
-        private const float AUTO_SAVE_MIN_DURATION = 180f; // 3 minutes
+        private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
 
         private readonly SceneManager _sceneManager;
         private readonly PlayerManager _playerManager;

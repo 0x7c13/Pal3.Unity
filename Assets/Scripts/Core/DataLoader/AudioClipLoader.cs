@@ -18,9 +18,12 @@ namespace Core.DataLoader
         /// <param name="filePath">Audio file path</param>
         /// <param name="audioType">Audio type</param>
         /// <param name="streamAudio">Create streaming AudioClip</param>
-        /// <param name="callback">AudioClip callback invoker</param>
+        /// <param name="onLoaded">AudioClip callback invoker when loaded</param>
         /// <returns>IEnumerator</returns>
-        public static IEnumerator LoadAudioClipAsync(string filePath, AudioType audioType, bool streamAudio, Action<AudioClip> callback)
+        public static IEnumerator LoadAudioClipAsync(string filePath,
+            AudioType audioType,
+            bool streamAudio,
+            Action<AudioClip> onLoaded)
         {
             if (filePath.StartsWith("/")) filePath = filePath[1..];
 
@@ -42,7 +45,7 @@ namespace Core.DataLoader
                     ((DownloadHandlerAudioClip) request.downloadHandler).streamAudio = streamAudio;
 
                     AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
-                    callback?.Invoke(audioClip);
+                    onLoaded?.Invoke(audioClip);
                 }
                 catch (Exception ex)
                 {

@@ -136,7 +136,7 @@ namespace Pal3.GameSystem
             return _totalTimeUsedBeforeSkippingTheLastDialogue < LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS;
         }
 
-        IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
+        private IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
         {
             var charTypingAnimationDelay = new WaitForSeconds(waitSecondsBeforeRenderingChar);
 
@@ -234,10 +234,10 @@ namespace Pal3.GameSystem
             yield return text;
         }
 
-        public IEnumerator RenderDialogueAndWaitAsync(string text,
+        private IEnumerator RenderDialogueAndWaitAsync(string text,
             bool trackReactionTime,
-            WaitUntilCanceled waitUntilCanceled,
-            DialogueRenderActorAvatarCommand avatarCommand = null)
+            DialogueRenderActorAvatarCommand avatarCommand = null,
+            Action onFinished = null)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
 
@@ -305,8 +305,10 @@ namespace Pal3.GameSystem
             yield return StartDialogueAnimationAsync(false);
 
             ResetUI();
-            waitUntilCanceled.CancelWait();
+
             _isDialoguePresenting = false;
+
+            onFinished?.Invoke();
         }
 
         private IEnumerator StartDialogueAnimationAsync(bool showDialogue)
@@ -361,7 +363,7 @@ namespace Pal3.GameSystem
             _selectionButtons.Clear();
         }
 
-        IEnumerator SkipDialogueRequestedAsync()
+        private IEnumerator SkipDialogueRequestedAsync()
         {
             yield return new WaitUntil(() => _isSkipDialogueRequested);
             _isSkipDialogueRequested = false;
@@ -436,7 +438,10 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
-                GetDisplayText(command.DialogueText), false, skipDialogueWaiter, avatarCommand));
+                GetDisplayText(command.DialogueText),
+                false,
+                avatarCommand,
+                () => skipDialogueWaiter.CancelWait()));
             _lastAvatarCommand = null;
         }
 
@@ -446,7 +451,10 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
-                GetDisplayText(command.DialogueText), true, skipDialogueWaiter, avatarCommand));
+                GetDisplayText(command.DialogueText),
+                true,
+                avatarCommand,
+                () => skipDialogueWaiter.CancelWait()));
             _lastAvatarCommand = null;
         }
 
@@ -497,7 +505,7 @@ namespace Pal3.GameSystem
         {
             _gameStateManager.GoToState(GameState.MenuShowing);
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new ();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
