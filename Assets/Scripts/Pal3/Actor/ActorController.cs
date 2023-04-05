@@ -134,6 +134,10 @@ namespace Pal3.Actor
                     case ScnActorBehaviour.Hold:
                         _currentBehaviour = ScnActorBehaviour.Hold;
                         _actionController.PerformAction(_actor.GetInitAction());
+                        if (_actor.Info.LoopAction == 0)
+                        {
+                            _actionController.PauseAnimation(); // Hold at the first frame
+                        }
                         break;
                     case ScnActorBehaviour.Wander:
                         _currentBehaviour = ScnActorBehaviour.Wander;

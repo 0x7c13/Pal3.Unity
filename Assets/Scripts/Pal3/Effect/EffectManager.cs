@@ -60,9 +60,7 @@ namespace Pal3.Effect
             // Even with a waiter, we need to make sure waiter's current execution mode is set
             // to synchronous otherwise the effect will be played before the pre-load is finished.
             #if PAL3
-            WaitUntilCanceled waiter = new ();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId, () => waiter.CancelWait()));
+            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
             #endif
         }
 

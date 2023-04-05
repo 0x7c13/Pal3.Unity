@@ -13,6 +13,7 @@ namespace Pal3.Actor
     using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
+    using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using MetaData;
@@ -46,6 +47,8 @@ namespace Pal3.Actor
         private Bounds _rendererBounds;
         private Bounds _meshBounds;
 
+        private bool _isHoldAnimationStarted = false;
+
         public void Init(GameResourceProvider resourceProvider,
             Actor actor,
             bool hasColliderAndRigidBody,
@@ -58,6 +61,9 @@ namespace Pal3.Actor
             _actor = actor;
             _tintColor = tintColor;
             _materialFactory = resourceProvider.GetMaterialFactory();
+
+            // Should not auto stand if the actor is on hold.
+            _autoStand = actor.Info.InitBehaviour != ScnActorBehaviour.Hold;
         }
 
         private void OnEnable()
@@ -77,9 +83,24 @@ namespace Pal3.Actor
             int loopCount = -1,
             WaitUntilCanceled waiter = null)
         {
-            if (!overwrite && string.Equals(GetCurrentAction(), actionName, StringComparison.OrdinalIgnoreCase))
+            bool isNewActionSameAsCurrent =
+                string.Equals(GetCurrentAction(), actionName, StringComparison.OrdinalIgnoreCase);
+
+            bool shouldPlayHoldAnimation = !_isHoldAnimationStarted &&
+                                           isNewActionSameAsCurrent &&
+                                           loopCount == 1 &&
+                                           _actor.Info.InitBehaviour == ScnActorBehaviour.Hold &&
+                                           _actor.Info.LoopAction == 0;
+
+            // Skip if the action is the same as current and not overwrite or hold animation.
+            if (isNewActionSameAsCurrent && !overwrite && !shouldPlayHoldAnimation)
             {
                 return;
+            }
+
+            if (shouldPlayHoldAnimation)
+            {
+                _isHoldAnimationStarted = true;
             }
 
             if (!_actor.HasAction(actionName))
@@ -145,6 +166,14 @@ namespace Pal3.Actor
             _meshBounds = _mv3AnimationRenderer.GetMeshBounds();
 
             base.PerformAction(actionName, overwrite, loopCount, waiter);
+        }
+
+        public override void PauseAnimation()
+        {
+            if (_mv3AnimationRenderer != null)
+            {
+                _mv3AnimationRenderer.PauseAnimation();
+            }
         }
 
         public override float GetActorHeight()

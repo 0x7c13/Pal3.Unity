@@ -608,7 +608,7 @@ namespace Pal3.Data
             return vfxPrefab;
         }
 
-        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId, Action onFinished = null)
+        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
         {
             if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
             {
@@ -632,7 +632,6 @@ namespace Pal3.Data
             }
 
             _vfxEffectPrefabCache[effectGroupId] = request.asset;
-            onFinished?.Invoke();
         }
 
         public Texture2D GetCursorTexture()

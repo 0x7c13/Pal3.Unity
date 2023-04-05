@@ -690,6 +690,15 @@ namespace Pal3.GamePlay
                 shouldResetFacingAfterInteraction = true;
             }
 
+            // Resume animation of the target actor if it is set to hold and loop action is set to 0
+            if (targetActor.Info.InitBehaviour == ScnActorBehaviour.Hold &&
+                targetActor.Info.LoopAction == 0)
+            {
+                var actionController = actorGameObject.GetComponent<ActorActionController>();
+                // PerformAction internally checks if the target actor is already performing the action
+                actionController.PerformAction(actionController.GetCurrentAction(), false, 1);
+            }
+
             // Run dialogue script
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunCommand((int)targetActor.Info.ScriptId));

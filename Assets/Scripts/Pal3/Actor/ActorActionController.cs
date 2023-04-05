@@ -7,7 +7,6 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections;
-    using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -99,6 +98,50 @@ namespace Pal3.Actor
             {
                 SetupCollider();
                 SetupRigidBody();
+            }
+        }
+
+        public virtual void PauseAnimation()
+        {
+        }
+
+        public virtual float GetActorHeight()
+        {
+            return 0f;
+        }
+
+        public virtual Bounds GetRendererBounds()
+        {
+            return new Bounds(transform.position, Vector3.one);
+        }
+
+        public virtual Bounds GetMeshBounds()
+        {
+            return new Bounds(Vector3.zero, Vector3.zero);
+        }
+
+        internal virtual void DisposeCurrentAction()
+        {
+            _currentAction = string.Empty;
+        }
+
+        internal virtual void DeActivate()
+        {
+            DisposeCurrentAction();
+
+            if (_shadow != null)
+            {
+                Destroy(_shadow);
+            }
+
+            if (_rigidbody != null)
+            {
+                Destroy(_rigidbody);
+            }
+
+            if (_collider != null)
+            {
+                Destroy(_collider);
             }
         }
 
@@ -229,46 +272,6 @@ namespace Pal3.Actor
             Destroy(billboardRenderer);
             Destroy(emojiGameObject);
             waiter.CancelWait();
-        }
-
-        public virtual float GetActorHeight()
-        {
-            return 0f;
-        }
-
-        public virtual Bounds GetRendererBounds()
-        {
-            return new Bounds(transform.position, Vector3.one);
-        }
-
-        public virtual Bounds GetMeshBounds()
-        {
-            return new Bounds(Vector3.zero, Vector3.zero);
-        }
-
-        internal virtual void DisposeCurrentAction()
-        {
-            _currentAction = string.Empty;
-        }
-
-        internal virtual void DeActivate()
-        {
-            DisposeCurrentAction();
-
-            if (_shadow != null)
-            {
-                Destroy(_shadow);
-            }
-
-            if (_rigidbody != null)
-            {
-                Destroy(_rigidbody);
-            }
-
-            if (_collider != null)
-            {
-                Destroy(_collider);
-            }
         }
 
         public void Execute(ActorPerformActionCommand command)
