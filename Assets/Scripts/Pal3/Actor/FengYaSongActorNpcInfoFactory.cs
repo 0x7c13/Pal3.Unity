@@ -23,7 +23,7 @@ namespace Pal3.Actor
                 Name = ActorConstants.FengYaSongActorNameMap[actorId],
                 Kind = ScnActorKind.StoryNpc,
                 InitActive = 0,
-                InitAction = ActorConstants.ActionNames[ActorActionType.Stand],
+                InitAction = ActorConstants.ActionToNameMap[ActorActionType.Stand],
             };
         }
 

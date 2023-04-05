@@ -6,6 +6,7 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
+    using Core.Extensions;
 
     public enum WeaponArmType
     {
@@ -257,7 +258,7 @@ namespace Pal3.MetaData
 
         //每个动作对应的.A_Q模型中的名字
         #if PAL3
-        public static readonly Dictionary<ActorActionType, string> ActionNames = new()
+        public static readonly Dictionary<ActorActionType, string> ActionToNameMap = new()
         {
             // 基本动作
             { ActorActionType.Stand,             "c01"  },   // 站立
@@ -327,7 +328,7 @@ namespace Pal3.MetaData
             { ActorActionType.NpcRun,            "z3" },    // 跑,用走代替
         };
         #elif PAL3A
-        public static readonly Dictionary<ActorActionType, string> ActionNames = new()
+        public static readonly Dictionary<ActorActionType, string> ActionToNameMap = new()
         {
             // 基本动作
             { ActorActionType.Stand,             "c01"  },   // 站立
@@ -404,6 +405,9 @@ namespace Pal3.MetaData
             { ActorActionType.Attack23,	        "z023" },   // 扔八卦的第三段动作
         };
         #endif
+
+        // Reverse lookup dictionary
+        public static readonly Dictionary<string, ActorActionType> NameToActionMap = ActionToNameMap.Reverse();
 
         #if PAL3
         public static readonly Dictionary<ActorActionType, WeaponArmType> ActionNameToWeaponArmTypeMap = new()

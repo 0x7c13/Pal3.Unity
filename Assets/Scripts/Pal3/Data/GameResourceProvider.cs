@@ -20,6 +20,7 @@ namespace Pal3.Data
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Lgt;
+    using Core.DataReader.Mov;
     using Core.DataReader.Mv3;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
@@ -31,7 +32,6 @@ namespace Pal3.Data
     using Renderer;
     using Settings;
     using UnityEngine;
-    using Debug = UnityEngine.Debug;
     using Object = UnityEngine.Object;
 
     /// <summary>
@@ -61,7 +61,8 @@ namespace Pal3.Data
         private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
         private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
         private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
-        private readonly Dictionary<string, ActorConfigFile> _actorConfigCache = new (); // Cache forever
+        private readonly Dictionary<string, (MovFile movFile, ITextureResourceProvider textureProvider)> _movCache = new ();
+        private readonly Dictionary<string, ActorActionConfig> _actorConfigCache = new (); // Cache forever
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
         private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
 
@@ -115,6 +116,7 @@ namespace Pal3.Data
             _spriteCache.Clear();
             _polCache.Clear();
             _mv3Cache.Clear();
+            _movCache.Clear();
             _actorConfigCache.Clear();
             _audioClipCache.Clear();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
@@ -183,6 +185,18 @@ namespace Pal3.Data
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
+        }
+
+        public (MovFile movFile, ITextureResourceProvider textureProvider) GetMov(string movFilePath)
+        {
+            movFilePath = movFilePath.ToLower();
+            if (_movCache.ContainsKey(movFilePath)) return _movCache[movFilePath];
+            var movData = _fileSystem.ReadAllBytes(movFilePath);
+            MovFile movFile = MovFileReader.Read(movData, _codepage);
+            var relativePath = Utility.GetDirectoryName(movFilePath, PathSeparator);
+            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
+            _movCache[movFilePath] = (movFile, textureProvider);
+            return (movFile, textureProvider);
         }
 
         public LgtFile GetLgt(string lgtFilePath)
@@ -495,7 +509,7 @@ namespace Pal3.Data
             return sprites;
         }
 
-        public ActorConfigFile GetActorConfig(string actorConfigFilePath)
+        public ActorActionConfig GetActorActionConfig(string actorConfigFilePath)
         {
             actorConfigFilePath = actorConfigFilePath.ToLower();
 
@@ -512,14 +526,15 @@ namespace Pal3.Data
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
-                ActorConfigFile config = ActorConfigFileReader.Read(configData);
+                Mv3ActionConfig config = ActorConfigFileReader.ReadMv3Config(configData);
                 _actorConfigCache[actorConfigFilePath] = config;
                 return config;
             }
-            else
+            else // MOV actor config
             {
-                _actorConfigCache[actorConfigFilePath] = null;
-                return null;
+                MovActionConfig config = ActorConfigFileReader.ReadMovConfig(configData);
+                _actorConfigCache[actorConfigFilePath] = config;
+                return config;
             }
         }
 
@@ -638,20 +653,20 @@ namespace Pal3.Data
         {
             var cachedActions = new HashSet<string>()
             {
-                ActorConstants.ActionNames[ActorActionType.Stand],
-                ActorConstants.ActionNames[ActorActionType.Walk],
-                ActorConstants.ActionNames[ActorActionType.Run],
-                ActorConstants.ActionNames[ActorActionType.StepBack],
+                ActorConstants.ActionToNameMap[ActorActionType.Stand],
+                ActorConstants.ActionToNameMap[ActorActionType.Walk],
+                ActorConstants.ActionToNameMap[ActorActionType.Run],
+                ActorConstants.ActionToNameMap[ActorActionType.StepBack],
             };
 
             foreach (var name in ActorConstants.MainActorNameMap.Values)
             {
                 var actorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                                           $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}{name}.ini";
+                                      $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}{name}.ini";
 
-                ActorConfigFile actorConfig = GetActorConfig(actorConfigFile);
+                ActorActionConfig actorActionConfig = GetActorActionConfig(actorConfigFile);
 
-                foreach (ActorAction actorAction in actorConfig.ActorActions)
+                foreach (ActorAction actorAction in actorActionConfig.ActorActions)
                 {
                     // Cache known actions only.
                     if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
@@ -700,6 +715,8 @@ namespace Pal3.Data
                 {
                     _mv3Cache.Remove(mv3File);
                 }
+
+                _movCache.Clear();
 
                 // clear all vfx prefabs in cache
                 _vfxEffectPrefabCache.Clear();

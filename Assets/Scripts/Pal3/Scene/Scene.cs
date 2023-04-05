@@ -430,10 +430,7 @@ namespace Pal3.Scene
         {
             foreach (Actor actorObject in Actors.Values)
             {
-                if (actorObject.AnimationFileType == ActorAnimationFileType.Mv3)
-                {
-                    CreateActorObject(actorObject, tintColor, tilemap);
-                }
+                CreateActorObject(actorObject, tintColor, tilemap);
             }
         }
 

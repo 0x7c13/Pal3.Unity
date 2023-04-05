@@ -219,7 +219,7 @@ namespace Pal3.Scene.SceneObjects
 
             playerActorTransform.forward = movingDirection;
             var actorActionController = ctx.PlayerActorGameObject.GetComponent<ActorActionController>();
-            actorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Push],
+            actorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Push],
                 overwrite: true, loopCount: -1);
 
             Vector3 actorInitPosition = playerActorTransform.position;

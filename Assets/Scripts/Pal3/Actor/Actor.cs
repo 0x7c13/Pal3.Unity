@@ -48,7 +48,7 @@ namespace Pal3.Actor
         {
             if (IsMainActor())
             {
-                return ActorConstants.ActionNames[ActorActionType.Stand];
+                return ActorConstants.ActionToNameMap[ActorActionType.Stand];
             }
 
             if (IsMonsterActor() && HasAction(ActorConstants.MonsterIdleAction))
@@ -56,18 +56,18 @@ namespace Pal3.Actor
                 return ActorConstants.MonsterIdleAction;
             }
 
-            if (HasAction(ActorConstants.ActionNames[ActorActionType.NpcStand1]))
+            if (HasAction(ActorConstants.ActionToNameMap[ActorActionType.NpcStand1]))
             {
-                return ActorConstants.ActionNames[ActorActionType.NpcStand1];
+                return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
             }
 
-            if (HasAction(ActorConstants.ActionNames[ActorActionType.NpcStand2]))
+            if (HasAction(ActorConstants.ActionToNameMap[ActorActionType.NpcStand2]))
             {
-                return ActorConstants.ActionNames[ActorActionType.NpcStand2];
+                return ActorConstants.ActionToNameMap[ActorActionType.NpcStand2];
             }
 
             Debug.LogError($"No default idle animation found for {Info.Id}_{Info.Name}");
-            return ActorConstants.ActionNames[ActorActionType.NpcStand1];
+            return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
         }
 
         public string GetMovementAction(MovementMode mode)
@@ -76,12 +76,12 @@ namespace Pal3.Actor
             {
                 return mode switch
                 {
-                    MovementMode.Walk => ActorConstants.ActionNames[ActorActionType.Walk],
-                    MovementMode.Run => HasAction(ActorConstants.ActionNames[ActorActionType.Run])
-                        ? ActorConstants.ActionNames[ActorActionType.Run]
-                        : ActorConstants.ActionNames[ActorActionType.Walk],
-                    MovementMode.StepBack => ActorConstants.ActionNames[ActorActionType.StepBack],
-                    _ => ActorConstants.ActionNames[ActorActionType.Walk]
+                    MovementMode.Walk => ActorConstants.ActionToNameMap[ActorActionType.Walk],
+                    MovementMode.Run => HasAction(ActorConstants.ActionToNameMap[ActorActionType.Run])
+                        ? ActorConstants.ActionToNameMap[ActorActionType.Run]
+                        : ActorConstants.ActionToNameMap[ActorActionType.Walk],
+                    MovementMode.StepBack => ActorConstants.ActionToNameMap[ActorActionType.StepBack],
+                    _ => ActorConstants.ActionToNameMap[ActorActionType.Walk]
                 };
             }
 
@@ -92,9 +92,9 @@ namespace Pal3.Actor
 
             return mode switch
             {
-                MovementMode.Walk => ActorConstants.ActionNames[ActorActionType.NpcWalk],
-                MovementMode.Run => ActorConstants.ActionNames[ActorActionType.NpcRun],
-                _ => ActorConstants.ActionNames[ActorActionType.NpcWalk]
+                MovementMode.Walk => ActorConstants.ActionToNameMap[ActorActionType.NpcWalk],
+                MovementMode.Run => ActorConstants.ActionToNameMap[ActorActionType.NpcRun],
+                _ => ActorConstants.ActionToNameMap[ActorActionType.NpcWalk]
             };
         }
 

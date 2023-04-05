@@ -5,19 +5,54 @@
 
 namespace Core.DataReader.Ini
 {
+    public struct BoneActor
+    {
+        public string MeshFileName;
+        public string MaterialFileName;
+        public string EffectFileName;
+    }
+
     public struct ActorAction
     {
         public string ActionName;
         public string ActionFileName;
     }
 
-    public class ActorConfigFile
+    public struct BoneMaterial
     {
-        public ActorConfigFile(ActorAction[] actorActions)
+        public string MaterialName;
+        public string MaterialFileName;
+        public string EffectFileName;
+    }
+
+    public abstract class ActorActionConfig
+    {
+        protected ActorActionConfig(ActorAction[] actorActions)
         {
             ActorActions = actorActions;
         }
 
         public ActorAction[] ActorActions { get; }
+    }
+
+    public class Mv3ActionConfig : ActorActionConfig
+    {
+        public Mv3ActionConfig(ActorAction[] actorActions) : base(actorActions)
+        {
+        }
+    }
+
+    public class MovActionConfig : ActorActionConfig
+    {
+        public MovActionConfig(BoneActor actor,
+            ActorAction[] actorActions,
+            BoneMaterial[] boneMaterials) : base(actorActions)
+        {
+            Actor = actor;
+            BoneMaterials = boneMaterials;
+        }
+
+        public BoneActor Actor { get; }
+        public BoneMaterial[] BoneMaterials { get; }
     }
 }

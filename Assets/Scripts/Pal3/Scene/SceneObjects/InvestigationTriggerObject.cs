@@ -56,7 +56,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
-                        ActorConstants.ActionNames[ActorActionType.Check], 1));
+                        ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
                 yield return new WaitForSeconds(1);
             }
             #endif

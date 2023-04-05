@@ -6,11 +6,10 @@
 namespace Pal3.Actor
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Ini;
-    using Core.DataReader.Mv3;
     using Data;
     using MetaData;
     using UnityEngine;
@@ -25,7 +24,7 @@ namespace Pal3.Actor
     {
         public ActorAnimationFileType AnimationFileType;
 
-        private ActorConfigFile _actorConfig;
+        private ActorActionConfig[] _actorActionConfigs;
 
         private readonly GameResourceProvider _resourceProvider;
 
@@ -41,20 +40,46 @@ namespace Pal3.Actor
 
         private void InitActorConfig(string name)
         {
-            var separator = CpkConstants.DirectorySeparator;
+            char separator = CpkConstants.DirectorySeparator;
 
-            var defaultActorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                                         $"{FileConstants.ActorFolderName}{separator}{name}{separator}{name}.ini";
+            string actorActionConfigFolder = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                                             $"{FileConstants.ActorFolderName}{separator}{name}{separator}";
 
-            if (_resourceProvider.GetActorConfig(defaultActorConfigFile) is { } defaultConfig)
+            ActorActionConfig defaultConfig = _resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{name}.ini");
+
+            if (defaultConfig is Mv3ActionConfig mv3Config)
             {
-                _actorConfig = defaultConfig;
+                _actorActionConfigs = new ActorActionConfig[] { mv3Config };
                 AnimationFileType = ActorAnimationFileType.Mv3;
             }
-            else // For MOV animation actor, config files are defined as 01.ini, 02.ini ...up tp 09.ini
+            else
             {
-                Debug.LogWarning($"Unsupported MOV actor config found for: actor {name}");
-                //throw new NotImplementedException("MOV actor currently not supported.");
+                List<ActorActionConfig> actorActionConfigs = new ();
+
+                // Add default config if it is MOV
+                if (defaultConfig is MovActionConfig)
+                {
+                    actorActionConfigs.Add(defaultConfig);
+                }
+
+                // For MOV animation actor, config files are defined as 01.ini, 02.ini ...up tp 09.ini
+                for (var i = 0; i <= 9; i++)
+                {
+                    if (_resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{i:D2}.ini")
+                        is MovActionConfig movConfig)
+                    {
+                        actorActionConfigs.Add(movConfig);
+                    }
+                }
+
+                if (actorActionConfigs.Count == 0)
+                {
+                    throw new Exception($"No actor action config found for: actor {name}");
+                }
+
+                Debug.LogWarning($"{actorActionConfigs.Count} MOV actor config(s) found for: actor {name}");
+
+                _actorActionConfigs = actorActionConfigs.ToArray();
                 AnimationFileType = ActorAnimationFileType.Mov;
             }
         }
@@ -66,31 +91,22 @@ namespace Pal3.Actor
             InitActorConfig(name);
         }
 
-        public (Mv3File mv3File, ITextureResourceProvider textureProvider) GetActionMv3(ActorActionType actorActionType)
-        {
-            return GetActionMv3(ActorConstants.ActionNames[actorActionType]);
-        }
-
         public bool HasAction(string actionName)
         {
-            if (_actorConfig == null) return false;
+            if (_actorActionConfigs == null || _actorActionConfigs.Length == 0) return false;
 
-            return _actorConfig.ActorActions
-                .Any(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
+            return _actorActionConfigs.Any(_ => _.ActorActions.Any(act =>
+                act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public (Mv3File mv3File, ITextureResourceProvider textureProvider) GetActionMv3(string actionName)
+        public string GetActionFilePath(string actionName)
         {
-            ActorAction action = _actorConfig.ActorActions
-                .First(act => act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase));
-
-            var separator = CpkConstants.DirectorySeparator;
-
-            var mv3File = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                          $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
-                          $"{action.ActionFileName}";
-
-            return _resourceProvider.GetMv3(mv3File);
+            return (from config in _actorActionConfigs from actorAction in config.ActorActions
+                where actorAction.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase)
+                let separator = CpkConstants.DirectorySeparator
+                select $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                       $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
+                       $"{actorAction.ActionFileName}").FirstOrDefault();
         }
     }
 }

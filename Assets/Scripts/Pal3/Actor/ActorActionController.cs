@@ -11,53 +11,29 @@ namespace Pal3.Actor
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataLoader;
-    using Core.DataReader.Cpk;
-    using Core.DataReader.Mv3;
-    using Core.DataReader.Pol;
-    using Core.Extensions;
     using Core.Renderer;
     using Core.Services;
     using Data;
     using MetaData;
     using GamePlay;
-    using Renderer;
     using Script.Waiter;
     using State;
     using UnityEngine;
 
-    public class ActorActionController : MonoBehaviour,
-        ICommandExecutor<ActorAutoStandCommand>,
-        ICommandExecutor<ActorPerformActionCommand>,
-        ICommandExecutor<ActorStopActionCommand>,
-        ICommandExecutor<ActorStopActionAndStandCommand>,
-        ICommandExecutor<ActorChangeTextureCommand>,
-        ICommandExecutor<ActorEnablePlayerControlCommand>,
-        ICommandExecutor<ActorShowEmojiCommand>,
-        #if PAL3A
-        ICommandExecutor<ActorShowEmoji2Command>,
-        #endif
-        ICommandExecutor<GameStateChangedNotification>
+    public abstract class ActorActionController : MonoBehaviour
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
         private const float ACTOR_COLLIDER_RADIUS_MIN = 0.5f;
         private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
 
         private GameResourceProvider _resourceProvider;
-        private IMaterialFactory _materialFactory;
         private Actor _actor;
-        private Color _tintColor;
+
         private bool _isDropShadowEnabled;
         private GameObject _shadow;
         private SpriteRenderer _shadowSpriteRenderer;
 
-        private bool _autoStand = true;
         private string _currentAction = string.Empty;
-        private Mv3ModelRenderer _mv3AnimationRenderer;
-        private WaitUntilCanceled _animationLoopPointWaiter;
-
-        private Bounds _rendererBounds;
-        private Bounds _meshBounds;
 
         private bool _hasColliderAndRigidBody;
         private Rigidbody _rigidbody;
@@ -67,50 +43,15 @@ namespace Pal3.Actor
         // Also, the player actor is only non-kinematic during gameplay state.
         private bool _isKinematic = true;
 
-        public void Init(GameResourceProvider resourceProvider,
+        internal void Init(GameResourceProvider resourceProvider,
             Actor actor,
             bool hasColliderAndRigidBody,
-            bool isDropShadowEnabled,
-            Color tintColor)
+            bool isDropShadowEnabled)
         {
             _resourceProvider = resourceProvider;
             _actor = actor;
             _hasColliderAndRigidBody = hasColliderAndRigidBody;
             _isDropShadowEnabled = isDropShadowEnabled;
-            _tintColor = tintColor;
-            _materialFactory = resourceProvider.GetMaterialFactory();
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-
-            DeActivate();
-
-            if (_mv3AnimationRenderer != null)
-            {
-                Destroy(_mv3AnimationRenderer);
-            }
-
-            if (_shadow != null)
-            {
-                Destroy(_shadow);
-            }
-
-            if (_collider != null)
-            {
-                Destroy(_collider);
-            }
-
-            if (_rigidbody != null)
-            {
-                Destroy(_rigidbody);
-            }
         }
 
         public string GetCurrentAction()
@@ -139,86 +80,19 @@ namespace Pal3.Actor
             int loopCount = -1,
             WaitUntilCanceled waiter = null)
         {
-            PerformAction(ActorConstants.ActionNames[actorActionType], overwrite, loopCount, waiter);
+            PerformAction(ActorConstants.ActionToNameMap[actorActionType], overwrite, loopCount, waiter);
         }
 
-        public void PerformAction(string actionName,
+        public virtual void PerformAction(string actionName,
             bool overwrite = false,
             int loopCount = -1,
             WaitUntilCanceled waiter = null)
         {
-            if (!overwrite && string.Equals(_currentAction, actionName, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            if (!_actor.HasAction(actionName))
-            {
-                Debug.LogError($"Action {actionName} not found for actor {_actor.Info.Name}.");
-                _animationLoopPointWaiter?.CancelWait();
-                waiter?.CancelWait();
-                return;
-            }
-
-            Mv3File mv3File;
-            ITextureResourceProvider textureProvider;
-            try
-            {
-                (mv3File, textureProvider) = _actor.GetActionMv3(actionName);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex);
-                _animationLoopPointWaiter?.CancelWait();
-                waiter?.CancelWait();
-                return;
-            }
-
-            DisposeAction();
-
-            _animationLoopPointWaiter = waiter;
             _currentAction = actionName.ToLower();
-            _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
-
-            ActorActionType actionType = ActorConstants.ActionNames
-                .FirstOrDefault(_ => string.Equals(_.Value, actionName, StringComparison.OrdinalIgnoreCase)).Key;
-
-            if (mv3File.TagNodes is {Length: > 0} && _actor.GetWeaponName() is {} weaponName &&
-                ActorConstants.ActionNameToWeaponArmTypeMap[actionType] != WeaponArmType.None)
-            {
-                var separator = CpkConstants.DirectorySeparator;
-
-                var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                                 $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
-
-                (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
-                _mv3AnimationRenderer.Init(mv3File,
-                    _materialFactory,
-                    textureProvider,
-                    _tintColor,
-                    polFile,
-                    weaponTextureProvider);
-            }
-            else
-            {
-                _mv3AnimationRenderer.Init(mv3File,
-                    _materialFactory,
-                    textureProvider,
-                    _tintColor);
-            }
-
-            _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
-            _mv3AnimationRenderer.StartAnimation(loopCount);
-
-            _rendererBounds = _mv3AnimationRenderer.GetRendererBounds();
-            _meshBounds = _mv3AnimationRenderer.GetMeshBounds();
-
-            ActorActionType action = ActorConstants.ActionNames
-                .FirstOrDefault(a => a.Value.Equals(_currentAction)).Key;
 
             if (_isDropShadowEnabled)
             {
-                SetupShadow(action);
+                SetupShadow(_currentAction);
             }
 
             if (_hasColliderAndRigidBody)
@@ -228,8 +102,11 @@ namespace Pal3.Actor
             }
         }
 
-        private void SetupShadow(ActorActionType actorAction)
+        private void SetupShadow(string actionName)
         {
+            ActorActionType? actionType = ActorConstants.NameToActionMap.ContainsKey(actionName.ToLower()) ?
+                ActorConstants.NameToActionMap[actionName.ToLower()] : null;
+
             // Disable shadow for some of the actors.
             #if PAL3
             if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;
@@ -245,7 +122,7 @@ namespace Pal3.Actor
             #endif
 
             // Disable shadow for some actions
-            if (ActorConstants.ActionWithoutShadow.Contains(actorAction))
+            if (actionType.HasValue && ActorConstants.ActionWithoutShadow.Contains(actionType.Value))
             {
                 if (_shadow != null) _shadowSpriteRenderer.enabled = false;
             }
@@ -354,93 +231,44 @@ namespace Pal3.Actor
             waiter.CancelWait();
         }
 
-        public float GetActorHeight()
+        public virtual float GetActorHeight()
         {
-            if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
-            {
-                return _meshBounds.size.y;
-            }
-
-            return _mv3AnimationRenderer.GetMeshBounds().size.y;
+            return 0f;
         }
 
-        public Bounds GetRendererBounds()
+        public virtual Bounds GetRendererBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _rendererBounds :
-                _mv3AnimationRenderer.GetRendererBounds();
+            return new Bounds(transform.position, Vector3.one);
         }
 
-        public Bounds GetMeshBounds()
+        public virtual Bounds GetMeshBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _meshBounds :
-                _mv3AnimationRenderer.GetMeshBounds();
+            return new Bounds(Vector3.zero, Vector3.zero);
         }
 
-        private void AnimationLoopPointReached(object _, int loopCount)
+        internal virtual void DisposeCurrentAction()
         {
-            if (loopCount is 0 or -2)
-            {
-                _animationLoopPointWaiter?.CancelWait();
-            }
-
-            if (_autoStand && _mv3AnimationRenderer.IsVisible())
-            {
-                if (loopCount is 0 ||
-                    (loopCount is -2 && !_mv3AnimationRenderer.IsActionInHoldState()))
-                {
-                    PerformAction(_actor.GetIdleAction());
-                }
-            }
-        }
-
-        private void DisposeAction()
-        {
-            _animationLoopPointWaiter?.CancelWait();
-
-            if (_mv3AnimationRenderer != null)
-            {
-                _mv3AnimationRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
-                _mv3AnimationRenderer.DisposeAnimation();
-            }
-
             _currentAction = string.Empty;
         }
 
-        private void DisposeShadow()
+        internal virtual void DeActivate()
         {
+            DisposeCurrentAction();
+
             if (_shadow != null)
             {
                 Destroy(_shadow);
             }
-        }
 
-        private void DisposeCollider()
-        {
-            if (_collider != null)
-            {
-                Destroy(_collider);
-            }
-        }
-
-        private void DisposeRigidBody()
-        {
             if (_rigidbody != null)
             {
                 Destroy(_rigidbody);
             }
-        }
 
-        public void DeActivate()
-        {
-            DisposeAction();
-            DisposeShadow();
-            DisposeRigidBody();
-            DisposeCollider();
-        }
-
-        public void Execute(ActorAutoStandCommand command)
-        {
-            if (command.ActorId == _actor.Info.Id) _autoStand = (command.AutoStand == 1);
+            if (_collider != null)
+            {
+                Destroy(_collider);
+            }
         }
 
         public void Execute(ActorPerformActionCommand command)
@@ -468,43 +296,10 @@ namespace Pal3.Actor
             }
         }
 
-        public void Execute(ActorStopActionCommand command)
-        {
-            if (command.ActorId != _actor.Info.Id ||
-                _mv3AnimationRenderer == null ||
-                !_mv3AnimationRenderer.IsVisible()) return;
-
-            if (_mv3AnimationRenderer.IsActionInHoldState())
-            {
-                _animationLoopPointWaiter?.CancelWait();
-                _animationLoopPointWaiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
-
-                _mv3AnimationRenderer.ResumeAction();
-            }
-            else
-            {
-                _mv3AnimationRenderer.PauseAnimation();
-                _animationLoopPointWaiter?.CancelWait();
-
-                if (_autoStand && _mv3AnimationRenderer.IsVisible())
-                {
-                    PerformAction(_actor.GetIdleAction());
-                }
-            }
-        }
-
         public void Execute(ActorStopActionAndStandCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
             PerformAction(_actor.GetIdleAction());
-        }
-
-        public void Execute(ActorChangeTextureCommand command)
-        {
-            if (_actor.Info.Id != command.ActorId) return;
-            _mv3AnimationRenderer.ChangeTexture(command.TextureName);
         }
 
         public void Execute(ActorEnablePlayerControlCommand command)

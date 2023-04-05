@@ -39,8 +39,19 @@ namespace Pal3.Actor
             var hasColliderAndRigidBody = (PlayerActorId) actor.Info.Id != PlayerActorId.TaoZi;
             #endif
 
-            var actionController = actorGameObject.AddComponent<ActorActionController>();
-            actionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+            ActorActionController actionController;
+            if (actor.AnimationFileType == ActorAnimationFileType.Mv3)
+            {
+                Mv3ActorActionController mv3ActionController = actorGameObject.AddComponent<Mv3ActorActionController>();
+                mv3ActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                actionController = mv3ActionController;
+            }
+            else
+            {
+                MovActorActionController movActionController = actorGameObject.AddComponent<MovActorActionController>();
+                movActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                actionController = movActionController;
+            }
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();
             movementController.Init(actor, tilemap, actionController, getAllActiveActorBlockingTilePositions);

@@ -224,12 +224,12 @@ namespace Pal3.GamePlay
             var newMovementSfxAudioFileName = string.Empty;
             ActorActionType actionType = ActorActionType.Walk;
 
-            if (string.Equals(playerActorAction, ActorConstants.ActionNames[ActorActionType.Walk]))
+            if (string.Equals(playerActorAction, ActorConstants.ActionToNameMap[ActorActionType.Walk]))
             {
                 newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Walk);
                 actionType = ActorActionType.Walk;
             }
-            else if (string.Equals(playerActorAction, ActorConstants.ActionNames[ActorActionType.Run]))
+            else if (string.Equals(playerActorAction, ActorConstants.ActionToNameMap[ActorActionType.Run]))
             {
                 newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Run);
                 actionType = ActorActionType.Run;
@@ -501,7 +501,7 @@ namespace Pal3.GamePlay
                 jumpTargetPosition = currentPosition;
             }
 
-            _playerActorActionController.PerformAction(ActorConstants.ActionNames[ActorActionType.Jump],
+            _playerActorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Jump],
                  overwrite: true, loopCount: 1);
             yield return new WaitForSeconds(0.7f);
 
@@ -679,12 +679,15 @@ namespace Pal3.GamePlay
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorLookAtActorCommand(_playerActor.Info.Id, targetActor.Info.Id));
 
-            // Only let target actor look at player actor when the target actor is in idle state
-            if (actorGameObject.GetComponent<ActorActionController>() is { } actionController &&
-                actionController.IsCurrentActionIdleAction())
+            bool shouldResetFacingAfterInteraction = false;
+
+            // Only let target actor look at player actor when NoTurn is set to false
+            // and InitBehaviour is not set to Hold
+            if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ScnActorBehaviour.Hold)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorLookAtActorCommand(targetActor.Info.Id, _playerActor.Info.Id));
+                shouldResetFacingAfterInteraction = true;
             }
 
             // Run dialogue script
@@ -702,8 +705,8 @@ namespace Pal3.GamePlay
                 movementController.ResumeMovement();
             }
 
-            // Reset facing rotation of the interacting actor
-            if (actorGameObject != null)
+            // Reset facing rotation of the interacting actor if needed
+            if (shouldResetFacingAfterInteraction && actorGameObject != null)
             {
                 actorGameObject.transform.rotation = rotationBeforeInteraction;
             }
@@ -1112,7 +1115,7 @@ namespace Pal3.GamePlay
 
                 if (_playerActorActionController != null &&
                     !string.IsNullOrEmpty(_playerActorActionController.GetCurrentAction()) &&
-                    !string.Equals(ActorConstants.ActionNames[ActorActionType.Stand],
+                    !string.Equals(ActorConstants.ActionToNameMap[ActorActionType.Stand],
                         _playerActorActionController.GetCurrentAction(),
                         StringComparison.OrdinalIgnoreCase))
                 {

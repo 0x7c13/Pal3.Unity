@@ -93,7 +93,7 @@ namespace Pal3.Scene.SceneObjects
                     new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
-                        ActorConstants.ActionNames[ActorActionType.Check], 1));
+                        ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
 
                 int nextState = _currentState switch
                 {
