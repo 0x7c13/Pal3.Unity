@@ -10,7 +10,6 @@ namespace Core.DataReader.Cvd
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using Extensions;
     using GameBox;
@@ -102,7 +101,7 @@ namespace Core.DataReader.Cvd
                 Marshal.SizeOf(typeof(CvdLinearVector3Key)));
 
             var positionKeyInfos = ReadPositionAnimationKeyInfo(reader, positionKeySize);
-            if (positionKeyInfos.Last().Time > animationDuration) animationDuration = positionKeyInfos.Last().Time;
+            if (positionKeyInfos[^1].Time > animationDuration) animationDuration = positionKeyInfos[^1].Time;
 
             var rotationKeySize = Mathf.Max(
                 Marshal.SizeOf(typeof(CvdTcbRotationKey)),
@@ -110,7 +109,7 @@ namespace Core.DataReader.Cvd
                 Marshal.SizeOf(typeof(CvdLinearRotationKey)));
 
             var rotationKeyInfos = ReadRotationAnimationKeyInfo(reader, rotationKeySize);
-            if (rotationKeyInfos.Last().Time > animationDuration) animationDuration = rotationKeyInfos.Last().Time;
+            if (rotationKeyInfos[^1].Time > animationDuration) animationDuration = rotationKeyInfos[^1].Time;
 
             var scaleKeySize = Mathf.Max(
                 Marshal.SizeOf(typeof(CvdTcbScaleKey)),
@@ -118,12 +117,12 @@ namespace Core.DataReader.Cvd
                 Marshal.SizeOf(typeof(CvdLinearScaleKey)));
 
             var scaleKeyInfos = ReadScaleAnimationKeyInfo(reader, scaleKeySize);
-            if (scaleKeyInfos.Last().Time > animationDuration) animationDuration = scaleKeyInfos.Last().Time;
+            if (scaleKeyInfos[^1].Time > animationDuration) animationDuration = scaleKeyInfos[^1].Time;
 
             var scale = reader.ReadSingle();
 
             CvdMesh mesh = ReadMesh(reader, version, codepage);
-            if (mesh.AnimationTimeKeys.Last() > animationDuration) animationDuration = mesh.AnimationTimeKeys.Last();
+            if (mesh.AnimationTimeKeys[^1] > animationDuration) animationDuration = mesh.AnimationTimeKeys[^1];
 
             var transformMatrix = new GameBoxMatrix4X4()
             {

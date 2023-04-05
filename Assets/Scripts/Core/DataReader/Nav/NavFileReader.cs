@@ -7,7 +7,6 @@ namespace Core.DataReader.Nav
 {
     using System;
     using System.IO;
-    using System.Linq;
     using Extensions;
     using GameBox;
     using UnityEngine;

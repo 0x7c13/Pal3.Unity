@@ -262,7 +262,9 @@ namespace Core.DataReader.Scn
 
         public ScnPath Path;
 
+        // 对话开始时： 0: 可转向, 1: 不可转向
         public uint NoTurn;
+
         public uint LoopAction;
 
         // 移动速度

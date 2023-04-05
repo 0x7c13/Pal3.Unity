@@ -9,7 +9,6 @@ namespace Pal3.Settings
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using Command;
     using Command.InternalCommands;
@@ -30,7 +29,7 @@ namespace Pal3.Settings
 
             #if UNITY_STANDALONE
             // Last resolution is the full native resolution on desktop platforms
-            _nativeResolution = Screen.resolutions.Last();
+            _nativeResolution = Screen.resolutions[^1];
             #else
             // Current resolution is the full native resolution on other platforms
             _nativeResolution = Screen.currentResolution;

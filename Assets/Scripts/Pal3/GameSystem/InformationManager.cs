@@ -7,7 +7,6 @@ namespace Pal3.GameSystem
 {
     using System;
     using System.Collections;
-    using System.Linq;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -125,7 +124,7 @@ namespace Pal3.GameSystem
                 }
 
                 if (!string.Equals(currentText, command.Note) &&
-                    !string.Equals(currentText.Split('\n').Last(), command.Note))
+                    !string.Equals(currentText.Split('\n')[^1], command.Note))
                 {
                     _noteText.text = currentText + '\n' + command.Note;
                 }
