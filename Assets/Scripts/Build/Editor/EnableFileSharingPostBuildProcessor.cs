@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX && UNITY_IOS
 
 namespace Build.Editor
 {

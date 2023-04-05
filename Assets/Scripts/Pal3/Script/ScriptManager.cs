@@ -29,7 +29,8 @@ namespace Pal3.Script
 
         private readonly SceFile _systemSceFile;
         private readonly SceFile _bigMapSceFile;
-        private SceFile _sceFile;
+        private SceFile _currentSceFile;
+
         private readonly Queue<PalScriptRunner> _pendingScripts = new ();
         private readonly List<PalScriptRunner> _runningScripts = new ();
         private readonly List<PalScriptRunner> _finishedScripts = new ();
@@ -102,7 +103,7 @@ namespace Pal3.Script
             else
             {
                 Debug.Log($"Add scene script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_sceFile, PalScriptType.Scene, scriptId, _globalVariables);
+                scriptRunner = PalScriptRunner.Create(_currentSceFile, PalScriptType.Scene, scriptId, _globalVariables);
             }
 
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;
@@ -164,9 +165,9 @@ namespace Pal3.Script
         {
             sceneScriptId = ScriptConstants.InvalidScriptId;
 
-            _sceFile = sceFile;
+            _currentSceFile = sceFile;
 
-            foreach (var scriptBlock in _sceFile.ScriptBlocks
+            foreach (var scriptBlock in _currentSceFile.ScriptBlocks
                          .Where(scriptBlock =>
                              string.Equals(scriptBlock.Value.Description,
                                  sceneScriptDescription,

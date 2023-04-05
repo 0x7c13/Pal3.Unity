@@ -37,9 +37,9 @@ namespace Core.DataReader.Nav
         Rock2,            // 岩石基底地面
         Rock3,            // 人工石地面
         Brick,            // 砖
-        Unknown1,         // 异空间A
-        Unknown2,         // 异空间B
-        Unknown3,         // 异空间C
+        DevilWorld1,      // 异空间A
+        DevilWorld2,      // 异空间B
+        DevilWorld3,      // 异空间C
         Other,            // 其它
         FloorIce,         // 冰
         FloorBlood,       // 血池

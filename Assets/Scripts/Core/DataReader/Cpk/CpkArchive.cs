@@ -11,7 +11,6 @@ namespace Core.DataReader.Cpk
     using System.Runtime.InteropServices;
     using System.Text;
     using Lzo;
-    using UnityEngine;
     using Utils;
 
     /// <summary>

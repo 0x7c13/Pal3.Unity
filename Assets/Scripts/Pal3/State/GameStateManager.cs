@@ -31,8 +31,6 @@ namespace Pal3.State
         private bool _isDebugging;
         private readonly HashSet<Guid> _gamePlayStateLockers = new ();
 
-        private GameStateManager() { }
-
         public GameStateManager(InputManager inputManager, ScriptManager scriptManager)
         {
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));

@@ -264,73 +264,73 @@ namespace Pal3.Dev
 
             if (!_isInInitView)
             {
-                _menuItems.Add(CreateMenuButton("返回游戏", delegate
-                {
-                    HideMenu();
-                    _gameStateManager.GoToState(GameState.Gameplay);
-                }));
+               CreateMenuButton("返回游戏", _ => delegate
+               {
+                   HideMenu();
+                   _gameStateManager.GoToState(GameState.Gameplay);
+               });
             }
 
-            _menuItems.Add(CreateMenuButton("新的游戏", delegate
+            CreateMenuButton("新的游戏", _ => delegate
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                 HideMenu();
                 StartNewGame();
-            }));
+            });
 
             if (!_isInInitView)
             {
-                _menuItems.Add(CreateMenuButton("保存游戏", delegate
+                CreateMenuButton("保存游戏", _ => delegate
                 {
                     DestroyAllMenuItems();
                     SetupSaveMenuButtons();
-                }));
+                });
             }
 
-            _menuItems.Add(CreateMenuButton("读取存档", delegate
+            CreateMenuButton("读取存档", _ => delegate
             {
                 DestroyAllMenuItems();
                 SetupLoadMenuButtons();
-            }));
+            });
 
-            _menuItems.Add(CreateMenuButton("剧情选择", delegate
+            CreateMenuButton("剧情选择", _ => delegate
             {
                 DestroyAllMenuItems();
                 SetupStorySelectionButtons();
-            }));
+            });
 
             if (!_isInInitView &&
                 _mazeSkipper.IsMazeSceneAndHasSkipperCommands(_sceneManager.GetCurrentScene().GetSceneInfo()))
             {
-                _menuItems.Add(CreateMenuButton("迷宫入口", delegate
+                CreateMenuButton("迷宫入口", _ => delegate
                 {
                     _mazeSkipper.PortalToEntrance();
                     HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
-                }));
-                _menuItems.Add(CreateMenuButton("迷宫出口或剧情点", delegate
+                });
+                CreateMenuButton("迷宫出口或剧情点", _ => delegate
                 {
                     _mazeSkipper.PortalToExitOrNextStoryPoint();
                     HideMenu();
                     _gameStateManager.GoToState(GameState.Gameplay);
-                }));
+                });
             }
 
-            _menuItems.Add(CreateMenuButton("游戏设置", delegate
+            CreateMenuButton("游戏设置", _ => delegate
             {
                 DestroyAllMenuItems();
                 SetupSettingButtons();
-            }));
+            });
 
             #if UNITY_STANDALONE
-            _menuItems.Add(CreateMenuButton("退出游戏", delegate
+            CreateMenuButton("退出游戏", _ => delegate
             {
                 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
                 #else
                 Application.Quit();
                 #endif
-            }));
+            });
             #endif
 
             SetupButtonNavigations(isUpAndDown: true);
@@ -356,22 +356,18 @@ namespace Pal3.Dev
             // so lighting and shadow will not work, thus we remove the option.
             if (!_gameSettings.IsOpenSourceVersion)
             {
-                string lightAndShadowButtonText = _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
-                    lightingEnabledText :
-                    lightingDisabledText;
-                _menuItems.Add(CreateMenuButton(lightAndShadowButtonText, delegate
+                string GetLightAndShadowButtonText() => _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
+                        lightingEnabledText :
+                        lightingDisabledText;
+                CreateMenuButton(GetLightAndShadowButtonText(), buttonTextUGUI => delegate
                 {
                     // Do not allow toggling lighting and shadow if there are scripts running
                     // because it might cause unexpected behavior.
                     if (_scriptManager.GetNumberOfRunningScripts() > 0) return;
 
-                    _gameSettings.IsRealtimeLightingAndShadowsEnabled =
-                        !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
+                    _gameSettings.IsRealtimeLightingAndShadowsEnabled = !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
 
-                    // Update button text
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                        {} textUGUI && textUGUI.text.StartsWith("实时光影："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                        _gameSettings.IsRealtimeLightingAndShadowsEnabled ? lightingEnabledText : lightingDisabledText;
+                    buttonTextUGUI.text = GetLightAndShadowButtonText();
 
                     // Should turn off SSAO if realtime lighting and shadows is disabled
                     if (!_gameSettings.IsRealtimeLightingAndShadowsEnabled && _gameSettings.IsAmbientOcclusionEnabled)
@@ -395,11 +391,11 @@ namespace Pal3.Dev
 
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("实时光影已" +
                         (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                }));
+                });
 
                 #if !UNITY_ANDROID
-                string ssaoButtonText = _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
-                _menuItems.Add(CreateMenuButton(ssaoButtonText, delegate
+                string GetSSAOButtonText() => _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
+                CreateMenuButton(GetSSAOButtonText(), buttonTextUGUI => delegate
                 {
                     if (!_gameSettings.IsAmbientOcclusionEnabled && !_gameSettings.IsRealtimeLightingAndShadowsEnabled)
                     {
@@ -407,56 +403,46 @@ namespace Pal3.Dev
                         return;
                     }
 
-                    _gameSettings.IsAmbientOcclusionEnabled =
-                        !_gameSettings.IsAmbientOcclusionEnabled;
+                    _gameSettings.IsAmbientOcclusionEnabled = !_gameSettings.IsAmbientOcclusionEnabled;
 
-                    // Update button text
-                    _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                        {} textUGUI && textUGUI.text.StartsWith("环境光遮蔽："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                        _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
+                    buttonTextUGUI.text = GetSSAOButtonText();
 
                     CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已" +
                         (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                }));
+                });
                 #endif
             }
 
             #if UNITY_STANDALONE
             const string vsyncEnabledText = "垂直同步：已开启";
             const string vsyncDisabledText = "垂直同步：已关闭";
-            string vsyncButtonText = _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
-            _menuItems.Add(CreateMenuButton(vsyncButtonText, delegate
+            string GetVsyncButtonText() => _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
+            CreateMenuButton(GetVsyncButtonText(), buttonTextUGUI => delegate
             {
                 _gameSettings.VSyncCount = _gameSettings.VSyncCount == 0 ? 1 : 0;
 
-                // Update button text
-                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                        {} textUGUI && textUGUI.text.StartsWith("垂直同步："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                    _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
+                buttonTextUGUI.text = GetVsyncButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("垂直同步已" +
                     (_gameSettings.VSyncCount == 0 ? "关闭" : "开启") + ""));
-            }));
+            });
             #endif
 
             #if UNITY_IOS || UNITY_ANDROID
             const string fullResolutionScaleText = "渲染分辨率：100%";
             const string halfResolutionScaleText = "渲染分辨率：75%";
-            string resolutionButtonText = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f
+            string GetResolutionButtonText() => Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f
                 ? fullResolutionScaleText
                 : halfResolutionScaleText;
-            _menuItems.Add(CreateMenuButton(resolutionButtonText, delegate
+            CreateMenuButton(GetResolutionButtonText(), buttonTextUGUI => delegate
             {
                 _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f : 1f;
 
-                // Update button text
-                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is { } textUGUI &&
-                    textUGUI.text.StartsWith("渲染分辨率："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                    Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? fullResolutionScaleText : halfResolutionScaleText;
+                buttonTextUGUI.text = GetResolutionButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("渲染分辨率已" +
                     (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" : "调整为75%") + ""));
-            }));
+            });
             #endif
 
             // #if UNITY_STANDALONE
@@ -474,61 +460,53 @@ namespace Pal3.Dev
             //     antiAliasingButtonText = antiAliasingText[_gameSettings.AntiAliasing];
             // }
             //
-            // _menuItems.Add(CreateMenuButton(antiAliasingButtonText, delegate
+            // CreateMenuButton(antiAliasingButtonText, buttonTextUGUI => delegate
             // {
             //     _gameSettings.AntiAliasing = _gameSettings.AntiAliasing switch
             //     {
             //         0 => 2, 2 => 4, 4 => 8, 8 => 0, _ => 0,
             //     };
             //
-            //     _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is { } textUGUI &&
-            //         textUGUI.text.StartsWith("抗锯齿："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-            //         antiAliasingText[_gameSettings.AntiAliasing];
+            //     buttonTextUGUI.text = antiAliasingText[_gameSettings.AntiAliasing];
             //
             //     CommandDispatcher<ICommand>.Instance.Dispatch(_gameSettings.AntiAliasing == 0
             //         ? new UIDisplayNoteCommand("抗锯齿已关闭")
             //         : new UIDisplayNoteCommand("抗锯齿已开启，等级：" + _gameSettings.AntiAliasing));
-            // }));
+            // });
             // #endif
 
             const string musicEnabledText = "音乐：已开启";
             const string musicDisabledText = "音乐：已关闭";
-            string musicButtonText = _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
-            _menuItems.Add(CreateMenuButton(musicButtonText, delegate
+            string GetMusicButtonText() => _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
+            CreateMenuButton(GetMusicButtonText(), buttonTextUGUI => delegate
             {
                 _gameSettings.MusicVolume = _gameSettings.MusicVolume == 0f ? 0.5f : 0f;
 
-                // Update button text
-                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                        {} textUGUI && textUGUI.text.StartsWith("音乐："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                    _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
+                buttonTextUGUI.text = GetMusicButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音乐已" +
                     (_gameSettings.MusicVolume == 0f ? "关闭" : "开启") + ""));
-            }));
+            });
 
             const string sfxEnabledText = "音效：已开启";
             const string sfxDisabledText = "音效：已关闭";
-            string sfxButtonText = _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
-            _menuItems.Add(CreateMenuButton(sfxButtonText, delegate
+            string GetSfxButtonText() => _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
+            CreateMenuButton(GetSfxButtonText(), buttonTextUGUI => delegate
             {
                 _gameSettings.SfxVolume = _gameSettings.SfxVolume == 0f ? 0.5f : 0f;
 
-                // Update button text
-                _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                        {} textUGUI && textUGUI.text.StartsWith("音效："))!.GetComponentInChildren<TextMeshProUGUI>().text =
-                    _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
+                buttonTextUGUI.text = GetSfxButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音效已" +
                     (_gameSettings.SfxVolume == 0f ? "关闭" : "开启") + ""));
-            }));
+            });
 
-            _menuItems.Add(CreateMenuButton("返回", delegate
+            CreateMenuButton("返回", _ => delegate
             {
                 _gameSettings.SaveSettings();
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
-            }));
+            });
 
             SetupButtonNavigations(isUpAndDown: true);
 
@@ -548,36 +526,30 @@ namespace Pal3.Dev
             // 0 is reserved for auto-save
             for (int i = 1; i <= SAVE_SLOT_COUNT; i++)
             {
-                string slotButtonText = _saveManager.SaveSlotExists(i) ? string.Format(saveSlotButtonFormat, i,
+                string GetSlotButtonText() => _saveManager.SaveSlotExists(i) ? string.Format(saveSlotButtonFormat, i,
                     _saveManager.GetSaveSlotLastWriteTime(i)) : string.Format(saveSlotButtonFormat, i, "空");
 
                 var slotIndex = i;
-                _menuItems.Add(CreateMenuButton(slotButtonText, delegate
+                CreateMenuButton(GetSlotButtonText(), buttonTextUGUI => delegate
                 {
                     IList<ICommand> gameStateCommands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
                     bool success = _saveManager.SaveGameStateToSlot(slotIndex, gameStateCommands);
+                    if (success)
+                    {
+                        buttonTextUGUI.text = string.Format(saveSlotButtonFormat, slotIndex,
+                            _saveManager.GetSaveSlotLastWriteTime(slotIndex));
+                    }
                     CommandDispatcher<ICommand>.Instance.Dispatch(success
                         ? new UIDisplayNoteCommand("游戏保存成功")
                         : new UIDisplayNoteCommand("游戏保存失败"));
-                    if (success)
-                    {
-                        string newButtonText = string.Format(saveSlotButtonFormat, slotIndex,
-                            _saveManager.GetSaveSlotLastWriteTime(slotIndex));
-                        // Update button text
-                        var currentButtonText = slotButtonText;
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is
-                                { } textUGUI && textUGUI.text.Equals(currentButtonText, StringComparison.Ordinal))!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = newButtonText;
-                        slotButtonText = newButtonText;
-                    }
-                }));
+                });
             }
 
-            _menuItems.Add(CreateMenuButton("返回", delegate
+            CreateMenuButton("返回", _ => delegate
             {
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
-            }));
+            });
 
             SetupButtonNavigations(isUpAndDown: true);
 
@@ -594,10 +566,10 @@ namespace Pal3.Dev
             SetupMenuLayout(isVertical: true);
 
             bool autoSaveSlotExists = _saveManager.SaveSlotExists(SaveManager.AutoSaveSlotIndex);
-            string autoSaveSlotButtonText = autoSaveSlotExists ? $"自动存档：{_saveManager.GetSaveSlotLastWriteTime(SaveManager.AutoSaveSlotIndex)}"
-                : "自动存档：无";
+            string GetAutoSaveSlotButtonText() => autoSaveSlotExists ?
+                $"自动存档：{_saveManager.GetSaveSlotLastWriteTime(SaveManager.AutoSaveSlotIndex)}" : "自动存档：无";
 
-            _menuItems.Add(CreateMenuButton(autoSaveSlotButtonText, delegate
+            CreateMenuButton(GetAutoSaveSlotButtonText(), _ => delegate
             {
                 if (!autoSaveSlotExists) return;
                 var saveFileContent = _saveManager.LoadFromSaveSlot(SaveManager.AutoSaveSlotIndex);
@@ -610,7 +582,7 @@ namespace Pal3.Dev
                 {
                     CommandDispatcher<ICommand>.Instance.Dispatch( new UIDisplayNoteCommand("存档文件不存在或读取失败"));
                 }
-            }));
+            });
 
             const string saveSlotButtonFormat = "存档位 {0}：{1}";
             // 0 is reserved for auto-save
@@ -623,7 +595,7 @@ namespace Pal3.Dev
                 var slotIndex = i;
                 if (slotExists)
                 {
-                    _menuItems.Add(CreateMenuButton(slotButtonText, delegate
+                    CreateMenuButton(slotButtonText, _ => delegate
                     {
                         var saveFileContent = _saveManager.LoadFromSaveSlot(slotIndex);
                         if (saveFileContent != null)
@@ -635,19 +607,19 @@ namespace Pal3.Dev
                         {
                             CommandDispatcher<ICommand>.Instance.Dispatch( new UIDisplayNoteCommand("存档文件不存在或读取失败"));
                         }
-                    }));
+                    });
                 }
                 else
                 {
-                    _menuItems.Add(CreateMenuButton(slotButtonText, null));
+                    CreateMenuButton(slotButtonText, null);
                 }
             }
 
-            _menuItems.Add(CreateMenuButton("返回", delegate
+            CreateMenuButton("返回", _ => delegate
             {
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
-            }));
+            });
 
             SetupButtonNavigations(isUpAndDown: true);
 
@@ -663,22 +635,22 @@ namespace Pal3.Dev
         {
             SetupMenuLayout(isVertical: false);
 
-            _menuItems.Add(CreateMenuButton("返回", delegate
+            CreateMenuButton("返回", _ => delegate
             {
                 _contentTransform.anchoredPosition = Vector2.zero;
                 DestroyAllMenuItems();
                 SetupMainMenuButtons();
-            }));
+            });
 
             foreach (var story in DevCommands.StoryJumpPoints)
             {
-                _menuItems.Add(CreateMenuButton(story.Key, delegate
+                CreateMenuButton(story.Key, _ => delegate
                 {
                     HideMenu();
                     _saveManager.IsAutoSaveEnabled = false; // Disable auto save during loading
                     CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
                     ExecuteCommands(story.Value);
-                }));
+                });
             }
 
             SetupButtonNavigations(isUpAndDown: false);
@@ -716,18 +688,18 @@ namespace Pal3.Dev
             }
         }
 
-        GameObject CreateMenuButton(string text, UnityAction onSelection)
+        private void CreateMenuButton(string text, Func<TextMeshProUGUI, UnityAction> onSelection)
         {
-            GameObject menuButton = Instantiate(_menuButtonPrefab, _contentTransform);
-            var buttonTextUI = menuButton.GetComponentInChildren<TextMeshProUGUI>();
+            GameObject menuButtonGo = Instantiate(_menuButtonPrefab, _contentTransform);
+            var buttonTextUI = menuButtonGo.GetComponentInChildren<TextMeshProUGUI>();
             buttonTextUI.text = text;
-            var button = menuButton.GetComponent<Button>();
+            var button = menuButtonGo.GetComponent<Button>();
             button.colors = UITheme.GetButtonColors();
             if (onSelection != null)
             {
-                button.onClick.AddListener(onSelection);
+                button.onClick.AddListener(onSelection(buttonTextUI));
             }
-            return menuButton;
+            _menuItems.Add(menuButtonGo);
         }
 
         private void SetupMenuLayout(bool isVertical)

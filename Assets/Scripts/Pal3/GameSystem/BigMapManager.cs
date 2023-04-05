@@ -136,7 +136,7 @@ namespace Pal3.GameSystem
             {
                 if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
                 {
-                    //CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("迷宫中无法使用大地图"));
+                    // This triggers player actor switch in maze scene
                 }
                 else
                 {

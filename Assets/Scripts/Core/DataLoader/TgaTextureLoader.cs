@@ -31,43 +31,54 @@ namespace Core.DataLoader
             var dataStartIndex = 18;
             _pixels = new Color32[_width * _height];
 
-            hasAlphaChannel = false;
-            if (bitDepth == 32)
+            switch (bitDepth)
             {
-                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &_pixels[0].r)
+                case 32:
+                    hasAlphaChannel = Convert32BitData(data, dataStartIndex);
+                    break;
+                case 24:
+                    hasAlphaChannel = false;
+                    Convert24BitData(data, dataStartIndex);
+                    break;
+                default:
+                    throw new Exception("TGA texture had non 32/24 bit depth.");
+            }
+        }
+
+        private unsafe bool Convert32BitData(byte[] data, int startIndex)
+        {
+            bool hasAlphaChannel = false;
+            fixed (byte* srcStart = &data[startIndex], dstStart = &_pixels[0].r)
+            {
+                var firstAlpha = *(srcStart + 3);
+                byte* src = srcStart, dst = dstStart;
+                for (var i = 0; i < _width * _height; i++, src += 4, dst += 4)
                 {
-                    var firstAlpha = *(srcStart + 3);
-                    byte* src = srcStart, dst = dstStart;
-                    for (var i = 0; i < _width * _height; i++, src+=4, dst += 4)
-                    {
-                        *dst = *(src + 2);
-                        *(dst + 1) = *(src + 1);
-                        *(dst + 2) = *src;
+                    *dst = *(src + 2);
+                    *(dst + 1) = *(src + 1);
+                    *(dst + 2) = *src;
 
-                        var alpha = *(src + 3);
-                        *(dst + 3) = alpha;
+                    var alpha = *(src + 3);
+                    *(dst + 3) = alpha;
 
-                        if (alpha != firstAlpha) hasAlphaChannel = true;
-                    }
+                    if (alpha != firstAlpha) hasAlphaChannel = true;
                 }
             }
-            else if (bitDepth == 24)
+            return hasAlphaChannel;
+        }
+
+        private unsafe void Convert24BitData(byte[] data, int startIndex)
+        {
+            fixed (byte* srcStart = &data[startIndex], dstStart = &_pixels[0].r)
             {
-                fixed (byte* srcStart = &data[dataStartIndex], dstStart = &_pixels[0].r)
+                byte* src = srcStart, dst = dstStart;
+                for (var i = 0; i < _width * _height; i++, src += 3, dst += 4)
                 {
-                    byte* src = srcStart, dst = dstStart;
-                    for (var i = 0; i < _width * _height; i++, src += 3, dst += 4)
-                    {
-                        *dst = *(src + 2);
-                        *(dst + 1) = *(src + 1);
-                        *(dst + 2) = *src;
-                        *(dst + 3) = 0;
-                    }
+                    *dst = *(src + 2);
+                    *(dst + 1) = *(src + 1);
+                    *(dst + 2) = *src;
+                    *(dst + 3) = 0;
                 }
-            }
-            else
-            {
-                throw new Exception("TGA texture had non 32/24 bit depth.");
             }
         }
 

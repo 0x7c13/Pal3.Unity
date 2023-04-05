@@ -12,8 +12,16 @@ namespace Core.Animation
 
     public enum AnimationCurveType
     {
+        // OG game only has these two
         Linear = 0,
-        Sine,
+        Sine   = 1,
+
+        // New ones added by me
+        Quadratic    = 2,
+        Cubic        = 3,
+        Exponential  = 4,
+        EaseIn       = 5,
+        EaseOut      = 6,
     }
 
     /// <summary>
@@ -28,6 +36,11 @@ namespace Core.Animation
             {
                 AnimationCurveType.Linear => progress,
                 AnimationCurveType.Sine => Mathf.Sin(progress * (Mathf.PI / 2)),
+                AnimationCurveType.Quadratic => Mathf.Pow(progress, 2),
+                AnimationCurveType.Cubic => Mathf.Pow(progress, 3),
+                AnimationCurveType.Exponential => Mathf.Exp(progress) - 1,
+                AnimationCurveType.EaseIn => Mathf.Pow(progress, 3),
+                AnimationCurveType.EaseOut => 1 - Mathf.Pow(1 - progress, 3),
                 _ => progress
             };
         }

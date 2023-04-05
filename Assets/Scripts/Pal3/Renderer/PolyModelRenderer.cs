@@ -161,87 +161,62 @@ namespace Pal3.Renderer
                 var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();
                 var blendFlag = mesh.Textures[i].BlendFlag;
 
-                if (textures.Count == 1)
+                Material[] CreateMaterials(bool isWaterSurface, int mainTextureIndex, int shadowTextureIndex = -1)
                 {
                     Material[] materials;
-
-                    var isWaterSurface = textures[0].name
-                        .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
+                    float waterSurfaceOpacity = 1.0f;
 
                     if (isWaterSurface)
                     {
                         materials = new Material[1];
 
-                        // Use alpha from first pixel of the water texture
-                        // if _isWaterSurfaceOpaque is false.
-                        float waterSurfaceOpacity = _isWaterSurfaceOpaque ? 1.0f : textures[0].texture.GetPixel(0, 0).a;
-                        // Override blend flag if _isWaterSurfaceOpaque is true.
-                        blendFlag = _isWaterSurfaceOpaque ? GameBoxBlendFlag.Opaque : blendFlag;
+                        if (!_isWaterSurfaceOpaque)
+                        {
+                            waterSurfaceOpacity = textures[mainTextureIndex].texture.GetPixel(0, 0).a;
+                        }
+                        else
+                        {
+                            blendFlag = GameBoxBlendFlag.Opaque;
+                        }
 
                         materials[0] = _materialFactory.CreateWaterMaterial(
-                            textures[0],
-                            shadowTexture: (null, null),
+                            textures[mainTextureIndex],
+                            shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : (null, null),
                             waterSurfaceOpacity,
                             blendFlag);
-                        StartWaterSurfaceAnimation(materials[0], textures[0].texture);
                     }
                     else
                     {
                         materials = _materialFactory.CreateStandardMaterials(
                             RendererType.Pol,
-                            textures[0],
-                            shadowTexture: (null, null),
+                            textures[mainTextureIndex],
+                            shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : (null, null),
                             _tintColor,
                             blendFlag);
                     }
-
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
-                        ref mesh.Textures[i].Triangles,
-                        ref mesh.VertexInfo.Normals,
-                        ref mesh.VertexInfo.Uvs[0],
-                        ref mesh.VertexInfo.Uvs[1],
-                        ref materials,
-                        false);
+                    return materials;
                 }
-                else if (textures.Count >= 2)
-                {
-                    Material[] materials;
 
-                    var isWaterSurface = textures[1].name
+                if (textures.Count >= 1)
+                {
+                    int mainTextureIndex = textures.Count == 1 ? 0 : 1;
+                    int shadowTextureIndex = textures.Count == 1 ? -1 : 0;
+
+                    bool isWaterSurface = textures[mainTextureIndex].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
+
+                    Material[] materials = CreateMaterials(isWaterSurface, mainTextureIndex, shadowTextureIndex);
 
                     if (isWaterSurface)
                     {
-                        materials = new Material[1];
-
-                        // Use alpha from first pixel of the water texture
-                        // if _isWaterSurfaceOpaque is false.
-                        float waterSurfaceOpacity = _isWaterSurfaceOpaque ? 1.0f : textures[1].texture.GetPixel(0, 0).a;
-                        // Override blend flag if _isWaterSurfaceOpaque is true.
-                        blendFlag = _isWaterSurfaceOpaque ? GameBoxBlendFlag.Opaque : blendFlag;
-
-                        materials[0] = _materialFactory.CreateWaterMaterial(
-                            textures[1],
-                            textures[0],
-                            waterSurfaceOpacity,
-                            blendFlag);
-                        StartWaterSurfaceAnimation(materials[0], textures[1].texture);
-                    }
-                    else
-                    {
-                        materials = _materialFactory.CreateStandardMaterials(
-                            RendererType.Pol,
-                            textures[1],
-                            textures[0],
-                            _tintColor,
-                            blendFlag);
+                        StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture);
                     }
 
                     _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
                         ref mesh.Textures[i].Triangles,
                         ref mesh.VertexInfo.Normals,
-                        ref mesh.VertexInfo.Uvs[1],
-                        ref mesh.VertexInfo.Uvs[0],
+                        ref mesh.VertexInfo.Uvs[mainTextureIndex],
+                        ref mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)],
                         ref materials,
                         false);
                 }
