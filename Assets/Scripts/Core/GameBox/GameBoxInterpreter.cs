@@ -17,7 +17,8 @@ namespace Core.GameBox
     {
         public const float GameBoxUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
-
+        public const int GameBoxTickPerSec = 4800;
+        
         public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
         {
             return ToUnityVector3(vertex, scale);
@@ -170,6 +171,16 @@ namespace Core.GameBox
                 new Vector4(matrix.Yx, matrix.Yy, matrix.Yz, matrix.Yw),
                 new Vector4(matrix.Zx, matrix.Zy, matrix.Zz, matrix.Zw),
                 new Vector4(matrix.Tx, matrix.Ty, matrix.Tz, matrix.Tw));
+        }
+
+        public static float TickToSecond(int tick)
+        {
+            return tick/((float)GameBoxTickPerSec);
+        }
+
+        public static int SecondToTick(float f)
+        {
+            return (int)(f * GameBoxTickPerSec);
         }
     }
 }

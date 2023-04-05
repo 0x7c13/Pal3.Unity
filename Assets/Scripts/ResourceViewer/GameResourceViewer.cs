@@ -3,6 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.DataReader.Mov;
 using Core.DataReader.Msh;
 
 namespace ResourceViewer
@@ -187,7 +188,7 @@ namespace ResourceViewer
 
         private void RandMov()
         {
-            Debug.Log("RandMov");
+            while (!LoadMov(_movFiles[Random.Next(0,_movFiles.Count)])) { }
         }
 
         private void Search(string keyword)
@@ -350,6 +351,7 @@ namespace ResourceViewer
 
         private bool LoadMsh(string filePath)
         {
+            Debug.Log($"msh name:[{filePath}]");
             DestroyExistingRenderingObjects();
             consoleTextUI.text = $"Loading: {filePath}";
             try
@@ -370,7 +372,22 @@ namespace ResourceViewer
             }
         }
 
-        #if UNITY_EDITOR
+        private bool LoadMov(string filePath)
+        {
+            Debug.Log($"mov name:{filePath}");
+            try
+            {
+                MovFile mov = _resourceProvider.GetMov(filePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ayy" + ex.ToString());
+                return false;
+            }
+        }
+
+#if UNITY_EDITOR
         private void DecompileAllSceScripts()
         {
             var sceFiles = _fileSystem.Search(".sce")

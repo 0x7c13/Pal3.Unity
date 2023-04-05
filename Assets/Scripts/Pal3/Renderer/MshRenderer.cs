@@ -40,6 +40,13 @@ namespace Pal3.Renderer
             RenderSkeleton();
             RenderMesh();
         }
+        
+        /*
+        private void Update()
+        {
+            Debug.DrawLine(new Vector3(0, 0, 0), new Vector3(100, 100, 100), new Color(1.0f, 1.0f, 0.0f));
+        }
+        */
 
         void RenderSkeleton()
         {
@@ -54,6 +61,7 @@ namespace Pal3.Renderer
             
             // display gizmo
             RenderBoneGizmo(renderNode);
+            RenderBoneConnectionGizmo(parent.transform,renderNode.transform);
 
             // self pos rotation
             renderNode.transform.localPosition = bone._translate;
@@ -77,16 +85,22 @@ namespace Pal3.Renderer
             mesh.SetTriangles(BuildBoneGizmoTriangle(),0);
             meshFilter.sharedMesh = mesh;
             
-            // @miao @test
             // material
             Material material = _materialFactory.CreateBoneGizmoMaterial();
             if(material != null)
             {
                 meshRenderer.sharedMaterial = material;
+                material.renderQueue = 5000;    // at last 
             }
-
         }
 
+        void RenderBoneConnectionGizmo(Transform from,Transform to)
+        {
+            //Vector3 fromTo = to.position - from.position;
+            
+            
+        }
+        
         void RenderMesh()
         {
             for (int i = 0; i < _msh._nSubMesh; i++)

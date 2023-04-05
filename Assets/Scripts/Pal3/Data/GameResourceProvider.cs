@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.DataReader.Mov;
+
 namespace Pal3.Data
 {
     using System;
@@ -183,6 +185,14 @@ namespace Pal3.Data
             var data = _fileSystem.ReadAllBytes(filePath);
             MshFile mshFile = MshFileReader.Read(data,_codepage);
             return mshFile;
+        }
+
+        public MovFile GetMov(string filePath)
+        {
+            filePath = filePath.ToLower();
+            var data = _fileSystem.ReadAllBytes(filePath);
+            MovFile mov = MovFileReader.Read(data,_codepage);
+            return mov;
         }
 
         public LgtFile GetLgt(string lgtFilePath)
