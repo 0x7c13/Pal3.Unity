@@ -25,6 +25,7 @@ namespace Pal3.Data
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.DataReader.Msh;
     using Core.FileSystem;
     using Core.Utils;
     using MetaData;
@@ -174,6 +175,14 @@ namespace Pal3.Data
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
             _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
             return (mv3File, textureProvider);
+        }
+
+        public MshFile GetMsh(string filePath)
+        {
+            filePath = filePath.ToLower();
+            var data = _fileSystem.ReadAllBytes(filePath);
+            MshFile mshFile = MshFileReader.Read(data,_codepage);
+            return mshFile;
         }
 
         public LgtFile GetLgt(string lgtFilePath)

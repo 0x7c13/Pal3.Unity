@@ -59,5 +59,8 @@ namespace Pal3.Renderer
         public void UpdateMaterial(Material material,
             Texture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
+
+
+        public Material CreateBoneGizmoMaterial();
     }
 }

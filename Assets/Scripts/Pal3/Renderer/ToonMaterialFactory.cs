@@ -94,5 +94,10 @@ namespace Pal3.Renderer
             material.mainTexture = mainTexture;
             return material;
         }
+        
+        public Material CreateBoneGizmoMaterial()
+        {
+            return null;
+        }
     }
 }

@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Core.DataReader.Msh;
+
 namespace ResourceViewer
 {
     using System;
@@ -48,6 +50,8 @@ namespace ResourceViewer
         [SerializeField] private Button randomCvdButton;
         [SerializeField] private Button randomMv3Button;
         [SerializeField] private Button randomMp3Button;
+        [SerializeField] private Button randomMshButton;
+        [SerializeField] private Button randomMovButton;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
@@ -57,6 +61,8 @@ namespace ResourceViewer
         private IList<string> _cvdFiles = new List<string>();
         private IList<string> _mv3Files = new List<string>();
         private IList<string> _mp3Files = new List<string>();
+        private IList<string> _mshFiles = new List<string>();
+        private IList<string> _movFiles = new List<string>();
         private static readonly Random Random = new ();
 
         private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page,
@@ -91,11 +97,15 @@ namespace ResourceViewer
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
+            _mshFiles = _fileSystem.Search(".msh").ToList();
+            _movFiles = _fileSystem.Search(".mov").ToList();
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
             randomMv3Button.onClick.AddListener(RandMv3);
             randomMp3Button.onClick.AddListener(RandMp3);
+            randomMshButton.onClick.AddListener(RandMsh);
+            randomMovButton.onClick.AddListener(RandMov);
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
@@ -161,6 +171,23 @@ namespace ResourceViewer
         private void RandMp3()
         {
             while (!LoadMp3(_mp3Files[Random.Next(0, _mp3Files.Count)])) { }
+        }
+
+        private void RandMsh()
+        {
+            while (!LoadMsh(_mshFiles[Random.Next(0, _mshFiles.Count)])) { }
+            /*
+            foreach (var path in _mshFiles)
+            {
+                LoadMsh(path);
+                break;  // @temp
+            }
+            */
+        }
+
+        private void RandMov()
+        {
+            Debug.Log("RandMov");
         }
 
         private void Search(string keyword)
@@ -317,6 +344,28 @@ namespace ResourceViewer
             {
                 Debug.LogException(ex);
                 consoleTextUI.text = $"Failed to load: {filePath}";
+                return false;
+            }
+        }
+
+        private bool LoadMsh(string filePath)
+        {
+            DestroyExistingRenderingObjects();
+            consoleTextUI.text = $"Loading: {filePath}";
+            try
+            {
+                MshFile msh = _resourceProvider.GetMsh(filePath);
+                var node = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                node.transform.SetParent(_renderingRoot.transform);
+
+                var mshRenderer = node.AddComponent<MshRenderer>();
+                mshRenderer.Init(msh, _resourceProvider.GetMaterialFactory());
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ayy "  + ex.ToString());
                 return false;
             }
         }

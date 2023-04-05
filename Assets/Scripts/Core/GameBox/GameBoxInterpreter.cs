@@ -112,6 +112,13 @@ namespace Core.GameBox
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
+        
+        
+        // @temp
+        public static Quaternion MshQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        {
+            return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+        }
 
         public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
