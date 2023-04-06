@@ -12,9 +12,9 @@ namespace Core.DataReader.Nav
     using UnityEngine;
     using Utils;
 
-    public static class NavFileReader
+    public sealed class NavFileReader : IFileReader<NavFile>
     {
-        public static NavFile Read(Stream stream)
+        public NavFile Read(Stream stream)
         {
             using var reader = new BinaryReader(stream);
 

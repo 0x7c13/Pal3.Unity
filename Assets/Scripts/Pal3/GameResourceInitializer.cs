@@ -12,7 +12,19 @@ namespace Pal3
     using System.IO;
     using System.Threading;
     using Core.Animation;
+    using Core.DataReader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Cvd;
+    using Core.DataReader.Data;
+    using Core.DataReader.Gdb;
+    using Core.DataReader.Ini;
+    using Core.DataReader.Lgt;
+    using Core.DataReader.Mov;
+    using Core.DataReader.Mv3;
+    using Core.DataReader.Nav;
+    using Core.DataReader.Pol;
+    using Core.DataReader.Sce;
+    using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
     using Data;
@@ -27,11 +39,10 @@ namespace Pal3
 
     /// <summary>
     /// The Game Resource initializer
-    /// Initialize file system etc.
+    /// Initialize file system and all required services.
     /// </summary>
     public sealed class GameResourceInitializer : MonoBehaviour
     {
-        [SerializeField] private UnityEngine.Camera uiCamera;
         [SerializeField] private GameObject startingComponent;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private TextMeshProUGUI loadingText;
@@ -63,6 +74,20 @@ namespace Pal3
             CrcHash crcHash = new ();
             crcHash.Init();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
+
+            // Create and register IFileReader<T> instances
+            ServiceLocator.Instance.Register<IFileReader<CvdFile>>(new CvdFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader());
+            ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());
+            ServiceLocator.Instance.Register<IFileReader<NavFile>>(new NavFileReader());
+            ServiceLocator.Instance.Register<IFileReader<MovActionConfig>>(new MovConfigFileReader());
+            ServiceLocator.Instance.Register<IFileReader<Mv3ActionConfig>>(new Mv3ConfigFileReader());
+            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader());
+            ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
 
             // If toon materials are not present, it's an open source build
             bool isOpenSourceVersion = _toonDefaultMaterial == null || _toonTransparentMaterial == null;
@@ -152,8 +177,7 @@ namespace Pal3
                 new TextureLoaderFactory(),
                 unlitMaterialFactory,
                 litMaterialFactory,
-                gameSettings,
-                codepage);
+                gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 
             // Cache warm up

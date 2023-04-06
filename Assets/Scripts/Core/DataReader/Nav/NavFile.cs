@@ -88,7 +88,7 @@ namespace Core.DataReader.Nav
     /// <summary>
     /// NAV (.nav) file model
     /// </summary>
-    public class NavFile
+    public sealed class NavFile
     {
         public NavTileLayer[] TileLayers { get; }
         public NavFaceLayer[] FaceLayers { get; }

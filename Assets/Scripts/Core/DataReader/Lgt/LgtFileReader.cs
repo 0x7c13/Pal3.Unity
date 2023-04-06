@@ -14,9 +14,9 @@ namespace Core.DataReader.Lgt
     using GameBox;
     using Utils;
 
-    public static class LgtFileReader
+    public sealed class LgtFileReader : IFileReader<LgtFile>
     {
-        public static LgtFile Read(byte[] data)
+        public LgtFile Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);

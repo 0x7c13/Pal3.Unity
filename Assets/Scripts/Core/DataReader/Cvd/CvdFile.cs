@@ -184,7 +184,7 @@ namespace Core.DataReader.Cvd
     /// <summary>
     /// CVD (.cvd) file model
     /// </summary>
-    public class CvdFile
+    public sealed class CvdFile
     {
         public float AnimationDuration { get; }
         public CvdGeometryNode[] RootNodes { get; }

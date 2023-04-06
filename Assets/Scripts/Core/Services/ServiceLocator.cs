@@ -30,8 +30,9 @@ namespace Core.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                Debug.LogError($"{typeof(T)} not registered with {GetType().Name}");
-                throw new InvalidOperationException();
+                string error = $"{typeof(T)} not registered with {GetType().Name}";
+                Debug.LogError(error);
+                throw new InvalidOperationException(error);
             }
 
             return (T)_services[typeof(T)];

@@ -11,7 +11,7 @@ namespace Core.DataReader.Cpk
     /// <summary>
     /// CpkEntry model
     /// </summary>
-    public class CpkEntry
+    public sealed class CpkEntry
     {
         /// <summary>
         /// Virtualized file system path within the CPK archive.

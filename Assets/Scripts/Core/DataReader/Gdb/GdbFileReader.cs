@@ -9,14 +9,21 @@ namespace Core.DataReader.Gdb
     using System.IO;
     using Extensions;
 
-    public static class GdbFileReader
+    public sealed class GdbFileReader : IFileReader<GdbFile>
     {
-        public static GdbFile Read(byte[] data, int codepage)
+        private readonly int _codepage;
+
+        public GdbFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
+
+        public GdbFile Read(byte[] data)
         {
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
 
-            _ = reader.ReadString(128, codepage); // header string
+            _ = reader.ReadString(128, _codepage); // header string
 
             uint actorDataOffset = reader.ReadUInt32();
             int numOfActors = reader.ReadInt32();
@@ -34,7 +41,7 @@ namespace Core.DataReader.Gdb
             var gameItems = new Dictionary<int, GameItem>();
             for (var i = 0; i < numOfItems; i++)
             {
-                GameItem item = ReadGameItem(reader, codepage);
+                GameItem item = ReadGameItem(reader, _codepage);
                 gameItems[(int) item.Id] = item;
             }
 

@@ -32,17 +32,18 @@ namespace Pal3.Effect
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
-                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(info.ModelPath);
+                (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
-                _sceneObjectRenderer.Render(poly.PolFile,
-                    poly.TextureProvider,
+                _sceneObjectRenderer.Render(polFile,
+                    textureProvider,
                     materialFactory);
             }
 
             if (!string.IsNullOrEmpty(info.TexturePathFormat))
             {
                 _effectTextures = resourceProvider.GetEffectTextures(
-                    GraphicsEffect.Fire,info.TexturePathFormat);
+                    GraphicsEffect.Fire, info.TexturePathFormat);
 
                 var sprites = new Sprite[_effectTextures.Length];
                 for (var i = 0; i < _effectTextures.Length; i++)

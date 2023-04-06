@@ -142,7 +142,7 @@ namespace Core.DataReader.Gdb
     }
 
     // Pal3 Game Database file
-    public class GdbFile
+    public sealed class GdbFile
     {
         public Dictionary<int, GameItem> GameItems { get; } // Game item Id -> Game item
 

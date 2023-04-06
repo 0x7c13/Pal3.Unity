@@ -122,8 +122,13 @@ namespace Core.DataReader.Data
         public float[] Param;
     }
 
-    public class EffectDefinitionFile
+    public sealed class EffectDefinitionFile
     {
-        public EffectDefinition[] EffectDefinitions;
+        public EffectDefinitionFile(EffectDefinition[] effectDefinitions)
+        {
+            EffectDefinitions = effectDefinitions;
+        }
+
+        public EffectDefinition[] EffectDefinitions { get; }
     }
 }

@@ -126,11 +126,11 @@ namespace Core.Utils
             b = (byte) ((temp / 32 + temp) / 32);
         }
 
-        public static string GetDirectoryName(string path, char directoryPathSeparator)
+        public static string GetRelativeDirectoryPath(string filePath, char directoryPathSeparator)
         {
-            return !path.Contains(directoryPathSeparator) ?
+            return !filePath.Contains(directoryPathSeparator) ?
                 string.Empty :
-                path[..path.LastIndexOf(directoryPathSeparator)];
+                filePath[..filePath.LastIndexOf(directoryPathSeparator)];
         }
 
         public static string GetFileName(string path, char directoryPathSeparator)

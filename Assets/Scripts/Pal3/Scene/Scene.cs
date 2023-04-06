@@ -249,8 +249,8 @@ namespace Pal3.Scene
             {
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
-                    _materialFactory,
-                    SceneCvdMesh.Value.TextureProvider);
+                    SceneCvdMesh.Value.TextureProvider,
+                    _materialFactory);
                 cvdMeshRenderer.LoopAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
         }

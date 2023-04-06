@@ -92,12 +92,14 @@ namespace Pal3.Scene
 
             var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
 
-            ScenePolyMesh = _resourceProvider.GetPol(sceneMetadataFilePrefix + ".pol");
+            (PolFile polFile, string polRelativeDirectoryPath) = _resourceProvider.GetGameResourceFile<PolFile>(sceneMetadataFilePrefix + ".pol");
+            ScenePolyMesh = (polFile, _resourceProvider.GetTextureResourceProvider(polRelativeDirectoryPath));
 
             // Only few of the scenes use CVD models, so we need to check first
             if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".cvd"))
             {
-                SceneCvdMesh = _resourceProvider.GetCvd(sceneMetadataFilePrefix + ".cvd");
+                (CvdFile cvdFile, string cvdRelativeDirectoryPath) = _resourceProvider.GetGameResourceFile<CvdFile>(sceneMetadataFilePrefix + ".cvd");
+                SceneCvdMesh = (cvdFile, _resourceProvider.GetTextureResourceProvider(cvdRelativeDirectoryPath));
             }
 
             // The light file in the original game data does not have good enough

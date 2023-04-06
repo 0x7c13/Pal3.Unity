@@ -12,9 +12,16 @@ namespace Core.DataReader.Scn
     using GameBox;
     using UnityEngine;
 
-    public static class ScnFileReader
+    public sealed class ScnFileReader : IFileReader<ScnFile>
     {
-        public static ScnFile Read(Stream stream, int codepage)
+        private readonly int _codepage;
+
+        public ScnFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
+
+        public ScnFile Read(Stream stream)
         {
             using var reader = new BinaryReader(stream);
 
@@ -34,9 +41,9 @@ namespace Core.DataReader.Scn
 
             var sceneInfo = new ScnSceneInfo()
             {
-                CityName = reader.ReadString(32, codepage),
-                SceneName = reader.ReadString(32, codepage),
-                Model = reader.ReadString(32, codepage),
+                CityName = reader.ReadString(32, _codepage),
+                SceneName = reader.ReadString(32, _codepage),
+                Model = reader.ReadString(32, _codepage),
                 SceneType = (ScnSceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),
                 SkyBox = reader.ReadUInt32(),
@@ -47,14 +54,14 @@ namespace Core.DataReader.Scn
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
-                npcInfos[i] = ReadNpcInfo(reader, codepage);
+                npcInfos[i] = ReadNpcInfo(reader, _codepage);
             }
 
             reader.BaseStream.Seek(objectDataOffset, SeekOrigin.Begin);
             var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
-                ScnObjectInfo sceneObject = ReadObjectInfo(reader, codepage);
+                ScnObjectInfo sceneObject = ReadObjectInfo(reader, _codepage);
                 objInfos[i] = sceneObject;
             }
 

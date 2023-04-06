@@ -15,6 +15,7 @@ namespace Pal3.Data
     using Command;
     using Command.InternalCommands;
     using Core.DataLoader;
+    using Core.DataReader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Gdb;
@@ -27,6 +28,7 @@ namespace Pal3.Data
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
     using Core.FileSystem;
+    using Core.Services;
     using Core.Utils;
     using MetaData;
     using Renderer;
@@ -38,7 +40,7 @@ namespace Pal3.Data
     /// Single resource provider for accessing game data.
     /// Also manages the lifecycle of the resource it provides.
     /// </summary>
-    public class GameResourceProvider : IDisposable,
+    public sealed class GameResourceProvider : IDisposable,
         ICommandExecutor<ScenePreLoadingNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
@@ -53,18 +55,15 @@ namespace Pal3.Data
         private readonly GameSettings _gameSettings;
 
         private readonly GdbFile _gameDatabase;
-        private readonly int _codepage;
 
         private TextureCache _textureCache;
 
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
-        private readonly Dictionary<string, (PolFile PolFile, ITextureResourceProvider TextureProvider)> _polCache = new ();
-        private readonly Dictionary<string, (CvdFile PolFile, ITextureResourceProvider TextureProvider)> _cvdCache = new ();
-        private readonly Dictionary<string, (Mv3File mv3File, ITextureResourceProvider textureProvider)> _mv3Cache = new ();
-        private readonly Dictionary<string, (MovFile movFile, ITextureResourceProvider textureProvider)> _movCache = new ();
-        private readonly Dictionary<string, ActorActionConfig> _actorConfigCache = new (); // Cache forever
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
         private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
+
+        private readonly Dictionary<string, ActorActionConfig> _actorConfigCache = new (); // Cache forever
+        private readonly Dictionary<Type, Dictionary<string, (object File, string RelativeDirectoryPath)>> _gameResourceFileCache = new ();
 
         // Cache player actor movement sfx audio clips
         private readonly HashSet<string> _audioClipCacheList = new ()
@@ -91,32 +90,33 @@ namespace Pal3.Data
             ITextureLoaderFactory textureLoaderFactory,
             IMaterialFactory unlitMaterialFactory,
             IMaterialFactory litMaterialFactory,
-            GameSettings gameSettings,
-            int codepage)
+            GameSettings gameSettings)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
             _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
             _litMaterialFactory = litMaterialFactory; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
-            _codepage = codepage;
 
             var gdbFilePath =
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.CombatDataFolderName}{PathSeparator}{GameConstants.AppName}_Softstar.gdb";
 
-            _gameDatabase = GdbFileReader.Read(_fileSystem.ReadAllBytes(gdbFilePath), codepage);
+            _gameDatabase = GetGameResourceFileReader<GdbFile>().Read(_fileSystem.ReadAllBytes(gdbFilePath));
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        private IFileReader<T> GetGameResourceFileReader<T>()
+        {
+            return ServiceLocator.Instance.Get<IFileReader<T>>();
         }
 
         public void Dispose()
         {
             _textureCache?.DisposeAll();
             _spriteCache.Clear();
-            _polCache.Clear();
-            _mv3Cache.Clear();
-            _movCache.Clear();
+            _gameResourceFileCache.Clear();
             _actorConfigCache.Clear();
             _audioClipCache.Clear();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
@@ -144,64 +144,44 @@ namespace Pal3.Data
                 _unlitMaterialFactory;
         }
 
-        private ITextureResourceProvider GetTextureResourceProvider(string relativePath, bool useCache = true)
+        public ITextureResourceProvider GetTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
-                new TextureProvider(_fileSystem, _textureLoaderFactory, relativePath, _textureCache) :
-                new TextureProvider(_fileSystem, _textureLoaderFactory, relativePath);
+                new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath, _textureCache) :
+                new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath);
         }
 
-        public (PolFile PolFile, ITextureResourceProvider TextureProvider) GetPol(string polFilePath)
+        public (T File, string RelativeDirectoryPath) GetGameResourceFile<T>(string filePath, bool useCache = true)
         {
-            polFilePath = polFilePath.ToLower();
-            if (_polCache.ContainsKey(polFilePath)) return _polCache[polFilePath];
-            var polData = _fileSystem.ReadAllBytes(polFilePath);
-            PolFile polFile = PolFileReader.Read(polData, _codepage);
-            var relativePath = Utility.GetDirectoryName(polFilePath, PathSeparator);
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
-            _polCache[polFilePath] = (polFile, textureProvider);
-            return (polFile, textureProvider);
-        }
+            filePath = filePath.ToLower();
 
-        public (CvdFile CvdFile, ITextureResourceProvider TextureProvider) GetCvd(string cvdFilePath)
-        {
-            cvdFilePath = cvdFilePath.ToLower();
-            if (_cvdCache.ContainsKey(cvdFilePath)) return _cvdCache[cvdFilePath];
-            var cvdData =_fileSystem.ReadAllBytes(cvdFilePath);
-            CvdFile cvdFile = CvdFileReader.Read(cvdData, _codepage);
-            var relativePath = Utility.GetDirectoryName(cvdFilePath, PathSeparator);
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
-            _cvdCache[cvdFilePath] = (cvdFile, textureProvider);
-            return (cvdFile, textureProvider);
-        }
+            if (useCache &&
+                _gameResourceFileCache.ContainsKey(typeof(T)) &&
+                _gameResourceFileCache[typeof(T)].ContainsKey(filePath))
+            {
+                var cachedFile = _gameResourceFileCache[typeof(T)][filePath];
+                return ((T)cachedFile.File, cachedFile.RelativeDirectoryPath);
+            }
 
-        public (Mv3File Mv3File, ITextureResourceProvider TextureProvider) GetMv3(string mv3FilePath)
-        {
-            mv3FilePath = mv3FilePath.ToLower();
-            if (_mv3Cache.ContainsKey(mv3FilePath)) return _mv3Cache[mv3FilePath];
-            var mv3Data = _fileSystem.ReadAllBytes(mv3FilePath);
-            Mv3File mv3File = Mv3FileReader.Read(mv3Data, _codepage);
-            var relativePath = Utility.GetDirectoryName(mv3FilePath, PathSeparator);
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
-            _mv3Cache[mv3FilePath] = (mv3File, textureProvider);
-            return (mv3File, textureProvider);
-        }
+            T file = GetGameResourceFileReader<T>().Read(_fileSystem.ReadAllBytes(filePath));
+            string relativeDirectoryPath = Utility.GetRelativeDirectoryPath(filePath, PathSeparator);
 
-        public (MovFile movFile, ITextureResourceProvider textureProvider) GetMov(string movFilePath)
-        {
-            movFilePath = movFilePath.ToLower();
-            if (_movCache.ContainsKey(movFilePath)) return _movCache[movFilePath];
-            var movData = _fileSystem.ReadAllBytes(movFilePath);
-            MovFile movFile = MovFileReader.Read(movData, _codepage);
-            var relativePath = Utility.GetDirectoryName(movFilePath, PathSeparator);
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(relativePath);
-            _movCache[movFilePath] = (movFile, textureProvider);
-            return (movFile, textureProvider);
+            if (useCache)
+            {
+                // initialize cache for this type of file if not exists
+                if (!_gameResourceFileCache.ContainsKey(typeof(T)))
+                {
+                    _gameResourceFileCache[typeof(T)] = new Dictionary<string, (object File, string RelativeDirectoryPath)>();
+                }
+                _gameResourceFileCache[typeof(T)][filePath] = (file, relativeDirectoryPath);
+            }
+
+            return (file, relativeDirectoryPath);
         }
 
         public LgtFile GetLgt(string lgtFilePath)
         {
-            return LgtFileReader.Read(_fileSystem.ReadAllBytes(lgtFilePath));
+            return GetGameResourceFileReader<LgtFile>().Read(_fileSystem.ReadAllBytes(lgtFilePath));
         }
 
         public NavFile GetNav(string sceneFileName, string sceneName)
@@ -214,8 +194,7 @@ namespace Pal3.Data
                               $"{sceneFileName}{PathSeparator}{sceneName}{PathSeparator}{sceneName}.nav";
             #endif
 
-            using var navFileStream = new MemoryStream(_fileSystem.ReadAllBytes(navFilePath));
-            return NavFileReader.Read(navFileStream);
+            return GetGameResourceFileReader<NavFile>().Read(_fileSystem.ReadAllBytes(navFilePath));
         }
 
         public ScnFile GetScn(string sceneFileName, string sceneName)
@@ -226,8 +205,8 @@ namespace Pal3.Data
             var scnFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{PathSeparator}SCN{PathSeparator}" +
                               $"{sceneFileName}{PathSeparator}{sceneFileName}_{sceneName}.scn";
             #endif
-            using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
-            return ScnFileReader.Read(scnFileStream, _codepage);
+
+            return GetGameResourceFileReader<ScnFile>().Read(_fileSystem.ReadAllBytes(scnFilePath));
         }
 
         public SceFile GetSceneSce(string sceneFileName)
@@ -237,22 +216,18 @@ namespace Pal3.Data
             #elif PAL3A
             var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{PathSeparator}Sce{PathSeparator}{sceneFileName}.sce";
             #endif
-            using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(sceFilePath));
-            return SceFileReader.Read(sceFileStream, _codepage);
+
+            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(sceFilePath));
         }
 
         public SceFile GetSystemSce()
         {
-            using var sceFileStream = new MemoryStream(
-                _fileSystem.ReadAllBytes(FileConstants.SystemSceFileVirtualPath));
-            return SceFileReader.Read(sceFileStream, _codepage);
+            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(FileConstants.SystemSceFileVirtualPath));
         }
 
         public SceFile GetBigMapSce()
         {
-            using var sceFileStream = new MemoryStream(
-                _fileSystem.ReadAllBytes(FileConstants.BigMapSceFileVirtualPath));
-            return SceFileReader.Read(sceFileStream, _codepage);
+            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(FileConstants.BigMapSceFileVirtualPath));
         }
 
         public Dictionary<int, GameItem> GetGameItems()
@@ -415,10 +390,10 @@ namespace Pal3.Data
 
         public Texture2D[] GetSkyBoxTextures(int skyBoxId)
         {
-            var relativePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
+            var relativeFilePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetDirectoryName(relativePath, PathSeparator));
+                Utility.GetRelativeDirectoryPath(relativeFilePath, PathSeparator));
 
             var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < SceneConstants.SkyBoxTexturePathFormat.Length; i++)
@@ -513,7 +488,10 @@ namespace Pal3.Data
         {
             actorConfigFilePath = actorConfigFilePath.ToLower();
 
-            if (_actorConfigCache.ContainsKey(actorConfigFilePath)) return _actorConfigCache[actorConfigFilePath];
+            if (_actorConfigCache.TryGetValue(actorConfigFilePath, out ActorActionConfig actorActionConfig))
+            {
+                return actorActionConfig;
+            }
 
             if (!_fileSystem.FileExists(actorConfigFilePath))
             {
@@ -526,13 +504,13 @@ namespace Pal3.Data
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
-                Mv3ActionConfig config = ActorConfigFileReader.ReadMv3Config(configData);
+                Mv3ActionConfig config = GetGameResourceFileReader<Mv3ActionConfig>().Read(configData);
                 _actorConfigCache[actorConfigFilePath] = config;
                 return config;
             }
             else // MOV actor config
             {
-                MovActionConfig config = ActorConfigFileReader.ReadMovConfig(configData);
+                MovActionConfig config = GetGameResourceFileReader<MovActionConfig>().Read(configData);
                 _actorConfigCache[actorConfigFilePath] = config;
                 return config;
             }
@@ -566,7 +544,7 @@ namespace Pal3.Data
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetDirectoryName(texturePathFormat, PathSeparator));
+                Utility.GetRelativeDirectoryPath(texturePathFormat, PathSeparator));
 
             if (effect == GraphicsEffect.Fire)
             {
@@ -592,9 +570,9 @@ namespace Pal3.Data
 
         public Object GetVfxEffectPrefab(int effectGroupId)
         {
-            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
+            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out Object vfxEffectPrefab))
             {
-                return _vfxEffectPrefabCache[effectGroupId];
+                return vfxEffectPrefab;
             }
 
             Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
@@ -670,11 +648,11 @@ namespace Pal3.Data
                     // Cache known actions only.
                     if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
 
-                    var mv3File = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                                  $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}" +
-                                  $"{actorAction.ActionFileName}";
+                    var mv3FilePath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
+                                      $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}" +
+                                      $"{actorAction.ActionFileName}";
 
-                    _ = GetMv3(mv3File); // Call GetMv3 to cache the mv3 file.
+                    _ = GetGameResourceFile<Mv3File>(mv3FilePath); // Call GetMv3 to cache the mv3 file.
                 }
             }
         }
@@ -701,21 +679,36 @@ namespace Pal3.Data
                 }
                 _spriteCache.Clear();
 
-                _polCache.Clear();
-                _cvdCache.Clear();
-
-                // Dispose non-main actor mv3 files
-                // All main actor names start with "1"
-                var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
-                var mv3FilesToDispose = _mv3Cache.Keys
-                    .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
-                    .ToArray();
-                foreach (var mv3File in mv3FilesToDispose)
+                if (_gameResourceFileCache.ContainsKey(typeof(PolFile)))
                 {
-                    _mv3Cache.Remove(mv3File);
+                    _gameResourceFileCache[typeof(PolFile)]?.Clear();
                 }
 
-                _movCache.Clear();
+                if (_gameResourceFileCache.ContainsKey(typeof(CvdFile)))
+                {
+                    _gameResourceFileCache[typeof(CvdFile)]?.Clear();
+                }
+
+                if (_gameResourceFileCache.ContainsKey(typeof(MovFile)))
+                {
+                    _gameResourceFileCache[typeof(MovFile)]?.Clear();
+                }
+
+                if (_gameResourceFileCache.ContainsKey(typeof(Mv3File)))
+                {
+                    var mv3FileCache = _gameResourceFileCache[typeof(Mv3File)];
+
+                    // Dispose non-main actor mv3 files
+                    // All main actor names start with "1"
+                    var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
+                    var mv3FilesToDispose = mv3FileCache.Keys
+                        .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
+                        .ToArray();
+                    foreach (var mv3File in mv3FilesToDispose)
+                    {
+                        mv3FileCache.Remove(mv3File);
+                    }
+                }
 
                 // clear all vfx prefabs in cache
                 _vfxEffectPrefabCache.Clear();

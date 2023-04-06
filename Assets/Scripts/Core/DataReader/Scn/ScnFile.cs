@@ -389,7 +389,7 @@ namespace Core.DataReader.Scn
     /// <summary>
     /// SCN (.scn) file model
     /// </summary>
-    public class ScnFile
+    public sealed class ScnFile
     {
         public ScnSceneInfo SceneInfo { get; }
         public ScnNpcInfo[] NpcInfos { get; }

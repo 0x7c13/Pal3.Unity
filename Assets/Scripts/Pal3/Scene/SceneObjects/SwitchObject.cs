@@ -70,12 +70,14 @@ namespace Pal3.Scene.SceneObjects
                 _interactionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _interactionIndicatorGameObject.transform.position =
                     new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
-                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
-                    resourceProvider.GetCvd(_interactionIndicatorModelPath);
+                (CvdFile cvdFile, string relativeDirectoryPath) =
+                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+                ITextureResourceProvider textureProvider =
+                    resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
-                    resourceProvider.GetMaterialFactory(),
                     textureProvider,
+                    resourceProvider.GetMaterialFactory(),
                     tintColor);
                 _interactionIndicatorRenderer.LoopAnimation();
             }

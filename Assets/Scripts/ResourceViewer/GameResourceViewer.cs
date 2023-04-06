@@ -240,7 +240,8 @@ namespace ResourceViewer
 
             try
             {
-                (PolFile polyFile, ITextureResourceProvider textureProvider) = _resourceProvider.GetPol(filePath);
+                (PolFile polyFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<PolFile>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
@@ -273,17 +274,16 @@ namespace ResourceViewer
 
             try
             {
-                (CvdFile cvdFile, ITextureResourceProvider textureProvider) = _resourceProvider.GetCvd(filePath);
+                (CvdFile cvdFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<CvdFile>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
 
                 meshRenderer.Init(cvdFile,
-                    _resourceProvider.GetMaterialFactory(),
                     textureProvider,
-                    Color.white,
-                    0f);
+                    _resourceProvider.GetMaterialFactory());
 
                 meshRenderer.LoopAnimation();
 
@@ -310,7 +310,8 @@ namespace ResourceViewer
 
             try
             {
-                (Mv3File mv3File, ITextureResourceProvider textureProvider) = _resourceProvider.GetMv3(filePath);
+                (Mv3File mv3File, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<Mv3File>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
 
                 if (mv3File.Meshes.Length > 1)
                 {
@@ -427,7 +428,7 @@ namespace ResourceViewer
 
             try
             {
-                sceFile = SceFileReader.Read(sceFileStream, DEFAULT_CODE_PAGE);
+                sceFile = new SceFileReader(DEFAULT_CODE_PAGE).Read(sceFileStream);
             }
             catch (Exception ex)
             {

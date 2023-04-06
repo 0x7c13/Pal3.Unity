@@ -129,20 +129,22 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
-                (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(ModelFilePath);
+                (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(ModelFilePath);
+                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
-                _polyModelRenderer.Render(poly.PolFile,
-                    poly.TextureProvider,
+                _polyModelRenderer.Render(polFile,
+                    textureProvider,
                     materialFactory,
                     tintColor);
             }
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
-                (CvdFile CvdFile, ITextureResourceProvider TextureProvider) cvd = resourceProvider.GetCvd(ModelFilePath);
+                (CvdFile cvdFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<CvdFile>(ModelFilePath);
+                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
-                _cvdModelRenderer.Init(cvd.CvdFile,
+                _cvdModelRenderer.Init(cvdFile,
+                    textureProvider,
                     materialFactory,
-                    cvd.TextureProvider,
                     tintColor);
 
                 if (ObjectInfo.Type == ScnSceneObjectType.General)

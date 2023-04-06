@@ -8,7 +8,7 @@ namespace Core.DataReader.Dxt
     using System.IO;
     using Extensions;
 
-    public class DxtPixelFormat
+    public sealed class DxtPixelFormat
     {
         public int Size;
         public int Flags;
@@ -35,7 +35,7 @@ namespace Core.DataReader.Dxt
         }
     }
 
-    public class DxtHeader
+    public sealed class DxtHeader
     {
         public int Size;
         public int Flags;

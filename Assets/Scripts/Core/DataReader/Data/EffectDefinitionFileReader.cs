@@ -11,11 +11,11 @@ namespace Core.DataReader.Data
     using Extensions;
     using Utils;
 
-    public static class EffectDefinitionFileReader
+    public sealed class EffectDefinitionFileReader : IFileReader<EffectDefinitionFile>
     {
         private const int NUM_OF_EFFECTS = 1324;
 
-        public static void Read(byte[] data, int codepage)
+        public EffectDefinitionFile Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -28,14 +28,16 @@ namespace Core.DataReader.Data
 
             for (var i = 0; i < NUM_OF_EFFECTS; i++)
             {
-                effectDefinitions[i] = ReadEffectDefinition(reader, codepage);
+                effectDefinitions[i] = ReadEffectDefinition(reader);
             }
+
+            return new EffectDefinitionFile(effectDefinitions);
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static EffectDefinition ReadEffectDefinition(UnsafeBinaryReader reader, int codepage)
+        private static EffectDefinition ReadEffectDefinition(UnsafeBinaryReader reader)
         #else
-        private static EffectDefinition ReadEffectDefinition(BinaryReader reader, int codepage)
+        private static EffectDefinition ReadEffectDefinition(BinaryReader reader)
         #endif
         {
             var effectDefinition = new EffectDefinition();

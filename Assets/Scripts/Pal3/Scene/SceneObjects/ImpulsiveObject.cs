@@ -59,10 +59,11 @@ namespace Pal3.Scene.SceneObjects
             _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
 
             var subObjectModelPath = ModelFilePath.Insert(ModelFilePath.LastIndexOf('.'), "a");
-            (PolFile PolFile, ITextureResourceProvider TextureProvider) poly = resourceProvider.GetPol(subObjectModelPath);
+            (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
+            ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
             var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
-            subObjectModelRenderer.Render(poly.PolFile,
-                poly.TextureProvider,
+            subObjectModelRenderer.Render(polFile,
+                textureProvider,
                 resourceProvider.GetMaterialFactory(),
                 subObjectTintColor);
 

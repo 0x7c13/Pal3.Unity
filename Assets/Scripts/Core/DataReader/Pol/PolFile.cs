@@ -61,7 +61,7 @@ namespace Core.DataReader.Pol
     /// <summary>
     /// POLY (.pol) file model
     /// </summary>
-    public class PolFile
+    public sealed class PolFile
     {
         public int Version { get; }
         public PolGeometryNode[] NodeDescriptions { get; }

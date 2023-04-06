@@ -8,9 +8,16 @@ namespace Core.DataReader.Sce
     using System.IO;
     using Extensions;
 
-    public static class SceFileReader
+    public sealed class SceFileReader : IFileReader<SceFile>
     {
-        public static SceFile Read(Stream stream, int codepage)
+        private readonly int _codepage;
+
+        public SceFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
+
+        public SceFile Read(Stream stream)
         {
             using var reader = new BinaryReader(stream);
 
@@ -34,16 +41,16 @@ namespace Core.DataReader.Sce
             var indexes = new SceIndex[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                indexes[i] = ReadSceIndex(reader, codepage);
+                indexes[i] = ReadSceIndex(reader, _codepage);
             }
 
             var scriptBlocks = new SceScriptBlock[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], codepage);
+                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], _codepage);
             }
 
-            return new SceFile(indexes, scriptBlocks, codepage);
+            return new SceFile(indexes, scriptBlocks, _codepage);
         }
 
         private static SceScriptBlock ReadScriptBlock(BinaryReader reader, SceIndex sceIndex, int codepage)

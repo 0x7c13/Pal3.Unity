@@ -35,14 +35,14 @@ namespace Core.DataReader.Ini
         public ActorAction[] ActorActions { get; }
     }
 
-    public class Mv3ActionConfig : ActorActionConfig
+    public sealed class Mv3ActionConfig : ActorActionConfig
     {
         public Mv3ActionConfig(ActorAction[] actorActions) : base(actorActions)
         {
         }
     }
 
-    public class MovActionConfig : ActorActionConfig
+    public sealed class MovActionConfig : ActorActionConfig
     {
         public MovActionConfig(BoneActor actor,
             ActorAction[] actorActions,

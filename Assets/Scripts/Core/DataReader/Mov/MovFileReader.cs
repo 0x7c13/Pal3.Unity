@@ -5,9 +5,9 @@
 
 namespace Core.DataReader.Mov
 {
-    public static class MovFileReader
+    public sealed class MovFileReader : IFileReader<MovFile>
     {
-        public static MovFile Read(byte[] data, int codepage)
+        public MovFile Read(byte[] data)
         {
             return new MovFile();
         }

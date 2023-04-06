@@ -5,7 +5,7 @@
 
 namespace Core.DataReader.Mov
 {
-    public class MovFile
+    public sealed class MovFile
     {
     }
 }

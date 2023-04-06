@@ -64,12 +64,13 @@ namespace Pal3.Scene.SceneObjects
                 _upperInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _upperInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, -1f, 1f);
                 _upperInteractionIndicatorGameObject.transform.position = upperPosition;
-                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
-                    resourceProvider.GetCvd(_interactionIndicatorModelPath);
+                (CvdFile cvdFile, string relativeDirectoryPath) =
+                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _upperInteractionIndicatorRenderer.Init(cvdFile,
-                    materialFactory,
                     textureProvider,
+                    materialFactory,
                     tintColor);
                 _upperInteractionIndicatorRenderer.LoopAnimation();
             }
@@ -83,12 +84,13 @@ namespace Pal3.Scene.SceneObjects
                 _lowerInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _lowerInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
                 _lowerInteractionIndicatorGameObject.transform.position = lowerPosition;
-                (CvdFile cvdFile, ITextureResourceProvider textureProvider) =
-                    resourceProvider.GetCvd(_interactionIndicatorModelPath);
+                (CvdFile cvdFile, string relativeDirectoryPath) =
+                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _lowerInteractionIndicatorRenderer.Init(cvdFile,
-                    materialFactory,
                     textureProvider,
+                    materialFactory,
                     tintColor);
                 _lowerInteractionIndicatorRenderer.LoopAnimation();
             }

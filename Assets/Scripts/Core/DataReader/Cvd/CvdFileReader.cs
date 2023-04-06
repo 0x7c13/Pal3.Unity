@@ -16,9 +16,16 @@ namespace Core.DataReader.Cvd
     using UnityEngine;
     using Utils;
 
-    public static class CvdFileReader
+    public sealed class CvdFileReader : IFileReader<CvdFile>
     {
-        public static CvdFile Read(byte[] data, int codepage)
+        private readonly int _codepage;
+
+        public CvdFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
+
+        public CvdFile Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -42,7 +49,7 @@ namespace Core.DataReader.Cvd
             var rootNodes = new List<CvdGeometryNode>();
             for (var i = 0; i < numberONodes; i++)
             {
-                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, codepage);
+                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, _codepage);
             }
 
             return new CvdFile(animationDuration, rootNodes.ToArray());

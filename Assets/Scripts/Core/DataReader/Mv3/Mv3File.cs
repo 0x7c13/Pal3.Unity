@@ -94,7 +94,7 @@ namespace Core.DataReader.Mv3
     /// <summary>
     /// MV3 (.mv3) file model
     /// </summary>
-    public class Mv3File
+    public sealed class Mv3File
     {
         public int Version { get; }
         public uint Duration { get; }

@@ -19,7 +19,15 @@ namespace Pal3.Actor
     using State;
     using UnityEngine;
 
-    public abstract class ActorActionController : MonoBehaviour
+    public abstract class ActorActionController : MonoBehaviour,
+        ICommandExecutor<ActorStopActionAndStandCommand>,
+        ICommandExecutor<ActorEnablePlayerControlCommand>,
+        ICommandExecutor<ActorShowEmojiCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorShowEmoji2Command>,
+        #endif
+        ICommandExecutor<GameStateChangedNotification>,
+        ICommandExecutor<ActorPerformActionCommand>
     {
         private const float EMOJI_ANIMATION_FPS = 5f;
         private const float ACTOR_COLLIDER_RADIUS_MIN = 0.5f;

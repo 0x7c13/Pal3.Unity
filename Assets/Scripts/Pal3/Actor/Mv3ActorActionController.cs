@@ -24,15 +24,7 @@ namespace Pal3.Actor
     public class Mv3ActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorStopActionCommand>,
-        ICommandExecutor<ActorChangeTextureCommand>,
-        ICommandExecutor<ActorPerformActionCommand>,
-        ICommandExecutor<ActorStopActionAndStandCommand>,
-        ICommandExecutor<ActorEnablePlayerControlCommand>,
-        ICommandExecutor<ActorShowEmojiCommand>,
-        #if PAL3A
-        ICommandExecutor<ActorShowEmoji2Command>,
-        #endif
-        ICommandExecutor<GameStateChangedNotification>
+        ICommandExecutor<ActorChangeTextureCommand>
     {
         private GameResourceProvider _resourceProvider;
         private IMaterialFactory _materialFactory;
@@ -115,7 +107,9 @@ namespace Pal3.Actor
             ITextureResourceProvider textureProvider;
             try
             {
-                (mv3File, textureProvider) = _resourceProvider.GetMv3(_actor.GetActionFilePath(actionName));
+                (Mv3File file, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<Mv3File>(_actor.GetActionFilePath(actionName));
+                mv3File = file;
+                textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
             }
             catch (Exception ex)
             {
@@ -143,7 +137,8 @@ namespace Pal3.Actor
                 var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                                  $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
 
-                (PolFile polFile, ITextureResourceProvider weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
+                (PolFile polFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
+                ITextureResourceProvider weaponTextureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _mv3AnimationRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,

@@ -17,15 +17,7 @@ namespace Pal3.Actor
 
     public class MovActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
-        ICommandExecutor<ActorStopActionCommand>,
-        ICommandExecutor<ActorPerformActionCommand>,
-        ICommandExecutor<ActorStopActionAndStandCommand>,
-        ICommandExecutor<ActorEnablePlayerControlCommand>,
-        ICommandExecutor<ActorShowEmojiCommand>,
-        #if PAL3A
-        ICommandExecutor<ActorShowEmoji2Command>,
-        #endif
-        ICommandExecutor<GameStateChangedNotification>
+        ICommandExecutor<ActorStopActionCommand>
     {
         private GameResourceProvider _resourceProvider;
         private IMaterialFactory _materialFactory;

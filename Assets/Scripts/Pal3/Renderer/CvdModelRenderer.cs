@@ -31,8 +31,8 @@ namespace Pal3.Renderer
         private CancellationTokenSource _animationCts = new ();
 
         public void Init(CvdFile cvdFile,
-            IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
+            IMaterialFactory materialFactory,
             Color? tintColor = default,
             float initTime = 0f)
         {

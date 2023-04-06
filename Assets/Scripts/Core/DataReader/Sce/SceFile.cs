@@ -39,7 +39,7 @@ namespace Core.DataReader.Sce
     /// <summary>
     /// SCE (.sce) file model
     /// </summary>
-    public class SceFile
+    public sealed class SceFile
     {
         public SceIndex[] Indexes { get; }
         public Dictionary<uint, SceScriptBlock> ScriptBlocks { get; }

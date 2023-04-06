@@ -32,7 +32,7 @@ namespace Core.DataReader.Lgt
         public float AspectRatio;
     }
 
-    public class LgtFile
+    public sealed class LgtFile
     {
         public LightNode[] LightNodes { get; }
 

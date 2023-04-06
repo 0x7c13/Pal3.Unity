@@ -15,9 +15,16 @@ namespace Core.DataReader.Mv3
     using UnityEngine;
     using Utils;
 
-    public static class Mv3FileReader
+    public sealed class Mv3FileReader : IFileReader<Mv3File>
     {
-        public static Mv3File Read(byte[] data, int codepage)
+        private readonly int _codepage;
+
+        public Mv3FileReader(int codepage = 0)
+        {
+            _codepage = codepage;
+        }
+
+        public Mv3File Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -54,25 +61,25 @@ namespace Core.DataReader.Mv3
             var animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
             for (var i = 0; i < numberOfAnimationEvents; i++)
             {
-                animationEvents[i] = ReadAnimationEvent(reader, codepage);
+                animationEvents[i] = ReadAnimationEvent(reader, _codepage);
             }
 
             var tagNodes = new Mv3TagNode[numberOfTagNodes];
             for (var i = 0; i < numberOfTagNodes; i++)
             {
-                tagNodes[i] = ReadTagNode(reader, codepage);
+                tagNodes[i] = ReadTagNode(reader, _codepage);
             }
 
             var materials = new Mv3Material[numberOfMaterials];
             for (var i = 0; i < numberOfMaterials; i++)
             {
-                materials[i] = ReadMaterial(reader, codepage);
+                materials[i] = ReadMaterial(reader, _codepage);
             }
 
             var meshes = new Mv3Mesh[numberOfMeshes];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                meshes[i] = ReadMesh(reader, codepage);
+                meshes[i] = ReadMesh(reader, _codepage);
             }
 
             return new Mv3File(version,

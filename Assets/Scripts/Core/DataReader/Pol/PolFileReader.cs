@@ -14,9 +14,16 @@ namespace Core.DataReader.Pol
     using UnityEngine;
     using Utils;
 
-    public static class PolFileReader
+    public sealed class PolFileReader : IFileReader<PolFile>
     {
-        public static PolFile Read(byte[] data, int codepage)
+        private readonly int _codepage;
+
+        public PolFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
+
+        public PolFile Read(byte[] data)
         {
             #if USE_UNSAFE_BINARY_READER
             using var reader = new UnsafeBinaryReader(data);
@@ -41,7 +48,7 @@ namespace Core.DataReader.Pol
             {
                 nodeInfos[i] = new PolGeometryNode
                 {
-                    Name     = reader.ReadString(32, codepage),
+                    Name     = reader.ReadString(32, _codepage),
                     Position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
@@ -57,7 +64,7 @@ namespace Core.DataReader.Pol
                     tagNodes = new TagNode[numberOfTagNodes];
                     for (var i = 0; i < numberOfTagNodes; i++)
                     {
-                        tagNodes[i] = ReadTagNodeInfo(reader, codepage);
+                        tagNodes[i] = ReadTagNodeInfo(reader, _codepage);
                     }
                 }
             }
@@ -65,7 +72,7 @@ namespace Core.DataReader.Pol
             var meshInfos = new PolMesh[numberOfNodes];
             for (var i = 0; i < numberOfNodes; i++)
             {
-                meshInfos[i] = ReadMeshData(reader, version, codepage);
+                meshInfos[i] = ReadMeshData(reader, version, _codepage);
             }
 
             return new PolFile(version, nodeInfos, meshInfos, tagNodes);
