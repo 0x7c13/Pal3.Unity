@@ -179,7 +179,9 @@ namespace ResourceViewer
         {
             // @debug
             //var mshPath = "basedata.cpk\\ROLE\\239\\Z2.MSH";
-            var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
+            //var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
+            //var mshPath = "basedata.cpk\\ROLE\\238\\238.MSH";
+            var mshPath = "basedata.cpk\\ROLE\\250\\250.MSH";
             _currentMsh = LoadMsh(mshPath);
             //while (!LoadMsh(_mshFiles[Random.Next(0, _mshFiles.Count)])) { }
         }
@@ -188,7 +190,9 @@ namespace ResourceViewer
         {
             //while (!LoadMov(_movFiles[Random.Next(0,_movFiles.Count)])) { }
             //var path = "basedata.cpk\\ROLE\\239\\Z2.MOV";
-            var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
+            //var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
+            //var path = "basedata.cpk\\ROLE\\238\\Z1.MOV";
+            var path = "basedata.cpk\\ROLE\\250\\Z3.MOV";
             MovFile mov = LoadMov(path);
             if (_currentMsh != null)
             {
