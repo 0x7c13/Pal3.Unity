@@ -440,9 +440,9 @@ namespace Pal3.Actor
             var nextLayer = (_currentLayerIndex + 1) % 2;
             if (!targetPositionFound &&
                 nextLayer < _tilemap.GetLayerCount() &&
-                tapPoints.ContainsKey(nextLayer))
+                tapPoints.TryGetValue(nextLayer, out (Vector3 point, bool isPlatform) tapPoint))
             {
-                targetPosition = tapPoints[nextLayer].point;
+                targetPosition = tapPoint.point;
                 targetPositionFound = true;
             }
 

@@ -54,8 +54,8 @@ namespace Pal3.GameSystem
 
         public int GetFavorByActor(int actorId)
         {
-            return _actorFavor.ContainsKey(actorId) ?
-                _actorFavor[actorId] + BASE_FAVOR_AMOUNT :
+            return _actorFavor.TryGetValue(actorId, out var favor) ?
+                favor + BASE_FAVOR_AMOUNT :
                 BASE_FAVOR_AMOUNT;
         }
 

@@ -14,10 +14,7 @@ namespace Core.Extensions
             Dictionary<TValue, TKey> dictionary = new ();
             foreach (var entry in source)
             {
-                if (!dictionary.ContainsKey(entry.Value))
-                {
-                    dictionary.Add(entry.Value, entry.Key);
-                }
+                dictionary.TryAdd(entry.Value, entry.Key);
             }
             return dictionary;
         }

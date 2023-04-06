@@ -225,7 +225,7 @@ namespace Pal3.Script
         private int GetVariableValue(int variableName)
         {
             var varDic = variableName < 0 ? _globalVariables : _localVariables;
-            return varDic.ContainsKey(variableName) ? varDic[variableName] : 0;
+            return varDic.TryGetValue(variableName, out var value) ? value : 0;
         }
 
         private void SetVariableValue(int variableName, int value)

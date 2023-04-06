@@ -80,9 +80,9 @@ namespace Pal3.Command
 
         private MethodInfo GetCommandExecutorExecuteMethod(Type commandExecutorType)
         {
-            if (_commandExecutorExecuteMethodInfoCache.ContainsKey(commandExecutorType))
+            if (_commandExecutorExecuteMethodInfoCache.TryGetValue(commandExecutorType, out MethodInfo executeMethod))
             {
-                return _commandExecutorExecuteMethodInfoCache[commandExecutorType];
+                return executeMethod;
             }
 
             if (commandExecutorType.GetMethod("Execute") is { } method)

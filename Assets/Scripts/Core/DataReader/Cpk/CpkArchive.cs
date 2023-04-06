@@ -252,9 +252,9 @@ namespace Core.DataReader.Cpk
             {
                 _crcToTableIndexMap[entity.CRC] = index;
 
-                if (_fatherCrcToChildCrcTableIndexMap.ContainsKey(entity.FatherCRC))
+                if (_fatherCrcToChildCrcTableIndexMap.TryGetValue(entity.FatherCRC, out var childCrcTable))
                 {
-                    _fatherCrcToChildCrcTableIndexMap[entity.FatherCRC].Add(entity.CRC);
+                    childCrcTable.Add(entity.CRC);
                 }
                 else
                 {

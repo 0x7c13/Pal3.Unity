@@ -29,9 +29,8 @@ namespace Pal3.Scene
         /// <returns></returns>
         public static SceneObject Create(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
         {
-            if (SceneObjectTypeCache.ContainsKey(objectInfo.Type))
+            if (SceneObjectTypeCache.TryGetValue(objectInfo.Type, out Type type))
             {
-                Type type = SceneObjectTypeCache[objectInfo.Type];
                 return Activator.CreateInstance(type, objectInfo, sceneInfo) as SceneObject;
             }
 

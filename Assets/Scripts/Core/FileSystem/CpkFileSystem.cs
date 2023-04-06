@@ -115,9 +115,9 @@ namespace Core.FileSystem
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
 
-            if (_cpkArchives.ContainsKey(cpkFileName))
+            if (_cpkArchives.TryGetValue(cpkFileName, out CpkArchive archive))
             {
-                return _cpkArchives[cpkFileName].FileExists(relativeVirtualPath);
+                return archive.FileExists(relativeVirtualPath);
             }
 
             // Check if the file exists in any of the segmented cpk archives.
@@ -142,9 +142,9 @@ namespace Core.FileSystem
         {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
 
-            if (_cpkArchives.ContainsKey(cpkFileName))
+            if (_cpkArchives.TryGetValue(cpkFileName, out CpkArchive archive))
             {
-                return _cpkArchives[cpkFileName].ReadAllBytes(relativeVirtualPath);
+                return archive.ReadAllBytes(relativeVirtualPath);
             }
 
             // Find and read the file content in segmented cpk archives.

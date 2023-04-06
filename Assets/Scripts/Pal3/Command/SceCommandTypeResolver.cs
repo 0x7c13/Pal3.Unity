@@ -27,9 +27,9 @@ namespace Pal3.Command
         {
             var hashKey = $"{commandId}_{parameterFlag}";
 
-            if (SceCommandTypeCache.ContainsKey(hashKey))
+            if (SceCommandTypeCache.TryGetValue(hashKey, out Type type))
             {
-                return SceCommandTypeCache[hashKey];
+                return type;
             }
 
             foreach (Type commandType in CommandTypes)

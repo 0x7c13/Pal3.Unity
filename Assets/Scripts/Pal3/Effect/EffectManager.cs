@@ -117,10 +117,10 @@ namespace Pal3.Effect
             }
 
             // Play SFX if any
-            if (EffectConstants.EffectSfxInfo.ContainsKey(command.EffectGroupId))
+            if (EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlaySfxCommand(EffectConstants.EffectSfxInfo[command.EffectGroupId], 1));
+                    new PlaySfxCommand(sfxName, 1));
             }
         }
 

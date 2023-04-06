@@ -347,9 +347,8 @@ namespace Pal3.Data
         {
             var cacheKey = $"ActorAvatar_{actorName}_{avatarName}";
 
-            if (_spriteCache.ContainsKey(cacheKey))
+            if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
             {
-                Sprite sprite = _spriteCache[cacheKey];
                 if (sprite != null && sprite.texture != null) return sprite;
             }
 
@@ -431,9 +430,8 @@ namespace Pal3.Data
             {
                 var cacheKey = $"EmojiSprite_{emojiType}_{i}";
 
-                if (_spriteCache.ContainsKey(cacheKey))
+                if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
                 {
-                    Sprite sprite = _spriteCache[cacheKey];
                     if (sprite != null && sprite.texture != null)
                     {
                         sprites[i] = sprite;
@@ -463,9 +461,8 @@ namespace Pal3.Data
             {
                 var cacheKey = $"JumpIndicatorSprite_{i}";
 
-                if (_spriteCache.ContainsKey(cacheKey))
+                if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
                 {
-                    Sprite sprite = _spriteCache[cacheKey];
                     if (sprite != null && sprite.texture != null)
                     {
                         sprites[i] = sprite;

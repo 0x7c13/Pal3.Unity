@@ -136,9 +136,9 @@ namespace Pal3.Renderer
                         continue;
                     }
 
-                    if (_textureCache.ContainsKey(textureName))
+                    if (_textureCache.TryGetValue(textureName, out Texture2D textureInCache))
                     {
-                        textures.Add((textureName, _textureCache[textureName]));
+                        textures.Add((textureName, textureInCache));
                     }
                 }
 

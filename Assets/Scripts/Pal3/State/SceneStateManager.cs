@@ -129,9 +129,9 @@ namespace Pal3.State
             out SceneObjectStateOverride stateOverride)
         {
             var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
-            if (_sceneObjectStateOverrides.ContainsKey(key))
+            if (_sceneObjectStateOverrides.TryGetValue(key, out SceneObjectStateOverride objectStateOverride))
             {
-                stateOverride = _sceneObjectStateOverrides[key];
+                stateOverride = objectStateOverride;
                 return true;
             }
             else
@@ -143,10 +143,7 @@ namespace Pal3.State
 
         private void InitKeyIfNotExists((string cityName, string sceneName, int objectId) key)
         {
-            if (!_sceneObjectStateOverrides.ContainsKey(key))
-            {
-                _sceneObjectStateOverrides[key] = new SceneObjectStateOverride();
-            }
+            _sceneObjectStateOverrides.TryAdd(key, new SceneObjectStateOverride());
         }
 
         public void Execute(SceneSaveGlobalObjectActivationStateCommand command)

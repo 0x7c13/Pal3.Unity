@@ -101,8 +101,8 @@ namespace Pal3.Actor
         // TODO: Get weapon based on inventory context
         public string GetWeaponName()
         {
-            return ActorConstants.MainActorWeaponMap.ContainsKey(Info.Name) ?
-                ActorConstants.MainActorWeaponMap[Info.Name] : null;
+            return ActorConstants.MainActorWeaponMap.TryGetValue(Info.Name, out var value) ?
+                value : null;
         }
 
         public float GetInteractionMaxDistance()

@@ -50,9 +50,9 @@ namespace Core.DataReader.Cpk
 
             var cacheKey = $"{str}-{codepage}";
 
-            if (_crcResultCache.ContainsKey(cacheKey))
+            if (_crcResultCache.TryGetValue(cacheKey, out var hash))
             {
-                return _crcResultCache[cacheKey];
+                return hash;
             }
 
             uint result = ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));

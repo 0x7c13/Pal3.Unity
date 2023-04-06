@@ -38,9 +38,9 @@ namespace Pal3.Data
         {
             key = key.ToLowerInvariant();
 
-            if (_textureCache.ContainsKey(key))
+            if (_textureCache.TryGetValue(key, out (Texture2D texutre, bool hasAlphaChannel) textureInCache))
             {
-                texture = _textureCache[key];
+                texture = textureInCache;
                 return true;
             }
 

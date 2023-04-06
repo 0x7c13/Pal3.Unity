@@ -177,7 +177,7 @@ namespace Pal3.Scene
 
         public SceneObject GetSceneObject(int id)
         {
-            return SceneObjects.ContainsKey(id) ? SceneObjects[id] : null;
+            return SceneObjects.TryGetValue(id, out SceneObject sceneObject) ? sceneObject : null;
         }
 
         public HashSet<int> GetAllActivatedSceneObjects()
@@ -192,7 +192,7 @@ namespace Pal3.Scene
 
         public Actor GetActor(int id)
         {
-            return Actors.ContainsKey(id) ? Actors[id] : null;
+            return Actors.TryGetValue(id, out Actor actor) ? actor : null;
         }
 
         public Dictionary<int, Actor> GetAllActors()
@@ -202,7 +202,7 @@ namespace Pal3.Scene
 
         public GameObject GetActorGameObject(int id)
         {
-            return _actorObjects.ContainsKey(id) ? _actorObjects[id] : null;
+            return _actorObjects.TryGetValue(id, out GameObject actorObject) ? actorObject : null;
         }
 
         public Dictionary<int, GameObject> GetAllActorGameObjects()
@@ -360,17 +360,17 @@ namespace Pal3.Scene
 
             // Apply lighting override
             var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
-            if (LightingConstants.MainLightColorInfoGlobal.ContainsKey(ScnFile.SceneInfo.CityName))
+            if (LightingConstants.MainLightColorInfoGlobal.TryGetValue(ScnFile.SceneInfo.CityName, out Color globalMainLightColorOverride))
             {
-                _mainLight.color = LightingConstants.MainLightColorInfoGlobal[ScnFile.SceneInfo.CityName];
+                _mainLight.color = globalMainLightColorOverride;
             }
-            if (LightingConstants.MainLightColorInfo.ContainsKey(key))
+            if (LightingConstants.MainLightColorInfo.TryGetValue(key, out Color mainLightColorOverride))
             {
-                _mainLight.color = LightingConstants.MainLightColorInfo[key];
+                _mainLight.color = mainLightColorOverride;
             }
-            if (LightingConstants.MainLightRotationInfo.ContainsKey(key))
+            if (LightingConstants.MainLightRotationInfo.TryGetValue(key, out Quaternion mainLightRotationOverride))
             {
-                _mainLight.transform.rotation = LightingConstants.MainLightRotationInfo[key];
+                _mainLight.transform.rotation = mainLightRotationOverride;
             }
         }
 

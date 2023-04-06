@@ -31,7 +31,7 @@ namespace Pal3.Renderer
 
         internal Shader GetShader(string shaderName)
         {
-            if (_shaders.ContainsKey(shaderName)) return _shaders[shaderName];
+            if (_shaders.TryGetValue(shaderName, out Shader shaderInCache)) return shaderInCache;
 
             var shader = Shader.Find(shaderName);
 

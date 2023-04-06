@@ -205,7 +205,7 @@ namespace Pal3.Script
         {
             if (command.Variable < 0)
             {
-                var currentValue = _globalVariables.ContainsKey(command.Variable) ? _globalVariables[command.Variable] : 0;
+                var currentValue = _globalVariables.TryGetValue(command.Variable, out var globalVariable) ? globalVariable : 0;
                 SetGlobalVariable(command.Variable, currentValue + command.Value);
             }
         }
