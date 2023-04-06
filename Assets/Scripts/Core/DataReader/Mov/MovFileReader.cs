@@ -53,8 +53,7 @@ namespace Core.DataReader.Mov
 
             mov.header = header;
         }
-        
-        
+
         private static void ReadEvent(UnsafeBinaryReader reader, int codepage, MovFile mov)
         {
 			mov.nEvent = mov.header.EventNum;
@@ -101,7 +100,7 @@ namespace Core.DataReader.Mov
 
 			int nameLen = reader.ReadInt32();
 			var tmp = reader.ReadChars(nameLen);
-			track.boneName = new string(tmp);
+			track.boneName = new string(tmp[..^1]);
 
 			track.nKey = reader.ReadInt32();
 			track.animFlags = reader.ReadInt32();
@@ -132,11 +131,10 @@ namespace Core.DataReader.Mov
 					track.keyArray[i] = key;
 				}
 			}
-
 			return track;
         }
 
-
+		// get the longest max key num of bone track
         private static int ComputeDurationWithTracks(MovFile mov)
         {
 	        int duration = 0;

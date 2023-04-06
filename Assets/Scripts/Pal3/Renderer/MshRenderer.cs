@@ -3,22 +3,16 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+using Core.GameBox;
+
 namespace Pal3.Renderer
 {
     using System;
-    using System.Collections;
-    using System.Linq;
-    using System.Threading;
-    using Core.DataLoader;
-    using Core.DataReader.Mv3;
-    using Core.DataReader.Pol;
     using Core.DataReader.Msh;
-    using Core.GameBox;
-    using Core.Renderer;
-    using Core.Utils;
-    using Dev;
+    using Core.DataReader.Mov;
     using UnityEngine;
-
+    
     /// <summary>
     /// MSH(.msh) model renderer
     /// </summary>
@@ -28,8 +22,12 @@ namespace Pal3.Renderer
         private Material[][] _materials;
 
         private MshFile _msh = null;
+        
+        private MovFile _mov = null;
+        private float _elapsedTime = 0.0f;
 
-        private static GameObject sBoneGizmoPrefab = null;
+
+        private Dictionary<string, Joint> _jointDict = new Dictionary<string, Joint>();
 
         public void Init(MshFile mshFile,
             IMaterialFactory materialFactory)
@@ -41,12 +39,97 @@ namespace Pal3.Renderer
             RenderMesh();
         }
         
-        /*
+        public void PlayMov(MovFile mov)
+        {
+            _mov = mov;
+            ClearJointTrack();
+            BindJointTrack();
+        }
+
+        private void ClearJointTrack()
+        {
+            foreach (var joint in _jointDict)
+            {
+                joint.Value.track = null;
+            }
+        }
+
+        private void BindJointTrack()
+        {
+            for(int i = 0;i < _mov.boneTrackArray.Length;i++)
+            {
+                var track = _mov.boneTrackArray[i];
+                if (_jointDict.ContainsKey(track.boneName))
+                {
+                    var joint = _jointDict[track.boneName];
+                    joint.track = track;
+                }
+            }
+        }
+
         private void Update()
         {
-            Debug.DrawLine(new Vector3(0, 0, 0), new Vector3(100, 100, 100), new Color(1.0f, 1.0f, 0.0f));
+            if (_mov != null)
+            {
+                // Get Tick Index
+                _elapsedTime += Time.deltaTime;
+                int tickIdx = GameBoxInterpreter.SecondToTick(_elapsedTime);
+                if (tickIdx >= _mov.nDuration)
+                {
+                    _elapsedTime = 0;
+                    tickIdx = 0;
+                }
+                Debug.Log("Tick Index:" + tickIdx);
+                
+                UpdateMov(tickIdx);
+            }
         }
-        */
+        
+        private void UpdateMov(int tickIdx)
+        {
+            foreach (var boneName in _jointDict.Keys)
+            {
+                var joint = _jointDict[boneName];
+                GameObject go = joint.go;
+                BoneActTrack track = joint.track;
+
+                if (track != null)
+                {
+                    int keyIdx = GetKeyIndex(track,tickIdx);
+
+                    if (keyIdx >= track.keyArray.Length)
+                    {
+                        Debug.Log("xxx");
+                    }
+
+                    Vector3 trans = track.keyArray[keyIdx].trans;
+                    Quaternion rot = track.keyArray[keyIdx].rot;
+                
+                    // @miao @temp
+                    go.transform.localPosition = trans;
+                    go.transform.localRotation = rot;    
+                }
+            }
+        }
+
+        private int GetKeyIndex(BoneActTrack track,int tickIdx)
+        {
+            int keyIdx = 0;
+            for (keyIdx = 0;keyIdx < track.nKey;keyIdx++)
+            {
+                if (tickIdx < track.keyArray[keyIdx].time)
+                {
+                    break;
+                }
+            }
+
+            if (keyIdx == 0 || keyIdx >= track.nKey)
+            {
+                keyIdx = track.nKey - 1;
+            }
+
+            return keyIdx;
+        }
 
         void RenderSkeleton()
         {
@@ -73,6 +156,12 @@ namespace Pal3.Renderer
                 BoneNode subBone = bone._children[i];
                 RenderBone(subBone,renderNode);
             }
+            
+            // hold joint to dict
+            var joint = new Joint();
+            joint.go = renderNode;
+            joint.track = null;
+            _jointDict.Add(bone._name,joint);
         }
         
         private void RenderBoneGizmo(GameObject boneRenderNode)
@@ -192,28 +281,14 @@ namespace Pal3.Renderer
 
         public void Dispose()
         {
-            // DisposeAnimation();
-            //
-            // if (_renderMeshComponents != null)
-            // {
-            //     foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
-            //     {
-            //         Destroy(renderMeshComponent.Mesh);
-            //         Destroy(renderMeshComponent.MeshRenderer);
-            //     }
-            //
-            //     _renderMeshComponents = null;
-            // }
-            //
-            // if (_meshObjects != null)
-            // {
-            //     foreach (GameObject meshObject in _meshObjects)
-            //     {
-            //         Destroy(meshObject);
-            //     }
-            //
-            //     _meshObjects = null;
-            // }
+            
         }
+    }
+    
+    class Joint
+    {
+        public string name;
+        public GameObject go = null;
+        public BoneActTrack track = null;
     }
 }

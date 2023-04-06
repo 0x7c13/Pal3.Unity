@@ -69,6 +69,7 @@ namespace ResourceViewer
         private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page,
                                                    // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
+        private MshRenderer _currentMsh = null;
 
         private void OnEnable()
         {
@@ -176,19 +177,23 @@ namespace ResourceViewer
 
         private void RandMsh()
         {
-            while (!LoadMsh(_mshFiles[Random.Next(0, _mshFiles.Count)])) { }
-            /*
-            foreach (var path in _mshFiles)
-            {
-                LoadMsh(path);
-                break;  // @temp
-            }
-            */
+            // @debug
+            //var mshPath = "basedata.cpk\\ROLE\\239\\Z2.MSH";
+            var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
+            _currentMsh = LoadMsh(mshPath);
+            //while (!LoadMsh(_mshFiles[Random.Next(0, _mshFiles.Count)])) { }
         }
 
         private void RandMov()
         {
-            while (!LoadMov(_movFiles[Random.Next(0,_movFiles.Count)])) { }
+            //while (!LoadMov(_movFiles[Random.Next(0,_movFiles.Count)])) { }
+            //var path = "basedata.cpk\\ROLE\\239\\Z2.MOV";
+            var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
+            MovFile mov = LoadMov(path);
+            if (_currentMsh != null)
+            {
+                _currentMsh.PlayMov(mov);
+            }
         }
 
         private void Search(string keyword)
@@ -349,7 +354,7 @@ namespace ResourceViewer
             }
         }
 
-        private bool LoadMsh(string filePath)
+        private MshRenderer LoadMsh(string filePath)
         {
             Debug.Log($"msh name:[{filePath}]");
             DestroyExistingRenderingObjects();
@@ -363,27 +368,27 @@ namespace ResourceViewer
                 var mshRenderer = node.AddComponent<MshRenderer>();
                 mshRenderer.Init(msh, _resourceProvider.GetMaterialFactory());
 
-                return true;
+                return mshRenderer;
             }
             catch (Exception ex)
             {
                 Debug.Log("ayy "  + ex.ToString());
-                return false;
+                return null;
             }
         }
 
-        private bool LoadMov(string filePath)
+        private MovFile LoadMov(string filePath)
         {
             Debug.Log($"mov name:{filePath}");
             try
             {
                 MovFile mov = _resourceProvider.GetMov(filePath);
-                return true;
+                return mov;
             }
             catch (Exception ex)
             {
                 Debug.Log("ayy" + ex.ToString());
-                return false;
+                return null;
             }
         }
 
