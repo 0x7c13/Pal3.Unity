@@ -31,7 +31,7 @@ namespace Pal3.Data
 
             _fileSystem = fileSystem;
             _textureLoaderFactory = textureLoaderFactory;
-            _relativePath = relativePath;
+            _relativePath = relativePath.ToLower(); // Texture path is case insensitive
             _textureCache = textureCache;
         }
 

@@ -9,6 +9,7 @@ namespace Pal3.Effect
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.Renderer;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Renderer;
@@ -32,8 +33,9 @@ namespace Pal3.Effect
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
-                (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(info.ModelPath));
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,

@@ -240,8 +240,9 @@ namespace ResourceViewer
 
             try
             {
-                (PolFile polyFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<PolFile>(filePath);
-                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                PolFile polyFile = _resourceProvider.GetGameResourceFile<PolFile>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(filePath));
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
@@ -274,8 +275,9 @@ namespace ResourceViewer
 
             try
             {
-                (CvdFile cvdFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<CvdFile>(filePath);
-                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                CvdFile cvdFile = _resourceProvider.GetGameResourceFile<CvdFile>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(filePath));
 
                 var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
@@ -310,8 +312,9 @@ namespace ResourceViewer
 
             try
             {
-                (Mv3File mv3File, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<Mv3File>(filePath);
-                ITextureResourceProvider textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                Mv3File mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(filePath);
+                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(filePath));
 
                 if (mv3File.Meshes.Length > 1)
                 {

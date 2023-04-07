@@ -17,6 +17,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Renderer;
@@ -70,10 +71,9 @@ namespace Pal3.Scene.SceneObjects
                 _interactionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _interactionIndicatorGameObject.transform.position =
                     new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
-                (CvdFile cvdFile, string relativeDirectoryPath) =
-                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
-                ITextureResourceProvider textureProvider =
-                    resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(_interactionIndicatorModelPath));
                 _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,

@@ -21,6 +21,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Services;
+    using Core.Utils;
     using Data;
     using Dev;
     using Effect;
@@ -129,8 +130,9 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
-                (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(ModelFilePath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFilePath);
+                ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(ModelFilePath));
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
@@ -139,8 +141,9 @@ namespace Pal3.Scene.SceneObjects
             }
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
-                (CvdFile cvdFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<CvdFile>(ModelFilePath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFilePath);
+                ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(ModelFilePath));
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,

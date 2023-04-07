@@ -11,6 +11,7 @@ namespace Core.Utils
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using DataReader.Cpk;
     using UnityEngine;
 
     public static class Utility
@@ -126,18 +127,20 @@ namespace Core.Utils
             b = (byte) ((temp / 32 + temp) / 32);
         }
 
-        public static string GetRelativeDirectoryPath(string filePath, char directoryPathSeparator)
+        public static string GetRelativeDirectoryPath(string filePath,
+            char directoryPathSeparator = CpkConstants.DirectorySeparator)
         {
             return !filePath.Contains(directoryPathSeparator) ?
                 string.Empty :
                 filePath[..filePath.LastIndexOf(directoryPathSeparator)];
         }
 
-        public static string GetFileName(string path, char directoryPathSeparator)
+        public static string GetFileName(string filePath,
+            char directoryPathSeparator = CpkConstants.DirectorySeparator)
         {
-            return !path.Contains(directoryPathSeparator) ?
+            return !filePath.Contains(directoryPathSeparator) ?
                 string.Empty :
-                path[(path.LastIndexOf(directoryPathSeparator)+1)..];
+                filePath[(filePath.LastIndexOf(directoryPathSeparator)+1)..];
         }
 
         public static bool IsHandheldDevice()

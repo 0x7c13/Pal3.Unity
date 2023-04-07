@@ -17,20 +17,20 @@ namespace Editor
     {
         #if PAL3
         private const string GAME_VARIANT_SYMBOL = "PAL3";
-        private static string OutputFileName = "ConsoleCommands.PAL3.generated";
+        private static string OutputFileName = "ConsoleCommands.PAL3.g.cs";
         #elif PAL3A
         private const string GAME_VARIANT_SYMBOL = "PAL3A";
-        private static string OutputFileName = "ConsoleCommands.PAL3A.generated";
+        private static string OutputFileName = "ConsoleCommands.PAL3A.g.cs";
         #endif
 
         #if PAL3
-        [MenuItem("PAL3/Source Generator/Generate ConsoleCommands.PAL3.generated.cs", priority = 2)]
+        [MenuItem("PAL3/Source Generator/Generate ConsoleCommands.PAL3.g.cs", priority = 2)]
         #elif PAL3A
-        [MenuItem("PAL3A/Source Generator/Generate ConsoleCommands.PAL3A.generated.cs", priority = 2)]
+        [MenuItem("PAL3A/Source Generator/Generate ConsoleCommands.PAL3A.g.cs", priority = 2)]
         #endif
         public static void GenerateConsoleCommands()
         {
-            var writePath = $"Assets/Scripts/PAL3/Command/{OutputFileName}.cs";
+            var writePath = $"Assets/Scripts/PAL3/Command/{OutputFileName}";
             var nameSpace = "Pal3.Command";
             var className = "ConsoleCommands";
             ISourceGenerator sourceGenerator = new ConsoleCommandsAutoGen<ICommand>();
@@ -67,7 +67,7 @@ namespace Editor
             using StreamWriter sw = new StreamWriter(writePath);
             sw.Write(output);
 
-            Debug.Log($"{fileName}.cs generated.");
+            Debug.Log($"{fileName} generated.");
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

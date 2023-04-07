@@ -15,6 +15,7 @@ namespace Pal3.Actor
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Core.Extensions;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Renderer;
@@ -107,9 +108,10 @@ namespace Pal3.Actor
             ITextureResourceProvider textureProvider;
             try
             {
-                (Mv3File file, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<Mv3File>(_actor.GetActionFilePath(actionName));
-                mv3File = file;
-                textureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                string mv3FilePath = _actor.GetActionFilePath(actionName);
+                mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(mv3FilePath);
+                textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(mv3FilePath));
             }
             catch (Exception ex)
             {
@@ -137,8 +139,9 @@ namespace Pal3.Actor
                 var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                                  $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
 
-                (PolFile polFile, string relativeDirectoryPath) = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
-                ITextureResourceProvider weaponTextureProvider = _resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
+                ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(weaponPath));
                 _mv3AnimationRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,

@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataLoader;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
+    using Core.Utils;
     using Data;
     using Renderer;
     using UnityEngine;
@@ -45,8 +46,9 @@ namespace Pal3.Scene.SceneObjects
                 _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
 
                 var subObjectModelPath = ModelFilePath.Replace("1.pol", "2.pol");
-                (PolFile polFile, string relativeDirectoryPath) = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
+                PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
+                ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(subObjectModelPath));
                 var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
                 subObjectModelRenderer.Render(polFile,
                     textureProvider,

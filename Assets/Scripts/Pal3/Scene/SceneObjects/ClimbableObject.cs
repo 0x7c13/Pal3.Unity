@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Services;
+    using Core.Utils;
     using Data;
     using GamePlay;
     using MetaData;
@@ -58,17 +59,18 @@ namespace Pal3.Scene.SceneObjects
 
             IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
 
+            CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+            ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
+                Utility.GetRelativeDirectoryPath(_interactionIndicatorModelPath));
+
             // Upper indicator
             {
                 _upperInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Upper");
                 _upperInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _upperInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, -1f, 1f);
                 _upperInteractionIndicatorGameObject.transform.position = upperPosition;
-                (CvdFile cvdFile, string relativeDirectoryPath) =
-                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
-                _upperInteractionIndicatorRenderer.Init(cvdFile,
+                _upperInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
                     materialFactory,
                     tintColor);
@@ -84,11 +86,8 @@ namespace Pal3.Scene.SceneObjects
                 _lowerInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _lowerInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
                 _lowerInteractionIndicatorGameObject.transform.position = lowerPosition;
-                (CvdFile cvdFile, string relativeDirectoryPath) =
-                    resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
-                ITextureResourceProvider textureProvider = resourceProvider.GetTextureResourceProvider(relativeDirectoryPath);
                 _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
-                _lowerInteractionIndicatorRenderer.Init(cvdFile,
+                _lowerInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
                     materialFactory,
                     tintColor);

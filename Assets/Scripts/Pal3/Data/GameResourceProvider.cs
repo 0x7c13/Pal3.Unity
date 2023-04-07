@@ -63,7 +63,7 @@ namespace Pal3.Data
         private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<string, ActorActionConfig> _actorConfigCache = new (); // Cache forever
-        private readonly Dictionary<Type, Dictionary<string, (object File, string RelativeDirectoryPath)>> _gameResourceFileCache = new ();
+        private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
         // Cache player actor movement sfx audio clips
         private readonly HashSet<string> _audioClipCacheList = new ()
@@ -144,14 +144,14 @@ namespace Pal3.Data
                 _unlitMaterialFactory;
         }
 
-        public ITextureResourceProvider GetTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
+        public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
                 new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath, _textureCache) :
                 new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath);
         }
 
-        public (T File, string RelativeDirectoryPath) GetGameResourceFile<T>(string filePath, bool useCache = true)
+        public T GetGameResourceFile<T>(string filePath, bool useCache = true)
         {
             filePath = filePath.ToLower();
 
@@ -159,24 +159,22 @@ namespace Pal3.Data
                 _gameResourceFileCache.ContainsKey(typeof(T)) &&
                 _gameResourceFileCache[typeof(T)].ContainsKey(filePath))
             {
-                var cachedFile = _gameResourceFileCache[typeof(T)][filePath];
-                return ((T)cachedFile.File, cachedFile.RelativeDirectoryPath);
+                return (T)_gameResourceFileCache[typeof(T)][filePath];
             }
 
             T file = GetGameResourceFileReader<T>().Read(_fileSystem.ReadAllBytes(filePath));
-            string relativeDirectoryPath = Utility.GetRelativeDirectoryPath(filePath, PathSeparator);
 
             if (useCache)
             {
                 // initialize cache for this type of file if not exists
                 if (!_gameResourceFileCache.ContainsKey(typeof(T)))
                 {
-                    _gameResourceFileCache[typeof(T)] = new Dictionary<string, (object File, string RelativeDirectoryPath)>();
+                    _gameResourceFileCache[typeof(T)] = new Dictionary<string, object>();
                 }
-                _gameResourceFileCache[typeof(T)][filePath] = (file, relativeDirectoryPath);
+                _gameResourceFileCache[typeof(T)][filePath] = file;
             }
 
-            return (file, relativeDirectoryPath);
+            return file;
         }
 
         public LgtFile GetLgt(string lgtFilePath)
@@ -339,7 +337,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.ActorFolderName}{PathSeparator}{actorName}{PathSeparator}";
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(roleAvatarTextureRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
 
@@ -372,7 +370,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.EmojiFolderName}{PathSeparator}";
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(emojiSpriteSheetRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(emojiSpriteSheetRelativePath);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
         }
 
@@ -383,7 +381,7 @@ namespace Pal3.Data
                 $"{FileConstants.CaptionFolderName}{PathSeparator}";
 
             // No need to cache caption texture since it is a one time thing
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(captionTextureRelativePath, useCache: false);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(captionTextureRelativePath, useCache: false);
             return textureProvider.GetTexture($"{name}.tga");
         }
 
@@ -391,8 +389,8 @@ namespace Pal3.Data
         {
             var relativeFilePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(relativeFilePath, PathSeparator));
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
+                Utility.GetRelativeDirectoryPath(relativeFilePath));
 
             var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < SceneConstants.SkyBoxTexturePathFormat.Length; i++)
@@ -414,7 +412,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.EffectFolderName}{PathSeparator}";
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(effectFolderRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
 
@@ -453,7 +451,7 @@ namespace Pal3.Data
         public Sprite[] GetJumpIndicatorSprites()
         {
             var relativePath = FileConstants.UISceneFolderVirtualPath + PathSeparator;
-            var textureProvider = GetTextureResourceProvider(relativePath);
+            var textureProvider = CreateTextureResourceProvider(relativePath);
 
             var sprites = new Sprite[4];
 
@@ -540,8 +538,8 @@ namespace Pal3.Data
 
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(texturePathFormat, PathSeparator));
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
+                Utility.GetRelativeDirectoryPath(texturePathFormat));
 
             if (effect == GraphicsEffect.Fire)
             {
@@ -615,7 +613,7 @@ namespace Pal3.Data
                 $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
                 $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.CursorFolderName}{PathSeparator}";
 
-            ITextureResourceProvider textureProvider = GetTextureResourceProvider(cursorSpriteRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
             Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
         }
