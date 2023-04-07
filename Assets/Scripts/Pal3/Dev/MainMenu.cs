@@ -166,6 +166,7 @@ namespace Pal3.Dev
         {
             #if PAL3
             // 景天房间
+            _deferredExecutionCommands.Add("ActorActivate 0 0");
             _deferredExecutionCommands.Add("SceneActivateObject 14 0");
             _deferredExecutionCommands.Add("SceneActivateObject 15 0");
             _deferredExecutionCommands.Add("PlayerEnableInput 0");
@@ -175,6 +176,7 @@ namespace Pal3.Dev
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q01", "yn09a"));
             #elif PAL3A
             // 南宫煌房间
+            _deferredExecutionCommands.Add("ActorActivate 0 0");
             _deferredExecutionCommands.Add("PlayerEnableInput 0");
             _deferredExecutionCommands.Add("CameraFollowPlayer 0");
             _deferredExecutionCommands.Add("CameraSetTransform -21.69 -22.48 688.0 182.87 263.07 531.61");
@@ -214,7 +216,7 @@ namespace Pal3.Dev
             {
                 #if PAL3
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CameraOrbitHorizontalCommand(-43.99f, -28.73f, 688.0f, animationDuration, 1, 0));
+                    new CameraOrbitHorizontalCommand(-46.67f, -30.73f, 688.0f, animationDuration, 1, 0));
                 #elif PAL3A
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new CameraOrbitHorizontalCommand(-39.99f, -27.73f, 688.0f, animationDuration, 1, 0));
