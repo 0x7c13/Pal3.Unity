@@ -17,6 +17,7 @@ namespace Pal3.Renderer
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string WATER_SHADER_PATH = "Pal3/Water";
         private const string BONE_GIZMO_SHADER_PATH = "Pal3/Gizmo";
+        private const string SKINNING_SHADER_PATH = "Pal3/Skinning";
 
         // Standard material uniforms for Pal3 legacy shaders
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
@@ -190,6 +191,12 @@ namespace Pal3.Renderer
         public Material CreateBoneGizmoMaterial()
         {
             Material material = new Material(GetShader(BONE_GIZMO_SHADER_PATH));
+            return material;
+        }
+        
+        public Material CreateSkinningMaterial()
+        {
+            Material material = new Material(GetShader(SKINNING_SHADER_PATH));
             return material;
         }
     }

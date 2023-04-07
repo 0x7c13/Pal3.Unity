@@ -89,12 +89,7 @@ namespace Core.DataReader.Msh
             boneNode._name = boneName;
             
             // translate,rotate,scale,flip
-            
-            // @miao @test
             boneNode._translate = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
-            //boneNode._translate = GameBoxInterpreter.ToUnityPosition(boneNode._translate);
-            //boneNode._translate = reader.ReadVector3();
-
             boneNode._rotate = GameBoxInterpreter.MshQuaternionToUnityQuaternion(new GameBoxQuaternion()
             {
                 X = reader.ReadSingle(),
@@ -186,9 +181,7 @@ namespace Core.DataReader.Msh
                 for (int i = 0;i < subMesh._nVert;i++)
                 {
                     PhyVertex vert = subMesh._verts[i];
-                    //vert.numBone = reader.ReadChars(1)[0];//ReadByte
                     vert.numBone = reader.ReadByte();
-                    //reader.ReadChars()
                     for (int j = 0;j < vert.numBone;j++)
                     {
                         vert.boneIds[j] = reader.ReadChars(1)[0];

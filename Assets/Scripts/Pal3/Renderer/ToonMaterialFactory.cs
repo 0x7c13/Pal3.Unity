@@ -99,5 +99,11 @@ namespace Pal3.Renderer
         {
             return null;
         }
+
+        public Material CreateSkinningMaterial()
+        {
+            //throw new System.NotImplementedException();
+            return null;
+        }
     }
 }

@@ -62,5 +62,7 @@ namespace Pal3.Renderer
 
 
         public Material CreateBoneGizmoMaterial();
+
+        public Material CreateSkinningMaterial();
     }
 }
