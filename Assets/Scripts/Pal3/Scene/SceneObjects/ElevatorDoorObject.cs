@@ -44,7 +44,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 toPosition = currentPosition +
                 (ObjectInfo.SwitchState == 0 ? Vector3.down : Vector3.up) * (GetMeshBounds().size.y + 0.5f);
 
-            yield return AnimationHelper.MoveTransformAsync(doorObject.transform, toPosition, 2f);
+            yield return doorObject.transform.MoveAsync(toPosition, 2f);
 
             FlipAndSaveSwitchState();
             SaveCurrentPosition();

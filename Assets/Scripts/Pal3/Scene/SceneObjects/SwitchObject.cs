@@ -141,6 +141,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfxIfAny();
 
+
             if (ModelType == SceneObjectModelType.CvdModel)
             {
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true,

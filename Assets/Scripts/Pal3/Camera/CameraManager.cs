@@ -268,8 +268,7 @@ namespace Pal3.Camera
         {
             _cameraAnimationInProgress = true;
 
-            yield return AnimationHelper.ShakeTransformAsync(_camera.transform,
-                duration,
+            yield return _camera.transform.ShakeAsync(duration,
                 amplitude,
                 false,
                 true,
@@ -289,8 +288,7 @@ namespace Pal3.Camera
             Transform cameraTransform = _camera.transform;
             Vector3 oldPosition = cameraTransform.position;
 
-            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
-                position,
+            yield return cameraTransform.MoveAsync(position,
                 duration,
                 curveType,
                 cancellationToken);
@@ -313,8 +311,7 @@ namespace Pal3.Camera
         {
             _cameraAnimationInProgress = true;
             Vector3 lookAtPoint = _lastLookAtPoint;
-            yield return AnimationHelper.OrbitTransformAroundCenterPointAsync(_camera.transform,
-                toRotation,
+            yield return _camera.transform.OrbitAroundCenterPointAsync(toRotation,
                 lookAtPoint,
                 duration,
                 curveType,
@@ -336,8 +333,7 @@ namespace Pal3.Camera
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            yield return AnimationHelper.RotateTransformAsync(_camera.transform,
-                toRotation,
+            yield return _camera.transform.RotateAsync(toRotation,
                 duration,
                 curveType,
                 cancellationToken);
@@ -358,8 +354,7 @@ namespace Pal3.Camera
             Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
             Transform cameraTransform = _camera.transform;
 
-            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
-                newPosition,
+            yield return cameraTransform.MoveAsync(newPosition,
                 duration,
                 curveType,
                 cancellationToken);
@@ -372,7 +367,7 @@ namespace Pal3.Camera
             onFinished?.Invoke();
         }
 
-        public IEnumerator FadeAsync(bool fadeIn,
+        private IEnumerator FadeAsync(bool fadeIn,
             float duration,
             Color color,
             Action onFinished = null,
@@ -383,7 +378,7 @@ namespace Pal3.Camera
             float from = 1f, to = 0f;
             if (!fadeIn) { from = 0f; to = 1f; }
 
-            yield return AnimationHelper.EnumerateValueAsync(from, to, duration, AnimationCurveType.Linear,
+            yield return CoreAnimation.EnumerateValueAsync(from, to, duration, AnimationCurveType.Linear,
                 alpha =>
             {
                 _curtainImage.color = new Color(color.r, color.g, color.b, alpha);

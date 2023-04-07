@@ -75,7 +75,7 @@ namespace Pal3.Scene.SceneObjects
                 finalYPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
             }
 
-            yield return AnimationHelper.MoveTransformAsync(obstacleObject.transform,
+            yield return obstacleObject.transform.MoveAsync(
                 new Vector3(currentPosition.x, finalYPosition, currentPosition.z),
                 FALLING_DURATION);
 

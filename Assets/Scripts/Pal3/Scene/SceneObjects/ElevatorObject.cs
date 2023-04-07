@@ -80,8 +80,8 @@ namespace Pal3.Scene.SceneObjects
             PlaySfx("wc014");
 
             // Lifting up/down
-            yield return AnimationHelper.MoveTransformAsync(ctx.PlayerActorGameObject.transform,
-                toCenterPosition, duration, AnimationCurveType.Sine);
+            yield return ctx.PlayerActorGameObject.transform.MoveAsync(toCenterPosition,
+                duration, AnimationCurveType.Sine);
 
             actorMovementController.SetNavLayer(toNavLayer);
 

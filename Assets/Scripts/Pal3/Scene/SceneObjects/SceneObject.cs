@@ -368,7 +368,15 @@ namespace Pal3.Scene.SceneObjects
                 yield return ctx.CurrentScene.GetSceneObject(objectId).InteractAsync(ctx);
             }
 
-            #if PAL3A
+            #if PAL3
+            SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(objectId);
+            ushort nextLinkedObjectId = linkedObject.ObjectInfo.LinkedObjectId;
+            if (nextLinkedObjectId != INVALID_SCENE_OBJECT_ID)
+            {
+                yield return new WaitForSeconds(0.5f);
+                yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
+            }
+            #elif PAL3A
             // PAL3A has additional activation logic for chained objects
             // When all objects linked to a child object are activated, the child object will be activated
             SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(objectId);
@@ -445,8 +453,7 @@ namespace Pal3.Scene.SceneObjects
             Transform cameraTransform = Camera.main!.transform;
             Vector3 cameraCurrentPosition = cameraTransform.position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
-            yield return AnimationHelper.MoveTransformAsync(cameraTransform,
-                targetPosition, 2f, AnimationCurveType.Sine);
+            yield return cameraTransform.MoveAsync(targetPosition, 2f, AnimationCurveType.Sine);
         }
 
         internal void CameraFocusOnObject(int objectId)

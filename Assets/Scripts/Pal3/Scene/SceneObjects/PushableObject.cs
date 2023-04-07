@@ -227,7 +227,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("we025", 3);
 
-            yield return AnimationHelper.EnumerateValueAsync(0f, movingDistance, PUSH_ANIMATION_DURATION,
+            yield return CoreAnimation.EnumerateValueAsync(0f, movingDistance, PUSH_ANIMATION_DURATION,
                 AnimationCurveType.Linear, value =>
                 {
                     pushableObjectTransform.position = objectInitPosition + movingDirection * value;

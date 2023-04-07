@@ -105,8 +105,8 @@ namespace Pal3.Scene.SceneObjects
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             var duration = Vector3.Distance(positions[fromLayer], positions[toLayer]) / ELEVATOR_SPPED;
-            yield return AnimationHelper.MoveTransformAsync(elevatorGameObject.transform,
-                platformFinalPosition, duration, AnimationCurveType.Sine);
+            yield return elevatorGameObject.transform.MoveAsync(platformFinalPosition,
+                duration, AnimationCurveType.Sine);
 
             ChangeAndSaveNavLayerIndex(toLayer);
             actorMovementController.SetNavLayer(toLayer);

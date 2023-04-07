@@ -93,8 +93,7 @@ namespace Pal3.Scene.SceneObjects
                 Quaternion rotation = objectTransform.rotation;
                 Quaternion targetRotation = rotation * Quaternion.Euler(0, 180, 0);
 
-                yield return AnimationHelper.RotateTransformAsync(objectTransform,
-                    targetRotation, 3f, AnimationCurveType.Sine);
+                yield return objectTransform.RotateAsync(targetRotation, 3f, AnimationCurveType.Sine);
 
                 SaveCurrentYRotation();
             }

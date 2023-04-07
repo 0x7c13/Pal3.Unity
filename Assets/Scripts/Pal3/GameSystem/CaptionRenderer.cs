@@ -75,7 +75,7 @@ namespace Pal3.GameSystem
             _captionImage.sprite = sprite;
             _captionImage.color = Color.clear;
 
-            yield return AnimationHelper.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION, AnimationCurveType.Linear,
+            yield return CoreAnimation.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION, AnimationCurveType.Linear,
                 alpha =>
                 {
                     _captionImage.color = new Color(1f, 1f, 1f, alpha);

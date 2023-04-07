@@ -27,7 +27,7 @@ namespace Core.Animation
     /// <summary>
     /// Provides helper functions to do Transform animations etc.
     /// </summary>
-    public static class AnimationHelper
+    public static class CoreAnimation
     {
         // Progress -> (0,1)
         private static float GetInterpolationRatio(float progress, AnimationCurveType curveType)
@@ -75,7 +75,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator MoveTransformAsync(Transform target,
+        public static IEnumerator MoveAsync(this Transform target,
             Vector3 toPosition,
             float duration,
             AnimationCurveType curveType = AnimationCurveType.Linear,
@@ -96,7 +96,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator ShakeTransformAsync(Transform target,
+        public static IEnumerator ShakeAsync(this Transform target,
             float duration,
             float amplitude,
             bool shakeOnXAxis,
@@ -120,7 +120,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator OrbitTransformAroundCenterPointAsync(Transform target,
+        public static IEnumerator OrbitAroundCenterPointAsync(this Transform target,
             Quaternion toRotation,
             Vector3 centerPoint,
             float duration,
@@ -156,7 +156,7 @@ namespace Core.Animation
             yield return null;
         }
 
-        public static IEnumerator RotateTransformAsync(Transform target,
+        public static IEnumerator RotateAsync(this Transform target,
             Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,

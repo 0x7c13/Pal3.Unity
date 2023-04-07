@@ -118,8 +118,7 @@ namespace Pal3.Scene.SceneObjects
             int direction = (_currentState - _previousState) * (ObjectInfo.Parameters[3] == -1 ? -1 : 1);
             Quaternion targetRotation = rotation * Quaternion.Euler(0, 0, SWITCH_ROTAION_ANGLE * -direction);
 
-            yield return AnimationHelper.RotateTransformAsync(objectTransform,
-                targetRotation, SWITCH_ANIMATION_DURATION, AnimationCurveType.Sine);
+            yield return objectTransform.RotateAsync(targetRotation, SWITCH_ANIMATION_DURATION, AnimationCurveType.Sine);
 
             // Save my state
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneSaveGlobalThreePhaseSwitchStateCommand(

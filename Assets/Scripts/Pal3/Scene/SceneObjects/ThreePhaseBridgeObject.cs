@@ -84,8 +84,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = transform.position +
                                     movingDirection * ((_isMovingTowardsNegativeAxis ? -1 : 1) * BRIDGE_MOVEMENT_DISTANCE);
 
-            yield return AnimationHelper.MoveTransformAsync(transform,
-                finalPosition,
+            yield return transform.MoveAsync(finalPosition,
                 BRIDGE_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

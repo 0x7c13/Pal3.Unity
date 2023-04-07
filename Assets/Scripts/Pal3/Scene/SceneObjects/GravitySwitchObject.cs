@@ -102,8 +102,7 @@ namespace Pal3.Scene.SceneObjects
 
             Vector3 finalPosition = gravityTriggerGo.transform.position;
             finalPosition.y -= DESCENDING_HEIGHT;
-            yield return AnimationHelper.MoveTransformAsync(gravityTriggerGo.transform,
-                finalPosition,
+            yield return gravityTriggerGo.transform.MoveAsync(finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

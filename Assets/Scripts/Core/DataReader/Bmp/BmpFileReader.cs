@@ -102,8 +102,8 @@ namespace Core.DataReader.Bmp
     {
         private const ushort MAGIC = 0x4D42; // "BM" little endian
 
-        private const bool READ_PALETTE_ALPHA = false;
-        private const bool FORCE_ALPHA_READ_WHEN_POSSIBLE = false;
+        private bool READ_PALETTE_ALPHA = false;
+        private bool FORCE_ALPHA_READ_WHEN_POSSIBLE = false;
 
         public BmpFile Read(string aFileName)
         {

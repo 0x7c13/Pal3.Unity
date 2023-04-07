@@ -326,7 +326,7 @@ namespace Pal3.GameSystem
                 dialogueCanvasGroupTransform.position = startPosition;
             }
 
-            yield return AnimationHelper.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
+            yield return CoreAnimation.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
                 AnimationCurveType.Linear, value =>
                 {
                     _dialogueCanvasGroup.transform.position = finalPosition + new Vector3(0f, yOffset * (1 - value), 0);

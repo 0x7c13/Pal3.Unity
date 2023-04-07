@@ -143,8 +143,7 @@ namespace Pal3.Scene.SceneObjects
                 for (int i = 1; i < waypoints.Count; i++)
                 {
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
-                    yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
-                        waypoints[i],
+                    yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }
             }
@@ -194,8 +193,7 @@ namespace Pal3.Scene.SceneObjects
                 for (int i = 1; i < waypoints.Count; i++)
                 {
                     var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
-                    yield return AnimationHelper.MoveTransformAsync(carrierObjectTransform,
-                        waypoints[i],
+                    yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }
 

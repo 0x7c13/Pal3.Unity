@@ -186,7 +186,7 @@ namespace Pal3.Actor
 
         private IEnumerator AnimateScaleAsync(float toScale, float duration, Action onFinished = null)
         {
-            yield return AnimationHelper.EnumerateValueAsync(transform.localScale.x,
+            yield return CoreAnimation.EnumerateValueAsync(transform.localScale.x,
                 toScale, duration, AnimationCurveType.Linear, value =>
                 {
                     transform.localScale = new Vector3(value, value, value);

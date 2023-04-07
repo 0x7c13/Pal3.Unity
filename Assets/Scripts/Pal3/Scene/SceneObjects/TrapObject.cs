@@ -82,7 +82,7 @@ namespace Pal3.Scene.SceneObjects
                 Transform transform = GetGameObject().transform;
                 float yOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
                 Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
-                yield return AnimationHelper.MoveTransformAsync(transform, finalPosition, 0.5f);
+                yield return transform.MoveAsync(finalPosition, 0.5f);
                 #endif
             }
 

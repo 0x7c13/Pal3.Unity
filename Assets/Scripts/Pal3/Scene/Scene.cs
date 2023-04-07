@@ -656,7 +656,7 @@ namespace Pal3.Scene
                 GameObject sceneObjectGo = sceneObject.GetGameObject();
                 Vector3 offset = GameBoxInterpreter.ToUnityPosition(gameBoxPositionOffset);
                 Vector3 toPosition = sceneObjectGo.transform.position + offset;
-                StartCoroutine(AnimationHelper.MoveTransformAsync(sceneObjectGo.transform, toPosition, command.Duration));
+                StartCoroutine(sceneObjectGo.transform.MoveAsync(toPosition, command.Duration));
 
                 // Save the new position since it is moved by the script
                 CommandDispatcher<ICommand>.Instance.Dispatch(

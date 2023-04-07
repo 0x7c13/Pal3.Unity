@@ -123,8 +123,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = portalObject.transform.position;
             finalPosition.y += shouldGoUp.Value ? 10f : -10f;
 
-            yield return AnimationHelper.MoveTransformAsync(_platformController.transform,
-                finalPosition,
+            yield return portalObject.transform.MoveAsync(finalPosition,
                 MOVEMENT_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

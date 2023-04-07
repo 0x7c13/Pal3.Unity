@@ -109,8 +109,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = pedalSwitchGo.transform.position;
             finalPosition.y -= DESCENDING_HEIGHT;
 
-            yield return AnimationHelper.MoveTransformAsync(pedalSwitchGo.transform,
-                finalPosition,
+            yield return pedalSwitchGo.transform.MoveAsync(finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

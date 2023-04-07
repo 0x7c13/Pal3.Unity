@@ -51,8 +51,7 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wc007");
 
-            yield return AnimationHelper.MoveTransformAsync(waterSurfaceGameObject.transform,
-                finalPosition,
+            yield return waterSurfaceGameObject.transform.MoveAsync(finalPosition,
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

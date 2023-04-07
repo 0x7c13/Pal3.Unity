@@ -78,8 +78,8 @@ namespace Pal3.Scene.SceneObjects
 
             PlaySfx("wg004");
 
-            yield return AnimationHelper.RotateTransformAsync(bridgeObject.transform,
-                Quaternion.Euler(targetRotation), ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
+            yield return bridgeObject.transform.RotateAsync(Quaternion.Euler(targetRotation),
+                ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
 
             SaveCurrentYRotation();
 

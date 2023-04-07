@@ -80,7 +80,7 @@ namespace Pal3.Scene.SceneObjects
                     Transform transform = floorObject.transform;
                     float yOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
                     Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
-                    yield return AnimationHelper.MoveTransformAsync(floorObject.transform, finalPosition, 0.5f);
+                    yield return floorObject.transform.MoveAsync(finalPosition, 0.5f);
                     SaveCurrentPosition();
                 }
 
@@ -119,7 +119,7 @@ namespace Pal3.Scene.SceneObjects
                     duration = 0.3f;
                 }
 
-                yield return AnimationHelper.MoveTransformAsync(floorObject.transform, toPosition, duration);
+                yield return floorObject.transform.MoveAsync(toPosition, duration);
 
                 SaveCurrentPosition();
             }

@@ -98,8 +98,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 targetPosition = ctx.PlayerActorGameObject.transform.position +
                                      (_subObjectGameObject.transform.forward * 6f) + Vector3.up * 2f;
 
-            yield return AnimationHelper.MoveTransformAsync(ctx.PlayerActorGameObject.transform,
-                targetPosition,
+            yield return ctx.PlayerActorGameObject.transform.MoveAsync(targetPosition,
                 HIT_ANIMATION_DURATION);
 
             ctx.PlayerActorGameObject.GetComponent<ActorMovementController>().SetNavLayer(ObjectInfo.Parameters[2]);
@@ -201,7 +200,7 @@ namespace Pal3.Scene.SceneObjects
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                yield return AnimationHelper.EnumerateValueAsync(MIN_Z_POSITION,
+                yield return CoreAnimation.EnumerateValueAsync(MIN_Z_POSITION,
                     MAX_Z_POSITION,
                     MOVEMENT_ANIMATION_DURATION,
                     AnimationCurveType.Linear,
@@ -214,7 +213,7 @@ namespace Pal3.Scene.SceneObjects
 
                 yield return holdTimeWaiter;
 
-                yield return AnimationHelper.EnumerateValueAsync(MAX_Z_POSITION,
+                yield return CoreAnimation.EnumerateValueAsync(MAX_Z_POSITION,
                     MIN_Z_POSITION,
                     MOVEMENT_ANIMATION_DURATION,
                     AnimationCurveType.Linear,

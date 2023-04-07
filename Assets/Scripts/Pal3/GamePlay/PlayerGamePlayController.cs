@@ -511,7 +511,7 @@ namespace Pal3.GamePlay
             var startingYPosition = currentPosition.y;
             var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
 
-            yield return AnimationHelper.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
+            yield return CoreAnimation.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
                 value =>
                 {
                     Vector3 calculatedPosition = currentPosition + jumpDirection * (xzOffset * value);

@@ -133,7 +133,7 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            yield return AnimationHelper.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION,
+            yield return CoreAnimation.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION,
                 AnimationCurveType.Sine, offset =>
                 {
                     liftingMechanismGameObject.transform.position =

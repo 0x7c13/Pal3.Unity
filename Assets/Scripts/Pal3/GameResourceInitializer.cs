@@ -75,20 +75,6 @@ namespace Pal3
             crcHash.Init();
             ServiceLocator.Instance.Register<CrcHash>(crcHash);
 
-            // Create and register IFileReader<T> instances
-            ServiceLocator.Instance.Register<IFileReader<CvdFile>>(new CvdFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader());
-            ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());
-            ServiceLocator.Instance.Register<IFileReader<NavFile>>(new NavFileReader());
-            ServiceLocator.Instance.Register<IFileReader<MovActionConfig>>(new MovConfigFileReader());
-            ServiceLocator.Instance.Register<IFileReader<Mv3ActionConfig>>(new Mv3ConfigFileReader());
-            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader());
-            ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
-
             // If toon materials are not present, it's an open source build
             bool isOpenSourceVersion = _toonDefaultMaterial == null || _toonTransparentMaterial == null;
 
@@ -157,6 +143,20 @@ namespace Pal3
                     yield break; // Stop initialization if failed to init file system
                 }
             }
+
+            // Create and register IFileReader<T> instances
+            ServiceLocator.Instance.Register<IFileReader<CvdFile>>(new CvdFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader());
+            ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());
+            ServiceLocator.Instance.Register<IFileReader<NavFile>>(new NavFileReader());
+            ServiceLocator.Instance.Register<IFileReader<MovActionConfig>>(new MovConfigFileReader());
+            ServiceLocator.Instance.Register<IFileReader<Mv3ActionConfig>>(new Mv3ConfigFileReader());
+            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader());
+            ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
 
             // Init TextureLoaderFactory
             TextureLoaderFactory textureLoaderFactory = new ();
@@ -303,7 +303,7 @@ namespace Pal3
             loadingText.alpha = 0f;
             loadingText.enabled = false;
 
-            yield return AnimationHelper.EnumerateValueAsync(1f, 0f, duration: 1f, AnimationCurveType.Linear,
+            yield return CoreAnimation.EnumerateValueAsync(1f, 0f, duration: 1f, AnimationCurveType.Linear,
                 value =>
             {
                 backgroundImage.color = new Color(0, 0, 0, value);

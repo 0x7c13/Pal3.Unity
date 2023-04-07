@@ -35,8 +35,7 @@ namespace Pal3.Scene.SceneObjects
             Vector3 finalPosition = transform.position;
             finalPosition += new Vector3(0f, -WATER_DESCEND_HEIGHT, 0f);
 
-            yield return AnimationHelper.MoveTransformAsync(transform,
-                finalPosition,
+            yield return transform.MoveAsync(finalPosition,
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 
