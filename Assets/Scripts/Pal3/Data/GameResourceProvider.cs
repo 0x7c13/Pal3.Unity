@@ -66,22 +66,7 @@ namespace Pal3.Data
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
         // Cache player actor movement sfx audio clips
-        private readonly HashSet<string> _audioClipCacheList = new ()
-        {
-            #if PAL3
-            "we021a.wav",
-            "we021b.wav",
-            "we021c.wav",
-            "we021d.wav",
-            "we022a.wav",
-            "we022b.wav",
-            "we022c.wav",
-            "we022d.wav",
-            #elif PAL3A
-            "WE007.WAV",
-            "WE008.WAV"
-            #endif
-        };
+        private readonly HashSet<string> _audioClipCacheList = AudioConstants.PlayerActorMovementSfxAudioFileNames;
 
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");

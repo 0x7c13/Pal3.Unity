@@ -40,7 +40,7 @@ namespace Pal3.Actor
             #endif
 
             ActorActionController actionController;
-            if (actor.AnimationFileType == ActorAnimationFileType.Mv3)
+            if (actor.AnimationType == ActorAnimationType.Mv3)
             {
                 Mv3ActorActionController mv3ActionController = actorGameObject.AddComponent<Mv3ActorActionController>();
                 mv3ActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);

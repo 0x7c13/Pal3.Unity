@@ -7,7 +7,6 @@ namespace Pal3.Renderer
 {
     using System;
     using System.Collections;
-    using System.Linq;
     using System.Threading;
     using Core.DataLoader;
     using Core.DataReader.Mv3;
@@ -89,7 +88,16 @@ namespace Pal3.Renderer
 
             for (var i = 0; i < _tagNodesInfo.Length; i++)
             {
-                _tagNodeFrameTicks[i] = _tagNodesInfo[i].TagFrames.Select(_ => _.Tick).ToArray();
+                var tagFrames = _tagNodesInfo[i].TagFrames;
+                int tagFramesCount = tagFrames.Length;
+                var ticksArray = new uint[tagFramesCount];
+
+                for (int j = 0; j < tagFramesCount; j++)
+                {
+                    ticksArray[j] = tagFrames[j].Tick;
+                }
+
+                _tagNodeFrameTicks[i] = ticksArray;
             }
 
             for (var i = 0; i < _meshCount; i++)
@@ -113,7 +121,7 @@ namespace Pal3.Renderer
                         continue;
                     }
 
-                    _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions.First().Name);
+                    _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions[0].Name);
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
                     tagNodeRenderer.Render(tagNodePolFile,
                         tagNodeTextureProvider,
@@ -121,8 +129,8 @@ namespace Pal3.Renderer
                         tagNodeTintColor);
 
                     _tagNodes[i].transform.SetParent(transform, true);
-                    _tagNodes[i].transform.localPosition = mv3File.TagNodes[i].TagFrames.First().Position;
-                    _tagNodes[i].transform.localRotation = mv3File.TagNodes[i].TagFrames.First().Rotation;
+                    _tagNodes[i].transform.localPosition = mv3File.TagNodes[i].TagFrames[0].Position;
+                    _tagNodes[i].transform.localRotation = mv3File.TagNodes[i].TagFrames[0].Rotation;
                 }
             }
         }
@@ -137,7 +145,18 @@ namespace Pal3.Renderer
             _textures[index] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[index]= hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
-            _frameTicks[index] = mv3Mesh.KeyFrames.Select(f => f.Tick).ToArray();
+
+            var keyFrames = mv3Mesh.KeyFrames;
+            int keyFramesCount = keyFrames.Length;
+            var ticksArray = new uint[keyFramesCount];
+
+            for (int i = 0; i < keyFramesCount; i++)
+            {
+                ticksArray[i] = keyFrames[i].Tick;
+            }
+
+            _frameTicks[index] = ticksArray;
+
             _meshObjects[index] = new GameObject(mv3Mesh.Name);
 
             // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
@@ -164,8 +183,7 @@ namespace Pal3.Renderer
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
             var texturePath = _textureProvider.GetTexturePath(textureName);
-            if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Any(_ =>
-                    string.Equals(_, texturePath, StringComparison.OrdinalIgnoreCase)))
+            if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Contains(texturePath))
             {
                 _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
             }
@@ -338,10 +356,9 @@ namespace Pal3.Renderer
             }
             else if (loopCount == -2) // Play until action holding point
             {
-                _actionHoldingTick = _events.LastOrDefault(e =>
-                    e.Name.Equals(MV3_ANIMATION_HOLD_EVENT_NAME, StringComparison.OrdinalIgnoreCase)).Tick;
-                if (_actionHoldingTick != 0)
+                if (TryGetLastHoldingTick(out uint holdingTick))
                 {
+                    _actionHoldingTick = holdingTick;
                     yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, animationDelay, cancellationToken);
                     _isActionInHoldState = true;
                 }
@@ -351,6 +368,22 @@ namespace Pal3.Renderer
                 }
                 AnimationLoopPointReached?.Invoke(this, loopCount);
             }
+        }
+
+        private bool TryGetLastHoldingTick(out uint holdingTick)
+        {
+            for (int i = _events.Length - 1; i >= 0; i--)
+            {
+                var currentEvent = _events[i];
+                if (currentEvent.Name.Equals(MV3_ANIMATION_HOLD_EVENT_NAME, StringComparison.OrdinalIgnoreCase))
+                {
+                    holdingTick = currentEvent.Tick;
+                    return true;
+                }
+            }
+
+            holdingTick = 0;
+            return false;
         }
 
         private IEnumerator PlayOneTimeAnimationInternalAsync(uint startTick,

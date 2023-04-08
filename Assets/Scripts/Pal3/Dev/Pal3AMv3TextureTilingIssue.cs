@@ -7,13 +7,14 @@
 
 namespace Pal3.Dev
 {
+    using System;
     using System.Collections.Generic;
 
     public static class Pal3AMv3TextureTilingIssue
     {
         // These textures have wrong scaling/tiling,
         // Should be (1, 1) but these are (1, -1)
-        public static readonly HashSet<string> KnownTextureFiles = new HashSet<string>
+        public static readonly HashSet<string> KnownTextureFiles = new (StringComparer.OrdinalIgnoreCase)
         {
             "basedata.cpk\\role\\607\\607.tga",
             "basedata.cpk\\role\\611\\611.tga",

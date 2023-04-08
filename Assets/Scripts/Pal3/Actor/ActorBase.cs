@@ -7,14 +7,12 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Core.DataReader.Cpk;
     using Core.DataReader.Ini;
     using Data;
     using MetaData;
-    using UnityEngine;
 
-    public enum ActorAnimationFileType
+    public enum ActorAnimationType
     {
         Mv3 = 0,
         Mov
@@ -22,9 +20,11 @@ namespace Pal3.Actor
 
     public abstract class ActorBase
     {
-        public ActorAnimationFileType AnimationFileType;
+        public ActorAnimationType AnimationType { get; private set; }
 
-        private ActorActionConfig[] _actorActionConfigs;
+        private readonly Dictionary<string, string> _actionNameToFileNameMap = new (StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _actionNameToMeshFileNameMap = new (StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _actionNameToMaterialFileNameMap = new (StringComparer.OrdinalIgnoreCase);
 
         private readonly GameResourceProvider _resourceProvider;
 
@@ -49,38 +49,45 @@ namespace Pal3.Actor
 
             if (defaultConfig is Mv3ActionConfig mv3Config)
             {
-                _actorActionConfigs = new ActorActionConfig[] { mv3Config };
-                AnimationFileType = ActorAnimationFileType.Mv3;
+                AddActorConfig(mv3Config);
+                AnimationType = ActorAnimationType.Mv3;
+                return;
             }
-            else
+
+            // Add default config if it is MOV
+            if (defaultConfig is MovActionConfig)
             {
-                List<ActorActionConfig> actorActionConfigs = new ();
+                AddActorConfig(defaultConfig);
+            }
 
-                // Add default config if it is MOV
-                if (defaultConfig is MovActionConfig)
+            // For MOV animation actor, additional action config files are defined as
+            // 01.ini, 02.ini ...up tp 09.ini
+            for (var i = 0; i <= 9; i++)
+            {
+                if (_resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{i:D2}.ini")
+                    is MovActionConfig movConfig)
                 {
-                    actorActionConfigs.Add(defaultConfig);
+                    AddActorConfig(movConfig);
                 }
+            }
 
-                // For MOV animation actor, config files are defined as 01.ini, 02.ini ...up tp 09.ini
-                for (var i = 0; i <= 9; i++)
+            AnimationType = ActorAnimationType.Mov;
+        }
+
+        private void AddActorConfig(ActorActionConfig config)
+        {
+            foreach (ActorAction action in config.ActorActions)
+            {
+                _actionNameToFileNameMap.TryAdd(action.ActionName, action.ActionFileName);
+            }
+
+            if (config is MovActionConfig movActionConfig)
+            {
+                foreach (ActorAction action in config.ActorActions)
                 {
-                    if (_resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{i:D2}.ini")
-                        is MovActionConfig movConfig)
-                    {
-                        actorActionConfigs.Add(movConfig);
-                    }
+                    _actionNameToMeshFileNameMap.TryAdd(action.ActionName, movActionConfig.Actor.MeshFileName);
+                    _actionNameToMaterialFileNameMap.TryAdd(action.ActionName, movActionConfig.Actor.MaterialFileName);
                 }
-
-                if (actorActionConfigs.Count == 0)
-                {
-                    throw new Exception($"No actor action config found for: actor {name}");
-                }
-
-                Debug.LogWarning($"{actorActionConfigs.Count} MOV actor config(s) found for: actor {name}");
-
-                _actorActionConfigs = actorActionConfigs.ToArray();
-                AnimationFileType = ActorAnimationFileType.Mov;
             }
         }
 
@@ -93,20 +100,20 @@ namespace Pal3.Actor
 
         public bool HasAction(string actionName)
         {
-            if (_actorActionConfigs == null || _actorActionConfigs.Length == 0) return false;
-
-            return _actorActionConfigs.Any(_ => _.ActorActions.Any(act =>
-                act.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase)));
+            return _actionNameToFileNameMap.ContainsKey(actionName);
         }
 
         public string GetActionFilePath(string actionName)
         {
-            return (from config in _actorActionConfigs from actorAction in config.ActorActions
-                where actorAction.ActionName.Equals(actionName, StringComparison.OrdinalIgnoreCase)
-                let separator = CpkConstants.DirectorySeparator
-                select $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                       $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
-                       $"{actorAction.ActionFileName}").FirstOrDefault();
+            if (!_actionNameToFileNameMap.TryGetValue(actionName, out var actionFileName))
+            {
+                throw new ArgumentException($"Action file name not found for action name {actionName}");
+            }
+
+            char separator = CpkConstants.DirectorySeparator;
+            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
+                   $"{actionFileName}";
         }
     }
 }
