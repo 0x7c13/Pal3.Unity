@@ -14,8 +14,6 @@ Shader "Pal3/Skinning"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -41,21 +39,27 @@ Shader "Pal3/Skinning"
             float4 _MainTex_ST;
             
             uniform float4x4 _boneMatrixArray[50];
-
+            
+            
             v2f vert (appdata v)
             {
                 v2f o;
 
                 //o.vertex = UnityObjectToClipPos(v.vertex);
                 
-                
+                /*
                 float4x4 boneMatrix = _boneMatrixArray[(int)(v.boneIds[0])] * v.boneWeights[0];
                 boneMatrix += _boneMatrixArray[(int)(v.boneIds[1])] * v.boneWeights[1];
                 boneMatrix += _boneMatrixArray[(int)(v.boneIds[2])] * v.boneWeights[2];
                 boneMatrix += _boneMatrixArray[(int)(v.boneIds[3])] * v.boneWeights[3];
+                */
+
+                // @miao @test
+                float4x4 boneMatrix = _boneMatrixArray[(int)(v.boneIds[0])];
                 
                 float4 boneVertexPos = mul(boneMatrix,v.vertex);
                 o.vertex = UnityObjectToClipPos(boneVertexPos);
+                //o.vertex = mul(UNITY_MATRIX_VP,boneVertexPos);
                 
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 

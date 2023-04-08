@@ -18,12 +18,18 @@ namespace Pal3.Renderer
         public GameObject go = null;
         public BoneNode boneNode = null;
         public BoneActTrack track = null;
-        public Matrix4x4 cacheTransform = Matrix4x4.identity;
+        
+        
+        public Matrix4x4 skinningMatrix = Matrix4x4.identity;
+        public Matrix4x4 modelToBindMatrix = Matrix4x4.identity;
+        public Matrix4x4 curposeToModelMatrix = Matrix4x4.identity;
         
         public void Clear()
         {
             track = null;
-            cacheTransform = Matrix4x4.identity;
+            skinningMatrix = Matrix4x4.identity;
+            //modelToBindMatrix = Matrix4x4.identity;
+            curposeToModelMatrix = Matrix4x4.identity;
         }
     }
 
@@ -124,20 +130,23 @@ namespace Pal3.Renderer
                 go.transform.localPosition = trans;
                 go.transform.localRotation = rot;
                 
+                
+                Matrix4x4 translateMatrix = Matrix4x4.Translate(go.transform.localPosition);
+                Matrix4x4 rotateMatrix = Matrix4x4.Rotate(go.transform.localRotation);
+                
                 // @miao @todo
-                // update matrix here 
+                // update skinning matrix here 
                 if (bone._parentID >= 0)
                 {
                     var parentJoint = _jointDict[bone._parentID];
-                    
-                    Matrix4x4 translateMatrix = Matrix4x4.Translate(go.transform.localPosition);
-                    Matrix4x4 rotateMatrix = Matrix4x4.Rotate(go.transform.localRotation);
-                    joint.cacheTransform = parentJoint.cacheTransform * rotateMatrix * translateMatrix;
-                    //joint.cacheTransform = rotateMatrix * translateMatrix;
+                    joint.curposeToModelMatrix = parentJoint.curposeToModelMatrix * rotateMatrix * translateMatrix;
+                    //joint.skinningMatrix = joint.modelToBindMatrix * Matrix4x4.Inverse(joint.curposeToModelMatrix);
+                    joint.skinningMatrix = Matrix4x4.Inverse(joint.curposeToModelMatrix) * joint.modelToBindMatrix;
                 }
                 else
                 {
-                    joint.cacheTransform = Matrix4x4.identity;
+                    joint.curposeToModelMatrix = rotateMatrix * translateMatrix;
+                    joint.skinningMatrix = joint.curposeToModelMatrix;
                 }
             }
             
@@ -179,7 +188,7 @@ namespace Pal3.Renderer
                 {
                     // Here we should get the joint , and calc the matrix 
                     var joint = _jointDict[i];
-                    boneMatrixArray.Add(joint.cacheTransform);
+                    boneMatrixArray.Add(joint.skinningMatrix);
                 }
                 else
                 {
@@ -199,7 +208,7 @@ namespace Pal3.Renderer
             RenderBone(_msh._boneRoot, gameObject,null);
         }
 
-        void RenderBone(BoneNode bone, GameObject parent,BoneNode parentBone)
+        void RenderBone(BoneNode bone, GameObject parent,Joint parentJoint)
         {
             GameObject renderNode = new GameObject();
             renderNode.name = $"[bone][name]{bone._name} [id]{bone._selfID}";
@@ -212,23 +221,26 @@ namespace Pal3.Renderer
             // self pos rotation
             renderNode.transform.localPosition = bone._translate;
             renderNode.transform.localRotation = bone._rotate;
-
-            // children
-            for (int i = 0; i < bone._nChildren; i++)
-            {
-                BoneNode subBone = bone._children[i];
-                RenderBone(subBone, renderNode,bone);
-            }
             
             // hold joint to dict
             var joint = new Joint();
             joint.go = renderNode;
             joint.boneNode = bone;
             joint.track = null;
-            if(parentBone != null)
+            joint.modelToBindMatrix = Matrix4x4.identity;
+            if(parentJoint != null)
             {
                 _jointDict.Add(bone._selfID,joint);
-            }            
+                // save model to bone matrix 
+                joint.modelToBindMatrix = parentJoint.modelToBindMatrix * Matrix4x4.Rotate(bone._rotate) * Matrix4x4.Translate(bone._translate);
+            }
+
+            // children
+            for (int i = 0; i < bone._nChildren; i++)
+            {
+                BoneNode subBone = bone._children[i];
+                RenderBone(subBone, renderNode,joint);
+            }
         }
 
         private void RenderBoneGizmo(GameObject boneRenderNode)
