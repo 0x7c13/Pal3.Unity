@@ -1,12 +1,9 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2023, Jiaqi Liu. All rights reserved.
-//  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Core.GameBox;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements;
+using Bone = UnityEngine.XR.Bone;
 
 namespace Pal3.Renderer
 {
@@ -15,6 +12,21 @@ namespace Pal3.Renderer
     using Core.DataReader.Mov;
     using UnityEngine;
     
+    class Joint
+    {
+        public string name;
+        public GameObject go = null;
+        public BoneNode boneNode = null;
+        public BoneActTrack track = null;
+        public Matrix4x4 cacheTransform = Matrix4x4.identity;
+        
+        public void Clear()
+        {
+            track = null;
+            cacheTransform = Matrix4x4.identity;
+        }
+    }
+
     /// <summary>
     /// MSH(.msh) model renderer
     /// </summary>
@@ -24,14 +36,16 @@ namespace Pal3.Renderer
         private Material[][] _materials;
 
         private MshFile _msh = null;
-        
+
         private MovFile _mov = null;
         private float _elapsedTime = 0.0f;
-
-
-        private Dictionary<string, Joint> _jointDict = new Dictionary<string, Joint>();
         
+        //private Dictionary<string, Joint> _jointDict = new Dictionary<string, Joint>();
+        private Dictionary<int, Joint> _jointDict = new Dictionary<int, Joint>();
+
         private Material[] _skinningMaterials = null;
+
+        private const int MAX_BONES_CNT = 50;
 
         public void Init(MshFile mshFile,
             IMaterialFactory materialFactory)
@@ -40,9 +54,10 @@ namespace Pal3.Renderer
             _materialFactory = materialFactory;
 
             RenderSkeleton();
+            CheckSkeleton();
             RenderMesh();
         }
-        
+
         public void PlayMov(MovFile mov)
         {
             _mov = mov;
@@ -54,18 +69,18 @@ namespace Pal3.Renderer
         {
             foreach (var joint in _jointDict)
             {
-                joint.Value.track = null;
+                joint.Value.Clear();
             }
         }
 
         private void BindJointTrack()
         {
-            for(int i = 0;i < _mov.boneTrackArray.Length;i++)
+            for (int i = 0; i < _mov.boneTrackArray.Length; i++)
             {
                 var track = _mov.boneTrackArray[i];
-                if (_jointDict.ContainsKey(track.boneName))
+                if(_jointDict.ContainsKey(track.boneId))
                 {
-                    var joint = _jointDict[track.boneName];
+                    var joint = _jointDict[track.boneId];
                     joint.track = track;
                 }
             }
@@ -84,36 +99,61 @@ namespace Pal3.Renderer
                     tickIdx = 0;
                 }
                 //Debug.Log("Tick Index:" + tickIdx);
-                
-                UpdateJoint(tickIdx);
+                UpdateAllJoints(tickIdx);
                 UpdateSkinning();
             }
         }
-        
-        private void UpdateJoint(int tickIdx)
-        {
-            foreach (var boneName in _jointDict.Keys)
-            {
-                var joint = _jointDict[boneName];
-                GameObject go = joint.go;
-                BoneActTrack track = joint.track;
 
-                if (track != null)
+        private void UpdateAllJoints(int tickIdx)
+        {
+            UpdateJoint(_jointDict[0],tickIdx);
+        }
+        
+        private void UpdateJoint(Joint joint,int tickIdx)
+        {
+            GameObject go = joint.go;
+            BoneActTrack track = joint.track;
+            BoneNode bone = joint.boneNode;
+
+            if (track != null)
+            {
+                int keyIdx = GetKeyIndex(track, tickIdx);
+                Vector3 trans = track.keyArray[keyIdx].trans;
+                Quaternion rot = track.keyArray[keyIdx].rot;
+
+                go.transform.localPosition = trans;
+                go.transform.localRotation = rot;
+                
+                // @miao @todo
+                // update matrix here 
+                if (bone._parentID >= 0)
                 {
-                    int keyIdx = GetKeyIndex(track,tickIdx);
-                    Vector3 trans = track.keyArray[keyIdx].trans;
-                    Quaternion rot = track.keyArray[keyIdx].rot;
+                    var parentJoint = _jointDict[bone._parentID];
                     
-                    go.transform.localPosition = trans;
-                    go.transform.localRotation = rot;
+                    Matrix4x4 translateMatrix = Matrix4x4.Translate(go.transform.localPosition);
+                    Matrix4x4 rotateMatrix = Matrix4x4.Rotate(go.transform.localRotation);
+                    joint.cacheTransform = parentJoint.cacheTransform * rotateMatrix * translateMatrix;
+                    //joint.cacheTransform = rotateMatrix * translateMatrix;
                 }
+                else
+                {
+                    joint.cacheTransform = Matrix4x4.identity;
+                }
+            }
+            
+            // update children
+            for(int i = 0;i < bone._nChildren;i++)
+            {
+                int childJointIdx = bone._children[i]._selfID;
+                var childJoint = _jointDict[childJointIdx];
+                UpdateJoint(childJoint,tickIdx);
             }
         }
 
-        private int GetKeyIndex(BoneActTrack track,int tickIdx)
+        private int GetKeyIndex(BoneActTrack track, int tickIdx)
         {
             int keyIdx = 0;
-            for (keyIdx = 0;keyIdx < track.nKey;keyIdx++)
+            for (keyIdx = 0; keyIdx < track.nKey; keyIdx++)
             {
                 if (tickIdx < track.keyArray[keyIdx].time)
                 {
@@ -128,73 +168,93 @@ namespace Pal3.Renderer
 
             return keyIdx;
         }
-
-
+        
         void UpdateSkinning()
         {
-            // @miao @todo
-            
+            // Here we should pass bones matrix to uniform
+            List<Matrix4x4> boneMatrixArray = new List<Matrix4x4>();
+            for (int i = 0; i < MAX_BONES_CNT; i++)
+            {
+                if (_jointDict.ContainsKey(i))
+                {
+                    // Here we should get the joint , and calc the matrix 
+                    var joint = _jointDict[i];
+                    boneMatrixArray.Add(joint.cacheTransform);
+                }
+                else
+                {
+                    boneMatrixArray.Add(Matrix4x4.identity);
+                }
+
+            }
+
+            foreach (var material in _skinningMaterials)
+            {
+                material.SetMatrixArray(Shader.PropertyToID("_boneMatrixArray"), boneMatrixArray);
+            }
         }
 
         void RenderSkeleton()
         {
-            RenderBone(_msh._boneRoot, gameObject);
+            RenderBone(_msh._boneRoot, gameObject,null);
         }
-        
-        void RenderBone(BoneNode bone,GameObject parent)
+
+        void RenderBone(BoneNode bone, GameObject parent,BoneNode parentBone)
         {
             GameObject renderNode = new GameObject();
-            renderNode.name = $"[bone]{bone._name}";
+            renderNode.name = $"[bone][name]{bone._name} [id]{bone._selfID}";
             renderNode.transform.SetParent(parent.transform);
-            
+
             // display gizmo
             RenderBoneGizmo(renderNode);
-            RenderBoneConnectionGizmo(parent.transform,renderNode.transform);
+            RenderBoneConnectionGizmo(parent.transform, renderNode.transform);
 
             // self pos rotation
             renderNode.transform.localPosition = bone._translate;
             renderNode.transform.localRotation = bone._rotate;
-            
+
             // children
-            for (int i = 0;i < bone._nChildren;i++)
+            for (int i = 0; i < bone._nChildren; i++)
             {
                 BoneNode subBone = bone._children[i];
-                RenderBone(subBone,renderNode);
+                RenderBone(subBone, renderNode,bone);
             }
             
             // hold joint to dict
             var joint = new Joint();
             joint.go = renderNode;
+            joint.boneNode = bone;
             joint.track = null;
-            _jointDict.Add(bone._name,joint);
+            if(parentBone != null)
+            {
+                _jointDict.Add(bone._selfID,joint);
+            }            
         }
-        
+
         private void RenderBoneGizmo(GameObject boneRenderNode)
         {
             var meshFilter = boneRenderNode.AddComponent<MeshFilter>();
             var meshRenderer = boneRenderNode.AddComponent<MeshRenderer>();
-            
+
             var mesh = new UnityEngine.Mesh();
             mesh.SetVertices(BuildBoneGizmoMesh());
-            mesh.SetTriangles(BuildBoneGizmoTriangle(),0);
+            mesh.SetTriangles(BuildBoneGizmoTriangle(), 0);
             meshFilter.sharedMesh = mesh;
-            
+
             // material
             Material material = _materialFactory.CreateBoneGizmoMaterial();
-            if(material != null)
+            if (material != null)
             {
                 meshRenderer.sharedMaterial = material;
-                material.renderQueue = 5000;    // at last 
+                material.renderQueue = 5000; // at last 
             }
         }
 
-        void RenderBoneConnectionGizmo(Transform from,Transform to)
+        void RenderBoneConnectionGizmo(Transform from, Transform to)
         {
             //Vector3 fromTo = to.position - from.position;
-            
-            
         }
-        
+
         void RenderMesh()
         {
             if (_msh._nSubMesh > 0)
@@ -208,6 +268,22 @@ namespace Pal3.Renderer
                 RenderSubMesh(subMesh, i);
             }
         }
+    
+        void CheckSkeleton()
+        {
+            int n = GetBoneCount();
+            Debug.Assert(n <= MAX_BONES_CNT,"bone number more than MAX_BONE_CNT！");
+            Debug.Assert(n > 0,"There's no joint!");
+            for (int i = 0;i < n;i++)
+            {
+                Debug.Assert(_jointDict.ContainsKey(i),"Bone index missing:" + i);
+            }
+        }
+        
+        int GetBoneCount()
+        {
+            return _jointDict.Count;
+        }
 
         void RenderSubMesh(SubMesh subMesh, int subMeshIndex)
         {
@@ -216,19 +292,17 @@ namespace Pal3.Renderer
 
             var meshRenderer = subMeshNode.AddComponent<MeshRenderer>();
             var meshFilter = subMeshNode.AddComponent<MeshFilter>();
-            
+
             var mesh = new UnityEngine.Mesh();
             mesh.MarkDynamic(); // @temp
             mesh.SetVertices(BuildVerts(subMesh));
-            mesh.SetTriangles(BuildTriangles(subMesh),subMeshIndex);
-            
-            mesh.SetUVs(1,BuildBoneIds(subMesh));
+            mesh.SetTriangles(BuildTriangles(subMesh), subMeshIndex);
+
+            mesh.SetUVs(1, BuildBoneIds(subMesh));
             mesh.SetUVs(2, BuildBoneWeights(subMesh));
 
             meshFilter.sharedMesh = mesh;
-            
-            
-                
+
             // hold material
             var material = _materialFactory.CreateSkinningMaterial();
             meshRenderer.sharedMaterial = material;
@@ -252,7 +326,7 @@ namespace Pal3.Renderer
             int[] triangles = new int[len];
 
             int idx = 0;
-            for (int i = 0;i < subMesh._faces.Length;i++)
+            for (int i = 0; i < subMesh._faces.Length; i++)
             {
                 triangles[idx++] = subMesh._faces[i].vertIndex[0];
                 triangles[idx++] = subMesh._faces[i].vertIndex[1];
@@ -265,65 +339,47 @@ namespace Pal3.Renderer
         List<Vector4> BuildBoneWeights(SubMesh subMesh)
         {
             List<Vector4> weights = new List<Vector4>();
-            for (int i = 0;i < subMesh._verts.Length;i++)
+            for (int i = 0; i < subMesh._verts.Length; i++)
             {
                 var vert = subMesh._verts[i];
-                var weight = new Vector4(vert.weights[0], vert.weights[1], vert.weights[2], vert.weights[3]);
-                //var r = new System.Random();
-                //var weight = new Vector4((float)r.NextDouble(),(float)r.NextDouble(),(float)r.NextDouble(),1.0f);
+                
+                float weightSum = vert.weights[0] +  vert.weights[1] + vert.weights[2]+vert.weights[3];
+                Vector4 weightsNormalize = new Vector4(vert.weights[0],vert.weights[1],vert.weights[2],vert.weights[3]);
+                weightsNormalize = weightsNormalize / weightSum;
+                var weight = weightsNormalize;
                 weights.Add(weight);
             }
+            //Debug.Log("weights:" + weights);
             return weights;
         }
-        
+
         List<Vector4> BuildBoneIds(SubMesh subMesh)
         {
             List<Vector4> ids = new List<Vector4>();
-            for (int i = 0;i < subMesh._verts.Length;i++)
-            {
-                var vert = subMesh._verts[i];
-                ids.Add(new Vector4(vert.boneIds[0],vert.boneIds[1],vert.boneIds[2],vert.boneIds[3]));
-            }
-            return ids;
-        }
-        
-        
-        /*
-        BoneWeight[] BuildBoneWeights(SubMesh subMesh)
-        {
-            BoneWeight[] boneWeight = new BoneWeight[subMesh._verts.Length];
             for (int i = 0; i < subMesh._verts.Length; i++)
             {
-                PhyVertex vert = subMesh._verts[i];
-                
-                boneWeight[i] = new BoneWeight();
-                boneWeight[i].weight0 = vert.weights[0];
-                boneWeight[i].weight1 = vert.weights[1];
-                boneWeight[i].weight2 = vert.weights[2];
-                boneWeight[i].weight3 = vert.weights[3];
-                boneWeight[i].boneIndex0 = vert.boneIds[0];
-                boneWeight[i].boneIndex1 = vert.boneIds[1];
-                boneWeight[i].boneIndex2 = vert.boneIds[2];
-                boneWeight[i].boneIndex3 = vert.boneIds[3];
+                var vert = subMesh._verts[i];
+                var boneIds = new Vector4(vert.boneIds[0], vert.boneIds[1], vert.boneIds[2], vert.boneIds[3]);
+                ids.Add(boneIds);
             }
-            return boneWeight;
+
+            return ids;
         }
-        */
-        
+
         Vector3[] BuildBoneGizmoMesh()
         {
             const float size = 0.02f;
             Vector3[] verts = new Vector3[8];
-            verts[0] = new Vector3(-size,-size,-size);
-            verts[1] = new Vector3(-size, size,-size);
-            verts[2] = new Vector3( size,-size,-size);
-            verts[3] = new Vector3( size, size,-size);
-            
-            verts[4] = new Vector3(-size,-size,size);
-            verts[5] = new Vector3(-size, size,size);
-            verts[6] = new Vector3( size,-size,size);
-            verts[7] = new Vector3( size,-size,size);
-            
+            verts[0] = new Vector3(-size, -size, -size);
+            verts[1] = new Vector3(-size, size, -size);
+            verts[2] = new Vector3(size, -size, -size);
+            verts[3] = new Vector3(size, size, -size);
+
+            verts[4] = new Vector3(-size, -size, size);
+            verts[5] = new Vector3(-size, size, size);
+            verts[6] = new Vector3(size, -size, size);
+            verts[7] = new Vector3(size, -size, size);
+
             return verts;
         }
 
@@ -331,14 +387,14 @@ namespace Pal3.Renderer
         {
             int[] indices =
             {
-                0,1,2, 2,1,3,
-                4,5,6, 6,5,7,
+                0, 1, 2, 2, 1, 3,
+                4, 5, 6, 6, 5, 7,
 
-                4,5,0, 0,5,1,
-                2,4,6, 6,4,7,
+                4, 5, 0, 0, 5, 1,
+                2, 4, 6, 6, 4, 7,
 
-                1,5,3, 3,5,7,
-                0,4,2, 2,4,6,
+                1, 5, 3, 3, 5, 7,
+                0, 4, 2, 2, 4, 6,
             };
             return indices;
         }
@@ -350,14 +406,7 @@ namespace Pal3.Renderer
 
         public void Dispose()
         {
-            
+
         }
-    }
-    
-    class Joint
-    {
-        public string name;
-        public GameObject go = null;
-        public BoneActTrack track = null;
     }
 }

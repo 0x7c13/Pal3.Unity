@@ -68,7 +68,7 @@ namespace Core.DataReader.Mov
 						float ftime = reader.ReadSingle();
 						actionEvent.time = GameBoxInterpreter.SecondToTick(ftime);
 
-						var t = reader.ReadChars(16);
+						var t = reader.ReadChars(16);	// always 16 len
 						actionEvent.name = new string(t);
 						// @todo, here should crc string 2 int 
 						
