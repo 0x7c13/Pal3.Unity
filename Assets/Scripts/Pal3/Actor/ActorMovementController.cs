@@ -676,9 +676,9 @@ namespace Pal3.Actor
                 case EndOfPathActionType.WaitAndReverse:
                 {
                     _actionController.PerformAction(_actor.GetIdleAction());
-                    var waypoints = _currentPath.GetAllWayPoints();
-                    waypoints.Reverse();
-                    StartCoroutine(WaitForSomeTimeAndFollowPathAsync(waypoints.ToArray(),
+                    Vector3[] waypoints = _currentPath.GetAllWayPoints();
+                    Array.Reverse(waypoints);
+                    StartCoroutine(WaitForSomeTimeAndFollowPathAsync(waypoints,
                         _currentPath.MovementMode,
                         _movementCts.Token));
                     break;

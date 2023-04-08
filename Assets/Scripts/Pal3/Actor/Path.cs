@@ -5,7 +5,6 @@
 
 namespace Pal3.Actor
 {
-    using System.Collections.Generic;
     using UnityEngine;
 
     public enum EndOfPathActionType
@@ -23,7 +22,7 @@ namespace Pal3.Actor
 
         public bool IgnoreObstacle { get; private set; }
 
-        private readonly List<Vector3> _wayPoints = new ();
+        private Vector3[] _wayPoints = {};
 
         private int _currentWayPointIndex;
 
@@ -34,7 +33,7 @@ namespace Pal3.Actor
         {
             Clear();
 
-            _wayPoints.AddRange(wayPoints);
+            _wayPoints = wayPoints;
             _currentWayPointIndex = 0;
 
             MovementMode = movementMode;
@@ -46,21 +45,21 @@ namespace Pal3.Actor
         {
             MovementMode = 0;
             EndOfPathAction = EndOfPathActionType.Idle;
-            _wayPoints.Clear();
+            _wayPoints = new Vector3[] {};
             _currentWayPointIndex = 0;
         }
 
         public bool MoveToNextWayPoint()
         {
-            return ++_currentWayPointIndex < _wayPoints.Count;
+            return ++_currentWayPointIndex < _wayPoints.Length;
         }
 
         public bool IsEndOfPath()
         {
-            return !(_wayPoints.Count > 0 && _currentWayPointIndex < _wayPoints.Count);
+            return !(_wayPoints.Length > 0 && _currentWayPointIndex < _wayPoints.Length);
         }
 
-        public List<Vector3> GetAllWayPoints()
+        public Vector3[] GetAllWayPoints()
         {
             return _wayPoints;
         }

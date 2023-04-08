@@ -220,7 +220,7 @@ namespace Pal3.Actor
             if (_mv3AnimationRenderer != null)
             {
                 _mv3AnimationRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
-                _mv3AnimationRenderer.DisposeAnimation();
+                _mv3AnimationRenderer.Dispose();
             }
 
             base.DisposeCurrentAction();

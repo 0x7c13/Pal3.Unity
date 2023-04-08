@@ -64,7 +64,7 @@ namespace Pal3.Renderer
             ITextureResourceProvider tagNodeTextureProvider = default,
             Color? tagNodeTintColor = default)
         {
-            DisposeAnimation();
+            Dispose();
 
             _materialFactory = materialFactory;
             _textureProvider = textureProvider;
@@ -106,7 +106,7 @@ namespace Pal3.Renderer
                 var materialId = mesh.Attributes[0].MaterialId;
                 Mv3Material material = mv3File.Materials[materialId];
 
-                InitSubMeshes(i, mesh, material);
+                InitSubMeshes(i, ref mesh, ref material);
             }
 
             if (tagNodePolFile != null && _tagNodesInfo is {Length: > 0})
@@ -136,8 +136,8 @@ namespace Pal3.Renderer
         }
 
         private void InitSubMeshes(int index,
-            Mv3Mesh mv3Mesh,
-            Mv3Material material)
+            ref Mv3Mesh mv3Mesh,
+            ref Mv3Material material)
         {
             var textureName = material.TextureNames[0];
 
@@ -254,9 +254,20 @@ namespace Pal3.Renderer
             }
         }
 
-        public void DisposeAnimation()
+        public void Dispose()
         {
             PauseAnimation();
+
+            if (_renderMeshComponents != null)
+            {
+                foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
+                {
+                    Destroy(renderMeshComponent.Mesh);
+                    Destroy(renderMeshComponent.MeshRenderer);
+                }
+
+                _renderMeshComponents = null;
+            }
 
             if (_meshObjects != null)
             {
@@ -460,32 +471,6 @@ namespace Pal3.Renderer
         private void OnDisable()
         {
             Dispose();
-        }
-
-        public void Dispose()
-        {
-            DisposeAnimation();
-
-            if (_renderMeshComponents != null)
-            {
-                foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
-                {
-                    Destroy(renderMeshComponent.Mesh);
-                    Destroy(renderMeshComponent.MeshRenderer);
-                }
-
-                _renderMeshComponents = null;
-            }
-
-            if (_meshObjects != null)
-            {
-                foreach (GameObject meshObject in _meshObjects)
-                {
-                    Destroy(meshObject);
-                }
-
-                _meshObjects = null;
-            }
         }
     }
 }
