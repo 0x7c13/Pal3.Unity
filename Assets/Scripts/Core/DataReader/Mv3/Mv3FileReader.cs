@@ -19,7 +19,7 @@ namespace Core.DataReader.Mv3
     {
         private readonly int _codepage;
 
-        public Mv3FileReader(int codepage = 0)
+        public Mv3FileReader(int codepage)
         {
             _codepage = codepage;
         }
@@ -82,8 +82,7 @@ namespace Core.DataReader.Mv3
                 meshes[i] = ReadMesh(reader, _codepage);
             }
 
-            return new Mv3File(version,
-                duration,
+            return new Mv3File(duration,
                 animationEvents,
                 tagNodes,
                 materials,
@@ -214,10 +213,10 @@ namespace Core.DataReader.Mv3
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
 
-            var animationKeyFrames = new VertexAnimationKeyFrame[vertFrames.Length];
+            var animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
             for (var i = 0; i < animationKeyFrames.Length; i++)
             {
-                animationKeyFrames[i] = new VertexAnimationKeyFrame()
+                animationKeyFrames[i] = new Mv3AnimationKeyFrame()
                 {
                     Tick = vertFrames[i].Tick,
                     Vertices = keyFrameVertices[i].ToArray(),

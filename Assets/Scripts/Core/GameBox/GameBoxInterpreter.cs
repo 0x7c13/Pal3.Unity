@@ -18,6 +18,7 @@ namespace Core.GameBox
     {
         public const float GameBoxUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
+        public const uint GameBoxTicksPerSecond = 4800;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
@@ -131,6 +132,12 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Quaternion MovQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        {
+            return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
             var rotation = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);
@@ -188,5 +195,18 @@ namespace Core.GameBox
                 new Vector4(matrix.Zx, matrix.Zy, matrix.Zz, matrix.Zw),
                 new Vector4(matrix.Tx, matrix.Ty, matrix.Tz, matrix.Tw));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint GameBoxSecondsToTick(float seconds)
+        {
+            return (uint)(seconds * GameBoxTicksPerSecond);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float TickToGameBoxSeconds(uint tick)
+        {
+            return (float)tick / GameBoxTicksPerSecond;
+        }
+
     }
 }

@@ -8,18 +8,6 @@ namespace Core.DataReader.Mv3
     using GameBox;
     using UnityEngine;
 
-    // MV3 (.mv3) file header
-    internal struct Mv3Header
-    {
-        public string Magic; // 4 char
-        public int Version;
-        public uint Duration;
-        public int NumberOfMaterials;
-        public int NumberOfTagNodes;
-        public int NumberOfMeshes;
-        public int NumberOfAnimationEvents;
-    }
-
     public struct Mv3AnimationEvent
     {
         public uint Tick;
@@ -82,10 +70,10 @@ namespace Core.DataReader.Mv3
         public Vector3[] Normals;
         public int[] Triangles;
         public Vector2[] Uvs;
-        public VertexAnimationKeyFrame[] KeyFrames;
+        public Mv3AnimationKeyFrame[] KeyFrames;
     }
 
-    public struct VertexAnimationKeyFrame
+    public struct Mv3AnimationKeyFrame
     {
         public uint Tick;
         public Vector3[] Vertices;
@@ -96,21 +84,18 @@ namespace Core.DataReader.Mv3
     /// </summary>
     public sealed class Mv3File
     {
-        public int Version { get; }
         public uint Duration { get; }
         public Mv3AnimationEvent[] AnimationEvents { get; }
         public Mv3TagNode[] TagNodes { get; }
         public Mv3Material[] Materials { get; }
         public Mv3Mesh[] Meshes { get; }
 
-        public Mv3File(int version,
-            uint duration,
+        public Mv3File(uint duration,
             Mv3AnimationEvent[] animationEvents,
             Mv3TagNode[] tagNodes,
             Mv3Material[] materials,
             Mv3Mesh[] meshes)
         {
-            Version = version;
             Duration = duration;
             AnimationEvents = animationEvents;
             TagNodes = tagNodes;

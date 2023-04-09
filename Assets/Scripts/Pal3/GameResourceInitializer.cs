@@ -147,7 +147,7 @@ namespace Pal3
             // Create and register IFileReader<T> instances
             ServiceLocator.Instance.Register<IFileReader<CvdFile>>(new CvdFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader());
+            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());

@@ -9,6 +9,9 @@ namespace Pal3.Actor
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataLoader;
+    using Core.DataReader.Mov;
+    using Core.Utils;
     using Data;
     using MetaData;
     using Renderer;
@@ -68,33 +71,33 @@ namespace Pal3.Actor
                 return;
             }
 
-
             if (!_actor.HasAction(actionName))
             {
                 Debug.LogError($"Action {actionName} not found for actor {_actor.Info.Name}.");
-                //_animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
             }
 
             Debug.LogWarning($"Actor {_actor.Info.Name} is performing bone action {actionName}.");
 
-            // MovFile movFile;
-            // ITextureResourceProvider textureProvider;
-            // try
-            // {
-            //     (movFile, textureProvider) = _actor.GetActionMov(actionName);
-            // }
-            // catch (Exception ex)
-            // {
-            //     Debug.LogError(ex);
-            //     _animationLoopPointWaiter?.CancelWait();
-            //     waiter?.CancelWait();
-            //     return;
-            // }
-            //
-            // DisposeAction();
-            //
+            MovFile movFile;
+            ITextureResourceProvider textureProvider;
+            try
+            {
+                string movFilePath = _actor.GetActionFilePath(actionName);
+                movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
+                textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(movFilePath));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                waiter?.CancelWait();
+                return;
+            }
+
+            DisposeCurrentAction();
+
             // _animationLoopPointWaiter = waiter;
             // _movAnimationRenderer = gameObject.GetOrAddComponent<MovModelRenderer>();
             //
