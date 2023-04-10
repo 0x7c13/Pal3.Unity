@@ -190,38 +190,32 @@ namespace Core.DataReader.Msh
             var phyFaces = new PhyFace[numberOfFaces];
             for (var i = 0; i < numberOfFaces; i++)
             {
-                phyFaces[i] = new PhyFace(3, 4, 3)
+                phyFaces[i] = new PhyFace
                 {
-                    Indices =
+                    Indices = new []
                     {
-                        [0] = reader.ReadInt32(),
-                        [1] = reader.ReadInt32(),
-                        [2] = reader.ReadInt32()
+                        reader.ReadInt32(),
+                        reader.ReadInt32(),
+                        reader.ReadInt32()
                     },
-                    Normals =
+                    Normals = new []
                     {
-                        [0] = reader.ReadInt16(),
-                        [1] = reader.ReadInt16(),
-                        [2] = reader.ReadInt16(),
-                        [3] = reader.ReadInt16()
+                        reader.ReadUInt16(),
+                        reader.ReadUInt16(),
+                        reader.ReadUInt16(),
+                        reader.ReadUInt16()
                     },
-                    U =
+                    U = new [,]
                     {
-                        [0, 0] = reader.ReadSingle(),
-                        [0, 1] = reader.ReadSingle(),
-                        [1, 0] = reader.ReadSingle(),
-                        [1, 1] = reader.ReadSingle(),
-                        [2, 0] = reader.ReadSingle(),
-                        [2, 1] = reader.ReadSingle()
+                        { reader.ReadSingle(), reader.ReadSingle() },
+                        { reader.ReadSingle(), reader.ReadSingle() },
+                        { reader.ReadSingle(), reader.ReadSingle() }
                     },
-                    V =
+                    V = new [,]
                     {
-                        [0, 0] = reader.ReadSingle(),
-                        [0, 1] = reader.ReadSingle(),
-                        [1, 0] = reader.ReadSingle(),
-                        [1, 1] = reader.ReadSingle(),
-                        [2, 0] = reader.ReadSingle(),
-                        [2, 1] = reader.ReadSingle()
+                        { reader.ReadSingle(), reader.ReadSingle() },
+                        { reader.ReadSingle(), reader.ReadSingle() },
+                        { reader.ReadSingle(), reader.ReadSingle() }
                     }
                 };
 

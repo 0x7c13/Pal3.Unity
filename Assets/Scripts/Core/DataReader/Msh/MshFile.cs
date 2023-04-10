@@ -43,19 +43,9 @@ namespace Core.DataReader.Msh
     public struct PhyFace
     {
         public int[] Indices;
-        public short[] Normals;
+        public ushort[] Normals;
         public float[,] U;
         public float[,] V;
-
-        public PhyFace(int indexCount = 3,
-            int normalCount = 4,
-            int uvCount = 3)
-        {
-            Indices = new int[indexCount];
-            Normals = new short[normalCount];
-            U = new float[uvCount, 2];
-            V = new float[uvCount, 2];
-        }
     }
 
     public struct MshMesh
