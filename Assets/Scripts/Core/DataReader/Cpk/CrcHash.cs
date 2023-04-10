@@ -10,9 +10,9 @@ namespace Core.DataReader.Cpk
     using System.Text;
 
     /// <summary>
-    /// Crc hash provider.
+    /// Crc32 hash provider.
     /// </summary>
-    public sealed class CrcHash
+    public sealed class Crc32Hash
     {
         private const uint CRC_TABLE_MAX = 256;
         private const uint POLYNOMIAL = 0x04C11DB7; // CRC seed
@@ -41,11 +41,11 @@ namespace Core.DataReader.Cpk
             _initialized = true;
         }
 
-        public uint ComputeCrc32Hash(string str, int codepage, bool useCache = true)
+        public uint Compute(string str, int codepage, bool useCache = true)
         {
             if (!useCache)
             {
-                return ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
+                return ComputeInternal(Encoding.GetEncoding(codepage).GetBytes(str));
             }
 
             var cacheKey = $"{str}-{codepage}";
@@ -55,14 +55,14 @@ namespace Core.DataReader.Cpk
                 return hash;
             }
 
-            uint result = ComputeCrc32HashInternal(Encoding.GetEncoding(codepage).GetBytes(str));
+            uint result = ComputeInternal(Encoding.GetEncoding(codepage).GetBytes(str));
 
             _crcResultCache[cacheKey] = result;
 
             return result;
         }
 
-        private unsafe uint ComputeCrc32HashInternal(byte[] data)
+        private unsafe uint ComputeInternal(byte[] data)
         {
             if (!_initialized) throw new InvalidOperationException("CrcHash not initialized yet.");
 

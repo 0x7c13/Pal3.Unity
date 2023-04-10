@@ -86,7 +86,7 @@ namespace Core.DataReader.Mov
         {
             return new MovAnimationEvent()
             {
-                Tick =  GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle()),
+                Tick = GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle()),
                 Name = reader.ReadString(16, codepage)
             };
         }

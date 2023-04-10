@@ -25,7 +25,7 @@ namespace Core.DataReader.Cpk
         private const int CPK_DEFAULT_MAX_NUM_OF_FILE = 32768; // Max number of files per archive
 
         private readonly string _filePath;
-        private readonly CrcHash _crcHash;
+        private readonly Crc32Hash _crcHash;
         private readonly int _codepage;
         private Dictionary<uint, CpkTableEntity> _tableEntities;
 
@@ -36,7 +36,7 @@ namespace Core.DataReader.Cpk
         private bool _archiveInMemory;
         private byte[] _archiveData;
 
-        public CpkArchive(string cpkFilePath, CrcHash crcHash, int codepage)
+        public CpkArchive(string cpkFilePath, Crc32Hash crcHash, int codepage)
         {
             if (!File.Exists(cpkFilePath))
             {
@@ -128,7 +128,7 @@ namespace Core.DataReader.Cpk
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath)
         {
-            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower(), _codepage);
+            var crc = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
             return _crcToTableIndexMap.ContainsKey(crc);
         }
 
@@ -200,7 +200,7 @@ namespace Core.DataReader.Cpk
 
         private CpkTableEntity ValidateAndGetTableEntity(string fileVirtualPath)
         {
-            var crc = _crcHash.ComputeCrc32Hash(fileVirtualPath.ToLower(), _codepage);
+            var crc = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
             if (!_crcToTableIndexMap.ContainsKey(crc))
             {
                 throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");

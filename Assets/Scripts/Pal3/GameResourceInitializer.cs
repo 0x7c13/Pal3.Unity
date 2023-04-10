@@ -71,10 +71,10 @@ namespace Pal3
             // TODO: let user to choose language? Or auto-detect encoding?
             int codepage = DEFAULT_CODE_PAGE;
 
-            // Create and init CRC hash
-            CrcHash crcHash = new ();
+            // Create and init Crc32 hash
+            Crc32Hash crcHash = new ();
             crcHash.Init();
-            ServiceLocator.Instance.Register<CrcHash>(crcHash);
+            ServiceLocator.Instance.Register<Crc32Hash>(crcHash);
 
             // If toon materials are not present, it's an open source build
             bool isOpenSourceVersion = _toonDefaultMaterial == null || _toonTransparentMaterial == null;
@@ -258,7 +258,7 @@ namespace Pal3
         }
 
         private IEnumerator InitFileSystemAsync(string gameDataFolderPath,
-            CrcHash crcHash,
+            Crc32Hash crcHash,
             int codepage,
             Action<ICpkFileSystem, Exception> callback)
         {
@@ -315,7 +315,7 @@ namespace Pal3
             backgroundImage.enabled = false;
         }
 
-        private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, CrcHash crcHash, int codepage)
+        private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, Crc32Hash crcHash, int codepage)
         {
             ICpkFileSystem cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 

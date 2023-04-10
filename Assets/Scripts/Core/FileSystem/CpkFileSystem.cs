@@ -22,11 +22,11 @@ namespace Core.FileSystem
     {
         private readonly string _rootPath;
         private readonly ConcurrentDictionary<string, CpkArchive> _cpkArchives = new();
-        private readonly CrcHash _crcHash;
+        private readonly Crc32Hash _crcHash;
 
         private CpkFileSystem() {} // Hide default constructor
 
-        public CpkFileSystem(string rootPath, CrcHash crcHash)
+        public CpkFileSystem(string rootPath, Crc32Hash crcHash)
         {
             rootPath = Requires.IsNotNullOrEmpty(rootPath, nameof(rootPath));
             crcHash = Requires.IsNotNull(crcHash, nameof(crcHash));
