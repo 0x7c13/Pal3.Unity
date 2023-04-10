@@ -6,24 +6,13 @@
 namespace Core.Utils
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
     using System.Runtime.InteropServices;
-    using System.Text;
     using DataReader.Cpk;
     using UnityEngine;
 
     public static class Utility
     {
-        public static string ConvertToString(byte[] charArray, int codepage)
-        {
-            var i = 0;
-            var length = charArray.Length;
-            while (i < length && charArray[i] != 0) i++;
-            return Encoding.GetEncoding(codepage).GetString(charArray, 0, i);
-        }
-
         public static Color32 ToColor32(byte[] rgba)
         {
             return new Color32(rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -151,16 +140,6 @@ namespace Core.Utils
         public static bool IsDesktopDevice()
         {
             return SystemInfo.deviceType == DeviceType.Desktop;
-        }
-
-        public static Bounds EncapsulateBounds(IEnumerable<Bounds> bounds)
-        {
-            var finalBounds = new Bounds(Vector3.zero, Vector3.zero);
-            foreach (Bounds b in bounds)
-            {
-                finalBounds.Encapsulate(b);
-            }
-            return finalBounds;
         }
 
         public static bool IsPointWithinCollider(Collider collider, Vector3 point)

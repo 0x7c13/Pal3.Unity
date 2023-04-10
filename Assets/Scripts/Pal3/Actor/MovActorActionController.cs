@@ -11,6 +11,7 @@ namespace Pal3.Actor
     using Command.SceCommands;
     using Core.DataLoader;
     using Core.DataReader.Mov;
+    using Core.DataReader.Msh;
     using Core.Utils;
     using Data;
     using MetaData;
@@ -81,6 +82,7 @@ namespace Pal3.Actor
             Debug.LogWarning($"Actor {_actor.Info.Name} is performing bone action {actionName}.");
 
             MovFile movFile;
+            MshFile mshFile;
             ITextureResourceProvider textureProvider;
             try
             {
@@ -88,6 +90,9 @@ namespace Pal3.Actor
                 movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     Utility.GetRelativeDirectoryPath(movFilePath));
+
+                string mshFilePath = _actor.GetMeshFilePath(actionName);
+                mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
             }
             catch (Exception ex)
             {

@@ -138,6 +138,12 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Quaternion MshQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        {
+            return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
         {
             var rotation = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);

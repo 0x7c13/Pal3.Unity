@@ -115,5 +115,23 @@ namespace Pal3.Actor
                    $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
                    $"{actionFileName}";
         }
+
+        public string GetMeshFilePath(string actionName)
+        {
+            if (AnimationType != ActorAnimationType.Mov)
+            {
+                throw new InvalidOperationException("Mesh file path is only available for MOV animation type.");
+            }
+
+            if (!_actionNameToMeshFileNameMap.TryGetValue(actionName, out var meshFileName))
+            {
+                throw new ArgumentException($"Mesh file name not found for action name {actionName}");
+            }
+
+            char separator = CpkConstants.DirectorySeparator;
+            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
+                   $"{meshFileName}";
+        }
     }
 }

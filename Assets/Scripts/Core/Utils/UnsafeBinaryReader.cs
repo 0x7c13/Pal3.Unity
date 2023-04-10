@@ -52,7 +52,6 @@ namespace Core.Utils
             return value;
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort ReadUInt16()
         {

@@ -84,13 +84,10 @@ namespace Core.DataReader.Mov
         private static MovAnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
         #endif
         {
-            var tick = GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle());
-            var name = reader.ReadBytes(16);
-
             return new MovAnimationEvent()
             {
-                Tick = tick,
-                Name = Utility.ConvertToString(name, codepage)
+                Tick =  GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle()),
+                Name = reader.ReadString(16, codepage)
             };
         }
 
@@ -103,7 +100,7 @@ namespace Core.DataReader.Mov
             var boneId = reader.ReadInt32();
 
             var lengthOfBoneName = reader.ReadInt32();
-            var boneName = Utility.ConvertToString(reader.ReadBytes(lengthOfBoneName), codepage);
+            var boneName = reader.ReadString(lengthOfBoneName, codepage);
 
             var numberOfKeyFrames = reader.ReadInt32();
             var animationFlags = reader.ReadInt32();

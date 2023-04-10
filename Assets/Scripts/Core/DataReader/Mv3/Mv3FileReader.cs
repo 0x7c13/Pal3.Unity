@@ -298,13 +298,10 @@ namespace Core.DataReader.Mv3
         private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
         #endif
         {
-            var tick = reader.ReadUInt32();
-            var name = reader.ReadBytes(16);
-
             return new Mv3AnimationEvent()
             {
-                Tick = tick,
-                Name = Utility.ConvertToString(name, codepage)
+                Tick = reader.ReadUInt32(),
+                Name = reader.ReadString(16, codepage),
             };
         }
 
