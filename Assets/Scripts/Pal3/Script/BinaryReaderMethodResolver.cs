@@ -17,9 +17,9 @@ namespace Pal3.Script
         public static MethodInfo GetMethodInfoForReadPropertyType(Type readPropertyType)
         {
             // Get method info from cache to reduce reflection cost.
-            if (BinaryReaderMethodInfoCache.TryGetValue(readPropertyType, out MethodInfo type))
+            if (BinaryReaderMethodInfoCache.TryGetValue(readPropertyType, out MethodInfo method))
             {
-                return type;
+                return method;
             }
 
             // Find the correct reader method for the property type based on:

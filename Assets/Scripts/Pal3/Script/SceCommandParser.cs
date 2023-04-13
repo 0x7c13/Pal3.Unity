@@ -70,7 +70,7 @@ namespace Pal3.Script
                 return list;
             }
 
-            // Let's use the power of reflection to read and parser primitives.
+            // Let's use the power of reflection to read and parse primitives.
             return BinaryReaderMethodResolver.GetMethodInfoForReadPropertyType(propertyType)
                 .Invoke(reader, new object[]{});
         }

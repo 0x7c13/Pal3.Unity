@@ -56,6 +56,16 @@ namespace Pal3.Script
                 scriptRunner.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 scriptRunner.Dispose();
             }
+
+            _runningScripts.Clear();
+
+            foreach (PalScriptRunner finishedScript in _finishedScripts)
+            {
+                finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
+                finishedScript.Dispose();
+            }
+
+            _finishedScripts.Clear();
         }
 
         public void SetGlobalVariable(int variable, int value)
