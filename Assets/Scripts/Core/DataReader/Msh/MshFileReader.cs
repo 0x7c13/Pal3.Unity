@@ -115,7 +115,11 @@ namespace Core.DataReader.Msh
             });
             
             boneNode._flipScale = reader.ReadSingle();
-            Debug.Assert(Math.Abs(boneNode._flipScale - 1.0f) < 0.0001f,"Flip Must Nearly == 1");
+            if (Math.Abs(boneNode._flipScale - 1.0f) >= 0.0001f)
+            {
+                Debug.LogWarning("Flip Must Nearly == 1,name:" + boneNode._name + " flip:" + boneNode._flipScale);                
+            }
+
             
             boneNode._localXForm = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
             {

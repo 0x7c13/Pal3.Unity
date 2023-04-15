@@ -38,7 +38,7 @@ namespace ResourceViewer
     using UnityEngine;
     using UnityEngine.UI;
     using Random = System.Random;
-
+    
     /// <summary>
     /// The PAL3/PAL3A Game Resource Viewer app model
     /// </summary>
@@ -70,7 +70,9 @@ namespace ResourceViewer
                                                    // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
         private MshRenderer _currentMsh = null;
-
+        
+        private List<Tuple<string, string>> _skeletonTestCase = new List<Tuple<string, string>>();
+        
         private void OnEnable()
         {
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
@@ -101,6 +103,28 @@ namespace ResourceViewer
             _mp3Files = _fileSystem.Search(".mp3").ToList();
             _mshFiles = _fileSystem.Search(".msh").ToList();
             _movFiles = _fileSystem.Search(".mov").ToList();
+
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\239\\Z2.MSH","basedata.cpk\\ROLE\\239\\Z2.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\244\\244.MSH","basedata.cpk\\ROLE\\244\\Z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\250\\250.MSH","basedata.cpk\\ROLE\\250\\Z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\252\\252.MSH","basedata.cpk\\ROLE\\252\\Z2.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\280\\280.MSH","basedata.cpk\\ROLE\\280\\Z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\282\\282.MSH","basedata.cpk\\ROLE\\282\\Z1.MOV"));
+            
+            // //var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
+            // //var mshPath = "basedata.cpk\\ROLE\\238\\238.MSH";
+            // //var mshPath = "basedata.cpk\\ROLE\\250\\250.MSH";
+            // //var mshPath = "basedata.cpk\\ROLE\\290\\290.MSH";
+            // //var mshPath = "basedata.cpk\\ROLE\\263\\263.MSH";   // failed
+            // var mshPath = "basedata.cpk\\ROLE\\244\\Z3.MSH"; 
+            
+            
+            
+            // //var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
+            // //var path = "basedata.cpk\\ROLE\\238\\Z1.MOV";
+            // //var path = "basedata.cpk\\ROLE\\290\\Z3.MOV";
+            // //var path = "basedata.cpk\\ROLE\\263\\Z1.MOV";
+            // var path = "basedata.cpk\\ROLE\\244\\Z3.MOV";
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
@@ -182,40 +206,55 @@ namespace ResourceViewer
             //var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
             //var mshPath = "basedata.cpk\\ROLE\\238\\238.MSH";
             //var mshPath = "basedata.cpk\\ROLE\\250\\250.MSH";
-            var mshPath = "basedata.cpk\\ROLE\\290\\290.MSH";
-            _currentMsh = LoadMsh(mshPath);
+            //var mshPath = "basedata.cpk\\ROLE\\290\\290.MSH";
+            //var mshPath = "basedata.cpk\\ROLE\\263\\263.MSH";   // failed
+            //var mshPath = "basedata.cpk\\ROLE\\244\\Z3.MSH"; 
+            //_currentMsh = LoadMsh(mshPath);
             //while (!LoadMsh(_mshFiles[Random.Next(0, _mshFiles.Count)])) { }
+            
+            int idx = Random.Next(0, _skeletonTestCase.Count);
+            var mshPath = _skeletonTestCase[idx].Item1;
+            var movPath = _skeletonTestCase[idx].Item2;
+
+            _currentMsh = LoadMsh(mshPath);
+            var mov = LoadMov(movPath);
+            _currentMsh.PlayMov(mov);
         }
 
         private void RandMov()
         {
+            DestroyExistingRenderingObjects();
+            _currentMsh = null;
+            
             //while (!LoadMov(_movFiles[Random.Next(0,_movFiles.Count)])) { }
             //var path = "basedata.cpk\\ROLE\\239\\Z2.MOV";
             //var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
             //var path = "basedata.cpk\\ROLE\\238\\Z1.MOV";
-            var path = "basedata.cpk\\ROLE\\290\\Z3.MOV";
-            MovFile mov = LoadMov(path);
-            if (_currentMsh != null)
-            {
-                _currentMsh.PlayMov(mov);
-            }
-
-
-            Vector4 v1 = new Vector4(1, 0, 0, 1);
-            var m1 = Matrix4x4.Translate(new Vector3(1, 0, 0));
-            Vector4 v2 = m1 * v1;
-            Debug.Log("v2" + v2);
-
-            
-            var m2 = Matrix4x4.Rotate(Quaternion.Euler(0, 0, -90));
-            Vector4 v3 = m2 * v1;
-            Debug.Log("v3"+ v3);
-
-            Vector4 v4 = m2 * m1 * v1;
-            Debug.Log("v4" + v4);
-
-            Vector4 v5 = m1 * m2 * v1;
-            Debug.Log("v5" + v5);
+            //var path = "basedata.cpk\\ROLE\\290\\Z3.MOV";
+            //var path = "basedata.cpk\\ROLE\\263\\Z1.MOV";
+            // var path = "basedata.cpk\\ROLE\\244\\Z3.MOV";
+            // MovFile mov = LoadMov(path);
+            // if (_currentMsh != null)
+            // {
+            //     _currentMsh.PlayMov(mov);
+            // }
+            //
+            //
+            // Vector4 v1 = new Vector4(1, 0, 0, 1);
+            // var m1 = Matrix4x4.Translate(new Vector3(1, 0, 0));
+            // Vector4 v2 = m1 * v1;
+            // Debug.Log("v2" + v2);
+            //
+            //
+            // var m2 = Matrix4x4.Rotate(Quaternion.Euler(0, 0, -90));
+            // Vector4 v3 = m2 * v1;
+            // Debug.Log("v3"+ v3);
+            //
+            // Vector4 v4 = m2 * m1 * v1;
+            // Debug.Log("v4" + v4);
+            //
+            // Vector4 v5 = m1 * m2 * v1;
+            // Debug.Log("v5" + v5);
         }
 
         private void Search(string keyword)

@@ -67,7 +67,7 @@ namespace Pal3.Renderer
         private Mesh[] _skinningMeshes = null;
         
 
-        private const int MAX_BONES_CNT = 50;
+        //private const int MAX_BONES_CNT = 100;
 
         public void Init(MshFile mshFile,
             IMaterialFactory materialFactory)
@@ -254,10 +254,10 @@ namespace Pal3.Renderer
             joint.boneNode = bone;
             joint.track = null;
 
-            if (bone._selfID == 44)
-            {
-                Debug.Log("xxx");
-            }
+            // if (bone._selfID == 44)
+            // {
+            //     Debug.Log("xxx");
+            // }
 
             joint.bindPoseModelToBoneSpace = Matrix4x4.identity;
             if(parentJoint != null)
@@ -321,7 +321,7 @@ namespace Pal3.Renderer
         void CheckSkeleton()
         {
             int n = GetBoneCount();
-            Debug.Assert(n <= MAX_BONES_CNT,"bone number more than MAX_BONE_CNT！");
+            //Debug.Assert(n <= MAX_BONES_CNT,"bone number more than MAX_BONE_CNT！");
             Debug.Assert(n > 0,"There's no joint!");
             for (int i = 0;i < n;i++)
             {
@@ -387,19 +387,6 @@ namespace Pal3.Renderer
                 
                 Vector4 homoPos = new Vector4(vert.pos.x,vert.pos.y,vert.pos.z,1.0f);
                 Vector4 posInBone = joint.bindPoseModelToBoneSpace * homoPos;
-
-                //Matrix4x4 scaleMat = Matrix4x4.Scale(new Vector3(1.0f / 20.0f, 1.0f / 20.0f, 1.0f / 20.0f));
-                //Vector4 posInBone = scaleMat * joint.boneNode._localXForm * homoPos;
-                
-                
-                /*
-                GameObject boneGO = joint.go;
-                Vector3 boneWorldPos = boneGO.transform.position;
-                Vector3 vertWorldPos = boneWorldPos + new Vector3(posInBone.x / posInBone.w, posInBone.y / posInBone.w,
-                    posInBone.z / posInBone.w);
-                */
-                
-                
                 Vector4 resultPos = joint.curposeToModelMatrix * posInBone;
                 
                 verts[i] = new Vector3(resultPos.x/resultPos.w,resultPos.y/resultPos.w,resultPos.z/resultPos.w);
