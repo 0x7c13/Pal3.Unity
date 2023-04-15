@@ -109,22 +109,21 @@ namespace ResourceViewer
             _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\250\\250.MSH","basedata.cpk\\ROLE\\250\\Z3.MOV"));
             _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\252\\252.MSH","basedata.cpk\\ROLE\\252\\Z2.MOV"));
             _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\280\\280.MSH","basedata.cpk\\ROLE\\280\\Z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\293\\293.MSH","basedata.cpk\\ROLE\\293\\Z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\293\\293.MSH","basedata.cpk\\ROLE\\293\\Z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\292\\292.MSH","basedata.cpk\\ROLE\\292\\z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\292\\292.MSH","basedata.cpk\\ROLE\\292\\z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\290\\290.MSH","basedata.cpk\\ROLE\\290\\z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\290\\290.MSH","basedata.cpk\\ROLE\\290\\z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\283\\283.MSH","basedata.cpk\\ROLE\\283\\z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\283\\283.MSH","basedata.cpk\\ROLE\\283\\z3.MOV"));
             _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\282\\282.MSH","basedata.cpk\\ROLE\\282\\Z1.MOV"));
-            
-            // //var mshPath = "basedata.cpk\\ROLE\\239\\239.MSH";
-            // //var mshPath = "basedata.cpk\\ROLE\\238\\238.MSH";
-            // //var mshPath = "basedata.cpk\\ROLE\\250\\250.MSH";
-            // //var mshPath = "basedata.cpk\\ROLE\\290\\290.MSH";
-            // //var mshPath = "basedata.cpk\\ROLE\\263\\263.MSH";   // failed
-            // var mshPath = "basedata.cpk\\ROLE\\244\\Z3.MSH"; 
-            
-            
-            
-            // //var path = "basedata.cpk\\ROLE\\239\\Z1.MOV";
-            // //var path = "basedata.cpk\\ROLE\\238\\Z1.MOV";
-            // //var path = "basedata.cpk\\ROLE\\290\\Z3.MOV";
-            // //var path = "basedata.cpk\\ROLE\\263\\Z1.MOV";
-            // var path = "basedata.cpk\\ROLE\\244\\Z3.MOV";
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\282\\z3.MSH","basedata.cpk\\ROLE\\282\\z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\281\\281.MSH","basedata.cpk\\ROLE\\281\\Z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\263\\263.MSH","basedata.cpk\\ROLE\\263\\Z1.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\263\\z3.MSH","basedata.cpk\\ROLE\\263\\Z3.MOV"));
+            _skeletonTestCase.Add(new Tuple<string, string>("basedata.cpk\\ROLE\\253\\253.MSH","basedata.cpk\\ROLE\\253\\z1.MOV"));
+
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);

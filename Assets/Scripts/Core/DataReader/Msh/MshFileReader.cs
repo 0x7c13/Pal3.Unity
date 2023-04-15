@@ -105,7 +105,7 @@ namespace Core.DataReader.Msh
                 Z = reader.ReadSingle(),
                 W = reader.ReadSingle(),
             });
-            // assert rotate is unit
+            // assert scale is unit
             boneNode._scale = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = 0,
@@ -197,10 +197,23 @@ namespace Core.DataReader.Msh
                 {
                     PhyVertex vert = subMesh._verts[i];
                     vert.numBone = reader.ReadByte();
+                    
+                    Debug.Assert(vert.numBone > 0,"vert influenced by 0 bones!");
+                    
                     for (int j = 0;j < vert.numBone;j++)
                     {
                         vert.boneIds[j] = reader.ReadChars(1)[0];
                         vert.weights[j] = reader.ReadChars(1)[0];
+
+                        if (j > 0 && vert.weights[j] > 0.0f)
+                        {
+                            Debug.LogWarning("the vert influenced by more than 1 bone!! == log 1");
+                        }
+                    }
+
+                    if (vert.numBone > 4)
+                    {
+                        Debug.LogWarning("The vert influenced by more than 4 bones!");
                     }
                 }
             }
