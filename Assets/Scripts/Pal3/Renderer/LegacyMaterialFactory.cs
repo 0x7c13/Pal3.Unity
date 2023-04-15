@@ -18,6 +18,7 @@ namespace Pal3.Renderer
         private const string WATER_SHADER_PATH = "Pal3/Water";
         private const string BONE_GIZMO_SHADER_PATH = "Pal3/Gizmo";
         private const string SKINNING_SHADER_PATH = "Pal3/Skinning";
+        private const string SKINNING_CPU_SHADER_PATH = "Pal3/SkinningCPU";
 
         // Standard material uniforms for Pal3 legacy shaders
         private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
@@ -196,7 +197,9 @@ namespace Pal3.Renderer
         
         public Material CreateSkinningMaterial()
         {
-            Material material = new Material(GetShader(SKINNING_SHADER_PATH));
+            // @miao @temp
+            //Material material = new Material(GetShader(SKINNING_SHADER_PATH));
+            Material material = new Material(GetShader(SKINNING_CPU_SHADER_PATH));
             return material;
         }
     }

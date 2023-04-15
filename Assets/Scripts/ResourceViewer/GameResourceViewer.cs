@@ -199,6 +199,23 @@ namespace ResourceViewer
             {
                 _currentMsh.PlayMov(mov);
             }
+
+
+            Vector4 v1 = new Vector4(1, 0, 0, 1);
+            var m1 = Matrix4x4.Translate(new Vector3(1, 0, 0));
+            Vector4 v2 = m1 * v1;
+            Debug.Log("v2" + v2);
+
+            
+            var m2 = Matrix4x4.Rotate(Quaternion.Euler(0, 0, -90));
+            Vector4 v3 = m2 * v1;
+            Debug.Log("v3"+ v3);
+
+            Vector4 v4 = m2 * m1 * v1;
+            Debug.Log("v4" + v4);
+
+            Vector4 v5 = m1 * m2 * v1;
+            Debug.Log("v5" + v5);
         }
 
         private void Search(string keyword)

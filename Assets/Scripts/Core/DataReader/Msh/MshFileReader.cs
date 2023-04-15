@@ -5,6 +5,7 @@
 
 #define USE_UNSAFE_BINARY_READER
 
+using System;
 using UnityEngine.Assertions;
 using UnityEngine.PlayerLoop;
 
@@ -82,12 +83,19 @@ namespace Core.DataReader.Msh
             // type
             BoneNode.Type eType = (BoneNode.Type)(reader.ReadInt32());
             boneNode._type = eType;
-            
+
             // name
             int nameLen = reader.ReadInt32();
             string boneName = reader.ReadString(nameLen,codepage);//new string(reader.ReadChars(nameLen));
             boneNode._name = boneName;
             
+            // Check Valid
+            if (boneNode._type != BoneNode.Type.BONE)
+            {
+                Debug.LogWarning("Not Supported BoneNode Type:" + boneNode._type + " bone name:" + boneNode._name);                
+            }
+            
+
             // translate,rotate,scale,flip
             boneNode._translate = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
             boneNode._rotate = GameBoxInterpreter.MshQuaternionToUnityQuaternion(new GameBoxQuaternion()
@@ -105,7 +113,10 @@ namespace Core.DataReader.Msh
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = 0,
                 Tx = 0, Ty = 0, Tz = 0, Tw = 1,
             });
+            
             boneNode._flipScale = reader.ReadSingle();
+            Debug.Assert(Math.Abs(boneNode._flipScale - 1.0f) < 0.0001f,"Flip Must Nearly == 1");
+            
             boneNode._localXForm = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),

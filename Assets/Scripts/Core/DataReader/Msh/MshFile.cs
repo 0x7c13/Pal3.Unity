@@ -46,10 +46,12 @@ namespace Core.DataReader.Msh
         public BoneNode[] _children = null;
         public BoneNode _parent = null;
 
+        // SQT
         public Vector3 _translate;
         public Quaternion _rotate;
         //public float[,] _scale = new float[3, 3];
         public Matrix4x4 _scale; // only need 3x3
+        
         public float _flipScale;
         public Matrix4x4 _localXForm;    // transform from model space to bone space
         

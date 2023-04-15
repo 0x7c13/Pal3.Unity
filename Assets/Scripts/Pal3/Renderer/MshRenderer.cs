@@ -19,17 +19,31 @@ namespace Pal3.Renderer
         public BoneNode boneNode = null;
         public BoneActTrack track = null;
         
+        public Quaternion cacheRot = Quaternion.identity;
+        public Vector3 cacheTranslate = Vector3.zero;
+        public Matrix4x4 toWorld = Matrix4x4.identity;
+        public Matrix4x4 cache = Matrix4x4.identity;
+        
         
         public Matrix4x4 skinningMatrix = Matrix4x4.identity;
-        public Matrix4x4 modelToBindMatrix = Matrix4x4.identity;
+        public Matrix4x4 bindPoseModelToBoneSpace = Matrix4x4.identity;
         public Matrix4x4 curposeToModelMatrix = Matrix4x4.identity;
-        
+
+        public bool IsRoot()
+        {
+            return boneNode._parentID < 0;
+        }
+
         public void Clear()
         {
             track = null;
             skinningMatrix = Matrix4x4.identity;
-            //modelToBindMatrix = Matrix4x4.identity;
+            //bindPoseModelToBoneSpace = Matrix4x4.identity;
             curposeToModelMatrix = Matrix4x4.identity;
+            
+            cacheRot = Quaternion.identity;
+            cacheTranslate = Vector3.zero;
+            toWorld = Matrix4x4.identity;
         }
     }
 
@@ -50,6 +64,8 @@ namespace Pal3.Renderer
         private Dictionary<int, Joint> _jointDict = new Dictionary<int, Joint>();
 
         private Material[] _skinningMaterials = null;
+        private Mesh[] _skinningMeshes = null;
+        
 
         private const int MAX_BONES_CNT = 50;
 
@@ -106,7 +122,8 @@ namespace Pal3.Renderer
                 }
                 //Debug.Log("Tick Index:" + tickIdx);
                 UpdateAllJoints(tickIdx);
-                UpdateSkinning();
+                //UpdateSkinning();
+                UpdateSkinningCPU();
             }
         }
 
@@ -123,31 +140,29 @@ namespace Pal3.Renderer
 
             if (track != null)
             {
+                // update gameobject
                 int keyIdx = GetKeyIndex(track, tickIdx);
                 Vector3 trans = track.keyArray[keyIdx].trans;
                 Quaternion rot = track.keyArray[keyIdx].rot;
-
+                
                 go.transform.localPosition = trans;
                 go.transform.localRotation = rot;
-                
                 
                 Matrix4x4 translateMatrix = Matrix4x4.Translate(go.transform.localPosition);
                 Matrix4x4 rotateMatrix = Matrix4x4.Rotate(go.transform.localRotation);
                 
                 // @miao @todo
-                // update skinning matrix here 
-                if (bone._parentID >= 0)
+                // update skinning matrix here
+                Matrix4x4 curPoseToModelMatrix = Matrix4x4.Rotate(rot) * Matrix4x4.Translate(trans);
+                
+                if (!joint.IsRoot())
                 {
                     var parentJoint = _jointDict[bone._parentID];
-                    joint.curposeToModelMatrix = parentJoint.curposeToModelMatrix * rotateMatrix * translateMatrix;
-                    //joint.skinningMatrix = joint.modelToBindMatrix * Matrix4x4.Inverse(joint.curposeToModelMatrix);
-                    joint.skinningMatrix = Matrix4x4.Inverse(joint.curposeToModelMatrix) * joint.modelToBindMatrix;
+                    var parentCurPoseToModelMatrix = parentJoint.curposeToModelMatrix;
+                    curPoseToModelMatrix = parentCurPoseToModelMatrix * curPoseToModelMatrix;
                 }
-                else
-                {
-                    joint.curposeToModelMatrix = rotateMatrix * translateMatrix;
-                    joint.skinningMatrix = joint.curposeToModelMatrix;
-                }
+
+                joint.curposeToModelMatrix = curPoseToModelMatrix;
             }
             
             // update children
@@ -178,6 +193,7 @@ namespace Pal3.Renderer
             return keyIdx;
         }
         
+        /*
         void UpdateSkinning()
         {
             // Here we should pass bones matrix to uniform
@@ -194,12 +210,22 @@ namespace Pal3.Renderer
                 {
                     boneMatrixArray.Add(Matrix4x4.identity);
                 }
-
             }
 
             foreach (var material in _skinningMaterials)
             {
                 material.SetMatrixArray(Shader.PropertyToID("_boneMatrixArray"), boneMatrixArray);
+            }
+        }
+        */
+
+        void UpdateSkinningCPU()
+        {
+            for (int subMeshIndex = 0;subMeshIndex < _skinningMeshes.Length;subMeshIndex++)
+            {
+                SubMesh subMesh = _msh._subMeshArray[subMeshIndex];
+                Mesh mesh = _skinningMeshes[subMeshIndex];
+                mesh.SetVertices(BuildVertsWithSkeleton(subMesh));
             }
         }
 
@@ -227,12 +253,22 @@ namespace Pal3.Renderer
             joint.go = renderNode;
             joint.boneNode = bone;
             joint.track = null;
-            joint.modelToBindMatrix = Matrix4x4.identity;
+
+            if (bone._selfID == 44)
+            {
+                Debug.Log("xxx");
+            }
+
+            joint.bindPoseModelToBoneSpace = Matrix4x4.identity;
             if(parentJoint != null)
             {
                 _jointDict.Add(bone._selfID,joint);
                 // save model to bone matrix 
-                joint.modelToBindMatrix = parentJoint.modelToBindMatrix * Matrix4x4.Rotate(bone._rotate) * Matrix4x4.Translate(bone._translate);
+                var transMatrix = Matrix4x4.Translate(bone._translate);
+                var rotMatrix = Matrix4x4.Rotate(bone._rotate);
+                joint.bindPoseModelToBoneSpace = Matrix4x4.Inverse(transMatrix)
+                                                 * Matrix4x4.Inverse(rotMatrix)
+                                                 * parentJoint.bindPoseModelToBoneSpace;
             }
 
             // children
@@ -272,6 +308,7 @@ namespace Pal3.Renderer
             if (_msh._nSubMesh > 0)
             {
                 _skinningMaterials = new Material[_msh._nSubMesh];
+                _skinningMeshes = new Mesh[_msh._nSubMesh];
             }
 
             for (int i = 0; i < _msh._nSubMesh; i++)
@@ -309,9 +346,12 @@ namespace Pal3.Renderer
             mesh.MarkDynamic(); // @temp
             mesh.SetVertices(BuildVerts(subMesh));
             mesh.SetTriangles(BuildTriangles(subMesh), subMeshIndex);
-
+            
+            /*
             mesh.SetUVs(1, BuildBoneIds(subMesh));
             mesh.SetUVs(2, BuildBoneWeights(subMesh));
+            */
+            mesh.SetUVs(1,BuildColors(subMesh));
 
             meshFilter.sharedMesh = mesh;
 
@@ -319,6 +359,9 @@ namespace Pal3.Renderer
             var material = _materialFactory.CreateSkinningMaterial();
             meshRenderer.sharedMaterial = material;
             _skinningMaterials[subMeshIndex] = material;
+            
+            // hold mesh
+            _skinningMeshes[subMeshIndex] = mesh;
         }
 
         Vector3[] BuildVerts(SubMesh subMesh)
@@ -329,6 +372,38 @@ namespace Pal3.Renderer
                 verts[i] = subMesh._verts[i].pos;
             }
 
+            return verts;
+        }
+        
+        Vector3[] BuildVertsWithSkeleton(SubMesh subMesh)
+        {
+            Vector3[] verts = new Vector3[subMesh._verts.Length];
+            for (int i = 0;i < subMesh._verts.Length;i++)
+            {
+                PhyVertex vert = subMesh._verts[i];
+                
+                int boneId = vert.boneIds[0];
+                var joint = _jointDict[boneId];
+                
+                Vector4 homoPos = new Vector4(vert.pos.x,vert.pos.y,vert.pos.z,1.0f);
+                Vector4 posInBone = joint.bindPoseModelToBoneSpace * homoPos;
+
+                //Matrix4x4 scaleMat = Matrix4x4.Scale(new Vector3(1.0f / 20.0f, 1.0f / 20.0f, 1.0f / 20.0f));
+                //Vector4 posInBone = scaleMat * joint.boneNode._localXForm * homoPos;
+                
+                
+                /*
+                GameObject boneGO = joint.go;
+                Vector3 boneWorldPos = boneGO.transform.position;
+                Vector3 vertWorldPos = boneWorldPos + new Vector3(posInBone.x / posInBone.w, posInBone.y / posInBone.w,
+                    posInBone.z / posInBone.w);
+                */
+                
+                
+                Vector4 resultPos = joint.curposeToModelMatrix * posInBone;
+                
+                verts[i] = new Vector3(resultPos.x/resultPos.w,resultPos.y/resultPos.w,resultPos.z/resultPos.w);
+            }
             return verts;
         }
 
@@ -364,7 +439,23 @@ namespace Pal3.Renderer
             //Debug.Log("weights:" + weights);
             return weights;
         }
+        
+        List<Vector4> BuildColors(SubMesh subMesh)
+        {
+            List<Vector4> ids = new List<Vector4>();
+            for (int i = 0; i < subMesh._verts.Length; i++)
+            {
+                var color = new Vector4(0.0f,1.0f,0.0f,1.0f);
+                if (i == 0)
+                {
+                    color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                }
+                ids.Add(color);
+            }
 
+            return ids;
+        }
+        
         List<Vector4> BuildBoneIds(SubMesh subMesh)
         {
             List<Vector4> ids = new List<Vector4>();
