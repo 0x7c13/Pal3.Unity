@@ -45,7 +45,7 @@ namespace Pal3.GamePlay
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
         ICommandExecutor<PlayerInteractWithObjectCommand>,
-        ICommandExecutor<ToggleBigMapRequest>,
+        ICommandExecutor<SwitchPlayerActorRequest>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float MIN_JUMP_DISTANCE = 1.2f;
@@ -1272,8 +1272,7 @@ namespace Pal3.GamePlay
             _playerActorMovementController = null;
         }
 
-        // TODO: Remove this
-        public void Execute(ToggleBigMapRequest command)
+        public void Execute(SwitchPlayerActorRequest command)
         {
             if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
             {

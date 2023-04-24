@@ -104,7 +104,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +117,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -128,6 +128,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 332266281639726118, guid: e86d7889291c041ba854821fd25047d6, type: 3}
@@ -230,6 +231,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3491202665095195611, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3596785283706710040, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 256925267}
     - target: {fileID: 4209774545385276068, guid: e86d7889291c041ba854821fd25047d6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -278,6 +287,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5077207798598084246, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 1661395006}
+    - target: {fileID: 6514349001384511054, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 91034975}
     - target: {fileID: 6936565495695538149, guid: e86d7889291c041ba854821fd25047d6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -446,12 +463,20 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9166793672834017742, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.00012207031
+      objectReference: {fileID: 0}
     - target: {fileID: 9166793672834029268, guid: e86d7889291c041ba854821fd25047d6, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9166793672834029268, guid: e86d7889291c041ba854821fd25047d6, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9166793672834029268, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+      propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9166793672834030092, guid: e86d7889291c041ba854821fd25047d6, type: 3}
@@ -575,4 +600,112 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e86d7889291c041ba854821fd25047d6, type: 3}
+--- !u!21 &91034975
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Pal3/RoundedFrostedGlass
+  m_Shader: {fileID: 4800000, guid: 7207745e33764e88af7a51d39feb7b81, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BlurAmount: 4
+    m_Colors:
+    - _AdditiveColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    - _MultiplyColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    - _WidthHeightRadius: {r: 800, g: 600, b: 65, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &256925267
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Pal3/RoundedFrostedGlass
+  m_Shader: {fileID: 4800000, guid: 7207745e33764e88af7a51d39feb7b81, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BlurAmount: 3
+    m_Colors:
+    - _AdditiveColor: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
+    - _MultiplyColor: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
+    - _WidthHeightRadius: {r: 1024, g: 220, b: 35, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &1661395006
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Pal3/RoundedFrostedGlass
+  m_Shader: {fileID: 4800000, guid: 7207745e33764e88af7a51d39feb7b81, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BlurAmount: 4
+    m_Colors:
+    - _AdditiveColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    - _MultiplyColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    - _WidthHeightRadius: {r: 800, g: 600, b: 65, a: 0}
+  m_BuildTextureStacks: []

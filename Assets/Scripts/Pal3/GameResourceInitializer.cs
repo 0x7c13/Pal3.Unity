@@ -60,8 +60,21 @@ namespace Pal3
             loadingText.text = "正在加载游戏数据...";
             yield return null; // Wait for next frame to make sure the text is updated
 
-            _toonDefaultMaterial = Resources.Load<Material>("Materials/ToonDefault");
-            _toonTransparentMaterial = Resources.Load<Material>("Materials/ToonTransparent");
+            ResourceRequest toonDefaultMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonDefault");
+            yield return toonDefaultMaterialLoadRequest;
+
+            if (toonDefaultMaterialLoadRequest.asset != null)
+            {
+                _toonDefaultMaterial = toonDefaultMaterialLoadRequest.asset as Material;
+            }
+
+            ResourceRequest toonTransparentMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonTransparent");
+            yield return toonTransparentMaterialLoadRequest;
+
+            if (toonTransparentMaterialLoadRequest.asset != null)
+            {
+                _toonTransparentMaterial = toonTransparentMaterialLoadRequest.asset as Material;
+            }
 
             yield return InitResourceAsync();
         }

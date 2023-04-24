@@ -134,11 +134,8 @@ namespace Pal3.GameSystem
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
-                if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
-                {
-                    // This triggers player actor switch in maze scene
-                }
-                else
+                // Only enable big map toggling in non-maze scenes.
+                if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
                 {
                     Show();
                 }

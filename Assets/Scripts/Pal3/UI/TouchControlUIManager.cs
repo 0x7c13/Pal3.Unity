@@ -8,7 +8,9 @@ namespace Pal3.UI
     using System;
     using Command;
     using Command.InternalCommands;
+    using Core.DataReader.Scn;
     using Core.Utils;
+    using Scene;
     using State;
     using UnityEngine;
     using UnityEngine.InputSystem;
@@ -19,23 +21,26 @@ namespace Pal3.UI
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
+        private readonly SceneManager _sceneManager;
         private readonly Canvas _touchControlUI;
         private readonly Button _interactionButton;
-        private readonly Button _bigMapButton;
+        private readonly Button _multiFunctionButton;
         private readonly Button _mainMenuButton;
         private readonly bool _isTouchSupported;
 
         private bool _isInGamePlayState;
         private bool _lastActiveDeviceIsGamepadOrKeyboard;
 
-        public TouchControlUIManager(Canvas touchControlUI,
+        public TouchControlUIManager(SceneManager sceneManager,
+            Canvas touchControlUI,
             Button interactionButton,
-            Button bigMapButton,
+            Button multiFunctionButton,
             Button mainMenuButton)
         {
+            _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _touchControlUI = Requires.IsNotNull(touchControlUI, nameof(touchControlUI));
             _interactionButton = Requires.IsNotNull(interactionButton, nameof(interactionButton));
-            _bigMapButton = Requires.IsNotNull(bigMapButton, nameof(bigMapButton));
+            _multiFunctionButton = Requires.IsNotNull(multiFunctionButton, nameof(multiFunctionButton));
             _mainMenuButton = Requires.IsNotNull(mainMenuButton, nameof(mainMenuButton));
 
             _touchControlUI.enabled = false;
@@ -50,16 +55,24 @@ namespace Pal3.UI
             {
                 _lastActiveDeviceIsGamepadOrKeyboard = false;
                 _interactionButton.onClick.AddListener(InteractionButtonClicked);
-                _bigMapButton.onClick.AddListener(BigMapButtonClicked);
+                _multiFunctionButton.onClick.AddListener(MultiFunctionButtonClicked);
                 _mainMenuButton.onClick.AddListener(MainMenuButtonClicked);
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void BigMapButtonClicked()
+        private void MultiFunctionButtonClicked()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleBigMapRequest());
+            if (_sceneManager.GetCurrentScene() is { } currentScene &&
+                currentScene.GetSceneInfo().SceneType == ScnSceneType.Maze)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new SwitchPlayerActorRequest());
+            }
+            else
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleBigMapRequest());
+            }
         }
 
         private void InteractionButtonClicked()
@@ -79,7 +92,7 @@ namespace Pal3.UI
             if (_isTouchSupported)
             {
                 _interactionButton.onClick.RemoveAllListeners();
-                _bigMapButton.onClick.RemoveAllListeners();
+                _multiFunctionButton.onClick.RemoveAllListeners();
                 _mainMenuButton.onClick.RemoveAllListeners();
             }
         }

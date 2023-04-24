@@ -93,7 +93,7 @@ namespace Pal3
         // Touch control
         [SerializeField] private Canvas touchControlUI;
         [SerializeField] private Button interactionButton;
-        [SerializeField] private Button bigMapButton;
+        [SerializeField] private Button multiFunctionButton;
         [SerializeField] private Button mainMenuButton;
 
         // Event system
@@ -181,8 +181,8 @@ namespace Pal3
             ServiceLocator.Instance.Register(_inventoryManager);
             _teamManager = new TeamManager(_playerManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
-            _touchControlUIManager = new TouchControlUIManager(touchControlUI,
-                interactionButton, bigMapButton, mainMenuButton);
+            _touchControlUIManager = new TouchControlUIManager(_sceneManager,
+                touchControlUI, interactionButton, multiFunctionButton, mainMenuButton);
             ServiceLocator.Instance.Register(_touchControlUIManager);
             _favorManager = new FavorManager();
             ServiceLocator.Instance.Register(_favorManager);
