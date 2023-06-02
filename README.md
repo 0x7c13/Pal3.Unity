@@ -14,7 +14,7 @@
 </p>
 <p align="center">
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/unity-2022.2.X-blue?style=flat-square" alt="Unity Version" />
+    <img src="https://img.shields.io/badge/unity-2022.3 LTS-blue?style=flat-square" alt="Unity Version" />
   </a>
   <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/releases">
     <img src="https://img.shields.io/github/v/release/0x7c13/Pal3.Unity.svg?label=alpha&style=flat-square&color=yellow" alt="Releases" />
@@ -42,7 +42,7 @@
 | 仙剑奇侠传三外传：问情篇 | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## 如何运行项目
-使用 Unity 2022.2.X 打开当前项目文件夹即可，具体当前项目所使用的Unity版本请查看这里: [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt)，理论上任何Unity 2022.2+版本都没问题（实际上2021 LTS也行）。
+使用 Unity 2022.3 LTS 打开当前项目文件夹即可，具体当前项目所使用的Unity版本请查看这里: [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt)，理论上任何Unity 2022 LTS版本都没问题（实际上2021 LTS也行）。
 因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。
   - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
   - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
@@ -53,11 +53,11 @@
     ```
 
 ## 如何在终端设备上运行游戏
-  - 在打包后的运行时，第一次游戏启动的时候，游戏会搜索 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 目录或者 [StreamingAssets](https://docs.unity3d.com/2022.2/Documentation/Manual/StreamingAssets.html) 目录来检测游戏数据是否存在。在桌面版本的游戏中，如果未能检测到原始游戏的数据文件，游戏则会弹出文件夹选择窗口，请选择当前设备上原游戏安装文件的根目录即可。
-  - 如果上一步未成功，请拷贝整个仙剑奇侠三（或者外传）原游戏目录到 [Application.persistentDataPath](https://docs.unity3d.com/2022.2/Documentation/ScriptReference/Application-persistentDataPath.html) 下即可。注意：如果自行拷贝游戏数据至这个目录的话，如果是仙剑三，文件夹的名称必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。iOS设备请使用iTunes将文件夹共享给游戏应用（这个位置就是persistentDataPath所在的地方）或者在编译时自行打包游戏原始数据到StreamingAssets文件夹下也可。
+  - 在打包后的运行时，第一次游戏启动的时候，游戏会搜索 [Application.persistentDataPath](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Application-persistentDataPath.html) 目录或者 [StreamingAssets](https://docs.unity3d.com/2022.3/Documentation/Manual/StreamingAssets.html) 目录来检测游戏数据是否存在。在桌面版本的游戏中，如果未能检测到原始游戏的数据文件，游戏则会弹出文件夹选择窗口，请选择当前设备上原游戏安装文件的根目录即可。
+  - 如果上一步未成功，请拷贝整个仙剑奇侠三（或者外传）原游戏目录到 [Application.persistentDataPath](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Application-persistentDataPath.html) 下即可。注意：如果自行拷贝游戏数据至这个目录的话，如果是仙剑三，文件夹的名称必须为PAL3，如果是仙剑三外传，文件夹名必须为PAL3A。iOS设备请使用iTunes将文件夹共享给游戏应用（这个位置就是persistentDataPath所在的地方）或者在编译时自行打包游戏原始数据到StreamingAssets文件夹下也可。
 
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
-两部游戏版本在项目中的切换是靠 [Custom scripting symbols](https://docs.unity3d.com/2022.2/Documentation/Manual/CustomScriptingSymbols.html) 实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。切换的过程中，包括Symbol，图标和应用程序名在内的所有名称和标示都会由PAL3变为PAL3A。
+两部游戏版本在项目中的切换是靠 [Custom scripting symbols](https://docs.unity3d.com/2022.3/Documentation/Manual/CustomScriptingSymbols.html) 实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。切换的过程中，包括Symbol，图标和应用程序名在内的所有名称和标示都会由PAL3变为PAL3A。
 
 ## 卡通渲染与光影下的截图
 ![PAL3 卡通渲染+光影](Screenshots/PAL3_ToonShading_Lighting.png?raw=true)
