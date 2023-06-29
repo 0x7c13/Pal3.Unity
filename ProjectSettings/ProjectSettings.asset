@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Jackil
-  productName: PAL3
+  productName: PAL3A
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -133,8 +133,9 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  bundleVersion: 0.63
-  preloadedAssets: []
+  bundleVersion: 0.64
+  preloadedAssets:
+  - {fileID: 11400000, guid: d36b5fde9d421c74cba9317a109723a2, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -154,10 +155,11 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.Jackil.PAL3
-    Standalone: com.Jackil.PAL3
-    iPhone: com.Jackil.PAL3
+    Android: com.Jackil.PAL3A
+    Standalone: com.Jackil.PAL3A
+    iPhone: com.Jackil.PAL3A
   buildNumber:
+    Bratwurst: 0
     Standalone: 0
     iPhone: 0
     tvOS: 0
@@ -183,6 +185,8 @@ PlayerSettings:
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 12.0
+  bratwurstSdkVersion: 0
+  bratwurstTargetOSVersionString: 16.4
   uIPrerenderedIcon: 0
   uIRequiresPersistentWiFi: 0
   uIRequiresFullScreen: 1
@@ -230,8 +234,10 @@ PlayerSettings:
   appleDeveloperTeamID: 4997CKN8MT
   iOSManualSigningProvisioningProfileID: 
   tvOSManualSigningProvisioningProfileID: 
+  bratwurstManualSigningProvisioningProfileID: 
   iOSManualSigningProvisioningProfileType: 0
   tvOSManualSigningProvisioningProfileType: 0
+  bratwurstManualSigningProvisioningProfileType: 0
   appleEnableAutomaticSigning: 0
   iOSRequireARKit: 0
   iOSAutomaticallyDetectAndAddCapabilities: 1
@@ -283,42 +289,42 @@ PlayerSettings:
   - m_BuildTarget: Standalone
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 1024
       m_Height: 1024
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 512
       m_Height: 512
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 256
       m_Height: 256
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 128
       m_Height: 128
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 64
       m_Height: 64
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 48
       m_Height: 48
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 32
       m_Height: 32
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Icon: {fileID: 2800000, guid: d03d417e5660d5849939c8fe43732dbd, type: 3}
       m_Width: 16
       m_Height: 16
       m_Kind: 0
@@ -900,7 +906,8 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    Android: PAL3A;UNITY_POST_PROCESSING_STACK_V2
+    Bratwurst: UNITY_POST_PROCESSING_STACK_V2
     CloudRendering: UNITY_POST_PROCESSING_STACK_V2
     EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2
     GameCoreScarlett: UNITY_POST_PROCESSING_STACK_V2
@@ -912,17 +919,17 @@ PlayerSettings:
     PS5: UNITY_POST_PROCESSING_STACK_V2
     QNX: UNITY_POST_PROCESSING_STACK_V2
     Stadia: UNITY_POST_PROCESSING_STACK_V2
-    Standalone: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    Standalone: PAL3A;UNITY_POST_PROCESSING_STACK_V2
     WebGL: UNITY_POST_PROCESSING_STACK_V2
     Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2
     XboxOne: UNITY_POST_PROCESSING_STACK_V2
-    iPhone: PAL3
+    iPhone: PAL3A
     tvOS: UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
-    Android: 0
-    Standalone: 0
+    Android: 1
+    Standalone: 1
     iPhone: 1
   il2cppCompilerConfiguration: {}
   il2cppCodeGeneration: {}
@@ -932,7 +939,6 @@ PlayerSettings:
   suppressCommonWarnings: 1
   allowUnsafeCode: 1
   useDeterministicCompilation: 1
-  selectedPlatform: 0
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
   gcIncremental: 1
@@ -1025,5 +1031,6 @@ PlayerSettings:
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
+  platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
   insecureHttpOption: 0
