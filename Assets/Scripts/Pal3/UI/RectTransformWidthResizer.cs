@@ -11,8 +11,11 @@ namespace Pal3.UI
     [RequireComponent(typeof(RectTransform))]
     public class RectTransformWidthResizer : MonoBehaviour
     {
-        public float thresholdRatio;
+        public float maxThresholdRatio;
+        public float minThresholdRatio;
+
         public float minWidth;
+        public float midWidth;
         public float maxWidth;
 
         private RectTransform _transform;
@@ -25,8 +28,12 @@ namespace Pal3.UI
 
         void Update()
         {
-            bool useMinWidth = (float)Screen.width / Screen.height < thresholdRatio;
-            _transform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, useMinWidth ? minWidth : maxWidth);
+            float currentRatio = (float) Screen.width / Screen.height;
+
+            bool useMaxWidth = currentRatio > maxThresholdRatio;
+            bool useMinWidth = currentRatio < minThresholdRatio;
+
+            _transform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, useMaxWidth ? maxWidth : useMinWidth ? minWidth : midWidth);
         }
 
         void OnValidate() => OnEnable();

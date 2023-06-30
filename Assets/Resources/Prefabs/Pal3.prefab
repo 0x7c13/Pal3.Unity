@@ -3857,7 +3857,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 20}
-  m_SizeDelta: {x: 1200, y: -40}
+  m_SizeDelta: {x: 800, y: -40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &4450587676581078315
 CanvasGroup:
@@ -3883,9 +3883,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9d6f17a4e68481a9705f217be9b4156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thresholdRatio: 1.666667
+  maxThresholdRatio: 1.66667
+  minThresholdRatio: 1.4
   minWidth: 800
-  maxWidth: 1200
+  midWidth: 950
+  maxWidth: 1100
 --- !u!223 &7116787231374669820
 Canvas:
   m_ObjectHideFlags: 0
