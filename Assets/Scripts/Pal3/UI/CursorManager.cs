@@ -21,7 +21,7 @@ namespace Pal3.UI
 
         public void Init(GameResourceProvider gameResourceProvider)
         {
-            gameResourceProvider = Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
+            Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
             _cursorTextureNormal = gameResourceProvider.GetCursorTexture();
             Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, CursorMode.Auto);
         }

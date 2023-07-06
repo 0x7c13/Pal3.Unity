@@ -213,6 +213,5 @@ namespace Core.GameBox
         {
             return (float)tick / GameBoxTicksPerSecond;
         }
-
     }
 }
