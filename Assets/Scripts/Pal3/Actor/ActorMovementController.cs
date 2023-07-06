@@ -92,16 +92,19 @@ namespace Pal3.Actor
                 actor.Info.GameBoxYPosition,
                 actor.Info.GameBoxZPosition));
 
+            // Setup actor's initial position
             if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
                 _tilemap.TryGetTile(initPosition, _currentLayerIndex, out NavTile tile))
             {
-                if (tile.IsWalkable())
+                // If the actor is initially placed on a walkable tile, snap to the tile
+                // Same for the case when actor is configured to not facing the player actor during dialogue
+                if (tile.IsWalkable() || actor.Info.NoTurn == 1)
                 {
                     transform.position = new Vector3(initPosition.x,
                         GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
                         initPosition.z);
                 }
-                else
+                else // This is to handle the case where the actor is initially placed on a non-walkable tile
                 {
                     Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
                     // Snap to the nearest adjacent tile if exists
