@@ -12,7 +12,6 @@ namespace Pal3.Renderer
     using UnityEngine;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Security.Cryptography;
     using System.Threading;
     using Core.DataLoader;
     using Core.GameBox;
@@ -22,17 +21,17 @@ namespace Pal3.Renderer
         public string Name;
         public GameObject GameObject;
         public BoneNode BoneNode;
-        public MovBoneAnimationTrack? AnimationTrack;
-
         public Matrix4x4 BindPoseModelToBoneSpace = Matrix4x4.identity;
+
+        public MovBoneAnimationTrack? AnimationTrack;
         public Matrix4x4 CurrentPoseToModelMatrix = Matrix4x4.identity;
 
         public bool IsRoot()
         {
-            return BoneNode.ParentId < 0;
+            return BoneNode.ParentId == -1;
         }
 
-        public void Clear()
+        public void Reset()
         {
             AnimationTrack = null;
             CurrentPoseToModelMatrix = Matrix4x4.identity;
@@ -48,7 +47,6 @@ namespace Pal3.Renderer
         private IMaterialFactory _materialFactory;
         private Material[][] _materials;
 
-        private ITextureResourceProvider _textureProvider;
         private MshFile _mshFile;
         private MovFile _movFile;
 
@@ -71,20 +69,18 @@ namespace Pal3.Renderer
             Color? tintColor = default) // TODO: Read texture name from <actorName>.mtl file
         {
             _mshFile = mshFile;
-            _textureProvider = textureProvider;
             _materialFactory = materialFactory;
             _textureName = textureName;
             _texture = textureProvider.GetTexture(_textureName);
             _tintColor = tintColor ?? Color.white;
 
-            RenderSkeleton();
+            RenderBone(_mshFile.RootBoneNode, gameObject, null);
             RenderMesh();
         }
 
         public void StartAnimation(MovFile mov, int loopCount = -1)
         {
             PauseAnimation();
-
             BindJointTrack(mov);
 
             _animationCts = new CancellationTokenSource();
@@ -104,10 +100,10 @@ namespace Pal3.Renderer
 
         private void BindJointTrack(MovFile movFile)
         {
-            // Clear all existing joint tracks
+            // Reset all existing joint tracks
             foreach (var joint in _joints)
             {
-                joint.Value.Clear();
+                joint.Value.Reset();
             }
 
             _movFile = movFile;
@@ -216,31 +212,6 @@ namespace Pal3.Renderer
             return index;
         }
 
-        /*
-        void UpdateSkinning()
-        {
-            // Here we should pass bones matrix to uniform
-            List<Matrix4x4> boneMatrixArray = new List<Matrix4x4>();
-            for (int i = 0; i < MAX_BONES_CNT; i++)
-            {
-                if (_jointDict.ContainsKey(i))
-                {
-                    // Here we should get the joint , and calc the matrix
-                    var joint = _jointDict[i];
-                    boneMatrixArray.Add(joint.skinningMatrix);
-                }
-                else
-                {
-                    boneMatrixArray.Add(Matrix4x4.identity);
-                }
-            }
-            foreach (var material in _skinningMaterials)
-            {
-                material.SetMatrixArray(Shader.PropertyToID("_boneMatrixArray"), boneMatrixArray);
-            }
-        }
-        */
-
         void UpdateSkinning()
         {
             for (int subMeshIndex = 0; subMeshIndex < _skinningMeshes.Length; subMeshIndex++)
@@ -251,26 +222,19 @@ namespace Pal3.Renderer
             }
         }
 
-        private void RenderSkeleton()
-        {
-            RenderBone(_mshFile.RootBoneNode, gameObject, null);
-        }
-
         private void RenderBone(BoneNode bone, GameObject parent, Joint parentJoint)
         {
             GameObject renderNode = new GameObject();
             renderNode.name = $"[bone][name]{bone.Name} [id]{bone.Id}";
             renderNode.transform.SetParent(parent.transform);
 
-            // display gizmo
+            // Display gizmo
             RenderBoneGizmo(renderNode);
 
-            // self pos rotation
             renderNode.transform.localPosition = bone.Translation;
             renderNode.transform.localRotation = bone.Rotation;
 
-            // hold joint to dict
-            var joint = new Joint
+            Joint joint = new ()
             {
                 GameObject = renderNode,
                 BoneNode = bone,
@@ -286,9 +250,10 @@ namespace Pal3.Renderer
                 joint.BindPoseModelToBoneSpace = Matrix4x4.Inverse(transMatrix)
                                                  * Matrix4x4.Inverse(rotMatrix)
                                                  * parentJoint.BindPoseModelToBoneSpace;
+
             }
 
-            // children
+            // Render child bones
             for (int i = 0; i < bone.Children.Length; i++)
             {
                 BoneNode subBone = bone.Children[i];
@@ -340,16 +305,8 @@ namespace Pal3.Renderer
 
             var mesh = new Mesh();
             mesh.MarkDynamic();
-
             mesh.SetVertices(subMesh.Vertices.Select(v => v.Position).ToArray());
             mesh.SetTriangles(CalculateTriangles(subMesh), 0);
-
-            /*
-            mesh.SetUVs(1, BuildBoneIds(subMesh));
-            mesh.SetUVs(2, BuildBoneWeights(subMesh));
-            */
-
-            //mesh.SetUVs(1,BuildColors(subMesh));
 
             Vector2[] uvs = new Vector2[subMesh.Vertices.Length];
 
@@ -414,52 +371,6 @@ namespace Pal3.Renderer
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
             return triangles;
-        }
-
-        private List<Vector4> BuildBoneWeights(MshMesh subMesh)
-        {
-            List<Vector4> weights = new List<Vector4>();
-            for (int i = 0; i < subMesh.Vertices.Length; i++)
-            {
-                var vert = subMesh.Vertices[i];
-
-                float weightSum = vert.Weights[0] +  vert.Weights[1] + vert.Weights[2]+vert.Weights[3];
-                Vector4 weightsNormalize = new Vector4(vert.Weights[0],vert.Weights[1],vert.Weights[2],vert.Weights[3]);
-                weightsNormalize = weightsNormalize / weightSum;
-                var weight = weightsNormalize;
-                weights.Add(weight);
-            }
-            //Debug.Log("weights:" + weights);
-            return weights;
-        }
-
-        private List<Vector4> BuildColors(MshMesh subMesh)
-        {
-            List<Vector4> ids = new List<Vector4>();
-            for (int i = 0; i < subMesh.Vertices.Length; i++)
-            {
-                var color = new Vector4(0.0f,1.0f,0.0f,1.0f);
-                if (i == 0)
-                {
-                    color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-                }
-                ids.Add(color);
-            }
-
-            return ids;
-        }
-
-        private List<Vector4> BuildBoneIds(MshMesh subMesh)
-        {
-            List<Vector4> ids = new List<Vector4>();
-            for (int i = 0; i < subMesh.Vertices.Length; i++)
-            {
-                var vert = subMesh.Vertices[i];
-                var boneIds = new Vector4(vert.BoneIds[0], vert.BoneIds[1], vert.BoneIds[2], vert.BoneIds[3]);
-                ids.Add(boneIds);
-            }
-
-            return ids;
         }
 
         private Vector3[] BuildBoneGizmoMesh()
