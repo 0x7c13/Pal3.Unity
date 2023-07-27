@@ -35,7 +35,6 @@ namespace Pal3.Renderer
         public void Clear()
         {
             AnimationTrack = null;
-            BindPoseModelToBoneSpace = Matrix4x4.identity;
             CurrentPoseToModelMatrix = Matrix4x4.identity;
         }
     }
