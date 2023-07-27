@@ -48,9 +48,9 @@ namespace Pal3.Actor
             }
             else
             {
-                MovActorActionController movActionController = actorGameObject.AddComponent<MovActorActionController>();
-                movActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
-                actionController = movActionController;
+                BoneActorActionController boneActionController = actorGameObject.AddComponent<BoneActorActionController>();
+                boneActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                actionController = boneActionController;
             }
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();

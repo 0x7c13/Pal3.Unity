@@ -16,6 +16,8 @@ namespace ResourceViewer
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Gdb;
+    using Core.DataReader.Mov;
+    using Core.DataReader.Msh;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
@@ -118,6 +120,37 @@ namespace ResourceViewer
             #endif
 
             //__Malicious__Dev_Only__();
+            DebugMovMsh();
+        }
+
+        private void DebugMovMsh()
+        {
+            string movFilePath = "basedata.cpk\\ROLE\\282\\z1.MOV";
+            string mshFilePath = "basedata.cpk\\ROLE\\282\\282.MSH";
+
+            try
+            {
+                MshFile mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
+                MovFile movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
+
+                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(mshFilePath));
+
+                var boneGo = new GameObject(Utility.GetFileName(movFilePath, CpkConstants.DirectorySeparator));
+                var boneRenderer = boneGo.AddComponent<BoneModelRenderer>();
+                boneRenderer.transform.SetParent(_renderingRoot.transform);
+
+                boneRenderer.Init(mshFile,
+                    textureProvider,
+                    _resourceProvider.GetMaterialFactory(),
+                    "282.tga");
+
+                boneRenderer.StartAnimation(movFile);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
 
         private void __Malicious__Dev_Only__()

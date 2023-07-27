@@ -501,18 +501,18 @@ namespace Core.DataReader.Cvd
             var triangles = new List<int>();
             var index = 0;
 
-            for (var j = 0; j < allIndices.Length; j++)
+            for (var i = 0; i < allIndices.Length; i++)
             {
                 var indices = new[]
                 {
-                    allIndices[j].x,
-                    allIndices[j].y,
-                    allIndices[j].z
+                    allIndices[i].x,
+                    allIndices[i].y,
+                    allIndices[i].z
                 };
 
-                for (var k = 0; k < 3; k++)
+                for (var j = 0; j < 3; j++)
                 {
-                    indexBuffer.Add(indices[k]);
+                    indexBuffer.Add(indices[j]);
                     triangles.Add(index++);
                 }
             }

@@ -11,6 +11,7 @@ namespace Pal3.Renderer
     public abstract class MaterialFactoryBase
     {
         private const string SPRITE_SHADER_PATH = "Pal3/Sprite";
+        private const string BONE_GIZMO_SHADER_PATH = "Pal3/Gizmo";
 
         // Sprite material uniforms
         private static readonly int SpriteMainTexPropertyId = Shader.PropertyToID("_MainTex");
@@ -27,6 +28,11 @@ namespace Pal3.Renderer
             var material = new Material(GetShader(SPRITE_SHADER_PATH));
             material.SetTexture(SpriteMainTexPropertyId, texture);
             return material;
+        }
+        
+        public Material CreateGizmoMaterial()
+        {
+            return new Material(GetShader(BONE_GIZMO_SHADER_PATH));
         }
 
         internal Shader GetShader(string shaderName)

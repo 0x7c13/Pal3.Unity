@@ -19,7 +19,7 @@ namespace Pal3.Actor
     using Script.Waiter;
     using UnityEngine;
 
-    public class MovActorActionController : ActorActionController,
+    public class BoneActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorStopActionCommand>
     {

@@ -26,7 +26,6 @@ namespace Pal3.Renderer
 
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
-        private const float TIME_TO_TICK_SCALE = 5000f;
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
@@ -406,8 +405,7 @@ namespace Pal3.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var tick = ((Time.timeSinceLevelLoad - startTime) * TIME_TO_TICK_SCALE
-                                  + startTick);
+                var tick = (GameBoxInterpreter.SecondsToTick(Time.timeSinceLevelLoad - startTime) + startTick);
 
                 if (tick >= endTick)
                 {
