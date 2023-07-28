@@ -238,9 +238,6 @@ namespace Pal3.Renderer
 
             boneGo.transform.SetParent(parentBone == null ? gameObject.transform : parentBone.GameObject.transform);
 
-            // Display gizmo
-            RenderBoneGizmo(boneGo);
-
             boneGo.transform.localPosition = boneNode.Translation;
             boneGo.transform.localRotation = boneNode.Rotation;
 
@@ -267,25 +264,6 @@ namespace Pal3.Renderer
             {
                 BoneNode subBone = boneNode.Children[i];
                 RenderBone(subBone, bone);
-            }
-        }
-
-        private void RenderBoneGizmo(GameObject boneGo)
-        {
-            var meshFilter = boneGo.AddComponent<MeshFilter>();
-            var meshRenderer = boneGo.AddComponent<MeshRenderer>();
-
-            var mesh = new Mesh();
-            mesh.SetVertices(BuildBoneGizmoMesh(0.02f));
-            mesh.SetTriangles(BuildBoneGizmoTriangle(), 0);
-            meshFilter.sharedMesh = mesh;
-
-            Material material = _materialFactory.CreateGizmoMaterial();
-
-            if (material != null)
-            {
-                meshRenderer.sharedMaterial = material;
-                material.renderQueue = 5000; // at last
             }
         }
 
@@ -421,38 +399,6 @@ namespace Pal3.Renderer
                 bounds.Encapsulate(_renderMeshComponents[i].MeshRenderer.GetMeshBounds());
             }
             return bounds;
-        }
-
-        private Vector3[] BuildBoneGizmoMesh(float size)
-        {
-            Vector3[] verts = new Vector3[8];
-            verts[0] = new Vector3(-size, -size, -size);
-            verts[1] = new Vector3(-size, size, -size);
-            verts[2] = new Vector3(size, -size, -size);
-            verts[3] = new Vector3(size, size, -size);
-
-            verts[4] = new Vector3(-size, -size, size);
-            verts[5] = new Vector3(-size, size, size);
-            verts[6] = new Vector3(size, -size, size);
-            verts[7] = new Vector3(size, -size, size);
-
-            return verts;
-        }
-
-        private int[] BuildBoneGizmoTriangle()
-        {
-            int[] indices =
-            {
-                0, 1, 2, 2, 1, 3,
-                4, 5, 6, 6, 5, 7,
-
-                4, 5, 0, 0, 5, 1,
-                2, 4, 6, 6, 4, 7,
-
-                1, 5, 3, 3, 5, 7,
-                0, 4, 2, 2, 4, 6,
-            };
-            return indices;
         }
 
         private void OnDisable()

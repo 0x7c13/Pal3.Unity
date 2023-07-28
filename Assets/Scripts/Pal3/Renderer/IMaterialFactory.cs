@@ -70,11 +70,5 @@ namespace Pal3.Renderer
         public void UpdateMaterial(Material material,
             Texture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
-
-        /// <summary>
-        /// For debugging purposes
-        /// </summary>
-        /// <returns></returns>
-        public Material CreateGizmoMaterial();
     }
 }
