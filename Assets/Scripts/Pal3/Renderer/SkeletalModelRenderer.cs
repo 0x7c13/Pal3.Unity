@@ -82,6 +82,7 @@ namespace Pal3.Renderer
 
         private readonly Dictionary<int, Bone> _bones = new ();
 
+        private GameObject _rootBoneObject;
         private GameObject[] _meshObjects;
         private RenderMeshComponent[] _renderMeshComponents;
 
@@ -252,7 +253,11 @@ namespace Pal3.Renderer
 
             Bone bone = new (boneNode.Name, boneGo, boneNode);
 
-            if (parentBone != null)
+            if (parentBone == null)
+            {
+                _rootBoneObject = boneGo;
+            }
+            else
             {
                 _bones.Add(boneNode.Id, bone);
                 Matrix4x4 translationMatrix = Matrix4x4.Translate(boneNode.Translation);
@@ -323,17 +328,22 @@ namespace Pal3.Renderer
 
             Vector3[] verts = vertices.ToArray();
             int[] tris = triangles.ToArray();
-            Vector2[] uvsArray = uvs.ToArray();
+            Vector2[] uvs1 = uvs.ToArray();
+            Vector2[] uvs2 = null;
 
             var meshRenderer = _meshObjects[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
                 ref verts,
                 ref tris,
                 ref normals,
-                ref uvsArray,
-                ref uvsArray,
+                ref uvs1,
+                ref uvs2,
                 ref materials,
                 true);
+
+            renderMesh.RecalculateNormals();
+            renderMesh.RecalculateTangents();
+            renderMesh.RecalculateBounds();
 
             _renderMeshComponents[subMeshIndex] = new RenderMeshComponent
             {
@@ -446,6 +456,12 @@ namespace Pal3.Renderer
                 }
 
                 _bones.Clear();
+            }
+
+            if (_rootBoneObject != null)
+            {
+                Destroy(_rootBoneObject);
+                _rootBoneObject = null;
             }
 
             _indexBuffer.Clear();
