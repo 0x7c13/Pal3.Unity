@@ -117,7 +117,7 @@ namespace Pal3.Actor
 
         public override float GetActorHeight()
         {
-            if (_skeletalModelRenderer == null)
+            if (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible())
             {
                 return _meshBounds.size.y;
             }
@@ -127,13 +127,13 @@ namespace Pal3.Actor
 
         public override Bounds GetRendererBounds()
         {
-            return _skeletalModelRenderer == null ? _rendererBounds :
+            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible()) ? _rendererBounds :
                 _skeletalModelRenderer.GetRendererBounds();
         }
 
         public override Bounds GetMeshBounds()
         {
-            return _skeletalModelRenderer == null ? _meshBounds :
+            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible()) ? _meshBounds :
                 _skeletalModelRenderer.GetMeshBounds();
         }
 
@@ -167,11 +167,12 @@ namespace Pal3.Actor
         public void Execute(ActorStopActionCommand command)
         {
             if (command.ActorId != _actor.Info.Id ||
-                _skeletalModelRenderer == null) return;
+                _skeletalModelRenderer == null ||
+                !_skeletalModelRenderer.IsVisible()) return;
 
             _skeletalModelRenderer.PauseAnimation();
 
-            if (_autoStand)
+            if (_autoStand && _skeletalModelRenderer.IsVisible())
             {
                 PerformAction(_actor.GetIdleAction());
             }

@@ -120,37 +120,6 @@ namespace ResourceViewer
             #endif
 
             //__Malicious__Dev_Only__();
-            DebugMovMsh();
-        }
-
-        private void DebugMovMsh()
-        {
-            string movFilePath = "basedata.cpk\\ROLE\\282\\z1.MOV";
-            string mshFilePath = "basedata.cpk\\ROLE\\282\\282.MSH";
-
-            try
-            {
-                MshFile mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
-                MovFile movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
-
-                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(mshFilePath));
-
-                var boneGo = new GameObject(Utility.GetFileName(movFilePath, CpkConstants.DirectorySeparator));
-                var skeletalRenderer = boneGo.AddComponent<SkeletalModelRenderer>();
-                skeletalRenderer.transform.SetParent(_renderingRoot.transform);
-
-                skeletalRenderer.Init(mshFile,
-                    _resourceProvider.GetMaterialFactory(),
-                    textureProvider,
-                    "282.tga");
-
-                skeletalRenderer.StartAnimation(movFile);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
         }
 
         private void __Malicious__Dev_Only__()

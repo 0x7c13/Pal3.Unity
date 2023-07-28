@@ -109,7 +109,7 @@ namespace Pal3.Renderer
             RenderMesh();
         }
 
-        public void StartAnimation(MovFile mov, int loopCount = -1)
+        public void StartAnimation(MovFile movFile, int loopCount = -1)
         {
             if (_renderMeshComponents == null)
             {
@@ -117,7 +117,7 @@ namespace Pal3.Renderer
             }
 
             PauseAnimation();
-            BindJointTrack(mov);
+            SetupAnimationTrack(movFile);
 
             _animationCts = new CancellationTokenSource();
             _animation = StartCoroutine(PlayAnimationInternalAsync(loopCount,
@@ -134,7 +134,7 @@ namespace Pal3.Renderer
             }
         }
 
-        private void BindJointTrack(MovFile movFile)
+        private void SetupAnimationTrack(MovFile movFile)
         {
             // Reset all existing bone animation tracks
             foreach (Bone bone in _bones.Values)
@@ -203,6 +203,7 @@ namespace Pal3.Renderer
             {
                 int currentFrameIndex = Utility.GetFloorIndex(bone.FrameTicks, tick);
 
+                // TODO: Interpolate between frames
                 Vector3 localPosition = track.Value.KeyFrames[currentFrameIndex].Translation;
                 Quaternion localRotation = track.Value.KeyFrames[currentFrameIndex].Rotation;
 
@@ -400,6 +401,11 @@ namespace Pal3.Renderer
                 bounds.Encapsulate(_renderMeshComponents[i].MeshRenderer.GetMeshBounds());
             }
             return bounds;
+        }
+
+        public bool IsVisible()
+        {
+            return _meshObjects != null;
         }
 
         private void OnDisable()
