@@ -15,25 +15,51 @@ namespace Pal3.Renderer
     using Core.DataLoader;
     using Core.GameBox;
     using Core.Renderer;
+    using Core.Utils;
 
     internal class Bone
     {
-        public string Name;
-        public GameObject GameObject;
-        public BoneNode BoneNode;
-        public Matrix4x4 BindPoseModelToBoneSpace = Matrix4x4.identity;
+        public string Name { get; }
+        public GameObject GameObject { get; }
+        public BoneNode BoneNode { get; }
 
-        public MovBoneAnimationTrack? AnimationTrack;
-        public Matrix4x4 CurrentPoseToModelMatrix = Matrix4x4.identity;
+        public Matrix4x4 BindPoseModelToBoneSpace { get; set; }
+        public Matrix4x4 CurrentPoseToModelMatrix { get; set; }
+
+        public MovBoneAnimationTrack? AnimationTrack { get; private set; }
+
+        public uint[] FrameTicks { get; private set; }
+
+        public Bone(string name, GameObject gameObject, BoneNode boneNode)
+        {
+            Name = name;
+            GameObject = gameObject;
+            BoneNode = boneNode;
+            BindPoseModelToBoneSpace = Matrix4x4.identity;
+            CurrentPoseToModelMatrix = Matrix4x4.identity;
+        }
 
         public bool IsRoot()
         {
             return BoneNode.ParentId == -1;
         }
 
+        public void SetAnimationTrack(MovBoneAnimationTrack track)
+        {
+            AnimationTrack = track;
+
+            FrameTicks = new uint[track.KeyFrames.Length];
+
+            for (int i = 0; i < track.KeyFrames.Length; i++)
+            {
+                FrameTicks[i] = track.KeyFrames[i].Tick;
+            }
+        }
+
         public void DisposeAnimationTrack()
         {
             AnimationTrack = null;
+            FrameTicks = null;
             CurrentPoseToModelMatrix = Matrix4x4.identity;
         }
     }
@@ -79,7 +105,7 @@ namespace Pal3.Renderer
             _texture = textureProvider.GetTexture(_textureName);
             _tintColor = tintColor ?? Color.white;
 
-            RenderBone(_mshFile.RootBoneNode, null);
+            SetupBone(_mshFile.RootBoneNode, parentBone: null);
             RenderMesh();
         }
 
@@ -123,7 +149,7 @@ namespace Pal3.Renderer
             {
                 if (_bones.TryGetValue(track.BoneId, out Bone bonne))
                 {
-                    bonne.AnimationTrack = track;
+                    bonne.SetAnimationTrack(track);
                 }
             }
         }
@@ -175,14 +201,15 @@ namespace Pal3.Renderer
 
             if (track != null)
             {
-                int index = GetKeyIndex(track.Value, tick);
-                Vector3 localPosition = track.Value.KeyFrames[index].Translation;
-                Quaternion localRotation = track.Value.KeyFrames[index].Rotation;
+                int currentFrameIndex = Utility.GetFloorIndex(bone.FrameTicks, tick);
+
+                Vector3 localPosition = track.Value.KeyFrames[currentFrameIndex].Translation;
+                Quaternion localRotation = track.Value.KeyFrames[currentFrameIndex].Rotation;
 
                 boneGo.transform.localPosition = localPosition;
                 boneGo.transform.localRotation = localRotation;
 
-                Matrix4x4 curPoseToModelMatrix = Matrix4x4.Translate(localPosition) * Matrix4x4.Rotate(localRotation) ;
+                Matrix4x4 curPoseToModelMatrix = Matrix4x4.Translate(localPosition) * Matrix4x4.Rotate(localRotation);
 
                 if (!bone.IsRoot())
                 {
@@ -202,26 +229,6 @@ namespace Pal3.Renderer
             }
         }
 
-        private int GetKeyIndex(MovBoneAnimationTrack track, uint tick)
-        {
-            int index = 0;
-
-            for (;index < track.KeyFrames.Length; index++)
-            {
-                if (tick < track.KeyFrames[index].Tick)
-                {
-                    break;
-                }
-            }
-
-            if (index == 0 || index >= track.KeyFrames.Length)
-            {
-                index = track.KeyFrames.Length - 1;
-            }
-
-            return index;
-        }
-
         private void UpdateSkinning()
         {
             for (int subMeshIndex = 0; subMeshIndex < _renderMeshComponents.Length; subMeshIndex++)
@@ -229,10 +236,11 @@ namespace Pal3.Renderer
                 MshMesh subMesh = _mshFile.SubMeshes[subMeshIndex];
                 Mesh mesh = _renderMeshComponents[subMeshIndex].Mesh;
                 mesh.SetVertices(BuildVerticesWithCurrentSkeleton(subMesh, subMeshIndex));
+                mesh.RecalculateBounds();
             }
         }
 
-        private void RenderBone(BoneNode boneNode, Bone parentBone)
+        private void SetupBone(BoneNode boneNode, Bone parentBone)
         {
             GameObject boneGo = new GameObject($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
 
@@ -241,29 +249,22 @@ namespace Pal3.Renderer
             boneGo.transform.localPosition = boneNode.Translation;
             boneGo.transform.localRotation = boneNode.Rotation;
 
-            Bone bone = new ()
-            {
-                GameObject = boneGo,
-                BoneNode = boneNode,
-                AnimationTrack = null,
-                BindPoseModelToBoneSpace = Matrix4x4.identity
-            };
+            Bone bone = new (boneNode.Name, boneGo, boneNode);
 
             if (parentBone != null)
             {
                 _bones.Add(boneNode.Id, bone);
-                var transMatrix = Matrix4x4.Translate(boneNode.Translation);
-                var rotMatrix = Matrix4x4.Rotate(boneNode.Rotation);
-                bone.BindPoseModelToBoneSpace = Matrix4x4.Inverse(rotMatrix)
-                                                * Matrix4x4.Inverse(transMatrix)
+                Matrix4x4 translationMatrix = Matrix4x4.Translate(boneNode.Translation);
+                Matrix4x4 rotationMatrix = Matrix4x4.Rotate(boneNode.Rotation);
+                bone.BindPoseModelToBoneSpace = Matrix4x4.Inverse(rotationMatrix)
+                                                * Matrix4x4.Inverse(translationMatrix)
                                                 * parentBone.BindPoseModelToBoneSpace;
             }
 
             // Render child bones
-            for (int i = 0; i < boneNode.Children.Length; i++)
+            foreach (BoneNode subBone in boneNode.Children)
             {
-                BoneNode subBone = boneNode.Children[i];
-                RenderBone(subBone, bone);
+                SetupBone(subBone, bone);
             }
         }
 
