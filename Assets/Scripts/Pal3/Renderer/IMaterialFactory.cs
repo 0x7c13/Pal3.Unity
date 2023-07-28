@@ -72,7 +72,7 @@ namespace Pal3.Renderer
             GameBoxBlendFlag blendFlag);
 
         /// <summary>
-        /// For testing purposes
+        /// For debugging purposes
         /// </summary>
         /// <returns></returns>
         public Material CreateGizmoMaterial();

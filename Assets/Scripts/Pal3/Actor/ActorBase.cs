@@ -14,8 +14,8 @@ namespace Pal3.Actor
 
     public enum ActorAnimationType
     {
-        Mv3 = 0,
-        Mov
+        Vertex = 0,    // .mv3 animation
+        Skeletal = 1,  // .msh + .mov animation
     }
 
     public abstract class ActorBase
@@ -50,7 +50,7 @@ namespace Pal3.Actor
             if (defaultConfig is Mv3ActionConfig mv3Config)
             {
                 AddActorConfig(mv3Config);
-                AnimationType = ActorAnimationType.Mv3;
+                AnimationType = ActorAnimationType.Vertex;
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace Pal3.Actor
                 }
             }
 
-            AnimationType = ActorAnimationType.Mov;
+            AnimationType = ActorAnimationType.Skeletal;
         }
 
         private void AddActorConfig(ActorActionConfig config)
@@ -118,14 +118,14 @@ namespace Pal3.Actor
 
         public string GetMeshFilePath(string actionName)
         {
-            if (AnimationType != ActorAnimationType.Mov)
+            if (AnimationType != ActorAnimationType.Skeletal)
             {
-                throw new InvalidOperationException("Mesh file path is only available for MOV animation type.");
+                throw new InvalidOperationException("Msh file path is only available for skeletal animation type.");
             }
 
             if (!_actionNameToMeshFileNameMap.TryGetValue(actionName, out var meshFileName))
             {
-                throw new ArgumentException($"Mesh file name not found for action name {actionName}");
+                throw new ArgumentException($"Msh file name not found for action name {actionName}");
             }
 
             char separator = CpkConstants.DirectorySeparator;

@@ -137,15 +137,15 @@ namespace ResourceViewer
                     Utility.GetRelativeDirectoryPath(mshFilePath));
 
                 var boneGo = new GameObject(Utility.GetFileName(movFilePath, CpkConstants.DirectorySeparator));
-                var boneRenderer = boneGo.AddComponent<BoneModelRenderer>();
-                boneRenderer.transform.SetParent(_renderingRoot.transform);
+                var skeletalRenderer = boneGo.AddComponent<SkeletalModelRenderer>();
+                skeletalRenderer.transform.SetParent(_renderingRoot.transform);
 
-                boneRenderer.Init(mshFile,
-                    textureProvider,
+                skeletalRenderer.Init(mshFile,
                     _resourceProvider.GetMaterialFactory(),
+                    textureProvider,
                     "282.tga");
 
-                boneRenderer.StartAnimation(movFile);
+                skeletalRenderer.StartAnimation(movFile);
             }
             catch (Exception ex)
             {

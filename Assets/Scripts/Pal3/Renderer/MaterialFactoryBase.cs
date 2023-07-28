@@ -29,7 +29,7 @@ namespace Pal3.Renderer
             material.SetTexture(SpriteMainTexPropertyId, texture);
             return material;
         }
-        
+
         public Material CreateGizmoMaterial()
         {
             return new Material(GetShader(BONE_GIZMO_SHADER_PATH));

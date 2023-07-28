@@ -218,7 +218,7 @@ namespace Pal3.Renderer
         {
             if (_renderMeshComponents == null)
             {
-                throw new Exception("Animation not initialized.");
+                throw new Exception("Animation model not initialized.");
             }
 
             PauseAnimation();
@@ -405,7 +405,7 @@ namespace Pal3.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var tick = (GameBoxInterpreter.SecondsToTick(Time.timeSinceLevelLoad - startTime) + startTick);
+                uint tick = GameBoxInterpreter.SecondsToTick(Time.timeSinceLevelLoad - startTime) + startTick;
 
                 if (tick >= endTick)
                 {
@@ -419,12 +419,12 @@ namespace Pal3.Renderer
 
                     var frameTicks = _frameTicks[i];
 
-                    var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint) tick);
+                    var currentFrameIndex = Utility.GetFloorIndex(frameTicks, tick);
                     var currentFrameTick = _frameTicks[i][currentFrameIndex];
                     var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
                     var nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[i][nextFrameIndex];
 
-                    var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                    var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
                     var vertices = meshComponent.MeshDataBuffer.VertexBuffer;
                     for (var j = 0; j < vertices.Length; j++)
@@ -450,7 +450,7 @@ namespace Pal3.Renderer
                         var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
                         var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
 
-                        var influence = (tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                        var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
                         Vector3 position = Vector3.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Position,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Position, influence);
