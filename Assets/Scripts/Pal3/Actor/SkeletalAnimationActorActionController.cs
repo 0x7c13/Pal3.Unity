@@ -77,8 +77,6 @@ namespace Pal3.Actor
                 return;
             }
 
-            //Debug.LogWarning($"Actor {_actor.Info.Name} is performing bone action {actionName}.");
-
             MovFile movFile;
             MshFile mshFile;
             ITextureResourceProvider textureProvider;
@@ -106,7 +104,7 @@ namespace Pal3.Actor
             _skeletalModelRenderer.Init(mshFile,
                 _materialFactory,
                 textureProvider,
-                _actor.Info.Name + ".tga", // TODO: Read from MTL file
+                _actor.Info.Name + ".tga", // TODO: Read texture name from MTL file
                 _tintColor);
 
             _skeletalModelRenderer.StartAnimation(movFile, loopCount);
