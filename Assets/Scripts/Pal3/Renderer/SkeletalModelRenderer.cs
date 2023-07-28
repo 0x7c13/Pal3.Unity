@@ -182,7 +182,7 @@ namespace Pal3.Renderer
                 boneGo.transform.localPosition = localPosition;
                 boneGo.transform.localRotation = localRotation;
 
-                Matrix4x4 curPoseToModelMatrix = Matrix4x4.Rotate(localRotation) * Matrix4x4.Translate(localPosition);
+                Matrix4x4 curPoseToModelMatrix = Matrix4x4.Translate(localPosition) * Matrix4x4.Rotate(localRotation) ;
 
                 if (!bone.IsRoot())
                 {
@@ -239,7 +239,7 @@ namespace Pal3.Renderer
             boneGo.transform.SetParent(parentBone == null ? gameObject.transform : parentBone.GameObject.transform);
 
             // Display gizmo
-            RenderBoneGizmo(boneGo, boneNode);
+            RenderBoneGizmo(boneGo);
 
             boneGo.transform.localPosition = boneNode.Translation;
             boneGo.transform.localRotation = boneNode.Rotation;
@@ -257,8 +257,8 @@ namespace Pal3.Renderer
                 _bones.Add(boneNode.Id, bone);
                 var transMatrix = Matrix4x4.Translate(boneNode.Translation);
                 var rotMatrix = Matrix4x4.Rotate(boneNode.Rotation);
-                bone.BindPoseModelToBoneSpace = Matrix4x4.Inverse(transMatrix)
-                                                * Matrix4x4.Inverse(rotMatrix)
+                bone.BindPoseModelToBoneSpace = Matrix4x4.Inverse(rotMatrix)
+                                                * Matrix4x4.Inverse(transMatrix)
                                                 * parentBone.BindPoseModelToBoneSpace;
             }
 
@@ -270,7 +270,7 @@ namespace Pal3.Renderer
             }
         }
 
-        private void RenderBoneGizmo(GameObject boneGo, BoneNode bone)
+        private void RenderBoneGizmo(GameObject boneGo)
         {
             var meshFilter = boneGo.AddComponent<MeshFilter>();
             var meshRenderer = boneGo.AddComponent<MeshRenderer>();
@@ -310,7 +310,7 @@ namespace Pal3.Renderer
 
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
-            Vector3[] normals = null; // TODO
+            Vector3[] normals = null;
             List<Vector2> uvs = new List<Vector2>();
 
             _indexBuffer[subMeshIndex] = new List<int>();
@@ -375,14 +375,13 @@ namespace Pal3.Renderer
                 int boneId = vert.BoneIds[0];
                 Bone bone = _bones[boneId];
 
-                Vector4 homoPos = new Vector4(vert.Position.x, vert.Position.y, vert.Position.z, 1.0f);
-                Vector4 posInBone = bone.BindPoseModelToBoneSpace * homoPos;
-                Vector4 resultPos = bone.CurrentPoseToModelMatrix * posInBone;
+                Vector4 originalPosition = new Vector4(vert.Position.x, vert.Position.y, vert.Position.z, 1.0f);
+                Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace * originalPosition;
 
                 _vertexBuffer[subMeshIndex][i] = new Vector3(
-                    resultPos.x/resultPos.w,
-                    resultPos.y/resultPos.w,
-                    resultPos.z/resultPos.w);
+                    currentPosition.x / currentPosition.w,
+                    currentPosition.y / currentPosition.w,
+                    currentPosition.z / currentPosition.w);
             }
 
             Vector3[] vertices = _renderMeshComponents[subMeshIndex].Mesh.vertices;
