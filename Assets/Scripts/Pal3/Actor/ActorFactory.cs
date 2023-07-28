@@ -40,17 +40,26 @@ namespace Pal3.Actor
             #endif
 
             ActorActionController actionController;
-            if (actor.AnimationType == ActorAnimationType.Mv3)
+            switch (actor.AnimationType)
             {
-                Mv3ActorActionController mv3ActionController = actorGameObject.AddComponent<Mv3ActorActionController>();
-                mv3ActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
-                actionController = mv3ActionController;
-            }
-            else
-            {
-                MovActorActionController movActionController = actorGameObject.AddComponent<MovActorActionController>();
-                movActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
-                actionController = movActionController;
+                case ActorAnimationType.Vertex:
+                {
+                    VertexAnimationActorActionController vertexActionController =
+                        actorGameObject.AddComponent<VertexAnimationActorActionController>();
+                    vertexActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                    actionController = vertexActionController;
+                    break;
+                }
+                case ActorAnimationType.Skeletal:
+                {
+                    SkeletalAnimationActorActionController skeletalActionController =
+                        actorGameObject.AddComponent<SkeletalAnimationActorActionController>();
+                    skeletalActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                    actionController = skeletalActionController;
+                    break;
+                }
+                default:
+                    throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
             }
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();

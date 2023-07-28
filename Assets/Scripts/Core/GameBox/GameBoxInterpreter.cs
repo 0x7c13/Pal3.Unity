@@ -203,13 +203,13 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint GameBoxSecondsToTick(float seconds)
+        public static uint SecondsToTick(float seconds)
         {
             return (uint)(seconds * GameBoxTicksPerSecond);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float TickToGameBoxSeconds(uint tick)
+        public static float TickToSeconds(uint tick)
         {
             return (float)tick / GameBoxTicksPerSecond;
         }

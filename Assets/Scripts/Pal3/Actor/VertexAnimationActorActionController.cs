@@ -22,7 +22,7 @@ namespace Pal3.Actor
     using Script.Waiter;
     using UnityEngine;
 
-    public class Mv3ActorActionController : ActorActionController,
+    public class VertexAnimationActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorStopActionCommand>,
         ICommandExecutor<ActorChangeTextureCommand>
@@ -34,7 +34,7 @@ namespace Pal3.Actor
 
         private bool _autoStand = true;
 
-        private Mv3ModelRenderer _mv3AnimationRenderer;
+        private Mv3ModelRenderer _mv3ModelRenderer;
         private WaitUntilCanceled _animationLoopPointWaiter;
 
         private Bounds _rendererBounds;
@@ -124,7 +124,7 @@ namespace Pal3.Actor
             DisposeCurrentAction();
 
             _animationLoopPointWaiter = waiter;
-            _mv3AnimationRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
+            _mv3ModelRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
 
             ActorActionType? actionType = ActorConstants.NameToActionMap.ContainsKey(actionName.ToLower()) ?
                 ActorConstants.NameToActionMap[actionName.ToLower()] : null;
@@ -142,7 +142,7 @@ namespace Pal3.Actor
                 PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
                 ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                     Utility.GetRelativeDirectoryPath(weaponPath));
-                _mv3AnimationRenderer.Init(mv3File,
+                _mv3ModelRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,
                     _tintColor,
@@ -151,49 +151,49 @@ namespace Pal3.Actor
             }
             else
             {
-                _mv3AnimationRenderer.Init(mv3File,
+                _mv3ModelRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,
                     _tintColor);
             }
 
-            _mv3AnimationRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
-            _mv3AnimationRenderer.StartAnimation(loopCount);
+            _mv3ModelRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
+            _mv3ModelRenderer.StartAnimation(loopCount);
 
-            _rendererBounds = _mv3AnimationRenderer.GetRendererBounds();
-            _meshBounds = _mv3AnimationRenderer.GetMeshBounds();
+            _rendererBounds = _mv3ModelRenderer.GetRendererBounds();
+            _meshBounds = _mv3ModelRenderer.GetMeshBounds();
 
             base.PerformAction(actionName, overwrite, loopCount, waiter);
         }
 
         public override void PauseAnimation()
         {
-            if (_mv3AnimationRenderer != null)
+            if (_mv3ModelRenderer != null)
             {
-                _mv3AnimationRenderer.PauseAnimation();
+                _mv3ModelRenderer.PauseAnimation();
             }
         }
 
         public override float GetActorHeight()
         {
-            if (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible())
+            if (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible())
             {
                 return _meshBounds.size.y;
             }
 
-            return _mv3AnimationRenderer.GetMeshBounds().size.y;
+            return _mv3ModelRenderer.GetMeshBounds().size.y;
         }
 
         public override Bounds GetRendererBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _rendererBounds :
-                _mv3AnimationRenderer.GetRendererBounds();
+            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible()) ? _rendererBounds :
+                _mv3ModelRenderer.GetRendererBounds();
         }
 
         public override Bounds GetMeshBounds()
         {
-            return (_mv3AnimationRenderer == null || !_mv3AnimationRenderer.IsVisible()) ? _meshBounds :
-                _mv3AnimationRenderer.GetMeshBounds();
+            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible()) ? _meshBounds :
+                _mv3ModelRenderer.GetMeshBounds();
         }
 
         private void AnimationLoopPointReached(object _, int loopCount)
@@ -203,10 +203,10 @@ namespace Pal3.Actor
                 _animationLoopPointWaiter?.CancelWait();
             }
 
-            if (_autoStand && _mv3AnimationRenderer.IsVisible())
+            if (_autoStand && _mv3ModelRenderer.IsVisible())
             {
                 if (loopCount is 0 ||
-                    (loopCount is -2 && !_mv3AnimationRenderer.IsActionInHoldState()))
+                    (loopCount is -2 && !_mv3ModelRenderer.IsActionInHoldState()))
                 {
                     PerformAction(_actor.GetIdleAction());
                 }
@@ -217,10 +217,10 @@ namespace Pal3.Actor
         {
             _animationLoopPointWaiter?.CancelWait();
 
-            if (_mv3AnimationRenderer != null)
+            if (_mv3ModelRenderer != null)
             {
-                _mv3AnimationRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
-                _mv3AnimationRenderer.Dispose();
+                _mv3ModelRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
+                _mv3ModelRenderer.Dispose();
             }
 
             base.DisposeCurrentAction();
@@ -230,9 +230,9 @@ namespace Pal3.Actor
         {
             DisposeCurrentAction();
 
-            if (_mv3AnimationRenderer != null)
+            if (_mv3ModelRenderer != null)
             {
-                Destroy(_mv3AnimationRenderer);
+                Destroy(_mv3ModelRenderer);
             }
 
             base.DeActivate();
@@ -246,23 +246,23 @@ namespace Pal3.Actor
         public void Execute(ActorStopActionCommand command)
         {
             if (command.ActorId != _actor.Info.Id ||
-                _mv3AnimationRenderer == null ||
-                !_mv3AnimationRenderer.IsVisible()) return;
+                _mv3ModelRenderer == null ||
+                !_mv3ModelRenderer.IsVisible()) return;
 
-            if (_mv3AnimationRenderer.IsActionInHoldState())
+            if (_mv3ModelRenderer.IsActionInHoldState())
             {
                 _animationLoopPointWaiter?.CancelWait();
                 _animationLoopPointWaiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
-                _mv3AnimationRenderer.ResumeAction();
+                _mv3ModelRenderer.ResumeAction();
             }
             else
             {
-                _mv3AnimationRenderer.PauseAnimation();
+                _mv3ModelRenderer.PauseAnimation();
                 _animationLoopPointWaiter?.CancelWait();
 
-                if (_autoStand && _mv3AnimationRenderer.IsVisible())
+                if (_autoStand && _mv3ModelRenderer.IsVisible())
                 {
                     PerformAction(_actor.GetIdleAction());
                 }
@@ -272,7 +272,7 @@ namespace Pal3.Actor
         public void Execute(ActorChangeTextureCommand command)
         {
             if (_actor.Info.Id != command.ActorId) return;
-            _mv3AnimationRenderer.ChangeTexture(command.TextureName);
+            _mv3ModelRenderer.ChangeTexture(command.TextureName);
         }
     }
 }

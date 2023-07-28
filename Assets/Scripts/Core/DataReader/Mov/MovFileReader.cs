@@ -86,7 +86,7 @@ namespace Core.DataReader.Mov
         {
             return new MovAnimationEvent()
             {
-                Tick = GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle()),
+                Tick = GameBoxInterpreter.SecondsToTick(reader.ReadSingle()),
                 Name = reader.ReadString(16, codepage)
             };
         }
@@ -110,7 +110,7 @@ namespace Core.DataReader.Mov
             {
                 animationKeyFrames[i] = new MovAnimationKeyFrame()
                 {
-                    Tick = GameBoxInterpreter.GameBoxSecondsToTick(reader.ReadSingle()),
+                    Tick = GameBoxInterpreter.SecondsToTick(reader.ReadSingle()),
                     Translation = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
                     Rotation = GameBoxInterpreter.MovQuaternionToUnityQuaternion(new GameBoxQuaternion()
                     {

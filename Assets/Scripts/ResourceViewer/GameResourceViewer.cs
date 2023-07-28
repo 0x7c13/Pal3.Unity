@@ -16,6 +16,8 @@ namespace ResourceViewer
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Gdb;
+    using Core.DataReader.Mov;
+    using Core.DataReader.Msh;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;

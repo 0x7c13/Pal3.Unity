@@ -62,18 +62,11 @@ namespace Core.Utils
         {
             return platform switch
             {
-                RuntimePlatform.WindowsPlayer => WindowsSupportedVideoFormats,
-                RuntimePlatform.WindowsEditor => WindowsSupportedVideoFormats,
-
-                RuntimePlatform.OSXPlayer => MacOSSupportedVideoFormats,
-                RuntimePlatform.OSXEditor => MacOSSupportedVideoFormats,
-
-                RuntimePlatform.LinuxPlayer => LinuxSupportedVideoFormats,
-                RuntimePlatform.LinuxEditor => LinuxSupportedVideoFormats,
-
+                RuntimePlatform.WindowsPlayer or RuntimePlatform.WindowsEditor => WindowsSupportedVideoFormats,
+                RuntimePlatform.OSXPlayer or RuntimePlatform.OSXEditor => MacOSSupportedVideoFormats,
+                RuntimePlatform.LinuxPlayer or  RuntimePlatform.LinuxEditor => LinuxSupportedVideoFormats,
                 RuntimePlatform.IPhonePlayer => iOSSupportedVideoFormats,
                 RuntimePlatform.Android => AndroidSupportedVideoFormats,
-
                 _ => new HashSet<string> {".mp4" }
             };
         }

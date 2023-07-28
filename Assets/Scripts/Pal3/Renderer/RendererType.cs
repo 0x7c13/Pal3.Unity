@@ -10,6 +10,6 @@ namespace Pal3.Renderer
         Cvd,
         Pol,
         Mv3,
-        Mov,
+        Msh,
     }
 }
