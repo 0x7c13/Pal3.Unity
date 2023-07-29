@@ -209,10 +209,21 @@ namespace Pal3.Renderer
             if (track != null)
             {
                 int currentFrameIndex = Utility.GetFloorIndex(bone.FrameTicks, tick);
+                uint currentFrameTick = bone.FrameTicks[currentFrameIndex];
+                var nextFrameIndex = currentFrameIndex < bone.FrameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                uint nextFrameTick = nextFrameIndex == 0 ? _movFile.Duration : bone.FrameTicks[nextFrameIndex];
 
-                // TODO: Interpolate between frames
-                Vector3 localPosition = track.Value.KeyFrames[currentFrameIndex].Translation;
-                Quaternion localRotation = track.Value.KeyFrames[currentFrameIndex].Rotation;
+                var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+
+                Vector3 localPosition = Vector3.Lerp(
+                    track.Value.KeyFrames[currentFrameIndex].Translation,
+                    track.Value.KeyFrames[nextFrameIndex].Translation,
+                    influence);
+
+                Quaternion localRotation = Quaternion.Slerp(
+                    track.Value.KeyFrames[currentFrameIndex].Rotation,
+                    track.Value.KeyFrames[nextFrameIndex].Rotation,
+                    influence);
 
                 boneGo.transform.localPosition = localPosition;
                 boneGo.transform.localRotation = localRotation;
