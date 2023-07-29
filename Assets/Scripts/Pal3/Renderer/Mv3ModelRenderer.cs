@@ -103,7 +103,7 @@ namespace Pal3.Renderer
             {
                 Mv3Mesh mesh = mv3File.Meshes[i];
                 var materialId = mesh.Attributes[0].MaterialId;
-                Mv3Material material = mv3File.Materials[materialId];
+                GameBoxMaterial material = mv3File.Materials[materialId];
 
                 InitSubMeshes(i, ref mesh, ref material);
             }
@@ -136,11 +136,11 @@ namespace Pal3.Renderer
 
         private void InitSubMeshes(int index,
             ref Mv3Mesh mv3Mesh,
-            ref Mv3Material material)
+            ref GameBoxMaterial material)
         {
-            var textureName = material.TextureNames[0];
+            var textureName = material.TextureFileNames[0];
 
-            _gbMaterials[index] = material.Material;
+            _gbMaterials[index] = material;
             _textures[index] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
             _textureHasAlphaChannel[index]= hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
@@ -165,7 +165,6 @@ namespace Pal3.Renderer
                 GameBoxBlendFlag.AlphaBlend :
                 GameBoxBlendFlag.Opaque;
             materialInfoPresenter.material = _gbMaterials[index];
-            materialInfoPresenter.textureNames = material.TextureNames;
             #endif
 
             var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();

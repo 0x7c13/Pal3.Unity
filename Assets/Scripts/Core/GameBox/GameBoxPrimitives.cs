@@ -10,11 +10,12 @@ namespace Core.GameBox
     [System.Serializable]
     public struct GameBoxMaterial
     {
-        public Color32 Diffuse;
-        public Color32 Ambient;
-        public Color32 Specular;
-        public Color32 Emissive;
-        public float Power;
+        public Color Diffuse;
+        public Color Ambient;
+        public Color Specular;
+        public Color Emissive;
+        public float SpecularPower;
+        public string[] TextureFileNames;
     }
 
     // To meet opengl, use this order instead:

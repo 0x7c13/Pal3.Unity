@@ -70,7 +70,7 @@ namespace Core.DataReader.Mv3
                 tagNodes[i] = ReadTagNode(reader, _codepage);
             }
 
-            var materials = new Mv3Material[numberOfMaterials];
+            var materials = new GameBoxMaterial[numberOfMaterials];
             for (var i = 0; i < numberOfMaterials; i++)
             {
                 materials[i] = ReadMaterial(reader, _codepage);
@@ -85,8 +85,8 @@ namespace Core.DataReader.Mv3
             return new Mv3File(duration,
                 animationEvents,
                 tagNodes,
-                materials,
-                meshes);
+                meshes,
+                materials);
         }
 
         #if USE_UNSAFE_BINARY_READER
@@ -306,34 +306,30 @@ namespace Core.DataReader.Mv3
         }
 
         #if USE_UNSAFE_BINARY_READER
-        private static Mv3Material ReadMaterial(UnsafeBinaryReader reader, int codepage)
+        private static GameBoxMaterial ReadMaterial(UnsafeBinaryReader reader, int codepage)
         #else
-        private static Mv3Material ReadMaterial(BinaryReader reader, int codepage)
+        private static GameBoxMaterial ReadMaterial(BinaryReader reader, int codepage)
         #endif
         {
-            var material = new GameBoxMaterial()
+            GameBoxMaterial material = new ()
             {
                 Diffuse = Utility.ToColor(reader.ReadSingleArray(4)),
                 Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
                 Specular = Utility.ToColor(reader.ReadSingleArray(4)),
                 Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
-                Power = reader.ReadSingle()
+                SpecularPower = reader.ReadSingle()
             };
 
-            var textureNames = new List<string>();
+            List<string> textureNames = new ();
             for (var i = 0; i < 4; i++)
             {
                 string textureName;
                 var length = reader.ReadInt32();
-                if (length is < 0 or > 255)
-                {
-                    throw new InvalidDataException($"Invalid length of material name: {length}");
-                }
 
                 if (length == 0)
                 {
                     if (i > 0) continue;
-                    textureName = string.Empty; // Use default white texture?
+                    textureName = string.Empty; // Use default white texture
                 }
                 else
                 {
@@ -343,11 +339,9 @@ namespace Core.DataReader.Mv3
                 textureNames.Add(textureName);
             }
 
-            return new Mv3Material()
-            {
-                Material = material,
-                TextureNames = textureNames.ToArray(),
-            };
+            material.TextureFileNames = textureNames.ToArray();
+
+            return material;
         }
     }
 }

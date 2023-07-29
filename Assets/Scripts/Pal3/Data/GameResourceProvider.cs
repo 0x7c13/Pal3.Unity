@@ -23,6 +23,7 @@ namespace Pal3.Data
     using Core.DataReader.Lgt;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
+    using Core.DataReader.Mtl;
     using Core.DataReader.Mv3;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
@@ -678,6 +679,11 @@ namespace Pal3.Data
                 if (_gameResourceFileCache.ContainsKey(typeof(MovFile)))
                 {
                     _gameResourceFileCache[typeof(MovFile)]?.Clear();
+                }
+
+                if (_gameResourceFileCache.ContainsKey(typeof(MtlFile)))
+                {
+                    _gameResourceFileCache[typeof(MtlFile)]?.Clear();
                 }
 
                 if (_gameResourceFileCache.ContainsKey(typeof(Mv3File)))

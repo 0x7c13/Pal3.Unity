@@ -95,7 +95,7 @@ namespace Pal3.Renderer
             {
                 foreach (PolTexture texture in mesh.Textures)
                 {
-                    foreach (var textureName in texture.TextureNames)
+                    foreach (var textureName in texture.Material.TextureFileNames)
                     {
                         if (string.IsNullOrEmpty(textureName)) continue;
                         if (textureCache.ContainsKey(textureName)) continue;
@@ -128,7 +128,7 @@ namespace Pal3.Renderer
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
                 var textures = new List<(string name, Texture2D texture)>();
-                foreach (var textureName in mesh.Textures[i].TextureNames)
+                foreach (var textureName in mesh.Textures[i].Material.TextureFileNames)
                 {
                     if (string.IsNullOrEmpty(textureName))
                     {
@@ -155,7 +155,6 @@ namespace Pal3.Renderer
                 var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
                 materialInfoPresenter.blendFlag = mesh.Textures[i].BlendFlag;
                 materialInfoPresenter.material = mesh.Textures[i].Material;
-                materialInfoPresenter.textureNames = mesh.Textures[i].TextureNames;
                 #endif
 
                 var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();

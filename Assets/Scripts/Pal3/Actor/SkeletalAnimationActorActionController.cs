@@ -11,6 +11,7 @@ namespace Pal3.Actor
     using Core.DataLoader;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
+    using Core.DataReader.Mtl;
     using Core.Extensions;
     using Core.Utils;
     using Data;
@@ -77,18 +78,23 @@ namespace Pal3.Actor
                 return;
             }
 
-            MovFile movFile;
             MshFile mshFile;
+            MtlFile mtlFile;
+            MovFile movFile;
             ITextureResourceProvider textureProvider;
             try
             {
-                string movFilePath = _actor.GetActionFilePath(actionName);
-                movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
-                textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(movFilePath));
-
                 string mshFilePath = _actor.GetMeshFilePath(actionName);
                 mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
+
+                string mtlFilePath = _actor.GetMaterialFilePath(actionName);
+                mtlFile = _resourceProvider.GetGameResourceFile<MtlFile>(mtlFilePath);
+
+                string movFilePath = _actor.GetActionFilePath(actionName);
+                movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
+
+                textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(movFilePath));
             }
             catch (Exception ex)
             {
@@ -102,9 +108,9 @@ namespace Pal3.Actor
             _skeletalModelRenderer = gameObject.GetOrAddComponent<SkeletalModelRenderer>();
 
             _skeletalModelRenderer.Init(mshFile,
+                mtlFile,
                 _materialFactory,
                 textureProvider,
-                _actor.Info.Name + ".tga", // TODO: Read texture name from MTL file
                 _tintColor);
 
             _skeletalModelRenderer.StartAnimation(movFile, loopCount);

@@ -47,6 +47,7 @@ namespace Pal3.Actor
 
             ActorActionConfig defaultConfig = _resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{name}.ini");
 
+            // Add default config if it is MV3 animated
             if (defaultConfig is Mv3ActionConfig mv3Config)
             {
                 AddActorConfig(mv3Config);
@@ -54,13 +55,13 @@ namespace Pal3.Actor
                 return;
             }
 
-            // Add default config if it is MOV
+            // Add default config if it is MOV animated
             if (defaultConfig is MovActionConfig)
             {
                 AddActorConfig(defaultConfig);
             }
 
-            // For MOV animation actor, additional action config files are defined as
+            // For MOV animated skeletal actor, additional action config files are defined as
             // 01.ini, 02.ini ...up tp 09.ini
             for (var i = 0; i <= 9; i++)
             {
@@ -132,6 +133,24 @@ namespace Pal3.Actor
             return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
                    $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
                    $"{meshFileName}";
+        }
+
+        public string GetMaterialFilePath(string actionName)
+        {
+            if (AnimationType != ActorAnimationType.Skeletal)
+            {
+                throw new InvalidOperationException("Mtl file path is only available for skeletal animation type.");
+            }
+
+            if (!_actionNameToMaterialFileNameMap.TryGetValue(actionName, out var mtlFileName))
+            {
+                throw new ArgumentException($"Mtl file name not found for action name {actionName}");
+            }
+
+            char separator = CpkConstants.DirectorySeparator;
+            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
+                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
+                   $"{mtlFileName}";
         }
     }
 }

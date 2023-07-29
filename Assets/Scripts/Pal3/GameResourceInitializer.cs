@@ -21,6 +21,7 @@ namespace Pal3
     using Core.DataReader.Lgt;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
+    using Core.DataReader.Mtl;
     using Core.DataReader.Mv3;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
@@ -163,6 +164,7 @@ namespace Pal3
             ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<MshFile>>(new MshFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<MtlFile>>(new MtlFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());

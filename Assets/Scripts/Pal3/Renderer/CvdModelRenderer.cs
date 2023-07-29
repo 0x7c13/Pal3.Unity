@@ -140,10 +140,11 @@ namespace Pal3.Renderer
             {
                 foreach (CvdMeshSection meshSection in node.Mesh.MeshSections)
                 {
-                    if (string.IsNullOrEmpty(meshSection.TextureName)) continue;
-                    if (textureCache.ContainsKey(meshSection.TextureName)) continue;
-                    Texture2D texture2D = textureProvider.GetTexture(meshSection.TextureName);
-                    if (texture2D != null) textureCache[meshSection.TextureName] = texture2D;
+                    string textureName = meshSection.Material.TextureFileNames[0];
+                    if (string.IsNullOrEmpty(textureName)) continue;
+                    if (textureCache.ContainsKey(textureName)) continue;
+                    Texture2D texture2D = textureProvider.GetTexture(textureName);
+                    if (texture2D != null) textureCache[textureName] = texture2D;
                 }
             }
 
@@ -232,8 +233,9 @@ namespace Pal3.Renderer
                         influence,
                         frameMatrix);
 
-                    if (string.IsNullOrEmpty(meshSection.TextureName) ||
-                        !textureCache.ContainsKey(meshSection.TextureName)) continue;
+                    string textureName = meshSection.Material.TextureFileNames[0];
+
+                    if (string.IsNullOrEmpty(textureName) || !textureCache.ContainsKey(textureName)) continue;
 
                     var meshSectionObject = new GameObject($"{sectionHashKey}");
 
@@ -242,12 +244,11 @@ namespace Pal3.Renderer
                     var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
                     materialInfoPresenter.blendFlag = meshSection.BlendFlag;
                     materialInfoPresenter.material = meshSection.Material;
-                    materialInfoPresenter.textureNames = new[] {meshSection.TextureName};
                     #endif
 
                     Material[] materials = materialFactory.CreateStandardMaterials(
                         RendererType.Cvd,
-                        (meshSection.TextureName, textureCache[meshSection.TextureName]),
+                        (textureName, textureCache[textureName]),
                         shadowTexture: (null, null), // CVD models don't have shadow textures
                         _tintColor,
                         meshSection.BlendFlag);

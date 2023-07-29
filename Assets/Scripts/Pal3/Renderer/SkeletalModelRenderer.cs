@@ -13,6 +13,7 @@ namespace Pal3.Renderer
     using System.Collections.Generic;
     using System.Threading;
     using Core.DataLoader;
+    using Core.DataReader.Mtl;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
@@ -50,7 +51,7 @@ namespace Pal3.Renderer
 
             FrameTicks = new uint[track.KeyFrames.Length];
 
-            for (int i = 0; i < track.KeyFrames.Length; i++)
+            for (var i = 0; i < track.KeyFrames.Length; i++)
             {
                 FrameTicks[i] = track.KeyFrames[i].Tick;
             }
@@ -76,7 +77,7 @@ namespace Pal3.Renderer
         private MshFile _mshFile;
         private MovFile _movFile;
 
-        private string _textureName;
+        private (string textureName, Texture2D texture) _mainTexture;
         private Texture2D _texture;
         private Color _tintColor;
 
@@ -93,18 +94,23 @@ namespace Pal3.Renderer
         private readonly Dictionary<int, Vector3[]> _vertexBuffer = new();
 
         public void Init(MshFile mshFile,
+            MtlFile mtlFile,
             IMaterialFactory materialFactory,
             ITextureResourceProvider textureProvider,
-            string textureName,
-            Color? tintColor = default) // TODO: Read texture name from <actorName>.mtl file
+            Color? tintColor = default)
         {
             Dispose();
 
             _mshFile = mshFile;
             _materialFactory = materialFactory;
-            _textureName = textureName;
-            _texture = textureProvider.GetTexture(_textureName);
             _tintColor = tintColor ?? Color.white;
+
+            // All .mtl files in PAL3 contain only one material,
+            // and there is only one texture in the material
+            // so we only need to load the first texture from the
+            // first material to use as the main texture for the whole model
+            string textureName = mtlFile.Materials[0].TextureFileNames[0];
+            _mainTexture = (mtlFile.Materials[0].TextureFileNames[0], textureProvider.GetTexture(textureName));
 
             SetupBone(_mshFile.RootBoneNode, parentBone: null);
             RenderMesh();
@@ -215,9 +221,7 @@ namespace Pal3.Renderer
 
                 if (!bone.IsRoot())
                 {
-                    Bone parentBone = _bones[boneNode.ParentId];
-                    Matrix4x4 parentCurPoseToModelMatrix = parentBone.CurrentPoseToModelMatrix;
-                    curPoseToModelMatrix = parentCurPoseToModelMatrix * curPoseToModelMatrix;
+                    curPoseToModelMatrix = _bones[boneNode.ParentId].CurrentPoseToModelMatrix * curPoseToModelMatrix;
                 }
 
                 bone.CurrentPoseToModelMatrix = curPoseToModelMatrix;
@@ -281,7 +285,7 @@ namespace Pal3.Renderer
             _renderMeshComponents = new RenderMeshComponent[_mshFile.SubMeshes.Length];
             _meshObjects = new GameObject[_mshFile.SubMeshes.Length];
 
-            for (int i = 0; i < _mshFile.SubMeshes.Length; i++)
+            for (var i = 0; i < _mshFile.SubMeshes.Length; i++)
             {
                 MshMesh subMesh = _mshFile.SubMeshes[i];
                 RenderSubMesh(subMesh, i);
@@ -314,14 +318,14 @@ namespace Pal3.Renderer
 
             GameBoxInterpreter.ToUnityTriangles(triangles);
 
-            for (int i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
+            for (var i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
             {
                 vertices.Add(subMesh.Vertices[_indexBuffer[subMeshIndex][i]].Position);
             }
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Msh,
-                (_textureName, _texture),
+                _mainTexture,
                 default,
                 _tintColor,
                 GameBoxBlendFlag.Opaque);
@@ -376,7 +380,7 @@ namespace Pal3.Renderer
 
             Vector3[] vertices = _renderMeshComponents[subMeshIndex].Mesh.vertices;
 
-            for (int i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
+            for (var i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
             {
                 vertices[i] = _vertexBuffer[subMeshIndex][_indexBuffer[subMeshIndex][i]];
             }

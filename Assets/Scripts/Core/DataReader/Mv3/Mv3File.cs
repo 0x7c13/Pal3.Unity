@@ -56,12 +56,6 @@ namespace Core.DataReader.Mv3
         public Mv3Vert[] Vertices;
     }
 
-    public struct Mv3Material
-    {
-        public GameBoxMaterial Material;
-        public string[] TextureNames;
-    }
-
     public struct Mv3Mesh
     {
         public string Name; // 64 chars max
@@ -87,20 +81,20 @@ namespace Core.DataReader.Mv3
         public uint Duration { get; }
         public Mv3AnimationEvent[] AnimationEvents { get; }
         public Mv3TagNode[] TagNodes { get; }
-        public Mv3Material[] Materials { get; }
         public Mv3Mesh[] Meshes { get; }
+        public GameBoxMaterial[] Materials { get; }
 
         public Mv3File(uint duration,
             Mv3AnimationEvent[] animationEvents,
             Mv3TagNode[] tagNodes,
-            Mv3Material[] materials,
-            Mv3Mesh[] meshes)
+            Mv3Mesh[] meshes,
+            GameBoxMaterial[] materials)
         {
             Duration = duration;
             AnimationEvents = animationEvents;
             TagNodes = tagNodes;
-            Materials = materials;
             Meshes = meshes;
+            Materials = materials;
         }
     }
 }

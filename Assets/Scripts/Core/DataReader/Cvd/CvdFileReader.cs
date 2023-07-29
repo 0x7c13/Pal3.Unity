@@ -413,18 +413,17 @@ namespace Core.DataReader.Cvd
             int codepage)
         #endif
         {
-            var blendFlag = (GameBoxBlendFlag)reader.ReadByte();
+            GameBoxBlendFlag blendFlag = (GameBoxBlendFlag)reader.ReadByte();
 
-            var material = new GameBoxMaterial()
+            GameBoxMaterial material = new ()
             {
                 Diffuse = Utility.ToColor32(reader.ReadBytes(4)),
                 Ambient = Utility.ToColor32(reader.ReadBytes(4)),
                 Specular = Utility.ToColor32(reader.ReadBytes(4)),
                 Emissive = Utility.ToColor32(reader.ReadBytes(4)),
-                Power = reader.ReadSingle()
+                SpecularPower = reader.ReadSingle(),
+                TextureFileNames = new [] { reader.ReadString(64, codepage) }
             };
-
-            var textureName = reader.ReadString(64, codepage);
 
             var numberOfIndices = reader.ReadInt32();
 
@@ -458,7 +457,7 @@ namespace Core.DataReader.Cvd
                         Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
                         Specular = Utility.ToColor(reader.ReadSingleArray(4)),
                         Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
-                        Power = reader.ReadSingle()
+                        SpecularPower = reader.ReadSingle()
                     };
                 }
             }
@@ -486,7 +485,6 @@ namespace Core.DataReader.Cvd
             {
                 BlendFlag = blendFlag,
                 Material = material,
-                TextureName = textureName,
                 FrameVertices = frameVertices,
                 Triangles = triangles.ToArray(),
                 AnimationTimeKeys = animationTimeKeys,

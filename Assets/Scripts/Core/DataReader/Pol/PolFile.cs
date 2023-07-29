@@ -45,7 +45,6 @@ namespace Core.DataReader.Pol
     {
         public GameBoxBlendFlag BlendFlag;
         public GameBoxMaterial Material;
-        public string[] TextureNames;
         public uint VertStart;
         public uint VertEnd;
         public int[] Triangles;

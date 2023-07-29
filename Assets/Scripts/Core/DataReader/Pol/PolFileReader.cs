@@ -241,20 +241,20 @@ namespace Core.DataReader.Pol
         private static PolTexture ReadTextureInfo(BinaryReader reader, int version, int codepage)
         #endif
         {
-            var blendFlag = (GameBoxBlendFlag)reader.ReadUInt32();
+            GameBoxBlendFlag blendFlag = (GameBoxBlendFlag)reader.ReadUInt32();
 
-            var material = new GameBoxMaterial()
+            GameBoxMaterial material = new ()
             {
                 Diffuse = Utility.ToColor(reader.ReadSingleArray(4)),
                 Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
                 Specular = Utility.ToColor(reader.ReadSingleArray(4)),
                 Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
-                Power = reader.ReadSingle()
+                SpecularPower = reader.ReadSingle()
             };
 
             // Hack fix
-            if (material.Power < 0) material.Power = 0;
-            else if (material.Power > 128) material.Power = 128;
+            if (material.SpecularPower < 0) material.SpecularPower = 0;
+            else if (material.SpecularPower > 128) material.SpecularPower = 128;
 
             var numberOfTextures = reader.ReadInt32();
             var textureNames = new string[numberOfTextures];
@@ -264,6 +264,8 @@ namespace Core.DataReader.Pol
                 var textureName = reader.ReadString(64, codepage);
                 textureNames[i] = textureName;
             }
+
+            material.TextureFileNames = textureNames;
 
             _ = reader.ReadInt32();
             var vertStart = reader.ReadUInt32();
@@ -285,7 +287,6 @@ namespace Core.DataReader.Pol
             {
                 BlendFlag = blendFlag,
                 Material = material,
-                TextureNames = textureNames,
                 VertStart = vertStart,
                 VertEnd = vertEnd,
                 Triangles = triangles
