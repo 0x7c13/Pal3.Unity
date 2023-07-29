@@ -134,7 +134,7 @@ namespace Core.Animation
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
-                Quaternion rotation = Quaternion.Lerp(startRotation, toRotation,
+                Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
                 Vector3 direction = (rotation * Vector3.forward).normalized;
@@ -167,7 +167,7 @@ namespace Core.Animation
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
-                Quaternion rotation = Quaternion.Lerp(startRotation, toRotation,
+                Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
                 target.rotation = rotation;

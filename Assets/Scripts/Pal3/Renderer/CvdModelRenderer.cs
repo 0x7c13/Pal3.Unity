@@ -529,7 +529,7 @@ namespace Pal3.Renderer
             CvdAnimationScaleKeyFrame fromKeyFrame = nodeScaleInfo[startIndex];
             CvdAnimationScaleKeyFrame toKeyFrame = nodeScaleInfo[endIndex];
             float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
-            Quaternion calculatedRotation = Quaternion.Lerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
+            Quaternion calculatedRotation = Quaternion.Slerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
             Vector3 calculatedScale = Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence);
             return (calculatedScale, calculatedRotation);
         }
@@ -559,7 +559,7 @@ namespace Pal3.Renderer
             CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[startIndex];
             CvdAnimationRotationKeyFrame toKeyFrame = nodeRotationInfo[endIndex];
             float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
-            return Quaternion.Lerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
+            return Quaternion.Slerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
         }
 
         public void StopCurrentAnimation()

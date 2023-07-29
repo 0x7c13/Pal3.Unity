@@ -453,7 +453,7 @@ namespace Pal3.Renderer
 
                         Vector3 position = Vector3.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Position,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Position, influence);
-                        Quaternion rotation = Quaternion.Lerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
+                        Quaternion rotation = Quaternion.Slerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Rotation, influence);
 
                         _tagNodes[i].transform.localPosition = position;
