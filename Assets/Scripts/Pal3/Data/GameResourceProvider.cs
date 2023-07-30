@@ -138,18 +138,18 @@ namespace Pal3.Data
                 new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath);
         }
 
-        public T GetGameResourceFile<T>(string filePath, bool useCache = true)
+        public T GetGameResourceFile<T>(string fileVirtualPath, bool useCache = true)
         {
-            filePath = filePath.ToLower();
+            fileVirtualPath = fileVirtualPath.ToLower();
 
             if (useCache &&
                 _gameResourceFileCache.ContainsKey(typeof(T)) &&
-                _gameResourceFileCache[typeof(T)].ContainsKey(filePath))
+                _gameResourceFileCache[typeof(T)].ContainsKey(fileVirtualPath))
             {
-                return (T)_gameResourceFileCache[typeof(T)][filePath];
+                return (T)_gameResourceFileCache[typeof(T)][fileVirtualPath];
             }
 
-            T file = GetGameResourceFileReader<T>().Read(_fileSystem.ReadAllBytes(filePath));
+            T file = GetGameResourceFileReader<T>().Read(_fileSystem.ReadAllBytes(fileVirtualPath));
 
             if (useCache)
             {
@@ -158,15 +158,10 @@ namespace Pal3.Data
                 {
                     _gameResourceFileCache[typeof(T)] = new Dictionary<string, object>();
                 }
-                _gameResourceFileCache[typeof(T)][filePath] = file;
+                _gameResourceFileCache[typeof(T)][fileVirtualPath] = file;
             }
 
             return file;
-        }
-
-        public LgtFile GetLgt(string lgtFilePath)
-        {
-            return GetGameResourceFileReader<LgtFile>().Read(_fileSystem.ReadAllBytes(lgtFilePath));
         }
 
         public NavFile GetNav(string sceneFileName, string sceneName)
@@ -285,6 +280,13 @@ namespace Pal3.Data
             var sfxFilePath = $"{rootPath}{sfxFileRelativePath}";
 
             return sfxFilePath;
+        }
+
+        public string GetMusicFileVirtualPath(string musicName)
+        {
+            var separator = CpkConstants.DirectorySeparator;
+            return $"{FileConstants.MusicCpkPathInfo.cpkName}{separator}" +
+                   $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
         }
 
         public IEnumerator LoadAudioClipAsync(string filePath,
@@ -652,64 +654,60 @@ namespace Pal3.Data
 
             if (!newCityName.Equals(_currentCityName, StringComparison.OrdinalIgnoreCase))
             {
-                // Clean up cache after exiting current scene block
-                _textureCache?.DisposeAll();
-
-                foreach (Sprite sprite in _spriteCache.Values)
-                {
-                    Object.Destroy(sprite);
-                }
-                _spriteCache.Clear();
-
-                if (_gameResourceFileCache.ContainsKey(typeof(PolFile)))
-                {
-                    _gameResourceFileCache[typeof(PolFile)]?.Clear();
-                }
-
-                if (_gameResourceFileCache.ContainsKey(typeof(CvdFile)))
-                {
-                    _gameResourceFileCache[typeof(CvdFile)]?.Clear();
-                }
-
-                if (_gameResourceFileCache.ContainsKey(typeof(MshFile)))
-                {
-                    _gameResourceFileCache[typeof(MshFile)]?.Clear();
-                }
-
-                if (_gameResourceFileCache.ContainsKey(typeof(MovFile)))
-                {
-                    _gameResourceFileCache[typeof(MovFile)]?.Clear();
-                }
-
-                if (_gameResourceFileCache.ContainsKey(typeof(MtlFile)))
-                {
-                    _gameResourceFileCache[typeof(MtlFile)]?.Clear();
-                }
-
-                if (_gameResourceFileCache.ContainsKey(typeof(Mv3File)))
-                {
-                    var mv3FileCache = _gameResourceFileCache[typeof(Mv3File)];
-
-                    // Dispose non-main actor mv3 files
-                    // All main actor names start with "1"
-                    var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
-                    var mv3FilesToDispose = mv3FileCache.Keys
-                        .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
-                        .ToArray();
-                    foreach (var mv3File in mv3FilesToDispose)
-                    {
-                        mv3FileCache.Remove(mv3File);
-                    }
-                }
-
-                // clear all vfx prefabs in cache
-                _vfxEffectPrefabCache.Clear();
-
+                DisposeTemporaryInMemoryGameResources();
                 _currentCityName = newCityName;
             }
 
             // Unloads assets that are not used (textures etc.)
             Resources.UnloadUnusedAssets();
+        }
+
+        /// <summary>
+        /// Dispose temporary in-memory resources that are only used in current scene block.
+        /// </summary>
+        private void DisposeTemporaryInMemoryGameResources()
+        {
+            // Clean up texture cache after exiting current scene block
+            _textureCache?.DisposeAll();
+
+            // Clean up sprite cache after exiting current scene block
+            foreach (Sprite sprite in _spriteCache.Values)
+            {
+                Object.Destroy(sprite);
+            }
+            _spriteCache.Clear();
+
+            // Dispose in-memory game resource files
+            foreach (var fileCache in _gameResourceFileCache)
+            {
+                if (fileCache.Key == typeof(Mv3File))
+                {
+                    // Dispose non-main actor mv3 files
+                    // All main actor names start with "1"
+                    var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
+                    var mv3FilesToDispose = fileCache.Value.Keys
+                        .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
+                        .ToArray();
+                    foreach (var mv3File in mv3FilesToDispose)
+                    {
+                        fileCache.Value.Remove(mv3File);
+                    }
+                }
+                else if (fileCache.Key == typeof(GdbFile) ||
+                         fileCache.Key == typeof(Mv3ActionConfig) ||
+                         fileCache.Key == typeof(MovActionConfig))
+                {
+                    // These files are used/cached across scenes
+                    // Do not dispose them since they will be used in next scene block
+                }
+                else // Dispose all other files during scene block transition
+                {
+                    fileCache.Value.Clear();
+                }
+            }
+
+            // clear all vfx prefabs in cache
+            _vfxEffectPrefabCache.Clear();
         }
     }
 }

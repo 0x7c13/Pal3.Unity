@@ -110,7 +110,7 @@ namespace Pal3.Scene
             // information to be used for lighting, so we are not using it for now.
             // if (_resourceProvider.FileExists(sceneMetadataFilePrefix + ".lgt"))
             // {
-            //     LgtFile = _resourceProvider.GetLgt(sceneMetadataFilePrefix + ".lgt");
+            //     LgtFile = _resourceProvider.GetGameResourceFile<LgtFile>(sceneMetadataFilePrefix + ".lgt");
             // }
         }
 
