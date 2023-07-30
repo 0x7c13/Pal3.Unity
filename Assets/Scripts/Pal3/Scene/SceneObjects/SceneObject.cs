@@ -281,6 +281,7 @@ namespace Pal3.Scene.SceneObjects
             if (_sceneObjectGameObject != null)
             {
                 Object.Destroy(_sceneObjectGameObject);
+                _sceneObjectGameObject = null;
             }
         }
 

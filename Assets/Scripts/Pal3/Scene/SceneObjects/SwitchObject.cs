@@ -124,6 +124,8 @@ namespace Pal3.Scene.SceneObjects
                 _interactionIndicatorRenderer.Dispose();
                 Object.Destroy(_interactionIndicatorRenderer);
                 Object.Destroy(_interactionIndicatorGameObject);
+                _interactionIndicatorRenderer = null;
+                _interactionIndicatorGameObject = null;
             }
 
             if (ctx.StartedByPlayer &&
@@ -204,11 +206,13 @@ namespace Pal3.Scene.SceneObjects
             {
                 _interactionIndicatorRenderer.Dispose();
                 Object.Destroy(_interactionIndicatorRenderer);
+                _interactionIndicatorRenderer = null;
             }
 
             if (_interactionIndicatorGameObject != null)
             {
                 Object.Destroy(_interactionIndicatorGameObject);
+                _interactionIndicatorGameObject = null;
             }
 
             base.Deactivate();

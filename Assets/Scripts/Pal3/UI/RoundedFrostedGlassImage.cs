@@ -48,8 +48,8 @@ namespace Pal3.UI
         private void OnDestroy()
         {
             Destroy(_material);
-            image = null;
             _material = null;
+            image = null;
         }
 
         private void OnRectTransformDimensionsChange()

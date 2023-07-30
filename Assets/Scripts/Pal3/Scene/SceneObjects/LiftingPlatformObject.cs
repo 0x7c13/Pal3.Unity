@@ -168,11 +168,13 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 Object.Destroy(_platformController);
+                _platformController = null;
             }
 
             if (_meshCollider != null)
             {
                 Object.Destroy(_meshCollider);
+                _meshCollider = null;
             }
 
             base.Deactivate();

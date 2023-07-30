@@ -99,6 +99,7 @@ namespace Pal3.Scene.SceneObjects
                 if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
                 {
                     Object.Destroy(_meshCollider);
+                    _meshCollider = null;
                 }
             }
 
@@ -143,6 +144,7 @@ namespace Pal3.Scene.SceneObjects
             if (_meshCollider != null)
             {
                 Object.Destroy(_meshCollider);
+                _meshCollider = null;
             }
 
             base.Deactivate();

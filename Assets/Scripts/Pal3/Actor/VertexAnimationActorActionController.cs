@@ -221,6 +221,7 @@ namespace Pal3.Actor
             {
                 _mv3ModelRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
                 _mv3ModelRenderer.Dispose();
+                _mv3ModelRenderer = null;
             }
 
             base.DisposeCurrentAction();
@@ -229,12 +230,6 @@ namespace Pal3.Actor
         internal override void DeActivate()
         {
             DisposeCurrentAction();
-
-            if (_mv3ModelRenderer != null)
-            {
-                Destroy(_mv3ModelRenderer);
-            }
-
             base.DeActivate();
         }
 

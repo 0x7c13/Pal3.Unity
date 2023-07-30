@@ -146,6 +146,7 @@ namespace Pal3.Scene.SceneObjects
             if (_meshCollider != null)
             {
                 Object.Destroy(_meshCollider);
+                _meshCollider = null;
             }
 
             base.Deactivate();

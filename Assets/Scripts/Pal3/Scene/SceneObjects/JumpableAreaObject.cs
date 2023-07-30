@@ -56,6 +56,7 @@ namespace Pal3.Scene.SceneObjects
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 _triggerController.OnPlayerActorExited -= OnPlayerActorExited;
                 Object.Destroy(_triggerController);
+                _triggerController = null;
             }
 
             base.Deactivate();

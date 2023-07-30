@@ -83,16 +83,19 @@ namespace Pal3.Scene.SceneObjects
             if (_meshCollider != null)
             {
                 Object.Destroy(_meshCollider);
+                _meshCollider = null;
             }
 
             if (_subObjectMeshCollider != null)
             {
                 Object.Destroy(_subObjectMeshCollider);
+                _subObjectMeshCollider = null;
             }
 
             if (_subObjectGameObject != null)
             {
                 Object.Destroy(_subObjectGameObject);
+                _subObjectGameObject = null;
             }
 
             base.Deactivate();

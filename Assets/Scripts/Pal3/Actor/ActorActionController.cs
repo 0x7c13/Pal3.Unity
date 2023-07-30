@@ -140,16 +140,19 @@ namespace Pal3.Actor
             if (_shadow != null)
             {
                 Destroy(_shadow);
+                _shadow = null;
             }
 
             if (_rigidbody != null)
             {
                 Destroy(_rigidbody);
+                _rigidbody = null;
             }
 
             if (_collider != null)
             {
                 Destroy(_collider);
+                _collider = null;
             }
         }
 

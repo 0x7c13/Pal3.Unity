@@ -148,6 +148,7 @@ namespace Pal3.Actor
             if (_skeletalModelRenderer != null)
             {
                 _skeletalModelRenderer.Dispose();
+                _skeletalModelRenderer = null;
             }
 
             base.DisposeCurrentAction();
@@ -156,12 +157,6 @@ namespace Pal3.Actor
         internal override void DeActivate()
         {
             DisposeCurrentAction();
-
-            if (_skeletalModelRenderer != null)
-            {
-                Destroy(_skeletalModelRenderer);
-            }
-
             base.DeActivate();
         }
 

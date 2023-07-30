@@ -75,6 +75,7 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 Object.Destroy(_platformController);
+                _platformController = null;
             }
 
             base.Deactivate();

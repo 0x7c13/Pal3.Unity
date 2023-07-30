@@ -80,6 +80,7 @@ namespace Pal3.Scene.SceneObjects.Common
             if (_collider != null)
             {
                 Destroy(_collider);
+                _collider = null;
             }
         }
     }

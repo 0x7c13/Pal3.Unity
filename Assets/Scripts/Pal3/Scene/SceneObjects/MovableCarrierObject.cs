@@ -225,6 +225,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 Object.Destroy(_platformController);
+                _platformController = null;
             }
 
             base.Deactivate();

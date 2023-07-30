@@ -113,6 +113,7 @@ namespace Pal3.Scene.SceneObjects
         private void OnDisable()
         {
             Destroy(_effectComponent);
+            _effectComponent = null;
         }
     }
 }
