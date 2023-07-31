@@ -16,7 +16,7 @@ Shader "Pal3/RoundedFrostedGlass"
     Category
     {
         // We must be transparent, so other objects are drawn before this one.
-        Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Opaque" }
+        Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent" }
 
         SubShader
         {
@@ -84,7 +84,7 @@ Shader "Pal3/RoundedFrostedGlass"
                     return outsideDistance + insideDistance - absoluteRound;
                 }
 
-                inline float CalcAlpha(float2 samplePosition, float2 size, float radius){
+                inline float calcAlpha(float2 samplePosition, float2 size, float radius){
                     const float2 samplePositionTranslated = (samplePosition - .5) * size;
                     const float distToRect = roundedRectangle(samplePositionTranslated, radius * .5, size * .5);
                     const float distanceChange = fwidth(distToRect) * 0.5;
@@ -106,7 +106,7 @@ Shader "Pal3/RoundedFrostedGlass"
 
                 half4 frag(v2f i) : COLOR
                 {
-                    const float alpha = CalcAlpha(i.uvmain, _WidthHeightRadius.xy, _WidthHeightRadius.z);
+                    const float alpha = calcAlpha(i.uvmain, _WidthHeightRadius.xy, _WidthHeightRadius.z);
                     half4 cutoffColor = mixAlpha(tex2D(_MainTex, i.uvmain), _AdditiveColor, alpha);
                     clip(cutoffColor.a - 0.001);
 
@@ -188,7 +188,7 @@ Shader "Pal3/RoundedFrostedGlass"
                     return outsideDistance + insideDistance - absoluteRound;
                 }
 
-                inline float CalcAlpha(float2 samplePosition, float2 size, float radius){
+                inline float calcAlpha(float2 samplePosition, float2 size, float radius){
                     const float2 samplePositionTranslated = (samplePosition - .5) * size;
                     const float distToRect = roundedRectangle(samplePositionTranslated, radius * .5, size * .5);
                     const float distanceChange = fwidth(distToRect) * 0.5;
@@ -210,7 +210,7 @@ Shader "Pal3/RoundedFrostedGlass"
 
                 half4 frag(v2f i) : COLOR
                 {
-                    const float alpha = CalcAlpha(i.uvmain, _WidthHeightRadius.xy, _WidthHeightRadius.z);
+                    const float alpha = calcAlpha(i.uvmain, _WidthHeightRadius.xy, _WidthHeightRadius.z);
                     half4 cutoffColor = mixAlpha(tex2D(_MainTex, i.uvmain), _AdditiveColor, alpha);
                     clip(cutoffColor.a - 0.001);
 
