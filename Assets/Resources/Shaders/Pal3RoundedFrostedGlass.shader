@@ -20,21 +20,18 @@ Shader "Pal3/RoundedFrostedGlass"
 
         SubShader
         {
+            Cull Off
+            Lighting Off
+            ZTest Off
+            ZWrite Off
+            //ZTest [unity_GUIZTestMode]
+            Blend SrcAlpha OneMinusSrcAlpha
+
             // Horizontal blur
             GrabPass
             {
                 "_HBlur"
             }
-            /*
-            ZTest Off
-            Blend SrcAlpha OneMinusSrcAlpha
-            */
-
-            Cull Off
-            Lighting Off
-            ZWrite Off
-            //ZTest [unity_GUIZTestMode]
-            Blend SrcAlpha OneMinusSrcAlpha
 
             Pass
             {
