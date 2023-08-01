@@ -349,10 +349,10 @@ namespace Pal3.Dev
         {
             SetupMenuLayout(isVertical: true);
 
-            const string lightingEnabledText = "实时光影：已开启";
-            const string lightingDisabledText = "实时光影：已关闭";
-            const string ssaoEnabledText = "环境光遮蔽：已开启";
-            const string ssaoDisabledText = "环境光遮蔽：已关闭";
+            const string lightingEnabledText = "实时光影：开启";
+            const string lightingDisabledText = "实时光影：关闭";
+            const string ssaoEnabledText = "环境光遮蔽：开启";
+            const string ssaoDisabledText = "环境光遮蔽：关闭";
 
             // Toon materials are not available in open source build.
             // so lighting and shadow will not work, thus we remove the option.
@@ -416,8 +416,8 @@ namespace Pal3.Dev
             }
 
             #if UNITY_STANDALONE
-            const string vsyncEnabledText = "垂直同步：已开启";
-            const string vsyncDisabledText = "垂直同步：已关闭";
+            const string vsyncEnabledText = "垂直同步：开启";
+            const string vsyncDisabledText = "垂直同步：关闭";
             string GetVsyncButtonText() => _gameSettings.VSyncCount == 0 ? vsyncDisabledText : vsyncEnabledText;
             CreateMenuButton(GetVsyncButtonText(), buttonTextUGUI => delegate
             {
@@ -477,8 +477,8 @@ namespace Pal3.Dev
             // });
             // #endif
 
-            const string musicEnabledText = "音乐：已开启";
-            const string musicDisabledText = "音乐：已关闭";
+            const string musicEnabledText = "音乐：开启";
+            const string musicDisabledText = "音乐：关闭";
             string GetMusicButtonText() => _gameSettings.MusicVolume == 0f ? musicDisabledText : musicEnabledText;
             CreateMenuButton(GetMusicButtonText(), buttonTextUGUI => delegate
             {
@@ -490,8 +490,8 @@ namespace Pal3.Dev
                     (_gameSettings.MusicVolume == 0f ? "关闭" : "开启") + ""));
             });
 
-            const string sfxEnabledText = "音效：已开启";
-            const string sfxDisabledText = "音效：已关闭";
+            const string sfxEnabledText = "音效：开启";
+            const string sfxDisabledText = "音效：关闭";
             string GetSfxButtonText() => _gameSettings.SfxVolume == 0f ? sfxDisabledText : sfxEnabledText;
             CreateMenuButton(GetSfxButtonText(), buttonTextUGUI => delegate
             {

@@ -18,10 +18,12 @@ namespace ResourceViewer
     using Core.DataReader.Gdb;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
+    using Core.DataReader.Mtl;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -52,6 +54,7 @@ namespace ResourceViewer
         [SerializeField] private Button randomCvdButton;
         [SerializeField] private Button randomMv3Button;
         [SerializeField] private Button randomMp3Button;
+        [SerializeField] private Button randomMovButton;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
@@ -62,6 +65,7 @@ namespace ResourceViewer
         private IList<string> _polFiles = new List<string>();
         private IList<string> _cvdFiles = new List<string>();
         private IList<string> _mv3Files = new List<string>();
+        private IList<string> _movFiles = new List<string>();
         private IList<string> _mp3Files = new List<string>();
         private static readonly Random Random = new ();
 
@@ -98,11 +102,13 @@ namespace ResourceViewer
             _polFiles = _fileSystem.Search(".pol").ToList();
             _cvdFiles = _fileSystem.Search(".cvd").ToList();
             _mv3Files = _fileSystem.Search(".mv3").ToList();
+            _movFiles = _fileSystem.Search(".mov").ToList();
             _mp3Files = _fileSystem.Search(".mp3").ToList();
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
             randomMv3Button.onClick.AddListener(RandMv3);
+            randomMovButton.onClick.AddListener(RandMov);
             randomMp3Button.onClick.AddListener(RandMp3);
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
@@ -201,6 +207,11 @@ namespace ResourceViewer
             while (!LoadMv3(_mv3Files[Random.Next(0, _mv3Files.Count)])) { }
         }
 
+        private void RandMov()
+        {
+            while (!LoadMov(_movFiles[Random.Next(0, _movFiles.Count)])) { }
+        }
+
         private void RandMp3()
         {
             while (!LoadMp3(_mp3Files[Random.Next(0, _mp3Files.Count)])) { }
@@ -228,6 +239,7 @@ namespace ResourceViewer
                 ".pol" => LoadPol(filePath),
                 ".cvd" => LoadCvd(filePath),
                 ".mv3" => LoadMv3(filePath),
+                ".mov" => LoadMov(filePath),
                 ".mp3" => LoadMp3(filePath),
                 _ => throw new Exception($"File extension: <{ext}> not supported.")
             };
@@ -281,9 +293,9 @@ namespace ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     Utility.GetRelativeDirectoryPath(filePath));
 
-                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
-                var meshRenderer = mesh.AddComponent<CvdModelRenderer>();
-                mesh.transform.SetParent(_renderingRoot.transform);
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                var meshRenderer = animationNode.AddComponent<CvdModelRenderer>();
+                animationNode.transform.SetParent(_renderingRoot.transform);
 
                 meshRenderer.Init(cvdFile,
                     textureProvider,
@@ -325,24 +337,26 @@ namespace ResourceViewer
 
                 var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
                 animationNode.transform.SetParent(_renderingRoot.transform);
-
                 var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
 
-                // For debugging tag node:
+                //For debugging tag node:
                 // if (mv3File.TagNodes is {Length: > 0} &&
                 //     !mv3File.TagNodes[0].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase) &&
                 //     filePath.Contains(@"ROLE\101"))
                 // {
                 //     var weaponName = "JT13";
                 //
-                //     var separator = CpkConstants.CpkDirectorySeparatorChar;
+                //     var weaponPath = FileConstants.GetWeaponModelFileVirtualPath(weaponName);
                 //
-                //     var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                //                      $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
-                //
-                //     var (polFile, weaponTextureProvider) = _resourceProvider.GetPol(weaponPath);
-                //     mv3AnimationRenderer.Init(mv3File, textureProvider, Color.white,
-                //         polFile, weaponTextureProvider, Color.white);
+                //     PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
+                //     ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
+                //         Utility.GetRelativeDirectoryPath(weaponPath));
+                //     mv3AnimationRenderer.Init(mv3File,
+                //         _resourceProvider.GetMaterialFactory(),
+                //         textureProvider,
+                //         Color.white,
+                //         polFile,
+                //         weaponTextureProvider);
                 // }
                 // else
                 {
@@ -352,6 +366,55 @@ namespace ResourceViewer
                 }
 
                 mv3AnimationRenderer.StartAnimation();
+
+                consoleTextUI.text = $"{filePath}";
+
+                Camera.main!.transform.LookAt(new Vector3(0, 2, 0));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                consoleTextUI.text = $"Failed to load: {filePath}";
+                return false;
+            }
+        }
+
+        private bool LoadMov(string filePath)
+        {
+            DestroyExistingRenderingObjects();
+
+            consoleTextUI.text = $"Loading: {filePath}";
+            Debug.Log($"Loading: {filePath}");
+
+            try
+            {
+                var actorFolderPath = Utility.GetRelativeDirectoryPath(filePath);
+                var actorName = Path.GetFileName(actorFolderPath);
+
+                string mshFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".msh";
+                var mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
+
+                string mtlFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".mtl";
+                var mtlFile = _resourceProvider.GetGameResourceFile<MtlFile>(mtlFilePath);
+
+                var movFile = _resourceProvider.GetGameResourceFile<MovFile>(filePath);
+
+                ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
+                    Utility.GetRelativeDirectoryPath(mtlFilePath));
+
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                animationNode.transform.SetParent(_renderingRoot.transform);
+
+                var skeletalModelRenderer = animationNode.GetOrAddComponent<SkeletalModelRenderer>();
+
+                skeletalModelRenderer.Init(mshFile,
+                    mtlFile,
+                    _resourceProvider.GetMaterialFactory(),
+                    textureProvider);
+
+                skeletalModelRenderer.StartAnimation(movFile);
 
                 consoleTextUI.text = $"{filePath}";
 
