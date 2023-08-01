@@ -41,11 +41,11 @@ namespace Pal3.Scene.SceneObjects
             _meshCollider.Init(new Vector3(-1f, 0f, 0f));
 
             // Add sub-component to the main object.
-            if (ModelFilePath.EndsWith("1.pol"))
+            if (ModelFileVirtualPath.EndsWith("1.pol"))
             {
                 _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
 
-                var subObjectModelPath = ModelFilePath.Replace("1.pol", "2.pol");
+                var subObjectModelPath = ModelFileVirtualPath.Replace("1.pol", "2.pol");
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     Utility.GetRelativeDirectoryPath(subObjectModelPath));

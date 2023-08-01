@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
 
             #if PAL3
             // Fix the color(texture) issue of impulsive mechanism in M11-2 which uses _r.pol as the main model
-            if (string.Equals(ModelFilePath, @"M11.cpk\2\_r.pol", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(ModelFileVirtualPath, @"M11.cpk\2\_r.pol", StringComparison.OrdinalIgnoreCase))
             {
                 tintColor = new Color(0.9f, 0.45f, 0f, 0.1f);
             }
@@ -59,7 +59,7 @@ namespace Pal3.Scene.SceneObjects
 
             _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
 
-            var subObjectModelPath = ModelFilePath.Insert(ModelFilePath.LastIndexOf('.'), "a");
+            var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                 Utility.GetRelativeDirectoryPath(subObjectModelPath));

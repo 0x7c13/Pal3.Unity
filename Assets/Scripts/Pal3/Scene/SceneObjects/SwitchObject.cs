@@ -31,8 +31,8 @@ namespace Pal3.Scene.SceneObjects
 
         private SceneObjectMeshCollider _meshCollider;
 
-        private readonly string _interactionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
-                                                                 CpkConstants.DirectorySeparator + "g03.cvd";
+        private const string INTERACTION_INDICATOR_MODEL_FILE_NAME = "g03.cvd";
+
         private CvdModelRenderer _interactionIndicatorRenderer;
         private GameObject _interactionIndicatorGameObject;
 
@@ -66,14 +66,18 @@ namespace Pal3.Scene.SceneObjects
             // and Parameter[1] is 0 (1 means the switch is not directly interactable)
             if (ObjectInfo.Times > 0 && ObjectInfo.Parameters[1] == 0)
             {
+                string interactionIndicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(
+                    INTERACTION_INDICATOR_MODEL_FILE_NAME);
+
                 Vector3 switchPosition = sceneGameObject.transform.position;
                 _interactionIndicatorGameObject = new GameObject("Switch_Interaction_Indicator");
                 _interactionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
                 _interactionIndicatorGameObject.transform.position =
                     new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
-                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+
+                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(interactionIndicatorModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(_interactionIndicatorModelPath));
+                    Utility.GetRelativeDirectoryPath(interactionIndicatorModelPath));
                 _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,

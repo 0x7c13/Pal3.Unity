@@ -334,32 +334,20 @@ namespace Pal3
         {
             ICpkFileSystem cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
-            var filesToMount = new List<string>();
-
-            var baseDataCpk = FileConstants.BaseDataCpkPathInfo.relativePath +
-                              Path.DirectorySeparatorChar + FileConstants.BaseDataCpkPathInfo.cpkName;
-
-            filesToMount.Add(baseDataCpk);
-
-            var musicCpk = FileConstants.MusicCpkPathInfo.relativePath +
-                           Path.DirectorySeparatorChar + FileConstants.MusicCpkPathInfo.cpkName;
-
-            filesToMount.Add(musicCpk);
-
-            foreach ((string cpkName, string relativePath) sceneCpkPathInfo in FileConstants.SceneCpkPathInfos)
+            var filesToMount = new List<string>
             {
-                var sceneCpkPath = sceneCpkPathInfo.relativePath + Path.DirectorySeparatorChar +
-                                   sceneCpkPathInfo.cpkName;
-                filesToMount.Add(sceneCpkPath);
+                FileConstants.BaseDataCpkFileVirtualPath,
+                FileConstants.MusicCpkFileVirtualPath
+            };
+
+            foreach (string sceneCpkFileName in FileConstants.SceneCpkFileNames)
+            {
+                filesToMount.Add(FileConstants.GetSceneCpkFileVirtualPath(sceneCpkFileName));
             }
 
             #if PAL3A
-            var scnCpk = FileConstants.ScnCpkPathInfo.relativePath +
-                          Path.DirectorySeparatorChar + FileConstants.ScnCpkPathInfo.cpkName;
-            filesToMount.Add(scnCpk);
-            var sceCpk = FileConstants.SceCpkPathInfo.relativePath +
-                          Path.DirectorySeparatorChar + FileConstants.SceCpkPathInfo.cpkName;
-            filesToMount.Add(sceCpk);
+            filesToMount.Add(FileConstants.ScnCpkFileVirtualPath);
+            filesToMount.Add(FileConstants.SceCpkFileVirtualPath);
             #endif
 
             foreach (var cpkFilePath in filesToMount)

@@ -10,7 +10,6 @@ namespace Pal3.Actor
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataLoader;
-    using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
@@ -134,11 +133,7 @@ namespace Pal3.Actor
                 _actor.GetWeaponName() is {} weaponName &&
                 ActorConstants.ActionNameToWeaponArmTypeMap[actionType.Value] != WeaponArmType.None)
             {
-                var separator = CpkConstants.DirectorySeparator;
-
-                var weaponPath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                                 $"{FileConstants.WeaponFolderName}{separator}{weaponName}{separator}{weaponName}.pol";
-
+                string weaponPath = FileConstants.GetWeaponModelFileVirtualPath(weaponName);
                 PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
                 ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                     Utility.GetRelativeDirectoryPath(weaponPath));

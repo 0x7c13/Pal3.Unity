@@ -138,8 +138,8 @@ namespace Pal3.Audio
             }
 
             _currentMusicClipName = musicName;
-            var musicFileVirtualPath = _resourceProvider.GetMusicFileVirtualPath(musicName);
-            var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
+            var musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(musicName);
+            var musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicName);
 
             yield return PlayMusicAsync(musicName, musicFileVirtualPath, musicFileCachePath, -1);
         }
@@ -440,8 +440,8 @@ namespace Pal3.Audio
 
             _currentScriptMusic = command.MusicName;
             _currentMusicClipName = command.MusicName;
-            var musicFileVirtualPath = _resourceProvider.GetMusicFileVirtualPath(command.MusicName);
-            var musicFileCachePath = _resourceProvider.GetMp3FilePathInCacheFolder(musicFileVirtualPath);
+            var musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(command.MusicName);
+            var musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicFileVirtualPath);
             StartCoroutine(PlayMusicAsync(command.MusicName,
                 musicFileVirtualPath,
                 musicFileCachePath,

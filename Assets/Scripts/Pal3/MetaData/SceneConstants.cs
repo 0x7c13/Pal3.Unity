@@ -6,26 +6,9 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
-    using Core.DataReader.Cpk;
 
     public static class SceneConstants
     {
-        private static readonly char PathSeparator = CpkConstants.DirectorySeparator;
-
-        private static readonly string EffectScnRelativePath =
-            $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-            $"{FileConstants.EffectScnFolderName}{PathSeparator}";
-
-        public static readonly string[] SkyBoxTexturePathFormat =
-        {
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_lf.tga",
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_fr.tga",
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_rt.tga",
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_bk.tga",
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_up.tga",
-            EffectScnRelativePath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_dn.tga",
-        };
-
         #if PAL3
         public static readonly List<(string cpkName, string sceneName)> SceneCpkNameInfos = new()
         {

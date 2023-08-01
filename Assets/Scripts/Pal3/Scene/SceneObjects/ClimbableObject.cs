@@ -28,8 +28,8 @@ namespace Pal3.Scene.SceneObjects
 
         private readonly PlayerGamePlayController _playerGamePlayController;
 
-        private readonly string _interactionIndicatorModelPath = FileConstants.ObjectFolderVirtualPath +
-                                                                 CpkConstants.DirectorySeparator + "g02.cvd";
+        private const string INTERACTION_INDICATOR_MODEL_FILE_NAME = "g02.cvd";
+
         private CvdModelRenderer _upperInteractionIndicatorRenderer;
         private CvdModelRenderer _lowerInteractionIndicatorRenderer;
         private GameObject _upperInteractionIndicatorGameObject;
@@ -59,9 +59,10 @@ namespace Pal3.Scene.SceneObjects
 
             IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
 
-            CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(_interactionIndicatorModelPath);
+            string indicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(INTERACTION_INDICATOR_MODEL_FILE_NAME);
+            CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(indicatorModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(_interactionIndicatorModelPath));
+                Utility.GetRelativeDirectoryPath(indicatorModelPath));
 
             // Upper indicator
             {

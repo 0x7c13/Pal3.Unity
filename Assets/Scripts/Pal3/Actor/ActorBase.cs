@@ -7,7 +7,6 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections.Generic;
-    using Core.DataReader.Cpk;
     using Core.DataReader.Ini;
     using Data;
     using MetaData;
@@ -40,12 +39,7 @@ namespace Pal3.Actor
 
         private void InitActorConfig(string name)
         {
-            char separator = CpkConstants.DirectorySeparator;
-
-            string actorActionConfigFolder = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                                             $"{FileConstants.ActorFolderName}{separator}{name}{separator}";
-
-            ActorActionConfig defaultConfig = _resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{name}.ini");
+            ActorActionConfig defaultConfig = _resourceProvider.GetActorActionConfig(name, $"{name}.ini");
 
             // Add default config if it is MV3 animated
             if (defaultConfig is Mv3ActionConfig mv3Config)
@@ -65,7 +59,7 @@ namespace Pal3.Actor
             // 01.ini, 02.ini ...up tp 09.ini
             for (var i = 0; i <= 9; i++)
             {
-                if (_resourceProvider.GetActorActionConfig(actorActionConfigFolder + $"{i:D2}.ini")
+                if (_resourceProvider.GetActorActionConfig(name, $"{i:D2}.ini")
                     is MovActionConfig movConfig)
                 {
                     AddActorConfig(movConfig);
@@ -111,10 +105,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Action file name not found for action name {actionName}");
             }
 
-            char separator = CpkConstants.DirectorySeparator;
-            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
-                   $"{actionFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{actionFileName}";
         }
 
         public string GetMeshFilePath(string actionName)
@@ -129,10 +120,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Msh file name not found for action name {actionName}");
             }
 
-            char separator = CpkConstants.DirectorySeparator;
-            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
-                   $"{meshFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{meshFileName}";
         }
 
         public string GetMaterialFilePath(string actionName)
@@ -147,10 +135,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Mtl file name not found for action name {actionName}");
             }
 
-            char separator = CpkConstants.DirectorySeparator;
-            return $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}" +
-                   $"{FileConstants.ActorFolderName}{separator}{_actorName}{separator}" +
-                   $"{mtlFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{mtlFileName}";
         }
     }
 }

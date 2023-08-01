@@ -537,7 +537,7 @@ namespace ResourceViewer
         {
             nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.DirectorySeparator);
             StartCoroutine(LoadMp3AudioClipAsync(filePath,
-                _resourceProvider.GetMp3FilePathInCacheFolder(filePath)));
+                _resourceProvider.GetMusicFilePathInCacheFolder(filePath)));
             return true;
         }
 

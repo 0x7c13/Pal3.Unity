@@ -40,8 +40,8 @@ namespace Pal3.Script
         public ScriptManager(GameResourceProvider resourceProvider)
         {
             resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
-            _systemSceFile = resourceProvider.GetSystemSce();
-            _bigMapSceFile = resourceProvider.GetBigMapSce();
+            _systemSceFile = resourceProvider.GetSystemSceFile();
+            _bigMapSceFile = resourceProvider.GetBigMapSceFile();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 

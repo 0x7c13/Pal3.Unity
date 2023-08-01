@@ -15,12 +15,10 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Core.Animation;
     using Core.DataLoader;
-    using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Core.GameBox;
-    using Core.Services;
     using Core.Utils;
     using Data;
     using Dev;
@@ -52,7 +50,7 @@ namespace Pal3.Scene.SceneObjects
         public SceneObjectModelType ModelType { get; }
 
         internal bool Activated;
-        internal string ModelFilePath;
+        internal string ModelFileVirtualPath;
 
         private IEffect _effectComponent;
         private GameObject _sceneObjectGameObject;
@@ -65,10 +63,10 @@ namespace Pal3.Scene.SceneObjects
             ObjectInfo = objectInfo;
             SceneInfo = sceneInfo;
 
-            ModelFilePath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
+            ModelFileVirtualPath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
-            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(ModelFilePath));
+            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(ModelFileVirtualPath));
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
@@ -87,27 +85,23 @@ namespace Pal3.Scene.SceneObjects
 
         private string GetModelFilePath(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
         {
-            var separator = CpkConstants.DirectorySeparator;
             var modelFilePath = string.Empty;
 
-            if (objectInfo.Name.StartsWith('_'))
+            if (objectInfo.Name.StartsWith('_')) // is object model in current scene folder
             {
-                modelFilePath = $"{sceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
-                                $"{sceneInfo.Model}{separator}{objectInfo.Name}";
+                modelFilePath = FileConstants.GetGameObjectModelFileVirtualPath(sceneInfo, objectInfo.Name);
             }
             else if (objectInfo.Name.StartsWith('+'))
             {
                 // Special vfx effect.
             }
-            else if (!objectInfo.Name.Contains('.'))
+            else if (!objectInfo.Name.Contains('.')) // is item name
             {
-                modelFilePath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}item" +
-                                $"{separator}{objectInfo.Name}{separator}{objectInfo.Name}.pol";
+                modelFilePath = FileConstants.GetGameItemModelFileVirtualPath(objectInfo.Name);
             }
-            else
+            else // is object model in game object folder
             {
-                modelFilePath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{separator}object" +
-                                $"{separator}{objectInfo.Name}";
+                modelFilePath = FileConstants.GetGameObjectModelFileVirtualPath(objectInfo.Name);
             }
 
             return modelFilePath;
@@ -130,9 +124,9 @@ namespace Pal3.Scene.SceneObjects
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
-                PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFilePath);
+                PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(ModelFilePath));
+                    Utility.GetRelativeDirectoryPath(ModelFileVirtualPath));
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
@@ -141,9 +135,9 @@ namespace Pal3.Scene.SceneObjects
             }
             else if (ModelType == SceneObjectModelType.CvdModel)
             {
-                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFilePath);
+                CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(ModelFilePath));
+                    Utility.GetRelativeDirectoryPath(ModelFileVirtualPath));
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,

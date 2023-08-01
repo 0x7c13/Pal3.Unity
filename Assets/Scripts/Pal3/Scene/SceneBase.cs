@@ -116,7 +116,7 @@ namespace Pal3.Scene
 
         private void InitNavData()
         {
-            NavFile = _resourceProvider.GetNav(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
+            NavFile = _resourceProvider.GetNavFile(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
             Tilemap = new Tilemap(NavFile);
         }
 

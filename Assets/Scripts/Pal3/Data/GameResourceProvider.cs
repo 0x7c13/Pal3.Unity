@@ -85,13 +85,15 @@ namespace Pal3.Data
             _litMaterialFactory = litMaterialFactory; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
-            var gdbFilePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.CombatDataFolderName}{PathSeparator}{GameConstants.AppName}_Softstar.gdb";
-
-            _gameDatabase = GetGameResourceFileReader<GdbFile>().Read(_fileSystem.ReadAllBytes(gdbFilePath));
+            _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        private GdbFile GetGameDatabaseFile()
+        {
+            var gdbFilePath = FileConstants.GameDatabaseFileVirtualPath;
+            return GetGameResourceFileReader<GdbFile>().Read(_fileSystem.ReadAllBytes(gdbFilePath));
         }
 
         private IFileReader<T> GetGameResourceFileReader<T>()
@@ -106,6 +108,7 @@ namespace Pal3.Data
             _gameResourceFileCache.Clear();
             _actorConfigCache.Clear();
             _audioClipCache.Clear();
+            _vfxEffectPrefabCache.Clear();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -164,50 +167,34 @@ namespace Pal3.Data
             return file;
         }
 
-        public NavFile GetNav(string sceneFileName, string sceneName)
+        public NavFile GetNavFile(string sceneFileName, string sceneName)
         {
-            #if PAL3
-            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}" +
-                              $"{sceneName}{PathSeparator}{sceneName}.nav";
-            #elif PAL3A
-            var navFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{PathSeparator}SCN{PathSeparator}" +
-                              $"{sceneFileName}{PathSeparator}{sceneName}{PathSeparator}{sceneName}.nav";
-            #endif
-
+            var navFilePath = FileConstants.GetNavFileVirtualPath(sceneFileName, sceneName);
             return GetGameResourceFileReader<NavFile>().Read(_fileSystem.ReadAllBytes(navFilePath));
         }
 
-        public ScnFile GetScn(string sceneFileName, string sceneName)
+        public ScnFile GetScnFile(string sceneFileName, string sceneName)
         {
-            #if PAL3
-            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneName}.scn";
-            #elif PAL3A
-            var scnFilePath = $"{FileConstants.ScnCpkPathInfo.cpkName}{PathSeparator}SCN{PathSeparator}" +
-                              $"{sceneFileName}{PathSeparator}{sceneFileName}_{sceneName}.scn";
-            #endif
-
+            var scnFilePath = FileConstants.GetScnFileVirtualPath(sceneFileName, sceneName);
             return GetGameResourceFileReader<ScnFile>().Read(_fileSystem.ReadAllBytes(scnFilePath));
         }
 
-        public SceFile GetSceneSce(string sceneFileName)
+        public SceFile GetSceneSceFile(string sceneFileName)
         {
-            #if PAL3
-            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneFileName}.sce";
-            #elif PAL3A
-            var sceFilePath = $"{FileConstants.SceCpkPathInfo.cpkName}{PathSeparator}Sce{PathSeparator}{sceneFileName}.sce";
-            #endif
-
+            var sceFilePath = FileConstants.GetSceneSceFileVirtualPath(sceneFileName);
             return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(sceFilePath));
         }
 
-        public SceFile GetSystemSce()
+        public SceFile GetSystemSceFile()
         {
-            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(FileConstants.SystemSceFileVirtualPath));
+            var systemSceFilePath = FileConstants.SystemSceFileVirtualPath;
+            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(systemSceFilePath));
         }
 
-        public SceFile GetBigMapSce()
+        public SceFile GetBigMapSceFile()
         {
-            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(FileConstants.BigMapSceFileVirtualPath));
+            var bigMapSceFilePath = FileConstants.BigMapSceFileVirtualPath;
+            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(bigMapSceFilePath));
         }
 
         public Dictionary<int, GameItem> GetGameItems()
@@ -219,8 +206,8 @@ namespace Pal3.Data
         /// Get music file path in cache folder.
         /// </summary>
         /// <param name="musicFileVirtualPath">music file virtual path</param>
-        /// <returns>Mp3 file path in cache folder</returns>
-        public string GetMp3FilePathInCacheFolder(string musicFileVirtualPath)
+        /// <returns>Music file path in cache folder</returns>
+        public string GetMusicFilePathInCacheFolder(string musicFileVirtualPath)
         {
             return Application.persistentDataPath
                    + Path.DirectorySeparatorChar
@@ -282,13 +269,6 @@ namespace Pal3.Data
             return sfxFilePath;
         }
 
-        public string GetMusicFileVirtualPath(string musicName)
-        {
-            var separator = CpkConstants.DirectorySeparator;
-            return $"{FileConstants.MusicCpkPathInfo.cpkName}{separator}" +
-                   $"{FileConstants.MusicCpkPathInfo.relativePath}{separator}{musicName}.mp3";
-        }
-
         public IEnumerator LoadAudioClipAsync(string filePath,
             AudioType audioType,
             bool streamAudio,
@@ -322,10 +302,7 @@ namespace Pal3.Data
 
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
-            var roleAvatarTextureRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.ActorFolderName}{PathSeparator}{actorName}{PathSeparator}";
-
+            var roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
@@ -355,20 +332,14 @@ namespace Pal3.Data
 
         private Texture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
         {
-            var emojiSpriteSheetRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.EmojiFolderName}{PathSeparator}";
-
+            string emojiSpriteSheetRelativePath = FileConstants.EmojiSpriteSheetFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(emojiSpriteSheetRelativePath);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
         }
 
         public Texture2D GetCaptionTexture(string name)
         {
-            var captionTextureRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.CaptionFolderName}{PathSeparator}";
-
+            var captionTextureRelativePath = FileConstants.CaptionFolderVirtualPath;
             // No need to cache caption texture since it is a one time thing
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(captionTextureRelativePath, useCache: false);
             return textureProvider.GetTexture($"{name}.tga");
@@ -376,16 +347,16 @@ namespace Pal3.Data
 
         public Texture2D[] GetSkyBoxTextures(int skyBoxId)
         {
-            var relativeFilePath = string.Format(SceneConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
+            var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
                 Utility.GetRelativeDirectoryPath(relativeFilePath));
 
-            var textures = new Texture2D[SceneConstants.SkyBoxTexturePathFormat.Length];
-            for (var i = 0; i < SceneConstants.SkyBoxTexturePathFormat.Length; i++)
+            var textures = new Texture2D[FileConstants.SkyBoxTexturePathFormat.Length];
+            for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = Utility.GetFileName(
-                    string.Format(SceneConstants.SkyBoxTexturePathFormat[i], skyBoxId), PathSeparator);
+                    string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), PathSeparator);
                 Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
@@ -397,10 +368,7 @@ namespace Pal3.Data
 
         public Texture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
-            var effectFolderRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.EffectFolderName}{PathSeparator}";
-
+            var effectFolderRelativePath = FileConstants.EffectFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
@@ -439,7 +407,7 @@ namespace Pal3.Data
 
         public Sprite[] GetJumpIndicatorSprites()
         {
-            var relativePath = FileConstants.UISceneFolderVirtualPath + PathSeparator;
+            var relativePath = FileConstants.UISceneFolderVirtualPath;
             var textureProvider = CreateTextureResourceProvider(relativePath);
 
             var sprites = new Sprite[4];
@@ -468,8 +436,10 @@ namespace Pal3.Data
             return sprites;
         }
 
-        public ActorActionConfig GetActorActionConfig(string actorConfigFilePath)
+        public ActorActionConfig GetActorActionConfig(string actorName, string configFileName)
         {
+            string actorConfigFilePath = FileConstants.GetActorFolderVirtualPath(actorName) + configFileName;
+
             actorConfigFilePath = actorConfigFilePath.ToLower();
 
             if (_actorConfigCache.TryGetValue(actorConfigFilePath, out ActorActionConfig actorActionConfig))
@@ -598,10 +568,7 @@ namespace Pal3.Data
 
         public Texture2D GetCursorTexture()
         {
-            var cursorSpriteRelativePath =
-                $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                $"{FileConstants.UIFolderName}{PathSeparator}{FileConstants.CursorFolderName}{PathSeparator}";
-
+            var cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
             Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
@@ -622,19 +589,14 @@ namespace Pal3.Data
 
             foreach (var name in ActorConstants.MainActorNameMap.Values)
             {
-                var actorConfigFile = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                                      $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}{name}.ini";
-
-                ActorActionConfig actorActionConfig = GetActorActionConfig(actorConfigFile);
+                ActorActionConfig actorActionConfig = GetActorActionConfig(name, $"{name}.ini");
 
                 foreach (ActorAction actorAction in actorActionConfig.ActorActions)
                 {
                     // Cache known actions only.
                     if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
 
-                    var mv3FilePath = $"{FileConstants.BaseDataCpkPathInfo.cpkName}{PathSeparator}" +
-                                      $"{FileConstants.ActorFolderName}{PathSeparator}{name}{PathSeparator}" +
-                                      $"{actorAction.ActionFileName}";
+                    var mv3FilePath = FileConstants.GetActorFolderVirtualPath(name) + actorAction.ActionFileName;
 
                     _ = GetGameResourceFile<Mv3File>(mv3FilePath); // Call GetMv3 to cache the mv3 file.
                 }
@@ -684,7 +646,7 @@ namespace Pal3.Data
                 {
                     // Dispose non-main actor mv3 files
                     // All main actor names start with "1"
-                    var mainActorMv3 = $"{FileConstants.ActorFolderName}{PathSeparator}1".ToLower();
+                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{PathSeparator}1".ToLower();
                     var mv3FilesToDispose = fileCache.Value.Keys
                         .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
                         .ToArray();

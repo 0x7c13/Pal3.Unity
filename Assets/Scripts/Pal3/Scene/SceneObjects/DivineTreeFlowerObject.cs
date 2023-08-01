@@ -42,13 +42,13 @@ namespace Pal3.Scene.SceneObjects
                 state.SwitchState == 1)
             {
                 isFlowerInOpenState = false;
-                ModelFilePath = ModelFilePath.Replace("1.pol", "2.pol",
+                ModelFileVirtualPath = ModelFileVirtualPath.Replace("1.pol", "2.pol",
                     StringComparison.OrdinalIgnoreCase);
             }
             else
             {
                 isFlowerInOpenState = true;
-                ModelFilePath = ModelFilePath.Replace("2.pol", "1.pol",
+                ModelFileVirtualPath = ModelFileVirtualPath.Replace("2.pol", "1.pol",
                     StringComparison.OrdinalIgnoreCase);
             }
 
