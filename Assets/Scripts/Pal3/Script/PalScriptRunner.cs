@@ -119,25 +119,6 @@ namespace Pal3.Script
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!_isDisposed)
-            {
-                if (disposing)
-                {
-                    CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-                    _scriptDataReader.Dispose();
-                }
-                _isDisposed = true;
-            }
-        }
-
         public bool Update(float deltaTime)
         {
             var canExecute = true;
@@ -239,6 +220,30 @@ namespace Pal3.Script
             {
                 Debug.LogWarning($"Setting value for user var: {variableName}, value: {value}");
                 _localVariables[variableName] = value;
+            }
+        }
+
+        ~PalScriptRunner()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+                    _scriptDataReader.Dispose();
+                }
+                _isDisposed = true;
             }
         }
 

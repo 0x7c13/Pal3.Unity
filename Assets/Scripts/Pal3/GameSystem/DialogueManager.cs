@@ -276,7 +276,7 @@ namespace Pal3.GameSystem
             _dialogueCanvasGroup.enabled = true;
             _isSkipDialogueRequested = false;
 
-            yield return StartDialogueAnimationAsync(true);
+            yield return PlayDialogueBackgroundPopAnimationAsync(true);
             _isSkipDialogueRequested = false; // Ignore skip request during dialogue rendering animation
 
             foreach (var dialogue in GetSubDialoguesAsync(text))
@@ -302,7 +302,7 @@ namespace Pal3.GameSystem
                 _totalTimeUsedBeforeSkippingTheLastDialogue = timer.Elapsed.TotalSeconds;
             }
 
-            yield return StartDialogueAnimationAsync(false);
+            yield return PlayDialogueBackgroundPopAnimationAsync(false);
 
             ResetUI();
 
@@ -311,7 +311,7 @@ namespace Pal3.GameSystem
             onFinished?.Invoke();
         }
 
-        private IEnumerator StartDialogueAnimationAsync(bool showDialogue)
+        private IEnumerator PlayDialogueBackgroundPopAnimationAsync(bool showDialogue)
         {
             const float yOffset = DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET;
             Transform dialogueCanvasGroupTransform = _dialogueCanvasGroup.transform;

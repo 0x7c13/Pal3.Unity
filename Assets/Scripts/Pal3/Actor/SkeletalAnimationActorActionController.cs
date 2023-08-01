@@ -94,7 +94,7 @@ namespace Pal3.Actor
                 movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
 
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(movFilePath));
+                    Utility.GetRelativeDirectoryPath(mtlFilePath));
             }
             catch (Exception ex)
             {
