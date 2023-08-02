@@ -404,7 +404,7 @@ namespace Pal3.Renderer
 
             _animationCts = new CancellationTokenSource();
 
-            yield return PlayAnimationInternal(timeScale,
+            yield return PlayAnimationInternalAsync(timeScale,
                 _animationDuration * durationPercentage,
                 loopCount,
                 startFromBeginning,
@@ -412,7 +412,7 @@ namespace Pal3.Renderer
                 _animationCts.Token);
         }
 
-        private IEnumerator PlayAnimationInternal(float timeScale,
+        private IEnumerator PlayAnimationInternalAsync(float timeScale,
             float duration,
             int loopCount,
             bool startFromBeginning,
@@ -423,21 +423,21 @@ namespace Pal3.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, duration, startFromBeginning, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(timeScale, duration, startFromBeginning, cancellationToken);
                 }
             }
             else if (loopCount > 0)
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternal(timeScale, duration, startFromBeginning, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(timeScale, duration, startFromBeginning, cancellationToken);
                 }
             }
 
             onFinished?.Invoke();
         }
 
-        private IEnumerator PlayOneTimeAnimationInternal(float timeScale,
+        private IEnumerator PlayOneTimeAnimationInternalAsync(float timeScale,
             float duration,
             bool startFromBeginning,
             CancellationToken cancellationToken)

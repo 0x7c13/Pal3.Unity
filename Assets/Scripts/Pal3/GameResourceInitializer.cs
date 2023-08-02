@@ -142,7 +142,7 @@ namespace Pal3
 
                 string userPickedGameDataFolderPath = null;
 
-                yield return WaitForUserToPickGameDataFolder((path) => userPickedGameDataFolderPath = path);
+                yield return WaitForUserToPickGameDataFolderAsync(path => userPickedGameDataFolderPath = path);
 
                 if (!string.IsNullOrEmpty(userPickedGameDataFolderPath))
                 {
@@ -209,7 +209,7 @@ namespace Pal3
             FinalizeInit();
         }
 
-        private IEnumerator WaitForUserToPickGameDataFolder(Action<string> callback)
+        private IEnumerator WaitForUserToPickGameDataFolderAsync(Action<string> callback)
         {
             string userPickedGameDataFolderPath = null;
 

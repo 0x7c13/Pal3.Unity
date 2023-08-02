@@ -10,6 +10,7 @@ namespace Pal3.GameSystem
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -28,6 +29,7 @@ namespace Pal3.GameSystem
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
+    using Debug = UnityEngine.Debug;
 
     public sealed class DialogueManager : MonoBehaviour,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
@@ -39,6 +41,7 @@ namespace Pal3.GameSystem
         private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS = 4f;
         private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.1f;
         private const float DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET = -30f;
+        private const float DIALOGUE_FLASHING_ANIMATION_DURATION = 0.5f;
 
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
 
@@ -68,6 +71,8 @@ namespace Pal3.GameSystem
         private int _lastSelectedButtonIndex;
         private readonly List<GameObject> _selectionButtons = new();
         private double _totalTimeUsedBeforeSkippingTheLastDialogue;
+        private readonly Stopwatch _reactionTimer = new ();
+        private CancellationTokenSource _flashingAnimationCts = new ();
 
         private DialogueRenderActorAvatarCommand _lastAvatarCommand;
         private readonly Queue<IEnumerator> _dialogueRenderQueue = new();
@@ -240,6 +245,7 @@ namespace Pal3.GameSystem
             Action onFinished = null)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
+            _totalTimeUsedBeforeSkippingTheLastDialogue = 0f;
 
             bool isRightAligned = true;
             bool isAvatarPresented = false;
@@ -266,11 +272,6 @@ namespace Pal3.GameSystem
 
             TextMeshProUGUI dialogueTextUI = GetRenderingTextUI(isAvatarPresented, isRightAligned);
 
-            // TODO: when trackReactionTime set to true, we should also show alert on UI
-            // to let player know
-
-            var timer = new Stopwatch();
-            timer.Start();
             _dialogueBackgroundImage.enabled = true;
             _dialogueCanvasGroup.alpha = 0f;
             _dialogueCanvasGroup.enabled = true;
@@ -279,6 +280,20 @@ namespace Pal3.GameSystem
             yield return PlayDialogueBackgroundPopAnimationAsync(true);
             _isSkipDialogueRequested = false; // Ignore skip request during dialogue rendering animation
 
+            if (trackReactionTime) // Setup timer and start flashing animation
+            {
+                _reactionTimer.Restart();
+                if (!_flashingAnimationCts.IsCancellationRequested)
+                {
+                    _flashingAnimationCts.Cancel();
+                }
+                _flashingAnimationCts = new CancellationTokenSource();
+                StartCoroutine(PlayDialogueBackgroundFlashingAnimationAsync(
+                     duration: LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS,
+                    _flashingAnimationCts.Token));
+            }
+
+            // Render dialogue text typing animation
             foreach (var dialogue in GetSubDialoguesAsync(text))
             {
                 IEnumerator renderDialogue = RenderDialogueTextWithAnimationAsync(dialogueTextUI, dialogue);
@@ -296,10 +311,12 @@ namespace Pal3.GameSystem
                 }
             }
 
-            timer.Stop();
-            if (trackReactionTime)
+            if (trackReactionTime) // Stop flashing animation and timer
             {
-                _totalTimeUsedBeforeSkippingTheLastDialogue = timer.Elapsed.TotalSeconds;
+                _flashingAnimationCts.Cancel();
+                _reactionTimer.Stop();
+                _totalTimeUsedBeforeSkippingTheLastDialogue = _reactionTimer.Elapsed.TotalSeconds;
+                Debug.LogWarning($"Reaction time: {_totalTimeUsedBeforeSkippingTheLastDialogue:0.00f}");
             }
 
             yield return PlayDialogueBackgroundPopAnimationAsync(false);
@@ -309,6 +326,32 @@ namespace Pal3.GameSystem
             _isDialoguePresenting = false;
 
             onFinished?.Invoke();
+        }
+
+        private IEnumerator PlayDialogueBackgroundFlashingAnimationAsync(float duration, CancellationToken cancellationToken)
+        {
+            var startTime = Time.realtimeSinceStartup;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                yield return CoreAnimation.EnumerateValueAsync(1f, 0.2f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
+                    AnimationCurveType.Linear, value =>
+                    {
+                        _dialogueCanvasGroup.alpha = value;
+                    }, cancellationToken);
+
+                if (Time.realtimeSinceStartup - startTime >= duration) break;
+
+                yield return CoreAnimation.EnumerateValueAsync(0.2f, 1f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
+                    AnimationCurveType.Linear, value =>
+                    {
+                        _dialogueCanvasGroup.alpha = value;
+                    }, cancellationToken);
+
+                if (Time.realtimeSinceStartup - startTime >= duration) break;
+            }
+
+            _dialogueCanvasGroup.alpha = 1f;
         }
 
         private IEnumerator PlayDialogueBackgroundPopAnimationAsync(bool showDialogue)
@@ -579,6 +622,14 @@ namespace Pal3.GameSystem
             _lastAvatarCommand = null;
             _totalTimeUsedBeforeSkippingTheLastDialogue = 0f;
             _dialogueRenderQueue.Clear();
+            _reactionTimer?.Reset();
+
+            if (!_flashingAnimationCts.IsCancellationRequested)
+            {
+                _flashingAnimationCts.Cancel();
+                _flashingAnimationCts = new CancellationTokenSource();
+            }
+
             ResetUI();
         }
     }
