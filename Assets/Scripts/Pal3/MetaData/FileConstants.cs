@@ -6,6 +6,7 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
+    using System.IO;
     using Core.DataReader.Cpk;
     using Core.DataReader.Scn;
 
@@ -47,7 +48,7 @@ namespace Pal3.MetaData
         private const string SCE_CPK_FILE_NAME = "sce.cpk";
         #endif
 
-        public static readonly HashSet<string>  MovieCpkFileNames = new()
+        public static readonly HashSet<string> MovieCpkFileNames = new()
         {
             "movie.cpk",
             "movie_end.cpk"
@@ -75,87 +76,93 @@ namespace Pal3.MetaData
         };
         #endif
 
-        private const char PathSeparator = CpkConstants.DirectorySeparator;
+        #region Platform specific file names and paths
+
+        public static readonly string BaseDataCpkFilePath =
+            $"{BASE_DATA_FOLDER_NAME}{Path.DirectorySeparatorChar}{BASE_DATA_CPK_FILE_NAME}";
+
+        public static readonly string MusicCpkFilePath =
+            $"{MUSIC_FOLDER_NAME}{Path.DirectorySeparatorChar}{MUSIC_CPK_FILE_NAME}";
+
+        #if PAL3A
+        public static readonly string ScnCpkFilePath = $"{SCENE_FOLDER_NAME}{Path.DirectorySeparatorChar}{SCN_CPK_FILE_NAME}";
+        public static readonly string SceCpkFilePath = $"{SCENE_FOLDER_NAME}{Path.DirectorySeparatorChar}{SCE_CPK_FILE_NAME}";
+        #endif
+
+        public static string GetSceneCpkFilePath(string sceneCpkFileName)
+        {
+            return $"{SCENE_FOLDER_NAME}{Path.DirectorySeparatorChar}{sceneCpkFileName}";
+        }
+
+        #endregion
+
+        #region CPK file system virtual file names and paths
+
+        private const char CpkPathSeparator = CpkConstants.DirectorySeparator;
 
         #if PAL3
         public static readonly string GameDatabaseFileVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{COMBAT_DATA_FOLDER_NAME}{PathSeparator}PAL3_Softstar.gdb";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{COMBAT_DATA_FOLDER_NAME}{CpkPathSeparator}PAL3_Softstar.gdb";
         #elif PAL3A
         public static readonly string GameDatabaseFileVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{COMBAT_DATA_FOLDER_NAME}{PathSeparator}PAL3A_Softstar.gdb";
-        #endif
-
-        #if PAL3A
-        public static readonly string ScnCpkFileVirtualPath = $"{SCENE_FOLDER_NAME}{PathSeparator}{SCN_CPK_FILE_NAME}";
-        public static readonly string SceCpkFileVirtualPath = $"{SCENE_FOLDER_NAME}{PathSeparator}{SCE_CPK_FILE_NAME}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{COMBAT_DATA_FOLDER_NAME}{CpkPathSeparator}PAL3A_Softstar.gdb";
         #endif
 
         public static readonly string EffectFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{EFFECT_FOLDER_NAME}{PathSeparator}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{EFFECT_FOLDER_NAME}{CpkPathSeparator}";
 
         public static readonly string EffectScnFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{EFFECT_SCN_FOLDER_NAME}{PathSeparator}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{EFFECT_SCN_FOLDER_NAME}{CpkPathSeparator}";
 
-        public static readonly string BaseDataCpkFileVirtualPath =
-            $"{BASE_DATA_FOLDER_NAME}{PathSeparator}{BASE_DATA_CPK_FILE_NAME}";
-
-        public static readonly string MusicCpkFileVirtualPath =
-            $"{MUSIC_FOLDER_NAME}{PathSeparator}{MUSIC_CPK_FILE_NAME}";
-
-        public static readonly string SystemSceFileVirtualPath = $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}init.sce";
+        public static readonly string SystemSceFileVirtualPath = $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}init.sce";
 
         public static readonly string BigMapSceFileVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{UI_FOLDER_NAME}{PathSeparator}{BIG_MAP_FOLDER_NAME}{PathSeparator}BigMap.sce";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{UI_FOLDER_NAME}{CpkPathSeparator}{BIG_MAP_FOLDER_NAME}{CpkPathSeparator}BigMap.sce";
 
         public static readonly  string UISceneFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{UI_FOLDER_NAME}{PathSeparator}scene{PathSeparator}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{UI_FOLDER_NAME}{CpkPathSeparator}scene{CpkPathSeparator}";
 
         public static readonly string[] SkyBoxTexturePathFormat =
         {
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_lf.tga",
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_fr.tga",
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_rt.tga",
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_bk.tga",
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_up.tga",
-            EffectScnFolderVirtualPath + "skybox" + PathSeparator + "{0:00}" + PathSeparator + "{0:00}_dn.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_lf.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_fr.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_rt.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_bk.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_up.tga",
+            EffectScnFolderVirtualPath + "skybox" + CpkPathSeparator + "{0:00}" + CpkPathSeparator + "{0:00}_dn.tga",
         };
 
         public static readonly string EmojiSpriteSheetFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{UI_FOLDER_NAME}{PathSeparator}{EMOJI_FOLDER_NAME}{PathSeparator}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{UI_FOLDER_NAME}{CpkPathSeparator}{EMOJI_FOLDER_NAME}{CpkPathSeparator}";
 
         public static readonly string CursorSpriteFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{UI_FOLDER_NAME}{PathSeparator}{CURSOR_FOLDER_NAME}{PathSeparator}";
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{UI_FOLDER_NAME}{CpkPathSeparator}{CURSOR_FOLDER_NAME}{CpkPathSeparator}";
 
         public static readonly string CaptionFolderVirtualPath =
-            $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{CAPTION_FOLDER_NAME}{PathSeparator}";
-
-        public static string GetSceneCpkFileVirtualPath(string sceneCpkFileName)
-        {
-            return $"{SCENE_FOLDER_NAME}{PathSeparator}{sceneCpkFileName}";
-        }
+            $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{CAPTION_FOLDER_NAME}{CpkPathSeparator}";
 
         public static string GetWeaponModelFileVirtualPath(string weaponName)
         {
-            return $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}" +
-                   $"{WEAPON_FOLDER_NAME}{PathSeparator}{weaponName}{PathSeparator}{weaponName}.pol";
+            return $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}" +
+                   $"{WEAPON_FOLDER_NAME}{CpkPathSeparator}{weaponName}{CpkPathSeparator}{weaponName}.pol";
         }
 
         public static string GetGameItemModelFileVirtualPath(string itemName)
         {
-            return $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}item" +
-                   $"{PathSeparator}{itemName}{PathSeparator}{itemName}.pol";
+            return $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}item" +
+                   $"{CpkPathSeparator}{itemName}{CpkPathSeparator}{itemName}.pol";
         }
 
         public static string GetGameObjectModelFileVirtualPath(string objectFileName)
         {
-            return $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}{OBJECT_FOLDER_NAME}" +
+            return $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}{OBJECT_FOLDER_NAME}" +
                    CpkConstants.DirectorySeparator + objectFileName;
         }
 
         public static string GetGameObjectModelFileVirtualPath(ScnSceneInfo sceneInfo, string objectName)
         {
-            return $"{sceneInfo.CityName}{CpkConstants.FileExtension}{PathSeparator}" +
-                   $"{sceneInfo.Model}{PathSeparator}{objectName}";
+            return $"{sceneInfo.CityName}{CpkConstants.FileExtension}{CpkPathSeparator}" +
+                   $"{sceneInfo.Model}{CpkPathSeparator}{objectName}";
         }
 
         public static string GetMusicFileVirtualPath(string musicName)
@@ -167,18 +174,18 @@ namespace Pal3.MetaData
 
         public static string GetActorFolderVirtualPath(string actorName)
         {
-            return $"{BASE_DATA_CPK_FILE_NAME}{PathSeparator}" +
-                   $"{ACTOR_FOLDER_NAME}{PathSeparator}{actorName}{PathSeparator}";
+            return $"{BASE_DATA_CPK_FILE_NAME}{CpkPathSeparator}" +
+                   $"{ACTOR_FOLDER_NAME}{CpkPathSeparator}{actorName}{CpkPathSeparator}";
         }
 
         public static string GetNavFileVirtualPath(string sceneFileName, string sceneName)
         {
             #if PAL3
-            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}" +
-                              $"{sceneName}{PathSeparator}{sceneName}.nav";
+            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{CpkPathSeparator}" +
+                              $"{sceneName}{CpkPathSeparator}{sceneName}.nav";
             #elif PAL3A
-            var navFilePath = $"{SCN_CPK_FILE_NAME}{PathSeparator}SCN{PathSeparator}" +
-                              $"{sceneFileName}{PathSeparator}{sceneName}{PathSeparator}{sceneName}.nav";
+            var navFilePath = $"{SCN_CPK_FILE_NAME}{CpkPathSeparator}SCN{CpkPathSeparator}" +
+                              $"{sceneFileName}{CpkPathSeparator}{sceneName}{CpkPathSeparator}{sceneName}.nav";
             #endif
             return navFilePath;
         }
@@ -186,10 +193,10 @@ namespace Pal3.MetaData
         public static string GetScnFileVirtualPath(string sceneFileName, string sceneName)
         {
             #if PAL3
-            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneName}.scn";
+            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{CpkPathSeparator}{sceneName}.scn";
             #elif PAL3A
-            var scnFilePath = $"{SCN_CPK_FILE_NAME}{PathSeparator}SCN{PathSeparator}" +
-                              $"{sceneFileName}{PathSeparator}{sceneFileName}_{sceneName}.scn";
+            var scnFilePath = $"{SCN_CPK_FILE_NAME}{CpkPathSeparator}SCN{CpkPathSeparator}" +
+                              $"{sceneFileName}{CpkPathSeparator}{sceneFileName}_{sceneName}.scn";
             #endif
             return scnFilePath;
         }
@@ -197,12 +204,14 @@ namespace Pal3.MetaData
         public static string GetSceneSceFileVirtualPath(string sceneFileName)
         {
             #if PAL3
-            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{PathSeparator}{sceneFileName}.sce";
+            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{CpkPathSeparator}{sceneFileName}.sce";
             #elif PAL3A
-            var sceFilePath = $"{SCE_CPK_FILE_NAME}{PathSeparator}Sce{PathSeparator}{sceneFileName}.sce";
+            var sceFilePath = $"{SCE_CPK_FILE_NAME}{CpkPathSeparator}Sce{CpkPathSeparator}{sceneFileName}.sce";
             #endif
             return sceFilePath;
         }
+
+        #endregion
 
         public static string GetActorFolderName()
         {

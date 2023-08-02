@@ -334,20 +334,20 @@ namespace Pal3
         {
             ICpkFileSystem cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash);
 
-            var filesToMount = new List<string>
+            List<string> filesToMount = new ()
             {
-                FileConstants.BaseDataCpkFileVirtualPath,
-                FileConstants.MusicCpkFileVirtualPath
+                FileConstants.BaseDataCpkFilePath,
+                FileConstants.MusicCpkFilePath
             };
 
             foreach (string sceneCpkFileName in FileConstants.SceneCpkFileNames)
             {
-                filesToMount.Add(FileConstants.GetSceneCpkFileVirtualPath(sceneCpkFileName));
+                filesToMount.Add(FileConstants.GetSceneCpkFilePath(sceneCpkFileName));
             }
 
             #if PAL3A
-            filesToMount.Add(FileConstants.ScnCpkFileVirtualPath);
-            filesToMount.Add(FileConstants.SceCpkFileVirtualPath);
+            filesToMount.Add(FileConstants.ScnCpkFilePath);
+            filesToMount.Add(FileConstants.SceCpkFilePath);
             #endif
 
             foreach (var cpkFilePath in filesToMount)
