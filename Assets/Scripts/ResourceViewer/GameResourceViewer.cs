@@ -111,7 +111,12 @@ namespace ResourceViewer
             randomMv3Button.onClick.AddListener(RandMv3);
             randomMovButton.onClick.AddListener(RandMov);
             randomMp3Button.onClick.AddListener(RandMp3);
+
+            #if UNITY_EDITOR
             extractAllCpkFilesButton.onClick.AddListener(ExtractAllCpkArchives);
+            #else
+            extractAllCpkFilesButton.interactable = false;
+            #endif
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
