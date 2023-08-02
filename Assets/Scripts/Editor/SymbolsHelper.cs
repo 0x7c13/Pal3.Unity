@@ -18,6 +18,15 @@ namespace Editor
                 BuildTargetGroup.Android,
                 BuildTargetGroup.Standalone,
                 BuildTargetGroup.iOS,
+                BuildTargetGroup.WSA,
+                BuildTargetGroup.PS4,
+                BuildTargetGroup.PS5,
+                BuildTargetGroup.XboxOne,
+                BuildTargetGroup.tvOS,
+                BuildTargetGroup.Switch,
+                BuildTargetGroup.GameCoreXboxOne,
+                BuildTargetGroup.GameCoreXboxSeries,
+                BuildTargetGroup.VisionOS,
             };
         }
 
@@ -28,6 +37,12 @@ namespace Editor
                 NamedBuildTarget.Android,
                 NamedBuildTarget.Standalone,
                 NamedBuildTarget.iOS,
+                NamedBuildTarget.PS4,
+                NamedBuildTarget.XboxOne,
+                NamedBuildTarget.tvOS,
+                NamedBuildTarget.NintendoSwitch,
+                NamedBuildTarget.WindowsStoreApps,
+                NamedBuildTarget.VisionOS,
             };
         }
 

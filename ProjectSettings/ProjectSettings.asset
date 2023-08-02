@@ -155,8 +155,17 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.Jackil.PAL3
+    GameCoreScarlett: com.Jackil.PAL3
+    GameCoreXboxOne: com.Jackil.PAL3
+    Nintendo Switch: com.Jackil.PAL3
+    PS4: com.Jackil.PAL3
+    PS5: com.Jackil.PAL3
     Standalone: com.Jackil.PAL3
+    VisionOS: com.Jackil.PAL3
+    Windows Store Apps: com.Jackil.PAL3
+    XboxOne: com.Jackil.PAL3
     iPhone: com.Jackil.PAL3
+    tvOS: com.Jackil.PAL3
   buildNumber:
     Bratwurst: 0
     Standalone: 0
@@ -328,6 +337,36 @@ PlayerSettings:
       m_Width: 16
       m_Height: 16
       m_Kind: 0
+  - m_BuildTarget: PS4
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 512
+      m_Height: 512
+      m_Kind: 0
+  - m_BuildTarget: XboxOne
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 100
+      m_Height: 100
+      m_Kind: 0
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 208
+      m_Height: 208
+      m_Kind: 0
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 480
+      m_Height: 480
+      m_Kind: 0
+  - m_BuildTarget: Nintendo Switch
+    m_Icons: []
+  - m_BuildTarget: Windows Store Apps
+    m_Icons: []
+  - m_BuildTarget: VisionOS
+    m_Icons: []
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: iPhone
     m_Icons:
@@ -910,22 +949,22 @@ PlayerSettings:
     Bratwurst: UNITY_POST_PROCESSING_STACK_V2
     CloudRendering: UNITY_POST_PROCESSING_STACK_V2
     EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2
-    GameCoreScarlett: UNITY_POST_PROCESSING_STACK_V2
-    GameCoreXboxOne: UNITY_POST_PROCESSING_STACK_V2
+    GameCoreScarlett: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    GameCoreXboxOne: PAL3;UNITY_POST_PROCESSING_STACK_V2
     LinuxHeadlessSimulation: UNITY_POST_PROCESSING_STACK_V2
     Lumin: UNITY_POST_PROCESSING_STACK_V2
-    Nintendo Switch: UNITY_POST_PROCESSING_STACK_V2
-    PS4: UNITY_POST_PROCESSING_STACK_V2
-    PS5: UNITY_POST_PROCESSING_STACK_V2
+    Nintendo Switch: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    PS4: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    PS5: PAL3;UNITY_POST_PROCESSING_STACK_V2
     QNX: UNITY_POST_PROCESSING_STACK_V2
     Stadia: UNITY_POST_PROCESSING_STACK_V2
     Standalone: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    VisionOS: UNITY_POST_PROCESSING_STACK_V2
+    VisionOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
     WebGL: UNITY_POST_PROCESSING_STACK_V2
-    Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2
-    XboxOne: UNITY_POST_PROCESSING_STACK_V2
+    Windows Store Apps: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    XboxOne: PAL3;UNITY_POST_PROCESSING_STACK_V2
     iPhone: PAL3
-    tvOS: UNITY_POST_PROCESSING_STACK_V2
+    tvOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
