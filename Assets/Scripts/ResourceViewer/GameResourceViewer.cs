@@ -645,7 +645,7 @@ namespace ResourceViewer
                     Destroy(audioSource.clip);
                 }
                 audioSource.clip = audioClip;
-                audioSource.volume = 0.8f;
+                audioSource.volume = 0.5f;
                 audioSource.loop = true;
                 audioSource.Play();
             });
