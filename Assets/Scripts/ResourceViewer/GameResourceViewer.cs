@@ -398,7 +398,7 @@ namespace ResourceViewer
             try
             {
                 var actorFolderPath = Utility.GetRelativeDirectoryPath(filePath);
-                var actorName = Path.GetFileName(actorFolderPath);
+                var actorName = Utility.GetFileName(actorFolderPath);
 
                 var mshFilePath = filePath.Replace(".mov", ".msh", StringComparison.OrdinalIgnoreCase);
                 if (!_fileSystem.FileExists(mshFilePath))

@@ -213,8 +213,9 @@ namespace Pal3.Data
                    + Path.DirectorySeparatorChar
                    + CACHE_FOLDER_NAME
                    + Path.DirectorySeparatorChar
-                   + musicFileVirtualPath.Replace(PathSeparator, Path.DirectorySeparatorChar)
-                   .Replace(CpkConstants.FileExtension, string.Empty);
+                   + musicFileVirtualPath
+                       .Replace(PathSeparator, Path.DirectorySeparatorChar)
+                       .Replace(CpkConstants.FileExtension, string.Empty);
         }
 
         /// <summary>

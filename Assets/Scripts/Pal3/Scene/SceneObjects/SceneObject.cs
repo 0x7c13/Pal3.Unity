@@ -66,7 +66,7 @@ namespace Pal3.Scene.SceneObjects
             ModelFileVirtualPath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
-            ModelType = SceneObjectModelTypeResolver.GetType(Path.GetFileName(ModelFileVirtualPath));
+            ModelType = SceneObjectModelTypeResolver.GetType(Utility.GetFileName(ModelFileVirtualPath));
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
