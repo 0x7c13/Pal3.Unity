@@ -94,6 +94,11 @@ namespace Pal3.MetaData
             return $"{SCENE_FOLDER_NAME}{Path.DirectorySeparatorChar}{sceneCpkFileName}";
         }
 
+        public static string GetMovieCpkFilePath(string movieCpkFileName)
+        {
+            return $"{MovieFolderName}{Path.DirectorySeparatorChar}{movieCpkFileName}";
+        }
+
         #endregion
 
         #region CPK file system virtual file names and paths

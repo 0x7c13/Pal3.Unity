@@ -127,8 +127,7 @@ namespace Editor
             BuildTarget targetBeforeBuild = EditorUserBuildSettings.activeBuildTarget;
 
             string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game", "", "");
-
-            if (string.IsNullOrEmpty(buildOutputPath)) return;
+            if (string.IsNullOrWhiteSpace(buildOutputPath)) return;
 
             buildOutputPath += $"{PathSeparator}{PlayerSettings.bundleVersion}{PathSeparator}";
 
@@ -236,8 +235,7 @@ namespace Editor
         {
             string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game",
                 $"{PlayerSettings.bundleVersion}", $"{PlayerSettings.bundleVersion}");
-
-            if (string.IsNullOrEmpty(buildOutputPath)) return;
+            if (string.IsNullOrWhiteSpace(buildOutputPath)) return;
 
             if (!buildOutputPath.EndsWith($"{PlayerSettings.bundleVersion}"))
             {

@@ -55,6 +55,7 @@ namespace ResourceViewer
         [SerializeField] private Button randomMv3Button;
         [SerializeField] private Button randomMp3Button;
         [SerializeField] private Button randomMovButton;
+        [SerializeField] private Button extractAllCpkFilesButton;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
@@ -110,6 +111,7 @@ namespace ResourceViewer
             randomMv3Button.onClick.AddListener(RandMv3);
             randomMovButton.onClick.AddListener(RandMov);
             randomMp3Button.onClick.AddListener(RandMp3);
+            extractAllCpkFilesButton.onClick.AddListener(ExtractAllCpkArchives);
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
@@ -393,7 +395,12 @@ namespace ResourceViewer
                 var actorFolderPath = Utility.GetRelativeDirectoryPath(filePath);
                 var actorName = Path.GetFileName(actorFolderPath);
 
-                string mshFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".msh";
+                var mshFilePath = filePath.Replace(".mov", ".msh", StringComparison.OrdinalIgnoreCase);
+                if (!_fileSystem.FileExists(mshFilePath))
+                {
+                    mshFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".msh";
+                }
+
                 var mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
 
                 string mtlFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".mtl";
@@ -439,6 +446,8 @@ namespace ResourceViewer
             string title = dialogueOnly ? "选择脚本导出目录(仅对话)" : "选择脚本导出目录";
 
             var outputFolderPath = EditorUtility.SaveFolderPanel(title, "", "");
+            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
+
             outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}" + (dialogueOnly ? "_对话脚本" : "");
 
             if (!Directory.Exists(outputFolderPath))
@@ -452,19 +461,39 @@ namespace ResourceViewer
         private void ExtractAllCpkArchives()
         {
             var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
-            outputFolderPath += Path.DirectorySeparatorChar;
+            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
+
+            outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
 
             if (!Directory.Exists(outputFolderPath))
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
 
+            extractAllCpkFilesButton.interactable = false;
             consoleTextUI.text = "正在解包全部CPK文件，请稍等...";
             StartCoroutine(ExtractAllCpkArchivesInternalAsync(outputFolderPath));
         }
 
+        private bool _isMovieCpkMounted = false;
         private IEnumerator ExtractAllCpkArchivesInternalAsync(string outputFolderPath)
         {
+            // Movie CPKs are not mounted by default since we don't need them in normal gameplay.
+            // Mount them here if they are not mounted yet. So that we can extract them as well.
+            if (!_isMovieCpkMounted)
+            {
+                foreach (string movieCpkFileName in FileConstants.MovieCpkFileNames)
+                {
+                    var movieCpkFilePath = FileConstants.GetMovieCpkFilePath(movieCpkFileName);
+                    if (File.Exists(_fileSystem.GetRootPath() + movieCpkFilePath))
+                    {
+                        _fileSystem.Mount(movieCpkFilePath, DEFAULT_CODE_PAGE);
+                    }
+                }
+
+                _isMovieCpkMounted = true;
+            }
+
             var workerThread = new Thread(() =>
             {
                 _fileSystem.ExtractTo(outputFolderPath);
@@ -482,6 +511,7 @@ namespace ResourceViewer
             }
 
             consoleTextUI.text = "全部CPK文件已解包完成！";
+            extractAllCpkFilesButton.interactable = true;
         }
         #endif
 
