@@ -6,12 +6,14 @@
 namespace Pal3
 {
     using System;
+    using System.Collections;
     using System.Linq;
     using System.Text;
     using Actor;
     using Audio;
     using Camera;
     using Command;
+    using Command.SceCommands;
     using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
@@ -23,6 +25,7 @@ namespace Pal3
     using GameSystem;
     using Input;
     using IngameDebugConsole;
+    using MetaData;
     using Scene;
     using Script;
     using Settings;
@@ -351,6 +354,44 @@ namespace Pal3
             Debug.Log($"[{nameof(Pal3)}] Game started.");
             _mainMenu.ShowInitView();
             _mainMenu.ShowMenu();
+
+            // Check latest version and notify if found
+            StartCoroutine(CheckLatestVersionAndNotifyIfFound());
+        }
+
+        private IEnumerator CheckLatestVersionAndNotifyIfFound()
+        {
+            bool IsVersionGreater(string latestVersion, string currentVersion)
+            {
+                string[] latestParts = latestVersion.Split('.');
+                string[] currentParts = currentVersion.Split('.');
+
+                for (var i = 0; i < Math.Min(latestParts.Length, currentParts.Length); i++)
+                {
+                    int latest = int.Parse(latestParts[i]);
+                    int current = int.Parse(currentParts[i]);
+                    if (latest == current) continue;
+                    return latest > current;
+                }
+
+                return latestParts.Length > currentParts.Length;
+            }
+
+            yield return new WaitForSeconds(1f);
+            yield return GithubReleaseVersionFetcher.GetLatestReleaseVersionAsync(GameConstants.GithubRepoOwner, GameConstants.GithubRepoName,
+                latestVersion =>
+                {
+                    if (!string.IsNullOrEmpty(latestVersion) &&
+                        IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
+                    {
+                        CommandDispatcher<ICommand>.Instance.Dispatch(
+                            #if UNITY_IOS
+                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请用TestFlight应用更新。"));
+                            #else
+                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请在讨论群内或者Github下载。"));
+                            #endif
+                    }
+                });
         }
 
         private void OnDisable()

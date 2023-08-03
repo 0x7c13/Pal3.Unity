@@ -291,14 +291,14 @@ namespace Pal3.Data
                 audioType,
                 streamAudio,
                 audioClip =>
-            {
-                if (shouldCache && audioClip != null)
                 {
-                    _audioClipCache[fileName] = audioClip;
-                }
+                    if (shouldCache && audioClip != null)
+                    {
+                        _audioClipCache[fileName] = audioClip;
+                    }
 
-                onLoaded?.Invoke(audioClip);
-            });
+                    onLoaded?.Invoke(audioClip);
+                });
         }
 
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)

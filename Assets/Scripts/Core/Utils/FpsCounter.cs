@@ -9,7 +9,7 @@ namespace Core.Utils
 
     public class FpsCounter : MonoBehaviour
     {
-        private const float UPDATE_INTERVAL = 0.1f;
+        private const float UPDATE_INTERVAL = 0.3f;
 
         private int _frameCount = 0;
         private float _deltaTime = 0f;

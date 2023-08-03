@@ -24,5 +24,9 @@ namespace Pal3.MetaData
         public const string AppIdentifier = AppIdentifierPrefix + "." + AppName;
 
         public const string ContactInfo = AppNameCNShort + "复刻版讨论群：252315306 B站@柒才";
+
+        public const string GithubRepoOwner = "0x7c13";
+
+        public const string GithubRepoName = "Pal3.Unity";
     }
 }
