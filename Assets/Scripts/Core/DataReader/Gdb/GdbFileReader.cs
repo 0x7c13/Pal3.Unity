@@ -7,7 +7,6 @@ namespace Core.DataReader.Gdb
 {
     using System.Collections.Generic;
     using System.IO;
-    using Extensions;
 
     public sealed class GdbFileReader : IFileReader<GdbFile>
     {
@@ -18,11 +17,8 @@ namespace Core.DataReader.Gdb
             _codepage = codepage;
         }
 
-        public GdbFile Read(byte[] data)
+        public GdbFile Read(IBinaryReader reader)
         {
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-
             _ = reader.ReadString(128, _codepage); // header string
 
             uint actorDataOffset = reader.ReadUInt32();
@@ -37,7 +33,7 @@ namespace Core.DataReader.Gdb
             uint comboSkillDataOffset = reader.ReadUInt32();
             int numOfComboSkills = reader.ReadInt32();
 
-            reader.BaseStream.Seek(itemDataOffset, SeekOrigin.Begin);
+            reader.Seek(itemDataOffset, SeekOrigin.Begin);
             var gameItems = new Dictionary<int, GameItem>();
             for (var i = 0; i < numOfItems; i++)
             {
@@ -48,7 +44,7 @@ namespace Core.DataReader.Gdb
             return new GdbFile(gameItems);
         }
 
-        private static GameItem ReadGameItem(BinaryReader reader, int codepage)
+        private static GameItem ReadGameItem(IBinaryReader reader, int codepage)
         {
             return new GameItem
             {

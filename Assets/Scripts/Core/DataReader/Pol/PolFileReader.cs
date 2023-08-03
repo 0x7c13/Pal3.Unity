@@ -21,15 +21,8 @@ namespace Core.DataReader.Pol
             _codepage = codepage;
         }
 
-        public PolFile Read(byte[] data)
+        public PolFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header);
 
@@ -76,11 +69,7 @@ namespace Core.DataReader.Pol
             return new PolFile(version, nodeInfos, meshInfos, tagNodes);
         }
 
-        #if ENABLE_IL2CPP
-        private static TagNode ReadTagNodeInfo(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static TagNode ReadTagNodeInfo(BinaryReader reader, int codepage)
-        #endif
+        private static TagNode ReadTagNodeInfo(IBinaryReader reader, int codepage)
         {
             var name = reader.ReadString(32, codepage);
             Matrix4x4 transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
@@ -120,11 +109,7 @@ namespace Core.DataReader.Pol
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static PolMesh ReadMeshData(UnsafeBinaryReader reader, int version, int codepage)
-        #else
-        private static PolMesh ReadMeshData(BinaryReader reader, int version, int codepage)
-        #endif
+        private static PolMesh ReadMeshData(IBinaryReader reader, int version, int codepage)
         {
             var bounds = new Bounds();
             bounds.SetMinMax(
@@ -233,11 +218,7 @@ namespace Core.DataReader.Pol
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static PolTexture ReadTextureInfo(UnsafeBinaryReader reader, int version, int codepage)
-        #else
-        private static PolTexture ReadTextureInfo(BinaryReader reader, int version, int codepage)
-        #endif
+        private static PolTexture ReadTextureInfo(IBinaryReader reader, int version, int codepage)
         {
             GameBoxBlendFlag blendFlag = (GameBoxBlendFlag)reader.ReadUInt32();
 

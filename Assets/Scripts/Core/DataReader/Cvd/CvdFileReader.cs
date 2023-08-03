@@ -9,7 +9,6 @@ namespace Core.DataReader.Cvd
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
-    using Extensions;
     using GameBox;
     using UnityEngine;
     using Utils;
@@ -23,15 +22,8 @@ namespace Core.DataReader.Cvd
             _codepage = codepage;
         }
 
-        public CvdFile Read(byte[] data)
+        public CvdFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header);
 
@@ -53,19 +45,11 @@ namespace Core.DataReader.Cvd
             return new CvdFile(animationDuration, rootNodes.ToArray());
         }
 
-        #if ENABLE_IL2CPP
-        private static void ReadGeometryNodes(UnsafeBinaryReader reader,
+        private static void ReadGeometryNodes(IBinaryReader reader,
             float version,
             List<CvdGeometryNode> rootNodes,
             ref float animationDuration,
             int codepage)
-        #else
-        private static void ReadGeometryNodes(BinaryReader reader,
-            float version,
-            List<CvdGeometryNode> rootNodes,
-            ref float animationDuration,
-            int codepage)
-        #endif
         {
             CvdGeometryNode parentNode = default;
 
@@ -88,17 +72,10 @@ namespace Core.DataReader.Cvd
             rootNodes.Add(parentNode);
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdGeometryNode ReadGeometryNode(UnsafeBinaryReader reader,
+        private static CvdGeometryNode ReadGeometryNode(IBinaryReader reader,
             float version,
             ref float animationDuration,
             int codepage)
-        #else
-        private static CvdGeometryNode ReadGeometryNode(BinaryReader reader,
-            float version,
-            ref float animationDuration,
-            int codepage)
-        #endif
         {
             var positionKeySize = Mathf.Max(
                 Marshal.SizeOf(typeof(CvdTcbVector3Key)),
@@ -149,11 +126,7 @@ namespace Core.DataReader.Cvd
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(UnsafeBinaryReader reader, int size)
-        #else
-        private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(BinaryReader reader, int size)
-        #endif
+        private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(IBinaryReader reader, int size)
         {
             var numberOfKeys = reader.ReadInt32();
             var keyInfos = new (CvdAnimationKeyType, byte[])[numberOfKeys];
@@ -175,11 +148,7 @@ namespace Core.DataReader.Cvd
             return keyInfos;
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(UnsafeBinaryReader reader, int size)
-        #else
-        private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(BinaryReader reader, int size)
-        #endif
+        private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(IBinaryReader reader, int size)
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var positionKeyFrames = new CvdAnimationPositionKeyFrame[frameInfos.Length];
@@ -229,11 +198,7 @@ namespace Core.DataReader.Cvd
             return positionKeyFrames;
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(UnsafeBinaryReader reader, int size)
-        #else
-        private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(BinaryReader reader, int size)
-        #endif
+        private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(IBinaryReader reader, int size)
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var rotationKeyFrames = new CvdAnimationRotationKeyFrame[frameInfos.Length];
@@ -290,11 +255,7 @@ namespace Core.DataReader.Cvd
             return rotationKeyFrames;
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(UnsafeBinaryReader reader, int size)
-        #else
-        private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(BinaryReader reader, int size)
-        #endif
+        private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(IBinaryReader reader, int size)
         {
             var frameInfos = ReadAnimationKeyInfo(reader, size);
             var scaleKeyFrames = new CvdAnimationScaleKeyFrame[frameInfos.Length];
@@ -347,11 +308,7 @@ namespace Core.DataReader.Cvd
             return scaleKeyFrames;
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdMesh ReadMesh(UnsafeBinaryReader reader, float version, int codepage)
-        #else
-        private static CvdMesh ReadMesh(BinaryReader reader, float version, int codepage)
-        #endif
+        private static CvdMesh ReadMesh(IBinaryReader reader, float version, int codepage)
         {
             var numberOfFrames = reader.ReadInt32();
             var numberOfVertices = reader.ReadInt32();
@@ -399,17 +356,10 @@ namespace Core.DataReader.Cvd
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static CvdMeshSection ReadMeshSection(UnsafeBinaryReader reader,
+        private static CvdMeshSection ReadMeshSection(IBinaryReader reader,
             float version,
             CvdVertex[][] allFrameVertices,
             int codepage)
-        #else
-        private static CvdMeshSection ReadMeshSection(BinaryReader reader,
-            float version,
-            CvdVertex[][] allFrameVertices,
-            int codepage)
-        #endif
         {
             GameBoxBlendFlag blendFlag = (GameBoxBlendFlag)reader.ReadByte();
 

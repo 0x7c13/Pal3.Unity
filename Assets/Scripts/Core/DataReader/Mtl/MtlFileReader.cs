@@ -7,7 +7,6 @@ namespace Core.DataReader.Mtl
 {
     using System.Collections.Generic;
     using System.IO;
-    using Extensions;
     using GameBox;
     using Utils;
 
@@ -20,15 +19,8 @@ namespace Core.DataReader.Mtl
             _codepage = codepage;
         }
 
-        public MtlFile Read(byte[] data)
+        public MtlFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 

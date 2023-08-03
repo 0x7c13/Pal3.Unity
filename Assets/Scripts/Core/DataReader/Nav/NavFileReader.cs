@@ -7,17 +7,14 @@ namespace Core.DataReader.Nav
 {
     using System;
     using System.IO;
-    using Extensions;
     using GameBox;
     using UnityEngine;
     using Utils;
 
     public sealed class NavFileReader : IFileReader<NavFile>
     {
-        public NavFile Read(Stream stream)
+        public NavFile Read(IBinaryReader reader)
         {
-            using var reader = new BinaryReader(stream);
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -31,14 +28,14 @@ namespace Core.DataReader.Nav
             var tileOffset = reader.ReadUInt32();
             var faceOffset = reader.ReadUInt32();
 
-            reader.BaseStream.Seek(tileOffset, SeekOrigin.Begin);
+            reader.Seek(tileOffset, SeekOrigin.Begin);
             var tileLayers = new NavTileLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
                 tileLayers[i] = ReadTileLayer(reader, version);
             }
 
-            reader.BaseStream.Seek(faceOffset, SeekOrigin.Begin);
+            reader.Seek(faceOffset, SeekOrigin.Begin);
             var faceLayers = new NavFaceLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
@@ -48,7 +45,7 @@ namespace Core.DataReader.Nav
             return new NavFile(tileLayers, faceLayers);
         }
 
-        private static NavTileLayer ReadTileLayer(BinaryReader reader, byte version)
+        private static NavTileLayer ReadTileLayer(IBinaryReader reader, byte version)
         {
             var portals = Array.Empty<GameBoxRect>();
 
@@ -102,7 +99,7 @@ namespace Core.DataReader.Nav
             };
         }
 
-        private static NavFaceLayer ReadFaceLayer(BinaryReader reader)
+        private static NavFaceLayer ReadFaceLayer(IBinaryReader reader)
         {
             var numberOfVertices = reader.ReadUInt16();
             var numberOfFaces = reader.ReadUInt16();

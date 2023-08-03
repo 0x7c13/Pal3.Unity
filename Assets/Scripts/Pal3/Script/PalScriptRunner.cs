@@ -11,6 +11,7 @@ namespace Pal3.Script
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader;
     using Core.DataReader.Sce;
     using Core.Services;
     using Dev;
@@ -70,7 +71,7 @@ namespace Pal3.Script
         private const int MAX_REGISTER_COUNT = 8;
 
         private readonly int _codepage;
-        private readonly BinaryReader _scriptDataReader;
+        private readonly SafeBinaryReader _scriptDataReader;
         private ScriptExecutionMode _executionMode;
         private readonly object[] _registers;
         private readonly Dictionary<int, int> _globalVariables;
@@ -114,7 +115,7 @@ namespace Pal3.Script
             _registers = new object[MAX_REGISTER_COUNT];
             _registers[(int) RegisterOperationType.Operator] = 0; // Init operator
 
-            _scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.ScriptData));
+            _scriptDataReader = new SafeBinaryReader(scriptBlock.ScriptData);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }

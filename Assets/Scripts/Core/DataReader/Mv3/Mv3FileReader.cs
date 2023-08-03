@@ -8,7 +8,6 @@ namespace Core.DataReader.Mv3
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Extensions;
     using GameBox;
     using UnityEngine;
     using Utils;
@@ -22,15 +21,8 @@ namespace Core.DataReader.Mv3
             _codepage = codepage;
         }
 
-        public Mv3File Read(byte[] data)
+        public Mv3File Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -87,11 +79,7 @@ namespace Core.DataReader.Mv3
                 materials);
         }
 
-        #if ENABLE_IL2CPP
-        private static Mv3Mesh ReadMesh(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static Mv3Mesh ReadMesh(BinaryReader reader, int codepage)
-        #endif
+        private static Mv3Mesh ReadMesh(IBinaryReader reader, int codepage)
         {
             var name = reader.ReadString(64, codepage);
             var numberOfVertices = reader.ReadInt32();
@@ -233,11 +221,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static Mv3TagNode ReadTagNode(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static Mv3TagNode ReadTagNode(BinaryReader reader, int codepage)
-        #endif
+        private static Mv3TagNode ReadTagNode(IBinaryReader reader, int codepage)
         {
             var nodeName = reader.ReadString(64, codepage);
             var flipScale = reader.ReadSingle();
@@ -257,11 +241,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static Mv3TagFrame ReadTagFrame(UnsafeBinaryReader reader)
-        #else
-        private static Mv3TagFrame ReadTagFrame(BinaryReader reader)
-        #endif
+        private static Mv3TagFrame ReadTagFrame(IBinaryReader reader)
         {
             var tick = reader.ReadUInt32();
             Vector3 position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
@@ -290,11 +270,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static Mv3AnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
-        #endif
+        private static Mv3AnimationEvent ReadAnimationEvent(IBinaryReader reader, int codepage)
         {
             return new Mv3AnimationEvent()
             {
@@ -303,11 +279,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static GameBoxMaterial ReadMaterial(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static GameBoxMaterial ReadMaterial(BinaryReader reader, int codepage)
-        #endif
+        private static GameBoxMaterial ReadMaterial(IBinaryReader reader, int codepage)
         {
             GameBoxMaterial material = new ()
             {

@@ -6,7 +6,6 @@
 namespace Core.DataReader.Sce
 {
     using System.IO;
-    using Extensions;
 
     public sealed class SceFileReader : IFileReader<SceFile>
     {
@@ -17,10 +16,8 @@ namespace Core.DataReader.Sce
             _codepage = codepage;
         }
 
-        public SceFile Read(Stream stream)
+        public SceFile Read(IBinaryReader reader)
         {
-            using var reader = new BinaryReader(stream);
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -53,9 +50,9 @@ namespace Core.DataReader.Sce
             return new SceFile(indexes, scriptBlocks, _codepage);
         }
 
-        private static SceScriptBlock ReadScriptBlock(BinaryReader reader, SceIndex sceIndex, int codepage)
+        private static SceScriptBlock ReadScriptBlock(IBinaryReader reader, SceIndex sceIndex, int codepage)
         {
-            reader.BaseStream.Seek(sceIndex.Offset, SeekOrigin.Begin);
+            reader.Seek(sceIndex.Offset, SeekOrigin.Begin);
 
             var id = reader.ReadUInt32();
             var descriptionLength = reader.ReadUInt16();
@@ -80,7 +77,7 @@ namespace Core.DataReader.Sce
             };
         }
 
-        private static SceUserVarInfo ReadUserVarInfo(BinaryReader reader)
+        private static SceUserVarInfo ReadUserVarInfo(IBinaryReader reader)
         {
             var type = reader.ReadByte();
             var length = reader.ReadUInt16();
@@ -93,7 +90,7 @@ namespace Core.DataReader.Sce
             };
         }
 
-        private static SceIndex ReadSceIndex(BinaryReader reader, int codepage)
+        private static SceIndex ReadSceIndex(IBinaryReader reader, int codepage)
         {
             return new SceIndex()
             {

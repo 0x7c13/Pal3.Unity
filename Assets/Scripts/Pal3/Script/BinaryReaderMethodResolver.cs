@@ -7,14 +7,13 @@ namespace Pal3.Script
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Reflection;
 
     public static class BinaryReaderMethodResolver
     {
         private static readonly Dictionary<Type, MethodInfo> BinaryReaderMethodInfoCache = new ();
 
-        public static MethodInfo GetMethodInfoForReadPropertyType(Type readPropertyType)
+        public static MethodInfo GetMethodInfoForReadPropertyType(Type binaryReaderType, Type readPropertyType)
         {
             // Get method info from cache to reduce reflection cost.
             if (BinaryReaderMethodInfoCache.TryGetValue(readPropertyType, out MethodInfo method))
@@ -26,7 +25,7 @@ namespace Pal3.Script
             // 1. Return type of the method
             // 2. Name prefix of the method (Read...)
             // 3. No parameters
-            foreach (MethodInfo methodInfo in typeof(BinaryReader).GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            foreach (MethodInfo methodInfo in binaryReaderType.GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (methodInfo.ReturnType == readPropertyType &&
                     methodInfo.Name.StartsWith("Read") &&

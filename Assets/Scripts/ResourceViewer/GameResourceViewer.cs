@@ -13,6 +13,7 @@ namespace ResourceViewer
     using System.Text;
     using System.Threading;
     using Core.DataLoader;
+    using Core.DataReader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Gdb;
@@ -525,13 +526,13 @@ namespace ResourceViewer
         {
             var output = new StringBuilder();
 
-            using var sceFileStream = new MemoryStream(_fileSystem.ReadAllBytes(filePath));
 
             SceFile sceFile;
 
             try
             {
-                sceFile = new SceFileReader(DEFAULT_CODE_PAGE).Read(sceFileStream);
+                IFileReader<SceFile> sceFileReader = new SceFileReader(DEFAULT_CODE_PAGE);
+                sceFile = sceFileReader.Read(_fileSystem.ReadAllBytes(filePath));
             }
             catch (Exception ex)
             {
@@ -544,7 +545,7 @@ namespace ResourceViewer
                 output.Append($"----------------------------------------------------------");
                 output.Append($"\n{scriptBlock.Value.Id} {scriptBlock.Value.Description}\n");
 
-                using var scriptDataReader = new BinaryReader(new MemoryStream(scriptBlock.Value.ScriptData));
+                using var scriptDataReader = new SafeBinaryReader(scriptBlock.Value.ScriptData);
 
                 int dialogueIndex = 1;
                 ICommand lastCommand = null;

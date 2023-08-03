@@ -7,22 +7,13 @@ namespace Core.DataReader.Lgt
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using Extensions;
     using GameBox;
     using Utils;
 
     public sealed class LgtFileReader : IFileReader<LgtFile>
     {
-        public LgtFile Read(byte[] data)
+        public LgtFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var numOfLightNodes = reader.ReadInt32();
             var lightNodes = new List<LightNode>();
 
@@ -40,11 +31,7 @@ namespace Core.DataReader.Lgt
             return new LgtFile(lightNodes.ToArray());
         }
 
-        #if ENABLE_IL2CPP
-        private static LightNode ReadLightNode(UnsafeBinaryReader reader)
-        #else
-        private static LightNode ReadLightNode(BinaryReader reader)
-        #endif
+        private static LightNode ReadLightNode(IBinaryReader reader)
         {
             var transformMatrix = new GameBoxMatrix4X4()
             {

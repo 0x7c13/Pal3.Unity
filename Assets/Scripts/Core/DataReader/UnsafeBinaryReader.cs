@@ -3,18 +3,14 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-// Taken from: https://github.com/AnzhelikaO/FakeProvider/blob/version-1.4/FakeProvider/UnsafeBinaryReader.cs
-// with some modifications
-
-namespace Core.Utils
+namespace Core.DataReader
 {
     using System;
+    using System.IO;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using System.Text;
-    using UnityEngine;
 
-    public sealed unsafe class UnsafeBinaryReader : IDisposable
+    public sealed unsafe class UnsafeBinaryReader : IBinaryReader
     {
         private byte* _dataPtr;
         private GCHandle _handle;
@@ -25,6 +21,23 @@ namespace Core.Utils
             fixed (byte* ptr = &data[0])
             {
                 _dataPtr = ptr;
+            }
+        }
+
+        public void Seek(long offset, SeekOrigin seekOrigin)
+        {
+            switch (seekOrigin)
+            {
+                case SeekOrigin.Begin:
+                    _dataPtr = (byte*)_handle.AddrOfPinnedObject() + offset;
+                    break;
+                case SeekOrigin.Current:
+                    _dataPtr += offset;
+                    break;
+                case SeekOrigin.End:
+                    throw new NotSupportedException("SeekOrigin.End is not supported for UnsafeBinaryReader");
+                default:
+                    throw new ArgumentException("Invalid SeekOrigin", nameof(seekOrigin));
             }
         }
 
@@ -76,7 +89,6 @@ namespace Core.Utils
             return value;
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float ReadSingle()
         {
@@ -91,18 +103,6 @@ namespace Core.Utils
             double value = *(double*)_dataPtr;
             _dataPtr += 8;
             return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vector2 ReadVector2()
-        {
-            return new Vector2(ReadSingle(), ReadSingle());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vector3 ReadVector3()
-        {
-            return new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,19 +140,39 @@ namespace Core.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public char[] ReadChars(int count)
+        public double[] ReadDoubleArray(int count)
         {
-            return Encoding.ASCII.GetString(ReadBytes(count)).ToCharArray();
+            var value = new double[count];
+            Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
+            _dataPtr += count * 8;
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ReadString(int count, int codepage)
+        public short[] ReadInt16Array(int count)
         {
-            var strBytes = ReadBytes(count);
-            var i = 0;
-            var length = strBytes.Length;
-            while (i < length && strBytes[i] != 0) i++;
-            return Encoding.GetEncoding(codepage).GetString(strBytes, 0, i);
+            var value = new short[count];
+            Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
+            _dataPtr += count * 2;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int[] ReadInt32Array(int count)
+        {
+            var value = new int[count];
+            Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
+            _dataPtr += count * 4;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public long[] ReadInt64Array(int count)
+        {
+            var value = new long[count];
+            Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
+            _dataPtr += count * 8;
+            return value;
         }
 
         private bool _disposedValue;

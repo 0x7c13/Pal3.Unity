@@ -6,10 +6,8 @@
 namespace Core.DataReader.Msh
 {
     using System.IO;
-    using Extensions;
     using GameBox;
     using UnityEngine;
-    using Utils;
 
     public sealed class MshFileReader : IFileReader<MshFile>
     {
@@ -20,15 +18,8 @@ namespace Core.DataReader.Msh
             _codepage = codepage;
         }
 
-        public MshFile Read(byte[] data)
+        public MshFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -68,17 +59,13 @@ namespace Core.DataReader.Msh
             var subMeshes = new MshMesh[numberOfSubMeshes];
             for (var i = 0; i < numberOfSubMeshes; i++)
             {
-                subMeshes[i] = ReadSubMesh(reader, _codepage);
+                subMeshes[i] = ReadSubMesh(reader);
             }
 
             return new MshFile(rootBoneNode, subMeshes);
         }
 
-        #if ENABLE_IL2CPP
-        private static BoneNode ReadBoneNode(UnsafeBinaryReader reader, BoneNode parent, int codepage)
-        #else
-        private static BoneNode ReadBoneNode(BinaryReader reader, BoneNode parent, int codepage)
-        #endif
+        private static BoneNode ReadBoneNode(IBinaryReader reader, BoneNode parent, int codepage)
         {
             var nodeType = (BoneNodeType)reader.ReadInt32();
             var nameLength = reader.ReadInt32();
@@ -139,11 +126,7 @@ namespace Core.DataReader.Msh
             return boneNode;
         }
 
-        #if ENABLE_IL2CPP
-        private static MshMesh ReadSubMesh(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static MshMesh ReadSubMesh(BinaryReader reader, int codepage)
-        #endif
+        private static MshMesh ReadSubMesh(IBinaryReader reader)
         {
             var materialId = reader.ReadInt32();
             var numberOfVertices = reader.ReadInt32();

@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Ini
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
@@ -17,6 +18,11 @@ namespace Core.DataReader.Ini
 
         private const string PROPERTY_NAME = "name";
         private const string PROPERTY_FILE = "file";
+
+        public Mv3ActionConfig Read(IBinaryReader reader)
+        {
+            throw new NotImplementedException();
+        }
 
         public Mv3ActionConfig Read(byte[] data)
         {

@@ -10,6 +10,7 @@ namespace Pal3.Script
     using System.IO;
     using System.Reflection;
     using Command;
+    using Core.DataReader;
     using Core.Extensions;
 
     /// <summary>
@@ -17,7 +18,7 @@ namespace Pal3.Script
     /// </summary>
     public static class SceCommandParser
     {
-        public static ICommand ParseSceCommand(BinaryReader reader,
+        public static ICommand ParseSceCommand(IBinaryReader reader,
             int commandId,
             ushort parameterFlag,
             int codepage)
@@ -38,7 +39,7 @@ namespace Pal3.Script
         }
 
         // Read property value by type, property index and parameter flag using reflection.
-        private static object ReadPropertyValue(BinaryReader reader,
+        private static object ReadPropertyValue(IBinaryReader reader,
             Type propertyType,
             int index,
             ushort parameterFlag,
@@ -71,7 +72,7 @@ namespace Pal3.Script
             }
 
             // Let's use the power of reflection to read and parse primitives.
-            return BinaryReaderMethodResolver.GetMethodInfoForReadPropertyType(propertyType)
+            return BinaryReaderMethodResolver.GetMethodInfoForReadPropertyType(reader.GetType(), propertyType)
                 .Invoke(reader, new object[]{});
         }
 

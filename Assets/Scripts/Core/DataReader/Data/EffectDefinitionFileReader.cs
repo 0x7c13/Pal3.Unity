@@ -5,23 +5,12 @@
 
 namespace Core.DataReader.Data
 {
-    using System.IO;
-    using Extensions;
-    using Utils;
-
     public sealed class EffectDefinitionFileReader : IFileReader<EffectDefinitionFile>
     {
         private const int NUM_OF_EFFECTS = 1324;
 
-        public EffectDefinitionFile Read(byte[] data)
+        public EffectDefinitionFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var effectDefinitions = new EffectDefinition[NUM_OF_EFFECTS];
 
             for (var i = 0; i < NUM_OF_EFFECTS; i++)
@@ -32,11 +21,7 @@ namespace Core.DataReader.Data
             return new EffectDefinitionFile(effectDefinitions);
         }
 
-        #if ENABLE_IL2CPP
-        private static EffectDefinition ReadEffectDefinition(UnsafeBinaryReader reader)
-        #else
-        private static EffectDefinition ReadEffectDefinition(BinaryReader reader)
-        #endif
+        private static EffectDefinition ReadEffectDefinition(IBinaryReader reader)
         {
             var effectDefinition = new EffectDefinition();
 

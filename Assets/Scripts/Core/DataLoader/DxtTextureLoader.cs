@@ -6,7 +6,7 @@
 namespace Core.DataLoader
 {
 	using System;
-	using System.IO;
+	using DataReader;
 	using DataReader.Dxt;
 	using UnityEngine;
 
@@ -22,8 +22,7 @@ namespace Core.DataLoader
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
-			using var stream = new MemoryStream(data);
-			using var reader = new BinaryReader(stream);
+			using var reader = new SafeBinaryReader(data);
 
 			if (!IsValidDxtFile(reader))
 			{
@@ -53,7 +52,7 @@ namespace Core.DataLoader
 			}
 		}
 
-		private bool IsValidDxtFile(BinaryReader reader)
+		private bool IsValidDxtFile(IBinaryReader reader)
 		{
 			var header = new string(reader.ReadChars(4));
 			if (header == "DDS ") return true;

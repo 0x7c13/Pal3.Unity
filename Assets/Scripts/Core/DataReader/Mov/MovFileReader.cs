@@ -6,9 +6,7 @@
 namespace Core.DataReader.Mov
 {
     using System.IO;
-    using Extensions;
     using GameBox;
-    using Utils;
 
     public sealed class MovFileReader : IFileReader<MovFile>
     {
@@ -19,15 +17,8 @@ namespace Core.DataReader.Mov
             _codepage = codepage;
         }
 
-        public MovFile Read(byte[] data)
+        public MovFile Read(IBinaryReader reader)
         {
-            #if ENABLE_IL2CPP
-            using var reader = new UnsafeBinaryReader(data);
-            #else
-            using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream);
-            #endif
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -76,11 +67,7 @@ namespace Core.DataReader.Mov
             return new MovFile(totalDuration, boneAnimationTracks, animationEvents);
         }
 
-        #if ENABLE_IL2CPP
-        private static MovAnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static MovAnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
-        #endif
+        private static MovAnimationEvent ReadAnimationEvent(IBinaryReader reader, int codepage)
         {
             return new MovAnimationEvent()
             {
@@ -89,11 +76,7 @@ namespace Core.DataReader.Mov
             };
         }
 
-        #if ENABLE_IL2CPP
-        private static MovBoneAnimationTrack ReadBoneAnimationTrack(UnsafeBinaryReader reader, int codepage)
-        #else
-        private static MovBoneAnimationTrack ReadBoneAnimationTrack(BinaryReader reader, int codepage)
-        #endif
+        private static MovBoneAnimationTrack ReadBoneAnimationTrack(IBinaryReader reader, int codepage)
         {
             var boneId = reader.ReadInt32();
 

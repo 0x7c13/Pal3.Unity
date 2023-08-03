@@ -20,10 +20,8 @@ namespace Core.DataReader.Scn
             _codepage = codepage;
         }
 
-        public ScnFile Read(Stream stream)
+        public ScnFile Read(IBinaryReader reader)
         {
-            using var reader = new BinaryReader(stream);
-
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
 
@@ -49,14 +47,14 @@ namespace Core.DataReader.Scn
                 Reserved = reader.ReadUInt32Array(6),
             };
 
-            reader.BaseStream.Seek(npcDataOffset, SeekOrigin.Begin);
+            reader.Seek(npcDataOffset, SeekOrigin.Begin);
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
                 npcInfos[i] = ReadNpcInfo(reader, _codepage);
             }
 
-            reader.BaseStream.Seek(objectDataOffset, SeekOrigin.Begin);
+            reader.Seek(objectDataOffset, SeekOrigin.Begin);
             var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
@@ -67,7 +65,7 @@ namespace Core.DataReader.Scn
             return new ScnFile(sceneInfo, npcInfos, objInfos);
         }
 
-        private static ScnNpcInfo ReadNpcInfo(BinaryReader reader, int codepage)
+        private static ScnNpcInfo ReadNpcInfo(IBinaryReader reader, int codepage)
         {
             return new ScnNpcInfo()
             {
@@ -100,7 +98,7 @@ namespace Core.DataReader.Scn
             };
         }
 
-        private static ScnObjectInfo ReadObjectInfo(BinaryReader reader, int codepage)
+        private static ScnObjectInfo ReadObjectInfo(IBinaryReader reader, int codepage)
         {
             var id = reader.ReadByte();
             var initActive = reader.ReadByte();

@@ -6,8 +6,8 @@
 namespace Pal3.Dev
 {
     using System;
-    using System.IO;
     using Command;
+    using Core.DataReader;
     using Newtonsoft.Json;
     using Script;
     using UnityEditor;
@@ -16,7 +16,7 @@ namespace Pal3.Dev
     [Obsolete]
     public static class UnknownSceCommandAnalyzer
     {
-        public static void AnalyzeCommand(BinaryReader reader,
+        public static void AnalyzeCommand(SafeBinaryReader reader,
             int commandId,
             ushort parameterFlag,
             int codepage)

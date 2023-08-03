@@ -5,9 +5,6 @@
 
 namespace Core.DataReader.Dxt
 {
-    using System.IO;
-    using Extensions;
-
     public sealed class DxtPixelFormat
     {
         public int Size;
@@ -19,7 +16,7 @@ namespace Core.DataReader.Dxt
         public int BBitMask;
         public int ABitMask;
 
-        public static DxtPixelFormat ReadFormat(BinaryReader reader)
+        public static DxtPixelFormat ReadFormat(IBinaryReader reader)
         {
             return new DxtPixelFormat
             {
@@ -52,7 +49,7 @@ namespace Core.DataReader.Dxt
         public int Caps4;
         public int Reserved;
 
-        public static DxtHeader ReadHeader(BinaryReader reader)
+        public static DxtHeader ReadHeader(IBinaryReader reader)
         {
             return new DxtHeader
             {
