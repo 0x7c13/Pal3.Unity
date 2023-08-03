@@ -57,13 +57,19 @@ namespace Pal3.GameSystem
             var refreshRate = Screen.currentResolution.refreshRate;
             #endif
 
+            #if ENABLE_IL2CPP
+            const string scriptingBackend = "IL2CPP";
+            #else
+            const string scriptingBackend = "Mono";
+            #endif
+
             var deviceInfo =
                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
                 $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores)\n" +
                 $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType})\n" +
                 $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
                 $"{GameConstants.ContactInfo}\n" +
-                $"Version: v{Application.version} Alpha (Unity {Application.unityVersion})\n";
+                $"Version: v{Application.version} Alpha (Unity {Application.unityVersion} {scriptingBackend})\n";
 
             _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
 

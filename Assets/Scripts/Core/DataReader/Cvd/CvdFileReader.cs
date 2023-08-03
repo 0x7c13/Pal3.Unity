@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Cvd
 {
     using System;
@@ -27,7 +25,7 @@ namespace Core.DataReader.Cvd
 
         public CvdFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -55,7 +53,7 @@ namespace Core.DataReader.Cvd
             return new CvdFile(animationDuration, rootNodes.ToArray());
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static void ReadGeometryNodes(UnsafeBinaryReader reader,
             float version,
             List<CvdGeometryNode> rootNodes,
@@ -90,7 +88,7 @@ namespace Core.DataReader.Cvd
             rootNodes.Add(parentNode);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdGeometryNode ReadGeometryNode(UnsafeBinaryReader reader,
             float version,
             ref float animationDuration,
@@ -151,7 +149,7 @@ namespace Core.DataReader.Cvd
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(UnsafeBinaryReader reader, int size)
         #else
         private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(BinaryReader reader, int size)
@@ -177,7 +175,7 @@ namespace Core.DataReader.Cvd
             return keyInfos;
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(UnsafeBinaryReader reader, int size)
         #else
         private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(BinaryReader reader, int size)
@@ -231,7 +229,7 @@ namespace Core.DataReader.Cvd
             return positionKeyFrames;
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(UnsafeBinaryReader reader, int size)
         #else
         private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(BinaryReader reader, int size)
@@ -292,7 +290,7 @@ namespace Core.DataReader.Cvd
             return rotationKeyFrames;
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(UnsafeBinaryReader reader, int size)
         #else
         private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(BinaryReader reader, int size)
@@ -349,7 +347,7 @@ namespace Core.DataReader.Cvd
             return scaleKeyFrames;
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdMesh ReadMesh(UnsafeBinaryReader reader, float version, int codepage)
         #else
         private static CvdMesh ReadMesh(BinaryReader reader, float version, int codepage)
@@ -401,7 +399,7 @@ namespace Core.DataReader.Cvd
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static CvdMeshSection ReadMeshSection(UnsafeBinaryReader reader,
             float version,
             CvdVertex[][] allFrameVertices,

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Msh
 {
     using System.IO;
@@ -24,7 +22,7 @@ namespace Core.DataReader.Msh
 
         public MshFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -76,7 +74,7 @@ namespace Core.DataReader.Msh
             return new MshFile(rootBoneNode, subMeshes);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static BoneNode ReadBoneNode(UnsafeBinaryReader reader, BoneNode parent, int codepage)
         #else
         private static BoneNode ReadBoneNode(BinaryReader reader, BoneNode parent, int codepage)
@@ -141,7 +139,7 @@ namespace Core.DataReader.Msh
             return boneNode;
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static MshMesh ReadSubMesh(UnsafeBinaryReader reader, int codepage)
         #else
         private static MshMesh ReadSubMesh(BinaryReader reader, int codepage)

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Lgt
 {
     using System;
@@ -18,7 +16,7 @@ namespace Core.DataReader.Lgt
     {
         public LgtFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -42,7 +40,7 @@ namespace Core.DataReader.Lgt
             return new LgtFile(lightNodes.ToArray());
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static LightNode ReadLightNode(UnsafeBinaryReader reader)
         #else
         private static LightNode ReadLightNode(BinaryReader reader)

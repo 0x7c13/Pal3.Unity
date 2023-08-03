@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Mtl
 {
     using System.Collections.Generic;
@@ -24,7 +22,7 @@ namespace Core.DataReader.Mtl
 
         public MtlFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Mv3
 {
     using System.Collections.Generic;
@@ -26,7 +24,7 @@ namespace Core.DataReader.Mv3
 
         public Mv3File Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -89,7 +87,7 @@ namespace Core.DataReader.Mv3
                 materials);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static Mv3Mesh ReadMesh(UnsafeBinaryReader reader, int codepage)
         #else
         private static Mv3Mesh ReadMesh(BinaryReader reader, int codepage)
@@ -235,7 +233,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static Mv3TagNode ReadTagNode(UnsafeBinaryReader reader, int codepage)
         #else
         private static Mv3TagNode ReadTagNode(BinaryReader reader, int codepage)
@@ -259,7 +257,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static Mv3TagFrame ReadTagFrame(UnsafeBinaryReader reader)
         #else
         private static Mv3TagFrame ReadTagFrame(BinaryReader reader)
@@ -292,7 +290,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static Mv3AnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader, int codepage)
         #else
         private static Mv3AnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
@@ -305,7 +303,7 @@ namespace Core.DataReader.Mv3
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static GameBoxMaterial ReadMaterial(UnsafeBinaryReader reader, int codepage)
         #else
         private static GameBoxMaterial ReadMaterial(BinaryReader reader, int codepage)

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Mov
 {
     using System.IO;
@@ -23,7 +21,7 @@ namespace Core.DataReader.Mov
 
         public MovFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -78,7 +76,7 @@ namespace Core.DataReader.Mov
             return new MovFile(totalDuration, boneAnimationTracks, animationEvents);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static MovAnimationEvent ReadAnimationEvent(UnsafeBinaryReader reader, int codepage)
         #else
         private static MovAnimationEvent ReadAnimationEvent(BinaryReader reader, int codepage)
@@ -91,7 +89,7 @@ namespace Core.DataReader.Mov
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static MovBoneAnimationTrack ReadBoneAnimationTrack(UnsafeBinaryReader reader, int codepage)
         #else
         private static MovBoneAnimationTrack ReadBoneAnimationTrack(BinaryReader reader, int codepage)

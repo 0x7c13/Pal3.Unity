@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-//#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Data
 {
     using System.IO;
@@ -17,7 +15,7 @@ namespace Core.DataReader.Data
 
         public EffectDefinitionFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -34,7 +32,7 @@ namespace Core.DataReader.Data
             return new EffectDefinitionFile(effectDefinitions);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static EffectDefinition ReadEffectDefinition(UnsafeBinaryReader reader)
         #else
         private static EffectDefinition ReadEffectDefinition(BinaryReader reader)

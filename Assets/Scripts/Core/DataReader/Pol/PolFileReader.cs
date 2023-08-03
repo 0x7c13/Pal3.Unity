@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-#define USE_UNSAFE_BINARY_READER
-
 namespace Core.DataReader.Pol
 {
     using System;
@@ -25,7 +23,7 @@ namespace Core.DataReader.Pol
 
         public PolFile Read(byte[] data)
         {
-            #if USE_UNSAFE_BINARY_READER
+            #if ENABLE_IL2CPP
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var stream = new MemoryStream(data);
@@ -78,7 +76,7 @@ namespace Core.DataReader.Pol
             return new PolFile(version, nodeInfos, meshInfos, tagNodes);
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static TagNode ReadTagNodeInfo(UnsafeBinaryReader reader, int codepage)
         #else
         private static TagNode ReadTagNodeInfo(BinaryReader reader, int codepage)
@@ -122,7 +120,7 @@ namespace Core.DataReader.Pol
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static PolMesh ReadMeshData(UnsafeBinaryReader reader, int version, int codepage)
         #else
         private static PolMesh ReadMeshData(BinaryReader reader, int version, int codepage)
@@ -235,7 +233,7 @@ namespace Core.DataReader.Pol
             };
         }
 
-        #if USE_UNSAFE_BINARY_READER
+        #if ENABLE_IL2CPP
         private static PolTexture ReadTextureInfo(UnsafeBinaryReader reader, int version, int codepage)
         #else
         private static PolTexture ReadTextureInfo(BinaryReader reader, int version, int codepage)
