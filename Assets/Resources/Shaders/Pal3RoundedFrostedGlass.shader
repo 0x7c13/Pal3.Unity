@@ -22,9 +22,8 @@ Shader "Pal3/RoundedFrostedGlass"
         {
             Cull Off
             Lighting Off
-            ZTest Off
+            ZTest [unity_GUIZTestMode]
             ZWrite Off
-            //ZTest [unity_GUIZTestMode]
             Blend SrcAlpha OneMinusSrcAlpha
 
             // Horizontal blur
@@ -109,7 +108,7 @@ Shader "Pal3/RoundedFrostedGlass"
 
                     half4 sum = half4(0,0,0,0);
 
-                    #define GRABPIXEL(weight,kernelx) tex2Dproj( _HBlur, UNITY_PROJ_COORD(float4(i.uvgrab.x + _HBlur_TexelSize.x * kernelx * _BlurAmount, i.uvgrab.y, i.uvgrab.z, i.uvgrab.w))) * weight
+                    #define GRABPIXEL(weight, kernelx) tex2Dproj( _HBlur, UNITY_PROJ_COORD(float4(i.uvgrab.x + _HBlur_TexelSize.x * kernelx * _BlurAmount, i.uvgrab.y, i.uvgrab.z, i.uvgrab.w))) * weight
 
                     sum += GRABPIXEL(0.05, -4.0);
                     sum += GRABPIXEL(0.09, -3.0);
