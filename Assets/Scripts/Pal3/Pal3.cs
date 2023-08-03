@@ -355,34 +355,18 @@ namespace Pal3
             _mainMenu.ShowInitView();
             _mainMenu.ShowMenu();
 
-            // Check latest version and notify if found
-            StartCoroutine(CheckLatestVersionAndNotifyIfFound());
+            // Check latest version and notify if a newer version is found.
+            StartCoroutine(CheckLatestVersionAndNotify());
         }
 
-        private IEnumerator CheckLatestVersionAndNotifyIfFound()
+        private IEnumerator CheckLatestVersionAndNotify()
         {
-            bool IsVersionGreater(string latestVersion, string currentVersion)
-            {
-                string[] latestParts = latestVersion.Split('.');
-                string[] currentParts = currentVersion.Split('.');
-
-                for (var i = 0; i < Math.Min(latestParts.Length, currentParts.Length); i++)
-                {
-                    int latest = int.Parse(latestParts[i]);
-                    int current = int.Parse(currentParts[i]);
-                    if (latest == current) continue;
-                    return latest > current;
-                }
-
-                return latestParts.Length > currentParts.Length;
-            }
-
             yield return new WaitForSeconds(1f);
             yield return GithubReleaseVersionFetcher.GetLatestReleaseVersionAsync(GameConstants.GithubRepoOwner, GameConstants.GithubRepoName,
                 latestVersion =>
                 {
                     if (!string.IsNullOrEmpty(latestVersion) &&
-                        IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
+                        Utility.IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(
                             #if UNITY_IOS

@@ -244,5 +244,21 @@ namespace Core.Utils
 
             return false;
         }
+
+        public static bool IsVersionGreater(string latestVersion, string currentVersion)
+        {
+            string[] latestParts = latestVersion.Split('.');
+            string[] currentParts = currentVersion.Split('.');
+
+            for (var i = 0; i < Math.Min(latestParts.Length, currentParts.Length); i++)
+            {
+                int latest = int.Parse(latestParts[i]);
+                int current = int.Parse(currentParts[i]);
+                if (latest == current) continue;
+                return latest > current;
+            }
+
+            return latestParts.Length > currentParts.Length;
+        }
     }
 }
