@@ -26,7 +26,7 @@ namespace Editor
             ApplyPlayerSettingsForVariant("PAL3");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("Switched to PAL3");
+            Debug.Log($"[{nameof(GameVariantSwitcher)}] Switched to PAL3");
         }
 
         #if PAL3
@@ -51,7 +51,7 @@ namespace Editor
             ApplyPlayerSettingsForVariant("PAL3A");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("Switched to PAL3A");
+            Debug.Log($"[{nameof(GameVariantSwitcher)}] Switched to PAL3A");
         }
 
         #if PAL3

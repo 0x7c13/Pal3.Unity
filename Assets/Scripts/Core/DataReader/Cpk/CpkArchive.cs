@@ -107,7 +107,7 @@ namespace Core.DataReader.Cpk
             foreach (CpkEntry node in nodes)
             {
                 var relativePath = node.VirtualPath.Replace(
-                    CpkConstants.DirectorySeparator, Path.DirectorySeparatorChar);
+                    CpkConstants.DirectorySeparatorChar, Path.DirectorySeparatorChar);
 
                 if (node.IsDirectory)
                 {
@@ -313,7 +313,10 @@ namespace Core.DataReader.Cpk
                 yield break;
             }
 
-            if (rootPath != string.Empty)  rootPath += CpkConstants.DirectorySeparator;
+            if (!string.IsNullOrEmpty(rootPath))
+            {
+                rootPath += CpkConstants.DirectorySeparatorChar;
+            }
 
             foreach (var childCrc in _fatherCrcToChildCrcTableIndexMap[fatherCrc])
             {

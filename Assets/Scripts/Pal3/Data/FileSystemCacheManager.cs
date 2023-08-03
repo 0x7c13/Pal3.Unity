@@ -44,8 +44,8 @@ namespace Pal3.Data
                 // Dispose current scene cpk
                 if (!string.IsNullOrEmpty(_currentCityName))
                 {
-                    var currentSceneFolderPath = _currentCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
-                                                 + _currentSceneName;
+                    var currentSceneFolderPath = $"{_currentCityName}{CpkConstants.FileExtension}" +
+                                                 $"{CpkConstants.DirectorySeparatorChar}{_currentSceneName}";
 
                     if (_fileSystem.FileExistsInSegmentedArchive(currentSceneFolderPath, out string segmentedArchiveName))
                     {
@@ -59,8 +59,8 @@ namespace Pal3.Data
 
                 // Load new scene cpk into memory
                 {
-                    var newSceneFolderPath = newCityName + CpkConstants.FileExtension + CpkConstants.DirectorySeparator
-                                             + newSceneName;
+                    var newSceneFolderPath = $"{newCityName}{CpkConstants.FileExtension}" +
+                                             $"{CpkConstants.DirectorySeparatorChar}{newSceneName}";
 
                     if (_fileSystem.FileExistsInSegmentedArchive(newSceneFolderPath, out string segmentedArchiveName))
                     {

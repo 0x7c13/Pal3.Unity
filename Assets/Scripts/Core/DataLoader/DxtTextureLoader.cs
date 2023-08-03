@@ -57,7 +57,7 @@ namespace Core.DataLoader
 		{
 			var header = new string(reader.ReadChars(4));
 			if (header == "DDS ") return true;
-			Debug.Log($"Invalid DXT header: {header}");
+			Debug.Log($"[{nameof(DxtTextureLoader)}] Invalid DXT header: {header}");
 			return false;
 		}
 

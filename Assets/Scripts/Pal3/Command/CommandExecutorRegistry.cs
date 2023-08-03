@@ -30,7 +30,7 @@ namespace Pal3.Command
             {
                 if (_executors[typeof(ICommandExecutor<T>)].Contains(executor))
                 {
-                    Debug.LogError($"Executor already registered: {executor.GetType()}");
+                    Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] Executor already registered: {executor.GetType()}");
                 }
                 else _executors[typeof(ICommandExecutor<T>)].Add(executor);
             }
@@ -48,7 +48,7 @@ namespace Pal3.Command
 
             if (executorTypes.Count == 0)
             {
-                Debug.LogError($"No ICommandExecutor interface found for type: {executor.GetType()}");
+                Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] No ICommandExecutor interface found for type: {executor.GetType()}");
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace Pal3.Command
                 {
                     if (_executors[executorType].Contains(executor))
                     {
-                        Debug.LogError($"Executor already registered: {executor.GetType()}");
+                        Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] Executor already registered: {executor.GetType()}");
                     }
                     else _executors[executorType].Add(executor);
                 }
@@ -74,7 +74,7 @@ namespace Pal3.Command
         {
             if (!_executors.ContainsKey(typeof(ICommandExecutor<T>)))
             {
-                Debug.LogError($"Executor has not been registered yet: {executor.GetType()}");
+                Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] Executor has not been registered yet: {executor.GetType()}");
                 return;
             }
             _executors[typeof(ICommandExecutor<T>)].Remove(executor);
@@ -92,7 +92,7 @@ namespace Pal3.Command
 
             if (executorTypes.Count == 0)
             {
-                Debug.LogError($"No ICommandExecutor interface found for type: {executor.GetType()}");
+                Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] No ICommandExecutor interface found for type: {executor.GetType()}");
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace Pal3.Command
             {
                 if (!_executors.ContainsKey(executorType))
                 {
-                    Debug.LogError($"Executor has not been registered yet: {executor.GetType()}");
+                    Debug.LogError($"[{nameof(CommandExecutorRegistry<TCommand>)}] Executor has not been registered yet: {executor.GetType()}");
                     return;
                 }
                 _executors[executorType].Remove(executor);

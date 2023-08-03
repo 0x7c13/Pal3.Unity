@@ -30,7 +30,7 @@ namespace Core.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                string error = $"{typeof(T)} not registered with {GetType().Name}";
+                string error = $"[{nameof(ServiceLocator)}] {typeof(T)} is not registered with name: {GetType().Name}";
                 Debug.LogError(error);
                 throw new InvalidOperationException(error);
             }
@@ -50,8 +50,12 @@ namespace Core.Services
 
             if (_services.ContainsKey(typeof(T)))
             {
-                Debug.LogWarning($"{typeof(T)} already registered.");
+                Debug.LogWarning($"[{nameof(ServiceLocator)}] {typeof(T)} already registered.");
                 return;
+            }
+            else
+            {
+                Debug.Log($"[{nameof(ServiceLocator)}] Service type {typeof(T)} registered.");
             }
 
             _services.Add(typeof(T), service);
@@ -65,8 +69,12 @@ namespace Core.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                Debug.LogWarning($"Failed to unregister since {typeof(T)} is not registered yet.");
+                Debug.LogWarning($"[{nameof(ServiceLocator)}] Failed to unregister service since {typeof(T)} is not registered yet.");
                 return;
+            }
+            else
+            {
+                Debug.Log($"[{nameof(ServiceLocator)}] Service type {typeof(T)} unregistered.");
             }
 
             _services.Remove(typeof(T));
@@ -77,6 +85,7 @@ namespace Core.Services
         /// </summary>
         public void UnregisterAll()
         {
+            Debug.Log($"[{nameof(ServiceLocator)}] All services unregistered.");
             _services.Clear();
         }
     }

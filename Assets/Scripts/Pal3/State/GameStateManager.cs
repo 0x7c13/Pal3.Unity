@@ -78,7 +78,7 @@ namespace Pal3.State
                 }
             }
 
-            Debug.Log($"Goto State: {newState.ToString()}");
+            Debug.Log($"[{nameof(GameStateManager)}] Goto State: {newState.ToString()}");
 
             _previousState = _currentState;
             _currentState = newState;

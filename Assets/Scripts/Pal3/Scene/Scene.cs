@@ -35,6 +35,7 @@ namespace Pal3.Scene
         ICommandExecutor<SceneActivateObject2Command>,
         ICommandExecutor<FengYaSongCommand>,
         ICommandExecutor<SceneCloseDoorCommand>,
+        ICommandExecutor<SceneEnableFogCommand>,
         #endif
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorLookAtActorCommand>
@@ -90,6 +91,9 @@ namespace Pal3.Scene
 
         private void OnDisable()
         {
+            // Remove fog when scene is disabled
+            if (RenderSettings.fog) RenderSettings.fog = false;
+
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
             Destroy(_mesh);
@@ -132,7 +136,8 @@ namespace Pal3.Scene
                 scnFile,
                 _sceneStateManager,
                 _sceneObjectIdsToNotLoadFromSaveState);
-            //Debug.LogError($"InitTotal: {timer.ElapsedMilliseconds} ms");
+
+            Debug.Log($"[{nameof(Scene)}] Scene data initialized in {timer.ElapsedMilliseconds} ms.");
             timer.Restart();
 
             _tilemap = new Tilemap(NavFile);
@@ -144,7 +149,7 @@ namespace Pal3.Scene
 
             timer.Restart();
             RenderMesh();
-            //Debug.LogError($"RenderMesh: {timer.ElapsedMilliseconds} ms");
+            Debug.Log($"[{nameof(Scene)}] Mesh initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             RenderSkyBox();
@@ -153,15 +158,15 @@ namespace Pal3.Scene
             {
                 SetupEnvironmentLighting();
             }
-            //Debug.LogError($"SkyBox+NavMesh+Lights: {timer.ElapsedMilliseconds} ms");
+            Debug.Log($"[{nameof(Scene)}] SkyBox + NavMesh initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             InitActorObjects(actorTintColor, _tilemap);
-            //Debug.LogError($"CreateActors: {timer.ElapsedMilliseconds} ms");
+            Debug.Log($"[{nameof(Scene)}] Actors initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             InitSceneObjects();
-            //Debug.LogError($"ActivateSceneObjects: {timer.ElapsedMilliseconds} ms");
+            Debug.Log($"[{nameof(Scene)}] Objects initialized in {timer.ElapsedMilliseconds} ms");
             timer.Stop();
         }
 
@@ -621,7 +626,7 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
 
@@ -648,7 +653,7 @@ namespace Pal3.Scene
                     Vector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)
                 {
                     // Don't do anything since this object has already been moved by the SceneStateManager
-                    Debug.LogWarning($"Won't move object {command.ObjectId} since it has already been " +
+                    Debug.LogWarning($"[{nameof(Scene)}] Won't move object {command.ObjectId} since it has already been " +
                                    $"moved by the SceneStateManager on scene load.");
                     return;
                 }
@@ -667,7 +672,7 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
             }
         }
 
@@ -699,8 +704,21 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
             }
+        }
+
+        public void Execute(SceneEnableFogCommand command)
+        {
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = new Color(
+                command.Red / 255f,
+                command.Green / 255f,
+                command.Blue / 255f,
+                command.Alpha);
+            RenderSettings.fogStartDistance = GameBoxInterpreter.ToUnityDistance(command.StartDistance);
+            RenderSettings.fogEndDistance = GameBoxInterpreter.ToUnityDistance(command.EndDistance);
+            RenderSettings.fog = true;
         }
 
         public void Execute(FengYaSongCommand command)

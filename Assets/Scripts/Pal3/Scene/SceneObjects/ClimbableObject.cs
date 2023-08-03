@@ -62,7 +62,7 @@ namespace Pal3.Scene.SceneObjects
             string indicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(INTERACTION_INDICATOR_MODEL_FILE_NAME);
             CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(indicatorModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(indicatorModelPath));
+                Utility.GetDirectoryName(indicatorModelPath, CpkConstants.DirectorySeparatorChar));
 
             // Upper indicator
             {

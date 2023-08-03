@@ -316,7 +316,7 @@ namespace Pal3.GameSystem
                 _flashingAnimationCts.Cancel();
                 _reactionTimer.Stop();
                 _totalTimeUsedBeforeSkippingTheLastDialogue = _reactionTimer.Elapsed.TotalSeconds;
-                Debug.LogWarning($"Reaction time: {_totalTimeUsedBeforeSkippingTheLastDialogue:0.00f}");
+                Debug.LogWarning($"[{nameof(DialogueManager)}] Reaction time: {_totalTimeUsedBeforeSkippingTheLastDialogue:0.00f}");
             }
 
             yield return PlayDialogueBackgroundPopAnimationAsync(false);

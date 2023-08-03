@@ -95,24 +95,24 @@ namespace Pal3.Script
             if (_pendingScripts.Any(s => s.ScriptId == scriptId) ||
                 _runningScripts.Any(s => s.ScriptId == scriptId))
             {
-                Debug.LogError($"Script is already running: {scriptId}");
+                Debug.LogError($"[{nameof(ScriptManager)}] Script is already running: {scriptId}");
                 return false;
             }
 
             PalScriptRunner scriptRunner;
             if (isBigMapScript)
             {
-                Debug.Log($"Add BigMap script id: {scriptId}");
+                Debug.Log($"[{nameof(ScriptManager)}] Add BigMap script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_bigMapSceFile, PalScriptType.BigMap, scriptId, _globalVariables);
             }
             else if (scriptId <= ScriptConstants.SystemScriptIdMax)
             {
-                Debug.Log($"Add system script id: {scriptId}");
+                Debug.Log($"[{nameof(ScriptManager)}] Add system script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile, PalScriptType.System, scriptId, _globalVariables);
             }
             else
             {
-                Debug.Log($"Add scene script id: {scriptId}");
+                Debug.Log($"[{nameof(ScriptManager)}] Add scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile, PalScriptType.Scene, scriptId, _globalVariables);
             }
 
@@ -125,8 +125,8 @@ namespace Pal3.Script
         {
             var sceCommandId = command.GetType().GetCustomAttribute<SceCommandAttribute>()?.Id;
 
-            Debug.Log($"{((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} : [{sceCommandId}] " +
-                      $"{command.GetType().Name.Replace("Command", "")} " +
+            Debug.Log($"[{nameof(ScriptManager)}] {((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} : " +
+                      $"[{sceCommandId}] {command.GetType().Name.Replace("Command", "")} " +
                       $"{JsonConvert.SerializeObject(command)}");
 
             CommandDispatcher<ICommand>.Instance.Dispatch(command);
@@ -155,7 +155,7 @@ namespace Pal3.Script
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 finishedScript.Dispose();
 
-                Debug.Log($"Script {finishedScript.ScriptId} finished running.");
+                Debug.Log($"[{nameof(ScriptManager)}] Script {finishedScript.ScriptId} finished running.");
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptFinishedRunningNotification(finishedScript.ScriptId, finishedScript.ScriptType));
             }
@@ -206,7 +206,7 @@ namespace Pal3.Script
         {
             if (command.Variable < 0)
             {
-                Debug.LogWarning($"Set global var {command.Variable} with value: {command.Value}");
+                Debug.LogWarning($"[{nameof(ScriptManager)}] Set global var {command.Variable} with value: {command.Value}");
                 SetGlobalVariable(command.Variable, command.Value);
             }
         }

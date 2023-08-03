@@ -10,6 +10,7 @@ namespace Pal3.Actor
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
@@ -97,7 +98,7 @@ namespace Pal3.Actor
 
             if (!_actor.HasAction(actionName))
             {
-                Debug.LogError($"Action {actionName} not found for actor {_actor.Info.Name}.");
+                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Info.Name}.");
                 _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
@@ -110,11 +111,11 @@ namespace Pal3.Actor
                 string mv3FilePath = _actor.GetActionFilePath(actionName);
                 mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(mv3FilePath);
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(mv3FilePath));
+                    Utility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparatorChar));
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Exception: {ex}");
                 _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
@@ -136,7 +137,7 @@ namespace Pal3.Actor
                 string weaponPath = FileConstants.GetWeaponModelFileVirtualPath(weaponName);
                 PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
                 ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(weaponPath));
+                    Utility.GetDirectoryName(weaponPath, CpkConstants.DirectorySeparatorChar));
                 _mv3ModelRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,

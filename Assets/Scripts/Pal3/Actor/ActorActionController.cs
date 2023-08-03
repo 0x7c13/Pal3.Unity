@@ -291,7 +291,7 @@ namespace Pal3.Actor
             {
                 if (!_actor.IsActive && !_actor.IsMainActor())
                 {
-                    Debug.LogError($"Failed to perform action since actor {command.ActorId} is inactive.");
+                    Debug.LogError($"[{nameof(ActorActionController)}] Failed to perform action since actor {command.ActorId} is inactive.");
                     return;
                 }
 

@@ -155,6 +155,8 @@ namespace Pal3
 
         private void OnEnable()
         {
+            Debug.Log($"[{nameof(Pal3)}] Game setup and initialization started...");
+
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
@@ -340,10 +342,13 @@ namespace Pal3
             DebugLogConsole.AddCommand<float>("fov", "Set camera FOV.", SetCameraFov);
 
             DisableInGameDebugConsoleButtonNavigation();
+
+            Debug.Log($"[{nameof(Pal3)}] Game initialized.");
         }
 
         private void Start()
         {
+            Debug.Log($"[{nameof(Pal3)}] Game started.");
             _mainMenu.ShowInitView();
             _mainMenu.ShowMenu();
         }

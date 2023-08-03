@@ -171,7 +171,7 @@ namespace Pal3.GameSystem
         {
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
-                Debug.LogError($"Cannot add non-player actor to the team.");
+                Debug.LogError($"[{nameof(TeamManager)}] Cannot add non-player actor to the team.");
                 return;
             }
 
@@ -183,7 +183,7 @@ namespace Pal3.GameSystem
             if (actor == PlayerActorId.TaoZi)
             #endif
             {
-                Debug.LogError($"{actor} cannot be added to the team.");
+                Debug.LogError($"[{nameof(TeamManager)}] {actor} cannot be added to the team.");
                 return;
             }
 

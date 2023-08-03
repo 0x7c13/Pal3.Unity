@@ -6,7 +6,6 @@
 namespace Core.FileSystem
 {
     using System.Collections.Generic;
-    using System.IO;
 
     /// <summary>
     /// File system wrapper for CPack archives
@@ -29,7 +28,7 @@ namespace Core.FileSystem
         /// <summary>
         /// Check if file exists in any of the segmented archives using virtual path.
         /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}.cpk\{File relative path inside archive}</param>
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}</param>
         /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
         /// <returns>True if file exists in segmented archive</returns>
         public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName);
@@ -37,7 +36,7 @@ namespace Core.FileSystem
         /// <summary>
         /// Check if file exists in the archive using virtual path.
         /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}.cpk\{File relative path inside archive}
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
         /// Example: music.cpk\music\PI01.mp3</param>
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath);

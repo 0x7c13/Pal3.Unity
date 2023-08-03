@@ -880,7 +880,7 @@ namespace Pal3.GamePlay
             }
             else
             {
-                Debug.LogError($"Scene object not found or not activated yet: {command.SceneObjectId}.");
+                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found or not activated yet: {command.SceneObjectId}.");
             }
         }
 
@@ -891,7 +891,7 @@ namespace Pal3.GamePlay
             GameObject climbableObject = climbableSceneObject.GetGameObject();
             if (climbableObject == null)
             {
-                Debug.LogError($"Scene object not found or not activated yet: {command.ObjectId}.");
+                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found or not activated yet: {command.ObjectId}.");
                 return;
             }
 
@@ -1030,8 +1030,8 @@ namespace Pal3.GamePlay
             // Check if actor is player actor.
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
-                Debug.LogError($"Cannot enable player control for actor {command.ActorId} " +
-                               $"since actor is not a player actor.");
+                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Cannot enable player control for actor " +
+                               $"{command.ActorId} since actor is not a player actor.");
                 return;
             }
 

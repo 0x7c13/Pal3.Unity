@@ -47,7 +47,7 @@ namespace Pal3.Scene
                 }
             }
 
-            Debug.LogError($"Scene object type: {objectInfo.Type} is not supported.");
+            Debug.LogError($"[{nameof(SceneObjectFactory)}] Scene object type: {objectInfo.Type} is not supported.");
             return null;
         }
     }

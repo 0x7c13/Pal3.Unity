@@ -116,20 +116,18 @@ namespace Core.Utils
             b = (byte) ((temp / 32 + temp) / 32);
         }
 
-        public static string GetRelativeDirectoryPath(string filePath,
-            char directoryPathSeparator = CpkConstants.DirectorySeparator)
+        public static string GetDirectoryName(string filePath, char directorySeparatorChar)
         {
-            return !filePath.Contains(directoryPathSeparator) ?
+            return !filePath.Contains(directorySeparatorChar) ?
                 string.Empty :
-                filePath[..filePath.LastIndexOf(directoryPathSeparator)];
+                filePath[..filePath.LastIndexOf(directorySeparatorChar)];
         }
 
-        public static string GetFileName(string filePath,
-            char directoryPathSeparator = CpkConstants.DirectorySeparator)
+        public static string GetFileName(string filePath, char directorySeparatorChar)
         {
-            return !filePath.Contains(directoryPathSeparator) ?
+            return !filePath.Contains(directorySeparatorChar) ?
                 string.Empty :
-                filePath[(filePath.LastIndexOf(directoryPathSeparator)+1)..];
+                filePath[(filePath.LastIndexOf(directorySeparatorChar)+1)..];
         }
 
         public static bool IsHandheldDevice()

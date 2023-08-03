@@ -13,6 +13,7 @@ namespace Pal3.Dev
     using UnityEditor;
     using UnityEngine;
 
+    [Obsolete]
     public static class UnknownSceCommandAnalyzer
     {
         public static void AnalyzeCommand(BinaryReader reader,
@@ -20,7 +21,7 @@ namespace Pal3.Dev
             ushort parameterFlag,
             int codepage)
         {
-            Debug.LogError($"Unknown Command Id: {commandId} ParameterFlag: {parameterFlag}");
+            Debug.LogError($"[{nameof(UnknownSceCommandAnalyzer)}] Unknown Command Id: {commandId} ParameterFlag: {parameterFlag}");
 
             var initPosition = reader.BaseStream.Position;
             var length = 0;
@@ -40,7 +41,7 @@ namespace Pal3.Dev
                     if (nextCmdType != null)
                     {
                         ICommand command = SceCommandParser.ParseSceCommand(reader, id, flag, codepage);
-                        Debug.Log($"Possible length: {length}, " +
+                        Debug.Log($"[{nameof(UnknownSceCommandAnalyzer)}] Possible length: {length}, " +
                                   $"next command: {nextCmdType.Name}-{id}-{flag}-{JsonConvert.SerializeObject(command)}");
 
                         maxSearchCount--;

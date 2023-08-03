@@ -7,6 +7,7 @@ namespace Pal3.Effect
 {
     using System;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.Renderer;
     using Core.Utils;
@@ -35,7 +36,7 @@ namespace Pal3.Effect
             {
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(info.ModelPath));
+                    Utility.GetDirectoryName(info.ModelPath, CpkConstants.DirectorySeparatorChar));
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,

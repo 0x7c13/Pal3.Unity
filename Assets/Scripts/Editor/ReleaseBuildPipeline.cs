@@ -34,7 +34,7 @@ namespace Editor
     {
         private static readonly string[] BuildLevels = { "Assets/Scenes/Game.unity" };
 
-        private static readonly char PathSeparator = Path.DirectorySeparatorChar;
+        private static readonly char DirSeparator = Path.DirectorySeparatorChar;
 
         #if PAL3
         [MenuItem("PAL3/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
@@ -129,7 +129,7 @@ namespace Editor
             string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game", "", "");
             if (string.IsNullOrWhiteSpace(buildOutputPath)) return;
 
-            buildOutputPath += $"{PathSeparator}{PlayerSettings.bundleVersion}{PathSeparator}";
+            buildOutputPath += $"{DirSeparator}{PlayerSettings.bundleVersion}{DirSeparator}";
 
             var buildConfigurations = new[]
             {
@@ -162,7 +162,7 @@ namespace Editor
             // Execute report log actions
             logActions.ForEach(action => action.Invoke());
 
-            Debug.Log($"Build for version {PlayerSettings.bundleVersion} complete! Output path: " +
+            Debug.Log($"[{nameof(ReleaseBuildPipeline)}] Build for version {PlayerSettings.bundleVersion} complete! Output path: " +
                       $"{buildOutputPath}{GameConstants.AppName}");
         }
 
@@ -174,14 +174,14 @@ namespace Editor
             List<Action> logActions,
             bool deletePdbFiles = true)
         {
-            string outputFolder = buildOutputPath + $"{GameConstants.AppName}{PathSeparator}" +
-                                $"{folderName}{PathSeparator}";
+            string outputFolder = buildOutputPath + $"{GameConstants.AppName}{DirSeparator}" +
+                                $"{folderName}{DirSeparator}";
 
             if (buildTarget is BuildTarget.StandaloneWindows
                 or BuildTarget.StandaloneWindows64
                 or BuildTarget.StandaloneLinux64)
             {
-                outputFolder += $"{GameConstants.AppName}{PathSeparator}";
+                outputFolder += $"{GameConstants.AppName}{DirSeparator}";
             }
             else if (buildTarget is BuildTarget.StandaloneOSX)
             {
@@ -211,7 +211,7 @@ namespace Editor
             switch (report.summary.result)
             {
                 case BuildResult.Succeeded:
-                    string successReport = $"Build [{report.summary.platform}] succeeded. " +
+                    string successReport = $"[{nameof(ReleaseBuildPipeline)}] Build [{report.summary.platform}] succeeded. " +
                                            $"Finished in {report.summary.totalTime.TotalMinutes:F2} minutes. " +
                                            $"Build size: {(report.summary.totalSize / 1024f / 1024f):F2} MB";
                     logActions.Add(() => Debug.Log(successReport));
@@ -244,22 +244,22 @@ namespace Editor
                 return;
             }
 
-            string releaseDirPath = $"{buildOutputPath}{PathSeparator}Release";
+            string releaseDirPath = $"{buildOutputPath}{DirSeparator}Release";
             Directory.CreateDirectory(releaseDirPath);
 
             List<(string FolderPath, Pal3BuildTarget Target)> buildTargets = new()
             {
-                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Android.ToString()}{PathSeparator}{GameConstants.AppName}.apk", Pal3BuildTarget.Android),
-                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Windows_x86.ToString()}", Pal3BuildTarget.Windows_x86),
-                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Windows_x64.ToString()}", Pal3BuildTarget.Windows_x64),
-                ($"{GameConstants.AppName}{PathSeparator}{Pal3BuildTarget.Linux_x86_x64.ToString()}", Pal3BuildTarget.Linux_x86_x64)
+                ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Android.ToString()}{DirSeparator}{GameConstants.AppName}.apk", Pal3BuildTarget.Android),
+                ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Windows_x86.ToString()}", Pal3BuildTarget.Windows_x86),
+                ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Windows_x64.ToString()}", Pal3BuildTarget.Windows_x64),
+                ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Linux_x86_x64.ToString()}", Pal3BuildTarget.Linux_x86_x64)
             };
 
             foreach ((string folderPath, Pal3BuildTarget target) in buildTargets)
             {
-                string fullPath = $"{buildOutputPath}{PathSeparator}{folderPath}";
+                string fullPath = $"{buildOutputPath}{DirSeparator}{folderPath}";
                 string zipFileName = $"{GameConstants.AppName}_v{PlayerSettings.bundleVersion}_{target.ToString()}.zip";
-                string zipFilePath = $"{releaseDirPath}{PathSeparator}{zipFileName}";
+                string zipFilePath = $"{releaseDirPath}{DirSeparator}{zipFileName}";
 
                 if (File.Exists(fullPath) || Directory.Exists(fullPath))
                 {

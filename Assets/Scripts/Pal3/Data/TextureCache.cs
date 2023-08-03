@@ -5,7 +5,6 @@
 
 namespace Pal3.Data
 {
-    using System;
     using System.Collections.Generic;
     using UnityEngine;
 
@@ -24,7 +23,7 @@ namespace Pal3.Data
 
             if (_textureCache.ContainsKey(key))
             {
-                Debug.LogError($"Texture {key} already existed in cache.");
+                Debug.LogError($"[{nameof(TextureCache)}] Texture {key} already existed in cache.");
             }
             else
             {
@@ -50,7 +49,7 @@ namespace Pal3.Data
 
         public void DisposeAll()
         {
-            Debug.Log($"Disposing all cached textures: {_textureCache.Count}");
+            Debug.Log($"[{nameof(TextureCache)}] Disposing all cached textures: {_textureCache.Count}");
             foreach ((Texture2D texture, _) in _textureCache.Values)
             {
                 UnityEngine.Object.Destroy(texture);

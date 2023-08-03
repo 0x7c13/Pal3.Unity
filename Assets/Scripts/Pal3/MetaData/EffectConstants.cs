@@ -36,49 +36,49 @@ namespace Pal3.MetaData
 
         public const int AnimatedFireEffectFrameRate = 10;
 
-        private const char PathSeparator = CpkConstants.DirectorySeparator;
+        private const char DirSeparator = CpkConstants.DirectorySeparatorChar;
 
         #if PAL3
         public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size, float lightSourceYOffset)>
             FireEffectInfo = new()
             {
                 {FireEffectType.Type1, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire1" + PathSeparator + "torch{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire1" + DirSeparator + "torch{0:00}.tga",
                     "", 3.3f, 0.5f) },
                 {FireEffectType.Type2, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire2" + PathSeparator + "{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire2" + DirSeparator + "{0:00}.tga",
                     "", 1f, 0.2f) },
                 {FireEffectType.Type3, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{FileConstants.EffectScnFolderVirtualPath}Candle{PathSeparator}candle.pol", 1f, 0.2f) },
+                    FileConstants.EffectScnFolderVirtualPath + "Candle" + DirSeparator + "{0:000}.tga",
+                    $"{FileConstants.EffectScnFolderVirtualPath}Candle{DirSeparator}candle.pol", 1f, 0.2f) },
                 {FireEffectType.Type4, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire4" + PathSeparator + "{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire4" + DirSeparator + "{0:00}.tga",
                     "", 5.8f, 0.5f) },
                 {FireEffectType.Type5, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{FileConstants.EffectScnFolderVirtualPath}Lamp{PathSeparator}lamp.pol", 0.7f, 0.2f) },
+                    FileConstants.EffectScnFolderVirtualPath + "Candle" + DirSeparator + "{0:000}.tga",
+                    $"{FileConstants.EffectScnFolderVirtualPath}Lamp{DirSeparator}lamp.pol", 0.7f, 0.2f) },
             };
         #elif PAL3A
         public static readonly Dictionary<FireEffectType, (string TexturePathFormat, string ModelPath, float Size, float lightSourceYOffset)>
             FireEffectInfo = new()
             {
                 {FireEffectType.Type1, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire4" + PathSeparator + "{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire4" + DirSeparator + "{0:00}.tga",
                     "", 5.8f, 0.5f) },
                 {FireEffectType.Type2, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire1" + PathSeparator + "torch{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire1" + DirSeparator + "torch{0:00}.tga",
                     "", 3.3f, 0.5f) },
                 {FireEffectType.Type3, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{FileConstants.EffectScnFolderVirtualPath}Lamp{PathSeparator}lamp.pol", 0.7f, 0.2f) },
+                    FileConstants.EffectScnFolderVirtualPath + "Candle" + DirSeparator + "{0:000}.tga",
+                    $"{FileConstants.EffectScnFolderVirtualPath}Lamp{DirSeparator}lamp.pol", 0.7f, 0.2f) },
                 {FireEffectType.Type4, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Candle" + PathSeparator + "{0:000}.tga",
-                    $"{FileConstants.EffectScnFolderVirtualPath}Candle{PathSeparator}candle.pol", 1f, 0.2f) },
+                    FileConstants.EffectScnFolderVirtualPath + "Candle" + DirSeparator + "{0:000}.tga",
+                    $"{FileConstants.EffectScnFolderVirtualPath}Candle{DirSeparator}candle.pol", 1f, 0.2f) },
                 {FireEffectType.Type5, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Fire2" + PathSeparator + "{0:00}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Fire2" + DirSeparator + "{0:00}.tga",
                     "", 1f, 0.3f) },
                 {FireEffectType.Type6, new (
-                    FileConstants.EffectScnFolderVirtualPath + "Candle" + PathSeparator + "{0:000}.tga",
+                    FileConstants.EffectScnFolderVirtualPath + "Candle" + DirSeparator + "{0:000}.tga",
                     "", 1f, 0.6f) },
             };
         #endif

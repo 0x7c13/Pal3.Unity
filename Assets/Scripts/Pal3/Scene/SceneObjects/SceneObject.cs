@@ -15,6 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Core.Animation;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
@@ -66,7 +67,9 @@ namespace Pal3.Scene.SceneObjects
             ModelFileVirtualPath = hasModel && !string.IsNullOrEmpty(objectInfo.Name) ?
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
-            ModelType = SceneObjectModelTypeResolver.GetType(Utility.GetFileName(ModelFileVirtualPath));
+            ModelType = SceneObjectModelTypeResolver.GetType(
+                Utility.GetFileName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
+
             GraphicsEffect = GetEffectType(objectInfo);
         }
 
@@ -126,7 +129,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(ModelFileVirtualPath));
+                    Utility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
@@ -137,7 +140,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(ModelFileVirtualPath));
+                    Utility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,
@@ -168,7 +171,7 @@ namespace Pal3.Scene.SceneObjects
                 #elif PAL3A
                 var effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
-                Debug.Log($"Adding {GraphicsEffect} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
+                Debug.Log($"[{nameof(SceneObject)}] Adding {GraphicsEffect} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
                 _effectComponent!.Init(resourceProvider, effectParameter);
             }
 

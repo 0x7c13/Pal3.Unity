@@ -67,7 +67,7 @@ namespace Pal3.GameSystem
             }
             else
             {
-                Debug.LogError($"Actor ID {command.ActorId} is not supported for favor system. " +
+                Debug.LogError($"[{nameof(FavorManager)}] Actor ID {command.ActorId} is not supported for favor system. " +
                                $"Valid IDs are: {string.Join(", ", _actorFavor.Keys)}");
             }
         }

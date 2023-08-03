@@ -97,7 +97,7 @@ namespace Pal3.GameSystem
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));
 
-            Debug.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
+            Debug.LogWarning($"[{nameof(InventoryManager)}] Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
 
         public void Execute(InventoryRemoveItemCommand command)
@@ -116,7 +116,7 @@ namespace Pal3.GameSystem
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
 
-            Debug.LogWarning($"Remove item: {itemName}({command.ItemId})");
+            Debug.LogWarning($"[{nameof(InventoryManager)}] Remove item: {itemName}({command.ItemId})");
         }
 
         public void Execute(InventoryAddMoneyCommand command)
@@ -138,7 +138,7 @@ namespace Pal3.GameSystem
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
             }
 
-            Debug.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MONEY_ITEM_ID]}");
+            Debug.LogWarning($"[{nameof(InventoryManager)}] Add money: {command.ChangeAmount} current total: {_items[MONEY_ITEM_ID]}");
         }
 
         public void Execute(ResetGameStateCommand command)

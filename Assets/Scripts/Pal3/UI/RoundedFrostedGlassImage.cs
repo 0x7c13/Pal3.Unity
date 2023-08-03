@@ -67,7 +67,7 @@ namespace Pal3.UI
                 _shader = Shader.Find("Pal3/RoundedFrostedGlass");
                 if (_shader == null)
                 {
-                    Debug.LogError("Shader not found: Pal3/RoundedFrostedGlass");
+                    Debug.LogError($"[{nameof(RoundedFrostedGlassImage)}] Shader not found: Pal3/RoundedFrostedGlass");
                     return;
                 }
             }

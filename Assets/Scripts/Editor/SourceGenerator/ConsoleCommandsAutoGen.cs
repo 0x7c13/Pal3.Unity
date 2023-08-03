@@ -48,7 +48,7 @@ namespace Editor.SourceGenerator
             var commands =  Utility.GetTypesOfInterface(commandInterfaceType)
                 .Where(IsCommandAvailableInConsole).ToArray();
 
-            Debug.Log($"Found {commands.Length} available console commands");
+            Debug.Log($"[{nameof(ConsoleCommandsAutoGen<TCommand>)}] Found {commands.Length} available console commands");
 
             for (var i = 0; i < commands.Length; i++)
             {

@@ -263,9 +263,9 @@ namespace ResourceViewer
             {
                 PolFile polyFile = _resourceProvider.GetGameResourceFile<PolFile>(filePath);
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(filePath));
+                    Utility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                var mesh = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile,
@@ -298,9 +298,9 @@ namespace ResourceViewer
             {
                 CvdFile cvdFile = _resourceProvider.GetGameResourceFile<CvdFile>(filePath);
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(filePath));
+                    Utility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 var meshRenderer = animationNode.AddComponent<CvdModelRenderer>();
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
@@ -335,14 +335,14 @@ namespace ResourceViewer
             {
                 Mv3File mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(filePath);
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(filePath));
+                    Utility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
                 if (mv3File.Meshes.Length > 1)
                 {
                     Debug.LogWarning($"{filePath} has {mv3File.Meshes.Length} meshes.");
                 }
 
-                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
                 var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
 
@@ -397,26 +397,26 @@ namespace ResourceViewer
 
             try
             {
-                var actorFolderPath = Utility.GetRelativeDirectoryPath(filePath);
-                var actorName = Utility.GetFileName(actorFolderPath);
+                var actorFolderPath = Utility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar);
+                var actorName = Utility.GetFileName(actorFolderPath, CpkConstants.DirectorySeparatorChar);
 
                 var mshFilePath = filePath.Replace(".mov", ".msh", StringComparison.OrdinalIgnoreCase);
                 if (!_fileSystem.FileExists(mshFilePath))
                 {
-                    mshFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".msh";
+                    mshFilePath = actorFolderPath + CpkConstants.DirectorySeparatorChar + actorName + ".msh";
                 }
 
                 var mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
 
-                string mtlFilePath = actorFolderPath + CpkConstants.DirectorySeparator + actorName + ".mtl";
+                string mtlFilePath = actorFolderPath + CpkConstants.DirectorySeparatorChar + actorName + ".mtl";
                 var mtlFile = _resourceProvider.GetGameResourceFile<MtlFile>(mtlFilePath);
 
                 var movFile = _resourceProvider.GetGameResourceFile<MovFile>(filePath);
 
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(mtlFilePath));
+                    Utility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
 
-                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparator));
+                var animationNode = new GameObject(Utility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
                 var skeletalModelRenderer = animationNode.GetOrAddComponent<SkeletalModelRenderer>();
@@ -489,7 +489,7 @@ namespace ResourceViewer
             {
                 foreach (string movieCpkFileName in FileConstants.MovieCpkFileNames)
                 {
-                    var movieCpkFilePath = FileConstants.GetMovieCpkFilePath(movieCpkFileName);
+                    var movieCpkFilePath = FileConstants.GetMovieCpkFileRelativePath(movieCpkFileName);
                     if (File.Exists(_fileSystem.GetRootPath() + movieCpkFilePath))
                     {
                         _fileSystem.Mount(movieCpkFilePath, DEFAULT_CODE_PAGE);
@@ -607,7 +607,7 @@ namespace ResourceViewer
                     : $"{scriptDataReader.BaseStream.Length} __END__\n");
             }
 
-            var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparator) + 1).Replace(".sce", "");
+            var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparatorChar) + 1).Replace(".sce", "");
 
             var sceneName = SceneConstants.SceneCpkNameInfos
                 .FirstOrDefault(_ => string.Equals(_.cpkName, cpkFileName + CpkConstants.FileExtension, StringComparison.OrdinalIgnoreCase)).sceneName;
@@ -633,7 +633,7 @@ namespace ResourceViewer
 
         private bool LoadMp3(string filePath)
         {
-            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.DirectorySeparator);
+            nowPlayingTextUI.text = "* Now Playing: " + Utility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar);
             StartCoroutine(LoadMp3AudioClipAsync(filePath,
                 _resourceProvider.GetMusicFilePathInCacheFolder(filePath)));
             return true;

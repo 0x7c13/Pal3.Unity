@@ -46,11 +46,11 @@ namespace Editor
         {
             if (!overwrite && File.Exists(writePath))
             {
-                Debug.LogError($"File already generated: {writePath}\n");
+                Debug.LogError($"[{nameof(SourceGeneratorEditorOptions)}] File already generated: {writePath}\n");
                 return;
             }
 
-            Debug.Log("Generating source file: " + writePath);
+            Debug.Log($"[{nameof(SourceGeneratorEditorOptions)}] Generating source file: " + writePath);
 
             var writer = new CodeWriter
             {
@@ -67,7 +67,7 @@ namespace Editor
             using StreamWriter sw = new StreamWriter(writePath);
             sw.Write(output);
 
-            Debug.Log($"{fileName} generated.");
+            Debug.Log($"[{nameof(SourceGeneratorEditorOptions)}] {fileName} generated.");
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

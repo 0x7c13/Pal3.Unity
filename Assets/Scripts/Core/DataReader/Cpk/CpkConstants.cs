@@ -7,7 +7,7 @@ namespace Core.DataReader.Cpk
 {
     public static class CpkConstants
     {
-        public const char DirectorySeparator = '\\';
+        public const char DirectorySeparatorChar = '\\';
 
         public const string FileExtension = ".cpk";
     }

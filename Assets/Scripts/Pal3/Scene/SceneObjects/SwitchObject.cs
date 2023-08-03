@@ -77,7 +77,7 @@ namespace Pal3.Scene.SceneObjects
 
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(interactionIndicatorModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(interactionIndicatorModelPath));
+                    Utility.GetDirectoryName(interactionIndicatorModelPath, CpkConstants.DirectorySeparatorChar));
                 _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,

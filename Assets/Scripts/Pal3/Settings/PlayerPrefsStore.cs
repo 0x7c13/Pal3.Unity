@@ -73,7 +73,7 @@ namespace Pal3.Settings
                 return true;
             }
 
-            Debug.LogError("Unsupported type: " + typeof(T).Name);
+            Debug.LogError($"[{nameof(PlayerPrefsStore)}] Unsupported type: " + typeof(T).Name);
             value = default;
             return false;
         }

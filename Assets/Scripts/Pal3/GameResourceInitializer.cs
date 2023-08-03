@@ -82,6 +82,8 @@ namespace Pal3
 
         private IEnumerator InitResourceAsync()
         {
+            Debug.Log($"[{nameof(GameResourceInitializer)}] Initializing game resources...");
+
             // TODO: let user to choose language? Or auto-detect encoding?
             int codepage = DEFAULT_CODE_PAGE;
 
@@ -107,7 +109,7 @@ namespace Pal3
 
             if (gameDataFolderSearchLocations.Count == 0)
             {
-                Debug.LogError("No game data folder search locations found.");
+                Debug.LogError($"[{nameof(GameResourceInitializer)}] No game data folder search locations found.");
                 yield break;
             }
 
@@ -197,8 +199,7 @@ namespace Pal3
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 
-            // Cache warm up
-            resourceProvider.PreLoadMainActorMv3();
+            Debug.Log($"[{nameof(GameResourceInitializer)}] Game resources initialized.");
 
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
@@ -289,7 +290,8 @@ namespace Pal3
                     timer.Start();
                     cpkFileSystem = InitializeCpkFileSystem(path, crcHash, codepage);
                     timer.Stop();
-                    Debug.Log($"All cpk files mounted successfully under {path}. Total time: {timer.Elapsed.TotalSeconds:0.000}s");
+                    Debug.Log($"[{nameof(GameResourceInitializer)}] All .cpk files mounted successfully. " +
+                              $"Total time: {timer.Elapsed.TotalSeconds:0.000}s");
                 }
                 catch (Exception ex)
                 {
@@ -336,23 +338,23 @@ namespace Pal3
 
             List<string> filesToMount = new ()
             {
-                FileConstants.BaseDataCpkFilePath,
-                FileConstants.MusicCpkFilePath
+                FileConstants.BaseDataCpkFileRelativePath,
+                FileConstants.MusicCpkFileRelativePath
             };
 
-            foreach (string sceneCpkFileName in FileConstants.SceneCpkFileNames)
+            foreach (var sceneCpkFileName in FileConstants.SceneCpkFileNames)
             {
-                filesToMount.Add(FileConstants.GetSceneCpkFilePath(sceneCpkFileName));
+                filesToMount.Add(FileConstants.GetSceneCpkFileRelativePath(sceneCpkFileName));
             }
 
             #if PAL3A
-            filesToMount.Add(FileConstants.ScnCpkFilePath);
-            filesToMount.Add(FileConstants.SceCpkFilePath);
+            filesToMount.Add(FileConstants.ScnCpkFileRelativePath);
+            filesToMount.Add(FileConstants.SceCpkFileRelativePath);
             #endif
 
-            foreach (var cpkFilePath in filesToMount)
+            foreach (var cpkFileRelativePath in filesToMount)
             {
-                cpkFileSystem.Mount(cpkFilePath, codepage);
+                cpkFileSystem.Mount(cpkFileRelativePath, codepage);
             }
 
             return cpkFileSystem;

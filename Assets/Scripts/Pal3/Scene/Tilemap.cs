@@ -115,13 +115,13 @@ namespace Pal3.Scene
         {
             if (!IsTilePositionInsideTileMap(from, layerIndex))
             {
-                Debug.LogWarning("From position is not inside tilemap bounds.");
+                Debug.LogWarning($"[{nameof(Tilemap)}] From position is not inside tilemap bounds.");
                 return Array.Empty<Vector2Int>();
             }
 
             if (!IsTilePositionInsideTileMap(to, layerIndex))
             {
-                Debug.LogWarning("To position is not inside tilemap bounds.");
+                Debug.LogWarning($"[{nameof(Tilemap)}] To position is not inside tilemap bounds.");
                 return Array.Empty<Vector2Int>();
             }
 
@@ -135,7 +135,7 @@ namespace Pal3.Scene
                 }
                 else
                 {
-                    Debug.LogWarning("To position is not walkable.");
+                    Debug.LogWarning($"[{nameof(Tilemap)}] To position is not walkable.");
                     return Array.Empty<Vector2Int>();
                 }
             }

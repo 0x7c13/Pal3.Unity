@@ -135,12 +135,12 @@ namespace Pal3.State
             try
             {
                 File.WriteAllText(saveFilePath, string.Join('\n', stateCommands.Select(CommandExtensions.ToString).ToList()));
-                Debug.Log($"Game state saved to: {saveFilePath}");
+                Debug.Log($"[{nameof(SaveManager)}] Game state saved to: {saveFilePath}");
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to save game state to file: {saveFilePath} with exception: {ex}");
+                Debug.LogError($"[{nameof(SaveManager)}] Failed to save game state to file: {saveFilePath} with exception: {ex}");
                 return false;
             }
         }
@@ -371,7 +371,7 @@ namespace Pal3.State
                     _lastAutoSaveTime = Time.realtimeSinceStartupAsDouble;
                 }
 
-                Debug.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}.");
+                Debug.LogWarning($"[{nameof(SaveManager)}] Game state auto-saved to slot {AutoSaveSlotIndex}.");
             }
         }
 

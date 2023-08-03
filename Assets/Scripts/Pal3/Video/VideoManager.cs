@@ -114,7 +114,7 @@ namespace Pal3.Video
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogError($"[{nameof(VideoManager)}] Exception: {ex}");
                 _videoPlayingWaiter.CancelWait();
                 _gameStateManager.GoToPreviousState();
             }

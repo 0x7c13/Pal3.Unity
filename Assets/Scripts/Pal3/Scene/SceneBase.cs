@@ -80,7 +80,7 @@ namespace Pal3.Scene
 
         private void InitMeshData()
         {
-            var separator = CpkConstants.DirectorySeparator;
+            var separator = CpkConstants.DirectorySeparatorChar;
 
             var meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
                                    $"{ScnFile.SceneInfo.Model}{separator}";
@@ -94,7 +94,7 @@ namespace Pal3.Scene
             var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
 
             ITextureResourceProvider sceneTextureProvider = _resourceProvider.CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(sceneMetadataFilePrefix));
+                Utility.GetDirectoryName(sceneMetadataFilePrefix, separator));
 
             PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(sceneMetadataFilePrefix + ".pol");
             ScenePolyMesh = (polFile, sceneTextureProvider);
@@ -165,7 +165,7 @@ namespace Pal3.Scene
                 }
                 else
                 {
-                    Debug.LogError("FengYsSong actor id is already used by another actor!");
+                    Debug.LogError($"[{nameof(SceneBase)}] FengYsSong actor id is already used by another actor!");
                 }
             }
             #endif

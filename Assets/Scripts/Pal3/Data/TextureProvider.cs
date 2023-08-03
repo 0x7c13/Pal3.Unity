@@ -17,21 +17,21 @@ namespace Pal3.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly TextureCache _textureCache;
-        private readonly string _relativePath;
+        private readonly string _relativeDirectoryPath;
 
         public TextureProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
-            string relativePath,
+            string relativeDirectoryPath,
             TextureCache textureCache = null)
         {
-            if (!relativePath.EndsWith(CpkConstants.DirectorySeparator))
+            if (!relativeDirectoryPath.EndsWith(CpkConstants.DirectorySeparatorChar))
             {
-                relativePath += CpkConstants.DirectorySeparator;
+                relativeDirectoryPath += CpkConstants.DirectorySeparatorChar;
             }
 
             _fileSystem = fileSystem;
             _textureLoaderFactory = textureLoaderFactory;
-            _relativePath = relativePath.ToLower(); // Texture path is case insensitive
+            _relativeDirectoryPath = relativeDirectoryPath.ToLower(); // Texture path is case insensitive
             _textureCache = textureCache;
         }
 
@@ -49,7 +49,7 @@ namespace Pal3.Data
 
         public string GetTexturePath(string name)
         {
-            return _relativePath + name;
+            return _relativeDirectoryPath + name;
         }
 
         public Texture2D GetTexture(string name)
@@ -66,7 +66,7 @@ namespace Pal3.Data
                 return Texture2D.whiteTexture;
             }
 
-            var texturePath = _relativePath + name;
+            var texturePath = _relativeDirectoryPath + name;
 
             // Note: Most texture files used in (.pol, .cvd) files are stored inside Pal3's CPack
             // archives and they are pre-compressed to DXT format (DXT1 & DXT3). So we need to
@@ -78,7 +78,7 @@ namespace Pal3.Data
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to change path extension for texture: {texturePath}, ex: {ex}");
+                Debug.LogWarning($"[{nameof(TextureProvider)}] Failed to change path extension for texture: {texturePath}, ex: {ex}");
                 hasAlphaChannel = false;
                 return Texture2D.whiteTexture;
             }
@@ -113,7 +113,7 @@ namespace Pal3.Data
             {
                 textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
                 texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
-                if (texture == null) Debug.LogWarning($"Texture not found: {texturePath}");
+                if (texture == null) Debug.LogWarning($"[{nameof(TextureProvider)}] Texture not found: {texturePath}");
                 else _textureCache?.Add(texturePath, texture, hasAlphaChannel);
             }
 

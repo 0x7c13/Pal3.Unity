@@ -66,7 +66,7 @@ namespace Pal3.Actor
                 return ActorConstants.ActionToNameMap[ActorActionType.NpcStand2];
             }
 
-            Debug.LogError($"No default idle animation found for {Info.Id}_{Info.Name}");
+            Debug.LogError($"[{nameof(Actor)}] No default idle animation found for {Info.Id}_{Info.Name}");
             return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
         }
 

@@ -405,7 +405,7 @@ namespace Pal3.Actor
                 SetNavLayer(layerIndex);
                 transform.position = position;
 
-                Debug.LogWarning($"Portal to standing platform: {position}, " +
+                Debug.LogWarning($"[{nameof(ActorMovementController)}] Portal to standing platform: {position}, " +
                                  $"layer: {layerIndex}");
             }
             else if (_tilemap.TryGetTile(position, layerIndex, out NavTile tile) && tile.IsWalkable())
@@ -419,7 +419,7 @@ namespace Pal3.Actor
                     position.z);
 
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
-                Debug.LogWarning($"Portal to: {position}, " +
+                Debug.LogWarning($"[{nameof(ActorMovementController)}] Portal to: {position}, " +
                                  $"layer: {layerIndex}, " +
                                  $"tile: {tilePosition} DistanceToNearestObstacle: {tile.DistanceToNearestObstacle}, FloorKind: {tile.FloorKind}");
             }
@@ -784,7 +784,7 @@ namespace Pal3.Actor
                 else
                 {
                     _movementWaiter?.CancelWait();
-                    Debug.LogError($"Failed to find path from tile position {fromTilePosition} " +
+                    Debug.LogError($"[{nameof(ActorMovementController)}] Failed to find path from tile position {fromTilePosition} " +
                                    $"to tile position: {toTilePosition}");
                 }
                 yield break;

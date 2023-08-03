@@ -93,7 +93,7 @@ namespace Pal3.Script
             }
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
-            Debug.Log($"Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
+            Debug.Log($"[{nameof(PalScriptRunner)}] Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
             return new PalScriptRunner(scriptType, scriptId, sceScriptBlock, globalVariables, sceFile.Codepage);
         }
 
@@ -183,7 +183,8 @@ namespace Pal3.Script
 
             if (command == null)
             {
-                UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
+                // All commands are fully implemented, so this should never happen
+                //UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
             }
             else
             {
@@ -213,12 +214,12 @@ namespace Pal3.Script
         {
             if (variableName < 0)
             {
-                Debug.LogWarning($"Set global var {variableName} with value: {value}");
+                Debug.LogWarning($"[{nameof(PalScriptRunner)}] Set global var {variableName} with value: {value}");
                 _globalVariables[variableName] = value;
             }
             else
             {
-                Debug.LogWarning($"Setting value for user var: {variableName}, value: {value}");
+                Debug.LogWarning($"[{nameof(PalScriptRunner)}] Setting value for user var: {variableName}, value: {value}");
                 _localVariables[variableName] = value;
             }
         }

@@ -48,7 +48,7 @@ namespace Pal3.Data
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
 
-        private const char PathSeparator = CpkConstants.DirectorySeparator;
+        private const char DirSeparator = CpkConstants.DirectorySeparatorChar;
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
@@ -214,7 +214,7 @@ namespace Pal3.Data
                    + CACHE_FOLDER_NAME
                    + Path.DirectorySeparatorChar
                    + musicFileVirtualPath
-                       .Replace(PathSeparator, Path.DirectorySeparatorChar)
+                       .Replace(CpkConstants.DirectorySeparatorChar, Path.DirectorySeparatorChar)
                        .Replace(CpkConstants.FileExtension, string.Empty);
         }
 
@@ -229,7 +229,7 @@ namespace Pal3.Data
         {
             if (File.Exists(musicFileCachePath)) yield break;
 
-            Debug.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
+            Debug.Log($"[{nameof(GameResourceProvider)}] Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
             var dataMovementThread = new Thread(() =>
             {
                 try
@@ -351,13 +351,13 @@ namespace Pal3.Data
             var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(relativeFilePath));
+                Utility.GetDirectoryName(relativeFilePath, DirSeparator));
 
             var textures = new Texture2D[FileConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = Utility.GetFileName(
-                    string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), PathSeparator);
+                    string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DirSeparator);
                 Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
@@ -499,7 +499,7 @@ namespace Pal3.Data
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(texturePathFormat));
+                Utility.GetDirectoryName(texturePathFormat, DirSeparator));
 
             if (effect == GraphicsEffect.Fire)
             {
@@ -507,7 +507,7 @@ namespace Pal3.Data
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
-                    var textureNameFormat = Utility.GetFileName(texturePathFormat, PathSeparator);
+                    var textureNameFormat = Utility.GetFileName(texturePathFormat, DirSeparator);
                     Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }
@@ -534,7 +534,7 @@ namespace Pal3.Data
 
             if (vfxPrefab == null)
             {
-                Debug.LogWarning("VFX prefab not found: " + effectGroupId);
+                Debug.LogWarning($"[{nameof(GameResourceProvider)}] VFX prefab not found: " + effectGroupId);
             }
 
             _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
@@ -557,11 +557,11 @@ namespace Pal3.Data
 
             if (request.asset == null)
             {
-                Debug.LogWarning("VFX prefab not found: " + effectGroupId);
+                Debug.LogWarning($"[{nameof(GameResourceProvider)}] VFX prefab not found: " + effectGroupId);
             }
             else
             {
-                Debug.Log("VFX prefab preloaded: " + effectGroupId);
+                Debug.Log($"[{nameof(GameResourceProvider)}] VFX prefab preloaded: " + effectGroupId);
             }
 
             _vfxEffectPrefabCache[effectGroupId] = request.asset;
@@ -573,35 +573,6 @@ namespace Pal3.Data
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
             Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
-        }
-
-        /// <summary>
-        /// To warm up the main actor action cache to reduce gameplay shutters.
-        /// </summary>
-        public void PreLoadMainActorMv3()
-        {
-            var cachedActions = new HashSet<string>()
-            {
-                ActorConstants.ActionToNameMap[ActorActionType.Stand],
-                ActorConstants.ActionToNameMap[ActorActionType.Walk],
-                ActorConstants.ActionToNameMap[ActorActionType.Run],
-                ActorConstants.ActionToNameMap[ActorActionType.StepBack],
-            };
-
-            foreach (var name in ActorConstants.MainActorNameMap.Values)
-            {
-                ActorActionConfig actorActionConfig = GetActorActionConfig(name, $"{name}.ini");
-
-                foreach (ActorAction actorAction in actorActionConfig.ActorActions)
-                {
-                    // Cache known actions only.
-                    if (!cachedActions.Contains(actorAction.ActionName.ToLower())) continue;
-
-                    var mv3FilePath = FileConstants.GetActorFolderVirtualPath(name) + actorAction.ActionFileName;
-
-                    _ = GetGameResourceFile<Mv3File>(mv3FilePath); // Call GetMv3 to cache the mv3 file.
-                }
-            }
         }
 
         private string _currentCityName;
@@ -647,7 +618,7 @@ namespace Pal3.Data
                 {
                     // Dispose non-main actor mv3 files
                     // All main actor names start with "1"
-                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{PathSeparator}1".ToLower();
+                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{DirSeparator}1".ToLower();
                     var mv3FilesToDispose = fileCache.Value.Keys
                         .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
                         .ToArray();

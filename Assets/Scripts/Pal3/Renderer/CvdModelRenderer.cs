@@ -394,7 +394,7 @@ namespace Pal3.Renderer
                 _animationDuration < Mathf.Epsilon ||
                 _renderers.Count == 0)
             {
-                Debug.LogError("Invalid parameters for playing CVD animation.");
+                Debug.LogError($"[{nameof(CvdModelRenderer)}] Invalid parameters for playing CVD animation.");
                 yield break;
             }
 

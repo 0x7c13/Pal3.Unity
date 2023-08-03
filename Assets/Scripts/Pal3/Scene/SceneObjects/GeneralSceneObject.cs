@@ -58,6 +58,11 @@ namespace Pal3.Scene.SceneObjects
                 _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }
             #elif PAL3A
+            // Object 46 in scene M03-1 should block player
+            if (SceneInfo.Is("m03", "1") && ObjectInfo.Id == 46)
+            {
+                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
             // Object 15 in scene M12-1 should block player
             if (SceneInfo.Is("m12", "1") && ObjectInfo.Id == 15)
             {

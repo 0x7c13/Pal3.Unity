@@ -8,6 +8,7 @@ namespace Core.DataReader.Cpk
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using UnityEngine;
 
     /// <summary>
     /// Crc32 hash provider.
@@ -39,6 +40,8 @@ namespace Core.DataReader.Cpk
             }
 
             _initialized = true;
+
+            Debug.Log($"[{nameof(Crc32Hash)}] CRC32 table initialized.");
         }
 
         public uint Compute(string str, int codepage, bool useCache = true)
@@ -64,7 +67,7 @@ namespace Core.DataReader.Cpk
 
         private unsafe uint ComputeInternal(byte[] data)
         {
-            if (!_initialized) throw new InvalidOperationException("CrcHash not initialized yet.");
+            if (!_initialized) throw new InvalidOperationException($"{nameof(Crc32Hash)} not initialized yet.");
 
             if (data == null || data.Length == 0 || data[0] == 0)
             {

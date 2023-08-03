@@ -34,7 +34,7 @@ namespace Core.DataLoader
 
             if (request.result == UnityWebRequest.Result.ConnectionError)
             {
-                Debug.LogError($"Failed to load {url} with error: {request.error}");
+                Debug.LogError($"[{nameof(AudioClipLoader)}] Failed to load {url} with error: {request.error}");
             }
             else
             {
@@ -49,7 +49,7 @@ namespace Core.DataLoader
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to get audio clip: {filePath} with exception: {ex}");
+                    Debug.LogError($"[{nameof(AudioClipLoader)}] Failed to get audio clip: {filePath} with exception: {ex}");
                 }
             }
         }

@@ -9,6 +9,7 @@ namespace Pal3.Actor
     using Command;
     using Command.SceCommands;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
     using Core.DataReader.Mtl;
@@ -73,7 +74,7 @@ namespace Pal3.Actor
 
             if (!_actor.HasAction(actionName))
             {
-                Debug.LogError($"Action {actionName} not found for actor {_actor.Info.Name}.");
+                Debug.LogError($"[{nameof(SkeletalAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Info.Name}.");
                 waiter?.CancelWait();
                 return;
             }
@@ -94,11 +95,11 @@ namespace Pal3.Actor
                 movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
 
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetRelativeDirectoryPath(mtlFilePath));
+                    Utility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogError($"[{nameof(SkeletalAnimationActorActionController)}] Exception: {ex}");
                 waiter?.CancelWait();
                 return;
             }

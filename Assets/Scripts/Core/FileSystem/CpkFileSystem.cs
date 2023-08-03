@@ -59,15 +59,15 @@ namespace Core.FileSystem
         /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
         public void Mount(string cpkFileRelativePath, int codepage)
         {
-            var cpkFileName = Path.GetFileName(cpkFileRelativePath).ToLower();
+            var cpkFileName = Utility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
 
             if (_cpkArchives.ContainsKey(cpkFileName))
             {
-                Debug.LogWarning($"{cpkFileRelativePath} already mounted.");
+                Debug.LogWarning($"[{nameof(CpkFileSystem)}] {cpkFileRelativePath} already mounted.");
                 return;
             }
 
-            Debug.Log($"CpkFileSystem mounting: {_rootPath + cpkFileRelativePath}");
+            Debug.Log($"[{nameof(CpkFileSystem)}] Mounting: {_rootPath + cpkFileRelativePath}");
             var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash, codepage);
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
@@ -76,7 +76,7 @@ namespace Core.FileSystem
         /// <summary>
         /// Check if file exists in any of the segmented archives using virtual path.
         /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}.cpk\{File relative path inside archive}</param>
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}</param>
         /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
         /// <returns>True if file exists in segmented archive</returns>
         public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName)
@@ -108,7 +108,7 @@ namespace Core.FileSystem
         /// <summary>
         /// Check if file exists in the archive using virtual path.
         /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}.cpk\{File relative path inside archive}
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
         /// Example: music.cpk\music\PI01.mp3</param>
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath)
@@ -168,12 +168,12 @@ namespace Core.FileSystem
         {
             if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
             {
-                Debug.Log($"File system caching {cpkFileName} into memory.");
+                Debug.Log($"[{nameof(CpkFileSystem)}] Caching {cpkFileName} archive into memory.");
                 _cpkArchives[cpkFileName.ToLower()].LoadArchiveIntoMemory();
             }
             else
             {
-                throw new Exception($"{cpkFileName} not mounted yet.");
+                throw new Exception($"{cpkFileName} archive not mounted yet.");
             }
         }
 
@@ -184,12 +184,12 @@ namespace Core.FileSystem
         {
             if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
             {
-                Debug.Log($"File system disposing in-memory cache: {cpkFileName}");
+                Debug.Log($"[{nameof(CpkFileSystem)}] Disposing in-memory cache: {cpkFileName}");
                 _cpkArchives[cpkFileName.ToLower()].DisposeInMemoryArchive();
             }
             else
             {
-                throw new Exception($"{cpkFileName} not mounted yet.");
+                throw new Exception($"{cpkFileName} archive not mounted yet.");
             }
         }
 
@@ -219,7 +219,7 @@ namespace Core.FileSystem
                 }
 
                 cpkArchive.ExtractTo(outputDir);
-                Debug.Log($"{cpkFileName} extracted to {outputDir}");
+                Debug.Log($"[{nameof(CpkFileSystem)}] {cpkFileName} extracted to {outputDir}");
             }
         }
 
@@ -236,7 +236,7 @@ namespace Core.FileSystem
             {
                 var rootNodes = archive.Value.GetRootEntries();
                 results.Add(from result in SearchInternal(rootNodes, keyword)
-                    select archive.Key + CpkConstants.DirectorySeparator + result);
+                    select archive.Key + CpkConstants.DirectorySeparatorChar + result);
             });
 
             var resultList = new List<string>();
@@ -247,14 +247,21 @@ namespace Core.FileSystem
             return resultList;
         }
 
+        /// <summary>
+        /// Parse file virtual path into cpk file name and relative virtual path.
+        /// </summary>
+        /// <param name="fullVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}</param>
+        /// <param name="cpkFileName">{Cpk file name}</param>
+        /// <param name="relativeVirtualPath">{File relative path inside archive}</param>
         private void ParseFileVirtualPath(string fullVirtualPath, out string cpkFileName, out string relativeVirtualPath)
         {
-            if (!fullVirtualPath.Contains(CpkConstants.DirectorySeparator))
+            if (!fullVirtualPath.Contains(CpkConstants.DirectorySeparatorChar))
             {
-                throw new ArgumentException($"File virtual path is invalid: {fullVirtualPath}.");
+                throw new ArgumentException($"[{nameof(CpkFileSystem)}] File virtual path is invalid: {fullVirtualPath}.");
             }
-            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparator)].ToLower();
-            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparator) + 1)..];
+
+            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLower();
+            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..];
         }
 
         private IEnumerable<string> SearchInternal(IEnumerable<CpkEntry> nodes, string keyword)

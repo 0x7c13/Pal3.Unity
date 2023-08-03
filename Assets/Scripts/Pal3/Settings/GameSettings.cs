@@ -10,6 +10,7 @@ namespace Pal3.Settings
     using System.ComponentModel;
     using System.IO;
     using System.Reflection;
+    using System.Text;
     using Command;
     using Command.InternalCommands;
     using Core.Utils;
@@ -69,7 +70,7 @@ namespace Pal3.Settings
             DebugLogConsole.AddCommand("Settings.Reset",
                 "重置所有设置", ResetSettings);
             DebugLogConsole.AddCommand("Settings.Print",
-                "打印所有设置", PrintSettings);
+                "打印所有设置", PrintCurrentSettings);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -234,19 +235,19 @@ namespace Pal3.Settings
             }
             else
             {
+                #if UNITY_ANDROID // AO not working well with OpenGL on Android
+                IsAmbientOcclusionEnabled = false;
+                #else
                 if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
                 {
                     IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
                 }
                 else
                 {
-                    #if UNITY_ANDROID // AO not working well with OpenGL on Android
-                    IsAmbientOcclusionEnabled = false;
-                    #else
                     // Enable ambient occlusion by default on desktop devices
                     IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
-                    #endif
                 }
+                #endif
             }
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
@@ -263,6 +264,9 @@ namespace Pal3.Settings
             {
                 GameDataFolderPath = gameDataFolderPath;
             }
+
+            Debug.Log($"[{nameof(GameSettings)}] Settings initialized.");
+            PrintCurrentSettings();
         }
 
         public IEnumerable<string> GetGameDataFolderSearchLocations()
@@ -308,14 +312,19 @@ namespace Pal3.Settings
             SaveSettings();
         }
 
-        public void PrintSettings()
+        public void PrintCurrentSettings()
         {
-            Debug.Log("Current game settings:");
+            Debug.Log($"[{nameof(GameSettings)}] Current settings: {this}");
+        }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new ();
             foreach (PropertyInfo property in typeof(SettingsBase).GetProperties())
             {
-                Debug.Log($"{property.Name}: {property.GetValue(this)}");
+                sb.Append($", {property.Name}: {property.GetValue(this)}");
             }
+            return sb.Length == 0 ? string.Empty : sb.ToString()[2..];
         }
 
         public void Dispose()

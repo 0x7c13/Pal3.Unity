@@ -79,7 +79,7 @@ namespace Pal3.Scene
             ScnFile scnFile = _resourceProvider.GetScnFile(sceneFileName, sceneName);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
-            Debug.Log("Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
+            Debug.Log($"[{nameof(SceneManager)}] Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
 
             _currentSceneRoot = new GameObject($"Scene_{sceneFileName}_{sceneName}");
             _currentSceneRoot.transform.SetParent(null);
@@ -101,7 +101,7 @@ namespace Pal3.Scene
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
                     : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
 
-            Debug.Log($"Scene loaded in {timer.Elapsed.TotalSeconds} seconds.");
+            Debug.Log($"[{nameof(SceneManager)}] Scene loaded in {timer.Elapsed.TotalSeconds} seconds.");
 
             // Also a good time to collect garbage
             System.GC.Collect();

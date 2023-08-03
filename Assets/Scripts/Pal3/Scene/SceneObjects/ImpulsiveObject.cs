@@ -16,6 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataLoader;
+    using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
     using Core.Utils;
@@ -62,7 +63,7 @@ namespace Pal3.Scene.SceneObjects
             var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                Utility.GetRelativeDirectoryPath(subObjectModelPath));
+                Utility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
             var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(polFile,
                 textureProvider,
