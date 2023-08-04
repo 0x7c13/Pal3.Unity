@@ -90,7 +90,7 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
-        private readonly Dictionary<int, List<int>> _indexBuffer = new();
+        private readonly Dictionary<int, int[]> _indexBuffer = new();
         private readonly Dictionary<int, Vector3[]> _vertexBuffer = new();
 
         public void Init(MshFile mshFile,
@@ -323,30 +323,34 @@ namespace Pal3.Renderer
             _meshObjects[subMeshIndex] = new GameObject($"SubMesh_{subMeshIndex}");
             _meshObjects[subMeshIndex].transform.SetParent(gameObject.transform, false);
 
-            List<Vector3> vertices = new List<Vector3>();
-            List<int> triangles = new List<int>();
-            Vector3[] normals = null;
-            List<Vector2> uvs = new List<Vector2>();
-
-            _indexBuffer[subMeshIndex] = new List<int>();
             _vertexBuffer[subMeshIndex] = new Vector3[subMesh.Vertices.Length];
+
+            int numOfIndices = subMesh.Faces.Length * 3;
+            int[] triangles = new int[numOfIndices];
+            Vector2[] uvs1 = new Vector2[numOfIndices];
+            Vector2[] uvs2 = null;
+            int[] indexBuffer = new int[numOfIndices];
+            Vector3[] normals = null;
 
             var index = 0;
             foreach (PhyFace phyFace in subMesh.Faces)
             {
                 for (var i = 0; i < phyFace.Indices.Length; i++)
                 {
-                    _indexBuffer[subMeshIndex].Add(phyFace.Indices[i]);
-                    uvs.Add(new Vector2(phyFace.U[i, 0], phyFace.V[i, 0]));
-                    triangles.Add(index++);
+                    indexBuffer[index] = phyFace.Indices[i];
+                    uvs1[index] = new Vector2(phyFace.U[i, 0], phyFace.V[i, 0]);
+                    triangles[index] = index;
+                    index++;
                 }
             }
 
+            _indexBuffer[subMeshIndex] = indexBuffer;
             GameBoxInterpreter.ToUnityTriangles(triangles);
 
-            for (var i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
+            Vector3[] vertices = new Vector3[numOfIndices];
+            for (var i = 0; i < numOfIndices; i++)
             {
-                vertices.Add(subMesh.Vertices[_indexBuffer[subMeshIndex][i]].Position);
+                vertices[i] = subMesh.Vertices[indexBuffer[i]].Position;
             }
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
@@ -356,15 +360,10 @@ namespace Pal3.Renderer
                 _tintColor,
                 GameBoxBlendFlag.Opaque);
 
-            Vector3[] verts = vertices.ToArray();
-            int[] tris = triangles.ToArray();
-            Vector2[] uvs1 = uvs.ToArray();
-            Vector2[] uvs2 = null;
-
             var meshRenderer = _meshObjects[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
-                ref verts,
-                ref tris,
+                ref vertices,
+                ref triangles,
                 ref normals,
                 ref uvs1,
                 ref uvs2,
@@ -381,13 +380,15 @@ namespace Pal3.Renderer
                 MeshRenderer = meshRenderer,
                 MeshDataBuffer = new MeshDataBuffer()
                 {
-                    VertexBuffer = verts
+                    VertexBuffer = vertices
                 }
             };
         }
 
         private Vector3[] BuildVerticesWithCurrentSkeleton(MshMesh subMesh, int subMeshIndex)
         {
+            var vertexBuffer = _vertexBuffer[subMeshIndex];
+
             for (var i = 0; i < subMesh.Vertices.Length; i++)
             {
                 PhyVertex vert = subMesh.Vertices[i];
@@ -398,17 +399,18 @@ namespace Pal3.Renderer
                 Vector4 originalPosition = new Vector4(vert.Position.x, vert.Position.y, vert.Position.z, 1.0f);
                 Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace * originalPosition;
 
-                _vertexBuffer[subMeshIndex][i] = new Vector3(
+                vertexBuffer[i] = new Vector3(
                     currentPosition.x / currentPosition.w,
                     currentPosition.y / currentPosition.w,
                     currentPosition.z / currentPosition.w);
             }
 
-            Vector3[] vertices = _renderMeshComponents[subMeshIndex].Mesh.vertices;
+            Vector3[] vertices = _renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer;
 
-            for (var i = 0; i < _indexBuffer[subMeshIndex].Count; i++)
+            var indexBuffer = _indexBuffer[subMeshIndex];
+            for (var i = 0; i < indexBuffer.Length; i++)
             {
-                vertices[i] = _vertexBuffer[subMeshIndex][_indexBuffer[subMeshIndex][i]];
+                vertices[i] = vertexBuffer[indexBuffer[i]];
             }
 
             return vertices;

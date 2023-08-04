@@ -449,7 +449,7 @@ namespace Pal3.Renderer
 
                         var frameTicks = _tagNodeFrameTicks[i];
 
-                        var currentFrameIndex = Utility.GetFloorIndex(frameTicks, (uint) tick);
+                        var currentFrameIndex = Utility.GetFloorIndex(frameTicks, tick);
                         var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
                         var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
                         var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
