@@ -411,10 +411,15 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
+                if (!IsVisibleToCamera())
+                {
+                    yield return animationDelay;
+                    continue;
+                }
+
                 for (var i = 0; i < _meshCount; i++)
                 {
                     RenderMeshComponent meshComponent = _renderMeshComponents[i];
-                    if (!meshComponent.MeshRenderer.IsVisible()) continue;
 
                     var frameTicks = _frameTicks[i];
 
@@ -463,6 +468,18 @@ namespace Pal3.Renderer
 
                 yield return animationDelay;
             }
+        }
+
+        public bool IsVisibleToCamera()
+        {
+            if (_renderMeshComponents == null) return false;
+
+            foreach (var renderMeshComponent in _renderMeshComponents)
+            {
+                if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
+            }
+
+            return false;
         }
 
         private void OnDisable()

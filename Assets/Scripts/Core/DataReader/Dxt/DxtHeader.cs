@@ -22,7 +22,7 @@ namespace Core.DataReader.Dxt
             {
                 Size = reader.ReadInt32(),
                 Flags = reader.ReadInt32(),
-                Format = reader.ReadAsciiString(4),
+                Format = reader.ReadString(4),
                 RGBBitCount = reader.ReadInt32(),
                 RBitMask = reader.ReadInt32(),
                 GBitMask = reader.ReadInt32(),

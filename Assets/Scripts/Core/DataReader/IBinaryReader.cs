@@ -118,20 +118,19 @@ namespace Core.DataReader
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public char[] ReadChars(int count)
         {
-            return Encoding.ASCII.GetString(ReadBytes(count)).ToCharArray();
+            return Encoding.ASCII.GetChars(ReadBytes(count));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        string ReadAsciiString(int count) => new (ReadChars(count));
+        string ReadString(int count) => new (ReadChars(count));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         string ReadString(int count, int codepage)
         {
             var strBytes = ReadBytes(count);
-            var i = 0;
-            var length = strBytes.Length;
-            while (i < length && strBytes[i] != 0) i++;
-            return Encoding.GetEncoding(codepage).GetString(strBytes, 0, i);
+            int length = Array.IndexOf(strBytes, (byte)0);
+            if (length == -1) length = strBytes.Length; // If no null byte is found, use the full length
+            return Encoding.GetEncoding(codepage).GetString(strBytes, 0, length);
         }
         #endregion
     }

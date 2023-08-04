@@ -193,11 +193,26 @@ namespace Pal3.Renderer
                     yield break;
                 }
 
-                UpdateBone(_bones[0], tick);
-                UpdateSkinning();
+                if (IsVisibleToCamera())
+                {
+                    UpdateBone(_bones[0], tick);
+                    UpdateSkinning();
+                }
 
                 yield return null;
             }
+        }
+
+        public bool IsVisibleToCamera()
+        {
+            if (_renderMeshComponents == null) return false;
+
+            foreach (var renderMeshComponent in _renderMeshComponents)
+            {
+                if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
+            }
+
+            return false;
         }
 
         private void UpdateBone(Bone bone, uint tick)
