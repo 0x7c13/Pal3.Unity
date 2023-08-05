@@ -93,7 +93,7 @@ namespace Core.DataReader.Scn
                 },
                 NoTurn = reader.ReadUInt32(),
                 LoopAction = reader.ReadUInt32(),
-                Speed = reader.ReadUInt32(),
+                GameBoxMoveSpeed = reader.ReadUInt32(),
                 Reserved = reader.ReadUInt32Array(29),
             };
         }

@@ -196,7 +196,11 @@ namespace Pal3.MetaData
     {
         public const int PlayerActorVirtualID = -1; // or 255 as byte value
 
-        public const float ActorClimbSpeed = 2f;
+        public const float PlayerActorClimbSpeed = 2f;
+        public const float PlayerActorWalkSpeed = 5f;
+        public const float PlayerActorRunSpeed = 10f;
+        public const float NpcActorWalkSpeed = 5f;
+        public const float NpcActorRunSpeed = 9f;
 
         #if PAL3
         public const string LongKuiBlueModeActorName = "105";

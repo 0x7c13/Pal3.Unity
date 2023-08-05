@@ -61,10 +61,10 @@ namespace Pal3.Scene.SceneObjects
             movementController.CancelMovement();
 
             var actorController = playerActorGameObject.GetComponent<ActorController>();
-            uint originalSpeed = actorController.GetActor().Info.Speed;
+            uint originalSpeed = actorController.GetActor().Info.GameBoxMoveSpeed;
 
             // Temporarily set the speed to a higher value to make the actor slide
-            actorController.GetActor().Info.Speed = ACTOR_SLIDE_SPEED;
+            actorController.GetActor().Info.GameBoxMoveSpeed = ACTOR_SLIDE_SPEED;
 
             movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
 
@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             // Restore the original speed
-            actorController.GetActor().Info.Speed = originalSpeed;
+            actorController.GetActor().Info.GameBoxMoveSpeed = originalSpeed;
 
             ExecuteScriptIfAny();
             _isInteractionInProgress = false;

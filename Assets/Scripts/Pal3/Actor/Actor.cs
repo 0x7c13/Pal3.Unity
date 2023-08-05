@@ -6,6 +6,7 @@
 namespace Pal3.Actor
 {
     using Core.DataReader.Scn;
+    using Core.GameBox;
     using Data;
     using MetaData;
     using UnityEngine;
@@ -103,6 +104,27 @@ namespace Pal3.Actor
         {
             return ActorConstants.MainActorWeaponMap.TryGetValue(Info.Name, out var value) ?
                 value : null;
+        }
+
+        public float GetMoveSpeed(MovementMode movementMode)
+        {
+            if (Info.GameBoxMoveSpeed > 0)
+            {
+                return Info.GameBoxMoveSpeed / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+            }
+
+            if (Info.Kind == ScnActorKind.MainActor)
+            {
+                return movementMode == MovementMode.Run
+                    ? ActorConstants.PlayerActorRunSpeed
+                    : ActorConstants.PlayerActorWalkSpeed;
+            }
+            else
+            {
+                return movementMode == MovementMode.Run
+                    ? ActorConstants.NpcActorRunSpeed
+                    : ActorConstants.NpcActorWalkSpeed;
+            }
         }
 
         public float GetInteractionMaxDistance()

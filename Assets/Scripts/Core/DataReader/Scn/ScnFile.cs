@@ -268,7 +268,7 @@ namespace Core.DataReader.Scn
         public uint LoopAction;
 
         // 移动速度
-        public uint Speed;
+        public uint GameBoxMoveSpeed;
 
         [JsonIgnore]
         public uint[] Reserved; // 29 DWORDs

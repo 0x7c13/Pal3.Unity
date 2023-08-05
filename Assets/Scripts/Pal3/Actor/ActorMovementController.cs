@@ -467,8 +467,7 @@ namespace Pal3.Actor
             Transform currentTransform = transform;
             Vector3 currentPosition = currentTransform.position;
 
-            // TODO: Use speed info from datascript\scene.txt file when _actor.Info.Speed == 0
-            var moveSpeed = _actor.Info.Speed <= 0 ? (movementMode == MovementMode.Run ? 11f : 5f) : _actor.Info.Speed / 11f;
+            float moveSpeed = _actor.GetMoveSpeed(movementMode);
 
             if (!_actor.IsMainActor()) moveSpeed /= 2f;
 

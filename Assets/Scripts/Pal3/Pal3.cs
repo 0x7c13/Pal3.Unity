@@ -352,11 +352,14 @@ namespace Pal3
         private void Start()
         {
             Debug.Log($"[{nameof(Pal3)}] Game started.");
+
             _mainMenu.ShowInitView();
             _mainMenu.ShowMenu();
 
+            #if !UNITY_EDITOR
             // Check latest version and notify if a newer version is found.
             StartCoroutine(CheckLatestVersionAndNotify());
+            #endif
         }
 
         private IEnumerator CheckLatestVersionAndNotify()

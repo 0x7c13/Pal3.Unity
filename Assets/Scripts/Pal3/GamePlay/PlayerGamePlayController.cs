@@ -972,7 +972,7 @@ namespace Pal3.GamePlay
                 var currentHeight = 0f;
                 while (currentHeight < climbableHeight)
                 {
-                    var delta = Time.deltaTime * ActorConstants.ActorClimbSpeed;
+                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight += delta;
                     _playerActorGameObject.transform.position += new Vector3(0f, delta, 0f);
                     yield return null;
@@ -990,7 +990,7 @@ namespace Pal3.GamePlay
                 var currentHeight = climbableHeight;
                 while (currentHeight > 0f)
                 {
-                    var delta = Time.deltaTime * ActorConstants.ActorClimbSpeed;
+                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight -= delta;
                     _playerActorGameObject.transform.position -= new Vector3(0f, delta, 0f);
                     yield return null;
