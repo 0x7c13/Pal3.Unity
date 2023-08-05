@@ -1839,7 +1839,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Extract All .cpk files
+  m_text: Extract all .cpk files
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
   m_sharedMaterial: {fileID: 2847917559404452115, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}

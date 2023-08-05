@@ -47,7 +47,7 @@
   - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
   - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
   - 因为原始游戏的过场动画为Bink格式，Unity并不原生支持，所以请自行转码视频为Unity所支持的格式放在游戏根目录下的movie文件夹即可（大部分设备和系统支持.mp4等主流格式视频，Linux下仅支持.webm格式视频）。
-  - Linux用户可以使用FFmpeg转码视频为.webm格式封装，首先您需要选择Scenes\ResourceViewer场景，然后输入"ExtractAllCpkArchives"指令来解压所有原始游戏中的.cpk压缩包（包含movie.cpk，所有的Bink动画文件均在这个压缩包中）
+  - Linux用户可以使用FFmpeg转码视频为.webm格式封装，首先您需要选择Scenes\ResourceViewer场景，然后点击"Extract all .cpk files"按钮来解压所有原始游戏中的.cpk压缩包（包含movie.cpk，所有的Bink动画文件均在这个压缩包中）
     ```
     ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm  // vp8 + vorbis
     ```

@@ -41,16 +41,16 @@ namespace Core.DataReader.Txt
                 switch (tag)
                 {
                     case "tname":
-                        currentTask.TaskId = value;
+                        currentTask.Id = value;
                         break;
                     case "title":
-                        currentTask.TaskTitle = value;
+                        currentTask.Title = value;
                         break;
                     case "info":
-                        currentTask.TaskInfo = value;
+                        currentTask.Description = value;
                         break;
                     case "type":
-                        currentTask.TaskType = value;
+                        currentTask.Type = value;
                         break;
                     case "last":
                         currentTask.IsLastOne = value;

@@ -46,7 +46,7 @@ namespace Pal3.GameSystem
 
             foreach (Task task in taskDefinitionFile.Tasks)
             {
-                _tasks[task.TaskId] = task;
+                _tasks[task.Id] = task;
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -79,7 +79,7 @@ namespace Pal3.GameSystem
 
             if (_tasks.TryGetValue(command.TaskId, out Task task) && task.IsMainTask)
             {
-                _taskInfoText.text = task.TaskInfo;
+                _taskInfoText.text = task.Description;
             }
         }
 

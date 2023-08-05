@@ -52,7 +52,7 @@ Open the current project folder using Unity 2022 LTS version. For the specific U
     ```
     ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm  // vp8 + vorbis
     ```
-    Note: You need to first decompress the OG game data to get the .bik videos. You can do this by running "ExtractAllCpkArchives" command under "Scenes\ResourceViewer" scene, which decompress all the CPK archives in the OG game data folder to a destination folder you choose. All .bik videos will be extracted to the output location once complete.
+    Note: You need to first decompress the OG game data to get the .bik videos. You can do this by clicking the "Extract all .cpk files" button under "Scenes\ResourceViewer" scene, which decompress all the CPK archives in the OG game data folder to a destination folder you choose. All .bik videos will be extracted to the output location once completed.
 
 ## How to run the game
   - In runtime, when the game is launched for the first time, it will search the [Application.persistentDataPath](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Application-persistentDataPath.html) directory or the [StreamingAssets](https://docs.unity3d.com/2022.3/Documentation/Manual/StreamingAssets.html) directory to detect whether the game data exists. If the original game data files cannot be detected on desktop clients, the game will pop up a folder selection window for you to select the root directory of the original game installation files on the current device.

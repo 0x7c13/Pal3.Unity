@@ -356,9 +356,9 @@ namespace Pal3.State
             #elif PAL3A
             // Save Task state
             commands.AddRange(_taskManager.GetOpenedTasks().
-                Select(openedTask => new TaskOpenCommand(openedTask.TaskId)));
+                Select(openedTask => new TaskOpenCommand(openedTask.Id)));
             commands.AddRange(_taskManager.GetCompletedTasks().
-                Select(completedTask => new TaskCompleteCommand(completedTask.TaskId)));
+                Select(completedTask => new TaskCompleteCommand(completedTask.Id)));
             #endif
 
             // Good to have

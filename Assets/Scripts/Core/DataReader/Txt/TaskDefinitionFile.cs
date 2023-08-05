@@ -9,13 +9,13 @@ namespace Core.DataReader.Txt
 
     public struct Task
     {
-        public string TaskId;
-        public string TaskTitle;
-        public string TaskInfo;
-        public string TaskType;
+        public string Id;
+        public string Title;
+        public string Description;
+        public string Type;
         public string IsLastOne;
 
-        public bool IsMainTask => string.Equals(TaskType, "0", StringComparison.Ordinal);
+        public bool IsMainTask => string.Equals(Type, "0", StringComparison.Ordinal);
     }
 
     public sealed class TaskDefinitionFile
