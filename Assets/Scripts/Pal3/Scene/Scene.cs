@@ -335,8 +335,7 @@ namespace Pal3.Scene
 
             var mainLightGo = new GameObject($"LightSource_Main");
             mainLightGo.transform.SetParent(_parent.transform, false);
-            mainLightGo.transform.position = mainLightPosition;
-            mainLightGo.transform.rotation = mainLightRotation;
+            mainLightGo.transform.SetPositionAndRotation(mainLightPosition, mainLightRotation);
 
             _mainLight = mainLightGo.AddComponent<Light>();
             _mainLight.type = LightType.Directional;

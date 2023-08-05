@@ -90,8 +90,8 @@ namespace Pal3.Renderer
         private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
-        private readonly Dictionary<int, int[]> _indexBuffer = new();
-        private readonly Dictionary<int, Vector3[]> _vertexBuffer = new();
+        private int[][] _indexBuffer;
+        private Vector3[][] _vertexBuffer;
 
         public void Init(MshFile mshFile,
             MtlFile mtlFile,
@@ -240,8 +240,7 @@ namespace Pal3.Renderer
                     track.Value.KeyFrames[nextFrameIndex].Rotation,
                     influence);
 
-                boneGo.transform.localPosition = localPosition;
-                boneGo.transform.localRotation = localRotation;
+                boneGo.transform.SetLocalPositionAndRotation(localPosition, localRotation);
 
                 Matrix4x4 curPoseToModelMatrix = Matrix4x4.Translate(localPosition) * Matrix4x4.Rotate(localRotation);
 
@@ -277,9 +276,7 @@ namespace Pal3.Renderer
             GameObject boneGo = new GameObject($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
 
             boneGo.transform.SetParent(parentBone == null ? gameObject.transform : parentBone.GameObject.transform);
-
-            boneGo.transform.localPosition = boneNode.Translation;
-            boneGo.transform.localRotation = boneNode.Rotation;
+            boneGo.transform.SetLocalPositionAndRotation(boneNode.Translation, boneNode.Rotation);
 
             Bone bone = new (boneNode.Name, boneGo, boneNode);
 
@@ -310,6 +307,8 @@ namespace Pal3.Renderer
 
             _renderMeshComponents = new RenderMeshComponent[_mshFile.SubMeshes.Length];
             _meshObjects = new GameObject[_mshFile.SubMeshes.Length];
+            _indexBuffer = new int[_mshFile.SubMeshes.Length][];
+            _vertexBuffer = new Vector3[_mshFile.SubMeshes.Length][];
 
             for (var i = 0; i < _mshFile.SubMeshes.Length; i++)
             {
@@ -422,7 +421,6 @@ namespace Pal3.Renderer
             {
                 return new Bounds(transform.position, Vector3.one);
             }
-
             Bounds bounds = _renderMeshComponents[0].MeshRenderer.GetRendererBounds();
             for (var i = 1; i < _renderMeshComponents.Length; i++)
             {
@@ -496,8 +494,8 @@ namespace Pal3.Renderer
                 _rootBoneObject = null;
             }
 
-            _indexBuffer.Clear();
-            _vertexBuffer.Clear();
+            _indexBuffer = null;
+            _vertexBuffer = null;
         }
     }
 }

@@ -153,14 +153,16 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            _sceneObjectGameObject.transform.position = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition);
+            Vector3 newPosition = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition);
             #if PAL3
-            _sceneObjectGameObject.transform.rotation = GameBoxInterpreter.ToUnityRotation(
+            Quaternion newRotation = GameBoxInterpreter.ToUnityRotation(
                 new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, 0f));
             #elif PAL3A
-            _sceneObjectGameObject.transform.rotation = GameBoxInterpreter.ToUnityRotation(
+            Quaternion newRotation = GameBoxInterpreter.ToUnityRotation(
                 new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, ObjectInfo.GameBoxZRotation));
             #endif
+
+            _sceneObjectGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
 
             if (GraphicsEffect != GraphicsEffect.None &&
                 EffectTypeResolver.GetEffectComponentType(GraphicsEffect) is {} effectComponentType)

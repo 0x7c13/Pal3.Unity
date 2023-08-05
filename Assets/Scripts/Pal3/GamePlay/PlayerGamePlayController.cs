@@ -961,11 +961,11 @@ namespace Pal3.GamePlay
 
             _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
-            _playerActorGameObject.transform.position = new Vector3(lowerPosition.x,
-                _playerActorGameObject.transform.position.y, lowerPosition.z);
-
+            Vector3 newPosition = new Vector3(lowerPosition.x, _playerActorGameObject.transform.position.y, lowerPosition.z);
             var objectRotationY = climbableObject.transform.rotation.eulerAngles.y;
-            _playerActorGameObject.transform.rotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
+            Quaternion newRotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
+
+            _playerActorGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
 
             if (climbUp)
             {
@@ -1058,8 +1058,9 @@ namespace Pal3.GamePlay
                 _playerActorController.IsActive)
             {
                 lastActivePlayerActorNavLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-                lastActivePlayerActorPosition = _playerActorGameObject.transform.position;
-                lastActivePlayerActorRotation = _playerActorGameObject.transform.rotation;
+                _playerActorGameObject.transform.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);
+                lastActivePlayerActorPosition = currentPosition;
+                lastActivePlayerActorRotation = currentRotation;
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 0));
             }
 

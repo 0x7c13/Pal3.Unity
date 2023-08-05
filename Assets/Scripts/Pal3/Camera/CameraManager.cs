@@ -481,11 +481,8 @@ namespace Pal3.Camera
             Vector3 cameraFacingDirection = (cameraRotation * Vector3.forward).normalized;
             Vector3 cameraPosition = _lastLookAtPoint + cameraFacingDirection * -cameraDistance + yOffset;
 
-            Transform cameraTransform = _camera.transform;
-            cameraTransform.rotation = cameraRotation;
-            cameraTransform.position = cameraPosition;
-
-            _cameraOffset = cameraTransform.position - _lastLookAtPoint;
+            _camera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
+            _cameraOffset = cameraPosition - _lastLookAtPoint;
         }
 
         public void Execute(CameraSetDefaultTransformCommand command)
@@ -511,11 +508,12 @@ namespace Pal3.Camera
                 command.GameBoxXPosition,
                 command.GameBoxYPosition,
                 command.GameBoxZPosition));
-            Transform cameraTransform = _camera.transform;
-            cameraTransform.position = cameraPosition;
-            cameraTransform.rotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
+            Quaternion cameraRotation = GameBoxInterpreter.ToUnityRotation(command.Pitch, command.Yaw, 0f);
 
-            _lastLookAtPoint = cameraTransform.position +
+            Transform cameraTransform = _camera.transform;
+            cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
+
+            _lastLookAtPoint = cameraPosition +
                                cameraTransform.forward * GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
 

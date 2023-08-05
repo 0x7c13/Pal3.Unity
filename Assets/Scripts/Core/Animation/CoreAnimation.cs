@@ -134,14 +134,13 @@ namespace Core.Animation
             var timePast = 0f;
             while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
             {
-                Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,
+                Quaternion newRotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
-                Vector3 direction = (rotation * Vector3.forward).normalized;
+                Vector3 direction = (newRotation * Vector3.forward).normalized;
                 Vector3 newPosition = centerPoint + direction * -(distance + (timePast / duration) * distanceDelta);
 
-                target.rotation = rotation;
-                target.position = newPosition;
+                target.SetPositionAndRotation(newPosition, newRotation);
 
                 timePast += Time.deltaTime;
                 yield return null;
@@ -149,8 +148,8 @@ namespace Core.Animation
 
             if (target != null && !cancellationToken.IsCancellationRequested)
             {
-                target.rotation = toRotation;
-                target.position = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
+                Vector3 newPosition = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
+                target.SetPositionAndRotation(newPosition, toRotation);
             }
 
             yield return null;

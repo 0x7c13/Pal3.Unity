@@ -100,13 +100,13 @@ namespace Pal3.Scene.SceneObjects
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
             GameObject liftingMechanismGameObject = GetGameObject();
+            Vector3 position = liftingMechanismGameObject.transform.position;
 
             yield return MoveCameraToLookAtPointAsync(
-                liftingMechanismGameObject.transform.position,
+                position,
                 ctx.PlayerActorGameObject);
             CameraFocusOnObject(ObjectInfo.Id);
 
-            Vector3 position = liftingMechanismGameObject.transform.position;
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 
             var finalYPosition = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.SwitchState == 0 ?
@@ -139,7 +139,7 @@ namespace Pal3.Scene.SceneObjects
                     liftingMechanismGameObject.transform.position =
                         new Vector3(position.x, position.y + offset, position.z);
 
-                    if (hasObjectOnPlatform)
+                    if (hasObjectOnPlatform && objectOnThePlatform != null)
                     {
                         objectOnThePlatform.transform.position = new Vector3(
                             objectOnThePlatformOriginalPosition.x,

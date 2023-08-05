@@ -128,8 +128,9 @@ namespace Pal3.Renderer
                         tagNodeTintColor);
 
                     _tagNodes[i].transform.SetParent(transform, true);
-                    _tagNodes[i].transform.localPosition = mv3File.TagNodes[i].TagFrames[0].Position;
-                    _tagNodes[i].transform.localRotation = mv3File.TagNodes[i].TagFrames[0].Rotation;
+                    _tagNodes[i].transform.SetLocalPositionAndRotation(
+                        mv3File.TagNodes[i].TagFrames[0].Position,
+                        mv3File.TagNodes[i].TagFrames[0].Rotation);
                 }
             }
         }
@@ -461,8 +462,7 @@ namespace Pal3.Renderer
                         Quaternion rotation = Quaternion.Slerp(_tagNodesInfo[i].TagFrames[currentFrameIndex].Rotation,
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].Rotation, influence);
 
-                        _tagNodes[i].transform.localPosition = position;
-                        _tagNodes[i].transform.localRotation = rotation;
+                        _tagNodes[i].transform.SetLocalPositionAndRotation(position, rotation);
                     }
                 }
 
