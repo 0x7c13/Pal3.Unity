@@ -779,6 +779,10 @@ namespace Pal3.Dev
             // Add main actor to the team
             _teamManager.AddActor(0);
 
+            #if PAL3A // Add initial task
+            CommandDispatcher<ICommand>.Instance.Dispatch(new TaskOpenCommand(TaskConstants.InitTaskId));
+            #endif
+
             _gameStateManager.GoToState(GameState.Cutscene);
         }
 

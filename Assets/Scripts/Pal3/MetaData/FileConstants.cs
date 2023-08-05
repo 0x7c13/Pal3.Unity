@@ -39,6 +39,7 @@ namespace Pal3.MetaData
         private const string WEAPON_FOLDER_NAME = "weapon";
         private const string BASE_DATA_FOLDER_NAME = "basedata";
         private const string MUSIC_FOLDER_NAME = "music";
+        private const string DATA_SCRIPT_FOLDER_NAME = "datascript";
 
         private const string BASE_DATA_CPK_FILE_NAME = "basedata.cpk";
         private const string MUSIC_CPK_FILE_NAME = "music.cpk";
@@ -112,6 +113,9 @@ namespace Pal3.MetaData
         public static readonly string GameDatabaseFileVirtualPath =
             $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{COMBAT_DATA_FOLDER_NAME}{DirSeparator}PAL3A_Softstar.gdb";
         #endif
+
+        public static readonly string DataScriptFolderVirtualPath =
+            $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{DATA_SCRIPT_FOLDER_NAME}{DirSeparator}";
 
         public static readonly string EffectFolderVirtualPath =
             $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{EFFECT_FOLDER_NAME}{DirSeparator}";

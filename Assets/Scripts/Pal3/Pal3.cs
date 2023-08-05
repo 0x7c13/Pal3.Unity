@@ -63,6 +63,7 @@ namespace Pal3
         // Information
         [SerializeField] private CanvasGroup noteCanvasGroup;
         [SerializeField] private TextMeshProUGUI noteText;
+        [SerializeField] private TextMeshProUGUI taskInfoText;
 
         // Dialogue
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
@@ -141,8 +142,7 @@ namespace Pal3
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
 
-        // Mini games
-        #if PAL3
+        #if PAL3 // PAL3 specific components
         private AppraisalsMiniGame _appraisalsMiniGame;
         private SailingMiniGame _sailingMiniGame;
         private HideFightMiniGame _hideFightMiniGame;
@@ -150,6 +150,8 @@ namespace Pal3
         private SkiMiniGame _skiMiniGame;
         private SwatAFlyMiniGame _swatAFlyMiniGame;
         private CaveExperienceMiniGame _caveExperienceMiniGame;
+        #elif PAL3A // PAL3A specific components
+        private TaskManager _taskManager;
         #endif
 
         // Dev tools
@@ -207,6 +209,9 @@ namespace Pal3
             ServiceLocator.Instance.Register(_swatAFlyMiniGame);
             _caveExperienceMiniGame = new CaveExperienceMiniGame();
             ServiceLocator.Instance.Register(_caveExperienceMiniGame);
+            #elif PAL3A
+            _taskManager = new TaskManager(_gameResourceProvider, taskInfoText);
+            ServiceLocator.Instance.Register(_taskManager);
             #endif
 
             _videoManager = gameObject.AddComponent<VideoManager>();
@@ -307,6 +312,9 @@ namespace Pal3
                 _bigMapManager,
                 _scriptManager,
                 _favorManager,
+                #if PAL3A
+                _taskManager,
+                #endif
                 _cameraManager,
                 _audioManager,
                 _postProcessManager);
@@ -407,6 +415,8 @@ namespace Pal3
             _skiMiniGame.Dispose();
             _swatAFlyMiniGame.Dispose();
             _caveExperienceMiniGame.Dispose();
+            #elif PAL3A
+            _taskManager.Dispose();
             #endif
 
             Destroy(_videoManager);

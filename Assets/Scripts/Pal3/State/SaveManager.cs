@@ -16,6 +16,7 @@ namespace Pal3.State
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.DataReader.Txt;
     using Core.GameBox;
     using Core.Utils;
     using Effect.PostProcessing;
@@ -53,6 +54,9 @@ namespace Pal3.State
         private readonly BigMapManager _bigMapManager;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
+        #if PAL3A
+        private readonly TaskManager _taskManager;
+        #endif
         private readonly CameraManager _cameraManager;
         private readonly AudioManager _audioManager;
         private readonly PostProcessManager _postProcessManager;
@@ -67,6 +71,9 @@ namespace Pal3.State
             BigMapManager bigMapManager,
             ScriptManager scriptManager,
             FavorManager favorManager,
+            #if PAL3A
+            TaskManager taskManager,
+            #endif
             CameraManager cameraManager,
             AudioManager audioManager,
             PostProcessManager postProcessManager)
@@ -79,6 +86,9 @@ namespace Pal3.State
             _bigMapManager = Requires.IsNotNull(bigMapManager, nameof(bigMapManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _favorManager = Requires.IsNotNull(favorManager, nameof(favorManager));
+            #if PAL3A
+            _taskManager = Requires.IsNotNull(taskManager, nameof(taskManager));
+            #endif
             _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
             _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _postProcessManager = Requires.IsNotNull(postProcessManager, nameof(postProcessManager));
@@ -343,6 +353,12 @@ namespace Pal3.State
                 commands.Add(new ActorSetFacingCommand((int)PlayerActorId.HuaYing,
                     (int)huaYingGameObject.transform.rotation.eulerAngles.y));
             }
+            #elif PAL3A
+            // Save Task state
+            commands.AddRange(_taskManager.GetOpenedTasks().
+                Select(openedTask => new TaskOpenCommand(openedTask.TaskId)));
+            commands.AddRange(_taskManager.GetCompletedTasks().
+                Select(completedTask => new TaskCompleteCommand(completedTask.TaskId)));
             #endif
 
             // Good to have

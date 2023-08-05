@@ -705,6 +705,7 @@ namespace Pal3.Dev
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 190 20
                 TeamAddOrRemoveActor 0 1
+                TaskOpen 077
                 CameraFadeIn"},
             {"蜀山\n\n第一次回家", @"
                 ScriptVarSetValue -32768 20800
@@ -715,6 +716,7 @@ namespace Pal3.Dev
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 91 114
                 TeamAddOrRemoveActor 0 1
+                TaskOpen 083
                 CameraFadeIn"},
             {"蜀山\n\n绿萝嶂", @"
                 ScriptVarSetValue -32768 30101
@@ -730,6 +732,7 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 342 137
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
+                TaskOpen 086
                 CameraFadeIn"},
             {"地脉门户\n\n少阳三焦", @"
                 ScriptVarSetValue -32768 40200
@@ -750,6 +753,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 2 2
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
+                TaskOpen 089
                 CameraFadeIn"},
             {"第一次进入里蜀山", @"
                 ScriptVarSetValue -32768 41100
@@ -772,6 +776,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                TaskOpen 092
                 CameraFadeIn"},
             {"里蜀山外城南\n\n厥阴心包", @"
                 ScriptVarSetValue -32768 50200
@@ -794,6 +799,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                TaskOpen 097
                 CameraFadeIn"},
             {"厥阴心包\n\n胜州", @"
                 ScriptVarSetValue -32768 50500
@@ -816,6 +822,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 4 2
                 BigMapEnableRegion 5 2
                 BigMapEnableRegion 6 1
+                TaskOpen 098
                 CameraFadeIn"},
             {"蜀山\n\n深夜去经库", @"
                 ScriptVarSetValue -32768 60500
@@ -840,6 +847,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                TaskOpen 107
                 CameraFadeIn"},
             {"地脉门户大厅\n\n阳名百纳", @"
                 ScriptVarSetValue -32768 70100
@@ -863,6 +871,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 6 1
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
+                TaskOpen 111
                 CameraFadeIn"},
             {"血濡回魂\n\n初入京城", @"
                 ScriptVarSetValue -32768 70700
@@ -886,6 +895,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 7 2
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
+                TaskOpen 112
                 CameraFadeIn"},
             {"失散\n\n双溪", @"
                 ScriptVarSetValue -32768 80100
@@ -912,6 +922,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                TaskOpen 120
                 CameraFadeIn"},
             {"双溪\n\n里蜀山", @"
                 ScriptVarSetValue -32768 80700
@@ -939,6 +950,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                TaskOpen 122
                 CameraFadeIn"},
             {"里蜀山外城南\n\n太阴归尘", @"
                 ScriptVarSetValue -32768 80700
@@ -966,6 +978,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                TaskOpen 123
                 CameraFadeIn"},
             {"太阴归尘\n\n蜀山故道", @"
                 ScriptVarSetValue -32768 90300
@@ -991,6 +1004,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 8 2
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
+                TaskOpen 127
                 CameraFadeIn"},
             {"蜀山深夜\n\n养父常纪房间", @"
                 ScriptVarSetValue -32768 100400
@@ -1018,6 +1032,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 9 1
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
+                TaskOpen 134
                 CameraFadeIn"},
             {"无极阁找掌门去锁妖塔", @"
                 ScriptVarSetValue -32768 100701
@@ -1046,6 +1061,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 CameraSetDefaultTransform 2
+                TaskOpen 137
                 CameraFadeIn"},
             {"新安当", @"
                 ScriptVarSetValue -32768 101500
@@ -1075,6 +1091,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 12 1
                 BigMapEnableRegion 13 2
+                TaskOpen 140
                 CameraFadeIn"},
             {"地脉门户\n\n太阳华池", @"
                 ScriptVarSetValue -32768 110200
@@ -1101,6 +1118,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 144
                 CameraFadeIn"},
             {"小秘屋会和", @"
                 ScriptVarSetValue -32768 120300
@@ -1128,6 +1146,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 147
                 CameraFadeIn"},
             {"里蜀山\n\n魔界之门", @"
                 ScriptVarSetValue -32768 120400
@@ -1156,6 +1175,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 148
                 CameraFadeIn"},
             {"里蜀山外城北\n\n少阴凝碧", @"
                 ScriptVarSetValue -32768 130100
@@ -1184,6 +1204,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 150
                 CameraFadeIn"},
             {"施洞", @"
                 ScriptVarSetValue -32768 140200
@@ -1213,6 +1234,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 154
                 CameraFadeIn"},
             {"出发去月光城", @"
                 ScriptVarSetValue -32768 140400
@@ -1242,6 +1264,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 10 2
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
+                TaskOpen 155
                 CameraFadeIn"},
             {"蜀山\n\n重回绿萝山", @"
                 ScriptVarSetValue -32768 150300
@@ -1271,6 +1294,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 160
                 CameraFadeIn"},
             {"地脉门户\n\n少阳参天", @"
                 ScriptVarSetValue -32768 150400
@@ -1299,6 +1323,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 161
                 CameraFadeIn"},
             {"回里蜀山秘密基地", @"
                 ScriptVarSetValue -32768 160101
@@ -1328,6 +1353,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 163
                 CameraFadeIn"},
             {"里蜀山内城\n\n厥阴蔽日", @"
                 ScriptVarSetValue -32768 170200
@@ -1358,6 +1384,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 171
                 CameraFadeIn"},
             {"地脉门户\n\n蜀山前山", @"
                 ScriptVarSetValue -32768 171200
@@ -1386,6 +1413,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 174
                 CameraFadeIn"},
             {"花圃\n\n温慧最高好感", @"
                 ScriptVarSetValue -32768 180600
@@ -1414,6 +1442,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 180
                 FavorAdd 1 50
                 FavorAdd 2 10
                 CameraFadeIn"},
@@ -1444,6 +1473,7 @@ namespace Pal3.Dev
                 BigMapEnableRegion 11 1
                 BigMapEnableRegion 13 2
                 BigMapEnableRegion 14 2
+                TaskOpen 180
                 FavorAdd 1 10
                 FavorAdd 2 50
                 CameraFadeIn"},

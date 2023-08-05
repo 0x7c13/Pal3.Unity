@@ -27,6 +27,7 @@ namespace Pal3
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.DataReader.Txt;
     using Core.FileSystem;
     using Core.Services;
     using Data;
@@ -176,6 +177,7 @@ namespace Pal3
             ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader());
             ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<TaskDefinitionFile>>(new TaskDefinitionFileReader(codepage));
 
             // Init TextureLoaderFactory
             TextureLoaderFactory textureLoaderFactory = new ();
