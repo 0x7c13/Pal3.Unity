@@ -78,6 +78,11 @@ namespace Pal3.Scene
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
         }
 
+        public NavTileLayer GetLayer(int layerIndex)
+        {
+            return _navFile.TileLayers[layerIndex];
+        }
+
         public bool IsPositionInsidePortalArea(Vector3 position, int layerIndex)
         {
             Vector2Int tilePosition = GetTilePosition(position, layerIndex);

@@ -68,6 +68,8 @@ namespace Pal3
         [SerializeField] private CanvasGroup noteCanvasGroup;
         [SerializeField] private TextMeshProUGUI noteText;
         [SerializeField] private TextMeshProUGUI taskInfoText;
+        [SerializeField] private CanvasGroup miniMapCanvasGroup;
+        [SerializeField] private Image miniMapImage;
 
         // Dialogue
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
@@ -139,6 +141,7 @@ namespace Pal3
         private EffectManager _effectManager;
 
         // Game components
+        private MiniMapManager _miniMapManager;
         private TouchControlUIManager _touchControlUIManager;
         private PlayerGamePlayController _playerGamePlayController;
         private TeamManager _teamManager;
@@ -265,6 +268,10 @@ namespace Pal3
             _informationManager = gameObject.AddComponent<InformationManager>();
             _informationManager.Init(noteCanvasGroup, noteText, debugInfo);
             ServiceLocator.Instance.Register(_informationManager);
+
+            _miniMapManager = gameObject.AddComponent<MiniMapManager>();
+            _miniMapManager.Init(mainCamera, _sceneManager, miniMapCanvasGroup, miniMapImage);
+            ServiceLocator.Instance.Register(_miniMapManager);
 
             _dialogueManager = gameObject.AddComponent<DialogueManager>();
             _dialogueManager.Init(_gameResourceProvider,
@@ -478,6 +485,7 @@ namespace Pal3
             Destroy(_cameraManager);
             Destroy(_audioManager);
             Destroy(_informationManager);
+            Destroy(_miniMapManager);
             Destroy(_dialogueManager);
             Destroy(_hotelManager);
             Destroy(_bigMapManager);
