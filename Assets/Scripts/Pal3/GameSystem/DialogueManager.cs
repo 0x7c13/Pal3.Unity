@@ -39,7 +39,7 @@ namespace Pal3.GameSystem
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS = 4f;
-        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.13f;
+        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.12f;
         private const float DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET = -30f;
         private const float DIALOGUE_FLASHING_ANIMATION_DURATION = 0.5f;
 
@@ -438,10 +438,10 @@ namespace Pal3.GameSystem
                                 "另外，画面\\i左下角\\r那东西叫作\\i“司南”\\r，只要点一下，就能看到地图，认清方向了。"))
             #endif
             {
-                text = $"知道吗？您现在玩的{GameConstants.AppNameCNFull}是由\\i柒才\\r使用C#/Unity开发的复刻版，免费开源且支持全平台。" +
+                text = $"知道吗？您现在玩的{GameConstants.AppNameCNFull}是由\\i柒才\\r使用C#/Unity开发(完全重写)的复刻版，免费开源且支持全平台(Win/Mac/Linux/iOS/Android)。" +
                        "如果您是花钱得到的，那么恭喜您成为盗版游戏的受害者。" +
-                       $"当前游戏还在开发中，包括战斗在内的很多功能尚未实现，请耐心等待，也欢迎加入本游戏QQ群与作者联系：\\i252315306\\r，" +
-                       "或者您也可以在B站关注Up主\\i@柒才\\r！";
+                       $"当前游戏还在开发中，包括战斗在内的很多功能尚未实现，请耐心等待，也欢迎加入本游戏QQ群与作者联系或下载最新版：\\i252315306\\r，" +
+                       "您也可以在B站关注Up主\\i@柒才\\r获取最新开发信息！另外，全平台都支持手柄哦~";
             }
 
             var formattedText = text.Replace("\\n", "\n");
