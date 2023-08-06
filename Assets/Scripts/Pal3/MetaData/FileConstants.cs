@@ -30,6 +30,7 @@ namespace Pal3.MetaData
         private const string SCENE_FOLDER_NAME = "scene";
         private const string EFFECT_FOLDER_NAME = "effect";
         private const string UI_FOLDER_NAME = "ui";
+        private const string UI_LIBRARY_FOLDER_NAME = "UILib";
         private const string BIG_MAP_FOLDER_NAME = "BigMap";
         private const string OBJECT_FOLDER_NAME = "object";
         private const string COMBAT_DATA_FOLDER_NAME = "cbdata";
@@ -128,8 +129,11 @@ namespace Pal3.MetaData
         public static readonly string BigMapSceFileVirtualPath =
             $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{UI_FOLDER_NAME}{DirSeparator}{BIG_MAP_FOLDER_NAME}{DirSeparator}BigMap.sce";
 
-        public static readonly  string UISceneFolderVirtualPath =
+        public static readonly string UISceneFolderVirtualPath =
             $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{UI_FOLDER_NAME}{DirSeparator}scene{DirSeparator}";
+
+        public static readonly string UILibFolderVirtualPath =
+            $"{BASE_DATA_CPK_FILE_NAME}{DirSeparator}{UI_FOLDER_NAME}{DirSeparator}{UI_LIBRARY_FOLDER_NAME}{DirSeparator}";
 
         public static readonly string[] SkyBoxTexturePathFormat =
         {

@@ -14,6 +14,7 @@ namespace Pal3
     using Camera;
     using Command;
     using Command.SceCommands;
+    using Core.DataLoader;
     using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
@@ -34,6 +35,9 @@ namespace Pal3
     using UI;
     using UnityEngine;
     using UnityEngine.EventSystems;
+    using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.Controls;
+    using UnityEngine.InputSystem.LowLevel;
     using UnityEngine.Rendering.PostProcessing;
     using UnityEngine.UI;
     using UnityEngine.Video;
@@ -106,6 +110,10 @@ namespace Pal3
         // Post-process volume and layer
         [SerializeField] private PostProcessVolume postProcessVolume;
         [SerializeField] private PostProcessLayer postProcessLayer;
+
+        // LOGO
+        [SerializeField] private GameObject logoCanvas;
+        [SerializeField] private Image logoImage;
 
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
@@ -362,12 +370,58 @@ namespace Pal3
             Debug.Log($"[{nameof(Pal3)}] Game started.");
 
             _mainMenu.ShowInitView();
-            _mainMenu.ShowMenu();
+
+            // Show logo image.
+            logoImage.sprite = _gameResourceProvider.GetLogoSprite();
+            logoImage.preserveAspect = true;
+            #if PAL3
+            logoImage.transform.localScale = new Vector3(0.9f, 0.9f, 1f);
+            #elif PAL3A
+            logoImage.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
+            #endif
+            logoImage.enabled = true;
+
+            // Listen to input events to detect any key or touch press
+            // to hide the logo and show the main menu.
+            InputSystem.onEvent += OnInputEvent;
 
             #if !UNITY_EDITOR
             // Check latest version and notify if a newer version is found.
             StartCoroutine(CheckLatestVersionAndNotify());
             #endif
+        }
+
+        private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
+        {
+            if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>()) return;
+
+            var controls = device.allControls;
+            var buttonPressPoint = InputSystem.settings.defaultButtonPressPoint;
+
+            foreach (InputControl control in controls)
+            {
+                if (control.synthetic || control.noisy) continue;
+
+                switch (control)
+                {
+                    case TouchControl:
+                        OnAnyKeyOrTouchTriggered();
+                        return;
+                    case ButtonControl buttonControl when
+                        buttonControl.ReadValueFromEvent(eventPtr, out var value) &&
+                        value >= buttonPressPoint:
+                        OnAnyKeyOrTouchTriggered();
+                        return;
+                }
+            }
+
+            void OnAnyKeyOrTouchTriggered()
+            {
+                InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
+                Destroy(logoImage.sprite);
+                Destroy(logoCanvas);
+                _mainMenu.ShowMenu();
+            }
         }
 
         private IEnumerator CheckLatestVersionAndNotify()

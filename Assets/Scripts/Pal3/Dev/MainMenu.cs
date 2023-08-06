@@ -192,6 +192,8 @@ namespace Pal3.Dev
             }
             _initViewCameraOrbitAnimationCts = new CancellationTokenSource();
             StartCoroutine(StartCameraOrbitAnimationAsync(_initViewCameraOrbitAnimationCts.Token));
+
+            _gameStateManager.GoToState(GameState.Cutscene);
         }
 
         private IEnumerator StartCameraOrbitAnimationAsync(CancellationToken cancellationToken)

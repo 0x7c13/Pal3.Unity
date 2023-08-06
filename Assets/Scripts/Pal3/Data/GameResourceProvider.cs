@@ -301,6 +301,21 @@ namespace Pal3.Data
                 });
         }
 
+        public Sprite GetLogoSprite()
+        {
+            #if PAL3
+            const string mainLogoTextureFileName = "11.tga";
+            Rect mainLogoTextureRect = new Rect(0, 600, 375, 145);
+            #elif PAL3A
+            const string mainLogoTextureFileName = "12.tga";
+            Rect mainLogoTextureRect = new Rect(0, 770, 500, 253);
+            #endif
+
+            ITextureResourceProvider uiLibTextureProvider = CreateTextureResourceProvider(FileConstants.UILibFolderVirtualPath);
+            Texture2D logoTexture = uiLibTextureProvider.GetTexture(mainLogoTextureFileName);
+            return Sprite.Create(logoTexture, mainLogoTextureRect, new Vector2(0.5f, 0.5f));
+        }
+
         private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
             var roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
