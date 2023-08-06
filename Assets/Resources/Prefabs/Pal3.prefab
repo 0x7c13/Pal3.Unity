@@ -2238,7 +2238,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.75
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -4062,7 +4062,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "https://github.com/0x7c13/Pal3.Unity | B\u7AD9@\u67D2\u624D\nCopyright
-    (c) 2021-2023, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2023,
+    (c) 2021-2023, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2003,
     SOFTSTAR ENTERTAINMENT. All rights reserved."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
@@ -5407,7 +5407,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled
