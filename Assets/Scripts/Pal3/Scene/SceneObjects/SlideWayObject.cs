@@ -16,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.SlideWay)]
     public sealed class SlideWayObject : SceneObject
     {
-        private const uint ACTOR_SLIDE_SPEED = 300;
+        private const uint ACTOR_SLIDE_SPEED = 500;
 
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
