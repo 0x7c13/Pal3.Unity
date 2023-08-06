@@ -340,9 +340,9 @@ namespace Pal3.Dev
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_backgroundTransform,
-                _contentGridLayoutGroup.cellSize.x + 100f,
+                _contentGridLayoutGroup.cellSize.x,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
-                - _contentGridLayoutGroup.spacing.y + 100f);
+                - _contentGridLayoutGroup.spacing.y);
         }
 
         private void SetupSettingButtons()
@@ -515,9 +515,9 @@ namespace Pal3.Dev
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_backgroundTransform,
-                _contentGridLayoutGroup.cellSize.x + 100f,
+                _contentGridLayoutGroup.cellSize.x,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
-                - _contentGridLayoutGroup.spacing.y + 100f);
+                - _contentGridLayoutGroup.spacing.y);
         }
 
         private void SetupSaveMenuButtons()
@@ -558,9 +558,9 @@ namespace Pal3.Dev
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_backgroundTransform,
-                _contentGridLayoutGroup.cellSize.x + 100f,
+                _contentGridLayoutGroup.cellSize.x,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
-                - _contentGridLayoutGroup.spacing.y + 100f);
+                - _contentGridLayoutGroup.spacing.y);
         }
 
         private void SetupLoadMenuButtons()
@@ -628,9 +628,9 @@ namespace Pal3.Dev
             SelectFirstButtonForEventSystem();
 
             UpdateRectTransformWidthAndHeight(_backgroundTransform,
-                _contentGridLayoutGroup.cellSize.x + 100f,
+                _contentGridLayoutGroup.cellSize.x,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
-                - _contentGridLayoutGroup.spacing.y + 100f);
+                - _contentGridLayoutGroup.spacing.y);
         }
 
         private void SetupStorySelectionButtons()
@@ -661,14 +661,15 @@ namespace Pal3.Dev
 
             UpdateRectTransformWidthAndHeight(_backgroundTransform,
                 (_contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.spacing.x) * _menuItems.Count
-                - _contentGridLayoutGroup.spacing.x + 100f,
-                _contentGridLayoutGroup.cellSize.y + 100f);
+                - _contentGridLayoutGroup.spacing.x,
+                _contentGridLayoutGroup.cellSize.y);
         }
 
         private void UpdateRectTransformWidthAndHeight(RectTransform rectTransform, float width, float height)
         {
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+            const float padding = 60f;
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width + padding);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height + padding);
             rectTransform.ForceUpdateRectTransforms();
         }
 

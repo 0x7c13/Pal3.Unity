@@ -12,13 +12,15 @@ namespace Pal3.UI
     public class RoundedFrostedGlassImage : MonoBehaviour
     {
         private static readonly int BlurAmountPropertyId = Shader.PropertyToID("_BlurAmount");
+        private static readonly int TransparencyPropertyId = Shader.PropertyToID("_Transparency");
         private static readonly int WidthHeightRadiusPropertyId = Shader.PropertyToID("_WidthHeightRadius");
         private static readonly int AdditiveColorPropertyId = Shader.PropertyToID("_AdditiveColor");
         private static readonly int MultiplyColorPropertyId = Shader.PropertyToID("_MultiplyColor");
 
         private static Shader _shader;
 
-        [SerializeField] public float blurAmount = 1;
+        [SerializeField] public float blurAmount = 1f;
+        [SerializeField] public float transparency = 1f;
         [SerializeField] public float cornerRadius;
         [SerializeField] public Color additiveTintColor = Color.black;
         [SerializeField] public Color multiplyTintColor = Color.white;
@@ -26,6 +28,18 @@ namespace Pal3.UI
         private Material _material;
 
         [HideInInspector, SerializeField] private MaskableGraphic image;
+
+        public void SetMaterialBlurAmount(float newBlurAmount)
+        {
+            if (_material == null) return;
+            _material.SetFloat(BlurAmountPropertyId, newBlurAmount);
+        }
+
+        public void SetMaterialTransparency(float newAlpha)
+        {
+            if (_material == null) return;
+            _material.SetFloat(TransparencyPropertyId, newAlpha);
+        }
 
         private void OnValidate()
         {
@@ -94,6 +108,7 @@ namespace Pal3.UI
 
             Rect rect = ((RectTransform)transform).rect;
             _material.SetFloat(BlurAmountPropertyId, blurAmount);
+            _material.SetFloat(TransparencyPropertyId, transparency);
             _material.SetColor(AdditiveColorPropertyId, additiveTintColor);
             _material.SetColor(MultiplyColorPropertyId, multiplyTintColor);
             _material.SetVector(WidthHeightRadiusPropertyId,

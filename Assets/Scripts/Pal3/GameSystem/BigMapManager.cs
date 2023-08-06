@@ -219,11 +219,11 @@ namespace Pal3.GameSystem
                 }
 
                 float width = (_bigMapCanvasGridLayoutGroup.cellSize.x + _bigMapCanvasGridLayoutGroup.spacing.x) *
-                    _selectionButtons.Count - _bigMapCanvasGridLayoutGroup.spacing.x + 80f;
-                float height = _bigMapCanvasGridLayoutGroup.cellSize.y + 100f;
+                    _selectionButtons.Count - _bigMapCanvasGridLayoutGroup.spacing.x;
+                float height = _bigMapCanvasGridLayoutGroup.cellSize.y;
 
-                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width + 50f);
+                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height + 60f);
                 _bigMapBackgroundTransform.ForceUpdateRectTransforms();
 
                 _bigMapCanvas.alpha = 1f;

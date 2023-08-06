@@ -39,7 +39,7 @@ namespace Pal3.GameSystem
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS = 4f;
-        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.1f;
+        private const float DIALOGUE_SHOW_HIDE_ANIMATION_DURATION = 0.13f;
         private const float DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET = -30f;
         private const float DIALOGUE_FLASHING_ANIMATION_DURATION = 0.5f;
 
@@ -56,6 +56,7 @@ namespace Pal3.GameSystem
         private Canvas _dialogueSelectionButtonsCanvas;
         private GameObject _dialogueSelectionButtonPrefab;
         private Image _dialogueBackgroundImage;
+        private RoundedFrostedGlassImage _backgroundFrostedGlassImage;
 
         private Image _avatarImageLeft;
         private Image _avatarImageRight;
@@ -100,6 +101,8 @@ namespace Pal3.GameSystem
 
             _dialogueCanvasGroup = Requires.IsNotNull(dialogueCanvasGroup, nameof(dialogueCanvasGroup));
             _dialogueBackgroundImage = Requires.IsNotNull(dialogueBackgroundImage, nameof(dialogueBackgroundImage));
+            _backgroundFrostedGlassImage = Requires.IsNotNull(dialogueBackgroundImage.GetComponent<RoundedFrostedGlassImage>(),
+                nameof(dialogueBackgroundImage));
 
             _avatarImageLeft = Requires.IsNotNull(avatarImageLeft, nameof(avatarImageLeft));
             _avatarImageRight = Requires.IsNotNull(avatarImageRight, nameof(avatarImageRight));
@@ -330,28 +333,34 @@ namespace Pal3.GameSystem
 
         private IEnumerator PlayDialogueBackgroundFlashingAnimationAsync(float duration, CancellationToken cancellationToken)
         {
-            var startTime = Time.realtimeSinceStartup;
+            float startTime = Time.realtimeSinceStartup;
+            float initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
+            float initialTransparency = _backgroundFrostedGlassImage.transparency;
+            const float minThresholdPercentage = 0.65f;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                yield return CoreAnimation.EnumerateValueAsync(1f, 0.2f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
+                yield return CoreAnimation.EnumerateValueAsync(1f, minThresholdPercentage, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
                     AnimationCurveType.Linear, value =>
                     {
-                        _dialogueCanvasGroup.alpha = value;
+                        _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount * value);
+                        _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
                     }, cancellationToken);
 
                 if (Time.realtimeSinceStartup - startTime >= duration) break;
 
-                yield return CoreAnimation.EnumerateValueAsync(0.2f, 1f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
+                yield return CoreAnimation.EnumerateValueAsync(minThresholdPercentage, 1f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
                     AnimationCurveType.Linear, value =>
                     {
-                        _dialogueCanvasGroup.alpha = value;
+                        _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount * value);
+                        _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
                     }, cancellationToken);
 
                 if (Time.realtimeSinceStartup - startTime >= duration) break;
             }
 
-            _dialogueCanvasGroup.alpha = 1f;
+            _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount);
+            _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency);
         }
 
         private IEnumerator PlayDialogueBackgroundPopAnimationAsync(bool showDialogue)
@@ -369,12 +378,18 @@ namespace Pal3.GameSystem
                 dialogueCanvasGroupTransform.position = startPosition;
             }
 
+            var initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
+            var initialTransparency = _backgroundFrostedGlassImage.transparency;
             yield return CoreAnimation.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
-                AnimationCurveType.Linear, value =>
+                AnimationCurveType.EaseIn, value =>
                 {
                     _dialogueCanvasGroup.transform.position = finalPosition + new Vector3(0f, yOffset * (1 - value), 0);
                     _dialogueCanvasGroup.alpha = value;
+                    _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount * value);
+                    _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
                 });
+            _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount);
+            _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency);
 
             _dialogueCanvasGroup.transform.position = finalPosition; // Always set to final position
             _dialogueCanvasGroup.alpha = showDialogue ? 1f : 0f;

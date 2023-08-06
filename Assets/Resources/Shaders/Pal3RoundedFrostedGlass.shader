@@ -7,6 +7,7 @@ Shader "Pal3/RoundedFrostedGlass"
     Properties
     {
         _BlurAmount ("Blur", Range(0, 30)) = 1
+        _Transparency ("Transparency", Range(0, 1)) = 1
         [HideInInspector] _MainTex ("Masking Texture", 2D) = "white" {}
         _AdditiveColor ("Additive Tint color", Color) = (0, 0, 0, 0)
         _MultiplyColor ("Multiply Tint color", Color) = (1, 1, 1, 1)
@@ -96,6 +97,7 @@ Shader "Pal3/RoundedFrostedGlass"
                 sampler2D _HBlur;
                 float4 _HBlur_TexelSize;
                 float _BlurAmount;
+                float _Transparency;
                 float4 _AdditiveColor;
                 float4 _MultiplyColor;
                 float4 _WidthHeightRadius;
@@ -125,6 +127,7 @@ Shader "Pal3/RoundedFrostedGlass"
                                         sum.g * _MultiplyColor.g + _AdditiveColor.g,
                                         sum.b * _MultiplyColor.b + _AdditiveColor.b,
                                         tex2D(_MainTex, i.uvmain).a);
+                    result.a *= _Transparency;
                     return result;
                 }
                 ENDCG
@@ -200,6 +203,7 @@ Shader "Pal3/RoundedFrostedGlass"
                 sampler2D _VBlur;
                 float4 _VBlur_TexelSize;
                 float _BlurAmount;
+                float _Transparency;
                 float4 _AdditiveColor;
                 float4 _MultiplyColor;
                 float4 _WidthHeightRadius;
@@ -224,12 +228,12 @@ Shader "Pal3/RoundedFrostedGlass"
                     sum += GRABPIXEL(0.09, +3.0);
                     sum += GRABPIXEL(0.05, +4.0);
 
-                    half4 blurResult = half4(sum.r * _MultiplyColor.r + _AdditiveColor.r,
+                    half4 result = half4(sum.r * _MultiplyColor.r + _AdditiveColor.r,
                                         sum.g * _MultiplyColor.g + _AdditiveColor.g,
                                         sum.b * _MultiplyColor.b + _AdditiveColor.b,
                                         tex2D(_MainTex, i.uvmain).a);
-
-                    return blurResult;
+                    result.a *= _Transparency;
+                    return result;
                 }
                 ENDCG
             }
