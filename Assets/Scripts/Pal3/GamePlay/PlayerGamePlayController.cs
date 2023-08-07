@@ -283,14 +283,15 @@ namespace Pal3.GamePlay
         private void ReadInputAndMovePlayerIfNeeded()
         {
             var movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
-            if (movement == Vector2.zero) return;
+            if (movement.magnitude <= 0.01f) return;
 
             MovementMode movementMode = movement.magnitude < 0.7f ? MovementMode.Walk : MovementMode.Run;
             ActorActionType movementAction = movementMode == MovementMode.Walk ? ActorActionType.Walk : ActorActionType.Run;
             _playerActorMovementController.CancelMovement();
             Transform cameraTransform = _camera.transform;
-            Vector3 inputDirection = cameraTransform.forward * movement.y +
-                                     cameraTransform.right * movement.x;
+            Vector2 normalizedDirection = movement.normalized;
+            Vector3 inputDirection = cameraTransform.forward * normalizedDirection.y +
+                                     cameraTransform.right * normalizedDirection.x;
             MovementResult result = PlayerActorMoveTowards(inputDirection, movementMode);
             _playerActorActionController.PerformAction(result == MovementResult.Blocked
                 ? ActorActionType.Stand
