@@ -382,9 +382,9 @@ namespace Pal3
             logoImage.sprite = _gameResourceProvider.GetLogoSprite();
             logoImage.preserveAspect = true;
             #if PAL3
-            logoImage.transform.localScale = new Vector3(0.9f, 0.9f, 1f);
+            logoImage.transform.localScale = new Vector3(0.85f, 0.85f, 1f);
             #elif PAL3A
-            logoImage.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
+            logoImage.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
             #endif
             logoImage.enabled = true;
 
@@ -394,7 +394,7 @@ namespace Pal3
 
             #if !UNITY_EDITOR
             // Check latest version and notify if a newer version is found.
-            StartCoroutine(CheckLatestVersionAndNotify());
+            StartCoroutine(CheckLatestVersionAndNotifyAsync());
             #endif
         }
 
@@ -429,11 +429,11 @@ namespace Pal3
                 InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
                 Destroy(logoImage.sprite);
                 Destroy(logoCanvas);
-                StartCoroutine(ShowMainMenuAfterLogo());
+                StartCoroutine(ShowMainMenuAfterLogoAsync());
             }
         }
 
-        private IEnumerator ShowMainMenuAfterLogo()
+        private IEnumerator ShowMainMenuAfterLogoAsync()
         {
             // Wait one frame to make sure the logo image is destroyed.
             // Also make sure InputManager captures the active input device, so
@@ -442,7 +442,7 @@ namespace Pal3
             _mainMenu.ShowMenu();
         }
 
-        private IEnumerator CheckLatestVersionAndNotify()
+        private IEnumerator CheckLatestVersionAndNotifyAsync()
         {
             yield return new WaitForSeconds(1f);
             yield return GithubReleaseVersionFetcher.GetLatestReleaseVersionAsync(GameConstants.GithubRepoOwner, GameConstants.GithubRepoName,

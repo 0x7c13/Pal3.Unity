@@ -367,7 +367,7 @@ namespace Pal3.GameSystem
         {
             const float yOffset = DIALOGUE_SHOW_HIDE_ANIMATION_Y_OFFSET;
             Transform dialogueCanvasGroupTransform = _dialogueCanvasGroup.transform;
-            Vector3 finalPosition = dialogueCanvasGroupTransform.position;
+            Vector3 finalPosition = dialogueCanvasGroupTransform.localPosition;
             Vector3 startPosition = finalPosition + new Vector3(0f, yOffset, 0);
 
             float startValue = showDialogue ? 0f : 1f;
@@ -375,7 +375,7 @@ namespace Pal3.GameSystem
 
             if (showDialogue)
             {
-                dialogueCanvasGroupTransform.position = startPosition;
+                dialogueCanvasGroupTransform.localPosition = startPosition;
             }
 
             var initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
@@ -383,7 +383,7 @@ namespace Pal3.GameSystem
             yield return CoreAnimation.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
                 AnimationCurveType.EaseIn, value =>
                 {
-                    _dialogueCanvasGroup.transform.position = finalPosition + new Vector3(0f, yOffset * (1 - value), 0);
+                    _dialogueCanvasGroup.transform.localPosition = finalPosition + new Vector3(0f, yOffset * (1 - value), 0);
                     _dialogueCanvasGroup.alpha = value;
                     _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount * value);
                     _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
@@ -391,7 +391,7 @@ namespace Pal3.GameSystem
             _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount);
             _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency);
 
-            _dialogueCanvasGroup.transform.position = finalPosition; // Always set to final position
+            _dialogueCanvasGroup.transform.localPosition = finalPosition; // Always set to final position
             _dialogueCanvasGroup.alpha = showDialogue ? 1f : 0f;
         }
 
