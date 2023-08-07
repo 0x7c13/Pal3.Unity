@@ -77,7 +77,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(-1,
+                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
                     ObjectInfo.Parameters[0],
                     ObjectInfo.Parameters[1]));
             CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -102,7 +102,7 @@ namespace Pal3.Scene.SceneObjects
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1));
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetWorldPositionCommand(-1, worldPosition.x, worldPosition.z));
+                new ActorSetWorldPositionCommand(ActorConstants.PlayerActorVirtualID, worldPosition.x, worldPosition.z));
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new CameraFollowPlayerCommand(1));
             #endif

@@ -69,6 +69,8 @@ namespace Pal3.GamePlay
         private Vector3? _lastKnownPosition;
         private Vector2Int? _lastKnownTilePosition;
         private int? _lastKnownLayerIndex;
+        private bool _tilePositionPendingNotify;
+
         private string _lastKnownPlayerActorAction = string.Empty;
         private int _jumpableAreaEnterCount;
         #if PAL3
@@ -156,7 +158,6 @@ namespace Pal3.GamePlay
             if (!(position == _lastKnownPosition && layerIndex == _lastKnownLayerIndex))
             {
                 _lastKnownPosition = position;
-
                 Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
                 if (!(tilePosition == _lastKnownTilePosition && layerIndex == _lastKnownLayerIndex))
                 {
@@ -164,6 +165,12 @@ namespace Pal3.GamePlay
                     _lastKnownTilePosition = tilePosition;
                     PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
                 }
+            }
+            else if (_tilePositionPendingNotify)
+            {
+                Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
+                PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
+                _tilePositionPendingNotify = false;
             }
 
             _lastKnownLayerIndex = layerIndex;
@@ -1162,6 +1169,7 @@ namespace Pal3.GamePlay
 
                 _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
                     new Vector2Int(command.TileXPosition,command.TileYPosition), currentLayerIndex);
+                _tilePositionPendingNotify = true;
             }
         }
 
@@ -1229,6 +1237,8 @@ namespace Pal3.GamePlay
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
+
+            _tilePositionPendingNotify = true;
         }
 
         private void DisposeGamePlayIndicators()
@@ -1261,6 +1271,7 @@ namespace Pal3.GamePlay
             _lastKnownTilePosition = null;
             _lastKnownLayerIndex = null;
             _lastKnownPlayerActorAction = string.Empty;
+            _tilePositionPendingNotify = false;
 
             #if PAL3
             _longKuiLastKnownMode = 0;

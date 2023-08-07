@@ -422,13 +422,24 @@ namespace Pal3
                 }
             }
 
+            return;
+
             void OnAnyKeyOrTouchTriggered()
             {
                 InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
                 Destroy(logoImage.sprite);
                 Destroy(logoCanvas);
-                _mainMenu.ShowMenu();
+                StartCoroutine(ShowMainMenuAfterLogo());
             }
+        }
+
+        private IEnumerator ShowMainMenuAfterLogo()
+        {
+            // Wait one frame to make sure the logo image is destroyed.
+            // Also make sure InputManager captures the active input device, so
+            // that the main menu can auto-select the first button if necessary.
+            yield return null;
+            _mainMenu.ShowMenu();
         }
 
         private IEnumerator CheckLatestVersionAndNotify()
