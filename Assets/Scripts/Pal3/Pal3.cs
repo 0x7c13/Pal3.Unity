@@ -266,7 +266,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_audioManager);
 
             _informationManager = gameObject.AddComponent<InformationManager>();
-            _informationManager.Init(noteCanvasGroup, noteText, debugInfo);
+            _informationManager.Init(_gameSettings, noteCanvasGroup, noteText, debugInfo);
             ServiceLocator.Instance.Register(_informationManager);
 
             _miniMapManager = gameObject.AddComponent<MiniMapManager>();

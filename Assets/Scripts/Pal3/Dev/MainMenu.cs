@@ -505,6 +505,19 @@ namespace Pal3.Dev
                     (_gameSettings.SfxVolume == 0f ? "关闭" : "开启") + ""));
             });
 
+            const string debugInfoEnabledText = "调试信息：开启";
+            const string debugInfoDisabledText = "调试信息：关闭";
+            string GetDebugInfoButtonText() => _gameSettings.IsDebugInfoEnabled ? debugInfoEnabledText : debugInfoDisabledText;
+            CreateMenuButton(GetDebugInfoButtonText(), buttonTextUGUI => delegate
+            {
+                _gameSettings.IsDebugInfoEnabled = !_gameSettings.IsDebugInfoEnabled;
+
+                buttonTextUGUI.text = GetDebugInfoButtonText();
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("调试信息已" +
+                    (_gameSettings.IsDebugInfoEnabled ? "开启" : "关闭") + ""));
+            });
+
             CreateMenuButton("返回", _ => delegate
             {
                 _gameSettings.SaveSettings();

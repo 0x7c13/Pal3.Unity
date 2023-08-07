@@ -17,11 +17,13 @@ namespace Pal3.GameSystem
     using Core.Utils;
     using Data;
     using MetaData;
+    using State;
     using TMPro;
 
     public sealed class TaskManager :
         ICommandExecutor<TaskOpenCommand>,
         ICommandExecutor<TaskCompleteCommand>,
+        ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private const string TASK_DEFINITION_FILE_NAME = "task.txt";
@@ -87,6 +89,18 @@ namespace Pal3.GameSystem
         {
             _openedTasks.Remove(command.TaskId);
             _completedTasks.Add(command.TaskId);
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (command.NewState == GameState.VideoPlaying)
+            {
+                _taskInfoText.enabled = false;
+            }
+            else if (command.PreviousState == GameState.VideoPlaying)
+            {
+                _taskInfoText.enabled = true;
+            }
         }
 
         public void Execute(ResetGameStateCommand command)

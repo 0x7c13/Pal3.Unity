@@ -13,6 +13,8 @@ namespace Pal3.GameSystem
     using Core.Animation;
     using Core.Utils;
     using MetaData;
+    using Settings;
+    using State;
     using TMPro;
     using UnityEngine;
 
@@ -20,11 +22,14 @@ namespace Pal3.GameSystem
     public sealed class InformationManager : MonoBehaviour,
         ICommandExecutor<UIDisplayNoteCommand>,
         ICommandExecutor<UIShowDealerMenuCommand>,
-        ICommandExecutor<SceneLeavingCurrentSceneNotification>
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>,
+        ICommandExecutor<SettingChangedNotification>,
+        ICommandExecutor<GameStateChangedNotification>
     {
-        private const float NOTE_LAST_TIME_IN_SECONDS = 2f;
+        private const float NOTE_LAST_TIME_IN_SECONDS = 2.5f;
         private const float NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS = 1f;
 
+        private GameSettings _gameSettings;
         private CanvasGroup _noteCanvasGroup;
         private TextMeshProUGUI _noteText;
         private Coroutine _noteAnimation;
@@ -38,8 +43,14 @@ namespace Pal3.GameSystem
 
         private bool _isNoteShowingEnabled = true;
 
-        public void Init(CanvasGroup noteCanvasGroup, TextMeshProUGUI noteText, TextMeshProUGUI debugInfo)
+        private string _defaultText;
+
+        public void Init(GameSettings gameSettings,
+            CanvasGroup noteCanvasGroup,
+            TextMeshProUGUI noteText,
+            TextMeshProUGUI debugInfo)
         {
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _noteCanvasGroup = Requires.IsNotNull(noteCanvasGroup, nameof(noteCanvasGroup));
             _noteText = Requires.IsNotNull(noteText, nameof(noteText));
             _debugInfo = Requires.IsNotNull(debugInfo, nameof(debugInfo));
@@ -47,10 +58,10 @@ namespace Pal3.GameSystem
             _noteCanvasGroup.alpha = 0f;
             _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
             _heapSizeLastQueryTime = Time.realtimeSinceStartupAsDouble;
-        }
 
-        private void OnEnable()
-        {
+            _defaultText = $"{GameConstants.ContactInfo} v{Application.version} {GameConstants.TestingType}\n";
+            _debugInfo.SetText(_defaultText);
+
             #if UNITY_2022_1_OR_NEWER
             var refreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
             #else
@@ -64,17 +75,20 @@ namespace Pal3.GameSystem
             #endif
 
             var deviceInfo =
-                $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
-                $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores)\n" +
-                $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType})\n" +
-                $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
-                $"{GameConstants.ContactInfo}\n" +
-                $"Version: v{Application.version} Alpha (Unity {Application.unityVersion} {scriptingBackend})\n";
+                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
+                 $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores)\n" +
+                 $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType})\n" +
+                 $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n" +
+                 $"Version: v{Application.version} {GameConstants.TestingType} (Unity {Application.unityVersion} {scriptingBackend})\n";
 
-            _debugInfoStringFormat = deviceInfo + "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
+            _debugInfoStringFormat = _defaultText + deviceInfo +
+                                     "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
 
             _fpsCounter = GetComponent<FpsCounter>();
+        }
 
+        private void OnEnable()
+        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -86,6 +100,8 @@ namespace Pal3.GameSystem
 
         private void Update()
         {
+            if (!_gameSettings.IsDebugInfoEnabled) return;
+
             var currentTime = Time.realtimeSinceStartupAsDouble;
             if (currentTime - _heapSizeLastQueryTime > 5f)
             {
@@ -157,6 +173,29 @@ namespace Pal3.GameSystem
         public void Execute(UIShowDealerMenuCommand command)
         {
             Execute(new UIDisplayNoteCommand("交易功能暂未开启"));
+        }
+
+        public void Execute(SettingChangedNotification command)
+        {
+            if (command.SettingName is nameof(GameSettings.IsDebugInfoEnabled))
+            {
+                if (!_gameSettings.IsDebugInfoEnabled)
+                {
+                    _debugInfo.SetText(_defaultText);
+                }
+            }
+        }
+
+        public void Execute(GameStateChangedNotification command)
+        {
+            if (command.NewState == GameState.VideoPlaying)
+            {
+                _debugInfo.enabled = false;
+            }
+            else if (command.PreviousState == GameState.VideoPlaying)
+            {
+                _debugInfo.enabled = true;
+            }
         }
     }
 }

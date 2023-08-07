@@ -166,6 +166,21 @@ namespace Pal3.Settings
             }
         }
 
+        private bool _isDebugInfoEnabled = true; // Default to enable debug info
+        public bool IsDebugInfoEnabled
+        {
+            get => _isDebugInfoEnabled;
+            internal set
+            {
+                if (_isDebugInfoEnabled != value)
+                {
+                    _isDebugInfoEnabled = value;
+                    SettingsStore.Set(nameof(IsDebugInfoEnabled), value);
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         private string _gameDataFolderPath = string.Empty;
         public string GameDataFolderPath
         {

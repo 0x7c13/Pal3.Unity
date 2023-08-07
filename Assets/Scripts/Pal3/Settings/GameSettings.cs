@@ -54,6 +54,8 @@ namespace Pal3.Settings
                 "设置音效音量设定（0.0：静音，1.0：最大音量）", _ => SfxVolume = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsVoiceOverEnabled",
                 "设置角色配音设定（true：开启，false：关闭）", _ => IsVoiceOverEnabled = _);
+            DebugLogConsole.AddCommand<bool>("Settings.IsDebugInfoEnabled",
+                "设置调试信息显示设定（true：开启，false：关闭）", _ => IsDebugInfoEnabled = _);
             DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
                 "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
 
@@ -258,6 +260,16 @@ namespace Pal3.Settings
             {
                 // Enable voice over by default
                 IsVoiceOverEnabled = true;
+            }
+
+            if (SettingsStore.TryGet(nameof(IsDebugInfoEnabled), out bool isDebugInfoEnabled))
+            {
+                IsDebugInfoEnabled = isDebugInfoEnabled;
+            }
+            else
+            {
+                // Enable debug info by default
+                IsDebugInfoEnabled = true;
             }
 
             if (SettingsStore.TryGet(nameof(GameDataFolderPath), out string gameDataFolderPath))

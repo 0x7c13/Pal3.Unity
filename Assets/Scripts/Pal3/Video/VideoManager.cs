@@ -114,6 +114,7 @@ namespace Pal3.Video
             }
             catch (Exception ex)
             {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
                 Debug.LogError($"[{nameof(VideoManager)}] Exception: {ex}");
                 _videoPlayingWaiter.CancelWait();
                 _gameStateManager.GoToPreviousState();
