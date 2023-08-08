@@ -17,24 +17,15 @@ namespace Pal3.Settings
     using IngameDebugConsole;
     using MetaData;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     public sealed class GameSettings : SettingsBase, IDisposable
     {
-        private static Resolution _nativeResolution;
-
         public bool IsOpenSourceVersion { get; }
 
         public GameSettings(ITransactionalKeyValueStore settingsStore, bool isOpenSourceVersion) : base(settingsStore)
         {
             IsOpenSourceVersion = isOpenSourceVersion;
-
-            #if UNITY_STANDALONE
-            // Last resolution is the full native resolution on desktop platforms
-            _nativeResolution = Screen.resolutions[^1];
-            #else
-            // Current resolution is the full native resolution on other platforms
-            _nativeResolution = Screen.currentResolution;
-            #endif
 
             InitDefaultSettings();
 
@@ -77,44 +68,8 @@ namespace Pal3.Settings
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            string settingName = args.PropertyName;
-
-            if (settingName == nameof(VSyncCount))
-            {
-                QualitySettings.vSyncCount = VSyncCount;
-            }
-            else if (settingName == nameof(AntiAliasing))
-            {
-                QualitySettings.antiAliasing = AntiAliasing;
-            }
-            else if (settingName == nameof(TargetFrameRate))
-            {
-                Application.targetFrameRate = TargetFrameRate;
-            }
-            else if (settingName == nameof(ResolutionScale))
-            {
-                // Let OS to handle and persist the resolution change
-                // on Windows, macOS and Linux.
-                #if !UNITY_STANDALONE
-                Screen.SetResolution(
-                    (int) (_nativeResolution.width * ResolutionScale),
-                    (int) (_nativeResolution.height * ResolutionScale),
-                    Screen.fullScreenMode);
-                #else
-                if (Screen.fullScreenMode
-                    is FullScreenMode.ExclusiveFullScreen
-                    or FullScreenMode.FullScreenWindow)
-                {
-                    Screen.SetResolution(
-                        (int) (_nativeResolution.width * ResolutionScale),
-                        (int) (_nativeResolution.height * ResolutionScale),
-                        Screen.fullScreenMode);
-                }
-                #endif
-            }
-
             // Broadcast the setting change notification.
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(settingName));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(args.PropertyName));
         }
 
         private void InitDefaultSettings()
@@ -137,8 +92,8 @@ namespace Pal3.Settings
             }
             else
             {
-                // Disable v-sync on desktop devices by default
-                VSyncCount = Utility.IsDesktopDevice() ? 0 : 1;
+                // Disable v-sync by default
+                VSyncCount = 0;
             }
 
             if (SettingsStore.TryGet(nameof(AntiAliasing), out int antiAliasing))
@@ -173,9 +128,8 @@ namespace Pal3.Settings
             }
             else
             {
-                // Full resolution by default unless on Android with SDK version lower than 23 (old devices)
-                // SDK version 23 is Android 6.0 Marshmallow
-                ResolutionScale = Utility.IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(23) ? 0.75f : 1.0f;
+                // Full resolution by default on legacy mobile devices
+                ResolutionScale = Utility.IsLegacyMobileDevice() ? 0.75f : 1.0f;
             }
 
             #if UNITY_STANDALONE
@@ -224,7 +178,8 @@ namespace Pal3.Settings
                 else
                 {
                     // Enable realtime lighting and shadows by default
-                    IsRealtimeLightingAndShadowsEnabled = true;
+                    // unless the device is a legacy mobile device
+                    IsRealtimeLightingAndShadowsEnabled = !Utility.IsLegacyMobileDevice();
                 }
             }
 
@@ -235,11 +190,15 @@ namespace Pal3.Settings
                 // thus AO will not work anyway
                 IsAmbientOcclusionEnabled = false;
             }
+            else if (Application.platform == RuntimePlatform.Android &&
+                     SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
+            {
+                // AO is only supported on Android with Vulkan
+                // Disable AO on Android with OpenGL ES by default
+                IsAmbientOcclusionEnabled = false;
+            }
             else
             {
-                #if UNITY_ANDROID // AO not working well with OpenGL on Android
-                IsAmbientOcclusionEnabled = false;
-                #else
                 if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
                 {
                     IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
@@ -249,7 +208,6 @@ namespace Pal3.Settings
                     // Enable ambient occlusion by default on desktop devices
                     IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
                 }
-                #endif
             }
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))

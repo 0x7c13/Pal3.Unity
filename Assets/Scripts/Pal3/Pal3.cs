@@ -165,6 +165,9 @@ namespace Pal3
         private TaskManager _taskManager;
         #endif
 
+        // Utility components
+        private RenderingSettingsManager _renderingSettingsManager;
+
         // Dev tools
         private MazeSkipper _mazeSkipper;
         private MainMenu _mainMenu;
@@ -359,6 +362,10 @@ namespace Pal3
                 mainCamera);
             ServiceLocator.Instance.Register(_mainMenu);
 
+            _renderingSettingsManager = gameObject.AddComponent<RenderingSettingsManager>();
+            _renderingSettingsManager.Init(_gameSettings);
+            ServiceLocator.Instance.Register(_renderingSettingsManager);
+
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
 
@@ -504,6 +511,7 @@ namespace Pal3
             Destroy(_postProcessManager);
             Destroy(_effectManager);
             Destroy(_mainMenu);
+            Destroy(_renderingSettingsManager);
 
             if (_cursorManager != null)
             {

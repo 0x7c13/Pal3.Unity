@@ -31,6 +31,7 @@ namespace Pal3.Dev
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
+    using UnityEngine.Rendering;
     using UnityEngine.UI;
 
     public sealed class MainMenu : MonoBehaviour,
@@ -397,24 +398,27 @@ namespace Pal3.Dev
                         (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
                 });
 
-                #if !UNITY_ANDROID
-                string GetSSAOButtonText() => _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
-                CreateMenuButton(GetSSAOButtonText(), buttonTextUGUI => delegate
+                // SSAO is not available on Android OpenGLES3
+                if (!(Application.platform == RuntimePlatform.Android &&
+                      SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan))
                 {
-                    if (!_gameSettings.IsAmbientOcclusionEnabled && !_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+                    string GetSSAOButtonText() => _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
+                    CreateMenuButton(GetSSAOButtonText(), buttonTextUGUI => delegate
                     {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("请先开启实时光影，再开启环境光遮蔽"));
-                        return;
-                    }
+                        if (!_gameSettings.IsAmbientOcclusionEnabled && !_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+                        {
+                            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("请先开启实时光影，再开启环境光遮蔽"));
+                            return;
+                        }
 
-                    _gameSettings.IsAmbientOcclusionEnabled = !_gameSettings.IsAmbientOcclusionEnabled;
+                        _gameSettings.IsAmbientOcclusionEnabled = !_gameSettings.IsAmbientOcclusionEnabled;
 
-                    buttonTextUGUI.text = GetSSAOButtonText();
+                        buttonTextUGUI.text = GetSSAOButtonText();
 
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已" +
-                        (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                });
-                #endif
+                        CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("环境光遮蔽已" +
+                            (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
+                    });
+                }
             }
 
             #if UNITY_STANDALONE
@@ -435,17 +439,19 @@ namespace Pal3.Dev
             #if UNITY_IOS || UNITY_ANDROID
             const string fullResolutionScaleText = "渲染分辨率：100%";
             const string halfResolutionScaleText = "渲染分辨率：75%";
-            string GetResolutionButtonText() => Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f
-                ? fullResolutionScaleText
-                : halfResolutionScaleText;
+            const string quarterResolutionScaleText = "渲染分辨率：50%";
+            string GetResolutionButtonText() => Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? fullResolutionScaleText :
+                Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? halfResolutionScaleText : quarterResolutionScaleText;
             CreateMenuButton(GetResolutionButtonText(), buttonTextUGUI => delegate
             {
-                _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f : 1f;
+                _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f :
+                    Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? 0.5f : 1f;
 
                 buttonTextUGUI.text = GetResolutionButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("渲染分辨率已" +
-                    (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" : "调整为75%") + ""));
+                    (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" :
+                        (Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? "调整为75%" : "调整为50%"))));
             });
             #endif
 

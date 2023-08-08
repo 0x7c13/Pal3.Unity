@@ -2219,7 +2219,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 7
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1001
+  m_SortingOrder: 1000
   m_TargetDisplay: 0
 --- !u!114 &4620009790764474620
 MonoBehaviour:
@@ -3460,7 +3460,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6058682791376528600}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0.9
   m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -3652,7 +3652,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 450, y: -150}
+  m_SizeDelta: {x: 400, y: -200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &677852748167040680
 MonoBehaviour:
@@ -4061,9 +4061,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "https://github.com/0x7c13/Pal3.Unity | B\u7AD9@\u67D2\u624D\nCopyright
-    (c) 2021-2023, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2003,
-    SOFTSTAR ENTERTAINMENT. All rights reserved."
+  m_text: "https://github.com/0x7c13/Pal3.Unity B\u7AD9@\u67D2\u624D\nCopyright (c)
+    2021-2023, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2003, SOFTSTAR
+    ENTERTAINMENT. All rights reserved."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
   m_sharedMaterial: {fileID: 2847917559404452115, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}

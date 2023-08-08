@@ -218,7 +218,14 @@ namespace Core.Utils
             Debug.DrawLine(p4, p8, Color.cyan, duration);
         }
 
-        public static bool IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(int sdkVersion)
+        public static bool IsLegacyMobileDevice()
+        {
+            if (IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(23)) return true;
+            // TODO: Add iOS legacy mobile device check etc
+            return false;
+        }
+
+        private static bool IsAndroidDeviceAndSdkVersionLowerThanOrEqualTo(int sdkVersion)
         {
             if (Application.platform != RuntimePlatform.Android) return false;
 
