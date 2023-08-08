@@ -11,7 +11,7 @@ PlayerSettings:
   defaultScreenOrientation: 4
   targetDevice: 2
   useOnDemandResources: 0
-  accelerometerFrequency: 60
+  accelerometerFrequency: 0
   companyName: Jackil
   productName: PAL3
   defaultCursor: {fileID: 0}
@@ -49,7 +49,7 @@ PlayerSettings:
   m_StereoRenderingPath: 0
   m_ActiveColorSpace: 0
   m_SpriteBatchVertexThreshold: 300
-  m_MTRendering: 1
+  m_MTRendering: 0
   mipStripping: 0
   numberOfMipsStripped: 0
   numberOfMipsStrippedPerMipmapLimitGroup: {}
@@ -134,7 +134,8 @@ PlayerSettings:
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
   bundleVersion: 0.72
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 11400000, guid: d36b5fde9d421c74cba9317a109723a2, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -1064,7 +1065,7 @@ PlayerSettings:
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 
-  framebufferDepthMemorylessMode: 0
+  framebufferDepthMemorylessMode: 2
   qualitySettingsNames: []
   projectName: 
   organizationId: 
