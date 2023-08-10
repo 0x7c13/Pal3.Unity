@@ -87,7 +87,7 @@ namespace Core.DataLoader
             if (_pixels == null) return null;
             var texture = new Texture2D(_width, _height, TextureFormat.RGBA32, mipChain: false);
             texture.SetPixels32(_pixels);
-            texture.Apply();
+            texture.Apply(updateMipmaps: false);
             return texture;
         }
     }

@@ -36,7 +36,7 @@ namespace Core.DataLoader
             }
 
             texture.SetPixels32(_image.ImageData);
-            texture.Apply();
+            texture.Apply(updateMipmaps: false);
             return texture;
         }
 

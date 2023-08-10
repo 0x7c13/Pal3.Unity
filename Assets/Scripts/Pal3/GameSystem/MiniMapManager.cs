@@ -100,7 +100,7 @@ namespace Pal3.GameSystem
 
             Texture2D texture = new Texture2D(layer.Width, layer.Height, TextureFormat.RGBA32, mipChain: false);
             texture.SetPixels(colors);
-            texture.Apply(false);
+            texture.Apply(updateMipmaps: false);
             return texture;
         }
 

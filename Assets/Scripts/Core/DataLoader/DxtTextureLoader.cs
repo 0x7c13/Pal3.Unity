@@ -83,7 +83,7 @@ namespace Core.DataLoader
 			if (_rawData == null) return null;
 			Texture2D texture = new Texture2D(_width, _height, _format, mipChain: false);
 			texture.LoadRawTextureData(_rawData);
-			texture.Apply();
+			texture.Apply(updateMipmaps: false);
 			return texture;
 		}
 	}

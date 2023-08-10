@@ -249,6 +249,17 @@ namespace Pal3.Settings
                 yield return GameDataFolderPath;
             }
 
+            // Try current executable directory on Windows and Linux
+            if (Application.platform == RuntimePlatform.WindowsPlayer ||
+                Application.platform == RuntimePlatform.LinuxPlayer)
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(Application.dataPath).Parent;
+                if (directoryInfo != null)
+                {
+                    yield return directoryInfo.FullName + Path.DirectorySeparatorChar;
+                }
+            }
+
             // Streaming assets path
             yield return Application.streamingAssetsPath +
                          Path.DirectorySeparatorChar +

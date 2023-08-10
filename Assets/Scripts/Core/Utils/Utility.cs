@@ -23,22 +23,22 @@ namespace Core.Utils
             return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
 
-        public static unsafe void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
-        {
-            var pixels = texture.GetPixels();
-
-            fixed (float* src = &pixels[0].r)
-            {
-                var p = src;
-                for (var i = 0; i < texture.width * texture.height; i++, p += 4)
-                {
-                    *(p + 3) = 0.299f * *p + 0.587f * *(p + 1) + 0.114f * *(p + 2);
-                }
-            }
-
-            texture.SetPixels(pixels);
-            texture.Apply();
-        }
+        // public static unsafe void ApplyTransparencyBasedOnColorLuminance(Texture2D texture)
+        // {
+        //     var pixels = texture.GetPixels();
+        //
+        //     fixed (float* src = &pixels[0].r)
+        //     {
+        //         var p = src;
+        //         for (var i = 0; i < texture.width * texture.height; i++, p += 4)
+        //         {
+        //             *(p + 3) = 0.299f * *p + 0.587f * *(p + 1) + 0.114f * *(p + 2);
+        //         }
+        //     }
+        //
+        //     texture.SetPixels(pixels);
+        //     texture.Apply(updateMipmaps: false);
+        // }
 
         public static T ReadStruct<T>(Stream stream) where T : struct
         {
