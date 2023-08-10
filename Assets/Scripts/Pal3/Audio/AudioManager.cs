@@ -57,8 +57,6 @@ namespace Pal3.Audio
 
         private CancellationTokenSource _sceneAudioCts = new ();
 
-        private AudioClip _themeMusicClip;
-
         public void Init(Camera mainCamera,
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
@@ -73,11 +71,6 @@ namespace Pal3.Audio
 
             _musicVolume = _gameSettings.MusicVolume;
             _sfxVolume = _gameSettings.SfxVolume;
-
-            // Load and play the theme music on init
-            _themeMusicClip = Requires.IsNotNull(
-                Resources.Load<AudioClip>($"Music/{GameConstants.AppName}-Theme"),
-                $"Music/{GameConstants.AppName}-Theme");
         }
 
         private void OnEnable()
@@ -88,14 +81,6 @@ namespace Pal3.Audio
         private void OnDisable()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-        }
-
-        public void PlayThemeMusic()
-        {
-            _musicPlayer.clip = _themeMusicClip;
-            _musicPlayer.volume = _musicVolume;
-            _musicPlayer.loop = true;
-            _musicPlayer.Play();
         }
 
         public void Execute(SettingChangedNotification command)
@@ -158,10 +143,7 @@ namespace Pal3.Audio
                 if (audioSource.clip != null)
                 {
                     audioSource.Stop();
-                    if (audioSource.clip != _themeMusicClip)
-                    {
-                        Destroy(audioSource.clip);
-                    }
+                    Destroy(audioSource.clip);
                 }
 
                 audioSource.clip = audioClip;
