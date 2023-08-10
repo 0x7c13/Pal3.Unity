@@ -17,18 +17,9 @@ namespace Pal3.Data
     using Core.DataLoader;
     using Core.DataReader;
     using Core.DataReader.Cpk;
-    using Core.DataReader.Cvd;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
-    using Core.DataReader.Lgt;
-    using Core.DataReader.Mov;
-    using Core.DataReader.Msh;
-    using Core.DataReader.Mtl;
     using Core.DataReader.Mv3;
-    using Core.DataReader.Nav;
-    using Core.DataReader.Pol;
-    using Core.DataReader.Sce;
-    using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -64,7 +55,6 @@ namespace Pal3.Data
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
         private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
 
-        private readonly Dictionary<string, ActorActionConfig> _actorConfigCache = new (); // Cache forever
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
         // Cache player actor movement sfx audio clips
@@ -93,12 +83,7 @@ namespace Pal3.Data
         private GdbFile GetGameDatabaseFile()
         {
             var gdbFilePath = FileConstants.GameDatabaseFileVirtualPath;
-            return GetGameResourceFileReader<GdbFile>().Read(_fileSystem.ReadAllBytes(gdbFilePath));
-        }
-
-        private IFileReader<T> GetGameResourceFileReader<T>()
-        {
-            return ServiceLocator.Instance.Get<IFileReader<T>>();
+            return GetGameResourceFile<GdbFile>(gdbFilePath);
         }
 
         public void Dispose()
@@ -106,7 +91,6 @@ namespace Pal3.Data
             _textureCache?.DisposeAll();
             _spriteCache.Clear();
             _gameResourceFileCache.Clear();
-            _actorConfigCache.Clear();
             _audioClipCache.Clear();
             _vfxEffectPrefabCache.Clear();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
@@ -141,7 +125,7 @@ namespace Pal3.Data
                 new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath);
         }
 
-        public T GetGameResourceFile<T>(string fileVirtualPath, bool useCache = true)
+        public T GetGameResourceFile<T>(string fileVirtualPath, bool useCache = true, byte[] data = null)
         {
             fileVirtualPath = fileVirtualPath.ToLower();
 
@@ -152,7 +136,8 @@ namespace Pal3.Data
                 return (T)_gameResourceFileCache[typeof(T)][fileVirtualPath];
             }
 
-            T file = GetGameResourceFileReader<T>().Read(_fileSystem.ReadAllBytes(fileVirtualPath));
+            T file = ServiceLocator.Instance.Get<IFileReader<T>>().Read(
+                data ?? _fileSystem.ReadAllBytes(fileVirtualPath));
 
             if (useCache)
             {
@@ -165,36 +150,6 @@ namespace Pal3.Data
             }
 
             return file;
-        }
-
-        public NavFile GetNavFile(string sceneFileName, string sceneName)
-        {
-            var navFilePath = FileConstants.GetNavFileVirtualPath(sceneFileName, sceneName);
-            return GetGameResourceFileReader<NavFile>().Read(_fileSystem.ReadAllBytes(navFilePath));
-        }
-
-        public ScnFile GetScnFile(string sceneFileName, string sceneName)
-        {
-            var scnFilePath = FileConstants.GetScnFileVirtualPath(sceneFileName, sceneName);
-            return GetGameResourceFileReader<ScnFile>().Read(_fileSystem.ReadAllBytes(scnFilePath));
-        }
-
-        public SceFile GetSceneSceFile(string sceneFileName)
-        {
-            var sceFilePath = FileConstants.GetSceneSceFileVirtualPath(sceneFileName);
-            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(sceFilePath));
-        }
-
-        public SceFile GetSystemSceFile()
-        {
-            var systemSceFilePath = FileConstants.SystemSceFileVirtualPath;
-            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(systemSceFilePath));
-        }
-
-        public SceFile GetBigMapSceFile()
-        {
-            var bigMapSceFilePath = FileConstants.BigMapSceFileVirtualPath;
-            return GetGameResourceFileReader<SceFile>().Read(_fileSystem.ReadAllBytes(bigMapSceFilePath));
         }
 
         public Dictionary<int, GameItem> GetGameItems()
@@ -458,14 +413,8 @@ namespace Pal3.Data
 
             actorConfigFilePath = actorConfigFilePath.ToLower();
 
-            if (_actorConfigCache.TryGetValue(actorConfigFilePath, out ActorActionConfig actorActionConfig))
+            if (!FileExists(actorConfigFilePath))
             {
-                return actorActionConfig;
-            }
-
-            if (!_fileSystem.FileExists(actorConfigFilePath))
-            {
-                _actorConfigCache[actorConfigFilePath] = null;
                 return null;
             }
 
@@ -474,15 +423,11 @@ namespace Pal3.Data
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
-                Mv3ActionConfig config = GetGameResourceFileReader<Mv3ActionConfig>().Read(configData);
-                _actorConfigCache[actorConfigFilePath] = config;
-                return config;
+                return GetGameResourceFile<Mv3ActionConfig>(actorConfigFilePath, data: configData);
             }
             else // MOV actor config
             {
-                MovActionConfig config = GetGameResourceFileReader<MovActionConfig>().Read(configData);
-                _actorConfigCache[actorConfigFilePath] = config;
-                return config;
+                return GetGameResourceFile<MovActionConfig>(actorConfigFilePath, data: configData);
             }
         }
 

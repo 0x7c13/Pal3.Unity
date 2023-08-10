@@ -43,7 +43,6 @@ namespace Pal3.Dev
         private const int SAVE_SLOT_COUNT = 5;
 
         private GameSettings _gameSettings;
-        private AudioManager _audioManager;
         private InputManager _inputManager;
         private EventSystem _eventSystem;
         private PlayerInputActions _playerInputActions;
@@ -71,9 +70,7 @@ namespace Pal3.Dev
         private readonly List<GameObject> _menuItems = new();
 
         public void Init(GameSettings gameSettings,
-            AudioManager audioManager,
             InputManager inputManager,
-            EventSystem eventSystem,
             SceneManager sceneManager,
             GameStateManager gameStateManager,
             ScriptManager scriptManager,
@@ -86,12 +83,11 @@ namespace Pal3.Dev
             ScrollRect contentScrollRect,
             RectTransform backgroundTransform,
             RectTransform contentTransform,
+            EventSystem eventSystem,
             Camera mainCamera)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
-            _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
-            _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
@@ -104,6 +100,7 @@ namespace Pal3.Dev
             _contentScrollRect = Requires.IsNotNull(contentScrollRect, nameof(contentScrollRect));
             _backgroundTransform = Requires.IsNotNull(backgroundTransform, nameof(backgroundTransform));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
+            _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
 
             _contentGridLayoutGroup = Requires.IsNotNull(

@@ -191,14 +191,14 @@ namespace Pal3.MetaData
                    $"{ACTOR_FOLDER_NAME}{DirSeparator}{actorName}{DirSeparator}";
         }
 
-        public static string GetNavFileVirtualPath(string sceneFileName, string sceneName)
+        public static string GetNavFileVirtualPath(string sceneFileName, string modelName)
         {
             #if PAL3
             var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{DirSeparator}" +
-                              $"{sceneName}{DirSeparator}{sceneName}.nav";
+                              $"{modelName}{DirSeparator}{modelName}.nav";
             #elif PAL3A
             var navFilePath = $"{SCN_CPK_FILE_NAME}{DirSeparator}SCN{DirSeparator}" +
-                              $"{sceneFileName}{DirSeparator}{sceneName}{DirSeparator}{sceneName}.nav";
+                              $"{sceneFileName}{DirSeparator}{modelName}{DirSeparator}{modelName}.nav";
             #endif
             return navFilePath;
         }

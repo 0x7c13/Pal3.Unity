@@ -344,9 +344,7 @@ namespace Pal3
             _mainMenu = gameObject.AddComponent<MainMenu>();
             _mainMenu.Init(
                 _gameSettings,
-                _audioManager,
                 _inputManager,
-                eventSystem,
                 _sceneManager,
                 _gameStateManager,
                 _scriptManager,
@@ -359,6 +357,7 @@ namespace Pal3
                 contentScrollRect,
                 backgroundTransform,
                 contentTransform,
+                eventSystem,
                 mainCamera);
             ServiceLocator.Instance.Register(_mainMenu);
 

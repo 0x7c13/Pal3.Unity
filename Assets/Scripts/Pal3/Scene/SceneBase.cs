@@ -18,6 +18,7 @@ namespace Pal3.Scene
     using Core.Utils;
     using Data;
     using GamePlay;
+    using MetaData;
     using SceneObjects;
     using State;
     using UnityEngine;
@@ -116,7 +117,8 @@ namespace Pal3.Scene
 
         private void InitNavData()
         {
-            NavFile = _resourceProvider.GetNavFile(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model);
+            NavFile = _resourceProvider.GetGameResourceFile<NavFile>(
+                FileConstants.GetNavFileVirtualPath(ScnFile.SceneInfo.CityName, ScnFile.SceneInfo.Model));
             Tilemap = new Tilemap(NavFile);
         }
 

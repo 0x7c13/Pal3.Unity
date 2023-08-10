@@ -76,7 +76,8 @@ namespace Pal3.Scene
             timer.Start();
             DisposeCurrentScene();
 
-            ScnFile scnFile = _resourceProvider.GetScnFile(sceneFileName, sceneName);
+            ScnFile scnFile = _resourceProvider.GetGameResourceFile<ScnFile>(
+                    FileConstants.GetScnFileVirtualPath(sceneFileName, sceneName));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
             Debug.Log($"[{nameof(SceneManager)}] Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
@@ -95,7 +96,8 @@ namespace Pal3.Scene
             _sceneObjectIdsToNotLoadFromSaveState.Clear();
 
             // Add scene script if exists.
-            SceFile sceFile = _resourceProvider.GetSceneSceFile(sceneFileName);
+            SceFile sceFile = _resourceProvider.GetGameResourceFile<SceFile>(FileConstants.GetSceneSceFileVirtualPath(sceneFileName));
+
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 _scriptManager.TryAddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}", out var sceneScriptId)
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
