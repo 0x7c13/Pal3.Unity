@@ -98,15 +98,15 @@ namespace Pal3.Audio
 
         private IEnumerator PlaySceneMusicAsync(string cityName, string sceneName)
         {
-            var key = $"{cityName}_{sceneName}";
             var musicName = string.Empty;
-            if (MusicConstants.SceneMusicInfo.ContainsKey(key.ToLower()))
+
+            if (MusicConstants.SceneMusicInfo.TryGetValue($"{cityName}_{sceneName}".ToLower(), out var sceneMusic))
             {
-                musicName = MusicConstants.SceneMusicInfo[key.ToLower()];
+                musicName = sceneMusic;
             }
-            else if (MusicConstants.SceneMusicInfo.ContainsKey(cityName.ToLower()))
+            else if (MusicConstants.SceneMusicInfo.TryGetValue(cityName.ToLower(), out var sceneCityMusic))
             {
-                musicName = MusicConstants.SceneMusicInfo[cityName.ToLower()];
+                musicName = sceneCityMusic;
             }
 
             if (string.IsNullOrEmpty(musicName) || musicName.Equals(STOP_MUSIC_NAME))

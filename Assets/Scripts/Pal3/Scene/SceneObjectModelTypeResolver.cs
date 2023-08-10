@@ -5,6 +5,8 @@
 
 namespace Pal3.Scene
 {
+    using System;
+
     public enum SceneObjectModelType
     {
         None          = 0,
@@ -27,12 +29,12 @@ namespace Pal3.Scene
                 return SceneObjectModelType.EffectModel;
             }
 
-            if (fileName.ToLower().EndsWith(".pol"))
+            if (fileName.EndsWith(".pol", StringComparison.OrdinalIgnoreCase))
             {
                 return SceneObjectModelType.PolModel;
             }
 
-            if (fileName.ToLower().EndsWith(".cvd"))
+            if (fileName.EndsWith(".cvd", StringComparison.OrdinalIgnoreCase))
             {
                 return SceneObjectModelType.CvdModel;
             }

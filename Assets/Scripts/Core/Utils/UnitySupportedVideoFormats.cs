@@ -5,12 +5,13 @@
 
 namespace Core.Utils
 {
+    using System;
     using System.Collections.Generic;
     using UnityEngine;
 
     public static class UnitySupportedVideoFormats
     {
-        public static readonly HashSet<string> WindowsSupportedVideoFormats = new()
+        public static readonly HashSet<string> WindowsSupportedVideoFormats = new (StringComparer.OrdinalIgnoreCase)
         {
             ".asf",
             ".avi",
@@ -26,7 +27,7 @@ namespace Core.Utils
             ".wmv",
         };
 
-        public static readonly HashSet<string> MacOSSupportedVideoFormats = new()
+        public static readonly HashSet<string> MacOSSupportedVideoFormats = new (StringComparer.OrdinalIgnoreCase)
         {
             ".dv",
             ".m4v",
@@ -39,20 +40,20 @@ namespace Core.Utils
             ".webm",
         };
 
-        public static readonly HashSet<string> LinuxSupportedVideoFormats = new()
+        public static readonly HashSet<string> LinuxSupportedVideoFormats = new (StringComparer.OrdinalIgnoreCase)
         {
             ".ogv",
             ".vp8",
             ".webm",
         };
 
-        public static readonly HashSet<string> AndroidSupportedVideoFormats = new()
+        public static readonly HashSet<string> AndroidSupportedVideoFormats = new (StringComparer.OrdinalIgnoreCase)
         {
             ".webm",
             ".mp4",
         };
 
-        public static readonly HashSet<string> iOSSupportedVideoFormats = new()
+        public static readonly HashSet<string> iOSSupportedVideoFormats = new (StringComparer.OrdinalIgnoreCase)
         {
             ".webm",
             ".mp4",
@@ -67,7 +68,7 @@ namespace Core.Utils
                 RuntimePlatform.LinuxPlayer or  RuntimePlatform.LinuxEditor => LinuxSupportedVideoFormats,
                 RuntimePlatform.IPhonePlayer => iOSSupportedVideoFormats,
                 RuntimePlatform.Android => AndroidSupportedVideoFormats,
-                _ => new HashSet<string> {".mp4" }
+                _ => new HashSet<string> (StringComparer.OrdinalIgnoreCase) {".mp4" }
             };
         }
     }

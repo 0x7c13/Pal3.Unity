@@ -444,9 +444,9 @@ namespace Pal3.Data
 
             foreach (FileInfo file in new DirectoryInfo(videoFolder).GetFiles($"*.*", SearchOption.AllDirectories))
             {
-                var fileExtension = Path.GetExtension(file.Name);
-                if (supportedVideoFormats.Contains(fileExtension.ToLower()) &&
-                    Path.GetFileNameWithoutExtension(file.Name).ToLower().Equals(videoName.ToLower()))
+                var fileExtension = Path.GetExtension(file.Name).ToLower();
+                if (supportedVideoFormats.Contains(fileExtension) &&
+                    Path.GetFileNameWithoutExtension(file.Name).Equals(videoName, StringComparison.OrdinalIgnoreCase))
                 {
                     return file.FullName;
                 }
