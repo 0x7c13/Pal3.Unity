@@ -25,13 +25,13 @@ namespace Pal3.GameSystem
     {
         private const int MONEY_ITEM_ID = 0;
 
-        private readonly Dictionary<int, GameItem>  _gameItemsInfo;
+        private readonly Dictionary<int, GameItemInfo>  _gameItemInfos;
         private readonly Dictionary<int, int> _items = new ();
 
         public InventoryManager(GameResourceProvider resourceProvider)
         {
             Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
-            _gameItemsInfo = resourceProvider.GetGameItems();
+            _gameItemInfos = resourceProvider.GetGameItemInfos();
             _items[MONEY_ITEM_ID] = 0; // init money
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -50,7 +50,7 @@ namespace Pal3.GameSystem
 
             foreach (var (id, count) in _items.Where(_ => _.Key != MONEY_ITEM_ID))
             {
-                sb.Append($"{_gameItemsInfo[id].Name}({id}) x {count} [{_gameItemsInfo[id].Type}]\n");
+                sb.Append($"{_gameItemInfos[id].Name}({id}) x {count} [{_gameItemInfos[id].Type}]\n");
             }
 
             return sb.ToString();
@@ -60,8 +60,8 @@ namespace Pal3.GameSystem
         {
             // TODO: Remove this
             {
-                if (_gameItemsInfo.ContainsKey(itemId) &&
-                    _gameItemsInfo[itemId].Type == ItemType.Plot)
+                if (_gameItemInfos.ContainsKey(itemId) &&
+                    _gameItemInfos[itemId].Type == ItemType.Plot)
                 {
                     return true;
                 }
@@ -82,7 +82,7 @@ namespace Pal3.GameSystem
 
         public void Execute(InventoryAddItemCommand command)
         {
-            if (!_gameItemsInfo.ContainsKey(command.ItemId)) return;
+            if (!_gameItemInfos.ContainsKey(command.ItemId)) return;
 
             if (_items.ContainsKey(command.ItemId))
             {
@@ -93,7 +93,7 @@ namespace Pal3.GameSystem
                 _items[command.ItemId] = command.Count;
             }
 
-            var itemName = _gameItemsInfo[command.ItemId].Name;
+            var itemName = _gameItemInfos[command.ItemId].Name;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));
 
@@ -102,7 +102,7 @@ namespace Pal3.GameSystem
 
         public void Execute(InventoryRemoveItemCommand command)
         {
-            if (!_gameItemsInfo.ContainsKey(command.ItemId)) return;
+            if (!_gameItemInfos.ContainsKey(command.ItemId)) return;
             if (!_items.ContainsKey(command.ItemId)) return;
 
             _items[command.ItemId] -= 1;
@@ -112,7 +112,7 @@ namespace Pal3.GameSystem
                 _items.Remove(command.ItemId);
             }
 
-            var itemName = _gameItemsInfo[command.ItemId].Name;
+            var itemName = _gameItemInfos[command.ItemId].Name;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
 

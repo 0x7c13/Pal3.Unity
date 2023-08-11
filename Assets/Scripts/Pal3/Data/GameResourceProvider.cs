@@ -152,9 +152,9 @@ namespace Pal3.Data
             return file;
         }
 
-        public Dictionary<int, GameItem> GetGameItems()
+        public Dictionary<int, GameItemInfo> GetGameItemInfos()
         {
-            return _gameDatabase.GameItems;
+            return _gameDatabase.GameItemInfos;
         }
 
         /// <summary>
