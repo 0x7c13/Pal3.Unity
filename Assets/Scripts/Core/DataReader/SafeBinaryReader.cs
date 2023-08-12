@@ -8,6 +8,9 @@ namespace Core.DataReader
     using System;
     using System.IO;
 
+    /// <summary>
+    /// Provides a safe way to read binary data from a stream or byte array.
+    /// </summary>
     public sealed class SafeBinaryReader : IBinaryReader
     {
         private readonly BinaryReader _reader;
@@ -24,7 +27,10 @@ namespace Core.DataReader
             _reader.BaseStream.Seek(offset, seekOrigin);
         }
 
+        public long Position => _reader.BaseStream.Position;
+        public long Length => _reader.BaseStream.Length;
         public Stream BaseStream => _reader.BaseStream;
+
         public short ReadInt16() => _reader.ReadInt16();
         public int ReadInt32() => _reader.ReadInt32();
         public long ReadInt64() => _reader.ReadInt64();

@@ -17,6 +17,8 @@ namespace Core.DataReader
     /// </summary>
     public interface IBinaryReader : IDisposable
     {
+        long Position { get; }
+        long Length { get; }
         void Seek(long offset, SeekOrigin seekOrigin);
         short ReadInt16();
         int ReadInt32();
@@ -31,26 +33,8 @@ namespace Core.DataReader
         byte[] ReadBytes(int count);
 
         #region Helper Extensions (Default Implementation)
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector2 ReadVector2() => new (ReadSingle(), ReadSingle());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector3 ReadVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector3[] ReadVector3Array(int count)
-        {
-            var array = new Vector3[count];
-            for (var i = 0; i < count; i++)
-            {
-                array[i] = ReadVector3();
-            }
-            return array;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float[] ReadSingleArray(int count)
+        float[] ReadSingles(int count)
         {
             var array = new float[count];
             for (var i = 0; i < count; i++)
@@ -61,7 +45,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        double[] ReadDoubleArray(int count)
+        double[] ReadDoubles(int count)
         {
             var array = new double[count];
             for (var i = 0; i < count; i++)
@@ -72,29 +56,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        int[] ReadInt32Array(int count)
-        {
-            var array = new int[count];
-            for (var i = 0; i < count; i++)
-            {
-                array[i] = ReadInt32();
-            }
-            return array;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        uint[] ReadUInt32Array(int count)
-        {
-            var array = new uint[count];
-            for (var i = 0; i < count; i++)
-            {
-                array[i] = ReadUInt32();
-            }
-            return array;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        short[] ReadInt16Array(int count)
+        short[] ReadInt16s(int count)
         {
             var array = new short[count];
             for (var i = 0; i < count; i++)
@@ -105,12 +67,56 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ushort[] ReadUInt16Array(int count)
+        ushort[] ReadUInt16s(int count)
         {
             var array = new ushort[count];
             for (var i = 0; i < count; i++)
             {
                 array[i] = ReadUInt16();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        int[] ReadInt32s(int count)
+        {
+            var array = new int[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadInt32();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        uint[] ReadUInt32s(int count)
+        {
+            var array = new uint[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadUInt32();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        long[] ReadInt64s(int count)
+        {
+            var array = new long[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadInt64();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        ulong[] ReadUInt64s(int count)
+        {
+            var array = new ulong[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadUInt64();
             }
             return array;
         }
@@ -131,6 +137,23 @@ namespace Core.DataReader
             int length = Array.IndexOf(strBytes, (byte)0);
             if (length == -1) length = strBytes.Length; // If no null byte is found, use the full length
             return Encoding.GetEncoding(codepage).GetString(strBytes, 0, length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Vector2 ReadVector2() => new (ReadSingle(), ReadSingle());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Vector3 ReadVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Vector3[] ReadVector3s(int count)
+        {
+            var array = new Vector3[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadVector3();
+            }
+            return array;
         }
         #endregion
     }

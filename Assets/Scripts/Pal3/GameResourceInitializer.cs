@@ -15,6 +15,7 @@ namespace Pal3
     using Core.DataReader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
+    using Core.DataReader.Dat;
     using Core.DataReader.Data;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
@@ -174,7 +175,8 @@ namespace Pal3
             ServiceLocator.Instance.Register<IFileReader<NavFile>>(new NavFileReader());
             ServiceLocator.Instance.Register<IFileReader<MovActionConfig>>(new MovConfigFileReader());
             ServiceLocator.Instance.Register<IFileReader<Mv3ActionConfig>>(new Mv3ConfigFileReader());
-            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader());
+            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader(codepage));
+            ServiceLocator.Instance.Register<IFileReader<EffectLinkerFile>>(new EffectLinkerFileReader());
             ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
             ServiceLocator.Instance.Register<IFileReader<TaskDefinitionFile>>(new TaskDefinitionFileReader(codepage));

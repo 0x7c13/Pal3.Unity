@@ -22,7 +22,11 @@ namespace Core.DataLoader
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
+			#if ENABLE_IL2CPP || UNITY_EDITOR
+			using var reader = new UnsafeBinaryReader(data);
+			#else
 			using var reader = new SafeBinaryReader(data);
+			#endif
 
 			if (!IsValidDxtFile(reader))
 			{

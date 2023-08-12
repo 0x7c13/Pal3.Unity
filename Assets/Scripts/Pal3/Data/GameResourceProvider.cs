@@ -17,6 +17,8 @@ namespace Pal3.Data
     using Core.DataLoader;
     using Core.DataReader;
     using Core.DataReader.Cpk;
+    using Core.DataReader.Dat;
+    using Core.DataReader.Data;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Mv3;
@@ -152,7 +154,7 @@ namespace Pal3.Data
             return file;
         }
 
-        public Dictionary<int, GameItemInfo> GetGameItemInfos()
+        public IDictionary<int, GameItemInfo> GetGameItemInfos()
         {
             return _gameDatabase.GameItemInfos;
         }
@@ -589,7 +591,9 @@ namespace Pal3.Data
                 }
                 else if (fileCache.Key == typeof(GdbFile) ||
                          fileCache.Key == typeof(Mv3ActionConfig) ||
-                         fileCache.Key == typeof(MovActionConfig))
+                         fileCache.Key == typeof(MovActionConfig) ||
+                         fileCache.Key == typeof(EffectDefinitionFile) ||
+                         fileCache.Key == typeof(EffectLinkerFile))
                 {
                     // These files are used/cached across scenes
                     // Do not dispose them since they will be used in next scene block

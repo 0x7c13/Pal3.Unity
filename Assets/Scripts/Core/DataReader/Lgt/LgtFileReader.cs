@@ -46,8 +46,8 @@ namespace Core.DataReader.Lgt
             {
                 WorldMatrix = GameBoxInterpreter.ToUnityMatrix4x4(transformMatrix),
                 LightType = (GameBoxLightType)reader.ReadInt32(),
-                LightColor = Utility.ToColor(reader.ReadSingleArray(4)),
-                AmbientColor = Utility.ToColor(reader.ReadSingleArray(4)),
+                LightColor = Utility.ToColor(reader.ReadSingles(4)),
+                AmbientColor = Utility.ToColor(reader.ReadSingles(4)),
                 UseDiffuse = reader.ReadBoolean(),
                 UseSpecular = reader.ReadBoolean(),
                 NearStart = reader.ReadSingle(),

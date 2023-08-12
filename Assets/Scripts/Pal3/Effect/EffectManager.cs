@@ -10,6 +10,8 @@ namespace Pal3.Effect
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.DataReader.Dat;
+    using Core.DataReader.Data;
     using Core.GameBox;
     using Core.Utils;
     using Data;
@@ -31,11 +33,17 @@ namespace Pal3.Effect
         private SceneManager _sceneManager;
         private ICommand _effectPositionCommand;
 
+        private const string EFFECT_LINKER_FILE_NAME = "efflinker.dat";
+        private EffectLinkerFile _effectLinkerFile;
+
         public void Init(GameResourceProvider resourceProvider,
             SceneManager sceneManager)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+
+            _effectLinkerFile = _resourceProvider.GetGameResourceFile<EffectLinkerFile>(
+                FileConstants.CombatDataFolderVirtualPath + EFFECT_LINKER_FILE_NAME);
         }
 
         private void OnEnable()

@@ -11,6 +11,10 @@ namespace Pal3.Command
     using System.Reflection;
     using UnityEngine;
 
+    /// <summary>
+    /// A generic class that dispatches commands to their registered executors.
+    /// </summary>
+    /// <typeparam name="TCommand">The type of command to dispatch.</typeparam>
     public class CommandDispatcher<TCommand>
     {
         public static CommandDispatcher<TCommand> Instance

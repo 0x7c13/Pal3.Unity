@@ -44,7 +44,7 @@ namespace Core.DataReader.Scn
                 SceneType = (ScnSceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),
                 SkyBox = reader.ReadUInt32(),
-                Reserved = reader.ReadUInt32Array(6),
+                Reserved = reader.ReadUInt32s(6),
             };
 
             reader.Seek(npcDataOffset, SeekOrigin.Begin);
@@ -82,19 +82,19 @@ namespace Core.DataReader.Scn
                 ScriptId = reader.ReadUInt32(),
                 GameBoxYPosition = reader.ReadSingle(),
                 InitAction = reader.ReadString(16, codepage),
-                MonsterIds = reader.ReadUInt32Array(3),
+                MonsterIds = reader.ReadUInt32s(3),
                 NumberOfMonsters = reader.ReadByte(),
                 MonsterCanRespawn = reader.ReadByte(),
                 PaddingBytes = reader.ReadBytes(2), // Empty padding bytes to complete 4-byte alignment
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),
-                    GameBoxWaypoints = reader.ReadVector3Array(16)
+                    GameBoxWaypoints = reader.ReadVector3s(16)
                 },
                 NoTurn = reader.ReadUInt32(),
                 LoopAction = reader.ReadUInt32(),
                 GameBoxMoveSpeed = reader.ReadUInt32(),
-                Reserved = reader.ReadUInt32Array(29),
+                Reserved = reader.ReadUInt32s(29),
             };
         }
 
@@ -122,15 +122,15 @@ namespace Core.DataReader.Scn
                 Bottom = reader.ReadInt32(),
             };
 
-            var type = (ScnSceneObjectType) reader.ReadByte();
+            var type = (ScnSceneObjectType)reader.ReadByte();
             var saveState = reader.ReadByte();
             var layerIndex = reader.ReadByte();
             var wuLing = reader.ReadByte();
 
             #if PAL3
-            var parameters = reader.ReadInt32Array(6);
+            var parameters = reader.ReadInt32s(6);
             #elif PAL3A
-            var parameters = Array.ConvertAll(reader.ReadSingleArray(6), Convert.ToInt32);
+            var parameters = Array.ConvertAll(reader.ReadSingles(6), Convert.ToInt32);
             #endif
 
             #if PAL3A
@@ -158,7 +158,7 @@ namespace Core.DataReader.Scn
             var path = new ScnPath()
             {
                 NumberOfWaypoints = reader.ReadInt32(),
-                GameBoxWaypoints = reader.ReadVector3Array(16)
+                GameBoxWaypoints = reader.ReadVector3s(16)
             };
 
             var linkedObjectId = reader.ReadUInt16();
@@ -189,9 +189,9 @@ namespace Core.DataReader.Scn
             #endif
 
             #if PAL3
-            var reserved = reader.ReadUInt32Array(52);
+            var reserved = reader.ReadUInt32s(52);
             #elif PAL3A
-            var reserved = reader.ReadUInt32Array(44);
+            var reserved = reader.ReadUInt32s(44);
             #endif
 
             return new ScnObjectInfo()

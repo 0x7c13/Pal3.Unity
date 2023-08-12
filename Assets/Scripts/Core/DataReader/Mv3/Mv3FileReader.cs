@@ -283,10 +283,10 @@ namespace Core.DataReader.Mv3
         {
             GameBoxMaterial material = new ()
             {
-                Diffuse = Utility.ToColor(reader.ReadSingleArray(4)),
-                Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
-                Specular = Utility.ToColor(reader.ReadSingleArray(4)),
-                Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
+                Diffuse = Utility.ToColor(reader.ReadSingles(4)),
+                Ambient = Utility.ToColor(reader.ReadSingles(4)),
+                Specular = Utility.ToColor(reader.ReadSingles(4)),
+                Emissive = Utility.ToColor(reader.ReadSingles(4)),
                 SpecularPower = reader.ReadSingle()
             };
 

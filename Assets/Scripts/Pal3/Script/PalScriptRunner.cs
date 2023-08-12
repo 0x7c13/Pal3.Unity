@@ -71,7 +71,7 @@ namespace Pal3.Script
         private const int MAX_REGISTER_COUNT = 8;
 
         private readonly int _codepage;
-        private readonly SafeBinaryReader _scriptDataReader;
+        private readonly IBinaryReader _scriptDataReader;
         private ScriptExecutionMode _executionMode;
         private readonly object[] _registers;
         private readonly Dictionary<int, int> _globalVariables;
@@ -115,7 +115,11 @@ namespace Pal3.Script
             _registers = new object[MAX_REGISTER_COUNT];
             _registers[(int) RegisterOperationType.Operator] = 0; // Init operator
 
+            #if ENABLE_IL2CPP || UNITY_EDITOR
+            _scriptDataReader = new UnsafeBinaryReader(scriptBlock.ScriptData);
+            #else
             _scriptDataReader = new SafeBinaryReader(scriptBlock.ScriptData);
+            #endif
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -152,7 +156,7 @@ namespace Pal3.Script
         {
             if (_isDisposed) return false;
 
-            if (_scriptDataReader.BaseStream.Position == _scriptDataReader.BaseStream.Length)
+            if (_scriptDataReader.Position == _scriptDataReader.Length)
             {
                 return false;
             }
@@ -160,7 +164,7 @@ namespace Pal3.Script
             _isExecuting = true;
 
             while (!_isDisposed &&
-                   _scriptDataReader.BaseStream.Position < _scriptDataReader.BaseStream.Length)
+                   _scriptDataReader.Position < _scriptDataReader.Length)
             {
                 ExecuteNextCommand();
                 if (_executionMode == ScriptExecutionMode.Asynchronous) break;
@@ -354,7 +358,7 @@ namespace Pal3.Script
         public void Execute(ScriptGotoCommand command)
         {
             if (!_isExecuting) return;
-            _scriptDataReader.BaseStream.Seek(command.Offset, SeekOrigin.Begin);
+            _scriptDataReader.Seek(command.Offset, SeekOrigin.Begin);
         }
 
         public void Execute(ScriptGotoIfConditionFailedCommand command)
@@ -363,7 +367,7 @@ namespace Pal3.Script
             if (_registers[(int) RegisterOperationType.Value] != null &&
                 !(bool)_registers[(int) RegisterOperationType.Value])
             {
-                _scriptDataReader.BaseStream.Seek(command.Offset, SeekOrigin.Begin);
+                _scriptDataReader.Seek(command.Offset, SeekOrigin.Begin);
             }
         }
 

@@ -336,7 +336,7 @@ namespace Core.DataReader.Cvd
                 frameVertices[i] = vertices;
             }
 
-            var animationTimeKeys = reader.ReadSingleArray(numberOfFrames);
+            var animationTimeKeys = reader.ReadSingles(numberOfFrames);
             for (var i = 0; i < numberOfFrames; i++)
             {
                 animationTimeKeys[i] -= animationTimeKeys[0];
@@ -390,7 +390,7 @@ namespace Core.DataReader.Cvd
             {
                 var numberOfFrames = reader.ReadInt32();
 
-                animationTimeKeys = reader.ReadSingleArray(numberOfFrames);
+                animationTimeKeys = reader.ReadSingles(numberOfFrames);
                 for (var i = 0; i < numberOfFrames; i++)
                 {
                     animationTimeKeys[i] -= animationTimeKeys[0];
@@ -401,10 +401,10 @@ namespace Core.DataReader.Cvd
                 {
                     animationMaterials[i] = new GameBoxMaterial()
                     {
-                        Diffuse = Utility.ToColor(reader.ReadSingleArray(4)),
-                        Ambient = Utility.ToColor(reader.ReadSingleArray(4)),
-                        Specular = Utility.ToColor(reader.ReadSingleArray(4)),
-                        Emissive = Utility.ToColor(reader.ReadSingleArray(4)),
+                        Diffuse = Utility.ToColor(reader.ReadSingles(4)),
+                        Ambient = Utility.ToColor(reader.ReadSingles(4)),
+                        Specular = Utility.ToColor(reader.ReadSingles(4)),
+                        Emissive = Utility.ToColor(reader.ReadSingles(4)),
                         SpecularPower = reader.ReadSingle()
                     };
                 }

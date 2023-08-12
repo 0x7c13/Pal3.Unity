@@ -8,6 +8,12 @@ namespace Core.DataReader.Data
     public sealed class EffectDefinitionFileReader : IFileReader<EffectDefinitionFile>
     {
         private const int NUM_OF_EFFECTS = 1324;
+        private readonly int _codepage;
+
+        public EffectDefinitionFileReader(int codepage)
+        {
+            _codepage = codepage;
+        }
 
         public EffectDefinitionFile Read(IBinaryReader reader)
         {
@@ -21,17 +27,18 @@ namespace Core.DataReader.Data
             return new EffectDefinitionFile(effectDefinitions);
         }
 
-        private static EffectDefinition ReadEffectDefinition(IBinaryReader reader)
+        private EffectDefinition ReadEffectDefinition(IBinaryReader reader)
         {
-            var effectDefinition = new EffectDefinition();
-
-            effectDefinition.ClassNameCrc = reader.ReadUInt32();
-            effectDefinition.TypeName = reader.ReadString(32, 936);
-            effectDefinition.TypeNameCrc = reader.ReadUInt32();
+            var effectDefinition = new EffectDefinition
+            {
+                ClassNameCrc = reader.ReadUInt32(),
+                TypeName = reader.ReadString(32, _codepage),
+                TypeNameCrc = reader.ReadUInt32()
+            };
 
             // union
             {
-                var unionStr = reader.ReadString(128, 936);
+                var unionStr = reader.ReadString(128, _codepage);
                 effectDefinition.TextureName = unionStr;
                 effectDefinition.ParticleFileName = unionStr;
                 effectDefinition.SfxFileNamePrefix = unionStr;

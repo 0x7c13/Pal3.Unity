@@ -60,7 +60,7 @@ namespace Core.DataReader.Dxt
                 PitchOrLinearSize = reader.ReadInt32(),
                 Depth = reader.ReadInt32(),
                 MipMapCount = reader.ReadInt32(),
-                ReservedBytes = reader.ReadInt32Array(11),
+                ReservedBytes = reader.ReadInt32s(11),
                 DxtPixelFormat = DxtPixelFormat.ReadFormat(reader),
                 Caps1 = reader.ReadInt32(),
                 Caps2 = reader.ReadInt32(),

@@ -5,11 +5,13 @@
 
 namespace Core.DataReader
 {
+    using System.IO;
+
     /// <summary>
     /// File reader interface for reading data from binary file
     /// using <see cref="IBinaryReader"/>.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">File type</typeparam>
     public interface IFileReader<out T>
     {
         T Read(IBinaryReader reader);
@@ -18,10 +20,23 @@ namespace Core.DataReader
         {
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
-            #if ENABLE_IL2CPP
+            #if ENABLE_IL2CPP || UNITY_EDITOR
             using var reader = new UnsafeBinaryReader(data);
             #else
             using var reader = new SafeBinaryReader(data);
+            #endif
+
+            return Read(reader);
+        }
+
+        T Read(Stream stream)
+        {
+            // Use unsafe binary reader (faster) if IL2CPP is enabled
+            // otherwise use safe reader
+            #if ENABLE_IL2CPP || UNITY_EDITOR
+            using var reader = new UnsafeBinaryReader(stream);
+            #else
+            using var reader = new SafeBinaryReader(stream);
             #endif
 
             return Read(reader);

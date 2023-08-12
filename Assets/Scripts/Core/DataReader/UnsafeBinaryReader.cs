@@ -10,26 +10,54 @@ namespace Core.DataReader
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
+    /// <summary>
+    /// Provides a binary reader that reads primitive data types from a byte array or stream using unsafe code.
+    /// </summary>
     public sealed unsafe class UnsafeBinaryReader : IBinaryReader
     {
-        private byte* _dataPtr;
         private GCHandle _handle;
+        private byte* _startPtr;
+        private byte* _dataPtr;
 
         public UnsafeBinaryReader(byte[] data)
         {
+            Init(data);
+        }
+
+        public UnsafeBinaryReader(Stream stream)
+        {
+            if (!stream.CanSeek)
+            {
+                throw new ArgumentException("Stream must be seekable", nameof(stream));
+            }
+
+            var length = stream.Length;
+            var data = new byte[length];
+            _ = stream.Read(data, 0, (int)length);
+
+            Init(data);
+        }
+
+        private void Init(byte[] data)
+        {
+            Length = data.Length;
             _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             fixed (byte* ptr = &data[0])
             {
+                _startPtr = ptr;
                 _dataPtr = ptr;
             }
         }
+
+        public long Position => _dataPtr - _startPtr;
+        public long Length { get; private set; }
 
         public void Seek(long offset, SeekOrigin seekOrigin)
         {
             switch (seekOrigin)
             {
                 case SeekOrigin.Begin:
-                    _dataPtr = (byte*)_handle.AddrOfPinnedObject() + offset;
+                    _dataPtr = _startPtr + offset;
                     break;
                 case SeekOrigin.Current:
                     _dataPtr += offset;
@@ -131,7 +159,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float[] ReadSingleArray(int count)
+        public float[] ReadSingles(int count)
         {
             var value = new float[count];
             Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
@@ -140,7 +168,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double[] ReadDoubleArray(int count)
+        public double[] ReadDoubles(int count)
         {
             var value = new double[count];
             Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
@@ -149,7 +177,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short[] ReadInt16Array(int count)
+        public short[] ReadInt16s(int count)
         {
             var value = new short[count];
             Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
@@ -158,7 +186,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int[] ReadInt32Array(int count)
+        public int[] ReadInt32s(int count)
         {
             var value = new int[count];
             Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);
@@ -167,7 +195,7 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public long[] ReadInt64Array(int count)
+        public long[] ReadInt64s(int count)
         {
             var value = new long[count];
             Marshal.Copy(new IntPtr(_dataPtr), value, 0, count);

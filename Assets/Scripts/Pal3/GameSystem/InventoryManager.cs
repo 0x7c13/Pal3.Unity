@@ -25,8 +25,8 @@ namespace Pal3.GameSystem
     {
         private const int MONEY_ITEM_ID = 0;
 
-        private readonly Dictionary<int, GameItemInfo>  _gameItemInfos;
-        private readonly Dictionary<int, int> _items = new ();
+        private readonly IDictionary<int, GameItemInfo>  _gameItemInfos;
+        private readonly IDictionary<int, int> _items = new Dictionary<int, int>();
 
         public InventoryManager(GameResourceProvider resourceProvider)
         {
