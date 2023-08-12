@@ -55,7 +55,7 @@ namespace Pal3.GamePlay
 
         private GameResourceProvider _resourceProvider;
         private GameStateManager _gameStateManager;
-        private PlayerManager _playerManager;
+        private PlayerActorManager _playerActorManager;
         private TeamManager _teamManager;
         private PlayerInputActions _inputActions;
         private SceneManager _sceneManager;
@@ -94,7 +94,7 @@ namespace Pal3.GamePlay
 
         public void Init(GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
-            PlayerManager playerManager,
+            PlayerActorManager playerActorManager,
             TeamManager teamManager,
             PlayerInputActions inputActions,
             SceneManager sceneManager,
@@ -102,7 +102,7 @@ namespace Pal3.GamePlay
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
-            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
@@ -143,8 +143,8 @@ namespace Pal3.GamePlay
             var isPlayerInControl = false;
 
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
-                _playerManager.IsPlayerInputEnabled() &&
-                _playerManager.IsPlayerActorControlEnabled())
+                _playerActorManager.IsPlayerInputEnabled() &&
+                _playerActorManager.IsPlayerActorControlEnabled())
             {
                 isPlayerInControl = true;
                 ReadInputAndMovePlayerIfNeeded();
@@ -348,8 +348,8 @@ namespace Pal3.GamePlay
 
         private void OnTapPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled())
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled())
             {
                 return;
             }
@@ -359,8 +359,8 @@ namespace Pal3.GamePlay
 
         private void OnDoubleTapPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled())
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled())
             {
                 return;
             }
@@ -370,8 +370,8 @@ namespace Pal3.GamePlay
 
         private void PortalToPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled())
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled())
             {
                 return;
             }
@@ -391,8 +391,8 @@ namespace Pal3.GamePlay
 
         private void OnMovePerformed(InputAction.CallbackContext ctx)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled())
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled())
             {
                 return;
             }
@@ -402,8 +402,8 @@ namespace Pal3.GamePlay
 
         private void InteractionPerformed(InputAction.CallbackContext _)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled())
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled())
             {
                 return;
             }
@@ -548,8 +548,8 @@ namespace Pal3.GamePlay
 
         private void SwitchPlayerActorInCurrentTeam(bool next)
         {
-            if (!_playerManager.IsPlayerActorControlEnabled() ||
-                !_playerManager.IsPlayerInputEnabled() ||
+            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
+                !_playerActorManager.IsPlayerInputEnabled() ||
                 _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
             {
                 return;
@@ -610,7 +610,7 @@ namespace Pal3.GamePlay
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
 
                 if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
-                    actorInfo.Key == (int)_playerManager.GetPlayerActor() ||
+                    actorInfo.Key == (int)_playerActorManager.GetPlayerActor() ||
                     !actorController.IsActive) continue;
 
                 Vector3 targetActorCenterPosition = actorActionController.GetRendererBounds().center;
@@ -1164,7 +1164,7 @@ namespace Pal3.GamePlay
                 Scene currentScene = _sceneManager.GetCurrentScene();
 
                 var currentLayerIndex = currentScene
-                    .GetActorGameObject((int)_playerManager.GetPlayerActor())
+                    .GetActorGameObject((int)_playerActorManager.GetPlayerActor())
                     .GetComponent<ActorMovementController>()
                     .GetCurrentLayerIndex();
 
@@ -1206,7 +1206,7 @@ namespace Pal3.GamePlay
 
         public void Execute(ScenePostLoadingNotification notification)
         {
-            var playerActorId = (int)_playerManager.GetPlayerActor();
+            var playerActorId = (int)_playerActorManager.GetPlayerActor();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(playerActorId, 1));
 
@@ -1225,12 +1225,12 @@ namespace Pal3.GamePlay
                     .GetActorGameObject(playerActorId).transform.forward = actorFacing;
             }
 
-            if (_playerManager.IsPlayerActorControlEnabled())
+            if (_playerActorManager.IsPlayerActorControlEnabled())
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(playerActorId));
             }
 
-            if (_playerManager.IsPlayerInputEnabled())
+            if (_playerActorManager.IsPlayerInputEnabled())
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerEnableInputCommand(1));
             }

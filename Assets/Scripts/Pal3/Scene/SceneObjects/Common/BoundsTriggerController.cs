@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private bool _hasCollided;
         private BoxCollider _collider;
 
-        private PlayerManager _playerManager;
+        private PlayerActorManager _playerActorManager;
 
         public void SetBounds(Bounds bounds, bool isTrigger)
         {
@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects.Common
 
         private void OnEnable()
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _playerActorManager = ServiceLocator.Instance.Get<PlayerActorManager>();
         }
 
         private void OnDisable()
@@ -50,7 +50,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, collision.gameObject);
             }
@@ -59,7 +59,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerEnter(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
             }
@@ -68,7 +68,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnCollisionExit(Collision collision)
         {
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, collision.gameObject);
             }
@@ -77,7 +77,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerExit(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
             }

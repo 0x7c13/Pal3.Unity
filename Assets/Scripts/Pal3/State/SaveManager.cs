@@ -47,7 +47,7 @@ namespace Pal3.State
         private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
 
         private readonly SceneManager _sceneManager;
-        private readonly PlayerManager _playerManager;
+        private readonly PlayerActorManager _playerActorManager;
         private readonly TeamManager _teamManager;
         private readonly InventoryManager _inventoryManager;
         private readonly SceneStateManager _sceneStateManager;
@@ -64,7 +64,7 @@ namespace Pal3.State
         private double _lastAutoSaveTime = -AUTO_SAVE_MIN_DURATION;
 
         public SaveManager(SceneManager sceneManager,
-            PlayerManager playerManager,
+            PlayerActorManager playerActorManager,
             TeamManager teamManager,
             InventoryManager inventoryManager,
             SceneStateManager sceneStateManager,
@@ -79,7 +79,7 @@ namespace Pal3.State
             PostProcessManager postProcessManager)
         {
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
-            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _inventoryManager = Requires.IsNotNull(inventoryManager, nameof(inventoryManager));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
@@ -165,7 +165,7 @@ namespace Pal3.State
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
 
             var playerActorMovementController = currentScene
-                .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             Vector3 playerActorGameBoxPosition = GameBoxInterpreter
                 .ToGameBoxPosition(playerActorMovementController.GetWorldPosition());
@@ -190,7 +190,7 @@ namespace Pal3.State
             commands.AddRange(varsToSave.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
 
-            var currentPlayerActorId = (int)_playerManager.GetPlayerActor();
+            var currentPlayerActorId = (int)_playerActorManager.GetPlayerActor();
 
             // Save current playing script music (if any)
             var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
@@ -375,8 +375,8 @@ namespace Pal3.State
             // and no script is running
             if (command.NewState == GameState.Gameplay &&
                 _scriptManager.GetNumberOfRunningScripts() == 0 &&
-                _playerManager.IsPlayerInputEnabled() &&
-                _playerManager.IsPlayerActorControlEnabled() &&
+                _playerActorManager.IsPlayerInputEnabled() &&
+                _playerActorManager.IsPlayerActorControlEnabled() &&
                 Time.realtimeSinceStartupAsDouble - _lastAutoSaveTime > AUTO_SAVE_MIN_DURATION)
             {
                 IList<ICommand> gameStateCommands = ConvertCurrentGameStateToCommands(SaveLevel.Full);

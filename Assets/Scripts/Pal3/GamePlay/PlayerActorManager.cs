@@ -12,7 +12,7 @@ namespace Pal3.GamePlay
     using Core.DataReader.Scn;
     using MetaData;
 
-    public sealed class PlayerManager : IDisposable,
+    public sealed class PlayerActorManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorAddSkillCommand>,
@@ -57,7 +57,7 @@ namespace Pal3.GamePlay
         private bool _playerActorControlEnabled = true;
         private bool _playerInputEnabled;
 
-        public PlayerManager()
+        public PlayerActorManager()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -87,6 +87,24 @@ namespace Pal3.GamePlay
             _playerInputEnabled = (command.Enable == 1);
         }
 
+        public void Execute(ScenePreLoadingNotification command)
+        {
+            // Need to set main actor as player actor for non-maze scenes
+            if (command.NewSceneInfo.SceneType != ScnSceneType.Maze &&
+                _playerActor != 0)
+            {
+                _playerActor = 0;
+            }
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            _playerActor = 0;
+            _playerActorControlEnabled = true;
+            _playerInputEnabled = false;
+        }
+
+        #region Command routing
         public void Execute(DialogueRenderActorAvatarCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
@@ -388,22 +406,6 @@ namespace Pal3.GamePlay
                     new EffectAttachToActorCommand((int)_playerActor));
             }
         }
-
-        public void Execute(ScenePreLoadingNotification command)
-        {
-            // Need to set main actor as player actor for non-maze scenes
-            if (command.NewSceneInfo.SceneType != ScnSceneType.Maze &&
-                _playerActor != 0)
-            {
-                _playerActor = 0;
-            }
-        }
-
-        public void Execute(ResetGameStateCommand command)
-        {
-            _playerActor = 0;
-            _playerActorControlEnabled = true;
-            _playerInputEnabled = false;
-        }
+        #endregion
     }
 }

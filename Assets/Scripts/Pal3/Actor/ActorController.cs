@@ -172,7 +172,7 @@ namespace Pal3.Actor
             if (_actor.Info.Kind == ScnActorKind.CombatNpc &&
                 (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
                 collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                (byte) ServiceLocator.Instance.Get<PlayerManager>()
+                (byte) ServiceLocator.Instance.Get<PlayerActorManager>()
                     .GetPlayerActor() == actorController.GetActor().Info.Id)
             {
                 // Player actor collides with combat NPC in maze

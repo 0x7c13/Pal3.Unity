@@ -27,7 +27,7 @@ namespace Pal3.GameSystem
     {
         private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 2.5f;
 
-        private readonly PlayerManager _playerManager;
+        private readonly PlayerActorManager _playerActorManager;
         private readonly SceneManager _sceneManager;
 
         private readonly HashSet<PlayerActorId> _actorsInTeam = new ();
@@ -52,9 +52,9 @@ namespace Pal3.GameSystem
         };
         #endif
 
-        public TeamManager(PlayerManager playerManager, SceneManager sceneManager)
+        public TeamManager(PlayerActorManager playerActorManager, SceneManager sceneManager)
         {
-            _playerManager = Requires.IsNotNull(playerManager, nameof(playerManager));
+            _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -76,7 +76,7 @@ namespace Pal3.GameSystem
 
         public void Execute(TeamOpenCommand command)
         {
-            PlayerActorId playerActorId = _playerManager.GetPlayerActor();
+            PlayerActorId playerActorId = _playerActorManager.GetPlayerActor();
             GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
             var currentNavLayer = playerActor.GetComponent<ActorMovementController>().GetCurrentLayerIndex();
 
@@ -120,7 +120,7 @@ namespace Pal3.GameSystem
 
         public void Execute(TeamCloseCommand command)
         {
-            PlayerActorId playerActorId = _playerManager.GetPlayerActor();
+            PlayerActorId playerActorId = _playerActorManager.GetPlayerActor();
 
             #if PAL3A
             // Need to add all active player actors into the team within certain radius

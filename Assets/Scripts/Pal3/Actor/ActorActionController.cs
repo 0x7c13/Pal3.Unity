@@ -336,7 +336,7 @@ namespace Pal3.Actor
             }
             else if (command.NewState == GameState.Gameplay)
             {
-                PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerManager>().GetPlayerActor();
+                PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerActorManager>().GetPlayerActor();
                 _isKinematic = _actor.Info.Id != (byte)playerActor;
             }
 

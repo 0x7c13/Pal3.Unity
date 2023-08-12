@@ -108,19 +108,19 @@ namespace Core.DataReader.Gdb
         PoisonWater,            // 水毒
         PoisonFire,             // 火毒
         PoisonEarth,            // 土毒
-        AttackIncrease,         // 武临时增加10%
-        AttackDecrease,         // 武临时降低10%
-        DefenseIncrease,        // 防临时增加10%
-        DefenseDecrease,        // 防临时降低10%
-        LuckIncrease,           // 运临时增加10%
-        LuckDecrease,           // 运临时降低10%
-        SpeedIncrease,          // 速临时增加10%
-        SpeedDecrease,          // 速临时降低10%
+        AttackIncrease,         // 武 临时增加10%
+        AttackDecrease,         // 武 临时降低10%
+        DefenseIncrease,        // 防 临时增加10%
+        DefenseDecrease,        // 防 临时降低10%
+        LuckIncrease,           // 运 临时增加10%
+        LuckDecrease,           // 运 临时降低10%
+        SpeedIncrease,          // 速 临时增加10%
+        SpeedDecrease,          // 速 临时降低10%
         Paralysis,              // 定(麻痹)
         Seal,                   // 封(封咒)
         Forbidden,              // 禁(禁忌)
         Sleep,                  // 眠(催眠)
-        Confusion,              // 乱(混乱)
+        Chaos,                  // 乱(混乱)
         Madness,                // 狂(疯狂)
         Reflection,             // 镜(攻击反射)
         Evade,                  // 避(防避,物理攻击无效)
@@ -132,8 +132,8 @@ namespace Core.DataReader.Gdb
         PoisonAny,              // 任意毒
         EvilResist,             // 辟邪
         DemonResist,            // 退魔
-        MpIncrease,             // 神眼
-        HpIncrease,             // 精进
+        GodsEye,                // 神眼
+        ExpIncrease,            // 精进
     }
 
     public enum SkillType
@@ -176,10 +176,10 @@ namespace Core.DataReader.Gdb
         public int ComboCount;                   // 连击次数
 
         // 装备属性
-        public short SpSavingPercentage;                  // 气消耗减少百分比
-        public short MpSavingPercentage;                  // 神消耗减少百分比
-        public short CriticalAttackAmplifyPercentage;     // 暴击伤害增加百分比
-        public short SpecialSkillSuccessRate;             // 特技成功率增加百分比
+        public short SpSavingPercentage;                // 气消耗减少百分比
+        public short MpSavingPercentage;                // 神消耗减少百分比
+        public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
+        public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
 
         // 尸块属性
         public uint OreId;                      // 矿石ID
@@ -286,7 +286,7 @@ namespace Core.DataReader.Gdb
         public short[] AttributeImpactValue;            // 属性影响数值
 
         #if PAL3A
-        public int Unknown;  // 三外特有数据 暂时未知 猜测是需要气的数值？
+        public int Unknown;  // 三外特有数据 暂时未知 猜测是需要气的总数值？
         #endif
     }
 

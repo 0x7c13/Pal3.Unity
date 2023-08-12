@@ -22,11 +22,11 @@ namespace Pal3.Scene.SceneObjects.Common
         private Bounds _triggerBounds;
         private float _platformHeightOffset;
 
-        private PlayerManager _playerManager;
+        private PlayerActorManager _playerActorManager;
 
         private void OnEnable()
         {
-            _playerManager = ServiceLocator.Instance.Get<PlayerManager>();
+            _playerActorManager = ServiceLocator.Instance.Get<PlayerActorManager>();
         }
 
         public void Init(Bounds triggerBounds, int layerIndex, float platformHeightOffset = 0f)
@@ -60,7 +60,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerEnter(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
             }
@@ -69,7 +69,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerExit(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerManager.GetPlayerActor())
+                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
             }

@@ -134,7 +134,7 @@ namespace Pal3
         private SceneManager _sceneManager;
         private CameraManager _cameraManager;
         private AudioManager _audioManager;
-        private PlayerManager _playerManager;
+        private PlayerActorManager _playerActorManager;
         private InventoryManager _inventoryManager;
         private DialogueManager _dialogueManager;
         private PostProcessManager _postProcessManager;
@@ -196,11 +196,11 @@ namespace Pal3
             _sceneManager = new SceneManager(_gameResourceProvider,
                 _sceneStateManager, _scriptManager, _gameSettings, mainCamera);
             ServiceLocator.Instance.Register(_sceneManager);
-            _playerManager = new PlayerManager();
-            ServiceLocator.Instance.Register(_playerManager);
+            _playerActorManager = new PlayerActorManager();
+            ServiceLocator.Instance.Register(_playerActorManager);
             _inventoryManager = new InventoryManager(_gameResourceProvider);
             ServiceLocator.Instance.Register(_inventoryManager);
-            _teamManager = new TeamManager(_playerManager, _sceneManager);
+            _teamManager = new TeamManager(_playerActorManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
             _touchControlUIManager = new TouchControlUIManager(_sceneManager,
                 touchControlUI, interactionButton, multiFunctionButton, mainMenuButton);
@@ -243,7 +243,7 @@ namespace Pal3
             _playerGamePlayController = gameObject.AddComponent<PlayerGamePlayController>();
             _playerGamePlayController.Init(_gameResourceProvider,
                 _gameStateManager,
-                _playerManager,
+                _playerActorManager,
                 _teamManager,
                 _inputActions,
                 _sceneManager,
@@ -323,7 +323,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_effectManager);
 
             _saveManager = new SaveManager(_sceneManager,
-                _playerManager,
+                _playerActorManager,
                 _teamManager,
                 _inventoryManager,
                 _sceneStateManager,
@@ -477,7 +477,7 @@ namespace Pal3
             _gameStateManager.Dispose();
             _sceneStateManager.Dispose();
             _scriptManager.Dispose();
-            _playerManager.Dispose();
+            _playerActorManager.Dispose();
             _inventoryManager.Dispose();
             _teamManager.Dispose();
             _sceneManager.Dispose();
@@ -574,7 +574,7 @@ namespace Pal3
                         $"{currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
-                .GetActorGameObject((int) _playerManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
 
             info.Append($"----- Player info -----\n" +
                         $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +
