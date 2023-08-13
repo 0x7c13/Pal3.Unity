@@ -59,9 +59,6 @@ namespace Pal3.Data
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
-        // Cache player actor movement sfx audio clips
-        private readonly HashSet<string> _audioClipCacheList = AudioConstants.PlayerActorMovementSfxAudioFileNames;
-
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
 
@@ -250,16 +247,13 @@ namespace Pal3.Data
             bool streamAudio,
             Action<AudioClip> onLoaded)
         {
-            var fileName = Path.GetFileName(filePath);
-            var shouldCache = _audioClipCacheList.Contains(fileName);
+            string cacheKey = filePath.ToLower();
 
-            if (shouldCache && _audioClipCache.ContainsKey(fileName))
+            if (_audioClipCache.ContainsKey(cacheKey) &&
+                _audioClipCache[cacheKey] != null)
             {
-                if (_audioClipCache[fileName] != null) // check if clip has been destroyed
-                {
-                    onLoaded?.Invoke(_audioClipCache[fileName]);
-                    yield break;
-                }
+                onLoaded?.Invoke(_audioClipCache[cacheKey]);
+                yield break;
             }
 
             yield return AudioClipLoader.LoadAudioClipAsync(filePath,
@@ -267,11 +261,7 @@ namespace Pal3.Data
                 streamAudio,
                 audioClip =>
                 {
-                    if (shouldCache && audioClip != null)
-                    {
-                        _audioClipCache[fileName] = audioClip;
-                    }
-
+                    _audioClipCache[cacheKey] = audioClip;
                     onLoaded?.Invoke(audioClip);
                 });
         }

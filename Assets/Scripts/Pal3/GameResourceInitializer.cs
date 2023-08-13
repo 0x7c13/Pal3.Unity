@@ -148,7 +148,6 @@ namespace Pal3
             }
 
             // Create and register IFileReader<T> instances using reflection
-            //foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 // Get all types that implement any version of IFileReader<>

@@ -143,7 +143,6 @@ namespace Pal3.Audio
                 if (audioSource.clip != null)
                 {
                     audioSource.Stop();
-                    Destroy(audioSource.clip);
                 }
 
                 audioSource.clip = audioClip;
@@ -275,11 +274,6 @@ namespace Pal3.Audio
                 if (audioSourceParentTransform.GetComponent<AudioSource>() is { } audioSource)
                 {
                     audioSource.Stop();
-
-                    if (audioSource.clip != null)
-                    {
-                        Destroy(audioSource.clip);
-                    }
                 }
 
                 Destroy(audioSourceParentTransform.gameObject);
