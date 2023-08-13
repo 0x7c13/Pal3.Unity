@@ -73,7 +73,9 @@ namespace ResourceViewer
         private static readonly Random Random = new ();
 
         private GameObject _renderingRoot;
+
         private int _codePage;
+        private HashSet<char> _charSet;
 
         private void OnEnable()
         {
@@ -446,7 +448,6 @@ namespace ResourceViewer
         }
 
         #if UNITY_EDITOR
-        private HashSet<char> _charSet;
         private void DecompileAllSceScripts(bool dialogueOnly)
         {
             var sceFiles = _fileSystem.Search(".sce")
@@ -503,6 +504,7 @@ namespace ResourceViewer
             #endif
 
             File.WriteAllText($"{outputFolderPath}{Path.DirectorySeparatorChar}charset.txt", string.Join("", _charSet));
+            _charSet.Clear();
         }
 
         private void ExtractAllCpkArchives()
