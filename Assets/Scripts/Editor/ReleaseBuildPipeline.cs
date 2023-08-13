@@ -25,7 +25,7 @@ namespace Editor
         Windows_x86      = 1 << 0,
         Windows_x64      = 1 << 1,
         Linux_x86_x64    = 1 << 2,
-        MacOS_arm64_x64  = 1 << 3,
+        macOS_arm64_x64  = 1 << 3,
         Android          = 1 << 4,
         iOS              = 1 << 5,
     }
@@ -67,13 +67,13 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [MacOS_arm64_x64] IL2CPP XCode Project")]
+        [MenuItem("PAL3/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [MacOS_arm64_x64] IL2CPP XCode Project")]
+        [MenuItem("PAL3A/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project")]
         #endif
-        public static void Build_MacOS_arm64_x64()
+        public static void Build_macOS_arm64_x64()
         {
-            BuildGame(Pal3BuildTarget.MacOS_arm64_x64);
+            BuildGame(Pal3BuildTarget.macOS_arm64_x64);
         }
 
         #if PAL3
@@ -97,16 +97,16 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build All [Windows, Linux, MacOS, Android, iOS]")]
+        [MenuItem("PAL3/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]")]
         #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build All [Windows, Linux, MacOS, Android, iOS]")]
+        [MenuItem("PAL3A/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]")]
         #endif
         public static void BuildAll()
         {
             BuildGame(Pal3BuildTarget.Windows_x86 |
                       Pal3BuildTarget.Windows_x64 |
                       Pal3BuildTarget.Linux_x86_x64 |
-                      Pal3BuildTarget.MacOS_arm64_x64 |
+                      Pal3BuildTarget.macOS_arm64_x64 |
                       Pal3BuildTarget.Android |
                       Pal3BuildTarget.iOS);
         }
@@ -136,7 +136,7 @@ namespace Editor
                 new { Platform = Pal3BuildTarget.Windows_x86, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows },
                 new { Platform = Pal3BuildTarget.Windows_x64, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows64 },
                 new { Platform = Pal3BuildTarget.Linux_x86_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneLinux64 },
-                new { Platform = Pal3BuildTarget.MacOS_arm64_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneOSX },
+                new { Platform = Pal3BuildTarget.macOS_arm64_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneOSX },
                 new { Platform = Pal3BuildTarget.Android, Extension = ".apk", Group = BuildTargetGroup.Android, Target = BuildTarget.Android },
                 new { Platform = Pal3BuildTarget.iOS, Extension = "", Group = BuildTargetGroup.iOS, Target = BuildTarget.iOS },
             };
