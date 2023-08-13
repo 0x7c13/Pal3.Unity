@@ -41,9 +41,9 @@ namespace Core.DataReader.Nav
         DevilWorld2,      // 异空间B
         DevilWorld3,      // 异空间C
         Other,            // 其它
-        FloorIce,         // 冰
-        FloorBlood,       // 血池
-        FloorWater,       // 水域
+        Ice,              // 冰
+        Blood,            // 血池
+        Water,            // 水域
     }
 
     public struct NavTile

@@ -86,6 +86,16 @@ namespace Pal3.Settings
 
         public void InitOrLoadSettings()
         {
+            if (SettingsStore.TryGet(nameof(Language), out Language language))
+            {
+                Language = language;
+            }
+            else
+            {
+                // Simplified Chinese by default
+                Language = Language.SimplifiedChinese;
+            }
+
             if (SettingsStore.TryGet(nameof(VSyncCount), out int vSyncCount))
             {
                 VSyncCount = vSyncCount;

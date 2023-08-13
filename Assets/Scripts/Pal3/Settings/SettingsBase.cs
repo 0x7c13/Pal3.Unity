@@ -9,6 +9,7 @@ namespace Pal3.Settings
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using Core.Utils;
+    using MetaData;
 
     /// <summary>
     /// Base class to hold all settings properties.
@@ -30,6 +31,21 @@ namespace Pal3.Settings
         }
 
         #region Settings Properties
+
+        private Language _language = Language.SimplifiedChinese; // Default to simplified chinese
+        public Language Language
+        {
+            get => _language;
+            internal set
+            {
+                if (_language != value)
+                {
+                    _language = value;
+                    SettingsStore.Set(nameof(Language), value);
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         private int _vSyncCount = 0; // Default to 0 for no v-sync
         public int VSyncCount

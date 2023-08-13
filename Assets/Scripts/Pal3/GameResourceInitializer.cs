@@ -51,9 +51,6 @@ namespace Pal3
         [SerializeField] private Image backgroundImage;
         [SerializeField] private TextMeshProUGUI loadingText;
 
-        private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page
-                                                   // change it to 950 to supports Traditional Chinese (Big5)
-
         // Optional materials that are used in the game but not open sourced
         private Material _toonDefaultMaterial;
         private Material _toonTransparentMaterial;
@@ -86,9 +83,6 @@ namespace Pal3
         {
             Debug.Log($"[{nameof(GameResourceInitializer)}] Initializing game resources...");
 
-            // TODO: let user to choose language? Or auto-detect encoding?
-            int codepage = DEFAULT_CODE_PAGE;
-
             // Create and init Crc32 hash
             Crc32Hash crcHash = new ();
             crcHash.Init();
@@ -104,6 +98,9 @@ namespace Pal3
             GameSettings gameSettings = new (settingsStore, isOpenSourceVersion);
             gameSettings.InitOrLoadSettings();
             ServiceLocator.Instance.Register<GameSettings>(gameSettings);
+
+            // Init codepage
+            int codepage = gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
 
             // Init file system
             Queue<string> gameDataFolderSearchLocations = new(gameSettings.GetGameDataFolderSearchLocations());

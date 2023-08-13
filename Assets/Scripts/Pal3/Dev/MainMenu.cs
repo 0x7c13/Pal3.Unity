@@ -171,7 +171,7 @@ namespace Pal3.Dev
             _deferredExecutionCommands.Add("CameraSetTransform -33.24 -19.48 688.0 308.31 240.44 480.61");
             _deferredExecutionCommands.Add("CameraFadeIn");
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q01", "yn09a"));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand("PI01", -1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand(AudioConstants.ThemeMusicName, -1));
             #elif PAL3A
             // 南宫煌房间
             _deferredExecutionCommands.Add("PlayerEnableInput 0");
@@ -179,7 +179,7 @@ namespace Pal3.Dev
             _deferredExecutionCommands.Add("CameraSetTransform -21.69 -22.48 688.0 182.87 263.07 531.61");
             _deferredExecutionCommands.Add("CameraFadeIn");
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q02", "qn08y"));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand("P01", -1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand(AudioConstants.ThemeMusicName, -1));
             #endif
 
             if (!_initViewCameraOrbitAnimationCts.IsCancellationRequested)
@@ -505,6 +505,24 @@ namespace Pal3.Dev
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("音效已" +
                     (_gameSettings.SfxVolume == 0f ? "关闭" : "开启") + ""));
             });
+
+            #if !UNITY_IOS
+            const string languageSimplifiedChineseText = "游戏版本：简体中文版";
+            const string languageTraditionalChineseText = "游戏版本：繁体中文版";
+            string GetLanguageButtonText() => _gameSettings.Language == Language.SimplifiedChinese ?
+                languageSimplifiedChineseText : languageTraditionalChineseText;
+            CreateMenuButton(GetLanguageButtonText(), buttonTextUGUI => delegate
+            {
+                _gameSettings.Language = _gameSettings.Language == Language.SimplifiedChinese ?
+                    Language.TraditionalChinese : Language.SimplifiedChinese;
+
+                buttonTextUGUI.text = GetLanguageButtonText();
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("游戏版本已切换为" +
+                    (_gameSettings.Language == Language.SimplifiedChinese ? "简体中文版" : "繁体中文版") +
+                    "\n注意：游戏版本需要与数据文件一致，且重启游戏后才会生效"));
+            });
+            #endif
 
             const string debugInfoEnabledText = "调试信息：开启";
             const string debugInfoDisabledText = "调试信息：关闭";

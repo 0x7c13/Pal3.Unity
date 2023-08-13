@@ -24,6 +24,7 @@ namespace ResourceViewer
     using Core.DataReader.Pol;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.DataReader.Txt;
     using Core.Extensions;
     using Core.FileSystem;
     using Core.Services;
@@ -71,15 +72,16 @@ namespace ResourceViewer
         private IList<string> _mp3Files = new List<string>();
         private static readonly Random Random = new ();
 
-        private const int DEFAULT_CODE_PAGE = 936; // GBK Encoding's code page,
-                                                   // change it to 950 to supports Traditional Chinese (Big5)
         private GameObject _renderingRoot;
+        private int _codePage;
 
         private void OnEnable()
         {
+            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
+            _codePage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
+
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _resourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
-            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
 
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
@@ -444,6 +446,7 @@ namespace ResourceViewer
         }
 
         #if UNITY_EDITOR
+        private HashSet<char> _charSet;
         private void DecompileAllSceScripts(bool dialogueOnly)
         {
             var sceFiles = _fileSystem.Search(".sce")
@@ -461,7 +464,45 @@ namespace ResourceViewer
                 Directory.CreateDirectory(outputFolderPath);
             }
 
+            _charSet = new HashSet<char>();
+
             foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
+
+            foreach (var itemInfo in _resourceProvider.GetGameItemInfos().Values)
+            {
+                foreach (var ch in itemInfo.Name) _charSet.Add(ch);
+                foreach (var ch in itemInfo.Description) _charSet.Add(ch);
+            }
+
+            foreach (var actorInfo in _resourceProvider.GetCombatActorInfos().Values)
+            {
+                foreach (var ch in actorInfo.Name) _charSet.Add(ch);
+                foreach (var ch in actorInfo.Description) _charSet.Add(ch);
+            }
+
+            foreach (var skillInfo in _resourceProvider.GetSkillInfos().Values)
+            {
+                foreach (var ch in skillInfo.Name) _charSet.Add(ch);
+                foreach (var ch in skillInfo.Description) _charSet.Add(ch);
+            }
+
+            foreach (var comboSkillInfo in _resourceProvider.GetComboSkillInfos().Values)
+            {
+                foreach (var ch in comboSkillInfo.Name) _charSet.Add(ch);
+                foreach (var ch in comboSkillInfo.Description) _charSet.Add(ch);
+            }
+
+            #if PAL3A
+            var taskDefinitionFile = _resourceProvider.GetGameResourceFile<TaskDefinitionFile>(
+                FileConstants.DataScriptFolderVirtualPath + "task.txt");
+            foreach (Task task in taskDefinitionFile.Tasks)
+            {
+                foreach (var ch in task.Title) _charSet.Add(ch);
+                foreach (var ch in task.Description) _charSet.Add(ch);
+            }
+            #endif
+
+            File.WriteAllText($"{outputFolderPath}{Path.DirectorySeparatorChar}charset.txt", string.Join("", _charSet));
         }
 
         private void ExtractAllCpkArchives()
@@ -493,7 +534,7 @@ namespace ResourceViewer
                     var movieCpkFilePath = FileConstants.GetMovieCpkFileRelativePath(movieCpkFileName);
                     if (File.Exists(_fileSystem.GetRootPath() + movieCpkFilePath))
                     {
-                        _fileSystem.Mount(movieCpkFilePath, DEFAULT_CODE_PAGE);
+                        _fileSystem.Mount(movieCpkFilePath, _codePage);
                     }
                 }
 
@@ -526,12 +567,11 @@ namespace ResourceViewer
         {
             var output = new StringBuilder();
 
-
             SceFile sceFile;
 
             try
             {
-                IFileReader<SceFile> sceFileReader = new SceFileReader(DEFAULT_CODE_PAGE);
+                IFileReader<SceFile> sceFileReader = new SceFileReader(_codePage);
                 sceFile = sceFileReader.Read(_fileSystem.ReadAllBytes(filePath));
             }
             catch (Exception ex)
@@ -556,7 +596,11 @@ namespace ResourceViewer
                     var commandId = scriptDataReader.ReadUInt16();
                     var parameterFlag = scriptDataReader.ReadUInt16();
 
-                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, DEFAULT_CODE_PAGE);
+                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, _codePage);
+
+                    if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
+                    if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);
+                    if (command is UIDisplayNoteCommand unc) foreach (var ch in unc.Note) _charSet.Add(ch);
 
                     if (dialogueOnly && command is DialogueRenderTextCommand
                             or DialogueRenderTextWithTimeLimitCommand)

@@ -159,6 +159,21 @@ namespace Pal3.Data
             return _gameDatabase.GameItemInfos;
         }
 
+        public IDictionary<int, CombatActorInfo> GetCombatActorInfos()
+        {
+            return _gameDatabase.CombatActorInfos;
+        }
+
+        public IDictionary<int, SkillInfo> GetSkillInfos()
+        {
+            return _gameDatabase.SkillInfos;
+        }
+
+        public IDictionary<int, ComboSkillInfo> GetComboSkillInfos()
+        {
+            return _gameDatabase.ComboSkillInfos;
+        }
+
         /// <summary>
         /// Get music file path in cache folder.
         /// </summary>

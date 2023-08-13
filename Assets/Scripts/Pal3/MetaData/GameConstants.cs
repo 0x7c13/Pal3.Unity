@@ -5,6 +5,12 @@
 
 namespace Pal3.MetaData
 {
+    public enum Language
+    {
+        SimplifiedChinese = 0,
+        TraditionalChinese,
+    }
+
     public static class GameConstants
     {
         #if PAL3

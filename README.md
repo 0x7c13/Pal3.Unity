@@ -43,9 +43,10 @@
 
 ## 如何运行项目
 使用 Unity 2022.3 LTS 打开当前项目文件夹即可，具体当前项目所使用的Unity版本请查看这里: [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt)，理论上任何Unity 2022 LTS版本都没问题（实际上2021 LTS也行）。
-因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可，注意：暂时仅支持简体版游戏）。
+因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可）。
   - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
   - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
+  - 如果你在Steam获取的游戏是繁体中文版的，游戏中的文字会出现乱码，请在游戏设置里选择繁体中文版，然后重启游戏后即可生效。
   - 因为原始游戏的过场动画为Bink格式，Unity并不原生支持，所以请自行转码视频为Unity所支持的格式放在游戏根目录下的movie文件夹即可（大部分设备和系统支持.mp4等主流格式视频，Linux下仅支持.webm格式视频）。
   - Linux用户可以使用FFmpeg转码视频为.webm格式封装，首先您需要选择Scenes\ResourceViewer场景，然后点击"Extract all .cpk files"按钮来解压所有原始游戏中的.cpk压缩包（包含movie.cpk，所有的Bink动画文件均在这个压缩包中）
     ```

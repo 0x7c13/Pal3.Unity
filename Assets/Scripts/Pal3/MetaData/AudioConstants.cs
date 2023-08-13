@@ -27,5 +27,11 @@ namespace Pal3.MetaData
             "WE008.WAV"
             #endif
         };
+
+        #if PAL3
+        public const string ThemeMusicName = "PI01";
+        #elif PAL3A
+        public const string ThemeMusicName = "P01";
+        #endif
     }
 }

@@ -34,7 +34,7 @@ namespace Pal3.MetaData
         #if PAL3
         public static readonly Dictionary<(string cityName, string sceneName), Color> MainLightColorInfo = new()
         {
-            { ("q02" , "n14"),  new Color(75f / 255f, 75f / 255f, 75f / 255f) },      // 地牢1
+            { ("q02", "n14"),  new Color(75f / 255f, 75f / 255f, 75f / 255f) },       // 地牢1
             { ("q02", "n16"),   new Color(30f / 255f, 30f / 255f, 30f / 255f) },      // 地牢2
             { ("q07", "q07a"),  new Color(120f / 255f, 50f / 255f, 30f / 255f) },     // 安宁村黄昏
             { ("m06", "4"),     new Color(0f / 255f, 0f / 255f, 80f / 255f) },        // 蓬莱密道
