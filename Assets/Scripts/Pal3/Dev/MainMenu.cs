@@ -507,8 +507,8 @@ namespace Pal3.Dev
             });
 
             #if !UNITY_IOS
-            const string languageSimplifiedChineseText = "游戏版本：简体中文版";
-            const string languageTraditionalChineseText = "游戏版本：繁体中文版";
+            const string languageSimplifiedChineseText = "数据包版本：简体中文版";
+            const string languageTraditionalChineseText = "数据包版本：繁体中文版";
             string GetLanguageButtonText() => _gameSettings.Language == Language.SimplifiedChinese ?
                 languageSimplifiedChineseText : languageTraditionalChineseText;
             CreateMenuButton(GetLanguageButtonText(), buttonTextUGUI => delegate
