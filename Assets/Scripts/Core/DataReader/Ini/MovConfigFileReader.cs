@@ -23,16 +23,16 @@ namespace Core.DataReader.Ini
         private const string PROPERTY_MESH = "mesh";
         private const string PROPERTY_MATERIAL = "material";
 
-        public MovActionConfig Read(IBinaryReader reader)
+        public MovActionConfig Read(IBinaryReader reader, int codepage)
         {
             throw new NotImplementedException();
         }
 
-        public MovActionConfig Read(byte[] data)
+        public MovActionConfig Read(byte[] data, int codepage)
         {
             FileIniDataParser parser = new ();
             using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.ASCII);
+            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
 
             IniData iniData = parser.ReadData(reader);
 

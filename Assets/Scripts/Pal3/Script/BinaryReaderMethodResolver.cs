@@ -30,7 +30,7 @@ namespace Pal3.Script
                 if (methodInfo.ReturnType == readPropertyType &&
                     methodInfo.Name.StartsWith("Read") &&
                     !methodInfo.Name.Equals("Read") && // Filter out the specific int Read() method
-                    methodInfo.GetParameters().Length == 0)
+                    methodInfo.GetParameters().Length == 0) // The method should have no parameters
                 {
                     BinaryReaderMethodInfoCache[readPropertyType] = methodInfo;
                     return methodInfo;

@@ -10,14 +10,7 @@ namespace Core.DataReader.Mov
 
     public sealed class MovFileReader : IFileReader<MovFile>
     {
-        private readonly int _codepage;
-
-        public MovFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public MovFile Read(IBinaryReader reader)
+        public MovFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -41,13 +34,13 @@ namespace Core.DataReader.Mov
             var animationEvents = new MovAnimationEvent[numberOfAnimationEvents];
             for (var i = 0; i < numberOfAnimationEvents; i++)
             {
-                animationEvents[i] = ReadAnimationEvent(reader, _codepage);
+                animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
             var boneAnimationTracks = new MovBoneAnimationTrack[numberOfBoneAnimationTracks];
             for (var i = 0; i < numberOfBoneAnimationTracks; i++)
             {
-                boneAnimationTracks[i] = ReadBoneAnimationTrack(reader, _codepage);
+                boneAnimationTracks[i] = ReadBoneAnimationTrack(reader, codepage);
             }
 
             uint totalDuration = 0;

@@ -10,25 +10,12 @@ namespace Pal3
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using Core.Animation;
     using Core.DataReader;
     using Core.DataReader.Cpk;
-    using Core.DataReader.Cvd;
-    using Core.DataReader.Dat;
-    using Core.DataReader.Data;
-    using Core.DataReader.Gdb;
-    using Core.DataReader.Ini;
-    using Core.DataReader.Lgt;
-    using Core.DataReader.Mov;
-    using Core.DataReader.Msh;
-    using Core.DataReader.Mtl;
-    using Core.DataReader.Mv3;
-    using Core.DataReader.Nav;
-    using Core.DataReader.Pol;
-    using Core.DataReader.Sce;
-    using Core.DataReader.Scn;
-    using Core.DataReader.Txt;
     using Core.FileSystem;
     using Core.Services;
     using Data;
@@ -160,23 +147,24 @@ namespace Pal3
                 }
             }
 
-            // Create and register IFileReader<T> instances
-            ServiceLocator.Instance.Register<IFileReader<CvdFile>>(new CvdFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<Mv3File>>(new Mv3FileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<MovFile>>(new MovFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<MshFile>>(new MshFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<MtlFile>>(new MtlFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<PolFile>>(new PolFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<GdbFile>>(new GdbFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<LgtFile>>(new LgtFileReader());
-            ServiceLocator.Instance.Register<IFileReader<NavFile>>(new NavFileReader());
-            ServiceLocator.Instance.Register<IFileReader<MovActionConfig>>(new MovConfigFileReader());
-            ServiceLocator.Instance.Register<IFileReader<Mv3ActionConfig>>(new Mv3ConfigFileReader());
-            ServiceLocator.Instance.Register<IFileReader<EffectDefinitionFile>>(new EffectDefinitionFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<EffectLinkerFile>>(new EffectLinkerFileReader());
-            ServiceLocator.Instance.Register<IFileReader<SceFile>>(new SceFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<ScnFile>>(new ScnFileReader(codepage));
-            ServiceLocator.Instance.Register<IFileReader<TaskDefinitionFile>>(new TaskDefinitionFileReader(codepage));
+            // Create and register IFileReader<T> instances using reflection
+            //foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                // Get all types that implement any version of IFileReader<>
+                var fileReaderTypes = assembly.GetTypes().Where(type =>
+                    type.GetInterfaces().Any(_ =>_.IsGenericType &&_.GetGenericTypeDefinition() == typeof(IFileReader<>)));
+
+                foreach (Type readerType in fileReaderTypes)
+                {
+                    Type fileType = readerType.GetInterfaces()
+                        .First(_ => _.GetGenericTypeDefinition() == typeof(IFileReader<>)).GetGenericArguments()[0];
+                    ServiceLocator.Instance.GetType()
+                        .GetMethod(nameof(ServiceLocator.Instance.Register))!
+                        .MakeGenericMethod(typeof(IFileReader<>).MakeGenericType(fileType))
+                        .Invoke(ServiceLocator.Instance, new[] { Activator.CreateInstance(readerType) });
+                }
+            }
 
             // Init TextureLoaderFactory
             TextureLoaderFactory textureLoaderFactory = new ();

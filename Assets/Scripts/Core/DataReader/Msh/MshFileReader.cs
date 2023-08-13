@@ -11,14 +11,7 @@ namespace Core.DataReader.Msh
 
     public sealed class MshFileReader : IFileReader<MshFile>
     {
-        private readonly int _codepage;
-
-        public MshFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public MshFile Read(IBinaryReader reader)
+        public MshFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -50,7 +43,7 @@ namespace Core.DataReader.Msh
             var childBoneNodes = new BoneNode[numberOfChildBones];
             for (var i = 0; i < numberOfChildBones; i++)
             {
-                childBoneNodes[i] = ReadBoneNode(reader, rootBoneNode, _codepage);
+                childBoneNodes[i] = ReadBoneNode(reader, rootBoneNode, codepage);
             }
 
             rootBoneNode.Children = childBoneNodes;

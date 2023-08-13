@@ -9,14 +9,7 @@ namespace Core.DataReader.Sce
 
     public sealed class SceFileReader : IFileReader<SceFile>
     {
-        private readonly int _codepage;
-
-        public SceFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public SceFile Read(IBinaryReader reader)
+        public SceFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -38,16 +31,16 @@ namespace Core.DataReader.Sce
             var indexes = new SceIndex[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                indexes[i] = ReadSceIndex(reader, _codepage);
+                indexes[i] = ReadSceIndex(reader, codepage);
             }
 
             var scriptBlocks = new SceScriptBlock[numberOfBlocks];
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], _codepage);
+                scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], codepage);
             }
 
-            return new SceFile(indexes, scriptBlocks, _codepage);
+            return new SceFile(indexes, scriptBlocks, codepage);
         }
 
         private static SceScriptBlock ReadScriptBlock(IBinaryReader reader, SceIndex sceIndex, int codepage)

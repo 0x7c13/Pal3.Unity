@@ -19,16 +19,16 @@ namespace Core.DataReader.Ini
         private const string PROPERTY_NAME = "name";
         private const string PROPERTY_FILE = "file";
 
-        public Mv3ActionConfig Read(IBinaryReader reader)
+        public Mv3ActionConfig Read(IBinaryReader reader, int codepage)
         {
             throw new NotImplementedException();
         }
 
-        public Mv3ActionConfig Read(byte[] data)
+        public Mv3ActionConfig Read(byte[] data, int codepage)
         {
             var parser = new FileIniDataParser();
             using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.ASCII);
+            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
 
             IniData iniData = parser.ReadData(reader);
 

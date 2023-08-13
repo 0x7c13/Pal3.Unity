@@ -10,16 +10,9 @@ namespace Core.DataReader.Gdb
 
     public sealed class GdbFileReader : IFileReader<GdbFile>
     {
-        private readonly int _codepage;
-
-        public GdbFileReader(int codepage)
+        public GdbFile Read(IBinaryReader reader, int codepage)
         {
-            _codepage = codepage;
-        }
-
-        public GdbFile Read(IBinaryReader reader)
-        {
-            _ = reader.ReadString(128, _codepage); // header string
+            _ = reader.ReadString(128, codepage); // header string
 
             uint combatActorDataOffset = reader.ReadUInt32();
             int numOfActors = reader.ReadInt32();
@@ -37,7 +30,7 @@ namespace Core.DataReader.Gdb
             var combatActorInfos = new Dictionary<int, CombatActorInfo>();
             for (var i = 0; i < numOfActors; i++)
             {
-                CombatActorInfo actor = ReadCombatActorInfo(reader, _codepage);
+                CombatActorInfo actor = ReadCombatActorInfo(reader, codepage);
                 combatActorInfos[(int) actor.Id] = actor;
             }
 
@@ -45,7 +38,7 @@ namespace Core.DataReader.Gdb
             var skillInfos = new Dictionary<int, SkillInfo>();
             for (var i = 0; i < numOfSkills; i++)
             {
-                SkillInfo skill = ReadSkillInfo(reader, _codepage);
+                SkillInfo skill = ReadSkillInfo(reader, codepage);
                 skillInfos[(int) skill.Id] = skill;
             }
 
@@ -53,7 +46,7 @@ namespace Core.DataReader.Gdb
             var gameItems = new Dictionary<int, GameItemInfo>();
             for (var i = 0; i < numOfItems; i++)
             {
-                GameItemInfo item = ReadGameItemInfo(reader, _codepage);
+                GameItemInfo item = ReadGameItemInfo(reader, codepage);
                 gameItems[(int) item.Id] = item;
             }
 
@@ -61,7 +54,7 @@ namespace Core.DataReader.Gdb
             var comboSkillInfos = new Dictionary<int, ComboSkillInfo>();
             for (var i = 0; i < numOfComboSkills; i++)
             {
-                ComboSkillInfo comboSkill = ReadComboSkillInfo(reader, _codepage);
+                ComboSkillInfo comboSkill = ReadComboSkillInfo(reader, codepage);
                 comboSkillInfos[(int) comboSkill.Id] = comboSkill;
             }
 

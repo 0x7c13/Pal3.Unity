@@ -11,21 +11,14 @@ namespace Core.DataReader.Txt
 
     public sealed class TaskDefinitionFileReader : IFileReader<TaskDefinitionFile>
     {
-        private readonly int _codepage;
-
-        public TaskDefinitionFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public TaskDefinitionFile Read(IBinaryReader reader)
+        public TaskDefinitionFile Read(IBinaryReader reader, int codepage)
         {
             throw new NotImplementedException();
         }
 
-        public TaskDefinitionFile Read(byte[] data)
+        public TaskDefinitionFile Read(byte[] data, int codepage)
         {
-            var content = Encoding.GetEncoding(_codepage).GetString(data, 0, data.Length);
+            var content = Encoding.GetEncoding(codepage).GetString(data, 0, data.Length);
             var tasks = new List<Task>();
             var taskLines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             var currentTask = new Task();

@@ -15,14 +15,7 @@ namespace Core.DataReader.Cvd
 
     public sealed class CvdFileReader : IFileReader<CvdFile>
     {
-        private readonly int _codepage;
-
-        public CvdFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public CvdFile Read(IBinaryReader reader)
+        public CvdFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header);
@@ -39,7 +32,7 @@ namespace Core.DataReader.Cvd
             var rootNodes = new List<CvdGeometryNode>();
             for (var i = 0; i < numberONodes; i++)
             {
-                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, _codepage);
+                ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, codepage);
             }
 
             return new CvdFile(animationDuration, rootNodes.ToArray());

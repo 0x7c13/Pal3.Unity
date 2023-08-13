@@ -13,14 +13,7 @@ namespace Core.DataReader.Scn
 
     public sealed class ScnFileReader : IFileReader<ScnFile>
     {
-        private readonly int _codepage;
-
-        public ScnFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public ScnFile Read(IBinaryReader reader)
+        public ScnFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -38,9 +31,9 @@ namespace Core.DataReader.Scn
 
             var sceneInfo = new ScnSceneInfo()
             {
-                CityName = reader.ReadString(32, _codepage),
-                SceneName = reader.ReadString(32, _codepage),
-                Model = reader.ReadString(32, _codepage),
+                CityName = reader.ReadString(32, codepage),
+                SceneName = reader.ReadString(32, codepage),
+                Model = reader.ReadString(32, codepage),
                 SceneType = (ScnSceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),
                 SkyBox = reader.ReadUInt32(),
@@ -51,14 +44,14 @@ namespace Core.DataReader.Scn
             var npcInfos = new ScnNpcInfo[numberOfNpc];
             for (var i = 0; i < numberOfNpc; i++)
             {
-                npcInfos[i] = ReadNpcInfo(reader, _codepage);
+                npcInfos[i] = ReadNpcInfo(reader, codepage);
             }
 
             reader.Seek(objectDataOffset, SeekOrigin.Begin);
             var objInfos = new ScnObjectInfo[numberOfObjects];
             for (var i = 0; i < numberOfObjects; i++)
             {
-                ScnObjectInfo sceneObject = ReadObjectInfo(reader, _codepage);
+                ScnObjectInfo sceneObject = ReadObjectInfo(reader, codepage);
                 objInfos[i] = sceneObject;
             }
 

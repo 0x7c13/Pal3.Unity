@@ -573,8 +573,8 @@ namespace ResourceViewer
 
             try
             {
-                IFileReader<SceFile> sceFileReader = new SceFileReader(_codePage);
-                sceFile = sceFileReader.Read(_fileSystem.ReadAllBytes(filePath));
+                IFileReader<SceFile> sceFileReader = new SceFileReader();
+                sceFile = sceFileReader.Read(_fileSystem.ReadAllBytes(filePath), _codePage);
             }
             catch (Exception ex)
             {

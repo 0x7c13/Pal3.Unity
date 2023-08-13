@@ -41,7 +41,7 @@ namespace Pal3.Data
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
 
-        private const char DirSeparator = CpkConstants.DirectorySeparatorChar;
+        private const char DIR_SEPARATOR = CpkConstants.DirectorySeparatorChar;
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
@@ -65,6 +65,8 @@ namespace Pal3.Data
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
 
+        private readonly int _codepage;
+
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             IMaterialFactory unlitMaterialFactory,
@@ -77,6 +79,7 @@ namespace Pal3.Data
             _litMaterialFactory = litMaterialFactory; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
+            _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
             _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -139,7 +142,7 @@ namespace Pal3.Data
             }
 
             T file = ServiceLocator.Instance.Get<IFileReader<T>>().Read(
-                data ?? _fileSystem.ReadAllBytes(fileVirtualPath));
+                data ?? _fileSystem.ReadAllBytes(fileVirtualPath), _codepage);
 
             if (useCache)
             {
@@ -338,13 +341,13 @@ namespace Pal3.Data
             var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetDirectoryName(relativeFilePath, DirSeparator));
+                Utility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
 
             var textures = new Texture2D[FileConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = Utility.GetFileName(
-                    string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DirSeparator);
+                    string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DIR_SEPARATOR);
                 Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
                 texture.wrapMode = TextureWrapMode.Clamp;
@@ -476,7 +479,7 @@ namespace Pal3.Data
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetDirectoryName(texturePathFormat, DirSeparator));
+                Utility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
 
             if (effect == GraphicsEffect.Fire)
             {
@@ -484,7 +487,7 @@ namespace Pal3.Data
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
-                    var textureNameFormat = Utility.GetFileName(texturePathFormat, DirSeparator);
+                    var textureNameFormat = Utility.GetFileName(texturePathFormat, DIR_SEPARATOR);
                     Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }
@@ -595,7 +598,7 @@ namespace Pal3.Data
                 {
                     // Dispose non-main actor mv3 files
                     // All main actor names start with "1"
-                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{DirSeparator}1".ToLower();
+                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{DIR_SEPARATOR}1".ToLower();
                     var mv3FilesToDispose = fileCache.Value.Keys
                         .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
                         .ToArray();

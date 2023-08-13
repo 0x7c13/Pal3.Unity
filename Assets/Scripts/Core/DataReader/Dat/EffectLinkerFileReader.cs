@@ -11,7 +11,7 @@ namespace Core.DataReader.Dat
     {
         private const int NUM_OF_EFFECT_LINKERS = 384;
 
-        public EffectLinkerFile Read(IBinaryReader reader)
+        public EffectLinkerFile Read(IBinaryReader reader, int codepage)
         {
             var effectDefinitions = new EffectLinker[NUM_OF_EFFECT_LINKERS];
 

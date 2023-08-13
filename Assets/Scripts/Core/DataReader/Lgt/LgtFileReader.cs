@@ -12,7 +12,7 @@ namespace Core.DataReader.Lgt
 
     public sealed class LgtFileReader : IFileReader<LgtFile>
     {
-        public LgtFile Read(IBinaryReader reader)
+        public LgtFile Read(IBinaryReader reader, int codepage)
         {
             var numOfLightNodes = reader.ReadInt32();
             var lightNodes = new List<LightNode>();

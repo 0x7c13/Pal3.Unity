@@ -14,14 +14,7 @@ namespace Core.DataReader.Mv3
 
     public sealed class Mv3FileReader : IFileReader<Mv3File>
     {
-        private readonly int _codepage;
-
-        public Mv3FileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public Mv3File Read(IBinaryReader reader)
+        public Mv3File Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -51,25 +44,25 @@ namespace Core.DataReader.Mv3
             var animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
             for (var i = 0; i < numberOfAnimationEvents; i++)
             {
-                animationEvents[i] = ReadAnimationEvent(reader, _codepage);
+                animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
             var tagNodes = new Mv3TagNode[numberOfTagNodes];
             for (var i = 0; i < numberOfTagNodes; i++)
             {
-                tagNodes[i] = ReadTagNode(reader, _codepage);
+                tagNodes[i] = ReadTagNode(reader, codepage);
             }
 
             var materials = new GameBoxMaterial[numberOfMaterials];
             for (var i = 0; i < numberOfMaterials; i++)
             {
-                materials[i] = ReadMaterial(reader, _codepage);
+                materials[i] = ReadMaterial(reader, codepage);
             }
 
             var meshes = new Mv3Mesh[numberOfMeshes];
             for (var i = 0; i < numberOfMeshes; i++)
             {
-                meshes[i] = ReadMesh(reader, _codepage);
+                meshes[i] = ReadMesh(reader, codepage);
             }
 
             return new Mv3File(duration,

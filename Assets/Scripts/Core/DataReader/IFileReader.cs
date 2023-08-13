@@ -14,9 +14,9 @@ namespace Core.DataReader
     /// <typeparam name="T">File type</typeparam>
     public interface IFileReader<out T>
     {
-        T Read(IBinaryReader reader);
+        T Read(IBinaryReader reader, int codepage);
 
-        T Read(byte[] data)
+        T Read(byte[] data, int codepage)
         {
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
@@ -26,10 +26,10 @@ namespace Core.DataReader
             using var reader = new SafeBinaryReader(data);
             #endif
 
-            return Read(reader);
+            return Read(reader, codepage);
         }
 
-        T Read(Stream stream)
+        T Read(Stream stream, int codepage)
         {
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
@@ -39,7 +39,7 @@ namespace Core.DataReader
             using var reader = new SafeBinaryReader(stream);
             #endif
 
-            return Read(reader);
+            return Read(reader, codepage);
         }
     }
 }

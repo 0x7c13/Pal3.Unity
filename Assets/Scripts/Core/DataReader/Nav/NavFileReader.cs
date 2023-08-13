@@ -13,7 +13,7 @@ namespace Core.DataReader.Nav
 
     public sealed class NavFileReader : IFileReader<NavFile>
     {
-        public NavFile Read(IBinaryReader reader)
+        public NavFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);

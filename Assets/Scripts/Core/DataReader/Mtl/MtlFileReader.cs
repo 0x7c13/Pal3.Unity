@@ -12,14 +12,7 @@ namespace Core.DataReader.Mtl
 
     public sealed class MtlFileReader : IFileReader<MtlFile>
     {
-        private readonly int _codepage;
-
-        public MtlFileReader(int codepage)
-        {
-            _codepage = codepage;
-        }
-
-        public MtlFile Read(IBinaryReader reader)
+        public MtlFile Read(IBinaryReader reader, int codepage)
         {
             var header = reader.ReadChars(4);
             var headerStr = new string(header[..^1]);
@@ -54,7 +47,7 @@ namespace Core.DataReader.Mtl
                 {
                     int textureNameLength = reader.ReadInt32();
                     if (textureNameLength == 0) continue;
-                    textureNames.Add(reader.ReadString(textureNameLength, _codepage));
+                    textureNames.Add(reader.ReadString(textureNameLength, codepage));
                 }
 
                 materials[i].TextureFileNames = textureNames.ToArray();
