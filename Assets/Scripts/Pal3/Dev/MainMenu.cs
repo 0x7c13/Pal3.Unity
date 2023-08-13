@@ -520,7 +520,7 @@ namespace Pal3.Dev
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("游戏版本已切换为" +
                     (_gameSettings.Language == Language.SimplifiedChinese ? "简体中文版" : "繁体中文版") +
-                    "\n注意：游戏版本需要与数据文件一致，且重启游戏后才会生效"));
+                    "\n注意：游戏版本需要与数据文件一致（否则会出现乱码），且重启游戏后才会生效"));
             });
             #endif
 

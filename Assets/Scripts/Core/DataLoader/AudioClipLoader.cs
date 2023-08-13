@@ -32,7 +32,7 @@ namespace Core.DataLoader
             using UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(url, audioType);
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.ConnectionError)
+            if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"[{nameof(AudioClipLoader)}] Failed to load {url} with error: {request.error}");
             }
