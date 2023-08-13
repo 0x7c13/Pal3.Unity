@@ -11,16 +11,19 @@ namespace Pal3.Command.InternalCommands
         public ThreePhaseSwitchStateChangedNotification(
             int objectId,
             int previousState,
-            int currentState)
+            int currentState,
+            bool isBridgeMovingAlongYAxis)
         {
             ObjectId = objectId;
             PreviousState = previousState;
             CurrentState = currentState;
+            IsBridgeMovingAlongYAxis = isBridgeMovingAlongYAxis;
         }
 
         public int ObjectId { get; }
         public int PreviousState { get; }
         public int CurrentState { get; }
+        public bool IsBridgeMovingAlongYAxis { get; }
     }
     #endif
 }

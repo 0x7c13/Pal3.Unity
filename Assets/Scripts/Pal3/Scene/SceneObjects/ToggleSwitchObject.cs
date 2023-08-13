@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
@@ -52,7 +52,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated &&
+            return IsActivated &&
                    distance < MAX_INTERACTION_DISTANCE &&
                    ObjectInfo.Times > 0;
         }

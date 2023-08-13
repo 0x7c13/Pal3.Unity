@@ -29,7 +29,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             // Don't add a trigger if the object is already collided (SwitchState sets to 1).

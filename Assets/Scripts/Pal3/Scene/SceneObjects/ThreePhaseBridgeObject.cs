@@ -29,17 +29,25 @@ namespace Pal3.Scene.SceneObjects
 
         private readonly SceneStateManager _sceneStateManager;
 
+        private bool _isMovingAlongYAxis;
         private bool _isMovingTowardsNegativeAxis = true;
 
         public ThreePhaseBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
+
+            // Three-phase bridges in scene M13-3 and M13-4 are moving along Y axis
+            if (sceneInfo.Is("m13", "3") ||
+                sceneInfo.Is("m13", "4"))
+            {
+                _isMovingAlongYAxis = true;
+            }
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
@@ -51,16 +59,12 @@ namespace Pal3.Scene.SceneObjects
                 _standingPlatformController.Init(bounds, ObjectInfo.LayerIndex);
             }
 
-            // Set initial position for three phase bridges in scene M13-3 and M13-4
             if (!_sceneStateManager.TryGetSceneObjectStateOverride(
-                    SceneInfo.CityName, SceneInfo.SceneName, ObjectInfo.Id, out _))
+                    SceneInfo.CityName, SceneInfo.SceneName, ObjectInfo.Id, out _) &&
+                _isMovingAlongYAxis)
             {
-                if (SceneInfo.Is("m13", "3") ||
-                    SceneInfo.Is("m13", "4"))
-                {
-                    sceneGameObject.transform.position +=
-                        sceneGameObject.transform.up * -BRIDGE_MOVEMENT_DISTANCE;
-                }
+                sceneGameObject.transform.position +=
+                    sceneGameObject.transform.up * -BRIDGE_MOVEMENT_DISTANCE;
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -74,9 +78,8 @@ namespace Pal3.Scene.SceneObjects
 
             Vector3 movingDirection = transform.right;
 
-            // Bridges in scene M13-3 and M13-4 move along Y axis
-            if (SceneInfo.Is("m13", "3") ||
-                SceneInfo.Is("m13", "4"))
+            // Bridges that move along Y axis
+            if (_isMovingAlongYAxis)
             {
                 movingDirection = transform.up;
             }
@@ -93,6 +96,7 @@ namespace Pal3.Scene.SceneObjects
 
         public void Execute(ThreePhaseSwitchStateChangedNotification notification)
         {
+            _isMovingAlongYAxis = notification.IsBridgeMovingAlongYAxis;
             _isMovingTowardsNegativeAxis = notification.CurrentState > notification.PreviousState;
             RequestForInteraction();
         }

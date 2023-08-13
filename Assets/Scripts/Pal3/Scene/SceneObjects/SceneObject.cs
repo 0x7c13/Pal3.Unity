@@ -50,7 +50,7 @@ namespace Pal3.Scene.SceneObjects
         public GraphicsEffect GraphicsEffect { get; }
         public SceneObjectModelType ModelType { get; }
 
-        internal bool Activated;
+        internal bool IsActivated;
         internal string ModelFileVirtualPath;
 
         private IEffect _effectComponent;
@@ -113,7 +113,7 @@ namespace Pal3.Scene.SceneObjects
         public virtual GameObject Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (Activated) return _sceneObjectGameObject;
+            if (IsActivated) return _sceneObjectGameObject;
 
             _sceneObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
 
@@ -177,7 +177,7 @@ namespace Pal3.Scene.SceneObjects
                 _effectComponent!.Init(resourceProvider, effectParameter);
             }
 
-            Activated = true;
+            IsActivated = true;
             return _sceneObjectGameObject;
         }
 
@@ -255,9 +255,9 @@ namespace Pal3.Scene.SceneObjects
         /// </summary>
         public virtual void Deactivate()
         {
-            if (!Activated) return;
+            if (!IsActivated) return;
 
-            Activated = false;
+            IsActivated = false;
 
             if (_effectComponent != null)
             {

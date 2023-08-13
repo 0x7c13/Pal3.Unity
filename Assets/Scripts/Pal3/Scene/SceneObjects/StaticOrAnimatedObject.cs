@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             // Should block the player if Parameters[0] is 0
@@ -37,7 +37,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            if (Activated && ModelType == SceneObjectModelType.CvdModel)
+            if (IsActivated && ModelType == SceneObjectModelType.CvdModel)
             {
                 GetCvdModelRenderer().StartOneTimeAnimation(true);
             }

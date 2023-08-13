@@ -155,8 +155,7 @@ namespace ResourceViewer
             //
             // foreach (var scnFilePath in scnFilePaths)
             // {
-            //     using var scnFileStream = new MemoryStream(_fileSystem.ReadAllBytes(scnFilePath));
-            //     ScnFile scnFile = ScnFileReader.Read(scnFileStream, DEFAULT_CODE_PAGE);
+            //     ScnFile scnFile = _resourceProvider.GetGameResourceFile<ScnFile>(scnFilePath);
             //
             //     foreach (ScnSceneObjectType objectType in Enum.GetValues(typeof(ScnSceneObjectType)).Cast<ScnSceneObjectType>())
             //     {
@@ -178,24 +177,6 @@ namespace ResourceViewer
             //      sb.Append("\n");
             //  }
             //
-            // File.WriteAllText(@"E:\Workspace\objectDic.txt", sb.ToString());
-
-            // HashSet<char> charSet = File.ReadAllText("charset.txt", Encoding.UTF8).ToHashSet();
-            // var newChars = new HashSet<char>();
-            //
-            // foreach (GameItem item in _resourceProvider.GetGameItems().Values)
-            // {
-            //     foreach (var nameChar in item.Name.Where(nameChar => !charSet.Contains(nameChar)))
-            //     {
-            //         newChars.Add(nameChar);
-            //     }
-            //     foreach (var descChar in item.Description.Where(descChar => !charSet.Contains(descChar)))
-            //     {
-            //         newChars.Add(descChar);
-            //     }
-            // }
-            // var sb = new StringBuilder();
-            // foreach (var ch in newChars) sb.Append(ch);
             // Debug.Log(sb.ToString());
         }
 

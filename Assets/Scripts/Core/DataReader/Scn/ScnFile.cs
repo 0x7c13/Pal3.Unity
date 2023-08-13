@@ -353,7 +353,7 @@ namespace Core.DataReader.Scn
         public string FailedMessage;               // char[16] 失败提示字符串名称
 
         #if PAL3A
-        public uint Unknown; // TODO
+        public ushort LinkedObjectGroupId;        // 同时触发的关联编号 （如阳名百纳二的机关浮板，神魔结界的三相桥）
         #endif
 
         public uint ScriptId;

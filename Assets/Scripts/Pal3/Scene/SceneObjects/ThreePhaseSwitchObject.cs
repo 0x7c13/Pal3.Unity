@@ -44,14 +44,14 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated &&
+            return IsActivated &&
                    distance < MAX_INTERACTION_DISTANCE &&
                    ObjectInfo is {Times: > 0};
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
             _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
@@ -108,7 +108,7 @@ namespace Pal3.Scene.SceneObjects
 
                 // Notify other three phase switches as well as three phase bridges
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ThreePhaseSwitchStateChangedNotification(
-                    ObjectInfo.Id, _previousState, _currentState));
+                    ObjectInfo.Id, _previousState, _currentState, ObjectInfo.Parameters[1] == 1));
 
                 PlaySfxIfAny();
             }

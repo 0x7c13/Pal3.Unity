@@ -35,7 +35,7 @@ namespace Pal3.Scene.SceneObjects
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
 
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
 
@@ -107,6 +107,29 @@ namespace Pal3.Scene.SceneObjects
 
                 SaveCurrentPosition();
                 yield break;
+            }
+            else
+            {
+                #if PAL3A
+                // PAL3A has additional interaction logic for grouped objects
+                // This is to sync moving carriers in m07-2 scene
+                if (SceneInfo.Is("m07", "2") &&
+                    ObjectInfo.LinkedObjectGroupId != 0)
+                {
+                    var allObjects = ctx.CurrentScene.GetAllSceneObjects();
+                    foreach (SceneObject otherObject in allObjects.Values)
+                    {
+                        if (ObjectInfo.Id != otherObject.ObjectInfo.Id &&
+                            ObjectInfo.Type == otherObject.ObjectInfo.Type &&
+                            ObjectInfo.LinkedObjectGroupId == otherObject.ObjectInfo.LinkedObjectGroupId &&
+                            otherObject.IsActivated)
+                        {
+                            yield return otherObject.InteractAsync(ctx);
+                        }
+
+                    }
+                }
+                #endif
             }
 
             var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();

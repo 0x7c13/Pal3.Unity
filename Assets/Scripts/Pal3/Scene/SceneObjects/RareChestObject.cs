@@ -29,12 +29,12 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool IsDirectlyInteractable(float distance)
         {
-            return Activated && distance < MAX_INTERACTION_DISTANCE;
+            return IsActivated && distance < MAX_INTERACTION_DISTANCE;
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (Activated) return GetGameObject();
+            if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
             _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             return sceneGameObject;

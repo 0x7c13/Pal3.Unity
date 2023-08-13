@@ -143,7 +143,8 @@ namespace Core.DataReader.Scn
             _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
             #if PAL3A
-            var unknown = reader.ReadUInt32(); // TODO
+            var linkedObjectGroupId = reader.ReadUInt16();
+            _ = reader.ReadBytes(2); // Empty padding bytes to complete 4-byte alignment
             #endif
 
             var scriptId = reader.ReadUInt32();
@@ -224,7 +225,7 @@ namespace Core.DataReader.Scn
                 FailedMessage = failedMessage,
 
                 #if PAL3A
-                Unknown = unknown, // TODO
+                LinkedObjectGroupId = linkedObjectGroupId,
                 #endif
 
                 ScriptId = scriptId,
