@@ -25,8 +25,6 @@ namespace Pal3.Renderer
 
         private readonly Material _toonDefaultMaterial;
         private readonly Material _toonTransparentMaterial;
-        private readonly Shader _toonDefaultShader;
-        private readonly Shader _toonTransparentShader;
 
         public LitMaterialFactory(
             Material toonDefaultMaterial,
@@ -34,9 +32,6 @@ namespace Pal3.Renderer
         {
             _toonDefaultMaterial = toonDefaultMaterial;
             _toonTransparentMaterial = toonTransparentMaterial;
-
-            _toonDefaultShader = toonDefaultMaterial.shader;
-            _toonTransparentShader = toonTransparentMaterial.shader;
         }
 
         public MaterialShaderType ShaderType { get; } = MaterialShaderType.Lit;
@@ -145,16 +140,14 @@ namespace Pal3.Renderer
 
         private Material CreateBaseTransparentMaterial((string name, Texture2D texture) mainTexture)
         {
-            Material material = new Material(_toonTransparentShader);
-            material.CopyPropertiesFromMaterial(_toonTransparentMaterial);
+            Material material = new Material(_toonTransparentMaterial);
             material.mainTexture = mainTexture.texture;
             return material;
         }
 
         private Material CreateBaseOpaqueMaterial((string name, Texture2D texture) mainTexture)
         {
-            Material material = new Material(_toonDefaultShader);
-            material.CopyPropertiesFromMaterial(_toonDefaultMaterial);
+            Material material = new Material(_toonDefaultMaterial);
             material.mainTexture = mainTexture.texture;
             return material;
         }
