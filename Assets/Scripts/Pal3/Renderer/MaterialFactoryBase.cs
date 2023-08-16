@@ -53,8 +53,6 @@ namespace Pal3.Renderer
             }
         }
 
-        protected virtual void ReturnToPool(Material material)
-        {
-        }
+        protected virtual void ReturnToPool(Material material) { }
     }
 }

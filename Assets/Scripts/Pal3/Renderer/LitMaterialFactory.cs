@@ -7,9 +7,11 @@ namespace Pal3.Renderer
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
+    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Lit material factory for generating materials
@@ -74,6 +76,9 @@ namespace Pal3.Renderer
 
         public void PreAllocateMaterialPool()
         {
+            var timer = new Stopwatch();
+            timer.Start();
+
             for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
                 _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial)
@@ -89,6 +94,9 @@ namespace Pal3.Renderer
                     name = TRANSPARENT_MATERIAL_NAME
                 });
             }
+
+            timer.Stop();
+            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
         }
 
         public MaterialShaderType ShaderType => MaterialShaderType.Lit;

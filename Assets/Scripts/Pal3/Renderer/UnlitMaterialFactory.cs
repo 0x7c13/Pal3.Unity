@@ -6,9 +6,11 @@
 namespace Pal3.Renderer
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
+    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Unlit material factory for generating materials that have similar
@@ -68,6 +70,9 @@ namespace Pal3.Renderer
 
         public void PreAllocateMaterialPool()
         {
+            var timer = new Stopwatch();
+            timer.Start();
+
             for (var i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
             {
                 _waterMaterialPool.Push(new Material(_waterMaterial)
@@ -99,6 +104,9 @@ namespace Pal3.Renderer
                     name = OPAQUE_MATERIAL_NAME
                 });
             }
+
+            timer.Stop();
+            Debug.Log($"[{nameof(UnlitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
         }
 
         /// <inheritdoc/>

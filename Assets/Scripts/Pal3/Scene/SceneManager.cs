@@ -103,6 +103,7 @@ namespace Pal3.Scene
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
                     : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
 
+            timer.Stop();
             Debug.Log($"[{nameof(SceneManager)}] Scene loaded in {timer.Elapsed.TotalSeconds} seconds.");
 
             // Also a good time to collect garbage

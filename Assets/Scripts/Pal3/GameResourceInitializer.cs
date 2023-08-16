@@ -165,6 +165,9 @@ namespace Pal3
                 }
             }
 
+            loadingText.text = "正在初始化游戏资源...";
+            yield return null; // Wait for next frame to make sure the text is updated
+
             // Init TextureLoaderFactory
             TextureLoaderFactory textureLoaderFactory = new ();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
@@ -190,6 +193,9 @@ namespace Pal3
             ServiceLocator.Instance.Register(resourceProvider);
 
             Debug.Log($"[{nameof(GameResourceInitializer)}] Game resources initialized.");
+
+            loadingText.text = "正在启动游戏...";
+            yield return null; // Wait for next frame to make sure the text is updated
 
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
