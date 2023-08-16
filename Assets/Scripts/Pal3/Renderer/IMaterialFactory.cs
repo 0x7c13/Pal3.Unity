@@ -72,10 +72,14 @@ namespace Pal3.Renderer
             GameBoxBlendFlag blendFlag);
 
         /// <summary>
-        /// It is very costly to create materials in runtime,
-        /// this is the interface to pre-allocate a pool of materials.
+        /// Allocate a pool of materials.
         /// </summary>
-        public void PreAllocateMaterialPool();
+        public void AllocateMaterialPool();
+
+        /// <summary>
+        /// Deallocate the material pool.
+        /// </summary>
+        public void DeallocateMaterialPool();
 
         /// <summary>
         /// Return materials to the pool.

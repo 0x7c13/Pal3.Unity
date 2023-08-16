@@ -1161,15 +1161,6 @@ namespace Pal3.GamePlay
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
-                Scene currentScene = _sceneManager.GetCurrentScene();
-
-                var currentLayerIndex = currentScene
-                    .GetActorGameObject((int)_playerActorManager.GetPlayerActor())
-                    .GetComponent<ActorMovementController>()
-                    .GetCurrentLayerIndex();
-
-                _lastKnownPosition = currentScene.GetTilemap().GetWorldPosition(
-                    new Vector2Int(command.TileXPosition,command.TileYPosition), currentLayerIndex);
                 _tilePositionPendingNotify = true;
             }
         }

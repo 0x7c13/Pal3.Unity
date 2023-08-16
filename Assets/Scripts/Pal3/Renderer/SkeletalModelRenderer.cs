@@ -207,7 +207,7 @@ namespace Pal3.Renderer
         {
             if (_renderMeshComponents == null) return false;
 
-            foreach (var renderMeshComponent in _renderMeshComponents)
+            foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
                 if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
             }

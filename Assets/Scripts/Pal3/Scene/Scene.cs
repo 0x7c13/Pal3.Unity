@@ -348,19 +348,19 @@ namespace Pal3.Scene
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(220f / 255f, 210f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.75f : 1f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.75f : 0.9f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.65f : 1f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.65f : 0.9f;
             #endif
 
             // Ambient light
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = IsNightScene() ?
                 new Color( 90f/ 255f, 100f / 255f, 130f / 255f) :
-                new Color(200f / 255f, 200f / 255f, 180f / 255f);
+                new Color(180f / 255f, 180f / 255f, 160f / 255f);
 
             // Apply lighting override
             var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());

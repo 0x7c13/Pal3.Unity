@@ -36,7 +36,8 @@ namespace Pal3.Data
     /// Also manages the lifecycle of the resource it provides.
     /// </summary>
     public sealed class GameResourceProvider : IDisposable,
-        ICommandExecutor<ScenePreLoadingNotification>
+        ICommandExecutor<ScenePreLoadingNotification>,
+        ICommandExecutor<SettingChangedNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
@@ -614,6 +615,24 @@ namespace Pal3.Data
 
             // clear all vfx prefabs in cache
             _vfxEffectPrefabCache.Clear();
+        }
+
+        public void Execute(SettingChangedNotification command)
+        {
+            // Need to deallocate and reallocate material pool when switching between lit and unlit materials
+            if (command.SettingName == nameof(_gameSettings.IsRealtimeLightingAndShadowsEnabled))
+            {
+                if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+                {
+                    _unlitMaterialFactory?.DeallocateMaterialPool();
+                    _litMaterialFactory?.AllocateMaterialPool();
+                }
+                else
+                {
+                    _litMaterialFactory?.DeallocateMaterialPool();
+                    _unlitMaterialFactory?.AllocateMaterialPool();
+                }
+            }
         }
     }
 }

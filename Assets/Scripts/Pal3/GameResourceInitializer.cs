@@ -174,14 +174,22 @@ namespace Pal3
 
             // Init material factories
             IMaterialFactory unlitMaterialFactory = new UnlitMaterialFactory();
-            unlitMaterialFactory.PreAllocateMaterialPool(); // Pre-allocate material pool for unlit materials
 
             IMaterialFactory litMaterialFactory = null;
             // Only create litMaterialFactory when toon materials are present
             if (_toonOpaqueMaterial != null && _toonTransparentMaterial != null)
             {
                 litMaterialFactory = new LitMaterialFactory(_toonOpaqueMaterial, _toonTransparentMaterial);
-                litMaterialFactory.PreAllocateMaterialPool(); // Pre-allocate material pool for lit materials
+            }
+
+            // Pre-allocate material pool, since it is very costly to create new materials at runtime
+            if (!isOpenSourceVersion && gameSettings.IsRealtimeLightingAndShadowsEnabled && litMaterialFactory != null)
+            {
+                litMaterialFactory.AllocateMaterialPool();
+            }
+            else
+            {
+                unlitMaterialFactory.AllocateMaterialPool();
             }
 
             // Init Game resource provider

@@ -45,10 +45,10 @@ namespace Pal3.Renderer
         private readonly Material _transparentOpaquePartMaterial;
         private readonly Material _opaqueMaterial;
 
-        private const string WATER_MATERIAL_NAME = "UnlitWaterMaterial";
-        private const string TRANSPARENT_MATERIAL_NAME = "UnlitTransparentMaterial";
-        private const string TRANSPARENT_OPAQUE_PART_MATERIAL_NAME = "UnlitTransparentOpaquePartMaterial";
-        private const string OPAQUE_MATERIAL_NAME = "UnlitOpaqueMaterial";
+        private const string WATER_MATERIAL_NAME = "UnlitWater";
+        private const string TRANSPARENT_MATERIAL_NAME = "UnlitTransparent";
+        private const string TRANSPARENT_OPAQUE_PART_MATERIAL_NAME = "UnlitTransparentOpaquePart";
+        private const string OPAQUE_MATERIAL_NAME = "UnlitOpaque";
 
         private const int WATER_MATERIAL_POOL_SIZE = 100;
         private const int TRANSPARENT_MATERIAL_POOL_SIZE = 3000;
@@ -60,6 +60,8 @@ namespace Pal3.Renderer
         private readonly Stack<Material> _transparentOpaquePartMaterialPool = new (TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE);
         private readonly Stack<Material> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
 
+        private bool _isMaterialPoolAllocated = false;
+
         public UnlitMaterialFactory()
         {
             _waterMaterial = new Material(GetShader(WATER_SHADER_PATH));
@@ -68,8 +70,10 @@ namespace Pal3.Renderer
             _opaqueMaterial = new Material(GetShader(OPAQUE_SHADER_PATH));
         }
 
-        public void PreAllocateMaterialPool()
+        public void AllocateMaterialPool()
         {
+            if (_isMaterialPoolAllocated) return;
+
             var timer = new Stopwatch();
             timer.Start();
 
@@ -77,7 +81,8 @@ namespace Pal3.Renderer
             {
                 _waterMaterialPool.Push(new Material(_waterMaterial)
                 {
-                    name = WATER_MATERIAL_NAME
+                    name = WATER_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
@@ -85,7 +90,8 @@ namespace Pal3.Renderer
             {
                 _transparentMaterialPool.Push(new Material(_transparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME
+                    name = TRANSPARENT_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
@@ -93,7 +99,8 @@ namespace Pal3.Renderer
             {
                 _transparentOpaquePartMaterialPool.Push(new Material(_transparentOpaquePartMaterial)
                 {
-                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME
+                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
@@ -101,12 +108,44 @@ namespace Pal3.Renderer
             {
                 _opaqueMaterialPool.Push(new Material(_opaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME
+                    name = OPAQUE_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
             timer.Stop();
             Debug.Log($"[{nameof(UnlitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
+        }
+
+        public void DeallocateMaterialPool()
+        {
+            var timer = new Stopwatch();
+            timer.Start();
+
+            while (_waterMaterialPool.Count > 0)
+            {
+                Object.Destroy(_waterMaterialPool.Pop());
+            }
+
+            while (_transparentMaterialPool.Count > 0)
+            {
+                Object.Destroy(_transparentMaterialPool.Pop());
+            }
+
+            while (_transparentOpaquePartMaterialPool.Count > 0)
+            {
+                Object.Destroy(_transparentOpaquePartMaterialPool.Pop());
+            }
+
+            while (_opaqueMaterialPool.Count > 0)
+            {
+                Object.Destroy(_opaqueMaterialPool.Pop());
+            }
+
+            _isMaterialPoolAllocated = false;
+
+            timer.Stop();
+            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool de-allocated in {timer.ElapsedMilliseconds} ms.");
         }
 
         /// <inheritdoc/>
@@ -196,7 +235,8 @@ namespace Pal3.Renderer
             {
                 material = new Material(_waterMaterial)
                 {
-                    name = WATER_MATERIAL_NAME
+                    name = WATER_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 };
             }
 
@@ -231,7 +271,8 @@ namespace Pal3.Renderer
             {
                 material = new Material(_transparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME
+                    name = TRANSPARENT_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 };
             }
 
@@ -268,7 +309,8 @@ namespace Pal3.Renderer
             {
                 material = new Material(_transparentOpaquePartMaterial)
                 {
-                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME
+                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 };
             }
 
@@ -304,7 +346,8 @@ namespace Pal3.Renderer
             {
                 material = new Material(_opaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME
+                    name = OPAQUE_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 };
             }
 

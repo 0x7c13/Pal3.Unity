@@ -30,8 +30,8 @@ namespace Pal3.Renderer
         private readonly Material _toonOpaqueMaterial;
         private readonly Material _toonTransparentMaterial;
 
-        private const string OPAQUE_MATERIAL_NAME = "LitOpaqueMaterial";
-        private const string TRANSPARENT_MATERIAL_NAME = "LitTransparentMaterial";
+        private const string OPAQUE_MATERIAL_NAME = "LitOpaque";
+        private const string TRANSPARENT_MATERIAL_NAME = "LitTransparent";
 
         private const int OPAQUE_MATERIAL_POOL_SIZE = 5000;
         private const int TRANSPARENT_MATERIAL_POOL_SIZE = 1000;
@@ -48,6 +48,8 @@ namespace Pal3.Renderer
         private readonly float _transparentMaterialOpacityPropertyDefaultValue;
         private readonly float _transparentMaterialLightIntensityPropertyDefaultValue;
         private readonly float _transparentMaterialEnvironmentalLightingIntensityPropertyDefaultValue;
+
+        private bool _isMaterialPoolAllocated = false;
 
         public LitMaterialFactory(
             Material toonOpaqueMaterial,
@@ -74,8 +76,10 @@ namespace Pal3.Renderer
                 _toonTransparentMaterial.GetFloat(EnvironmentalLightingIntensityPropertyId);
         }
 
-        public void PreAllocateMaterialPool()
+        public void AllocateMaterialPool()
         {
+            if (_isMaterialPoolAllocated) return;
+
             var timer = new Stopwatch();
             timer.Start();
 
@@ -83,7 +87,8 @@ namespace Pal3.Renderer
             {
                 _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME
+                    name = OPAQUE_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
@@ -91,12 +96,36 @@ namespace Pal3.Renderer
             {
                 _transparentMaterialPool.Push(new Material(_toonTransparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME
+                    name = TRANSPARENT_MATERIAL_NAME,
+                    hideFlags = HideFlags.HideAndDontSave
                 });
             }
 
+            _isMaterialPoolAllocated = true;
+
             timer.Stop();
             Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
+        }
+
+        public void DeallocateMaterialPool()
+        {
+            var timer = new Stopwatch();
+            timer.Start();
+
+            while (_opaqueMaterialPool.Count > 0)
+            {
+                UnityEngine.Object.Destroy(_opaqueMaterialPool.Pop());
+            }
+
+            while (_transparentMaterialPool.Count > 0)
+            {
+                UnityEngine.Object.Destroy(_transparentMaterialPool.Pop());
+            }
+
+            _isMaterialPoolAllocated = false;
+
+            timer.Stop();
+            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool de-allocated in {timer.ElapsedMilliseconds} ms.");
         }
 
         public MaterialShaderType ShaderType => MaterialShaderType.Lit;
@@ -230,7 +259,8 @@ namespace Pal3.Renderer
             return new Material(_toonTransparentMaterial)
             {
                 mainTexture = mainTexture.texture,
-                name = TRANSPARENT_MATERIAL_NAME
+                name = TRANSPARENT_MATERIAL_NAME,
+                hideFlags = HideFlags.HideAndDontSave
             };
         }
 
@@ -254,7 +284,8 @@ namespace Pal3.Renderer
             return new Material(_toonOpaqueMaterial)
             {
                 mainTexture = mainTexture.texture,
-                name = OPAQUE_MATERIAL_NAME
+                name = OPAQUE_MATERIAL_NAME,
+                hideFlags = HideFlags.HideAndDontSave
             };
         }
 
