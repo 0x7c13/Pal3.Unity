@@ -846,8 +846,7 @@ namespace Pal3.Actor
 
             // Check if position at current layer exists, if not, auto switch
             // to next layer (if tile at next layer is valid).
-            // If position at both layers are valid, switch to next layer.
-            // If current layer is not walkable but next layer is walkable.
+            // Also, switch to next layer if tile at current layer is obstacle.
             if (_tilemap.GetLayerCount() > 1)
             {
                 bool isTileExistsInCurrentLayer = _tilemap.TryGetTile(tilePosition,
@@ -860,7 +859,10 @@ namespace Pal3.Actor
                     SetNavLayer((_currentLayerIndex + 1) % 2);
                 }
                 else if (isTileExistsInCurrentLayer && isTileExistsInNextLayer &&
-                         !tileAtCurrentLayer.IsWalkable() && tileAtNextLayer.IsWalkable())
+                         tileAtCurrentLayer.DistanceToNearestObstacle == 0 &&
+                         tileAtNextLayer.DistanceToNearestObstacle > 0)
+                    // DO NOT USE IsWalkable() to check if tile is obstacle, because it can be
+                    // overwritten by script (Ex: Tilemap.MarkFloorKindAsObstacle())
                 {
                     SetNavLayer((_currentLayerIndex + 1) % 2);
                 }
