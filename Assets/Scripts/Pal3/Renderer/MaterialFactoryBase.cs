@@ -42,5 +42,19 @@ namespace Pal3.Renderer
 
             return shader;
         }
+
+        public void ReturnToPool(Material[] materials)
+        {
+            if (materials == null) return;
+
+            foreach (Material material in materials)
+            {
+                ReturnToPool(material);
+            }
+        }
+
+        protected virtual void ReturnToPool(Material material)
+        {
+        }
     }
 }

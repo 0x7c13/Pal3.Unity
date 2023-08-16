@@ -271,6 +271,7 @@ namespace Pal3.Renderer
 
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
+                _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
                 Destroy(meshRenderer.gameObject);
             }
         }

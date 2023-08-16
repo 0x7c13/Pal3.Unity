@@ -39,7 +39,7 @@ namespace Pal3
         [SerializeField] private TextMeshProUGUI loadingText;
 
         // Optional materials that are used in the game but not open sourced
-        private Material _toonDefaultMaterial;
+        private Material _toonOpaqueMaterial;
         private Material _toonTransparentMaterial;
 
         private IEnumerator Start()
@@ -47,12 +47,12 @@ namespace Pal3
             loadingText.text = "正在加载游戏数据...";
             yield return null; // Wait for next frame to make sure the text is updated
 
-            ResourceRequest toonDefaultMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonDefault");
-            yield return toonDefaultMaterialLoadRequest;
+            ResourceRequest toonOpaqueMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonDefault");
+            yield return toonOpaqueMaterialLoadRequest;
 
-            if (toonDefaultMaterialLoadRequest.asset != null)
+            if (toonOpaqueMaterialLoadRequest.asset != null)
             {
-                _toonDefaultMaterial = toonDefaultMaterialLoadRequest.asset as Material;
+                _toonOpaqueMaterial = toonOpaqueMaterialLoadRequest.asset as Material;
             }
 
             ResourceRequest toonTransparentMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonTransparent");
@@ -76,7 +76,7 @@ namespace Pal3
             ServiceLocator.Instance.Register<Crc32Hash>(crcHash);
 
             // If toon materials are not present, it's an open source build
-            bool isOpenSourceVersion = _toonDefaultMaterial == null || _toonTransparentMaterial == null;
+            bool isOpenSourceVersion = _toonOpaqueMaterial == null || _toonTransparentMaterial == null;
 
             // Init settings store
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
@@ -171,12 +171,14 @@ namespace Pal3
 
             // Init material factories
             IMaterialFactory unlitMaterialFactory = new UnlitMaterialFactory();
-            IMaterialFactory litMaterialFactory = null;
+            unlitMaterialFactory.PreAllocateMaterialPool(); // Pre-allocate material pool for unlit materials
 
+            IMaterialFactory litMaterialFactory = null;
             // Only create litMaterialFactory when toon materials are present
-            if (_toonDefaultMaterial != null && _toonTransparentMaterial != null)
+            if (_toonOpaqueMaterial != null && _toonTransparentMaterial != null)
             {
-                litMaterialFactory = new LitMaterialFactory(_toonDefaultMaterial, _toonTransparentMaterial);
+                litMaterialFactory = new LitMaterialFactory(_toonOpaqueMaterial, _toonTransparentMaterial);
+                litMaterialFactory.PreAllocateMaterialPool(); // Pre-allocate material pool for lit materials
             }
 
             // Init Game resource provider

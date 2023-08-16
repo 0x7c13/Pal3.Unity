@@ -5,6 +5,8 @@
 
 namespace Pal3.Renderer
 {
+    using System;
+    using System.Collections.Generic;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -23,18 +25,73 @@ namespace Pal3.Renderer
         private static readonly int OpacityPropertyId = Shader.PropertyToID("_Opacity");
         private static readonly int EnvironmentalLightingIntensityPropertyId = Shader.PropertyToID("_EnvironmentalLightingIntensity");
 
-        private readonly Material _toonDefaultMaterial;
+        private readonly Material _toonOpaqueMaterial;
         private readonly Material _toonTransparentMaterial;
 
+        private const string OPAQUE_MATERIAL_NAME = "LitOpaqueMaterial";
+        private const string TRANSPARENT_MATERIAL_NAME = "LitTransparentMaterial";
+
+        private const int OPAQUE_MATERIAL_POOL_SIZE = 5000;
+        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 1000;
+
+        private readonly Stack<Material> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
+        private readonly Stack<Material> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
+
+        private readonly float _opaqueMaterialCutoutPropertyDefaultValue;
+        private readonly float _opaqueMaterialLightIntensityPropertyDefaultValue;
+        private readonly float _opaqueMaterialEnvironmentalLightingIntensityPropertyDefaultValue;
+
+        private readonly int _transparentMaterialBlendSrcFactorPropertyDefaultValue;
+        private readonly int _transparentMaterialBlendDstFactorPropertyDefaultValue;
+        private readonly float _transparentMaterialOpacityPropertyDefaultValue;
+        private readonly float _transparentMaterialLightIntensityPropertyDefaultValue;
+        private readonly float _transparentMaterialEnvironmentalLightingIntensityPropertyDefaultValue;
+
         public LitMaterialFactory(
-            Material toonDefaultMaterial,
+            Material toonOpaqueMaterial,
             Material toonTransparentMaterial)
         {
-            _toonDefaultMaterial = toonDefaultMaterial;
+            _toonOpaqueMaterial = toonOpaqueMaterial;
             _toonTransparentMaterial = toonTransparentMaterial;
+
+            _opaqueMaterialCutoutPropertyDefaultValue =
+                _toonOpaqueMaterial.GetFloat(CutoutPropertyId);
+            _opaqueMaterialLightIntensityPropertyDefaultValue =
+                _toonOpaqueMaterial.GetFloat(LightIntensityPropertyId);
+            _opaqueMaterialEnvironmentalLightingIntensityPropertyDefaultValue =
+                _toonOpaqueMaterial.GetFloat(EnvironmentalLightingIntensityPropertyId);
+
+            _transparentMaterialBlendSrcFactorPropertyDefaultValue =
+                _toonTransparentMaterial.GetInt(BlendSrcFactorPropertyId);
+            _transparentMaterialBlendDstFactorPropertyDefaultValue =
+                _toonTransparentMaterial.GetInt(BlendDstFactorPropertyId);
+            _transparentMaterialOpacityPropertyDefaultValue = _toonTransparentMaterial.GetFloat(OpacityPropertyId);
+            _transparentMaterialLightIntensityPropertyDefaultValue =
+                _toonTransparentMaterial.GetFloat(LightIntensityPropertyId);
+            _transparentMaterialEnvironmentalLightingIntensityPropertyDefaultValue =
+                _toonTransparentMaterial.GetFloat(EnvironmentalLightingIntensityPropertyId);
         }
 
-        public MaterialShaderType ShaderType { get; } = MaterialShaderType.Lit;
+        public void PreAllocateMaterialPool()
+        {
+            for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
+            {
+                _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial)
+                {
+                    name = OPAQUE_MATERIAL_NAME
+                });
+            }
+
+            for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
+            {
+                _transparentMaterialPool.Push(new Material(_toonTransparentMaterial)
+                {
+                    name = TRANSPARENT_MATERIAL_NAME
+                });
+            }
+        }
+
+        public MaterialShaderType ShaderType => MaterialShaderType.Lit;
 
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
@@ -52,9 +109,12 @@ namespace Pal3.Renderer
                 // These are the texture/materials that have to be transparent in the game
                 // m23-3-05.tga => transparent doom like structure in PAL3 scene M23-3
                 // Q08QN10-05.tga => transparent coffin in PAL3 scene Q08-QN10
-                // TODO: Add more if needed
-                bool useTransparentMaterial = mainTexture.name is "m23-3-05.tga" or "Q08QN10-05.tga" ||
-                                              blendFlag == GameBoxBlendFlag.InvertColorBlend;
+                // m25-2-05.tga => transparent roof in PAL3 scene M25-2
+                // TODO: Add more if needed, by default we use opaque material
+                bool useTransparentMaterial = blendFlag == GameBoxBlendFlag.InvertColorBlend ||
+                        mainTexture.name.Equals("m23-3-05.tga", StringComparison.OrdinalIgnoreCase) ||
+                        mainTexture.name.Equals("Q08QN10-05.tga", StringComparison.OrdinalIgnoreCase) ||
+                        mainTexture.name.Equals("m25-2-05.tga", StringComparison.OrdinalIgnoreCase);
                 #elif PAL3A
                 bool useTransparentMaterial = blendFlag == GameBoxBlendFlag.InvertColorBlend;
                 #endif
@@ -140,16 +200,71 @@ namespace Pal3.Renderer
 
         private Material CreateBaseTransparentMaterial((string name, Texture2D texture) mainTexture)
         {
-            Material material = new Material(_toonTransparentMaterial);
-            material.mainTexture = mainTexture.texture;
-            return material;
+            if (_transparentMaterialPool.Count > 0)
+            {
+                Material material = _transparentMaterialPool.Pop();
+                // Reset material properties
+                material.SetInt(BlendSrcFactorPropertyId,
+                    _transparentMaterialBlendSrcFactorPropertyDefaultValue);
+                material.SetInt(BlendDstFactorPropertyId,
+                    _transparentMaterialBlendDstFactorPropertyDefaultValue);
+                material.SetFloat(OpacityPropertyId,
+                    _transparentMaterialOpacityPropertyDefaultValue);
+                material.SetFloat(LightIntensityPropertyId,
+                    _transparentMaterialLightIntensityPropertyDefaultValue);
+                material.SetFloat(EnvironmentalLightingIntensityPropertyId,
+                    _transparentMaterialEnvironmentalLightingIntensityPropertyDefaultValue);
+                material.mainTexture = mainTexture.texture;
+                return material;
+            }
+
+            // In case we run out of transparent materials
+            return new Material(_toonTransparentMaterial)
+            {
+                mainTexture = mainTexture.texture,
+                name = TRANSPARENT_MATERIAL_NAME
+            };
         }
 
         private Material CreateBaseOpaqueMaterial((string name, Texture2D texture) mainTexture)
         {
-            Material material = new Material(_toonDefaultMaterial);
-            material.mainTexture = mainTexture.texture;
-            return material;
+            if (_opaqueMaterialPool.Count > 0)
+            {
+                Material material = _opaqueMaterialPool.Pop();
+                // Reset material properties
+                material.SetFloat(CutoutPropertyId,
+                    _opaqueMaterialCutoutPropertyDefaultValue);
+                material.SetFloat(LightIntensityPropertyId,
+                    _opaqueMaterialLightIntensityPropertyDefaultValue);
+                material.SetFloat(EnvironmentalLightingIntensityPropertyId,
+                    _opaqueMaterialEnvironmentalLightingIntensityPropertyDefaultValue);
+                material.mainTexture = mainTexture.texture;
+                return material;
+            }
+
+            // In case we run out of opaque materials
+            return new Material(_toonOpaqueMaterial)
+            {
+                mainTexture = mainTexture.texture,
+                name = OPAQUE_MATERIAL_NAME
+            };
+        }
+
+        protected override void ReturnToPool(Material material)
+        {
+            switch (material.name)
+            {
+                case TRANSPARENT_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    _transparentMaterialPool.Push(material);
+                    break;
+                case OPAQUE_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    _opaqueMaterialPool.Push(material);
+                    break;
+                default:
+                    return;
+            }
         }
     }
 }

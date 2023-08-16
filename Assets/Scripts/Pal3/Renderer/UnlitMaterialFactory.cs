@@ -5,6 +5,7 @@
 
 namespace Pal3.Renderer
 {
+    using System.Collections.Generic;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -22,15 +23,12 @@ namespace Pal3.Renderer
         private const string WATER_SHADER_PATH = "Pal3/Water";
 
         // Water material uniforms
-        private static readonly int WaterMainTexPropId = Shader.PropertyToID("_MainTex");
-        private static readonly int WaterShadowTexPropId = Shader.PropertyToID("_ShadowTex");
         private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
         private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
 
         // Standard material uniforms for Pal3 unlit shaders
         private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
         private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
-        private static readonly int MainTexturePropertyId = Shader.PropertyToID("_MainTex");
         private static readonly int TintColorPropertyId = Shader.PropertyToID("_TintColor");
         private static readonly int TransparentThresholdPropertyId = Shader.PropertyToID("_Threshold");
         private static readonly int HasShadowTexturePropertyId = Shader.PropertyToID("_HasShadowTex");
@@ -38,28 +36,69 @@ namespace Pal3.Renderer
 
         private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
 
-        public MaterialShaderType ShaderType { get; } = MaterialShaderType.Unlit;
+        public MaterialShaderType ShaderType => MaterialShaderType.Unlit;
 
-        /// <inheritdoc/>
-        public Material CreateWaterMaterial(
-            (string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture,
-            float opacity,
-            GameBoxBlendFlag blendFlag)
+        private readonly Material _waterMaterial;
+        private readonly Material _transparentMaterial;
+        private readonly Material _transparentOpaquePartMaterial;
+        private readonly Material _opaqueMaterial;
+
+        private const string WATER_MATERIAL_NAME = "UnlitWaterMaterial";
+        private const string TRANSPARENT_MATERIAL_NAME = "UnlitTransparentMaterial";
+        private const string TRANSPARENT_OPAQUE_PART_MATERIAL_NAME = "UnlitTransparentOpaquePartMaterial";
+        private const string OPAQUE_MATERIAL_NAME = "UnlitOpaqueMaterial";
+
+        private const int WATER_MATERIAL_POOL_SIZE = 100;
+        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 3000;
+        private const int TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE = 3000;
+        private const int OPAQUE_MATERIAL_POOL_SIZE = 5000;
+
+        private readonly Stack<Material> _waterMaterialPool = new (WATER_MATERIAL_POOL_SIZE);
+        private readonly Stack<Material> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
+        private readonly Stack<Material> _transparentOpaquePartMaterialPool = new (TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE);
+        private readonly Stack<Material> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
+
+        public UnlitMaterialFactory()
         {
-            var material = new Material(GetShader(WATER_SHADER_PATH));
-            material.SetTexture(WaterMainTexPropId,mainTexture.texture);
-            material.SetFloat(WaterAlphaPropId, opacity);
-            if (shadowTexture.texture != null)
+            _waterMaterial = new Material(GetShader(WATER_SHADER_PATH));
+            _transparentMaterial = new Material(GetShader(TRANSPARENT_SHADER_PATH));
+            _transparentOpaquePartMaterial = new Material(GetShader(TRANSPARENT_OPAQUE_PART_SHADER_PATH));
+            _opaqueMaterial = new Material(GetShader(OPAQUE_SHADER_PATH));
+        }
+
+        public void PreAllocateMaterialPool()
+        {
+            for (var i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
             {
-                material.SetFloat(WaterHasShadowTexPropId, 1.0f);
-                material.SetTexture(WaterShadowTexPropId, shadowTexture.texture);
+                _waterMaterialPool.Push(new Material(_waterMaterial)
+                {
+                    name = WATER_MATERIAL_NAME
+                });
             }
-            else
+
+            for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
-                material.SetFloat(WaterHasShadowTexPropId, 0.5f);
+                _transparentMaterialPool.Push(new Material(_transparentMaterial)
+                {
+                    name = TRANSPARENT_MATERIAL_NAME
+                });
             }
-            return material;
+
+            for (var i = 0; i < TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE; i++)
+            {
+                _transparentOpaquePartMaterialPool.Push(new Material(_transparentOpaquePartMaterial)
+                {
+                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME
+                });
+            }
+
+            for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
+            {
+                _opaqueMaterialPool.Push(new Material(_opaqueMaterial)
+                {
+                    name = OPAQUE_MATERIAL_NAME
+                });
+            }
         }
 
         /// <inheritdoc/>
@@ -133,23 +172,74 @@ namespace Pal3.Renderer
             }
         }
 
+        /// <inheritdoc/>
+        public Material CreateWaterMaterial(
+            (string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture,
+            float opacity,
+            GameBoxBlendFlag blendFlag)
+        {
+            Material material;
+            if (_waterMaterialPool.Count > 0)
+            {
+                material = _waterMaterialPool.Pop();
+            }
+            else
+            {
+                material = new Material(_waterMaterial)
+                {
+                    name = WATER_MATERIAL_NAME
+                };
+            }
+
+            material.mainTexture = mainTexture.texture;
+            material.SetFloat(WaterAlphaPropId, opacity);
+
+            if (shadowTexture.texture != null)
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 1.0f);
+                material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
+            }
+            else
+            {
+                material.SetFloat(WaterHasShadowTexPropId, 0.5f);
+                material.SetTexture(ShadowTexturePropertyId, null);
+            }
+            return material;
+        }
+
         private Material CreateTransparentMaterial(
             (string name, Texture2D texture) mainTexture,
             (string name, Texture2D texture) shadowTexture,
             Color tintColor,
             float transparentThreshold)
         {
-            var material = new Material(GetShader(TRANSPARENT_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture.texture);
+            Material material;
+            if (_transparentMaterialPool.Count > 0)
+            {
+                material = _transparentMaterialPool.Pop();
+            }
+            else
+            {
+                material = new Material(_transparentMaterial)
+                {
+                    name = TRANSPARENT_MATERIAL_NAME
+                };
+            }
+
+            material.mainTexture = mainTexture.texture;
             material.SetColor(TintColorPropertyId, tintColor);
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
 
-            // shadow texture
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture.texture != null)
             {
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
+            }
+            else
+            {
+                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+                material.SetTexture(ShadowTexturePropertyId, null);
             }
 
             return material;
@@ -161,17 +251,32 @@ namespace Pal3.Renderer
             Color tintColor,
             float transparentThreshold)
         {
-            Material material = new Material(GetShader(TRANSPARENT_OPAQUE_PART_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture.texture);
+            Material material;
+            if (_transparentOpaquePartMaterialPool.Count > 0)
+            {
+                material = _transparentOpaquePartMaterialPool.Pop();
+            }
+            else
+            {
+                material = new Material(_transparentOpaquePartMaterial)
+                {
+                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME
+                };
+            }
+
+            material.mainTexture = mainTexture.texture;
             material.SetColor(TintColorPropertyId, tintColor);
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
 
-            // shadow
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture.texture != null)
             {
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
+            }
+            else
+            {
+                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+                material.SetTexture(ShadowTexturePropertyId, null);
             }
 
             return material;
@@ -182,19 +287,63 @@ namespace Pal3.Renderer
             (string name, Texture2D texture) shadowTexture,
             Color tintColor)
         {
-            Material material = new Material(GetShader(OPAQUE_SHADER_PATH));
-            material.SetTexture(MainTexturePropertyId, mainTexture.texture);
+            Material material;
+            if (_opaqueMaterialPool.Count > 0)
+            {
+                material = _opaqueMaterialPool.Pop();
+            }
+            else
+            {
+                material = new Material(_opaqueMaterial)
+                {
+                    name = OPAQUE_MATERIAL_NAME
+                };
+            }
+
+            material.mainTexture = mainTexture.texture;
             material.SetColor(TintColorPropertyId, tintColor);
 
-            // shadow
-            material.SetFloat(HasShadowTexturePropertyId, 0.0f);
             if (shadowTexture.texture != null)
             {
                 material.SetFloat(HasShadowTexturePropertyId, 1.0f);
                 material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
             }
+            else
+            {
+                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
+                material.SetTexture(ShadowTexturePropertyId, null);
+            }
 
             return material;
+        }
+
+        protected override void ReturnToPool(Material material)
+        {
+            switch (material.name)
+            {
+                case WATER_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    material.SetTexture(ShadowTexturePropertyId, null);
+                    _waterMaterialPool.Push(material);
+                    break;
+                case TRANSPARENT_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    material.SetTexture(ShadowTexturePropertyId, null);
+                    _transparentMaterialPool.Push(material);
+                    break;
+                case TRANSPARENT_OPAQUE_PART_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    material.SetTexture(ShadowTexturePropertyId, null);
+                    _transparentOpaquePartMaterialPool.Push(material);
+                    break;
+                case OPAQUE_MATERIAL_NAME:
+                    material.mainTexture = null;
+                    material.SetTexture(ShadowTexturePropertyId, null);
+                    _opaqueMaterialPool.Push(material);
+                    break;
+                default:
+                    return;
+            }
         }
     }
 }

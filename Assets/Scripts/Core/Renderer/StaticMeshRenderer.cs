@@ -13,6 +13,8 @@ namespace Core.Renderer
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
+        private Material[] _materials;
+
         public Mesh Render(ref Vector3[] vertices,
             ref int[] triangles,
             ref Vector3[] normals,
@@ -23,6 +25,7 @@ namespace Core.Renderer
         {
             Dispose();
 
+            _materials = materials;
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshRenderer.sharedMaterials = materials;
 
@@ -73,6 +76,11 @@ namespace Core.Renderer
             return _meshFilter.sharedMesh.bounds;
         }
 
+        public Material[] GetMaterials()
+        {
+            return _materials;
+        }
+
         private void OnDisable()
         {
             Dispose();
@@ -88,13 +96,10 @@ namespace Core.Renderer
 
             if (_meshRenderer != null)
             {
-                foreach (Material material in _meshRenderer.sharedMaterials)
-                {
-                    Destroy(material);
-                }
-
                 Destroy(_meshRenderer);
             }
+
+            _materials = null;
         }
     }
 }

@@ -461,6 +461,7 @@ namespace Pal3.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
+                    _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
                     Destroy(renderMeshComponent.Mesh);
                     Destroy(renderMeshComponent.MeshRenderer);
                 }

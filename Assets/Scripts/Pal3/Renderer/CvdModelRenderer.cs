@@ -30,12 +30,15 @@ namespace Pal3.Renderer
         private float _animationDuration;
         private CancellationTokenSource _animationCts = new ();
 
+        private IMaterialFactory _materialFactory;
+
         public void Init(CvdFile cvdFile,
             ITextureResourceProvider textureProvider,
             IMaterialFactory materialFactory,
             Color? tintColor = default,
             float initTime = 0f)
         {
+            _materialFactory = materialFactory;
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor ?? Color.white;
             _currentTime = initTime;
@@ -55,7 +58,6 @@ namespace Pal3.Renderer
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,
-                    materialFactory,
                     root);
             }
 
@@ -193,7 +195,6 @@ namespace Pal3.Renderer
             string meshName,
             CvdGeometryNode node,
             Dictionary<string, Texture2D> textureCache,
-            IMaterialFactory materialFactory,
             GameObject parent)
         {
             var meshObject = new GameObject(meshName);
@@ -246,7 +247,7 @@ namespace Pal3.Renderer
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
 
-                    Material[] materials = materialFactory.CreateStandardMaterials(
+                    Material[] materials = _materialFactory.CreateStandardMaterials(
                         RendererType.Cvd,
                         (textureName, textureCache[textureName]),
                         shadowTexture: (null, null), // CVD models don't have shadow textures
@@ -287,7 +288,6 @@ namespace Pal3.Renderer
                     childMeshName,
                     node.Children[i],
                     textureCache,
-                    materialFactory,
                     meshObject);
             }
         }
@@ -353,8 +353,8 @@ namespace Pal3.Renderer
                         influence,
                         frameMatrix);
 
-                    renderMeshComponent.Mesh.vertices = meshDataBuffer.VertexBuffer;
-                    renderMeshComponent.Mesh.uv = meshDataBuffer.UvBuffer;
+                    renderMeshComponent.Mesh.SetVertices(meshDataBuffer.VertexBuffer);
+                    renderMeshComponent.Mesh.SetUVs(0, meshDataBuffer.UvBuffer);
                     renderMeshComponent.Mesh.RecalculateBounds();
                 }
             }
@@ -578,6 +578,7 @@ namespace Pal3.Renderer
 
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
+                _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
                 Destroy(meshRenderer.gameObject);
             }
         }

@@ -253,42 +253,6 @@ namespace Pal3.Renderer
             }
         }
 
-        public void Dispose()
-        {
-            PauseAnimation();
-
-            if (_renderMeshComponents != null)
-            {
-                foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
-                {
-                    Destroy(renderMeshComponent.Mesh);
-                    Destroy(renderMeshComponent.MeshRenderer);
-                }
-
-                _renderMeshComponents = null;
-            }
-
-            if (_meshObjects != null)
-            {
-                foreach (GameObject meshObject in _meshObjects)
-                {
-                    Destroy(meshObject);
-                }
-
-                _meshObjects = null;
-            }
-
-            if (_tagNodes != null)
-            {
-                foreach (GameObject tagNode in _tagNodes)
-                {
-                    Destroy(tagNode);
-                }
-
-                _tagNodes = null;
-            }
-        }
-
         public bool IsVisible()
         {
             return _meshObjects != null;
@@ -485,6 +449,43 @@ namespace Pal3.Renderer
         private void OnDisable()
         {
             Dispose();
+        }
+
+        public void Dispose()
+        {
+            PauseAnimation();
+
+            if (_renderMeshComponents != null)
+            {
+                foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
+                {
+                    _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
+                    Destroy(renderMeshComponent.Mesh);
+                    Destroy(renderMeshComponent.MeshRenderer);
+                }
+
+                _renderMeshComponents = null;
+            }
+
+            if (_meshObjects != null)
+            {
+                foreach (GameObject meshObject in _meshObjects)
+                {
+                    Destroy(meshObject);
+                }
+
+                _meshObjects = null;
+            }
+
+            if (_tagNodes != null)
+            {
+                foreach (GameObject tagNode in _tagNodes)
+                {
+                    Destroy(tagNode);
+                }
+
+                _tagNodes = null;
+            }
         }
     }
 }

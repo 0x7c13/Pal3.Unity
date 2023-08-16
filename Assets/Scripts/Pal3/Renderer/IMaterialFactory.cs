@@ -70,5 +70,17 @@ namespace Pal3.Renderer
         public void UpdateMaterial(Material material,
             Texture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
+
+        /// <summary>
+        /// It is very costly to create materials in runtime,
+        /// this is the interface to pre-allocate a pool of materials.
+        /// </summary>
+        public void PreAllocateMaterialPool();
+
+        /// <summary>
+        /// Return materials to the pool.
+        /// </summary>
+        /// <param name="materials">Materials to return</param>
+        public void ReturnToPool(Material[] materials);
     }
 }
