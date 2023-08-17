@@ -24,6 +24,11 @@ namespace Pal3.Renderer
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string WATER_SHADER_PATH = "Pal3/Water";
 
+        private const string OPAQUE_SHADER_NAME = "Pal3/Opaque";
+        private const string TRANSPARENT_SHADER_NAME = "Pal3/Transparent";
+        private const string TRANSPARENT_OPAQUE_PART_SHADER_NAME = "Pal3/TransparentOpaquePart";
+        private const string WATER_SHADER_NAME = "Pal3/Water";
+
         // Water material uniforms
         private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
         private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
@@ -45,15 +50,10 @@ namespace Pal3.Renderer
         private readonly Material _transparentOpaquePartMaterial;
         private readonly Material _opaqueMaterial;
 
-        private const string WATER_MATERIAL_NAME = "UnlitWater";
-        private const string TRANSPARENT_MATERIAL_NAME = "UnlitTransparent";
-        private const string TRANSPARENT_OPAQUE_PART_MATERIAL_NAME = "UnlitTransparentOpaquePart";
-        private const string OPAQUE_MATERIAL_NAME = "UnlitOpaque";
-
         private const int WATER_MATERIAL_POOL_SIZE = 100;
-        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 3000;
-        private const int TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE = 3000;
-        private const int OPAQUE_MATERIAL_POOL_SIZE = 5000;
+        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 1500;
+        private const int TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE = 1500;
+        private const int OPAQUE_MATERIAL_POOL_SIZE = 2000;
 
         private readonly Stack<Material> _waterMaterialPool = new (WATER_MATERIAL_POOL_SIZE);
         private readonly Stack<Material> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
@@ -81,7 +81,6 @@ namespace Pal3.Renderer
             {
                 _waterMaterialPool.Push(new Material(_waterMaterial)
                 {
-                    name = WATER_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -90,7 +89,6 @@ namespace Pal3.Renderer
             {
                 _transparentMaterialPool.Push(new Material(_transparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -99,7 +97,6 @@ namespace Pal3.Renderer
             {
                 _transparentOpaquePartMaterialPool.Push(new Material(_transparentOpaquePartMaterial)
                 {
-                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -108,7 +105,6 @@ namespace Pal3.Renderer
             {
                 _opaqueMaterialPool.Push(new Material(_opaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -124,22 +120,22 @@ namespace Pal3.Renderer
 
             while (_waterMaterialPool.Count > 0)
             {
-                Object.Destroy(_waterMaterialPool.Pop());
+                Object.DestroyImmediate(_waterMaterialPool.Pop());
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                Object.Destroy(_transparentMaterialPool.Pop());
+                Object.DestroyImmediate(_transparentMaterialPool.Pop());
             }
 
             while (_transparentOpaquePartMaterialPool.Count > 0)
             {
-                Object.Destroy(_transparentOpaquePartMaterialPool.Pop());
+                Object.DestroyImmediate(_transparentOpaquePartMaterialPool.Pop());
             }
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                Object.Destroy(_opaqueMaterialPool.Pop());
+                Object.DestroyImmediate(_opaqueMaterialPool.Pop());
             }
 
             _isMaterialPoolAllocated = false;
@@ -235,7 +231,6 @@ namespace Pal3.Renderer
             {
                 material = new Material(_waterMaterial)
                 {
-                    name = WATER_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 };
             }
@@ -271,7 +266,6 @@ namespace Pal3.Renderer
             {
                 material = new Material(_transparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 };
             }
@@ -309,7 +303,6 @@ namespace Pal3.Renderer
             {
                 material = new Material(_transparentOpaquePartMaterial)
                 {
-                    name = TRANSPARENT_OPAQUE_PART_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 };
             }
@@ -346,7 +339,6 @@ namespace Pal3.Renderer
             {
                 material = new Material(_opaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 };
             }
@@ -370,24 +362,24 @@ namespace Pal3.Renderer
 
         protected override void ReturnToPool(Material material)
         {
-            switch (material.name)
+            switch (material.shader.name)
             {
-                case WATER_MATERIAL_NAME:
+                case WATER_SHADER_NAME:
                     material.mainTexture = null;
                     material.SetTexture(ShadowTexturePropertyId, null);
                     _waterMaterialPool.Push(material);
                     break;
-                case TRANSPARENT_MATERIAL_NAME:
+                case TRANSPARENT_SHADER_NAME:
                     material.mainTexture = null;
                     material.SetTexture(ShadowTexturePropertyId, null);
                     _transparentMaterialPool.Push(material);
                     break;
-                case TRANSPARENT_OPAQUE_PART_MATERIAL_NAME:
+                case TRANSPARENT_OPAQUE_PART_SHADER_NAME:
                     material.mainTexture = null;
                     material.SetTexture(ShadowTexturePropertyId, null);
                     _transparentOpaquePartMaterialPool.Push(material);
                     break;
-                case OPAQUE_MATERIAL_NAME:
+                case OPAQUE_SHADER_NAME:
                     material.mainTexture = null;
                     material.SetTexture(ShadowTexturePropertyId, null);
                     _opaqueMaterialPool.Push(material);

@@ -433,7 +433,9 @@ namespace Pal3
             void OnAnyKeyOrTouchTriggered()
             {
                 InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
+                Destroy(logoImage.sprite.texture);
                 Destroy(logoImage.sprite);
+                Destroy(logoImage);
                 Destroy(logoCanvas);
                 StartCoroutine(ShowMainMenuAfterLogoAsync());
             }

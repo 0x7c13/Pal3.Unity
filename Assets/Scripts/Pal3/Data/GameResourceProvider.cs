@@ -96,6 +96,8 @@ namespace Pal3.Data
             _gameResourceFileCache.Clear();
             _audioClipCache.Clear();
             _vfxEffectPrefabCache.Clear();
+            _unlitMaterialFactory?.DeallocateMaterialPool();
+            _litMaterialFactory?.DeallocateMaterialPool();
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 

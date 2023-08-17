@@ -40,9 +40,19 @@ namespace Core.DataLoader
             {
                 try
                 {
+                    DownloadHandlerAudioClip audioClipHandler = (DownloadHandlerAudioClip)request.downloadHandler;
+
                     // Stream audio to avoid loading the entire AudioClip into memory at once,
                     // which can cause frame drops and stuttering during gameplay.
-                    ((DownloadHandlerAudioClip) request.downloadHandler).streamAudio = streamAudio;
+                    audioClipHandler.streamAudio = streamAudio;
+
+                    if (!streamAudio)
+                    {
+                        // Compress audio to reduce memory usage,
+                        // which is recommended for small sfx audio clips.
+                        // StreamAudio must be false to compress audio.
+                        audioClipHandler.compressed = true;
+                    }
 
                     AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
                     onLoaded?.Invoke(audioClip);

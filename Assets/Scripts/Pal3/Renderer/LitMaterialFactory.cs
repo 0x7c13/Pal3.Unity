@@ -12,6 +12,7 @@ namespace Pal3.Renderer
     using UnityEngine;
     using UnityEngine.Rendering;
     using Debug = UnityEngine.Debug;
+    using Object = UnityEngine.Object;
 
     /// <summary>
     /// Lit material factory for generating materials
@@ -30,11 +31,11 @@ namespace Pal3.Renderer
         private readonly Material _toonOpaqueMaterial;
         private readonly Material _toonTransparentMaterial;
 
-        private const string OPAQUE_MATERIAL_NAME = "LitOpaque";
-        private const string TRANSPARENT_MATERIAL_NAME = "LitTransparent";
+        private const string OPAQUE_MATERIAL_SHADER_NAME = "RealToon/Version 5/Default/Default";
+        private const string TRANSPARENT_MATERIAL_SHADER_NAME = "RealToon/Version 5/Default/Fade Transparency";
 
-        private const int OPAQUE_MATERIAL_POOL_SIZE = 5000;
-        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 1000;
+        private const int OPAQUE_MATERIAL_POOL_SIZE = 3500;
+        private const int TRANSPARENT_MATERIAL_POOL_SIZE = 500;
 
         private readonly Stack<Material> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
         private readonly Stack<Material> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
@@ -87,7 +88,6 @@ namespace Pal3.Renderer
             {
                 _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial)
                 {
-                    name = OPAQUE_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -96,7 +96,6 @@ namespace Pal3.Renderer
             {
                 _transparentMaterialPool.Push(new Material(_toonTransparentMaterial)
                 {
-                    name = TRANSPARENT_MATERIAL_NAME,
                     hideFlags = HideFlags.HideAndDontSave
                 });
             }
@@ -114,12 +113,12 @@ namespace Pal3.Renderer
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                UnityEngine.Object.Destroy(_opaqueMaterialPool.Pop());
+                Object.DestroyImmediate(_opaqueMaterialPool.Pop());
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                UnityEngine.Object.Destroy(_transparentMaterialPool.Pop());
+                Object.DestroyImmediate(_transparentMaterialPool.Pop());
             }
 
             _isMaterialPoolAllocated = false;
@@ -259,7 +258,6 @@ namespace Pal3.Renderer
             return new Material(_toonTransparentMaterial)
             {
                 mainTexture = mainTexture.texture,
-                name = TRANSPARENT_MATERIAL_NAME,
                 hideFlags = HideFlags.HideAndDontSave
             };
         }
@@ -284,20 +282,19 @@ namespace Pal3.Renderer
             return new Material(_toonOpaqueMaterial)
             {
                 mainTexture = mainTexture.texture,
-                name = OPAQUE_MATERIAL_NAME,
                 hideFlags = HideFlags.HideAndDontSave
             };
         }
 
         protected override void ReturnToPool(Material material)
         {
-            switch (material.name)
+            switch (material.shader.name)
             {
-                case TRANSPARENT_MATERIAL_NAME:
+                case TRANSPARENT_MATERIAL_SHADER_NAME:
                     material.mainTexture = null;
                     _transparentMaterialPool.Push(material);
                     break;
-                case OPAQUE_MATERIAL_NAME:
+                case OPAQUE_MATERIAL_SHADER_NAME:
                     material.mainTexture = null;
                     _opaqueMaterialPool.Push(material);
                     break;

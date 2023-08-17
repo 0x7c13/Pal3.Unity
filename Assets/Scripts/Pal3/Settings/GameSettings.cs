@@ -116,20 +116,31 @@ namespace Pal3.Settings
                 AntiAliasing = Utility.IsDesktopDevice() ? 2 : 0;
             }
 
-            if (SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate))
+            #if UNITY_2022_1_OR_NEWER
+            int screenRefreshRate = (int) Screen.currentResolution.refreshRateRatio.value;
+            #else
+            int screenRefreshRate = Screen.currentResolution.refreshRate;
+            #endif
+
+            if (SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate) &&
+                targetFrameRate >= screenRefreshRate)
+                // Only respect the target frame rate if it is higher than the screen refresh rate
             {
                 TargetFrameRate = targetFrameRate;
             }
             else
             {
-                #if UNITY_2022_1_OR_NEWER
-                var screenRefreshRate = (int) Screen.currentResolution.refreshRateRatio.value;
+                #if UNITY_STANDALONE
+                const int minimumTargetFrameRate = 120;
+                #elif UNITY_ANDROID || UNITY_IOS
+                const int minimumTargetFrameRate = 90;
                 #else
-                var screenRefreshRate = Screen.currentResolution.refreshRate;
+                const int minimumTargetFrameRate = 60;
                 #endif
 
                 // Set target frame rate to screen refresh rate by default
-                TargetFrameRate = Mathf.Max(screenRefreshRate, 60); // 60Hz is the minimum
+                // unless it is lower than the minimum target frame rate
+                TargetFrameRate = Mathf.Max(screenRefreshRate, minimumTargetFrameRate);
             }
 
             if (SettingsStore.TryGet(nameof(ResolutionScale), out float resolutionScale))
