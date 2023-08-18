@@ -6,18 +6,14 @@
 namespace Pal3.GamePlay
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.Animation;
-    using Core.DataReader.Nav;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Renderer;
     using Core.Utils;
     using Data;
     using GameSystem;
@@ -25,34 +21,22 @@ namespace Pal3.GamePlay
     using MetaData;
     using Scene;
     using Scene.SceneObjects;
-    using Scene.SceneObjects.Common;
-    using Script;
-    using Script.Waiter;
     using State;
     using UnityEngine;
     using UnityEngine.InputSystem;
 
-    public sealed class PlayerGamePlayController : MonoBehaviour,
+    public partial class PlayerGamePlayController : MonoBehaviour,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,
-        ICommandExecutor<ActorPerformClimbActionCommand>,
-        ICommandExecutor<PlayerInteractionRequest>,
         #if PAL3
         ICommandExecutor<LongKuiSwitchModeCommand>,
         #endif
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
-        ICommandExecutor<PlayerInteractWithObjectCommand>,
-        ICommandExecutor<SwitchPlayerActorRequest>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private const float MIN_JUMP_DISTANCE = 1.2f;
-        private const float MAX_JUMP_DISTANCE = 8f;
-        private const float MAX_JUMP_Y_DIFFERENTIAL = 3.5f;
-        private const float JUMP_HEIGHT = 6f;
-
         private GameResourceProvider _resourceProvider;
         private GameStateManager _gameStateManager;
         private PlayerActorManager _playerActorManager;
@@ -62,17 +46,15 @@ namespace Pal3.GamePlay
         private Camera _camera;
 
         private string _currentMovementSfxAudioName = string.Empty;
-        private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
-        private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;
 
         private Vector2? _lastInputTapPosition;
         private Vector3? _lastKnownPosition;
         private Vector2Int? _lastKnownTilePosition;
         private int? _lastKnownLayerIndex;
-        private bool _tilePositionPendingNotify;
+        private bool _isTilePositionPendingNotify;
 
         private string _lastKnownPlayerActorAction = string.Empty;
-        private int _jumpableAreaEnterCount;
+
         #if PAL3
         private int _longKuiLastKnownMode = 0;
         #endif
@@ -82,9 +64,6 @@ namespace Pal3.GamePlay
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;
         private ActorMovementController _playerActorMovementController;
-
-        private GameObject _jumpIndicatorGameObject;
-        private AnimatedBillboardRenderer _jumpIndicatorRenderer;
 
         private const int LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH = 2;
         private readonly List<(ScnSceneInfo sceneInfo,
@@ -165,12 +144,11 @@ namespace Pal3.GamePlay
                     _lastKnownTilePosition = tilePosition;
                     PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
                 }
-            }
-            else if (_tilePositionPendingNotify)
-            {
-                Vector2Int tilePosition = _playerActorMovementController.GetTilePosition();
-                PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
-                _tilePositionPendingNotify = false;
+                else if (_isTilePositionPendingNotify)
+                {
+                    PlayerActorTilePositionChanged(layerIndex, tilePosition, !isPlayerInControl);
+                    _isTilePositionPendingNotify = false;
+                }
             }
 
             _lastKnownLayerIndex = layerIndex;
@@ -194,80 +172,6 @@ namespace Pal3.GamePlay
                 new PlayerActorTilePositionUpdatedNotification(tilePosition, layerIndex, movedByScript));
         }
 
-        private string GetMovementSfxName(ActorActionType movementAction)
-        {
-            if (movementAction is not (ActorActionType.Walk or ActorActionType.Run)) return string.Empty;
-
-            #if PAL3
-            var sfxPrefix = movementAction == ActorActionType.Walk ? "we021" : "we022";
-
-            Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
-            if ((_lastKnownPosition.HasValue && _lastKnownLayerIndex.HasValue) &&
-                tileMap.TryGetTile(_lastKnownPosition.Value, _lastKnownLayerIndex.Value, out NavTile tile))
-            {
-                return tile.FloorKind switch
-                {
-                    NavFloorKind.Grass => sfxPrefix + 'b',
-                    NavFloorKind.Snow => sfxPrefix + 'c',
-                    NavFloorKind.Sand => sfxPrefix + 'd',
-                    _ => sfxPrefix + 'a'
-                };
-            }
-            else
-            {
-                return sfxPrefix + 'a';
-            }
-            #elif PAL3A
-            if (_playerActor.Info.Id == (byte)PlayerActorId.WangPengXu)
-            {
-                return movementAction == ActorActionType.Walk ? "WE007" : "WE045";
-            }
-            return movementAction == ActorActionType.Walk ? "WE007" : "WE008";
-            #endif
-        }
-
-        private void UpdatePlayerActorMovementSfx(string playerActorAction)
-        {
-            var newMovementSfxAudioFileName = string.Empty;
-            ActorActionType actionType = ActorActionType.Walk;
-
-            if (string.Equals(playerActorAction, ActorConstants.ActionToNameMap[ActorActionType.Walk]))
-            {
-                newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Walk);
-                actionType = ActorActionType.Walk;
-            }
-            else if (string.Equals(playerActorAction, ActorConstants.ActionToNameMap[ActorActionType.Run]))
-            {
-                newMovementSfxAudioFileName = GetMovementSfxName(ActorActionType.Run);
-                actionType = ActorActionType.Run;
-            }
-
-            if (string.Equals(_currentMovementSfxAudioName, newMovementSfxAudioFileName)) return;
-
-            _currentMovementSfxAudioName = newMovementSfxAudioFileName;
-
-            if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
-                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
-                        disposeSource: false));
-            }
-            else
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new AttachSfxToGameObjectRequest(_playerActorGameObject,
-                        newMovementSfxAudioFileName,
-                        AudioConstants.PlayerActorMovementSfxAudioSourceName,
-                        loopCount: -1,
-                        actionType == ActorActionType.Walk
-                            ? PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME
-                            : PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME,
-                        startDelayInSeconds: 0f,
-                        interval: 0f));
-            }
-        }
-
         public bool TryGetPlayerActorLastKnownPosition(out Vector3 position)
         {
             if (_lastKnownPosition.HasValue)
@@ -278,67 +182,6 @@ namespace Pal3.GamePlay
 
             position = Vector3.zero;
             return false;
-        }
-
-        private void ReadInputAndMovePlayerIfNeeded()
-        {
-            var movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
-            if (movement.magnitude <= 0.01f) return;
-
-            MovementMode movementMode = movement.magnitude < 0.7f ? MovementMode.Walk : MovementMode.Run;
-            ActorActionType movementAction = movementMode == MovementMode.Walk ? ActorActionType.Walk : ActorActionType.Run;
-            _playerActorMovementController.CancelMovement();
-            Transform cameraTransform = _camera.transform;
-            Vector2 normalizedDirection = movement.normalized;
-            Vector3 inputDirection = cameraTransform.forward * normalizedDirection.y +
-                                     cameraTransform.right * normalizedDirection.x;
-            MovementResult result = PlayerActorMoveTowards(inputDirection, movementMode);
-            _playerActorActionController.PerformAction(result == MovementResult.Blocked
-                ? ActorActionType.Stand
-                : movementAction);
-        }
-
-        /// <summary>
-        /// Adjust some degrees to the inputDirection to prevent player actor
-        /// from hitting into the wall and gets blocked.
-        /// This process is purely for improving the gameplay experience.
-        /// </summary>
-        /// <param name="inputDirection">User input direction in game space</param>
-        /// <param name="movementMode">Player actor movement mode</param>
-        /// <returns>MovementResult</returns>
-        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, MovementMode movementMode)
-        {
-            Vector3 playerActorPosition = _playerActorGameObject.transform.position;
-            MovementResult result = _playerActorMovementController.MoveTowards(
-                playerActorPosition + inputDirection, movementMode);
-
-            if (result != MovementResult.Blocked) return result;
-
-            if (_playerActorMovementController.IsDuringCollision()) return result;
-
-            // Don't adjust direction if player actor is inside jumpable area
-            if (IsPlayerActorInsideJumpableArea()) return result;
-
-            // Try change direction a little bit to see if it works
-            for (var degrees = 2; degrees <= 80; degrees+= 2)
-            {
-                // + degrees
-                {
-                    Vector3 newDirection = Quaternion.Euler(0f, degrees, 0f) * inputDirection;
-                    result = _playerActorMovementController.MoveTowards(
-                        playerActorPosition + newDirection, movementMode);
-                    if (result != MovementResult.Blocked) return result;
-                }
-                // - degrees
-                {
-                    Vector3 newDirection = Quaternion.Euler(0f, -degrees, 0f) * inputDirection;
-                    result = _playerActorMovementController.MoveTowards(
-                        playerActorPosition + newDirection, movementMode);
-                    if (result != MovementResult.Blocked) return result;
-                }
-            }
-
-            return result;
         }
 
         private void MovementCanceled(InputAction.CallbackContext _)
@@ -400,621 +243,6 @@ namespace Pal3.GamePlay
             _lastInputTapPosition = ctx.ReadValue<Vector2>();
         }
 
-        private void InteractionPerformed(InputAction.CallbackContext _)
-        {
-            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
-                !_playerActorManager.IsPlayerInputEnabled())
-            {
-                return;
-            }
-
-            if (IsPlayerActorInsideJumpableArea())
-            {
-                StartCoroutine(JumpAsync());
-            }
-            else
-            {
-                InteractWithFacingInteractable();
-            }
-        }
-
-        private IEnumerator JumpAsync(Vector3? jumpTargetPosition = null)
-        {
-            _gameStateManager.GoToState(GameState.Cutscene);
-            _playerActorMovementController.CancelMovement();
-
-            Vector3 currentPosition = _playerActorMovementController.GetWorldPosition();
-
-            Scene currentScene = _sceneManager.GetCurrentScene();
-            Tilemap tilemap = currentScene.GetTilemap();
-
-            bool IsPositionCanJumpTo(Vector3 position, int layerIndex, out float yPosition, out int distanceToObstacle)
-            {
-                Vector2Int tilePosition = tilemap.GetTilePosition(position, layerIndex);
-
-                if (tilemap.TryGetTile(position, layerIndex, out NavTile tile) &&
-                    tile.IsWalkable())
-                {
-                    distanceToObstacle = tile.DistanceToNearestObstacle;
-                    yPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
-
-                    if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
-
-                    if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition))
-                    {
-                        return true;
-                    }
-
-                    #if PAL3
-                    // Special case for PAL3 M15-B1
-                    if (_sceneManager.GetCurrentScene().GetSceneInfo().Is("m15", "b1"))
-                    {
-                        return true;
-                    }
-                    #endif
-                }
-
-                yPosition = 0f;
-                distanceToObstacle = 0;
-                return false;
-            }
-
-            Vector3 jumpDirection = _playerActorGameObject.transform.forward;
-
-            if (jumpTargetPosition != null)
-            {
-                jumpDirection = jumpTargetPosition.Value - _playerActorGameObject.transform.position;
-                jumpDirection.y = 0f;
-                jumpDirection.Normalize();
-                _playerActorGameObject.transform.forward = jumpDirection;
-            }
-
-            var validJumpTargetPositions = new List<(Vector3 position, int layerIndex, int distanceToObstacle)>();
-
-            for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.1f)
-            {
-                Vector3 targetPosition = currentPosition + jumpDirection * i;
-
-                for (var j = 0; j < tilemap.GetLayerCount(); j++)
-                {
-                    if (IsPositionCanJumpTo(targetPosition, j,
-                            out float yPosition, out int distanceToObstacle))
-                    {
-                        Vector3 position = targetPosition;
-                        position.y = yPosition;
-                        validJumpTargetPositions.Add((position, j, distanceToObstacle));
-                    }
-                }
-            }
-
-            var currentLayer = _playerActorMovementController.GetCurrentLayerIndex();
-            var jumpTargetLayer = currentLayer;
-            if (validJumpTargetPositions.Count > 0)
-            {
-                // If there are valid jump target positions in different layers,
-                // only pick positions in the other layer
-                if (validJumpTargetPositions.Any(_ => _.layerIndex != currentLayer))
-                {
-                    validJumpTargetPositions = validJumpTargetPositions.Where(_ => _.layerIndex != currentLayer).ToList();
-                }
-
-                // Pick a position that is farthest from obstacles
-                int maxDistanceToObstacle = validJumpTargetPositions.Max(_ => _.distanceToObstacle);
-                var bestPosition = validJumpTargetPositions.First(_ => _.distanceToObstacle == maxDistanceToObstacle);
-                jumpTargetPosition = bestPosition.position;
-                jumpTargetLayer = bestPosition.layerIndex;
-            }
-            else
-            {
-                jumpTargetPosition = currentPosition;
-            }
-
-            _playerActorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Jump],
-                 overwrite: true, loopCount: 1);
-            yield return new WaitForSeconds(0.7f);
-
-            var xzOffset = Vector2.Distance(
-                new Vector2(jumpTargetPosition.Value.x, jumpTargetPosition.Value.z),
-                new Vector2(currentPosition.x, currentPosition.z));
-            var startingYPosition = currentPosition.y;
-            var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
-
-            yield return CoreAnimation.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
-                value =>
-                {
-                    Vector3 calculatedPosition = currentPosition + jumpDirection * (xzOffset * value);
-                    calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
-                    _playerActorGameObject.transform.position = calculatedPosition;
-                });
-            yield return new WaitForSeconds(0.7f);
-
-            _playerActorMovementController.SetNavLayer(jumpTargetLayer);
-
-            PlayerActorTilePositionChanged(jumpTargetLayer,
-                tilemap.GetTilePosition(jumpTargetPosition.Value, jumpTargetLayer), false);
-
-            _gameStateManager.GoToState(GameState.Gameplay);
-        }
-
-        private void SwitchToNextPlayerActorPerformed(InputAction.CallbackContext _)
-        {
-            SwitchPlayerActorInCurrentTeam(true);
-        }
-
-        private void SwitchToPreviousPlayerActorPerformed(InputAction.CallbackContext _)
-        {
-            SwitchPlayerActorInCurrentTeam(false);
-        }
-
-        private void SwitchPlayerActorInCurrentTeam(bool next)
-        {
-            if (!_playerActorManager.IsPlayerActorControlEnabled() ||
-                !_playerActorManager.IsPlayerInputEnabled() ||
-                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
-            {
-                return;
-            }
-
-            var actorsInTeam = _teamManager.GetActorsInTeam();
-            if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
-
-            var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
-            int targetPlayerActorId = _playerActor.Info.Id;
-
-            do
-            {
-                targetPlayerActorId = (targetPlayerActorId + playerActorIdLength + (next ? +1 : -1)) % playerActorIdLength;
-            } while (!actorsInTeam.Contains((PlayerActorId) targetPlayerActorId));
-
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorEnablePlayerControlCommand(targetPlayerActorId));
-        }
-
-        /// <summary>
-        /// Interact with the nearby interactable object by the player actor facing direction.
-        /// </summary>
-        private void InteractWithFacingInteractable()
-        {
-            Vector3 actorFacingDirection = _playerActorMovementController.transform.forward;
-            Vector3 actorCenterPosition = _playerActorActionController.GetRendererBounds().center;
-            var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
-
-            float nearestInteractableFacingAngle = 181f;
-            IEnumerator interactionRoutine = null;
-
-            foreach (var sceneObjectId in
-                     _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
-            {
-                SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectId);
-
-                Vector3 closetPointOnObject = sceneObject.GetRendererBounds().ClosestPoint(actorCenterPosition);
-                float distanceToActor = Vector3.Distance(actorCenterPosition, closetPointOnObject);
-                Vector3 actorToObjectFacing = closetPointOnObject - actorCenterPosition;
-                float facingAngle = Vector2.Angle(
-                    new Vector2(actorFacingDirection.x, actorFacingDirection.z),
-                    new Vector2(actorToObjectFacing.x, actorToObjectFacing.z));
-
-                if (sceneObject.IsDirectlyInteractable(distanceToActor) &&
-                    facingAngle < nearestInteractableFacingAngle)
-                {
-                    //Debug.DrawLine(actorCenterPosition, closetPointOnObject, Color.white, 1000);
-                    nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithSceneObjectAsync(sceneObject, startedByPlayer: true);
-                }
-            }
-
-            foreach (var actorInfo in
-                     _sceneManager.GetCurrentScene().GetAllActorGameObjects())
-            {
-                var actorController = actorInfo.Value.GetComponent<ActorController>();
-                var actorActionController = actorInfo.Value.GetComponent<ActorActionController>();
-                var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
-
-                if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
-                    actorInfo.Key == (int)_playerActorManager.GetPlayerActor() ||
-                    !actorController.IsActive) continue;
-
-                Vector3 targetActorCenterPosition = actorActionController.GetRendererBounds().center;
-                var distance = Vector3.Distance(actorCenterPosition,targetActorCenterPosition);
-                Vector3 actorToActorFacing = targetActorCenterPosition - actorCenterPosition;
-                float facingAngle = Vector2.Angle(
-                    new Vector2(actorFacingDirection.x, actorFacingDirection.z),
-                    new Vector2(actorToActorFacing.x, actorToActorFacing.z));
-
-                if (actorController.IsDirectlyInteractable(distance) &&
-                    facingAngle < nearestInteractableFacingAngle)
-                {
-                    //Debug.DrawLine(actorCenterPosition, targetActorCenterPosition, Color.white, 1000);
-                    nearestInteractableFacingAngle = facingAngle;
-                    interactionRoutine = InteractWithActorAsync(actorInfo.Key, actorInfo.Value);
-                }
-            }
-
-            if (interactionRoutine != null)
-            {
-                StartCoroutine(interactionRoutine);
-            }
-        }
-
-        private IEnumerator InteractWithSceneObjectAsync(SceneObject sceneObject, bool startedByPlayer)
-        {
-            var correlationId = Guid.NewGuid();
-            var requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
-
-            if (requiresStateChange)
-            {
-                _gameStateManager.GoToState(GameState.Cutscene);
-                _gameStateManager.AddGamePlayStateLocker(correlationId);
-            }
-
-            yield return sceneObject.InteractAsync(new InteractionContext
-            {
-                CorrelationId = correlationId,
-                InitObjectId = sceneObject.ObjectInfo.Id,
-                PlayerActorGameObject = _playerActorGameObject,
-                CurrentScene = _sceneManager.GetCurrentScene(),
-                StartedByPlayer = startedByPlayer,
-            });
-
-            if (requiresStateChange)
-            {
-                _gameStateManager.RemoveGamePlayStateLocker(correlationId);
-                _gameStateManager.GoToState(GameState.Gameplay);
-            }
-        }
-
-        private IEnumerator InteractWithActorAsync(int actorId, GameObject actorGameObject)
-        {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-
-            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
-            Quaternion rotationBeforeInteraction = actorGameObject.transform.rotation;
-
-            var actorController = actorGameObject.GetComponent<ActorController>();
-            var movementController = actorGameObject.GetComponent<ActorMovementController>();
-
-            // Pause current path follow movement of the interacting actor
-            if (actorController != null &&
-                movementController != null &&
-                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
-            {
-                movementController.PauseMovement();
-            }
-
-            // Look at the target actor
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorLookAtActorCommand(_playerActor.Info.Id, targetActor.Info.Id));
-
-            bool shouldResetFacingAfterInteraction = false;
-
-            // Only let target actor look at player actor when NoTurn is set to false
-            // and InitBehaviour is not set to Hold
-            if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ScnActorBehaviour.Hold)
-            {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorLookAtActorCommand(targetActor.Info.Id, _playerActor.Info.Id));
-                shouldResetFacingAfterInteraction = true;
-            }
-
-            // Resume animation of the target actor if it is set to hold and loop action is set to 0
-            if (targetActor.Info.InitBehaviour == ScnActorBehaviour.Hold &&
-                targetActor.Info.LoopAction == 0)
-            {
-                var actionController = actorGameObject.GetComponent<ActorActionController>();
-                // PerformAction internally checks if the target actor is already performing the action
-                actionController.PerformAction(actionController.GetCurrentAction(), false, 1);
-            }
-
-            // Run dialogue script
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunCommand((int)targetActor.Info.ScriptId));
-
-            // Wait until the dialogue script is finished
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.Info.ScriptId);
-
-            // Resume current path follow movement of the interacting actor
-            if (actorController != null &&
-                movementController != null &&
-                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
-            {
-                movementController.ResumeMovement();
-            }
-
-            // Reset facing rotation of the interacting actor if needed
-            if (shouldResetFacingAfterInteraction && actorGameObject != null)
-            {
-                actorGameObject.transform.rotation = rotationBeforeInteraction;
-            }
-        }
-
-        private void PortalToTapPosition()
-        {
-            if (!_lastInputTapPosition.HasValue) return;
-
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
-
-            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
-
-            int layerIndex;
-            bool isPositionOnStandingPlatform;
-
-            if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
-            {
-                layerIndex = standingPlatformController.LayerIndex;
-                isPositionOnStandingPlatform = true;
-            }
-            else
-            {
-                var meshColliders = _sceneManager.GetCurrentScene()
-                    .GetMeshColliders();
-
-                if (meshColliders.Any(_ => _.Value == hit.collider))
-                {
-                    layerIndex = meshColliders.First(_ => _.Value == hit.collider).Key;
-                    isPositionOnStandingPlatform = false;
-                }
-                else
-                {
-                    // Raycast hit a collider that is not a mesh collider or a standing platform
-                    return;
-                }
-            }
-
-            _playerActorMovementController.PortalToPosition(hit.point, layerIndex, isPositionOnStandingPlatform);
-        }
-
-        private void JumpToTapPosition()
-        {
-            if (!_lastInputTapPosition.HasValue) return;
-
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
-
-            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
-
-            if (_sceneManager.GetCurrentScene()
-                    .GetMeshColliders().Any(_ => _.Value == hit.collider))
-            {
-                StartCoroutine(JumpAsync(hit.point));
-            }
-        }
-
-        // Raycast caches to avoid GC
-        private readonly RaycastHit[] _raycastHits = new RaycastHit[4];
-        private readonly Dictionary<int, (Vector3 point, bool isPlatform)> _tapPoints = new ();
-        private void MoveToTapPosition(bool isDoubleTap)
-        {
-            if (!_lastInputTapPosition.HasValue) return;
-
-            Scene currentScene = _sceneManager.GetCurrentScene();
-            var meshColliders = currentScene.GetMeshColliders();
-
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
-
-            var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
-            if (hitCount == 0) return;
-
-            Tilemap tilemap = currentScene.GetTilemap();
-
-            _tapPoints.Clear();
-            for (var i = 0; i < hitCount; i++)
-            {
-                RaycastHit hit = _raycastHits[i];
-
-                if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { }
-                        standingPlatformController)
-                {
-                    _tapPoints[standingPlatformController.LayerIndex] = (hit.point, true);
-                    continue;
-                }
-
-                var layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
-
-                if (!tilemap.TryGetTile(hit.point, layerIndex, out NavTile _))
-                {
-                    continue;
-                }
-
-                Vector3 cameraPosition = _camera.transform.position;
-                var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
-
-                if (_tapPoints.ContainsKey(layerIndex))
-                {
-                    var existingDistance = Vector3.Distance(cameraPosition, _tapPoints[layerIndex].point);
-                    if (distanceToCamera < existingDistance)
-                    {
-                        _tapPoints[layerIndex] = (hit.point, false);
-                    }
-                }
-                else
-                {
-                    _tapPoints[layerIndex] = (hit.point, false);
-                }
-            }
-
-            if (_tapPoints.Count > 0)
-            {
-                _playerActorMovementController.MoveToTapPoint(_tapPoints, isDoubleTap);
-            }
-        }
-
-        public void PlayerActorEnteredJumpableArea()
-        {
-            if (_jumpIndicatorGameObject == null)
-            {
-                var sprites = _resourceProvider.GetJumpIndicatorSprites();
-
-                _jumpIndicatorGameObject = new GameObject($"JumpIndicator");
-                _jumpIndicatorGameObject.transform.SetParent(_playerActorGameObject.transform, false);
-                _jumpIndicatorGameObject.transform.localScale = new Vector3(3f, 3f, 3f);
-                _jumpIndicatorGameObject.transform.localPosition = new Vector3(0f,
-                    _playerActorActionController.GetActorHeight() + 1f, 0f);
-
-                _jumpIndicatorRenderer = _jumpIndicatorGameObject.AddComponent<AnimatedBillboardRenderer>();
-                _jumpIndicatorRenderer.Init(sprites, 4);
-            }
-
-            if (_jumpableAreaEnterCount == 0)
-            {
-                _jumpIndicatorRenderer.StartAnimation(-1);
-            }
-
-            _jumpableAreaEnterCount++;
-        }
-
-        public void PlayerActorExitedJumpableArea()
-        {
-            _jumpableAreaEnterCount--;
-
-            if (_jumpableAreaEnterCount == 0 && _jumpIndicatorRenderer != null)
-            {
-                _jumpIndicatorRenderer.StopAnimation();
-            }
-        }
-
-        private bool IsPlayerActorInsideJumpableArea()
-        {
-            return _jumpableAreaEnterCount > 0;
-        }
-
-        public void Execute(PlayerInteractWithObjectCommand command)
-        {
-            Scene currentScene = _sceneManager.GetCurrentScene();
-            if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
-            {
-                StartCoroutine(InteractWithSceneObjectAsync(
-                    currentScene.GetSceneObject(command.SceneObjectId), startedByPlayer: false));
-            }
-            else
-            {
-                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found or not activated yet: {command.SceneObjectId}.");
-            }
-        }
-
-        public void Execute(ActorPerformClimbActionCommand command)
-        {
-            Scene scene = _sceneManager.GetCurrentScene();
-            SceneObject climbableSceneObject = scene.GetSceneObject(command.ObjectId);
-            GameObject climbableObject = climbableSceneObject.GetGameObject();
-            if (climbableObject == null)
-            {
-                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found or not activated yet: {command.ObjectId}.");
-                return;
-            }
-
-            Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = GameBoxInterpreter.ToUnityRotation(
-                new Vector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)) * Vector3.forward;
-
-            Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
-            Vector3 lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
-            Vector3 upperPosition = -climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
-            Vector3 upperStandingPosition = -climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
-
-            var currentPlayerLayer = _playerActorMovementController.GetCurrentLayerIndex();
-
-            var climbUp = (command.ClimbUp == 1);
-            var climbableHeight = climbableObject.GetComponentInChildren<StaticMeshRenderer>()
-                                      .GetRendererBounds().max.y / 2f; // Half is enough for the animation
-
-            Vector3 playerCurrentPosition = _playerActorGameObject.transform.position;
-            if (command.ClimbUp == 1)
-            {
-                lowerPosition.y = playerCurrentPosition.y;
-                lowerStandingPosition.y = playerCurrentPosition.y;
-                upperPosition.y = playerCurrentPosition.y + climbableHeight;
-                upperStandingPosition.y = playerCurrentPosition.y + climbableHeight;
-            }
-            else
-            {
-                lowerPosition.y = playerCurrentPosition.y - climbableHeight;
-                lowerStandingPosition.y = playerCurrentPosition.y - climbableHeight;
-                upperPosition.y = playerCurrentPosition.y;
-                upperStandingPosition.y = playerCurrentPosition.y;
-            }
-
-            var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-
-            var climbAnimationOnly = command.ClimbUp != -1;
-            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
-                climbUp,
-                climbAnimationOnly,
-                climbableHeight,
-                lowerPosition,
-                lowerStandingPosition,
-                upperPosition,
-                upperStandingPosition,
-                currentPlayerLayer,
-                currentPlayerLayer,
-                () => waiter.CancelWait()));
-        }
-
-        public IEnumerator PlayerActorMoveToClimbableObjectAndClimbAsync(
-            GameObject climbableObject,
-            bool climbUp,
-            bool climbOnly,
-            float climbableHeight,
-            Vector3 lowerPosition,
-            Vector3 lowerStandingPosition,
-            Vector3 upperPosition,
-            Vector3 upperStandingPosition,
-            int lowerLayer,
-            int upperLayer,
-            Action onFinished = null)
-        {
-            yield return _playerActorMovementController
-                .MoveDirectlyToAsync(climbUp ? lowerPosition : upperPosition, 0, true);
-
-            _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
-
-            Vector3 newPosition = new Vector3(lowerPosition.x, _playerActorGameObject.transform.position.y, lowerPosition.z);
-            var objectRotationY = climbableObject.transform.rotation.eulerAngles.y;
-            Quaternion newRotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
-
-            _playerActorGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
-
-            if (climbUp)
-            {
-                var currentHeight = 0f;
-                while (currentHeight < climbableHeight)
-                {
-                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
-                    currentHeight += delta;
-                    _playerActorGameObject.transform.position += new Vector3(0f, delta, 0f);
-                    yield return null;
-                }
-
-                if (!climbOnly)
-                {
-                    _playerActorMovementController.SetNavLayer(upperLayer);
-                    yield return _playerActorMovementController.MoveDirectlyToAsync(upperStandingPosition, 0, true);
-                    _playerActorGameObject.transform.position = upperStandingPosition;
-                }
-            }
-            else
-            {
-                var currentHeight = climbableHeight;
-                while (currentHeight > 0f)
-                {
-                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
-                    currentHeight -= delta;
-                    _playerActorGameObject.transform.position -= new Vector3(0f, delta, 0f);
-                    yield return null;
-                }
-
-                if (!climbOnly)
-                {
-                    _playerActorMovementController.SetNavLayer(lowerLayer);
-                    yield return _playerActorMovementController.MoveDirectlyToAsync(lowerStandingPosition, 0, true);
-                    _playerActorGameObject.transform.position = lowerStandingPosition;
-                }
-            }
-
-            onFinished?.Invoke();
-        }
-
         public void Execute(PlayerActorLookAtSceneObjectCommand command)
         {
             Transform actorTransform = _playerActorGameObject.transform;
@@ -1053,7 +281,9 @@ namespace Pal3.GamePlay
                         disposeSource: true));
             }
 
-            DisposeGamePlayIndicators();
+            // Reset & dispose current player actor's jump indicators
+            int jumpableAreaEnterCount = _jumpableAreaEnterCount;
+            ResetAndDisposeJumpIndicators();
 
             Vector3? lastActivePlayerActorPosition = null;
             Quaternion? lastActivePlayerActorRotation = null;
@@ -1114,11 +344,12 @@ namespace Pal3.GamePlay
             _lastKnownTilePosition = null;
             _lastKnownPlayerActorAction = string.Empty;
 
-            // Resetting/re-applying jumpable area enter count for new player actor
-            if (IsPlayerActorInsideJumpableArea())
+            // Inherent jumpable state
+            if (jumpableAreaEnterCount > 0)
             {
-                _jumpableAreaEnterCount--;
                 PlayerActorEnteredJumpableArea();
+                // Inherent jumpable area enter count
+                _jumpableAreaEnterCount = jumpableAreaEnterCount;
             }
         }
 
@@ -1145,23 +376,12 @@ namespace Pal3.GamePlay
             }
         }
 
-        public void Execute(PlayerInteractionRequest _)
-        {
-            if (IsPlayerActorInsideJumpableArea())
-            {
-                StartCoroutine(JumpAsync());
-            }
-            else
-            {
-                InteractWithFacingInteractable();
-            }
-        }
-
         public void Execute(ActorSetTilePositionCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID)
+            if (command.ActorId == ActorConstants.PlayerActorVirtualID ||
+                (_playerActor != null && _playerActor.Info.Id == command.ActorId))
             {
-                _tilePositionPendingNotify = true;
+                _isTilePositionPendingNotify = true;
             }
         }
 
@@ -1180,8 +400,7 @@ namespace Pal3.GamePlay
             }
 
             // Remove game play indicators
-            _jumpableAreaEnterCount = 0;
-            DisposeGamePlayIndicators();
+            ResetAndDisposeJumpIndicators();
 
             _playerActorLastKnownSceneState.Add((
                 currentScene.GetSceneInfo(),
@@ -1230,29 +449,12 @@ namespace Pal3.GamePlay
             CommandDispatcher<ICommand>.Instance.Dispatch(new LongKuiSwitchModeCommand(_longKuiLastKnownMode));
             #endif
 
-            _tilePositionPendingNotify = true;
-        }
-
-        private void DisposeGamePlayIndicators()
-        {
-            if (_jumpIndicatorRenderer != null)
-            {
-                _jumpIndicatorRenderer.StopAnimation();
-                Destroy(_jumpIndicatorRenderer);
-                _jumpIndicatorRenderer = null;
-            }
-
-            if (_jumpIndicatorGameObject != null)
-            {
-                Destroy(_jumpIndicatorGameObject);
-                _jumpIndicatorGameObject = null;
-            }
+            _isTilePositionPendingNotify = true;
         }
 
         public void Execute(ResetGameStateCommand command)
         {
-            _jumpableAreaEnterCount = 0;
-            DisposeGamePlayIndicators();
+            ResetAndDisposeJumpIndicators();
 
             _playerActorLastKnownSceneState.Clear();
 
@@ -1263,7 +465,7 @@ namespace Pal3.GamePlay
             _lastKnownTilePosition = null;
             _lastKnownLayerIndex = null;
             _lastKnownPlayerActorAction = string.Empty;
-            _tilePositionPendingNotify = false;
+            _isTilePositionPendingNotify = false;
 
             #if PAL3
             _longKuiLastKnownMode = 0;
@@ -1274,14 +476,6 @@ namespace Pal3.GamePlay
             _playerActorController = null;
             _playerActorActionController = null;
             _playerActorMovementController = null;
-        }
-
-        public void Execute(SwitchPlayerActorRequest command)
-        {
-            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
-            {
-                SwitchPlayerActorInCurrentTeam(true);
-            }
         }
 
         #if PAL3

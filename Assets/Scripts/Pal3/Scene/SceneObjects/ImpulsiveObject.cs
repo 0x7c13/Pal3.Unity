@@ -10,7 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using System.Threading;
-    using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.SceCommands;
     using Common;
@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Utils;
     using Data;
     using MetaData;
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
     using Random = UnityEngine.Random;

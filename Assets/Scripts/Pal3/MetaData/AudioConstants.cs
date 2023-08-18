@@ -5,33 +5,23 @@
 
 namespace Pal3.MetaData
 {
-    using System.Collections.Generic;
-
     public static class AudioConstants
     {
         public const string PlayerActorMovementSfxAudioSourceName = "PlayerActorMovementSfx";
-
-        public static readonly HashSet<string> PlayerActorMovementSfxAudioFileNames = new ()
-        {
-            #if PAL3
-            "we021a.wav",
-            "we021b.wav",
-            "we021c.wav",
-            "we021d.wav",
-            "we022a.wav",
-            "we022b.wav",
-            "we022c.wav",
-            "we022d.wav",
-            #elif PAL3A
-            "WE007.WAV",
-            "WE008.WAV"
-            #endif
-        };
 
         #if PAL3
         public const string ThemeMusicName = "PI01";
         #elif PAL3A
         public const string ThemeMusicName = "P01";
+        #endif
+
+        #if PAL3
+        public const string MainActorWalkSfxNamePrefix = "we021";
+        public const string MainActorRunSfxNamePrefix = "we022";
+        #elif PAL3A
+        public const string MainActorWalkSfxName = "WE007";
+        public const string MainActorRunSfxName= "WE008";
+        public const string WangPengXuFlySfxName = "WE045";
         #endif
     }
 }

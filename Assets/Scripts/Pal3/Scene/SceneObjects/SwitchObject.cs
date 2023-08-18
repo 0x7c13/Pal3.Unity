@@ -20,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Utils;
     using Data;
     using MetaData;
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
 

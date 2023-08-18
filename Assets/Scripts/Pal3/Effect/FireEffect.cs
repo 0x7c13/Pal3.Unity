@@ -13,7 +13,8 @@ namespace Pal3.Effect
     using Core.Utils;
     using Data;
     using MetaData;
-    using Renderer;
+    using Rendering.Material;
+    using Rendering.Renderer;
     using UnityEngine;
 
     public class FireEffect : MonoBehaviour, IEffect

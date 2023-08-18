@@ -7,7 +7,7 @@ namespace Pal3.State
 {
     public enum GameState
     {
-        MenuShowing,
+        UI,
         Gameplay,
         Cutscene,
         VideoPlaying,

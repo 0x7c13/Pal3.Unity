@@ -6,10 +6,11 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
-    using Actor;
+    using Actor.Controllers;
     using Common;
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Navigation;
     using Data;
     using UnityEngine;
 

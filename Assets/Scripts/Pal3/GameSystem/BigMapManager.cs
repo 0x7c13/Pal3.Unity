@@ -82,8 +82,8 @@ namespace Pal3.GameSystem
             _isVisible = false;
 
             _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
-            _playerInputActions.Cutscene.ToggleBigMap.performed += ToggleBigMapOnPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideBigMapOnPerformed;
+            _playerInputActions.UI.ToggleBigMap.performed += ToggleBigMapOnPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideBigMapOnPerformed;
         }
 
         private void OnEnable()
@@ -95,8 +95,8 @@ namespace Pal3.GameSystem
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
-            _playerInputActions.Cutscene.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideBigMapOnPerformed;
+            _playerInputActions.UI.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed -= HideBigMapOnPerformed;
         }
 
         private void ToggleBigMapOnPerformed(InputAction.CallbackContext _)
@@ -109,7 +109,7 @@ namespace Pal3.GameSystem
             if (_isVisible)
             {
                 Hide();
-                _gameStateManager.GoToState(GameState.Gameplay);
+                _gameStateManager.TryGoToState(GameState.Gameplay);
             }
         }
 
@@ -130,7 +130,7 @@ namespace Pal3.GameSystem
             if (_isVisible)
             {
                 Hide();
-                _gameStateManager.GoToState(GameState.Gameplay);
+                _gameStateManager.TryGoToState(GameState.Gameplay);
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
@@ -150,7 +150,7 @@ namespace Pal3.GameSystem
                 return;
             }
 
-            _gameStateManager.GoToState(GameState.Cutscene);
+            _gameStateManager.TryGoToState(GameState.UI);
             // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
             // After the script finishes, the state will be reset to Gameplay. Thus we need to
             // block the state change.
@@ -240,7 +240,7 @@ namespace Pal3.GameSystem
                 _scriptManager.AddScript((uint)(100 + buttonIndex), true);
             }
             Hide();
-            _gameStateManager.GoToState(GameState.Gameplay);
+            _gameStateManager.TryGoToState(GameState.Gameplay);
         }
 
         public void Hide()

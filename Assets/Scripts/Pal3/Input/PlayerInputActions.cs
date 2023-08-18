@@ -570,33 +570,6 @@ namespace Pal3.Input
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ToggleBigMap"",
-                    ""type"": ""Button"",
-                    ""id"": ""5e633979-d23a-4bd2-994f-038c922e0a25"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ToggleStorySelector"",
-                    ""type"": ""Button"",
-                    ""id"": ""a7a425ae-d24d-45f9-a11d-54d0f876a1d0"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ExitCurrentShowingMenu"",
-                    ""type"": ""Button"",
-                    ""id"": ""f4c71292-8ed0-4ea2-9f78-bf137d63f607"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -641,83 +614,6 @@ namespace Pal3.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Continue"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a3c5f1bf-a6f8-4719-84c7-c923788b4819"",
-                    ""path"": ""<Keyboard>/u"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleStorySelector"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""90a640cc-40a5-4494-9dc1-d1cf85674620"",
-                    ""path"": ""<Gamepad>/select"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleStorySelector"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""30885317-9959-46c4-a930-1a29c0e33b47"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleStorySelector"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""6404737e-bf57-43a9-83a5-3fa155e78c1b"",
-                    ""path"": ""<Keyboard>/m"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""390ac655-d64d-48e5-9bbc-69a2f3938770"",
-                    ""path"": ""<Gamepad>/start"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""9a0e1e31-3aac-4131-8cc6-f1a87d113db6"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ExitCurrentShowingMenu"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""046969fe-1445-429a-b8ca-1a687dbdd20d"",
-                    ""path"": ""<Gamepad>/buttonEast"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ExitCurrentShowingMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -863,6 +759,33 @@ namespace Pal3.Input
                     ""type"": ""PassThrough"",
                     ""id"": ""7161fa71-8e92-482f-b86c-98287c1b2e75"",
                     ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleBigMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""c0eb7e88-5de5-45e8-b93a-d5a669cb1e87"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleStorySelector"",
+                    ""type"": ""Button"",
+                    ""id"": ""ac2e00e5-0cba-4594-96e0-b8a39e97c5f7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ExitCurrentShowingMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""37efe51b-ffd5-4283-b253-65611750e358"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1242,6 +1165,83 @@ namespace Pal3.Input
                     ""action"": ""TrackedDeviceOrientation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6d9749bf-4ff4-4c1c-b3b8-8fd519c213aa"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleBigMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2fa38b5-fad5-4477-a7f1-815554cea62d"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleBigMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6e85d718-ef17-47b9-a6a8-9d4a19174180"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleStorySelector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5c73bf36-9883-4a4a-b981-18615f0a9230"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleStorySelector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6956fcc8-e046-47f7-a9f3-6b9ca0030f2e"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleStorySelector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""637d83eb-8f9f-4077-b91c-4b1ca0f7890b"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExitCurrentShowingMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6817bb0f-608a-42c7-a862-8c96c956dd15"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExitCurrentShowingMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1271,9 +1271,6 @@ namespace Pal3.Input
             // Cutscene
             m_Cutscene = asset.FindActionMap("Cutscene", throwIfNotFound: true);
             m_Cutscene_Continue = m_Cutscene.FindAction("Continue", throwIfNotFound: true);
-            m_Cutscene_ToggleBigMap = m_Cutscene.FindAction("ToggleBigMap", throwIfNotFound: true);
-            m_Cutscene_ToggleStorySelector = m_Cutscene.FindAction("ToggleStorySelector", throwIfNotFound: true);
-            m_Cutscene_ExitCurrentShowingMenu = m_Cutscene.FindAction("ExitCurrentShowingMenu", throwIfNotFound: true);
             // VideoPlaying
             m_VideoPlaying = asset.FindActionMap("VideoPlaying", throwIfNotFound: true);
             m_VideoPlaying_SkipVideo = m_VideoPlaying.FindAction("SkipVideo", throwIfNotFound: true);
@@ -1289,6 +1286,9 @@ namespace Pal3.Input
             m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
             m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
             m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+            m_UI_ToggleBigMap = m_UI.FindAction("ToggleBigMap", throwIfNotFound: true);
+            m_UI_ToggleStorySelector = m_UI.FindAction("ToggleStorySelector", throwIfNotFound: true);
+            m_UI_ExitCurrentShowingMenu = m_UI.FindAction("ExitCurrentShowingMenu", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -1533,17 +1533,11 @@ namespace Pal3.Input
         private readonly InputActionMap m_Cutscene;
         private List<ICutsceneActions> m_CutsceneActionsCallbackInterfaces = new List<ICutsceneActions>();
         private readonly InputAction m_Cutscene_Continue;
-        private readonly InputAction m_Cutscene_ToggleBigMap;
-        private readonly InputAction m_Cutscene_ToggleStorySelector;
-        private readonly InputAction m_Cutscene_ExitCurrentShowingMenu;
         public struct CutsceneActions
         {
             private @PlayerInputActions m_Wrapper;
             public CutsceneActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
             public InputAction @Continue => m_Wrapper.m_Cutscene_Continue;
-            public InputAction @ToggleBigMap => m_Wrapper.m_Cutscene_ToggleBigMap;
-            public InputAction @ToggleStorySelector => m_Wrapper.m_Cutscene_ToggleStorySelector;
-            public InputAction @ExitCurrentShowingMenu => m_Wrapper.m_Cutscene_ExitCurrentShowingMenu;
             public InputActionMap Get() { return m_Wrapper.m_Cutscene; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1556,15 +1550,6 @@ namespace Pal3.Input
                 @Continue.started += instance.OnContinue;
                 @Continue.performed += instance.OnContinue;
                 @Continue.canceled += instance.OnContinue;
-                @ToggleBigMap.started += instance.OnToggleBigMap;
-                @ToggleBigMap.performed += instance.OnToggleBigMap;
-                @ToggleBigMap.canceled += instance.OnToggleBigMap;
-                @ToggleStorySelector.started += instance.OnToggleStorySelector;
-                @ToggleStorySelector.performed += instance.OnToggleStorySelector;
-                @ToggleStorySelector.canceled += instance.OnToggleStorySelector;
-                @ExitCurrentShowingMenu.started += instance.OnExitCurrentShowingMenu;
-                @ExitCurrentShowingMenu.performed += instance.OnExitCurrentShowingMenu;
-                @ExitCurrentShowingMenu.canceled += instance.OnExitCurrentShowingMenu;
             }
 
             private void UnregisterCallbacks(ICutsceneActions instance)
@@ -1572,15 +1557,6 @@ namespace Pal3.Input
                 @Continue.started -= instance.OnContinue;
                 @Continue.performed -= instance.OnContinue;
                 @Continue.canceled -= instance.OnContinue;
-                @ToggleBigMap.started -= instance.OnToggleBigMap;
-                @ToggleBigMap.performed -= instance.OnToggleBigMap;
-                @ToggleBigMap.canceled -= instance.OnToggleBigMap;
-                @ToggleStorySelector.started -= instance.OnToggleStorySelector;
-                @ToggleStorySelector.performed -= instance.OnToggleStorySelector;
-                @ToggleStorySelector.canceled -= instance.OnToggleStorySelector;
-                @ExitCurrentShowingMenu.started -= instance.OnExitCurrentShowingMenu;
-                @ExitCurrentShowingMenu.performed -= instance.OnExitCurrentShowingMenu;
-                @ExitCurrentShowingMenu.canceled -= instance.OnExitCurrentShowingMenu;
             }
 
             public void RemoveCallbacks(ICutsceneActions instance)
@@ -1658,6 +1634,9 @@ namespace Pal3.Input
         private readonly InputAction m_UI_RightClick;
         private readonly InputAction m_UI_TrackedDevicePosition;
         private readonly InputAction m_UI_TrackedDeviceOrientation;
+        private readonly InputAction m_UI_ToggleBigMap;
+        private readonly InputAction m_UI_ToggleStorySelector;
+        private readonly InputAction m_UI_ExitCurrentShowingMenu;
         public struct UIActions
         {
             private @PlayerInputActions m_Wrapper;
@@ -1672,6 +1651,9 @@ namespace Pal3.Input
             public InputAction @RightClick => m_Wrapper.m_UI_RightClick;
             public InputAction @TrackedDevicePosition => m_Wrapper.m_UI_TrackedDevicePosition;
             public InputAction @TrackedDeviceOrientation => m_Wrapper.m_UI_TrackedDeviceOrientation;
+            public InputAction @ToggleBigMap => m_Wrapper.m_UI_ToggleBigMap;
+            public InputAction @ToggleStorySelector => m_Wrapper.m_UI_ToggleStorySelector;
+            public InputAction @ExitCurrentShowingMenu => m_Wrapper.m_UI_ExitCurrentShowingMenu;
             public InputActionMap Get() { return m_Wrapper.m_UI; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1711,6 +1693,15 @@ namespace Pal3.Input
                 @TrackedDeviceOrientation.started += instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.performed += instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.canceled += instance.OnTrackedDeviceOrientation;
+                @ToggleBigMap.started += instance.OnToggleBigMap;
+                @ToggleBigMap.performed += instance.OnToggleBigMap;
+                @ToggleBigMap.canceled += instance.OnToggleBigMap;
+                @ToggleStorySelector.started += instance.OnToggleStorySelector;
+                @ToggleStorySelector.performed += instance.OnToggleStorySelector;
+                @ToggleStorySelector.canceled += instance.OnToggleStorySelector;
+                @ExitCurrentShowingMenu.started += instance.OnExitCurrentShowingMenu;
+                @ExitCurrentShowingMenu.performed += instance.OnExitCurrentShowingMenu;
+                @ExitCurrentShowingMenu.canceled += instance.OnExitCurrentShowingMenu;
             }
 
             private void UnregisterCallbacks(IUIActions instance)
@@ -1745,6 +1736,15 @@ namespace Pal3.Input
                 @TrackedDeviceOrientation.started -= instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.performed -= instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.canceled -= instance.OnTrackedDeviceOrientation;
+                @ToggleBigMap.started -= instance.OnToggleBigMap;
+                @ToggleBigMap.performed -= instance.OnToggleBigMap;
+                @ToggleBigMap.canceled -= instance.OnToggleBigMap;
+                @ToggleStorySelector.started -= instance.OnToggleStorySelector;
+                @ToggleStorySelector.performed -= instance.OnToggleStorySelector;
+                @ToggleStorySelector.canceled -= instance.OnToggleStorySelector;
+                @ExitCurrentShowingMenu.started -= instance.OnExitCurrentShowingMenu;
+                @ExitCurrentShowingMenu.performed -= instance.OnExitCurrentShowingMenu;
+                @ExitCurrentShowingMenu.canceled -= instance.OnExitCurrentShowingMenu;
             }
 
             public void RemoveCallbacks(IUIActions instance)
@@ -1786,9 +1786,6 @@ namespace Pal3.Input
         public interface ICutsceneActions
         {
             void OnContinue(InputAction.CallbackContext context);
-            void OnToggleBigMap(InputAction.CallbackContext context);
-            void OnToggleStorySelector(InputAction.CallbackContext context);
-            void OnExitCurrentShowingMenu(InputAction.CallbackContext context);
         }
         public interface IVideoPlayingActions
         {
@@ -1806,6 +1803,9 @@ namespace Pal3.Input
             void OnRightClick(InputAction.CallbackContext context);
             void OnTrackedDevicePosition(InputAction.CallbackContext context);
             void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+            void OnToggleBigMap(InputAction.CallbackContext context);
+            void OnToggleStorySelector(InputAction.CallbackContext context);
+            void OnExitCurrentShowingMenu(InputAction.CallbackContext context);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using System.Collections;
-    using Actor;
+    using Actor.Controllers;
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;

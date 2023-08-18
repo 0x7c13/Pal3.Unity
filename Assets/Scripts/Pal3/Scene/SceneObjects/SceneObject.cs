@@ -25,7 +25,8 @@ namespace Pal3.Scene.SceneObjects
     using Dev;
     using Effect;
     using MetaData;
-    using Renderer;
+    using Rendering.Material;
+    using Rendering.Renderer;
     using Script;
     using Script.Waiter;
     using UnityEngine;

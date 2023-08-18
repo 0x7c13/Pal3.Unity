@@ -9,7 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.DataReader.Scn;
     using Data;
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.StaticOrAnimated)]

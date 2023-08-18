@@ -5,7 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects.Common
 {
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
 
     public class SceneObjectMeshCollider : MonoBehaviour

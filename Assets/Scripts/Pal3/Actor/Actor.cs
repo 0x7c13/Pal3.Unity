@@ -7,6 +7,7 @@ namespace Pal3.Actor
 {
     using Core.DataReader.Scn;
     using Core.GameBox;
+    using Core.Navigation;
     using Data;
     using MetaData;
     using UnityEngine;

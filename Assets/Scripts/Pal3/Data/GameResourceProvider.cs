@@ -26,7 +26,7 @@ namespace Pal3.Data
     using Core.Services;
     using Core.Utils;
     using MetaData;
-    using Renderer;
+    using Rendering.Material;
     using Settings;
     using UnityEngine;
     using Object = UnityEngine.Object;

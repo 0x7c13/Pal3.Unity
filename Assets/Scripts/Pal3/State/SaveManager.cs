@@ -10,6 +10,7 @@ namespace Pal3.State
     using System.IO;
     using System.Linq;
     using Actor;
+    using Actor.Controllers;
     using Audio;
     using Camera;
     using Command;

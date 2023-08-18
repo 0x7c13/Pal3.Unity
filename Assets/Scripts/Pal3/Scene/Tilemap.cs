@@ -11,11 +11,15 @@ namespace Pal3.Scene
     using Core.Algorithm.PathFinding;
     using Core.DataReader.Nav;
     using Core.GameBox;
+    using Core.Navigation;
     using MetaData;
     using UnityEngine;
 
     public class Tilemap
     {
+        // GameBox Tile size to Unity unit size ratio
+        private const float NAV_TILE_SIZE = 12f;
+
         private const int MOVE_COST_STRAIGHT = 10;
         private const int MOVE_COST_DIAGONAL = 14; // sqrt(200)
 
@@ -42,9 +46,9 @@ namespace Pal3.Scene
             var isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             var position = new Vector3(
-                currentLayer.Min.x + (tilePosition.x + 1/2f) * NavigationConstants.NavTileSize,
+                currentLayer.Min.x + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
                 isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
-                currentLayer.Min.z + (tilePosition.y + 1/2f) * NavigationConstants.NavTileSize);
+                currentLayer.Min.z + (tilePosition.y + 1/2f) * NAV_TILE_SIZE);
             return GameBoxInterpreter.ToUnityPosition(position);
         }
 
@@ -53,8 +57,8 @@ namespace Pal3.Scene
             Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return new Vector2Int(
-                (int) ((gameBoxPosition.x - currentLayer.Min.x) / NavigationConstants.NavTileSize),
-                (int) ((gameBoxPosition.z - currentLayer.Min.z) / NavigationConstants.NavTileSize));
+                (int) ((gameBoxPosition.x - currentLayer.Min.x) / NAV_TILE_SIZE),
+                (int) ((gameBoxPosition.z - currentLayer.Min.z) / NAV_TILE_SIZE));
         }
 
         public bool TryGetTile(Vector3 position, int layerIndex, out NavTile tile)

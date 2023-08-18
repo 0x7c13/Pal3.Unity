@@ -35,7 +35,7 @@ namespace ResourceViewer
     using Pal3.Command.SceCommands;
     using Pal3.Data;
     using Pal3.MetaData;
-    using Pal3.Renderer;
+    using Pal3.Rendering.Renderer;
     using Pal3.Script;
     using Pal3.Settings;
     using TMPro;

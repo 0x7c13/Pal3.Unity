@@ -26,7 +26,7 @@ namespace Editor
                 BuildTargetGroup.Switch,
                 BuildTargetGroup.GameCoreXboxOne,
                 BuildTargetGroup.GameCoreXboxSeries,
-                BuildTargetGroup.VisionOS,
+                //BuildTargetGroup.VisionOS,
             };
         }
 
@@ -42,7 +42,7 @@ namespace Editor
                 NamedBuildTarget.tvOS,
                 NamedBuildTarget.NintendoSwitch,
                 NamedBuildTarget.WindowsStoreApps,
-                NamedBuildTarget.VisionOS,
+                //NamedBuildTarget.VisionOS,
             };
         }
 

@@ -101,7 +101,7 @@ namespace Pal3.Video
 
         public void Execute(PlayVideoCommand command)
         {
-            _gameStateManager.GoToState(GameState.VideoPlaying);
+            _gameStateManager.TryGoToState(GameState.VideoPlaying);
 
             _videoPlayingWaiter?.CancelWait();
             _videoPlayingWaiter = new WaitUntilCanceled();

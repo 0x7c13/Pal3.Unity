@@ -8,7 +8,7 @@ namespace Pal3.GameSystem
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;

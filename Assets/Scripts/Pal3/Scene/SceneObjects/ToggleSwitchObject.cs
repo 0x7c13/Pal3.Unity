@@ -17,7 +17,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.GameBox;
     using Data;
     using MetaData;
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
     using Object = UnityEngine.Object;
 

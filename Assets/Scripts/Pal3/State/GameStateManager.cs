@@ -35,8 +35,8 @@ namespace Pal3.State
         {
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
-            _previousState = GameState.MenuShowing; // Initial state
-            _currentState = GameState.MenuShowing; // Initial state
+            _previousState = GameState.UI; // Initial state
+            _currentState = GameState.UI; // Initial state
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -63,9 +63,9 @@ namespace Pal3.State
             _gamePlayStateLockers.Remove(lockerId);
         }
 
-        public void GoToState(GameState newState)
+        public bool TryGoToState(GameState newState)
         {
-            if (_currentState == newState) return;
+            if (_currentState == newState) return true;
 
             if (newState == GameState.Gameplay)
             {
@@ -74,7 +74,7 @@ namespace Pal3.State
                 {
                     // Do not allow to switch to Gameplay state if there are running scripts
                     // or there are GamePlay state lockers.
-                    return;
+                    return false;
                 }
             }
 
@@ -87,11 +87,13 @@ namespace Pal3.State
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangedNotification(_previousState, _currentState));
+
+            return true;
         }
 
         public void GoToPreviousState()
         {
-            GoToState(_previousState);
+            TryGoToState(_previousState);
         }
 
         private void UpdateInputManagerState()
@@ -105,7 +107,8 @@ namespace Pal3.State
         public void EnterDebugState()
         {
             _isDebugging = true;
-            _inputManager.SwitchCurrentActionMap(GameState.MenuShowing);
+            // Let's go to cutscene state to "disable" all input from player
+            _inputManager.SwitchCurrentActionMap(GameState.Cutscene);
         }
 
         public void LeaveDebugState()
@@ -118,32 +121,32 @@ namespace Pal3.State
         {
             if (command.Enable == 0)
             {
-                GoToState(GameState.Cutscene);
+                TryGoToState(GameState.Cutscene);
             }
             else if (command.Enable == 1)
             {
-                GoToState(GameState.Gameplay);
+                TryGoToState(GameState.Gameplay);
             }
         }
 
         public void Execute(GameStateChangeRequest request)
         {
-            GoToState(request.NewState);
+            TryGoToState(request.NewState);
         }
 
         public void Execute(DialogueRenderingStartedNotification command)
         {
-            GoToState(GameState.Cutscene);
+            TryGoToState(GameState.Cutscene);
         }
 
         public void Execute(ScriptFinishedRunningNotification notification)
         {
-            GoToState(GameState.Gameplay);
+            TryGoToState(GameState.Gameplay);
         }
 
         public void Execute(ScriptFailedToRunNotification notification)
         {
-            GoToState(GameState.Gameplay);
+            TryGoToState(GameState.Gameplay);
         }
 
         public void Execute(GameSwitchToMainMenuCommand command)

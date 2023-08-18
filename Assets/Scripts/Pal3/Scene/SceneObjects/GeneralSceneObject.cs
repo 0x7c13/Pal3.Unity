@@ -39,6 +39,12 @@ namespace Pal3.Scene.SceneObjects
             }
 
             #if PAL3
+            // The general object 18 in M10-5 scene should block player
+            if (ObjectInfo is { Id: 18 } &&
+                SceneInfo.Is("m10", "5"))
+            {
+                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            }
             // The general object 15 in M15-2 scene should block player
             if (ObjectInfo is { Id: 15 } &&
                 SceneInfo.Is("m15", "2"))

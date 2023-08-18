@@ -20,7 +20,7 @@ namespace Pal3
     using Core.Services;
     using Data;
     using MetaData;
-    using Renderer;
+    using Rendering.Material;
     using Settings;
     using SimpleFileBrowser;
     using TMPro;

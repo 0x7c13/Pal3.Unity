@@ -22,7 +22,7 @@ namespace Pal3.Input
             _playerInputActions = Requires.IsNotNull(playerInputActions, nameof(playerInputActions));
 
             // Goto initial state
-            SwitchCurrentActionMap(GameState.MenuShowing);
+            SwitchCurrentActionMap(GameState.UI);
 
             InputSystem.onActionChange += OnInputActionChange;
         }
@@ -63,7 +63,7 @@ namespace Pal3.Input
 
             InputActionMap inputActionMap = state switch
             {
-                GameState.MenuShowing  => _playerInputActions.UI.Get(),
+                GameState.UI           => _playerInputActions.UI.Get(),
                 GameState.Gameplay     => _playerInputActions.Gameplay.Get(),
                 GameState.Cutscene     => _playerInputActions.Cutscene.Get(),
                 GameState.VideoPlaying => _playerInputActions.VideoPlaying.Get(),

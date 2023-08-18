@@ -6,7 +6,7 @@
 namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
-    using Actor;
+    using Actor.Controllers;
     using Core.Services;
     using GamePlay;
     using UnityEngine;

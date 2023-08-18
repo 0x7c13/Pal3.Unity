@@ -565,7 +565,7 @@ namespace Pal3.GameSystem
 
         public void Execute(DialogueAddSelectionsCommand command)
         {
-            _gameStateManager.GoToState(GameState.MenuShowing);
+            _gameStateManager.TryGoToState(GameState.UI);
 
             WaitUntilCanceled waiter = new ();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));

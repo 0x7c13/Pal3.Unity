@@ -10,7 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
     using Common;

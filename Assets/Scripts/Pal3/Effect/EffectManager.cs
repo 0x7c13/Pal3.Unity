@@ -7,17 +7,16 @@ namespace Pal3.Effect
 {
     using System;
     using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Dat;
-    using Core.DataReader.Data;
     using Core.GameBox;
     using Core.Utils;
     using Data;
     using MetaData;
     using Scene;
-    using Script.Waiter;
     using UnityEngine;
     using Object = UnityEngine.Object;
 

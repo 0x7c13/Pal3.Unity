@@ -112,8 +112,8 @@ namespace Pal3.Dev
             _mainMenuCanvasGroup.interactable = false;
 
             _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleMainMenuPerformed;
-            _playerInputActions.Cutscene.ToggleStorySelector.performed += ToggleMainMenuPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed += HideMainMenuPerformed;
+            _playerInputActions.UI.ToggleStorySelector.performed += ToggleMainMenuPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideMainMenuPerformed;
         }
 
         private void OnEnable()
@@ -125,8 +125,8 @@ namespace Pal3.Dev
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
-            _playerInputActions.Cutscene.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
-            _playerInputActions.Cutscene.ExitCurrentShowingMenu.performed -= HideMainMenuPerformed;
+            _playerInputActions.UI.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed -= HideMainMenuPerformed;
         }
 
         private void ToggleMainMenuPerformed(InputAction.CallbackContext _)
@@ -141,7 +141,7 @@ namespace Pal3.Dev
             if (_mainMenuCanvasGroup.interactable)
             {
                 HideMenu();
-                _gameStateManager.GoToState(GameState.Gameplay);
+                _gameStateManager.TryGoToState(GameState.Gameplay);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Pal3.Dev
             if (_mainMenuCanvasGroup.interactable)
             {
                 HideMenu();
-                _gameStateManager.GoToState(GameState.Gameplay);
+                _gameStateManager.TryGoToState(GameState.Gameplay);
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
@@ -189,7 +189,7 @@ namespace Pal3.Dev
             _initViewCameraOrbitAnimationCts = new CancellationTokenSource();
             StartCoroutine(StartCameraOrbitAnimationAsync(_initViewCameraOrbitAnimationCts.Token));
 
-            _gameStateManager.GoToState(GameState.Cutscene);
+            _gameStateManager.TryGoToState(GameState.UI);
         }
 
         private IEnumerator StartCameraOrbitAnimationAsync(CancellationToken cancellationToken)
@@ -234,7 +234,7 @@ namespace Pal3.Dev
 
         public void ShowMenu()
         {
-            _gameStateManager.GoToState(GameState.Cutscene);
+            _gameStateManager.TryGoToState(GameState.UI);
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             SetupMainMenuButtons();
@@ -267,7 +267,7 @@ namespace Pal3.Dev
                CreateMenuButton("返回游戏", _ => delegate
                {
                    HideMenu();
-                   _gameStateManager.GoToState(GameState.Gameplay);
+                   _gameStateManager.TryGoToState(GameState.Gameplay);
                });
             }
 
@@ -306,13 +306,13 @@ namespace Pal3.Dev
                 {
                     _mazeSkipper.PortalToEntrance();
                     HideMenu();
-                    _gameStateManager.GoToState(GameState.Gameplay);
+                    _gameStateManager.TryGoToState(GameState.Gameplay);
                 });
                 CreateMenuButton("迷宫出口或剧情点", _ => delegate
                 {
                     _mazeSkipper.PortalToExitOrNextStoryPoint();
                     HideMenu();
-                    _gameStateManager.GoToState(GameState.Gameplay);
+                    _gameStateManager.TryGoToState(GameState.Gameplay);
                 });
             }
 
@@ -818,7 +818,7 @@ namespace Pal3.Dev
             CommandDispatcher<ICommand>.Instance.Dispatch(new TaskOpenCommand(TaskConstants.InitTaskId));
             #endif
 
-            _gameStateManager.GoToState(GameState.Cutscene);
+            _gameStateManager.TryGoToState(GameState.Cutscene);
         }
 
         private void ExecuteCommands(string commands)
@@ -932,13 +932,13 @@ namespace Pal3.Dev
 
         public void Execute(GameStateChangedNotification command)
         {
-            // If menu is still active, go to cutscene state
+            // If menu is still active, go to UI state
             // When turn on/off real time lighting and shadow, the game will reload the scene
             // and run scene script again, so we need to check if the menu is still active
-            // and set the game state to cutscene
+            // and set the game state to UI
             if (_mainMenuCanvasGroup.interactable)
             {
-                _gameStateManager.GoToState(GameState.Cutscene);
+                _gameStateManager.TryGoToState(GameState.UI);
             }
         }
     }

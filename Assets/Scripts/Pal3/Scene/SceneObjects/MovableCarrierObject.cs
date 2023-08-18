@@ -8,7 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Actor;
+    using Actor.Controllers;
     using Command;
     using Command.SceCommands;
     using Common;
@@ -22,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     public sealed class MovableCarrierObject : SceneObject
     {
-        private float MOVE_SPEED = 5f;
+        private const float MOVE_SPEED = 5f;
 
         private StandingPlatformController _platformController;
 

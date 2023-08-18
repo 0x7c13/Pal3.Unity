@@ -6,7 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
-    using Actor;
+    using Actor.Controllers;
     using Common;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
@@ -18,7 +18,8 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using GamePlay;
     using MetaData;
-    using Renderer;
+    using Rendering.Material;
+    using Rendering.Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.Climbable)]

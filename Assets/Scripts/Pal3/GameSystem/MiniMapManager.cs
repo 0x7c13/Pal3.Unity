@@ -38,7 +38,7 @@ namespace Pal3.GameSystem
 
         private Tilemap _currentTilemap;
         private int _currentLayerIndex = -1;
-        private GameState _currentGameState = GameState.MenuShowing;
+        private GameState _currentGameState = GameState.UI;
 
         public void Init(Camera mainCamera,
             SceneManager sceneManager,

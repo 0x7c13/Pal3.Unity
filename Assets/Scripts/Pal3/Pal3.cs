@@ -9,7 +9,7 @@ namespace Pal3
     using System.Collections;
     using System.Linq;
     using System.Text;
-    using Actor;
+    using Actor.Controllers;
     using Audio;
     using Camera;
     using Command;
@@ -551,7 +551,7 @@ namespace Pal3
         private void Update()
         {
             GameState currentState = _gameStateManager.GetCurrentState();
-            if (currentState is GameState.Cutscene or GameState.Gameplay)
+            if (currentState != GameState.VideoPlaying)
             {
                 _scriptManager.Update(Time.deltaTime);
             }

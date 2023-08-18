@@ -16,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utils;
     using Data;
-    using Renderer;
+    using Rendering.Renderer;
     using UnityEngine;
 
     [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
