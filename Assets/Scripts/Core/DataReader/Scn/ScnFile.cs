@@ -188,7 +188,7 @@ namespace Core.DataReader.Scn
             return string.Equals(CityName, cityName, StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool IsScene(string sceneName)
+        public bool IsScene(string sceneName)
         {
             return string.Equals(SceneName, sceneName, StringComparison.OrdinalIgnoreCase);
         }

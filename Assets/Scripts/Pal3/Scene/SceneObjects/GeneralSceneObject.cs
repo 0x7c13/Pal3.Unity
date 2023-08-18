@@ -51,9 +51,11 @@ namespace Pal3.Scene.SceneObjects
             {
                 _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }
-            // All general objects (except indicators) in M22 scene should block player
+            // All general objects (except indicators or object 45 in M22-3)
+            // in M22 scene should block player
             if (SceneInfo.IsCity("m22") &&
-                ObjectInfo.Parameters[0] == 0)
+                ObjectInfo.Parameters[0] == 0 &&
+                !(SceneInfo.IsScene("3") && ObjectInfo is { Id: 45 }))
             {
                 _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
             }

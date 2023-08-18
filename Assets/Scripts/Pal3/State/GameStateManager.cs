@@ -107,8 +107,7 @@ namespace Pal3.State
         public void EnterDebugState()
         {
             _isDebugging = true;
-            // Let's go to cutscene state to "disable" all input from player
-            _inputManager.SwitchCurrentActionMap(GameState.Cutscene);
+            _inputManager.SwitchCurrentActionMap(GameState.Debug);
         }
 
         public void LeaveDebugState()

@@ -67,6 +67,8 @@ namespace Pal3.Input
                 GameState.Gameplay     => _playerInputActions.Gameplay.Get(),
                 GameState.Cutscene     => _playerInputActions.Cutscene.Get(),
                 GameState.VideoPlaying => _playerInputActions.VideoPlaying.Get(),
+                GameState.Combat       => _playerInputActions.Combat.Get(),
+                GameState.Debug        => _playerInputActions.Debug.Get(),
                 _ => null
             };
 

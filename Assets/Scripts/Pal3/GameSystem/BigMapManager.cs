@@ -271,7 +271,7 @@ namespace Pal3.GameSystem
 
         public void Execute(GameSwitchRenderingStateCommand command)
         {
-            if (command.State == 13)
+            if ((RenderingState)command.State == RenderingState.BigMap)
             {
                 Show();
             }

@@ -1244,6 +1244,18 @@ namespace Pal3.Input
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Debug"",
+            ""id"": ""76cd9d4b-6f9c-4f58-a69b-859c0b6d3c6b"",
+            ""actions"": [],
+            ""bindings"": []
+        },
+        {
+            ""name"": ""Combat"",
+            ""id"": ""49ab487c-79cc-4f76-9e0f-872d16db5f30"",
+            ""actions"": [],
+            ""bindings"": []
         }
     ],
     ""controlSchemes"": []
@@ -1289,6 +1301,10 @@ namespace Pal3.Input
             m_UI_ToggleBigMap = m_UI.FindAction("ToggleBigMap", throwIfNotFound: true);
             m_UI_ToggleStorySelector = m_UI.FindAction("ToggleStorySelector", throwIfNotFound: true);
             m_UI_ExitCurrentShowingMenu = m_UI.FindAction("ExitCurrentShowingMenu", throwIfNotFound: true);
+            // Debug
+            m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
+            // Combat
+            m_Combat = asset.FindActionMap("Combat", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -1762,6 +1778,82 @@ namespace Pal3.Input
             }
         }
         public UIActions @UI => new UIActions(this);
+
+        // Debug
+        private readonly InputActionMap m_Debug;
+        private List<IDebugActions> m_DebugActionsCallbackInterfaces = new List<IDebugActions>();
+        public struct DebugActions
+        {
+            private @PlayerInputActions m_Wrapper;
+            public DebugActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+            public InputActionMap Get() { return m_Wrapper.m_Debug; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(DebugActions set) { return set.Get(); }
+            public void AddCallbacks(IDebugActions instance)
+            {
+                if (instance == null || m_Wrapper.m_DebugActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_DebugActionsCallbackInterfaces.Add(instance);
+            }
+
+            private void UnregisterCallbacks(IDebugActions instance)
+            {
+            }
+
+            public void RemoveCallbacks(IDebugActions instance)
+            {
+                if (m_Wrapper.m_DebugActionsCallbackInterfaces.Remove(instance))
+                    UnregisterCallbacks(instance);
+            }
+
+            public void SetCallbacks(IDebugActions instance)
+            {
+                foreach (var item in m_Wrapper.m_DebugActionsCallbackInterfaces)
+                    UnregisterCallbacks(item);
+                m_Wrapper.m_DebugActionsCallbackInterfaces.Clear();
+                AddCallbacks(instance);
+            }
+        }
+        public DebugActions @Debug => new DebugActions(this);
+
+        // Combat
+        private readonly InputActionMap m_Combat;
+        private List<ICombatActions> m_CombatActionsCallbackInterfaces = new List<ICombatActions>();
+        public struct CombatActions
+        {
+            private @PlayerInputActions m_Wrapper;
+            public CombatActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+            public InputActionMap Get() { return m_Wrapper.m_Combat; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(CombatActions set) { return set.Get(); }
+            public void AddCallbacks(ICombatActions instance)
+            {
+                if (instance == null || m_Wrapper.m_CombatActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_CombatActionsCallbackInterfaces.Add(instance);
+            }
+
+            private void UnregisterCallbacks(ICombatActions instance)
+            {
+            }
+
+            public void RemoveCallbacks(ICombatActions instance)
+            {
+                if (m_Wrapper.m_CombatActionsCallbackInterfaces.Remove(instance))
+                    UnregisterCallbacks(instance);
+            }
+
+            public void SetCallbacks(ICombatActions instance)
+            {
+                foreach (var item in m_Wrapper.m_CombatActionsCallbackInterfaces)
+                    UnregisterCallbacks(item);
+                m_Wrapper.m_CombatActionsCallbackInterfaces.Clear();
+                AddCallbacks(instance);
+            }
+        }
+        public CombatActions @Combat => new CombatActions(this);
         public interface IGameplayActions
         {
             void OnMovement(InputAction.CallbackContext context);
@@ -1806,6 +1898,12 @@ namespace Pal3.Input
             void OnToggleBigMap(InputAction.CallbackContext context);
             void OnToggleStorySelector(InputAction.CallbackContext context);
             void OnExitCurrentShowingMenu(InputAction.CallbackContext context);
+        }
+        public interface IDebugActions
+        {
+        }
+        public interface ICombatActions
+        {
         }
     }
 }

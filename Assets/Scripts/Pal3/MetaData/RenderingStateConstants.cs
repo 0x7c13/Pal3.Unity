@@ -3,15 +3,13 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.State
+namespace Pal3.MetaData
 {
-    public enum GameState
+    // OG game rendering state constants
+    public enum RenderingState
     {
-        UI,
-        Gameplay,
-        Cutscene,
-        VideoPlaying,
-        Combat,
-        Debug,
+        Gameplay = 0,           // 游戏
+        BigMap = 13,            // 大地图
+        MonsterCatalogue = 17,  // 降妖谱
     }
 }

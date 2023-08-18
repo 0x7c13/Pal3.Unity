@@ -521,7 +521,7 @@ namespace Pal3.Scene
                 {
                     var actorMovementController = actor.GetComponent<ActorMovementController>();
                     if (actorMovementController.GetCurrentLayerIndex() != layerIndex) continue;
-                    Vector2Int tilePosition = _tilemap.GetTilePosition(actorMovementController.GetWorldPosition(), layerIndex);
+                    Vector2Int tilePosition = actorMovementController.GetTilePosition();
                     actorTiles.Add(tilePosition);
                 }
             }
@@ -529,6 +529,8 @@ namespace Pal3.Scene
             var obstacles = new HashSet<Vector2Int>();
             foreach (Vector2Int actorTile in actorTiles)
             {
+                if (!_tilemap.IsTilePositionInsideTileMap(actorTile, layerIndex)) continue;
+
                 obstacles.Add(actorTile);
 
                 // Mark 8 tiles right next to the actor tile as obstacles

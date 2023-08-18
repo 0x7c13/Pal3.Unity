@@ -226,6 +226,19 @@ namespace Pal3.GamePlay
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID)
             {
+                // Fix a bug in PAL3 script
+                // TODO: Implement a better solution to fix command at dispatching time
+                #if PAL3
+                if (command.TileXPosition == 289 &&
+                    command.TileYPosition == 21 &&
+                    command.Mode == 0)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new ActorPathToCommand((int)_playerActor, 288, 20, command.Mode));
+                    return;
+                }
+                #endif
+
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPathToCommand((int)_playerActor, command.TileXPosition, command.TileYPosition, command.Mode));
             }

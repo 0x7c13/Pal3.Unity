@@ -1220,6 +1220,18 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Debug",
+            "id": "76cd9d4b-6f9c-4f58-a69b-859c0b6d3c6b",
+            "actions": [],
+            "bindings": []
+        },
+        {
+            "name": "Combat",
+            "id": "49ab487c-79cc-4f76-9e0f-872d16db5f30",
+            "actions": [],
+            "bindings": []
         }
     ],
     "controlSchemes": []
