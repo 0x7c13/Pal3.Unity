@@ -41,7 +41,8 @@ namespace Pal3.Effect
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,
-                    materialFactory);
+                    materialFactory,
+                    isStaticObject: false);
             }
 
             if (!string.IsNullOrEmpty(info.TexturePathFormat))

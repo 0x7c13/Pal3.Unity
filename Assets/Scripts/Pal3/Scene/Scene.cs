@@ -243,13 +243,18 @@ namespace Pal3.Scene
         private void RenderMesh()
         {
             // Render mesh
-            _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}");
+            _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}")
+            {
+                isStatic = true // Scene mesh is static
+            };
+
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform, false);
 
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
                 _materialFactory,
+                isStaticObject: true, // Scene mesh is static
                 Color.white,
                 IsWaterSurfaceOpaque());
 

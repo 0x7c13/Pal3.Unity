@@ -257,6 +257,7 @@ namespace ResourceViewer
                 meshRenderer.Render(polyFile,
                     textureProvider,
                     _resourceProvider.GetMaterialFactory(),
+                    isStaticObject: true,
                     Color.white);
 
                 consoleTextUI.text = $"{filePath}";

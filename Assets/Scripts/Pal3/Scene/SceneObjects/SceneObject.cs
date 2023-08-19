@@ -135,6 +135,7 @@ namespace Pal3.Scene.SceneObjects
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
                     materialFactory,
+                    isStaticObject: false,
                     tintColor);
             }
             else if (ModelType == SceneObjectModelType.CvdModel)

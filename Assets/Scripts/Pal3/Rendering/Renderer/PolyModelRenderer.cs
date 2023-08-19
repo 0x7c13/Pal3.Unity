@@ -33,6 +33,7 @@ namespace Pal3.Rendering.Renderer
         private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
+        private bool _isStaticObject;
         private Color _tintColor;
         private bool _isWaterSurfaceOpaque;
 
@@ -41,11 +42,13 @@ namespace Pal3.Rendering.Renderer
         public void Render(PolFile polFile,
             ITextureResourceProvider textureProvider,
             IMaterialFactory materialFactory,
+            bool isStaticObject,
             Color? tintColor = default,
             bool isWaterSurfaceOpaque = default)
         {
             _textureProvider = textureProvider;
             _materialFactory = materialFactory;
+            _isStaticObject = isStaticObject;
             _tintColor = tintColor ?? Color.white;
             _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
             _textureCache = BuildTextureCache(polFile, textureProvider);
@@ -149,7 +152,10 @@ namespace Pal3.Rendering.Renderer
                     return;
                 }
 
-                var meshObject = new GameObject(meshNode.Name);
+                GameObject meshObject = new (meshNode.Name)
+                {
+                    isStatic = _isStaticObject
+                };
 
                 // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
                 #if UNITY_EDITOR

@@ -68,6 +68,7 @@ namespace Pal3.Scene.SceneObjects
             subObjectModelRenderer.Render(polFile,
                 textureProvider,
                 resourceProvider.GetMaterialFactory(),
+                isStaticObject: false,
                 subObjectTintColor);
 
             _subObjectController = _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>();

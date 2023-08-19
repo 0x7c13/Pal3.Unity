@@ -127,6 +127,7 @@ namespace Pal3.Rendering.Renderer
                     tagNodeRenderer.Render(tagNodePolFile,
                         tagNodeTextureProvider,
                         _materialFactory,
+                        isStaticObject: false,
                         tagNodeTintColor);
 
                     _tagNodes[i].transform.SetParent(transform, true);
