@@ -17,7 +17,6 @@ namespace Pal3.Scene
     using Core.DataReader.Scn;
     using Core.Utils;
     using Data;
-    using GamePlay;
     using MetaData;
     using SceneObjects;
     using State;
@@ -28,6 +27,14 @@ namespace Pal3.Scene
     /// </summary>
     public abstract class SceneBase : MonoBehaviour
     {
+        private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_DEFAULT = 2.2f;
+        private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_LAYER_DEFAULT = 2f;
+        private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_PLATFORM_DEFAULT = 2f;
+
+        protected float ActorMovementMaxYDifferential;
+        protected float ActorMovementMaxYDifferentialCrossLayer;
+        protected float ActorMovementMaxYDifferentialCrossPlatform;
+
         protected Tilemap Tilemap;
         protected ScnFile ScnFile;
         protected NavFile NavFile;
@@ -55,10 +62,25 @@ namespace Pal3.Scene
 
             ScnFile = scnFile;
 
+            InitActorMovementMaxYDifferentialValues();
             InitMeshData();
             InitNavData();
             InitSceneObjectData();
             InitActorData();
+        }
+
+        private void InitActorMovementMaxYDifferentialValues()
+        {
+            ActorMovementMaxYDifferential = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_DEFAULT;
+            ActorMovementMaxYDifferentialCrossLayer = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_LAYER_DEFAULT;
+            ActorMovementMaxYDifferentialCrossPlatform = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_PLATFORM_DEFAULT;;
+
+            #if PAL3 // Make sure actor cannot walk out of the trap holes in m10_2
+            if (ScnFile.SceneInfo.Is("m10", "2"))
+            {
+                ActorMovementMaxYDifferentialCrossLayer = 0.2f;
+            }
+            #endif
         }
 
         protected bool IsNightScene()

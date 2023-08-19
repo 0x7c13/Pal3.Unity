@@ -492,6 +492,9 @@ namespace Pal3.Scene
                 tileMap,
                 isDropShadowEnabled: !_isLightingEnabled,
                 tintColor,
+                ActorMovementMaxYDifferential,
+                ActorMovementMaxYDifferentialCrossLayer,
+                ActorMovementMaxYDifferentialCrossPlatform,
                 GetAllActiveActorBlockingTilePositions);
             actorGameObject.transform.SetParent(_parent.transform, false);
             _actorObjects[actor.Info.Id] = actorGameObject;

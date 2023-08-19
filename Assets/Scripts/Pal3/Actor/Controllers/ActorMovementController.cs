@@ -59,9 +59,6 @@ namespace Pal3.Actor.Controllers
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private const float MAX_Y_DIFFERENTIAL = 2.2f;
-        private const float MAX_Y_DIFFERENTIAL_CROSS_LAYER = 2f;
-        private const float MAX_Y_DIFFERENTIAL_CROSS_PLATFORM = 2f;
         private const float DEFAULT_ROTATION_SPEED = 20f;
 
         private Actor _actor;
@@ -77,15 +74,27 @@ namespace Pal3.Actor.Controllers
         private readonly HashSet<ActiveColliderInfo> _activeColliders = new ();
         private readonly HashSet<ActiveStandingPlatformInfo> _activeStandingPlatforms = new ();
 
+        private float _movementMaxYDifferential;
+        private float _movementMaxYDifferentialCrossLayer;
+        private float _movementMaxYDifferentialCrossPlatform;
+
         private Func<int, int[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
 
-        public void Init(Actor actor, Tilemap tilemap, ActorActionController actionController,
+        public void Init(Actor actor,
+            Tilemap tilemap,
+            ActorActionController actionController,
+            float movementMaxYDifferential,
+            float movementMaxYDifferentialCrossLayer,
+            float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             _actor = actor;
             _tilemap = tilemap;
             _actionController = actionController;
             _currentLayerIndex = actor.Info.LayerIndex;
+            _movementMaxYDifferential = movementMaxYDifferential;
+            _movementMaxYDifferentialCrossLayer = movementMaxYDifferentialCrossLayer;
+            _movementMaxYDifferentialCrossPlatform = movementMaxYDifferentialCrossPlatform;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
             Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
@@ -366,7 +375,7 @@ namespace Pal3.Actor.Controllers
                 // Move actor on to the platform if platform is higher than current position
                 Vector3 currentPosition = transform.position;
                 var targetYPosition = standingPlatformController.GetPlatformHeight();
-                if (Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM &&
+                if (Mathf.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform &&
                     currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
                 {
                     transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
@@ -503,9 +512,9 @@ namespace Pal3.Actor.Controllers
 
             switch (ignoreObstacle)
             {
-                case false when Mathf.Abs(newYPosition - newPosition.y) > MAX_Y_DIFFERENTIAL:
+                case false when Mathf.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
                     return MovementResult.Blocked;
-                case true when Mathf.Abs(newYPosition - newPosition.y) > MAX_Y_DIFFERENTIAL:
+                case true when Mathf.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
                     newYPosition = currentPosition.y;
                     break;
             }
@@ -596,7 +605,7 @@ namespace Pal3.Actor.Controllers
                     // Make sure actor is on top of the platform
                     if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
                             new Vector3(newPosition.x, targetYPosition, newPosition.z), tolerance) &&
-                        Mathf.Abs(currentPosition.y - targetYPosition) <= MAX_Y_DIFFERENTIAL_CROSS_PLATFORM)
+                        Mathf.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform)
                     {
                         newYPosition = targetYPosition;
                         isNewPositionValid = true;
@@ -632,7 +641,7 @@ namespace Pal3.Actor.Controllers
             {
                 var yPositionAtNextLayer = GameBoxInterpreter.ToUnityYPosition(tileAtNextLayer.GameBoxYPosition);
 
-                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > MAX_Y_DIFFERENTIAL_CROSS_LAYER)
+                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > _movementMaxYDifferentialCrossLayer)
                 {
                     return false;
                 }

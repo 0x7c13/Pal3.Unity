@@ -21,6 +21,9 @@ namespace Pal3.Actor
             Tilemap tilemap,
             bool isDropShadowEnabled,
             Color tintColor,
+            float movementMaxYDifferential,
+            float movementMaxYDifferentialCrossLayer,
+            float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}")
@@ -64,7 +67,13 @@ namespace Pal3.Actor
             }
 
             var movementController = actorGameObject.AddComponent<ActorMovementController>();
-            movementController.Init(actor, tilemap, actionController, getAllActiveActorBlockingTilePositions);
+            movementController.Init(actor,
+                tilemap,
+                actionController,
+                movementMaxYDifferential,
+                movementMaxYDifferentialCrossLayer,
+                movementMaxYDifferentialCrossPlatform,
+                getAllActiveActorBlockingTilePositions);
 
             var actorController = actorGameObject.AddComponent<ActorController>();
             actorController.Init(actor, actionController, movementController);
