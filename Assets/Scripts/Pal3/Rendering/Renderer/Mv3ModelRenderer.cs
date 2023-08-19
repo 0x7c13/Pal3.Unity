@@ -461,7 +461,17 @@ namespace Pal3.Rendering.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
+                    var materials = renderMeshComponent.MeshRenderer.GetMaterials();
+
+                    #if PAL3A
+                    // Revert tiling fix before returning to pool
+                    foreach (Material material in materials)
+                    {
+                        material.mainTextureScale = Vector2.one;
+                    }
+                    #endif
+
+                    _materialFactory.ReturnToPool(materials);
                     Destroy(renderMeshComponent.Mesh);
                     Destroy(renderMeshComponent.MeshRenderer);
                 }

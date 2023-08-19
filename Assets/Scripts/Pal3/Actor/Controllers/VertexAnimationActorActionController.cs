@@ -251,10 +251,9 @@ namespace Pal3.Actor.Controllers
             }
             else
             {
-                _mv3ModelRenderer.PauseAnimation();
                 _animationLoopPointWaiter?.CancelWait();
 
-                if (_autoStand && _mv3ModelRenderer.IsVisible())
+                if (_mv3ModelRenderer.IsVisible())
                 {
                     PerformAction(_actor.GetIdleAction());
                 }

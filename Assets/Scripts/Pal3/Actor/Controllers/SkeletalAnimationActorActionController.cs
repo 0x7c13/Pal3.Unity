@@ -173,9 +173,7 @@ namespace Pal3.Actor.Controllers
                 _skeletalModelRenderer == null ||
                 !_skeletalModelRenderer.IsVisible()) return;
 
-            _skeletalModelRenderer.PauseAnimation();
-
-            if (_autoStand && _skeletalModelRenderer.IsVisible())
+            if (_skeletalModelRenderer.IsVisible())
             {
                 PerformAction(_actor.GetIdleAction());
             }
