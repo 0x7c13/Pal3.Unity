@@ -54,6 +54,7 @@ namespace Pal3.Scene.SceneObjects
                 subObjectModelRenderer.Render(polFile,
                     textureProvider,
                     resourceProvider.GetMaterialFactory(),
+                    isStaticObject: false,
                     tintColor);
 
                 // Sub-object should block player as well, so let's add mesh collider to it
