@@ -17,6 +17,7 @@ namespace Pal3.GameSystem
     using State;
     using TMPro;
     using UnityEngine;
+    using UnityEngine.Profiling;
 
     public sealed class InformationManager : IDisposable,
         ICommandExecutor<UIDisplayNoteCommand>,
@@ -40,6 +41,8 @@ namespace Pal3.GameSystem
 
         private double _heapSizeLastQueryTime;
         private float _heapSize;
+        private float _totalAllocatedMemorySize;
+        private float _totalReservedMemorySize;
 
         private bool _isNoteShowingEnabled = true;
 
@@ -67,7 +70,7 @@ namespace Pal3.GameSystem
             const string scriptingBackend = "Mono";
             #endif
 
-            _defaultText = $"{GameConstants.ContactInfo} v{Application.version} {GameConstants.TestingType} (Unity {Application.unityVersion} {scriptingBackend})\n";
+            _defaultText = $"{GameConstants.ContactInfo} v{Application.version} {GameConstants.TestingType} ({Application.platform}-{scriptingBackend})\n";
             _debugInfo.SetText(_defaultText);
 
             #if UNITY_2022_1_OR_NEWER
@@ -78,12 +81,12 @@ namespace Pal3.GameSystem
 
             var deviceInfo =
                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
-                $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores)\n" +
-                $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType})\n" +
-                $"RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n";
+                $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores) RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB\n" +
+                $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType}) VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n";
 
             _debugInfoStringFormat = _defaultText + deviceInfo +
-                                     "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
+                                     "Heap: {0:0.} MB Allocated: {1:0.} MB Reserved: {2:0.} MB\n" +
+                                     "{3:0.} fps ({4}x{5}, " + refreshRate + "Hz)";
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -102,13 +105,17 @@ namespace Pal3.GameSystem
             if (currentTime - _heapSizeLastQueryTime > 5f)
             {
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
+                _totalAllocatedMemorySize = Profiler.GetTotalAllocatedMemoryLong() / (1024f * 1024f);
+                _totalReservedMemorySize = Profiler.GetTotalReservedMemoryLong() / (1024f * 1024f);
                 _heapSizeLastQueryTime = currentTime;
             }
             _debugInfo.SetText(_debugInfoStringFormat,
                 _heapSize,
+                _totalAllocatedMemorySize,
+                _totalReservedMemorySize,
+                Mathf.Ceil(_fpsCounter.GetFps()),
                 Screen.width,
-                Screen.height,
-                Mathf.Ceil(_fpsCounter.GetFps()));
+                Screen.height);
         }
 
         private IEnumerator AnimateNoteUIAsync()

@@ -14,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(ScnSceneObjectType.Collectable)]
     public sealed class CollectableObject : SceneObject
     {
-        private const float MAX_INTERACTION_DISTANCE = 3.5f;
+        private const float MAX_INTERACTION_DISTANCE = 3.8f;
 
         public CollectableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
