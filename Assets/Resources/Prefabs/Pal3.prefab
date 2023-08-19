@@ -4982,6 +4982,7 @@ MonoBehaviour:
   dialogueSelectionButtonPrefab: {fileID: 4172465472256067823, guid: a7a35ac194873f94d8d9f86a534fb73f, type: 3}
   captionImage: {fileID: 3071742581265337525}
   debugInfo: {fileID: 9135205958574637510}
+  fpsCounter: {fileID: 887733067292281693}
   bigMapCanvasGroup: {fileID: 6994295648662812940}
   bigMapRegionButtonPrefab: {fileID: 799485479191424804, guid: 6cb716e1f5237d348a31b595966399f8, type: 3}
   bigMapBackground: {fileID: 8628713396278854032}
@@ -5407,7 +5408,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251150947, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Value
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2755888773251194751, guid: 3ef1d32c83f86744286e2067bc5f73e4, type: 3}
       propertyPath: m_Enabled

@@ -14,24 +14,21 @@ namespace Pal3.UI
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
 
-    public sealed class CursorManager : MonoBehaviour,
+    public sealed class CursorManager : IDisposable,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
-        private Texture2D _cursorTextureNormal;
+        private readonly Texture2D _cursorTextureNormal;
 
-        public void Init(GameResourceProvider gameResourceProvider)
+        public CursorManager(GameResourceProvider gameResourceProvider)
         {
             Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
             _cursorTextureNormal = gameResourceProvider.GetCursorTexture();
             Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, CursorMode.Auto);
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);

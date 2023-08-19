@@ -34,7 +34,7 @@ namespace Pal3.Dev
     using UnityEngine.Rendering;
     using UnityEngine.UI;
 
-    public sealed class MainMenu : MonoBehaviour,
+    public sealed class MainMenu : IDisposable,
         ICommandExecutor<ToggleMainMenuRequest>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ScenePostLoadingNotification>,
@@ -42,34 +42,34 @@ namespace Pal3.Dev
     {
         private const int SAVE_SLOT_COUNT = 5;
 
-        private GameSettings _gameSettings;
-        private InputManager _inputManager;
-        private EventSystem _eventSystem;
-        private PlayerInputActions _playerInputActions;
-        private ScriptManager _scriptManager;
-        private TeamManager _teamManager;
-        private GameStateManager _gameStateManager;
-        private SceneManager _sceneManager;
-        private SaveManager _saveManager;
-        private InformationManager _informationManager;
-        private MazeSkipper _mazeSkipper;
+        private readonly GameSettings _gameSettings;
+        private readonly InputManager _inputManager;
+        private readonly EventSystem _eventSystem;
+        private readonly PlayerInputActions _playerInputActions;
+        private readonly ScriptManager _scriptManager;
+        private readonly TeamManager _teamManager;
+        private readonly GameStateManager _gameStateManager;
+        private readonly SceneManager _sceneManager;
+        private readonly SaveManager _saveManager;
+        private readonly InformationManager _informationManager;
+        private readonly MazeSkipper _mazeSkipper;
 
-        private CanvasGroup _mainMenuCanvasGroup;
-        private GameObject _menuButtonPrefab;
-        private RectTransform _backgroundTransform;
-        private RectTransform _contentTransform;
-        private GridLayoutGroup _contentGridLayoutGroup;
-        private ScrollRect _contentScrollRect;
+        private readonly CanvasGroup _mainMenuCanvasGroup;
+        private readonly GameObject _menuButtonPrefab;
+        private readonly RectTransform _backgroundTransform;
+        private readonly RectTransform _contentTransform;
+        private readonly GridLayoutGroup _contentGridLayoutGroup;
+        private readonly ScrollRect _contentScrollRect;
 
         private bool _isInInitView = true;
         private CancellationTokenSource _initViewCameraOrbitAnimationCts = new ();
-        private Camera _mainCamera;
+        private readonly Camera _mainCamera;
 
         private readonly List<string> _deferredExecutionCommands = new();
 
         private readonly List<GameObject> _menuItems = new();
 
-        public void Init(GameSettings gameSettings,
+        public MainMenu(GameSettings gameSettings,
             InputManager inputManager,
             SceneManager sceneManager,
             GameStateManager gameStateManager,
@@ -114,14 +114,11 @@ namespace Pal3.Dev
             _playerInputActions.Gameplay.ToggleStorySelector.performed += ToggleMainMenuPerformed;
             _playerInputActions.UI.ToggleStorySelector.performed += ToggleMainMenuPerformed;
             _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideMainMenuPerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleStorySelector.performed -= ToggleMainMenuPerformed;
@@ -187,7 +184,7 @@ namespace Pal3.Dev
                 _initViewCameraOrbitAnimationCts.Cancel();
             }
             _initViewCameraOrbitAnimationCts = new CancellationTokenSource();
-            StartCoroutine(StartCameraOrbitAnimationAsync(_initViewCameraOrbitAnimationCts.Token));
+            Pal3.Instance.StartCoroutine(StartCameraOrbitAnimationAsync(_initViewCameraOrbitAnimationCts.Token));
 
             _gameStateManager.TryGoToState(GameState.UI);
         }
@@ -727,7 +724,7 @@ namespace Pal3.Dev
 
         private void CreateMenuButton(string text, Func<TextMeshProUGUI, UnityAction> onSelection)
         {
-            GameObject menuButtonGo = Instantiate(_menuButtonPrefab, _contentTransform);
+            GameObject menuButtonGo = UnityEngine.Object.Instantiate(_menuButtonPrefab, _contentTransform);
             var buttonTextUI = menuButtonGo.GetComponentInChildren<TextMeshProUGUI>();
             buttonTextUI.text = text;
             var button = menuButtonGo.GetComponent<Button>();
@@ -798,7 +795,7 @@ namespace Pal3.Dev
             foreach (GameObject item in _menuItems)
             {
                 item.GetComponent<Button>()?.onClick.RemoveAllListeners();
-                Destroy(item);
+                UnityEngine.Object.Destroy(item);
             }
             _menuItems.Clear();
         }
@@ -910,7 +907,8 @@ namespace Pal3.Dev
             }
             else
             {
-                StartCoroutine(ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(command.SceneScriptId));
+                Pal3.Instance.StartCoroutine(ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(
+                    command.SceneScriptId));
             }
         }
 

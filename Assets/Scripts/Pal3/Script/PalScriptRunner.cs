@@ -115,11 +115,7 @@ namespace Pal3.Script
             _registers = new object[MAX_REGISTER_COUNT];
             _registers[(int) RegisterOperationType.Operator] = 0; // Init operator
 
-            #if ENABLE_IL2CPP || UNITY_EDITOR
-            _scriptDataReader = new UnsafeBinaryReader(scriptBlock.ScriptData);
-            #else
             _scriptDataReader = new SafeBinaryReader(scriptBlock.ScriptData);
-            #endif
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }

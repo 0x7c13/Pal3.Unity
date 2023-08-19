@@ -19,7 +19,7 @@ namespace Pal3.GameSystem
     using UnityEngine.InputSystem;
     using UnityEngine.UI;
 
-    public sealed class CaptionRenderer : MonoBehaviour,
+    public sealed class CaptionRenderer : IDisposable,
         #if PAL3A
         ICommandExecutor<UIDisplayNextCaptionCommand>,
         #endif
@@ -27,14 +27,14 @@ namespace Pal3.GameSystem
     {
         private const float CAPTION_ANIMATION_DURATION = 10f;
 
-        private GameResourceProvider _gameResourceProvider;
-        private PlayerInputActions _playerInputActions;
-        private Image _captionImage;
+        private readonly GameResourceProvider _gameResourceProvider;
+        private readonly PlayerInputActions _playerInputActions;
+        private readonly Image _captionImage;
 
         private WaitUntilCanceled _skipCaptionWaiter;
         private bool _skipCaptionRequested;
 
-        public void Init(GameResourceProvider gameResourceProvider,
+        public CaptionRenderer(GameResourceProvider gameResourceProvider,
             PlayerInputActions playerInputActions,
             Image captionImage)
         {
@@ -44,14 +44,11 @@ namespace Pal3.GameSystem
 
             _captionImage.preserveAspect = true;
             _playerInputActions.Cutscene.Continue.performed += CutsceneContinueOnPerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             _playerInputActions.Cutscene.Continue.performed -= CutsceneContinueOnPerformed;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
@@ -65,7 +62,8 @@ namespace Pal3.GameSystem
         private IEnumerator AnimateCaptionAsync(string textureName)
         {
             _skipCaptionWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
 
             Texture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);
             var sprite = Sprite.Create(texture,
@@ -75,8 +73,8 @@ namespace Pal3.GameSystem
             _captionImage.sprite = sprite;
             _captionImage.color = Color.clear;
 
-            yield return CoreAnimation.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION, AnimationCurveType.Linear,
-                alpha =>
+            yield return CoreAnimation.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION,
+                AnimationCurveType.Linear, alpha =>
                 {
                     _captionImage.color = new Color(1f, 1f, 1f, alpha);
                 });
@@ -85,8 +83,8 @@ namespace Pal3.GameSystem
             yield return new WaitUntil(() => _skipCaptionRequested);
 
             _captionImage.color = Color.clear;
-            Destroy(texture);
-            Destroy(sprite);
+            UnityEngine.Object.Destroy(texture);
+            UnityEngine.Object.Destroy(sprite);
 
             _skipCaptionWaiter.CancelWait();
             _skipCaptionWaiter = null;
@@ -94,13 +92,13 @@ namespace Pal3.GameSystem
 
         public void Execute(UIDisplayCaptionCommand command)
         {
-            StartCoroutine(AnimateCaptionAsync(command.TextureName));
+            Pal3.Instance.StartCoroutine(AnimateCaptionAsync(command.TextureName));
         }
 
         #if PAL3A
         public void Execute(UIDisplayNextCaptionCommand command)
         {
-            StartCoroutine(AnimateCaptionAsync(command.TextureName));
+            Pal3.Instance.StartCoroutine(AnimateCaptionAsync(command.TextureName));
         }
         #endif
     }

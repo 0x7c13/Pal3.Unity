@@ -91,14 +91,28 @@ namespace Pal3.Data
 
         public void Dispose()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+
             _textureCache?.DisposeAll();
+
+            foreach (Sprite sprite in _spriteCache.Values)
+            {
+                Object.Destroy(sprite);
+            }
             _spriteCache.Clear();
-            _gameResourceFileCache.Clear();
+
+            foreach (AudioClip audioClip in _audioClipCache.Values)
+            {
+                Object.Destroy(audioClip);
+            }
             _audioClipCache.Clear();
+
             _vfxEffectPrefabCache.Clear();
+
             _unlitMaterialFactory?.DeallocateMaterialPool();
             _litMaterialFactory?.DeallocateMaterialPool();
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+
+            _gameResourceFileCache.Clear();
         }
 
         public void UseTextureCache(TextureCache textureCache)
@@ -450,7 +464,7 @@ namespace Pal3.Data
 
             if (!Directory.Exists(videoFolder))
             {
-                throw new Exception($"Video directory does not exists: {videoFolder}.");
+                throw new DirectoryNotFoundException($"Video directory does not exists: {videoFolder}.");
             }
 
             var supportedVideoFormats = UnitySupportedVideoFormats.GetSupportedVideoFormats(Application.platform);
@@ -465,7 +479,7 @@ namespace Pal3.Data
                 }
             }
 
-            throw new Exception($"Cannot find video file: {videoName} under path: {videoFolder}. " +
+            throw new FileNotFoundException($"Cannot find video file: {videoName} under path: {videoFolder}. " +
                                 $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}.");
         }
 

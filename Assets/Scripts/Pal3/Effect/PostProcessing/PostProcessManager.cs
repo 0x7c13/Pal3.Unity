@@ -5,32 +5,32 @@
 
 namespace Pal3.Effect.PostProcessing
 {
+    using System;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Utils;
     using Settings;
-    using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
-    public sealed class PostProcessManager : MonoBehaviour,
+    public sealed class PostProcessManager : IDisposable,
         ICommandExecutor<EffectSetScreenEffectCommand>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
-        private PostProcessVolume _postProcessVolume;
-        private PostProcessLayer _postProcessLayer;
-        private GameSettings _gameSettings;
+        private readonly PostProcessVolume _postProcessVolume;
+        private readonly PostProcessLayer _postProcessLayer;
+        private readonly GameSettings _gameSettings;
 
-        private Bloom _bloom;
-        private AmbientOcclusion _ambientOcclusion;
-        private ColorGrading _colorGrading;
-        private Vignette _vignette;
-        private Distortion _distortion;
+        private readonly Bloom _bloom;
+        private readonly AmbientOcclusion _ambientOcclusion;
+        private readonly ColorGrading _colorGrading;
+        private readonly Vignette _vignette;
+        private readonly Distortion _distortion;
 
         private int _currentAppliedEffectMode = -1;
 
-        public void Init(PostProcessVolume volume,
+        public PostProcessManager(PostProcessVolume volume,
             PostProcessLayer postProcessLayer,
             GameSettings gameSettings)
         {
@@ -57,6 +57,8 @@ namespace Pal3.Effect.PostProcessing
             }
 
             TogglePostProcessLayerWhenNeeded();
+
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         private void ToggleBloomBasedOnSetting()
@@ -102,12 +104,7 @@ namespace Pal3.Effect.PostProcessing
             }
         }
 
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }

@@ -22,7 +22,7 @@ namespace Pal3.GamePlay
     using UnityEngine;
     using UnityEngine.InputSystem;
 
-    public partial class PlayerGamePlayController :
+    public partial class PlayerGamePlayManager :
         ICommandExecutor<PlayerInteractionRequest>,
         ICommandExecutor<PlayerInteractWithObjectCommand>
     {
@@ -31,12 +31,12 @@ namespace Pal3.GamePlay
             Scene currentScene = _sceneManager.GetCurrentScene();
             if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
             {
-                StartCoroutine(InteractWithSceneObjectAsync(
+                Pal3.Instance.StartCoroutine(InteractWithSceneObjectAsync(
                     currentScene.GetSceneObject(command.SceneObjectId), startedByPlayer: false));
             }
             else
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found" +
+                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Scene object not found" +
                                $" or not activated yet: {command.SceneObjectId}.");
             }
         }
@@ -45,7 +45,7 @@ namespace Pal3.GamePlay
         {
             if (IsPlayerActorInsideJumpableArea())
             {
-                StartCoroutine(JumpAsync());
+                Pal3.Instance.StartCoroutine(JumpAsync());
             }
             else
             {
@@ -63,7 +63,7 @@ namespace Pal3.GamePlay
 
             if (IsPlayerActorInsideJumpableArea())
             {
-                StartCoroutine(JumpAsync());
+                Pal3.Instance.StartCoroutine(JumpAsync());
             }
             else
             {
@@ -133,7 +133,7 @@ namespace Pal3.GamePlay
 
             if (interactionRoutine != null)
             {
-                StartCoroutine(interactionRoutine);
+                Pal3.Instance.StartCoroutine(interactionRoutine);
             }
         }
 

@@ -18,7 +18,7 @@ namespace Pal3.GamePlay
     using State;
     using UnityEngine;
 
-    public partial class PlayerGamePlayController
+    public partial class PlayerGamePlayManager
     {
         private const float MIN_JUMP_DISTANCE = 1.2f;
         private const float MAX_JUMP_DISTANCE = 8f;
@@ -41,7 +41,7 @@ namespace Pal3.GamePlay
             if (_sceneManager.GetCurrentScene()
                 .GetMeshColliders().Any(_ => _.Value == hit.collider))
             {
-                StartCoroutine(JumpAsync(hit.point));
+                Pal3.Instance.StartCoroutine(JumpAsync(hit.point));
             }
         }
 
@@ -91,13 +91,13 @@ namespace Pal3.GamePlay
             if (_jumpIndicatorRenderer != null)
             {
                 _jumpIndicatorRenderer.StopAnimation();
-                Destroy(_jumpIndicatorRenderer);
+                UnityEngine.Object.Destroy(_jumpIndicatorRenderer);
                 _jumpIndicatorRenderer = null;
             }
 
             if (_jumpIndicatorGameObject != null)
             {
-                Destroy(_jumpIndicatorGameObject);
+                UnityEngine.Object.Destroy(_jumpIndicatorGameObject);
                 _jumpIndicatorGameObject = null;
             }
         }

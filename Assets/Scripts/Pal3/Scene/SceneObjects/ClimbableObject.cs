@@ -27,7 +27,7 @@ namespace Pal3.Scene.SceneObjects
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;
 
-        private readonly PlayerGamePlayController _playerGamePlayController;
+        private readonly PlayerGamePlayManager _playerGamePlayManager;
 
         private const string INTERACTION_INDICATOR_MODEL_FILE_NAME = "g02.cvd";
 
@@ -39,7 +39,7 @@ namespace Pal3.Scene.SceneObjects
         public ClimbableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _playerGamePlayController = ServiceLocator.Instance.Get<PlayerGamePlayController>();
+            _playerGamePlayManager = ServiceLocator.Instance.Get<PlayerGamePlayManager>();
         }
 
         public override bool IsDirectlyInteractable(float distance)
@@ -167,7 +167,7 @@ namespace Pal3.Scene.SceneObjects
 
             var climbableHeight = upperPosition.y - lowerPosition.y;
 
-            yield return _playerGamePlayController.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
+            yield return _playerGamePlayManager.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
                 climbUp,
                 false,
                 climbableHeight,

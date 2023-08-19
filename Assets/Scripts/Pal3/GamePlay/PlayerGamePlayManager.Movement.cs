@@ -17,7 +17,7 @@ namespace Pal3.GamePlay
     using Scene.SceneObjects.Common;
     using UnityEngine;
 
-    public partial class PlayerGamePlayController
+    public partial class PlayerGamePlayManager
     {
         private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
         private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;

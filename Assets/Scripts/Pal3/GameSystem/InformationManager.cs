@@ -18,8 +18,7 @@ namespace Pal3.GameSystem
     using TMPro;
     using UnityEngine;
 
-    [RequireComponent(typeof(FpsCounter))]
-    public sealed class InformationManager : MonoBehaviour,
+    public sealed class InformationManager : IDisposable,
         ICommandExecutor<UIDisplayNoteCommand>,
         ICommandExecutor<UIShowDealerMenuCommand>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
@@ -29,28 +28,31 @@ namespace Pal3.GameSystem
         private const float NOTE_LAST_TIME_IN_SECONDS = 2.5f;
         private const float NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS = 1f;
 
-        private GameSettings _gameSettings;
-        private CanvasGroup _noteCanvasGroup;
-        private TextMeshProUGUI _noteText;
-        private Coroutine _noteAnimation;
-        private TextMeshProUGUI _debugInfo;
+        private readonly GameSettings _gameSettings;
+        private readonly CanvasGroup _noteCanvasGroup;
+        private readonly TextMeshProUGUI _noteText;
+        private readonly TextMeshProUGUI _debugInfo;
 
-        private FpsCounter _fpsCounter;
-        private string _debugInfoStringFormat;
+        private readonly FpsCounter _fpsCounter;
+        private readonly string _debugInfoStringFormat;
+
+        private Coroutine _noteAnimation;
 
         private double _heapSizeLastQueryTime;
         private float _heapSize;
 
         private bool _isNoteShowingEnabled = true;
 
-        private string _defaultText;
+        private readonly string _defaultText;
 
-        public void Init(GameSettings gameSettings,
+        public InformationManager(GameSettings gameSettings,
+            FpsCounter fpsCounter,
             CanvasGroup noteCanvasGroup,
             TextMeshProUGUI noteText,
             TextMeshProUGUI debugInfo)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
+            _fpsCounter = Requires.IsNotNull(fpsCounter, nameof(fpsCounter));
             _noteCanvasGroup = Requires.IsNotNull(noteCanvasGroup, nameof(noteCanvasGroup));
             _noteText = Requires.IsNotNull(noteText, nameof(noteText));
             _debugInfo = Requires.IsNotNull(debugInfo, nameof(debugInfo));
@@ -83,21 +85,16 @@ namespace Pal3.GameSystem
             _debugInfoStringFormat = _defaultText + deviceInfo +
                                      "Heap size: {0:0.00} MB\n" + "{3:0.} fps ({1}x{2}, " + refreshRate + "Hz)";
 
-            _fpsCounter = GetComponent<FpsCounter>();
-        }
-
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
-            if (_noteAnimation != null) StopCoroutine(_noteAnimation);
+            if (_noteAnimation != null) Pal3.Instance.StopCoroutine(_noteAnimation);
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void Update()
+        public void Update(float deltaTime)
         {
             if (!_gameSettings.IsDebugInfoEnabled) return;
 
@@ -141,7 +138,7 @@ namespace Pal3.GameSystem
                 var currentText = _noteText.text;
                 if (_noteAnimation != null)
                 {
-                    StopCoroutine(_noteAnimation);
+                    Pal3.Instance.StopCoroutine(_noteAnimation);
                 }
 
                 if (!string.Equals(currentText, command.Note) &&
@@ -155,14 +152,14 @@ namespace Pal3.GameSystem
                 _noteText.text = command.Note;
             }
 
-            _noteAnimation = StartCoroutine(AnimateNoteUIAsync());
+            _noteAnimation = Pal3.Instance.StartCoroutine(AnimateNoteUIAsync());
         }
 
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             if (_noteAnimation != null)
             {
-                StopCoroutine(_noteAnimation);
+                Pal3.Instance.StopCoroutine(_noteAnimation);
             }
             _noteCanvasGroup.alpha = 0f;
             _noteText.text = string.Empty;

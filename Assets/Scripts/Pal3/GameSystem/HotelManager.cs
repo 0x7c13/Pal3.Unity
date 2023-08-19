@@ -14,31 +14,26 @@ namespace Pal3.GameSystem
     using Scene;
     using Script;
     using State;
-    using UnityEngine;
 
-    public sealed class HotelManager : MonoBehaviour,
+    public sealed class HotelManager : IDisposable,
         ICommandExecutor<UIShowHotelMenuCommand>
     {
-        private ScriptManager _scriptManager;
-        private SceneManager _sceneManager;
+        private readonly ScriptManager _scriptManager;
+        private readonly SceneManager _sceneManager;
 
-        public void Init(ScriptManager scriptManager, SceneManager sceneManager)
+        public HotelManager(ScriptManager scriptManager, SceneManager sceneManager)
         {
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
-        }
-
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void Rest(string sceneFileName, string sceneName, uint afterRestTalkScript)
+        private void Rest(string sceneFileName, string sceneName, uint afterRestTalkScript)
         {
             _sceneManager.LoadScene(sceneFileName, sceneName);
             CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));

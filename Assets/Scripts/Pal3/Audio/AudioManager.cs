@@ -24,7 +24,7 @@ namespace Pal3.Audio
     using State;
     using UnityEngine;
 
-    public sealed class AudioManager : MonoBehaviour,
+    public sealed class AudioManager : IDisposable,
         ICommandExecutor<PlaySfxCommand>,
         ICommandExecutor<PlayMusicCommand>,
         ICommandExecutor<AttachSfxToGameObjectRequest>,
@@ -36,11 +36,11 @@ namespace Pal3.Audio
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
-        private Camera _mainCamera;
-        private AudioSource _musicPlayer;
-        private GameResourceProvider _resourceProvider;
-        private SceneManager _sceneManager;
-        private GameSettings _gameSettings;
+        private readonly Camera _mainCamera;
+        private readonly AudioSource _musicPlayer;
+        private readonly GameResourceProvider _resourceProvider;
+        private readonly SceneManager _sceneManager;
+        private readonly GameSettings _gameSettings;
 
         private const string STOP_MUSIC_NAME = "NONE";
 
@@ -57,7 +57,7 @@ namespace Pal3.Audio
 
         private CancellationTokenSource _sceneAudioCts = new ();
 
-        public void Init(Camera mainCamera,
+        public AudioManager(Camera mainCamera,
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
             AudioSource musicSource,
@@ -71,14 +71,11 @@ namespace Pal3.Audio
 
             _musicVolume = _gameSettings.MusicVolume;
             _sfxVolume = _gameSettings.SfxVolume;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
@@ -276,7 +273,7 @@ namespace Pal3.Audio
                     audioSource.Stop();
                 }
 
-                Destroy(audioSourceParentTransform.gameObject);
+                UnityEngine.Object.Destroy(audioSourceParentTransform.gameObject);
             }
 
             _playingSfxSourceNames.Clear();
@@ -321,7 +318,7 @@ namespace Pal3.Audio
             {
                 case 0: // start playing sfx indefinitely for the given sfxName
                     _playingSfxSourceNames.Add(sfxName);
-                    StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
+                    Pal3.Instance.StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
                         _resourceProvider.GetSfxFilePath(sfxName),
                         sfxName, // use sfx name as audio source name
                         loopCount: -1, // loop indefinitely
@@ -341,7 +338,7 @@ namespace Pal3.Audio
                     _playingSfxSourceNames.Add(sfxName);
                     var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
                     CancellationToken cancellationToken = _sceneAudioCts.Token;
-                    StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
+                    Pal3.Instance.StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
                         sfxFilePath,
                         sfxName, // use sfx name as audio source name
                         loopCount,
@@ -362,7 +359,7 @@ namespace Pal3.Audio
 
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
-            StartCoroutine(StartWithDelayAsync(request.StartDelayInSeconds,
+            Pal3.Instance.StartCoroutine(StartWithDelayAsync(request.StartDelayInSeconds,
                 AttachSfxToGameObjectAndPlaySfxAsync(request.Parent,
                     sfxFilePath,
                     request.AudioSourceName,
@@ -392,7 +389,7 @@ namespace Pal3.Audio
 
             if (command.DisposeSource)
             {
-                Destroy(audioSourceParent);
+                UnityEngine.Object.Destroy(audioSourceParent);
             }
         }
 
@@ -418,7 +415,7 @@ namespace Pal3.Audio
             _currentMusicClipName = command.MusicName;
             var musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(command.MusicName);
             var musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicFileVirtualPath);
-            StartCoroutine(PlayMusicAsync(command.MusicName,
+            Pal3.Instance.StartCoroutine(PlayMusicAsync(command.MusicName,
                 musicFileVirtualPath,
                 musicFileCachePath,
                 command.Loop == 0 ? -1 : command.Loop));
@@ -435,7 +432,7 @@ namespace Pal3.Audio
             _currentMusicClipName = string.Empty;
 
             ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
-            StartCoroutine(PlaySceneMusicAsync(sceneInfo.CityName, sceneInfo.SceneName));
+            Pal3.Instance.StartCoroutine(PlaySceneMusicAsync(sceneInfo.CityName, sceneInfo.SceneName));
         }
 
         public void Execute(ScenePreLoadingNotification command)
@@ -449,7 +446,8 @@ namespace Pal3.Audio
         {
             if (string.IsNullOrEmpty(_currentScriptMusic))
             {
-                StartCoroutine(PlaySceneMusicAsync(command.NewSceneInfo.CityName, command.NewSceneInfo.SceneName));
+                Pal3.Instance.StartCoroutine(
+                    PlaySceneMusicAsync(command.NewSceneInfo.CityName, command.NewSceneInfo.SceneName));
             }
         }
 

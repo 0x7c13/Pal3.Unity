@@ -120,22 +120,22 @@ namespace Pal3.Rendering.Material
 
             while (_waterMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_waterMaterialPool.Pop());
+                Object.Destroy(_waterMaterialPool.Pop());
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_transparentMaterialPool.Pop());
+                Object.Destroy(_transparentMaterialPool.Pop());
             }
 
             while (_transparentOpaquePartMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_transparentOpaquePartMaterialPool.Pop());
+                Object.Destroy(_transparentOpaquePartMaterialPool.Pop());
             }
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_opaqueMaterialPool.Pop());
+                Object.Destroy(_opaqueMaterialPool.Pop());
             }
 
             _isMaterialPoolAllocated = false;

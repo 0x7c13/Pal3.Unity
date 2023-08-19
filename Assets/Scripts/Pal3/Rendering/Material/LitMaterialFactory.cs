@@ -113,12 +113,12 @@ namespace Pal3.Rendering.Material
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_opaqueMaterialPool.Pop());
+                Object.Destroy(_opaqueMaterialPool.Pop());
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                Object.DestroyImmediate(_transparentMaterialPool.Pop());
+                Object.Destroy(_transparentMaterialPool.Pop());
             }
 
             _isMaterialPoolAllocated = false;
@@ -154,6 +154,10 @@ namespace Pal3.Rendering.Material
                 #elif PAL3A
                 bool useTransparentMaterial = blendFlag == GameBoxBlendFlag.InvertColorBlend;
                 #endif
+
+                // For CVD renderer, we always use transparent material if blendFlag is
+                // InvertColorBlend or AlphaBlend
+                if (rendererType == RendererType.Cvd) useTransparentMaterial = true;
 
                 materials = new Material[1];
                 materials[0] = useTransparentMaterial

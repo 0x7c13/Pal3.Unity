@@ -16,7 +16,7 @@ namespace Pal3.GameSystem
     using UnityEngine;
     using UnityEngine.UI;
 
-    public sealed class MiniMapManager : MonoBehaviour,
+    public sealed class MiniMapManager : IDisposable,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
@@ -25,13 +25,13 @@ namespace Pal3.GameSystem
     {
         private const float MINIMAP_SCALE = 2.5f;
 
-        private Camera _mainCamera;
-        private SceneManager _sceneManager;
+        private readonly Camera _mainCamera;
+        private readonly SceneManager _sceneManager;
 
-        private CanvasGroup _miniMapCanvasGroup;
-        private RectTransform _miniMapRectTransform;
-        private float _miniMapWidth;
-        private Image _miniMapImage;
+        private readonly CanvasGroup _miniMapCanvasGroup;
+        private readonly RectTransform _miniMapRectTransform;
+        private readonly float _miniMapWidth;
+        private readonly Image _miniMapImage;
 
         private Texture2D[] _miniMapTextures;
         private Sprite[] _miniMapSprites;
@@ -40,7 +40,7 @@ namespace Pal3.GameSystem
         private int _currentLayerIndex = -1;
         private GameState _currentGameState = GameState.UI;
 
-        public void Init(Camera mainCamera,
+        public MiniMapManager(Camera mainCamera,
             SceneManager sceneManager,
             CanvasGroup miniMapCanvasGroup,
             Image miniMapImage)
@@ -54,20 +54,17 @@ namespace Pal3.GameSystem
             _miniMapRectTransform = Requires.IsNotNull(_miniMapCanvasGroup.GetComponent<RectTransform>(), nameof(miniMapImage));
             _miniMapWidth = _miniMapRectTransform.rect.width;
             _miniMapCanvasGroup.alpha = 0f;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            Dispose();
+            DisposeCurrentMapAndReset();
         }
 
-        private void Update()
+        public void LateUpdate(float deltaTime)
         {
             _miniMapRectTransform.localRotation = Quaternion.Euler(0, 0, _mainCamera.transform.eulerAngles.y + 180f);
         }
@@ -160,15 +157,15 @@ namespace Pal3.GameSystem
             _currentLayerIndex = -1;
         }
 
-        private void Dispose()
+        private void DisposeCurrentMapAndReset()
         {
             _miniMapCanvasGroup.alpha = 0f;
 
             if (_miniMapSprites != null)
             {
-                foreach (var sprite in _miniMapSprites)
+                foreach (Sprite sprite in _miniMapSprites)
                 {
-                    Destroy(sprite);
+                    UnityEngine.Object.Destroy(sprite);
                 }
 
                 _miniMapSprites = null;
@@ -176,9 +173,9 @@ namespace Pal3.GameSystem
 
             if (_miniMapTextures != null)
             {
-                foreach (var texture in _miniMapTextures)
+                foreach (Texture2D texture in _miniMapTextures)
                 {
-                    Destroy(texture);
+                    UnityEngine.Object.Destroy(texture);
                 }
 
                 _miniMapTextures = null;
@@ -191,7 +188,7 @@ namespace Pal3.GameSystem
 
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
-            Dispose();
+            DisposeCurrentMapAndReset();
         }
 
         public void Execute(GameStateChangedNotification command)

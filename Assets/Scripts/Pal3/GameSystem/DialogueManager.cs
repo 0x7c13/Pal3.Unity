@@ -31,7 +31,7 @@ namespace Pal3.GameSystem
     using UnityEngine.UI;
     using Debug = UnityEngine.Debug;
 
-    public sealed class DialogueManager : MonoBehaviour,
+    public sealed class DialogueManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
         ICommandExecutor<DialogueRenderTextCommand>,
         ICommandExecutor<DialogueAddSelectionsCommand>,
@@ -45,24 +45,24 @@ namespace Pal3.GameSystem
 
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
 
-        private GameResourceProvider _resourceProvider;
-        private GameStateManager _gameStateManager;
-        private SceneManager _sceneManager;
-        private InputManager _inputManager;
-        private PlayerInputActions _inputActions;
+        private readonly GameResourceProvider _resourceProvider;
+        private readonly GameStateManager _gameStateManager;
+        private readonly SceneManager _sceneManager;
+        private readonly InputManager _inputManager;
+        private readonly PlayerInputActions _inputActions;
 
-        private EventSystem _eventSystem;
-        private CanvasGroup _dialogueCanvasGroup;
-        private Canvas _dialogueSelectionButtonsCanvas;
-        private GameObject _dialogueSelectionButtonPrefab;
-        private Image _dialogueBackgroundImage;
-        private RoundedFrostedGlassImage _backgroundFrostedGlassImage;
+        private readonly EventSystem _eventSystem;
+        private readonly CanvasGroup _dialogueCanvasGroup;
+        private readonly Canvas _dialogueSelectionButtonsCanvas;
+        private readonly GameObject _dialogueSelectionButtonPrefab;
+        private readonly Image _dialogueBackgroundImage;
+        private readonly RoundedFrostedGlassImage _backgroundFrostedGlassImage;
 
-        private Image _avatarImageLeft;
-        private Image _avatarImageRight;
-        private TextMeshProUGUI _dialogueTextLeft;
-        private TextMeshProUGUI _dialogueTextRight;
-        private TextMeshProUGUI _dialogueTextDefault;
+        private readonly Image _avatarImageLeft;
+        private readonly Image _avatarImageRight;
+        private readonly TextMeshProUGUI _dialogueTextLeft;
+        private readonly TextMeshProUGUI _dialogueTextRight;
+        private readonly TextMeshProUGUI _dialogueTextDefault;
 
         private Texture2D _avatarTexture;
         private bool _isDialoguePresenting;
@@ -78,7 +78,7 @@ namespace Pal3.GameSystem
         private DialogueRenderActorAvatarCommand _lastAvatarCommand;
         private readonly Queue<IEnumerator> _dialogueRenderQueue = new();
 
-        public void Init(GameResourceProvider resourceProvider,
+        public DialogueManager(GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
             SceneManager sceneManager,
             InputManager inputManager,
@@ -121,14 +121,11 @@ namespace Pal3.GameSystem
 
             _inputActions = inputManager.GetPlayerInputActions();
             _inputActions.Cutscene.Continue.performed += SkipDialoguePerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _inputActions.Cutscene.Continue.performed -= SkipDialoguePerformed;
@@ -180,12 +177,12 @@ namespace Pal3.GameSystem
             }
         }
 
-        private void Update()
+        public void Update(float deltaTime)
         {
             if (!_isDialoguePresenting && _dialogueRenderQueue.Count > 0)
             {
                 _isDialoguePresenting = true;
-                StartCoroutine(_dialogueRenderQueue.Dequeue());
+               Pal3.Instance.StartCoroutine(_dialogueRenderQueue.Dequeue());
             }
         }
 
@@ -291,7 +288,7 @@ namespace Pal3.GameSystem
                     _flashingAnimationCts.Cancel();
                 }
                 _flashingAnimationCts = new CancellationTokenSource();
-                StartCoroutine(PlayDialogueBackgroundFlashingAnimationAsync(
+                Pal3.Instance.StartCoroutine(PlayDialogueBackgroundFlashingAnimationAsync(
                      duration: LIMIT_TIME_DIALOGUE_PLAYER_MAX_REACTION_TIME_IN_SECONDS,
                     _flashingAnimationCts.Token));
             }
@@ -301,14 +298,14 @@ namespace Pal3.GameSystem
             {
                 IEnumerator renderDialogue = RenderDialogueTextWithAnimationAsync(dialogueTextUI, dialogue);
 
-                StartCoroutine(renderDialogue);
+                Pal3.Instance.StartCoroutine(renderDialogue);
 
                 yield return SkipDialogueRequestedAsync();
 
                 if (_isDialogueRenderingAnimationInProgress)
                 {
                     _isDialogueRenderingAnimationInProgress = false;
-                    StopCoroutine(renderDialogue);
+                    Pal3.Instance.StopCoroutine(renderDialogue);
                     dialogueTextUI.text = dialogue;
                     yield return SkipDialogueRequestedAsync();
                 }
@@ -416,7 +413,7 @@ namespace Pal3.GameSystem
             foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
-                Destroy(button);
+                UnityEngine.Object.Destroy(button);
             }
             _selectionButtons.Clear();
         }
@@ -573,7 +570,7 @@ namespace Pal3.GameSystem
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Count; i++)
             {
-                GameObject selectionButton = Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
+                GameObject selectionButton = UnityEngine.Object.Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = GetSelectionDisplayText(command.Selections[i]);
                 var buttonIndex = i;

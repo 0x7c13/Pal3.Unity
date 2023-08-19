@@ -31,9 +31,17 @@ namespace Core.DataReader
                 throw new ArgumentException("Stream must be seekable", nameof(stream));
             }
 
-            var length = stream.Length;
-            var data = new byte[length];
-            _ = stream.Read(data, 0, (int)length);
+            Length = stream.Length;
+
+            // If data is empty, set position to 0 and return
+            if (Length == 0)
+            {
+                _position = 0;
+                return;
+            }
+
+            var data = new byte[Length];
+            _ = stream.Read(data, 0, (int)Length);
 
             Init(data);
         }
@@ -41,6 +49,14 @@ namespace Core.DataReader
         private void Init(byte[] data)
         {
             Length = data.Length;
+
+            // If data is empty, set position to 0 and return
+            if (Length == 0)
+            {
+                _position = 0;
+                return;
+            }
+
             _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             fixed (byte* ptr = &data[0])
             {
@@ -49,7 +65,9 @@ namespace Core.DataReader
             }
         }
 
-        public long Position => _dataPtr - _startPtr;
+        private long? _position;
+        public long Position => _position ?? _dataPtr - _startPtr;
+
         public long Length { get; private set; }
 
         public void Seek(long offset, SeekOrigin seekOrigin)
@@ -212,7 +230,12 @@ namespace Core.DataReader
                 {
                     GC.SuppressFinalize(this);
                 }
-                _handle.Free();
+
+                if (Length != 0)
+                {
+                    _handle.Free();
+                }
+
                 _disposedValue = true;
             }
         }

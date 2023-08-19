@@ -18,7 +18,7 @@ namespace Pal3.GamePlay
     using Script.Waiter;
     using UnityEngine;
 
-    public partial class PlayerGamePlayController :
+    public partial class PlayerGamePlayManager :
         ICommandExecutor<ActorPerformClimbActionCommand>
     {
         public void Execute(ActorPerformClimbActionCommand command)
@@ -28,7 +28,7 @@ namespace Pal3.GamePlay
             GameObject climbableObject = climbableSceneObject.GetGameObject();
             if (climbableObject == null)
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Scene object not found or not activated yet: {command.ObjectId}.");
+                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Scene object not found or not activated yet: {command.ObjectId}.");
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace Pal3.GamePlay
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;
-            StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
+            Pal3.Instance.StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
                 climbUp,
                 climbAnimationOnly,
                 climbableHeight,

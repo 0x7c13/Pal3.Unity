@@ -11,15 +11,15 @@ namespace Pal3.Settings
     using Core.Utils;
     using UnityEngine;
 
-    public sealed class RenderingSettingsManager : MonoBehaviour,
+    public sealed class RenderingSettingsManager : IDisposable,
         ICommandExecutor<SettingChangedNotification>
     {
         private int _mainDisplayWidth;
         private int _mainDisplayHeight;
 
-        private GameSettings _gameSettings;
+        private readonly GameSettings _gameSettings;
 
-        public void Init(GameSettings gameSettings)
+        public RenderingSettingsManager(GameSettings gameSettings)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
@@ -27,6 +27,8 @@ namespace Pal3.Settings
             _mainDisplayHeight = Display.main.systemHeight;
 
             ApplyCurrentSettings(_gameSettings);
+
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         private void ApplyCurrentSettings(GameSettings settings)
@@ -37,17 +39,12 @@ namespace Pal3.Settings
             ApplyResolutionScale(settings.ResolutionScale);
         }
 
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void Update()
+        public void Update(float deltaTime)
         {
             // This could happen on Android foldable devices
             if (_mainDisplayWidth != Display.main.systemWidth ||

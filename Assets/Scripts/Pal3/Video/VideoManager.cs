@@ -7,6 +7,7 @@ namespace Pal3.Video
 {
     using System;
     using System.Collections;
+    using System.IO;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -19,17 +20,18 @@ namespace Pal3.Video
     using UnityEngine.InputSystem;
     using UnityEngine.Video;
 
-    public class VideoManager : MonoBehaviour,
+    public class VideoManager : IDisposable,
         ICommandExecutor<PlayVideoCommand>
     {
-        private GameResourceProvider _resourceProvider;
-        private GameStateManager _gameStateManager;
-        private PlayerInputActions _inputActions;
-        private VideoPlayer _videoPlayer;
-        private WaitUntilCanceled _videoPlayingWaiter;
-        private Canvas _videoPlayerUI;
+        private readonly GameResourceProvider _resourceProvider;
+        private readonly GameStateManager _gameStateManager;
+        private readonly PlayerInputActions _inputActions;
+        private readonly VideoPlayer _videoPlayer;
+        private readonly Canvas _videoPlayerUI;
 
-        public void Init(GameResourceProvider resourceProvider,
+        private WaitUntilCanceled _videoPlayingWaiter;
+
+        public VideoManager(GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
             PlayerInputActions inputActions,
             Canvas videoPlayerUI,
@@ -44,14 +46,11 @@ namespace Pal3.Video
             _videoPlayerUI.enabled = false;
             _videoPlayer.loopPointReached += StopVideoInternal;
             _inputActions.VideoPlaying.SkipVideo.performed += SkipVideoPerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
@@ -70,7 +69,7 @@ namespace Pal3.Video
             StopVideoInternal(_videoPlayer);
         }
 
-        public IEnumerator PlayAsync(string videoFilePath)
+        private IEnumerator PlayAsync(string videoFilePath)
         {
             _videoPlayer.waitForFirstFrame = true;
             _videoPlayer.url = videoFilePath;
@@ -110,11 +109,15 @@ namespace Pal3.Video
             try
             {
                 var videoFilePath = _resourceProvider.GetVideoFilePath(command.Name);
-                StartCoroutine(PlayAsync(videoFilePath));
+                Pal3.Instance.StartCoroutine(PlayAsync(videoFilePath));
             }
             catch (Exception ex)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
+                if (ex is FileNotFoundException or DirectoryNotFoundException)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
+                }
                 Debug.LogError($"[{nameof(VideoManager)}] Exception: {ex}");
                 _videoPlayingWaiter.CancelWait();
                 _gameStateManager.GoToPreviousState();

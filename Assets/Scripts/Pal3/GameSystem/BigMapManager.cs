@@ -26,24 +26,24 @@ namespace Pal3.GameSystem
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
-    public sealed class BigMapManager : MonoBehaviour,
+    public sealed class BigMapManager : IDisposable,
         ICommandExecutor<BigMapEnableRegionCommand>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<GameSwitchRenderingStateCommand>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
         ICommandExecutor<ToggleBigMapRequest>
     {
-        private EventSystem _eventSystem;
-        private GameStateManager _gameStateManager;
-        private InputManager _inputManager;
-        private PlayerInputActions _playerInputActions;
-        private ScriptManager _scriptManager;
-        private SceneManager _sceneManager;
-        private CanvasGroup _bigMapCanvas;
-        private GridLayoutGroup _bigMapCanvasGridLayoutGroup;
-        private GameObject _bigMapRegionButtonPrefab;
-        private RectTransform _bigMapBackgroundTransform;
-        private CanvasGroup _bigMapBackgroundCanvasGroup;
+        private readonly EventSystem _eventSystem;
+        private readonly GameStateManager _gameStateManager;
+        private readonly InputManager _inputManager;
+        private readonly PlayerInputActions _playerInputActions;
+        private readonly ScriptManager _scriptManager;
+        private readonly SceneManager _sceneManager;
+        private readonly CanvasGroup _bigMapCanvas;
+        private readonly GridLayoutGroup _bigMapCanvasGridLayoutGroup;
+        private readonly GameObject _bigMapRegionButtonPrefab;
+        private readonly RectTransform _bigMapBackgroundTransform;
+        private readonly CanvasGroup _bigMapBackgroundCanvasGroup;
 
         private bool _isVisible;
 
@@ -52,7 +52,7 @@ namespace Pal3.GameSystem
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
 
-        public void Init(EventSystem eventSystem,
+        public BigMapManager(EventSystem eventSystem,
             GameStateManager gameStateManager,
             SceneManager sceneManager,
             InputManager inputManager,
@@ -84,14 +84,11 @@ namespace Pal3.GameSystem
             _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
             _playerInputActions.UI.ToggleBigMap.performed += ToggleBigMapOnPerformed;
             _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideBigMapOnPerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _playerInputActions.Gameplay.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
@@ -142,7 +139,7 @@ namespace Pal3.GameSystem
             }
         }
 
-        public void Show()
+        private void Show()
         {
             if (_regionEnablementInfo.Count == 0)
             {
@@ -159,7 +156,8 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            GameObject exitButtonObj = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
+            GameObject exitButtonObj = UnityEngine.Object.Instantiate(_bigMapRegionButtonPrefab,
+                _bigMapCanvas.transform);
             var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             exitButtonTextUI.text =  "关闭";
             var exitButton = exitButtonObj.GetComponent<Button>();
@@ -170,7 +168,8 @@ namespace Pal3.GameSystem
             for (var i = 0; i < BigMapConstants.BigMapRegions.Length; i++)
             {
                 if (!_regionEnablementInfo.ContainsKey(i) || _regionEnablementInfo[i] != 2) continue;
-                GameObject selectionButton = Instantiate(_bigMapRegionButtonPrefab, _bigMapCanvas.transform);
+                GameObject selectionButton = UnityEngine.Object.Instantiate(_bigMapRegionButtonPrefab,
+                    _bigMapCanvas.transform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = BigMapConstants.BigMapRegions[i];
                 var buttonIndex = i;
@@ -243,7 +242,7 @@ namespace Pal3.GameSystem
             _gameStateManager.TryGoToState(GameState.Gameplay);
         }
 
-        public void Hide()
+        private void Hide()
         {
             _bigMapCanvas.alpha = 0f;
             _bigMapCanvas.interactable = false;
@@ -253,7 +252,7 @@ namespace Pal3.GameSystem
             foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();
-                Destroy(button);
+                UnityEngine.Object.Destroy(button);
             }
             _selectionButtons.Clear();
             _gameStateManager.RemoveGamePlayStateLocker(_stateLockerGuid);

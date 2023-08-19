@@ -81,6 +81,14 @@ namespace Core.Services
         }
 
         /// <summary>
+        /// Get all registered services.
+        /// </summary>
+        public IEnumerable<object> GetAllRegisteredServices()
+        {
+            return _services.Values;
+        }
+
+        /// <summary>
         /// Unregisters all services.
         /// </summary>
         public void UnregisterAll()

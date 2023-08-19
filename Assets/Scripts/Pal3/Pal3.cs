@@ -7,6 +7,7 @@ namespace Pal3
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using Actor.Controllers;
@@ -14,7 +15,6 @@ namespace Pal3
     using Camera;
     using Command;
     using Command.SceCommands;
-    using Core.DataLoader;
     using Core.DataReader.Scn;
     using Core.FileSystem;
     using Core.Services;
@@ -87,6 +87,7 @@ namespace Pal3
 
         // Debug
         [SerializeField] private TextMeshProUGUI debugInfo;
+        [SerializeField] private FpsCounter fpsCounter;
 
         // BigMap
         [SerializeField] private CanvasGroup bigMapCanvasGroup;
@@ -120,7 +121,7 @@ namespace Pal3
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
 
-        // Core game systems
+        // Core game systems amd components
         private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
@@ -139,11 +140,9 @@ namespace Pal3
         private DialogueManager _dialogueManager;
         private PostProcessManager _postProcessManager;
         private EffectManager _effectManager;
-
-        // Game components
         private MiniMapManager _miniMapManager;
         private TouchControlUIManager _touchControlUIManager;
-        private PlayerGamePlayController _playerGamePlayController;
+        private PlayerGamePlayManager _playerGamePlayManager;
         private TeamManager _teamManager;
         private HotelManager _hotelManager;
         private InformationManager _informationManager;
@@ -152,6 +151,7 @@ namespace Pal3
         private CaptionRenderer _captionRenderer;
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
+        private RenderingSettingsManager _renderingSettingsManager;
 
         #if PAL3 // PAL3 specific components
         private AppraisalsMiniGame _appraisalsMiniGame;
@@ -165,12 +165,11 @@ namespace Pal3
         private TaskManager _taskManager;
         #endif
 
-        // Utility components
-        private RenderingSettingsManager _renderingSettingsManager;
-
         // Dev tools
         private MazeSkipper _mazeSkipper;
         private MainMenu _mainMenu;
+
+        private IEnumerable<object> _allRegisteredServices;
 
         private void OnEnable()
         {
@@ -183,30 +182,78 @@ namespace Pal3
 
             _fileSystemCacheManager = new FileSystemCacheManager(_fileSystem);
             ServiceLocator.Instance.Register(_fileSystemCacheManager);
+
             _inputActions = new PlayerInputActions();
             ServiceLocator.Instance.Register(_inputActions);
+
             _inputManager= new InputManager(_inputActions);
             ServiceLocator.Instance.Register(_inputManager);
+
             _scriptManager = new ScriptManager(_gameResourceProvider);
             ServiceLocator.Instance.Register(_scriptManager);
+
             _gameStateManager = new GameStateManager(_inputManager, _scriptManager);
             ServiceLocator.Instance.Register(_gameStateManager);
+
             _sceneStateManager = new SceneStateManager();
             ServiceLocator.Instance.Register(_sceneStateManager);
+
             _sceneManager = new SceneManager(_gameResourceProvider,
                 _sceneStateManager, _scriptManager, _gameSettings, mainCamera);
             ServiceLocator.Instance.Register(_sceneManager);
+
             _playerActorManager = new PlayerActorManager();
             ServiceLocator.Instance.Register(_playerActorManager);
+
             _inventoryManager = new InventoryManager(_gameResourceProvider);
             ServiceLocator.Instance.Register(_inventoryManager);
+
             _teamManager = new TeamManager(_playerActorManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
+
             _touchControlUIManager = new TouchControlUIManager(_sceneManager,
                 touchControlUI, interactionButton, multiFunctionButton, mainMenuButton);
             ServiceLocator.Instance.Register(_touchControlUIManager);
+
             _favorManager = new FavorManager();
             ServiceLocator.Instance.Register(_favorManager);
+
+            _videoManager = new VideoManager(_gameResourceProvider,
+                _gameStateManager, _inputActions, videoPlayerCanvas, videoPlayer);
+            ServiceLocator.Instance.Register(_videoManager);
+
+            _audioManager = new AudioManager(mainCamera,
+                _gameResourceProvider, _sceneManager, musicSource, _gameSettings);
+            ServiceLocator.Instance.Register(_audioManager);
+
+            _captionRenderer = new CaptionRenderer(_gameResourceProvider, _inputActions, captionImage);
+            ServiceLocator.Instance.Register(_captionRenderer);
+
+            _hotelManager = new HotelManager(_scriptManager, _sceneManager);
+            ServiceLocator.Instance.Register(_hotelManager);
+
+            _bigMapManager = new BigMapManager(eventSystem,
+                _gameStateManager, _sceneManager, _inputManager, _scriptManager,
+                bigMapCanvasGroup, bigMapRegionButtonPrefab, bigMapBackground);
+            ServiceLocator.Instance.Register(_bigMapManager);
+
+            _postProcessManager = new PostProcessManager(postProcessVolume,
+                postProcessLayer, _gameSettings);
+            ServiceLocator.Instance.Register(_postProcessManager);
+
+            _effectManager = new EffectManager(_gameResourceProvider, _sceneManager);
+            ServiceLocator.Instance.Register(_effectManager);
+
+            _mazeSkipper = new MazeSkipper(_sceneManager);
+            ServiceLocator.Instance.Register(_mazeSkipper);
+
+            _renderingSettingsManager = new RenderingSettingsManager(_gameSettings);
+            ServiceLocator.Instance.Register(_renderingSettingsManager);
+
+            #if UNITY_STANDALONE || UNITY_EDITOR
+            _cursorManager = new CursorManager(_gameResourceProvider);
+            ServiceLocator.Instance.Register(_cursorManager);
+            #endif
 
             #if PAL3
             _appraisalsMiniGame = new AppraisalsMiniGame();
@@ -228,31 +275,17 @@ namespace Pal3
             ServiceLocator.Instance.Register(_taskManager);
             #endif
 
-            _videoManager = gameObject.AddComponent<VideoManager>();
-            _videoManager.Init(_gameResourceProvider,
-                _gameStateManager,
-                _inputActions,
-                videoPlayerCanvas,
-                videoPlayer);
-            ServiceLocator.Instance.Register(_videoManager);
-
-            _captionRenderer = gameObject.AddComponent<CaptionRenderer>();
-            _captionRenderer.Init(_gameResourceProvider, _inputActions, captionImage);
-            ServiceLocator.Instance.Register(_captionRenderer);
-
-            _playerGamePlayController = gameObject.AddComponent<PlayerGamePlayController>();
-            _playerGamePlayController.Init(_gameResourceProvider,
+            _playerGamePlayManager = new PlayerGamePlayManager(_gameResourceProvider,
                 _gameStateManager,
                 _playerActorManager,
                 _teamManager,
                 _inputActions,
                 _sceneManager,
                 mainCamera);
-            ServiceLocator.Instance.Register(_playerGamePlayController);
+            ServiceLocator.Instance.Register(_playerGamePlayManager);
 
-            _cameraManager = gameObject.AddComponent<CameraManager>();
-            _cameraManager.Init(_inputActions,
-                _playerGamePlayController,
+            _cameraManager = new CameraManager(_inputActions,
+                _playerGamePlayManager,
                 _sceneManager,
                 _gameStateManager,
                 mainCamera,
@@ -260,24 +293,15 @@ namespace Pal3
                 curtainImage);
             ServiceLocator.Instance.Register(_cameraManager);
 
-            _audioManager = gameObject.AddComponent<AudioManager>();
-            _audioManager.Init(mainCamera,
-                _gameResourceProvider,
-                _sceneManager,
-                musicSource,
-                _gameSettings);
-            ServiceLocator.Instance.Register(_audioManager);
-
-            _informationManager = gameObject.AddComponent<InformationManager>();
-            _informationManager.Init(_gameSettings, noteCanvasGroup, noteText, debugInfo);
-            ServiceLocator.Instance.Register(_informationManager);
-
-            _miniMapManager = gameObject.AddComponent<MiniMapManager>();
-            _miniMapManager.Init(mainCamera, _sceneManager, miniMapCanvasGroup, miniMapImage);
+            _miniMapManager = new MiniMapManager(mainCamera,
+                _sceneManager, miniMapCanvasGroup, miniMapImage);
             ServiceLocator.Instance.Register(_miniMapManager);
 
-            _dialogueManager = gameObject.AddComponent<DialogueManager>();
-            _dialogueManager.Init(_gameResourceProvider,
+            _informationManager = new InformationManager(_gameSettings,
+                fpsCounter, noteCanvasGroup, noteText, debugInfo);
+            ServiceLocator.Instance.Register(_informationManager);
+
+            _dialogueManager = new DialogueManager(_gameResourceProvider,
                 _gameStateManager,
                 _sceneManager,
                 _inputManager,
@@ -293,77 +317,23 @@ namespace Pal3
                 dialogueSelectionButtonPrefab);
             ServiceLocator.Instance.Register(_dialogueManager);
 
-            #if UNITY_STANDALONE || UNITY_EDITOR
-            _cursorManager = gameObject.AddComponent<CursorManager>();
-            _cursorManager.Init(_gameResourceProvider);
-            ServiceLocator.Instance.Register(_cursorManager);
-            #endif
-
-            _hotelManager = gameObject.AddComponent<HotelManager>();
-            _hotelManager.Init(_scriptManager, _sceneManager);
-            ServiceLocator.Instance.Register(_hotelManager);
-
-            _bigMapManager = gameObject.AddComponent<BigMapManager>();
-            _bigMapManager.Init(eventSystem,
-                _gameStateManager,
-                _sceneManager,
-                _inputManager,
-                _scriptManager,
-                bigMapCanvasGroup,
-                bigMapRegionButtonPrefab,
-                bigMapBackground);
-            ServiceLocator.Instance.Register(_bigMapManager);
-
-            _postProcessManager = gameObject.AddComponent<PostProcessManager>();
-            _postProcessManager.Init(postProcessVolume, postProcessLayer, _gameSettings);
-            ServiceLocator.Instance.Register(_postProcessManager);
-
-            _effectManager = gameObject.AddComponent<EffectManager>();
-            _effectManager.Init(_gameResourceProvider, _sceneManager);
-            ServiceLocator.Instance.Register(_effectManager);
-
-            _saveManager = new SaveManager(_sceneManager,
-                _playerActorManager,
-                _teamManager,
-                _inventoryManager,
-                _sceneStateManager,
-                _bigMapManager,
-                _scriptManager,
-                _favorManager,
+            _saveManager = new SaveManager(_sceneManager, _playerActorManager,
+                _teamManager, _inventoryManager, _sceneStateManager,
+                _bigMapManager, _scriptManager, _favorManager,
                 #if PAL3A
                 _taskManager,
                 #endif
-                _cameraManager,
-                _audioManager,
-                _postProcessManager);
+                _cameraManager, _audioManager, _postProcessManager);
             ServiceLocator.Instance.Register(_saveManager);
 
-            _mazeSkipper = new MazeSkipper(_sceneManager);
-            ServiceLocator.Instance.Register(_mazeSkipper);
-
-            _mainMenu = gameObject.AddComponent<MainMenu>();
-            _mainMenu.Init(
-                _gameSettings,
-                _inputManager,
-                _sceneManager,
-                _gameStateManager,
-                _scriptManager,
-                _teamManager,
-                _saveManager,
-                _informationManager,
-                _mazeSkipper,
-                mainMenuCanvasGroup,
-                menuButtonPrefab,
-                contentScrollRect,
-                backgroundTransform,
-                contentTransform,
-                eventSystem,
-                mainCamera);
+            _mainMenu = new MainMenu(_gameSettings, _inputManager, _sceneManager,
+                _gameStateManager, _scriptManager, _teamManager,
+                _saveManager,_informationManager, _mazeSkipper,
+                mainMenuCanvasGroup, menuButtonPrefab, contentScrollRect,
+                backgroundTransform, contentTransform, eventSystem, mainCamera);
             ServiceLocator.Instance.Register(_mainMenu);
 
-            _renderingSettingsManager = gameObject.AddComponent<RenderingSettingsManager>();
-            _renderingSettingsManager.Init(_gameSettings);
-            ServiceLocator.Instance.Register(_renderingSettingsManager);
+            _allRegisteredServices = ServiceLocator.Instance.GetAllRegisteredServices();
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
@@ -432,6 +402,8 @@ namespace Pal3
 
             void OnAnyKeyOrTouchTriggered()
             {
+                if (!Application.isPlaying) return;
+
                 InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
                 Destroy(logoImage.sprite.texture);
                 Destroy(logoImage.sprite);
@@ -469,58 +441,52 @@ namespace Pal3
                 });
         }
 
-        private void OnDisable()
+        /// <summary>
+        /// Main game loop.
+        /// </summary>
+        private void Update()
         {
-            _gameSettings.Dispose();
-            _gameResourceProvider.Dispose();
-            _fileSystemCacheManager.Dispose();
-            _inputManager.Dispose();
-            _inputActions.Dispose();
-            _gameStateManager.Dispose();
-            _sceneStateManager.Dispose();
-            _scriptManager.Dispose();
-            _playerActorManager.Dispose();
-            _inventoryManager.Dispose();
-            _teamManager.Dispose();
-            _sceneManager.Dispose();
-            _touchControlUIManager.Dispose();
-            _favorManager.Dispose();
-            _saveManager.Dispose();
+            var deltaTime = Time.deltaTime;
 
-            #if PAL3
-            _appraisalsMiniGame.Dispose();
-            _sailingMiniGame.Dispose();
-            _hideFightMiniGame.Dispose();
-            _encampMiniGame.Dispose();
-            _skiMiniGame.Dispose();
-            _swatAFlyMiniGame.Dispose();
-            _caveExperienceMiniGame.Dispose();
-            #elif PAL3A
-            _taskManager.Dispose();
-            #endif
-
-            Destroy(_videoManager);
-            Destroy(_playerGamePlayController);
-            Destroy(_cameraManager);
-            Destroy(_audioManager);
-            Destroy(_informationManager);
-            Destroy(_miniMapManager);
-            Destroy(_dialogueManager);
-            Destroy(_hotelManager);
-            Destroy(_bigMapManager);
-            Destroy(_captionRenderer);
-            Destroy(_postProcessManager);
-            Destroy(_effectManager);
-            Destroy(_mainMenu);
-            Destroy(_renderingSettingsManager);
-
-            if (_cursorManager != null)
+            GameState currentState = _gameStateManager.GetCurrentState();
+            if (currentState != GameState.VideoPlaying)
             {
-                Destroy(_cursorManager);
+                _scriptManager.Update(deltaTime);
+                _playerGamePlayManager.Update(deltaTime);
+                _dialogueManager.Update(deltaTime);
             }
 
+            _informationManager.Update(deltaTime);
+            _renderingSettingsManager.Update(deltaTime);
+        }
+
+        /// <summary>
+        /// Main game late update loop.
+        /// </summary>
+        private void LateUpdate()
+        {
+            var deltaTime = Time.deltaTime;
+
+            GameState currentState = _gameStateManager.GetCurrentState();
+            if (currentState != GameState.VideoPlaying)
+            {
+                _cameraManager.LateUpdate(deltaTime);
+                _miniMapManager.LateUpdate(deltaTime);
+            }
+        }
+
+        private void OnDisable()
+        {
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
+
+            foreach (IDisposable service in _allRegisteredServices.Where(s => s is IDisposable))
+            {
+                Debug.Log($"[{nameof(Pal3)}] Disposing service {service.GetType().Name}.");
+                service.Dispose();
+            }
+
+            Debug.Log($"[{nameof(Pal3)}] Game exited.");
         }
 
         private void OnDebugWindowShown()
@@ -545,15 +511,6 @@ namespace Pal3
                 {
                     mode = Navigation.Mode.None
                 };
-            }
-        }
-
-        private void Update()
-        {
-            GameState currentState = _gameStateManager.GetCurrentState();
-            if (currentState != GameState.VideoPlaying)
-            {
-                _scriptManager.Update(Time.deltaTime);
             }
         }
 

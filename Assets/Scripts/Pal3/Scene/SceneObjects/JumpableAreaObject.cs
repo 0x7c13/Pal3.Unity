@@ -16,12 +16,12 @@ namespace Pal3.Scene.SceneObjects
     public sealed class JumpableAreaObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
-        private readonly PlayerGamePlayController _gamePlayController;
+        private readonly PlayerGamePlayManager _gamePlayManager;
 
         public JumpableAreaObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _gamePlayController = ServiceLocator.Instance.Get<PlayerGamePlayController>();
+            _gamePlayManager = ServiceLocator.Instance.Get<PlayerGamePlayManager>();
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider,
@@ -41,12 +41,12 @@ namespace Pal3.Scene.SceneObjects
 
         private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
         {
-            _gamePlayController.PlayerActorEnteredJumpableArea();
+            _gamePlayManager.PlayerActorEnteredJumpableArea();
         }
 
         private void OnPlayerActorExited(object sender, Vector2Int actorTilePosition)
         {
-            _gamePlayController.PlayerActorExitedJumpableArea();
+            _gamePlayManager.PlayerActorExitedJumpableArea();
         }
 
         public override void Deactivate()

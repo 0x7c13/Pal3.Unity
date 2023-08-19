@@ -13,7 +13,7 @@ namespace Pal3.GamePlay
     using MetaData;
     using UnityEngine.InputSystem;
 
-    public partial class PlayerGamePlayController :
+    public partial class PlayerGamePlayManager :
         ICommandExecutor<SwitchPlayerActorRequest>
     {
         public void Execute(SwitchPlayerActorRequest command)

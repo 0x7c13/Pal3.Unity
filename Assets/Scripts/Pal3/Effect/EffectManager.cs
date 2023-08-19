@@ -20,7 +20,7 @@ namespace Pal3.Effect
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    public sealed class EffectManager : MonoBehaviour, IDisposable,
+    public sealed class EffectManager : IDisposable,
         ICommandExecutor<EffectPreLoadCommand>,
         ICommandExecutor<EffectAttachToActorCommand>,
         ICommandExecutor<EffectSetPositionCommand>,
@@ -28,14 +28,14 @@ namespace Pal3.Effect
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private GameResourceProvider _resourceProvider;
-        private SceneManager _sceneManager;
+        private readonly GameResourceProvider _resourceProvider;
+        private readonly SceneManager _sceneManager;
         private ICommand _effectPositionCommand;
 
         private const string EFFECT_LINKER_FILE_NAME = "efflinker.dat";
         private EffectLinkerFile _effectLinkerFile;
 
-        public void Init(GameResourceProvider resourceProvider,
+        public EffectManager(GameResourceProvider resourceProvider,
             SceneManager sceneManager)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
@@ -43,20 +43,13 @@ namespace Pal3.Effect
 
             _effectLinkerFile = _resourceProvider.GetGameResourceFile<EffectLinkerFile>(
                 FileConstants.CombatDataFolderVirtualPath + EFFECT_LINKER_FILE_NAME);
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void Dispose()
         {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             _effectPositionCommand = null;
         }
 
@@ -67,7 +60,7 @@ namespace Pal3.Effect
             // Even with a waiter, we need to make sure waiter's current execution mode is set
             // to synchronous otherwise the effect will be played before the pre-load is finished.
             #if PAL3
-            StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
+            Pal3.Instance.StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
             #endif
         }
 
@@ -117,7 +110,7 @@ namespace Pal3.Effect
 
                 if (parent != null)
                 {
-                    var vfx = (GameObject)Instantiate(vfxPrefab, parent, false);
+                    var vfx = (GameObject)Object.Instantiate(vfxPrefab, parent, false);
                     vfx.name = "VFX_" + command.EffectGroupId;
                     vfx.transform.localPosition += localPosition;
                 }
@@ -171,12 +164,12 @@ namespace Pal3.Effect
 
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
-            Dispose();
+            _effectPositionCommand = null;
         }
 
         public void Execute(ResetGameStateCommand command)
         {
-            Dispose();
+            _effectPositionCommand = null;
         }
     }
 }

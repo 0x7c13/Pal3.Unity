@@ -25,7 +25,7 @@ namespace Pal3.GamePlay
     using UnityEngine;
     using UnityEngine.InputSystem;
 
-    public partial class PlayerGamePlayController : MonoBehaviour,
+    public partial class PlayerGamePlayManager : IDisposable,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<PlayerEnableInputCommand>,
@@ -37,13 +37,13 @@ namespace Pal3.GamePlay
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private GameResourceProvider _resourceProvider;
-        private GameStateManager _gameStateManager;
-        private PlayerActorManager _playerActorManager;
-        private TeamManager _teamManager;
-        private PlayerInputActions _inputActions;
-        private SceneManager _sceneManager;
-        private Camera _camera;
+        private readonly GameResourceProvider _resourceProvider;
+        private readonly GameStateManager _gameStateManager;
+        private readonly PlayerActorManager _playerActorManager;
+        private readonly TeamManager _teamManager;
+        private readonly PlayerInputActions _inputActions;
+        private readonly SceneManager _sceneManager;
+        private readonly Camera _camera;
 
         private string _currentMovementSfxAudioName = string.Empty;
 
@@ -71,7 +71,7 @@ namespace Pal3.GamePlay
             Vector2Int actorTilePosition,
             Vector3 actorFacing)> _playerActorLastKnownSceneState = new ();
 
-        public void Init(GameResourceProvider resourceProvider,
+        public PlayerGamePlayManager(GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
             PlayerActorManager playerActorManager,
             TeamManager teamManager,
@@ -95,14 +95,11 @@ namespace Pal3.GamePlay
             _inputActions.Gameplay.Movement.canceled += MovementCanceled;
             _inputActions.Gameplay.SwitchToPreviousPlayerActor.performed += SwitchToPreviousPlayerActorPerformed;
             _inputActions.Gameplay.SwitchToNextPlayerActor.performed += SwitchToNextPlayerActorPerformed;
-        }
 
-        private void OnEnable()
-        {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             _inputActions.Gameplay.OnTap.performed -= OnTapPerformed;
             _inputActions.Gameplay.OnMove.performed -= OnMovePerformed;
@@ -115,7 +112,7 @@ namespace Pal3.GamePlay
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void Update()
+        public void Update(float deltaTime)
         {
             if (_playerActorGameObject == null) return;
 
@@ -266,7 +263,7 @@ namespace Pal3.GamePlay
             // Check if actor is player actor.
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayController)}] Cannot enable player control for actor " +
+                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Cannot enable player control for actor " +
                                $"{command.ActorId} since actor is not a player actor.");
                 return;
             }
