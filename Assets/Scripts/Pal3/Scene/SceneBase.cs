@@ -73,7 +73,7 @@ namespace Pal3.Scene
         {
             ActorMovementMaxYDifferential = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_DEFAULT;
             ActorMovementMaxYDifferentialCrossLayer = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_LAYER_DEFAULT;
-            ActorMovementMaxYDifferentialCrossPlatform = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_PLATFORM_DEFAULT;;
+            ActorMovementMaxYDifferentialCrossPlatform = ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_PLATFORM_DEFAULT;
 
             #if PAL3 // Make sure actor cannot walk out of the trap holes in m10_2
             if (ScnFile.SceneInfo.Is("m10", "2"))

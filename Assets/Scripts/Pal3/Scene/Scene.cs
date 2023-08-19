@@ -69,8 +69,6 @@ namespace Pal3.Scene
         private SkyBoxRenderer _skyBoxRenderer;
         private IMaterialFactory _materialFactory;
 
-        private Tilemap _tilemap;
-
         public void Init(GameResourceProvider resourceProvider,
             SceneStateManager sceneStateManager,
             bool isLightingEnabled,
@@ -143,7 +141,6 @@ namespace Pal3.Scene
             Debug.Log($"[{nameof(Scene)}] Scene data initialized in {timer.ElapsedMilliseconds} ms.");
             timer.Restart();
 
-            _tilemap = new Tilemap(NavFile);
             Color actorTintColor = Color.white;
             if (IsNightScene())
             {
@@ -164,7 +161,7 @@ namespace Pal3.Scene
             Debug.Log($"[{nameof(Scene)}] SkyBox + NavMesh initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
-            InitActorObjects(actorTintColor, _tilemap);
+            InitActorObjects(actorTintColor, Tilemap);
             Debug.Log($"[{nameof(Scene)}] Actors initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
@@ -537,7 +534,7 @@ namespace Pal3.Scene
             var obstacles = new HashSet<Vector2Int>();
             foreach (Vector2Int actorTile in actorTiles)
             {
-                if (!_tilemap.IsTilePositionInsideTileMap(actorTile, layerIndex)) continue;
+                if (!Tilemap.IsTilePositionInsideTileMap(actorTile, layerIndex)) continue;
 
                 obstacles.Add(actorTile);
 
@@ -545,7 +542,7 @@ namespace Pal3.Scene
                 foreach (Direction direction in DirectionUtils.AllDirections)
                 {
                     Vector2Int neighbourTile = actorTile + DirectionUtils.ToVector2Int(direction);
-                    if (_tilemap.IsTilePositionInsideTileMap(neighbourTile, layerIndex))
+                    if (Tilemap.IsTilePositionInsideTileMap(neighbourTile, layerIndex))
                     {
                         obstacles.Add(neighbourTile);
                     }
