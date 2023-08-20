@@ -7,10 +7,10 @@ Shader "Pal3/Dev"
 {
     Properties
     {
-        _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+        _MainTex ("Texture", 2D) = "white" {}
     }
 
-    SubShader 
+    SubShader
     {
         Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent" }
         LOD 100
@@ -18,7 +18,7 @@ Shader "Pal3/Dev"
         ZWrite Off
         Blend SrcAlpha OneMinusSrcAlpha
 
-        Pass 
+        Pass
         {
             CGPROGRAM
                 #pragma vertex vert
@@ -37,7 +37,7 @@ Shader "Pal3/Dev"
                 struct v2f {
                     float4 vertex : SV_POSITION;
                     float2 texcoord : TEXCOORD0;
-                    UNITY_FOG_COORDS(1)
+                    UNITY_FOG_COORDS(7)
                     UNITY_VERTEX_OUTPUT_STEREO
                 };
 
@@ -58,8 +58,8 @@ Shader "Pal3/Dev"
                 half4 frag (v2f i) : SV_Target
                 {
                     half4 col = tex2D(_MainTex, i.texcoord);
-                    UNITY_APPLY_FOG(i.fogCoord, col);
                     col.a = 0.5;
+                    UNITY_APPLY_FOG(i.fogCoord, col);
                     return col;
                 }
             ENDCG

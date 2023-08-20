@@ -8,12 +8,12 @@ Shader "Pal3/Sprite"
     {
         Tags { "Queue" = "Transparent" }
         LOD 100
-        
+
         Pass
         {
             Blend SrcAlpha One
             ZWrite Off
-            
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

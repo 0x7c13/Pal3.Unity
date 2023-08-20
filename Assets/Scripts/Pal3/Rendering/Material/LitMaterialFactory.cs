@@ -161,8 +161,8 @@ namespace Pal3.Rendering.Material
 
                 materials = new Material[1];
                 materials[0] = useTransparentMaterial
-                    ? CreateBaseTransparentMaterial(mainTexture)
-                    : CreateBaseOpaqueMaterial(mainTexture);
+                    ? CreateBaseTransparentMaterial(mainTexture, shadowTexture)
+                    : CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
 
                 if (!useTransparentMaterial)
                 {
@@ -178,7 +178,7 @@ namespace Pal3.Rendering.Material
             else if (blendFlag == GameBoxBlendFlag.Opaque)
             {
                 materials = new Material[1];
-                materials[0] = CreateBaseOpaqueMaterial(mainTexture);
+                materials[0] = CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
             }
 
             if (materials != null && rendererType == RendererType.Mv3)
@@ -225,24 +225,26 @@ namespace Pal3.Rendering.Material
 
             if (useTransparentMaterial)
             {
-                Material material = CreateBaseTransparentMaterial(mainTexture);
+                Material material = CreateBaseTransparentMaterial(mainTexture, shadowTexture);
                 material.SetFloat(OpacityPropertyId, opacity);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId, 0.3f);
                 return material;
             }
             else
             {
-                Material material = CreateBaseOpaqueMaterial(mainTexture);
+                Material material = CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId, 0.5f);
                 return material;
             }
         }
 
-        private Material CreateBaseTransparentMaterial((string name, Texture2D texture) mainTexture)
+        private Material CreateBaseTransparentMaterial((string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture)
         {
+            Material material;
             if (_transparentMaterialPool.Count > 0)
             {
-                Material material = _transparentMaterialPool.Pop();
+                material = _transparentMaterialPool.Pop();
                 // Reset material properties
                 material.SetInt(BlendSrcFactorPropertyId,
                     _transparentMaterialBlendSrcFactorPropertyDefaultValue);
@@ -254,23 +256,27 @@ namespace Pal3.Rendering.Material
                     _transparentMaterialLightIntensityPropertyDefaultValue);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId,
                     _transparentMaterialEnvironmentalLightingIntensityPropertyDefaultValue);
-                material.mainTexture = mainTexture.texture;
-                return material;
+            }
+            else
+            {
+                // In case we run out of transparent materials
+                material = new Material(_toonTransparentMaterial)
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
             }
 
-            // In case we run out of transparent materials
-            return new Material(_toonTransparentMaterial)
-            {
-                mainTexture = mainTexture.texture,
-                hideFlags = HideFlags.HideAndDontSave
-            };
+            material.mainTexture = mainTexture.texture;
+            return material;
         }
 
-        private Material CreateBaseOpaqueMaterial((string name, Texture2D texture) mainTexture)
+        private Material CreateBaseOpaqueMaterial((string name, Texture2D texture) mainTexture,
+            (string name, Texture2D texture) shadowTexture)
         {
+            Material material;
             if (_opaqueMaterialPool.Count > 0)
             {
-                Material material = _opaqueMaterialPool.Pop();
+                material = _opaqueMaterialPool.Pop();
                 // Reset material properties
                 material.SetFloat(CutoutPropertyId,
                     _opaqueMaterialCutoutPropertyDefaultValue);
@@ -278,16 +284,18 @@ namespace Pal3.Rendering.Material
                     _opaqueMaterialLightIntensityPropertyDefaultValue);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId,
                     _opaqueMaterialEnvironmentalLightingIntensityPropertyDefaultValue);
-                material.mainTexture = mainTexture.texture;
-                return material;
+            }
+            else
+            {
+                // In case we run out of opaque materials
+                material = new Material(_toonOpaqueMaterial)
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
             }
 
-            // In case we run out of opaque materials
-            return new Material(_toonOpaqueMaterial)
-            {
-                mainTexture = mainTexture.texture,
-                hideFlags = HideFlags.HideAndDontSave
-            };
+            material.mainTexture = mainTexture.texture;
+            return material;
         }
 
         protected override void ReturnToPool(Material material)
