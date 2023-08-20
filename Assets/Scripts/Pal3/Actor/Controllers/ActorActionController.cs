@@ -241,12 +241,9 @@ namespace Pal3.Actor.Controllers
             shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
             shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
 
-            Texture2D shadowTexture = _resourceProvider.GetShadowTexture();
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
-            _shadowSpriteRenderer.sprite = Sprite.Create(shadowTexture,
-                new Rect(0, 0, shadowTexture.width, shadowTexture.height),
-                new Vector2(0.5f, 0.5f));
-            _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.7f);
+            _shadowSpriteRenderer.sprite = _resourceProvider.GetShadowSprite();
+            _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.6f);
         }
 
         private IEnumerator ShowEmojiAnimationAsync(ActorEmojiType emojiType)

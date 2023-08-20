@@ -62,6 +62,8 @@ namespace Pal3.Data
 
         // No need to deallocate the shadow texture since it is been used almost every where.
         private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
+        private static readonly Sprite ShadowSprite = Sprite.Create(ShadowTexture,
+            new Rect(0, 0, ShadowTexture.width, ShadowTexture.height), new Vector2(0.5f, 0.5f));
 
         private readonly int _codepage;
 
@@ -125,9 +127,9 @@ namespace Pal3.Data
             return _fileSystem.FileExists(path);
         }
 
-        public Texture2D GetShadowTexture()
+        public Sprite GetShadowSprite()
         {
-            return ShadowTexture;
+            return ShadowSprite;
         }
 
         public IMaterialFactory GetMaterialFactory()
