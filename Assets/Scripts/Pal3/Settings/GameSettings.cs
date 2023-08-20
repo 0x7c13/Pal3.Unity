@@ -149,8 +149,12 @@ namespace Pal3.Settings
             }
             else
             {
-                // Full resolution by default on legacy mobile devices
-                ResolutionScale = Utility.IsLegacyMobileDevice() ? 0.75f : 1.0f;
+                // 75% resolution scale by default on mobile devices
+                #if UNITY_ANDROID || UNITY_IOS
+                ResolutionScale = 0.75f;
+                #else
+                ResolutionScale = 1.0f;
+                #endif
             }
 
             #if UNITY_STANDALONE

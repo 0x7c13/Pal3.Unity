@@ -10,12 +10,12 @@ namespace Pal3.Command.SceCommands
     public class CombatEnterBossFightCommand : ICommand
     {
         public CombatEnterBossFightCommand(
-            int monster1Id,
-            int monster2Id,
-            int monster3Id,
-            int monster4Id,
-            int monster5Id,
-            int monster6Id)
+            uint monster1Id,
+            uint monster2Id,
+            uint monster3Id,
+            uint monster4Id,
+            uint monster5Id,
+            uint monster6Id)
         {
             Monster1Id = monster1Id;
             Monster2Id = monster2Id;
@@ -25,11 +25,11 @@ namespace Pal3.Command.SceCommands
             Monster6Id = monster6Id;
         }
 
-        public int Monster1Id { get; }
-        public int Monster2Id { get; }
-        public int Monster3Id { get; }
-        public int Monster4Id { get; }
-        public int Monster5Id { get; }
-        public int Monster6Id { get; }
+        public uint Monster1Id { get; }
+        public uint Monster2Id { get; }
+        public uint Monster3Id { get; }
+        public uint Monster4Id { get; }
+        public uint Monster5Id { get; }
+        public uint Monster6Id { get; }
     }
 }

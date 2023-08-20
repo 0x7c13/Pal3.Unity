@@ -5,17 +5,15 @@
 
 namespace Core.DataReader.Gdb
 {
-    using System;
     using System.Collections.Generic;
 
-    [Flags]
     public enum WuLingType
     {
         Water   = 0,    // 水
         Fire    = 1,    // 火
         Wind    = 2,    // 风
-        Thunder = 4,    // 雷
-        Earth   = 8,    // 土
+        Thunder = 3,    // 雷
+        Earth   = 4,    // 土
     }
 
     public enum ItemType

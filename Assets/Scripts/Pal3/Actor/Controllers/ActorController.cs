@@ -177,11 +177,18 @@ namespace Pal3.Actor.Controllers
                     .GetPlayerActor() == actorController.GetActor().Info.Id)
             {
                 // Player actor collides with combat NPC in maze
-                // TODO: Implement combat
+
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new PlaySfxCommand("wd130", 1));
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorActivateCommand(_actor.Info.Id, 0));
+
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new CombatEnterNormalFightCommand(
+                        _actor.Info.NumberOfMonsters,
+                        _actor.Info.MonsterIds[0],
+                        _actor.Info.MonsterIds[1],
+                        _actor.Info.MonsterIds[2]));
             }
         }
 

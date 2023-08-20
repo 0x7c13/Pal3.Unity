@@ -10,10 +10,10 @@ namespace Pal3.Command.SceCommands
     public class CombatEnterNormalFightCommand : ICommand
     {
         public CombatEnterNormalFightCommand(
-            int numberOfMonster,
-            int monster1Id,
-            int monster2Id,
-            int monster3Id)
+            uint numberOfMonster,
+            uint monster1Id,
+            uint monster2Id,
+            uint monster3Id)
         {
             NumberOfMonster = numberOfMonster;
             Monster1Id = monster1Id;
@@ -21,9 +21,9 @@ namespace Pal3.Command.SceCommands
             Monster3Id = monster3Id;
         }
 
-        public int NumberOfMonster { get; }
-        public int Monster1Id { get; }
-        public int Monster2Id { get; }
-        public int Monster3Id { get; }
+        public uint NumberOfMonster { get; }
+        public uint Monster1Id { get; }
+        public uint Monster2Id { get; }
+        public uint Monster3Id { get; }
     }
 }

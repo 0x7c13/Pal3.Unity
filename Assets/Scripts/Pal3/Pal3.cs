@@ -13,6 +13,7 @@ namespace Pal3
     using Actor.Controllers;
     using Audio;
     using Camera;
+    using Combat;
     using Command;
     using Command.SceCommands;
     using Core.DataReader.Scn;
@@ -153,6 +154,7 @@ namespace Pal3
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
         private RenderingSettingsManager _renderingSettingsManager;
+        private CombatCoordinator _combatCoordinator;
 
         #if PAL3 // PAL3 specific components
         private AppraisalsMiniGame _appraisalsMiniGame;
@@ -318,6 +320,10 @@ namespace Pal3
                 dialogueSelectionButtonsCanvas,
                 dialogueSelectionButtonPrefab);
             ServiceLocator.Instance.Register(_dialogueManager);
+
+            _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
+                _playerActorManager, _sceneManager);
+            ServiceLocator.Instance.Register(_combatCoordinator);
 
             _saveManager = new SaveManager(_sceneManager, _playerActorManager,
                 _teamManager, _inventoryManager, _sceneStateManager,
