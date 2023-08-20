@@ -46,7 +46,8 @@ namespace Pal3.Command
                 }
             }
 
-            return null;
+            throw new NotImplementedException($"Command Type not found for command id: {commandId} " +
+                                              $"(parameter flag: {parameterFlag})");
         }
     }
 }

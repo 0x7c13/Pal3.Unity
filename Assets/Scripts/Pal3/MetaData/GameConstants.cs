@@ -15,12 +15,12 @@ namespace Pal3.MetaData
     {
         #if PAL3
         public const string AppName = "PAL3";
-        public const string AppNameCNShort = "仙剑三";
-        public const string AppNameCNFull = "仙剑奇侠传三";
+        public const string AppNameCNShort = "仙劍三";
+        public const string AppNameCNFull = "仙劍奇俠傳三";
         #elif PAL3A
         public const string AppName = "PAL3A";
         public const string AppNameCNShort = "仙三外";
-        public const string AppNameCNFull = "仙剑奇侠传三外传";
+        public const string AppNameCNFull = "仙劍奇俠傳三外传";
         #endif
 
         public const string CompanyName = "Jackil";

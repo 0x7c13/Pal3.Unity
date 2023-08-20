@@ -29,6 +29,7 @@ namespace Pal3
     using MetaData;
     using Scene;
     using Script;
+    using Script.Patcher;
     using Settings;
     using State;
     using TMPro;
@@ -189,7 +190,8 @@ namespace Pal3
             _inputManager= new InputManager(_inputActions);
             ServiceLocator.Instance.Register(_inputManager);
 
-            _scriptManager = new ScriptManager(_gameResourceProvider);
+            _scriptManager = new ScriptManager(_gameResourceProvider,
+                new PalScriptCommandPreprocessor(new PalScriptPatcher()));
             ServiceLocator.Instance.Register(_scriptManager);
 
             _gameStateManager = new GameStateManager(_inputManager, _scriptManager);

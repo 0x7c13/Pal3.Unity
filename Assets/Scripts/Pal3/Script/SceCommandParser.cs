@@ -11,7 +11,7 @@ namespace Pal3.Script
     using System.Reflection;
     using Command;
     using Core.DataReader;
-    using Core.Extensions;
+    using MetaData;
 
     /// <summary>
     /// Parser logic for parsing SceCommand in .sce script data block.
@@ -19,13 +19,17 @@ namespace Pal3.Script
     public static class SceCommandParser
     {
         public static ICommand ParseSceCommand(IBinaryReader reader,
-            int commandId,
-            ushort parameterFlag,
             int codepage)
         {
-            Type commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
+            var commandId = reader.ReadUInt16();
+            var parameterFlag = reader.ReadUInt16();
 
-            if (commandType == null) return null;
+            if (commandId > ScriptConstants.CommandIdMax)
+            {
+                throw new InvalidDataException($"Command Id is invalid: {commandId}");
+            }
+
+            Type commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
 
             var properties = commandType.GetProperties();
             var args = new object[properties.Length];

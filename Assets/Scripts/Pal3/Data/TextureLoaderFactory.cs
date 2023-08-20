@@ -21,7 +21,9 @@ namespace Pal3.Data
             {
                 ".dds" => _dxtTextureLoader ??= new DxtTextureLoader(),
                 ".tga" => _tgaTextureLoader ??= new TgaTextureLoader(),
-                ".bmp" => _bmpTextureLoader ??= new BmpTextureLoader(),
+                // NOTE: ".bm" is just a typo found in some of the texture file names
+                // used in PAL3 (traditional chinese version), it's actually .bmp.
+                ".bmp" or ".bm" => _bmpTextureLoader ??= new BmpTextureLoader(),
                 _ => throw new ArgumentException($"Texture format not supported: {fileExtension}")
             };
         }

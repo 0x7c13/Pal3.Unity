@@ -577,10 +577,8 @@ namespace ResourceViewer
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
                     var currentPosition = scriptDataReader.BaseStream.Position;
-                    var commandId = scriptDataReader.ReadUInt16();
-                    var parameterFlag = scriptDataReader.ReadUInt16();
 
-                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, commandId, parameterFlag, _codePage);
+                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, _codePage);
 
                     if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
                     if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);

@@ -14,14 +14,11 @@ namespace Pal3.Script
     using Core.DataReader;
     using Core.DataReader.Sce;
     using Core.Services;
-    using Dev;
-    using GamePlay;
     using GameSystem;
     using MetaData;
     #if PAL3
     using MiniGame;
     #endif
-    using UI;
     using Scene;
     using State;
     using UnityEngine;
@@ -67,6 +64,7 @@ namespace Pal3.Script
 
         public uint ScriptId { get; }
         public PalScriptType ScriptType { get; }
+        public string ScriptDescription { get; }
 
         private const int MAX_REGISTER_COUNT = 8;
 
@@ -76,17 +74,17 @@ namespace Pal3.Script
         private readonly object[] _registers;
         private readonly Dictionary<int, int> _globalVariables;
         private readonly Dictionary<int, int> _localVariables = new ();
+        private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
 
         private readonly Stack<IScriptRunnerWaiter> _waiters = new ();
         private bool _isExecuting;
         private bool _isDisposed;
 
-        private PalScriptRunner() {}
-
         public static PalScriptRunner Create(SceFile sceFile,
             PalScriptType scriptType,
             uint scriptId,
-            Dictionary<int, int> globalVariables)
+            Dictionary<int, int> globalVariables,
+            PalScriptCommandPreprocessor preprocessor)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
             {
@@ -95,7 +93,13 @@ namespace Pal3.Script
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
             Debug.Log($"[{nameof(PalScriptRunner)}] Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
-            return new PalScriptRunner(scriptType, scriptId, sceScriptBlock, globalVariables, sceFile.Codepage);
+
+            return new PalScriptRunner(scriptType,
+                scriptId,
+                sceScriptBlock,
+                globalVariables,
+                sceFile.Codepage,
+                preprocessor);
         }
 
         private PalScriptRunner(PalScriptType scriptType,
@@ -103,13 +107,16 @@ namespace Pal3.Script
             SceScriptBlock scriptBlock,
             Dictionary<int, int> globalVariables,
             int codepage,
+            PalScriptCommandPreprocessor preprocessor,
             ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
         {
             ScriptType = scriptType;
             ScriptId = scriptId;
+            ScriptDescription = scriptBlock.Description;
 
             _globalVariables = globalVariables;
             _codepage = codepage;
+            _cmdPreprocessor = preprocessor;
             _executionMode = executionMode;
 
             _registers = new object[MAX_REGISTER_COUNT];
@@ -172,25 +179,18 @@ namespace Pal3.Script
 
         private void ExecuteNextCommand()
         {
-            var commandId = _scriptDataReader.ReadUInt16();
-            var parameterFlag = _scriptDataReader.ReadUInt16();
+            long cmdPosition = _scriptDataReader.Position;
 
-            if (commandId > ScriptConstants.CommandIdMax)
-            {
-                throw new InvalidDataException($"Command Id is invalid: {commandId}");
-            }
+            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader, _codepage);
 
-            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
+            _cmdPreprocessor.Process(ref command,
+                ScriptType,
+                ScriptId,
+                ScriptDescription,
+                cmdPosition,
+                _codepage);
 
-            if (command == null)
-            {
-                // All commands are fully implemented, so this should never happen
-                //UnknownSceCommandAnalyzer.AnalyzeCommand(_scriptDataReader, commandId, parameterFlag, _codepage);
-            }
-            else
-            {
-                OnCommandExecutionRequested?.Invoke(this, command);
-            }
+            OnCommandExecutionRequested?.Invoke(this, command);
         }
 
         private void SetVarValueBasedOnOperationResult(bool boolValue)

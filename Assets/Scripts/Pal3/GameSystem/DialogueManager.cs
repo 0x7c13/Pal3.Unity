@@ -426,25 +426,6 @@ namespace Pal3.GameSystem
 
         private string GetDisplayText(string text)
         {
-            // Easter egg + dev notes
-            #if PAL3
-            if (text.Equals("韩用：\\n知道吗？\\i使用鼠标滚轮可以旋转镜头\\r，这样就不怕人物被挡住了。") ||
-                text.Equals("韓用：\\n知道嗎？\\i使用滑鼠滾輪可以旋轉鏡頭\\r，這樣就不怕人物被擋住了。"))
-            #elif PAL3A
-            if (text.Equals("蜀中第一丐：\\n我蜀中第一丐四海为家，过的桥比你走的路还多，有什么不明白的尽管问～～\\n" +
-                            "今天心情好，就再多透露点秘密给你吧，假如在城镇、迷宫中人物被挡住了，可以试试\\i用鼠标滚轮旋转镜头\\r，会有不错的效果哦。" +
-                            "另外，画面\\i左下角\\r那东西叫作\\i“司南”\\r，只要点一下，就能看到地图，认清方向了。") ||
-                text.Equals("蜀中第一丐：\\n我蜀中第一丐四海為家，過的橋比你走的路還多，有什麼不明白的儘管問～～\\n" +
-                            "今天心情好，就再多透露點秘密給你吧，假如在城鎮、迷宮中人物被擋住了，可以試試\\i用滑鼠滾輪旋轉鏡頭\\r，會有不錯的效果哦。" +
-                            "另外，畫面\\i左下角\\r那東西叫作\\i「司南」\\r，只要點一下，就能看到地圖，認清方向了。"))
-            #endif
-            {
-                text = $"知道吗？您现在玩的{GameConstants.AppNameCNFull}是由\\i柒才\\r使用C#/Unity开发(完全重写)的复刻版，免费开源且支持全平台(Win/Mac/Linux/iOS/Android)。" +
-                       "如果您是花钱得到的，那么恭喜您成为盗版游戏的受害者。" +
-                       $"当前游戏还在开发中，包括战斗在内的很多功能尚未实现，请耐心等待，也欢迎加入本游戏QQ群与作者联系或下载最新版：\\i252315306\\r，" +
-                       "您也可以在B站关注Up主\\i@柒才\\r获取最新开发信息！另外，全平台都支持手柄哦~";
-            }
-
             var formattedText = text.Replace("\\n", "\n");
 
             return ReplaceStringWithPatternForEachChar(formattedText,
