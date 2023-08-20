@@ -9,6 +9,8 @@ namespace Pal3.MetaData
     {
         public const string PlayerActorMovementSfxAudioSourceName = "PlayerActorMovementSfx";
 
+        public const string StopMusicName = "NONE";
+
         #if PAL3
         public const string ThemeMusicName = "PI01";
         #elif PAL3A

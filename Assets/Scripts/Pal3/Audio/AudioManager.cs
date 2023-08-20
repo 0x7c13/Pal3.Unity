@@ -42,8 +42,6 @@ namespace Pal3.Audio
         private readonly SceneManager _sceneManager;
         private readonly GameSettings _gameSettings;
 
-        private const string STOP_MUSIC_NAME = "NONE";
-
         private float _musicVolume;
         private float _sfxVolume;
 
@@ -106,7 +104,7 @@ namespace Pal3.Audio
                 musicName = sceneCityMusic;
             }
 
-            if (string.IsNullOrEmpty(musicName) || musicName.Equals(STOP_MUSIC_NAME))
+            if (string.IsNullOrEmpty(musicName) || musicName.Equals(AudioConstants.StopMusicName))
             {
                 _currentMusicClipName = string.Empty;
                 _musicPlayer.Stop();
@@ -395,7 +393,7 @@ namespace Pal3.Audio
 
         public void Execute(PlayMusicCommand command)
         {
-            if (command.MusicName.Equals(STOP_MUSIC_NAME))
+            if (command.MusicName.Equals(AudioConstants.StopMusicName))
             {
                 _currentScriptMusic = string.Empty;
                 _musicPlayer.Stop();

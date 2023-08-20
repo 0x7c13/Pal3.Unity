@@ -8,7 +8,6 @@ namespace Pal3.Script
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -16,7 +15,6 @@ namespace Pal3.Script
     using Core.Utils;
     using Data;
     using MetaData;
-    using Newtonsoft.Json;
     using UnityEngine;
 
     public sealed class ScriptManager : IDisposable,
@@ -131,12 +129,6 @@ namespace Pal3.Script
 
         private void OnCommandExecutionRequested(object sender, ICommand command)
         {
-            var sceCommandId = command.GetType().GetCustomAttribute<SceCommandAttribute>()?.Id;
-
-            Debug.Log($"[{nameof(ScriptManager)}] {((PalScriptRunner)sender).ScriptType} Script {((PalScriptRunner)sender).ScriptId} : " +
-                      $"[{sceCommandId}] {command.GetType().Name.Replace("Command", "")} " +
-                      $"{JsonConvert.SerializeObject(command)}");
-
             CommandDispatcher<ICommand>.Instance.Dispatch(command);
         }
 
@@ -163,8 +155,8 @@ namespace Pal3.Script
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 finishedScript.Dispose();
 
-                Debug.Log($"[{nameof(ScriptManager)}] Script {finishedScript.ScriptId} " +
-                          $"({finishedScript.ScriptDescription}) finished running.");
+                Debug.Log($"[{nameof(ScriptManager)}] Script [{finishedScript.ScriptId} " +
+                          $"{finishedScript.ScriptDescription}] finished running.");
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptFinishedRunningNotification(finishedScript.ScriptId, finishedScript.ScriptType));
             }

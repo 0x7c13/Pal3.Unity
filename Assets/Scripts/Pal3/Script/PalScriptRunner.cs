@@ -8,6 +8,7 @@ namespace Pal3.Script
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Reflection;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -16,6 +17,7 @@ namespace Pal3.Script
     using Core.Services;
     using GameSystem;
     using MetaData;
+    using Newtonsoft.Json;
     #if PAL3
     using MiniGame;
     #endif
@@ -92,7 +94,7 @@ namespace Pal3.Script
             }
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
-            Debug.Log($"[{nameof(PalScriptRunner)}] Create script runner: {sceScriptBlock.Id} {sceScriptBlock.Description}");
+            Debug.Log($"[{nameof(PalScriptRunner)}] Create script runner: [{sceScriptBlock.Id} {sceScriptBlock.Description}]");
 
             return new PalScriptRunner(scriptType,
                 scriptId,
@@ -189,6 +191,14 @@ namespace Pal3.Script
                 ScriptDescription,
                 cmdPosition,
                 _codepage);
+
+            Type commandType = command.GetType();
+            var sceCommandId = commandType.GetCustomAttribute<SceCommandAttribute>()?.Id;
+
+            Debug.Log($"[{nameof(PalScriptRunner)}] {ScriptType} Script " +
+                      $"[{ScriptId} {ScriptDescription}]: " +
+                      $"{commandType.Name.Replace("Command", "")} [{sceCommandId}] " +
+                      $"{JsonConvert.SerializeObject(command)}");
 
             OnCommandExecutionRequested?.Invoke(this, command);
         }

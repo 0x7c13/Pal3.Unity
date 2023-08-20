@@ -24,8 +24,6 @@ namespace Core.FileSystem
         private readonly ConcurrentDictionary<string, CpkArchive> _cpkArchives = new();
         private readonly Crc32Hash _crcHash;
 
-        private CpkFileSystem() {} // Hide default constructor
-
         public CpkFileSystem(string rootPath, Crc32Hash crcHash)
         {
             rootPath = Requires.IsNotNullOrEmpty(rootPath, nameof(rootPath));
@@ -91,7 +89,8 @@ namespace Core.FileSystem
 
             // Check if the file exists in any of the segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
+                             StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
@@ -122,7 +121,8 @@ namespace Core.FileSystem
 
             // Check if the file exists in any of the segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
+                             StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
@@ -149,7 +149,8 @@ namespace Core.FileSystem
 
             // Find and read the file content in segmented cpk archives.
             foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_', StringComparison.OrdinalIgnoreCase)))
+                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
+                             StringComparison.OrdinalIgnoreCase)))
             {
                 var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
                 if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
