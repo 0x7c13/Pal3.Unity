@@ -36,7 +36,9 @@ namespace Pal3.Scene
         private readonly Camera _mainCamera;
 
         private GameObject _currentSceneRoot;
+
         private Scene _currentScene;
+        private CombatScene _currentCombatScene;
 
         private readonly HashSet<int> _sceneObjectIdsToNotLoadFromSaveState = new ();
 
@@ -110,6 +112,26 @@ namespace Pal3.Scene
             System.GC.Collect();
         }
 
+        public void LoadCombatScene(string combatSceneName)
+        {
+            var timer = new Stopwatch();
+            timer.Start();
+            DisposeCurrentScene();
+
+            _currentSceneRoot = new GameObject($"CombatScene_{combatSceneName}");
+            _currentSceneRoot.transform.SetParent(null);
+            _currentCombatScene = _currentSceneRoot.AddComponent<CombatScene>();
+            _currentCombatScene.Init(_resourceProvider,
+                _gameSettings.IsRealtimeLightingAndShadowsEnabled);
+            _currentCombatScene.Load(_currentSceneRoot, combatSceneName);
+
+            timer.Stop();
+            Debug.Log($"[{nameof(SceneManager)}] CombatScene loaded in {timer.Elapsed.TotalSeconds} seconds.");
+
+            // Also a good time to collect garbage
+            System.GC.Collect();
+        }
+
         private void DisposeCurrentScene()
         {
             if (_currentScene != null)
@@ -117,6 +139,12 @@ namespace Pal3.Scene
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLeavingCurrentSceneNotification());
                 Object.Destroy(_currentScene);
                 _currentScene = null;
+            }
+
+            if (_currentCombatScene != null)
+            {
+                Object.Destroy(_currentCombatScene);
+                _currentCombatScene = null;
             }
 
             if (_currentSceneRoot != null)

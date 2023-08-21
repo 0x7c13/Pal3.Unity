@@ -19,6 +19,7 @@ namespace Pal3.Actor.Controllers
     using MetaData;
     using GamePlay;
     using Script.Waiter;
+    using Settings;
     using UnityEngine;
 
     public class ActorController : MonoBehaviour,
@@ -179,16 +180,22 @@ namespace Pal3.Actor.Controllers
                 // Player actor collides with combat NPC in maze
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlaySfxCommand("wd130", 1));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorActivateCommand(_actor.Info.Id, 0));
 
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CombatEnterNormalFightCommand(
-                        _actor.Info.NumberOfMonsters,
-                        _actor.Info.MonsterIds[0],
-                        _actor.Info.MonsterIds[1],
-                        _actor.Info.MonsterIds[2]));
+                if (ServiceLocator.Instance.Get<GameSettings>().IsTurnBasedCombatEnabled)
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new CombatEnterNormalFightCommand(
+                            _actor.Info.NumberOfMonsters,
+                            _actor.Info.MonsterIds[0],
+                            _actor.Info.MonsterIds[1],
+                            _actor.Info.MonsterIds[2]));
+                }
+                else // TODO: Remove once combat system is fully implemented
+                {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new PlaySfxCommand("wd130", 1));
+                }
             }
         }
 

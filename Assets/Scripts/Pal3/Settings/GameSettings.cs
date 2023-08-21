@@ -47,6 +47,8 @@ namespace Pal3.Settings
                 "设置角色配音设定（true：开启，false：关闭）", _ => IsVoiceOverEnabled = _);
             DebugLogConsole.AddCommand<bool>("Settings.IsDebugInfoEnabled",
                 "设置调试信息显示设定（true：开启，false：关闭）", _ => IsDebugInfoEnabled = _);
+            DebugLogConsole.AddCommand<bool>("Settings.IsTurnBasedCombatEnabled",
+                "设置回合制战斗开启关闭设定（true：开启，false：关闭）", _ => IsTurnBasedCombatEnabled = _);
             DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
                 "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
 
@@ -243,6 +245,16 @@ namespace Pal3.Settings
             {
                 // Enable voice over by default
                 IsVoiceOverEnabled = true;
+            }
+
+            if (SettingsStore.TryGet(nameof(IsTurnBasedCombatEnabled), out bool isTurnBasedCombatEnabled))
+            {
+                IsTurnBasedCombatEnabled = isTurnBasedCombatEnabled;
+            }
+            else
+            {
+                // TODO: Enable turn-based combat by default when it is implemented
+                IsTurnBasedCombatEnabled = false;
             }
 
             if (SettingsStore.TryGet(nameof(IsDebugInfoEnabled), out bool isDebugInfoEnabled))

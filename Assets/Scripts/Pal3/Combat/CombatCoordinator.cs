@@ -21,6 +21,7 @@ namespace Pal3.Combat
     using GamePlay;
     using MetaData;
     using Scene;
+    using Settings;
     using UnityEngine;
     using Random = System.Random;
 
@@ -40,19 +41,25 @@ namespace Pal3.Combat
     {
         private const string COMBAT_SCN_FILE_NAME = "combatScn.txt";
 
-        private readonly CombatScnFile _combatScnFile;
+        private readonly GameSettings _gameSettings;
+        private readonly CombatManager _combatManager;
         private readonly PlayerActorManager _playerActorManager;
         private readonly AudioManager _audioManager;
         private readonly SceneManager _sceneManager;
 
+        private readonly CombatScnFile _combatScnFile;
         private readonly CombatContext _currentCombatContext = new();
 
         public CombatCoordinator(GameResourceProvider resourceProvider,
+            GameSettings gameSettings,
+            CombatManager combatManager,
             PlayerActorManager playerActorManager,
             AudioManager audioManager,
             SceneManager sceneManager)
         {
             Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
+            _combatManager = Requires.IsNotNull(combatManager, nameof(combatManager));
             _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
@@ -70,6 +77,8 @@ namespace Pal3.Combat
 
         private void StartCombat()
         {
+            if (!_gameSettings.IsTurnBasedCombatEnabled) return;
+
             Scene currentScene = _sceneManager.GetCurrentScene();
 
             // Figure out which combat scene to use
@@ -96,7 +105,9 @@ namespace Pal3.Combat
                 }
             }
 
-            Debug.LogWarning(_currentCombatContext);
+            // Start combat
+            Debug.LogWarning($"[{nameof(CombatCoordinator)}] Starting combat with context: {_currentCombatContext}");
+            _combatManager.EnterCombat(_currentCombatContext);
 
             // Reset combat context
             _currentCombatContext.ResetContext();
@@ -130,6 +141,10 @@ namespace Pal3.Combat
             {
                 combatSceneName = combatSceneFloorKindToMapInfo[NavFloorKind.Default];
             }
+
+            #if PAL3
+            combatSceneName = combatSceneName.ToUpper();
+            #endif
 
             return combatSceneName;
         }

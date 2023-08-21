@@ -400,13 +400,16 @@ namespace Pal3.Audio
                 return;
             }
 
-            // TODO: Disable combat music since combat system has not been implemented yet.
-            if (MusicConstants.CombatMusicInfo.Any(musicInfo =>
-                    command.MusicName.Equals(musicInfo.Value, StringComparison.OrdinalIgnoreCase)) ||
-                command.MusicName.Equals("PI25A", StringComparison.OrdinalIgnoreCase) ||
-                command.MusicName.Equals("PI25", StringComparison.OrdinalIgnoreCase))
+            // Ignore combat music if combat is not enabled
+            if (!_gameSettings.IsTurnBasedCombatEnabled)
             {
-                return;
+                if (MusicConstants.CombatMusicInfo.Any(musicInfo =>
+                        command.MusicName.Equals(musicInfo.Value, StringComparison.OrdinalIgnoreCase)) ||
+                    command.MusicName.Equals("PI25A", StringComparison.OrdinalIgnoreCase) ||
+                    command.MusicName.Equals("PI25", StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
             }
 
             _currentScriptMusic = command.MusicName;

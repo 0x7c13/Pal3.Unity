@@ -93,14 +93,7 @@ namespace Pal3.GameSystem
 
         public void Execute(GameStateChangedNotification command)
         {
-            if (command.NewState == GameState.VideoPlaying)
-            {
-                _taskInfoText.enabled = false;
-            }
-            else if (command.PreviousState == GameState.VideoPlaying)
-            {
-                _taskInfoText.enabled = true;
-            }
+            _taskInfoText.enabled = command.NewState == GameState.Gameplay;
         }
 
         public void Execute(ResetGameStateCommand command)

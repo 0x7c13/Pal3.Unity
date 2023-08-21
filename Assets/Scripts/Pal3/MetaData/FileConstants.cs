@@ -27,6 +27,12 @@ namespace Pal3.MetaData
         private const string EFFECT_SCN_FOLDER_NAME = "effectscn";
         #endif
 
+        #if PAL3
+        private const string COMBAT_SCENE_FOLDER_NAME = "cbScene";
+        #elif PAL3A
+        private const string COMBAT_SCENE_FOLDER_NAME = "cbscene";
+        #endif
+
         private const string SCENE_FOLDER_NAME = "scene";
         private const string EFFECT_FOLDER_NAME = "effect";
         private const string UI_FOLDER_NAME = "ui";
@@ -136,6 +142,9 @@ namespace Pal3.MetaData
 
         public static readonly string CombatDataFolderVirtualPath =
             $"{BASE_DATA_CPK_FILE_NAME}{DIR_SEPARATOR}{COMBAT_DATA_FOLDER_NAME}{DIR_SEPARATOR}";
+
+        public static readonly string CombatSceneFolderVirtualPath =
+            $"{BASE_DATA_CPK_FILE_NAME}{DIR_SEPARATOR}{COMBAT_SCENE_FOLDER_NAME}{DIR_SEPARATOR}";
 
         public static readonly string[] SkyBoxTexturePathFormat =
         {

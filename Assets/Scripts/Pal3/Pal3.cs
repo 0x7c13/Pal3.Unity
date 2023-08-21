@@ -154,6 +154,7 @@ namespace Pal3
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
         private RenderingSettingsManager _renderingSettingsManager;
+        private CombatManager _combatManager;
         private CombatCoordinator _combatCoordinator;
 
         #if PAL3 // PAL3 specific components
@@ -321,8 +322,12 @@ namespace Pal3
                 dialogueSelectionButtonPrefab);
             ServiceLocator.Instance.Register(_dialogueManager);
 
+            _combatManager = new CombatManager(_gameResourceProvider,
+                mainCamera, _sceneManager, _gameStateManager);
+            ServiceLocator.Instance.Register(_combatManager);
+
             _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
-                _playerActorManager, _audioManager, _sceneManager);
+                _gameSettings, _combatManager, _playerActorManager, _audioManager, _sceneManager);
             ServiceLocator.Instance.Register(_combatCoordinator);
 
             _saveManager = new SaveManager(_sceneManager, _playerActorManager,
@@ -457,11 +462,17 @@ namespace Pal3
             var deltaTime = Time.deltaTime;
 
             GameState currentState = _gameStateManager.GetCurrentState();
-            if (currentState != GameState.VideoPlaying)
+            if (currentState != GameState.VideoPlaying &&
+                currentState != GameState.Combat)
             {
                 _scriptManager.Update(deltaTime);
                 _playerGamePlayManager.Update(deltaTime);
                 _dialogueManager.Update(deltaTime);
+            }
+
+            if (currentState == GameState.Combat)
+            {
+                _combatManager.Update(deltaTime);
             }
 
             _informationManager.Update(deltaTime);
@@ -476,7 +487,8 @@ namespace Pal3
             var deltaTime = Time.deltaTime;
 
             GameState currentState = _gameStateManager.GetCurrentState();
-            if (currentState != GameState.VideoPlaying)
+            if (currentState != GameState.VideoPlaying &&
+                currentState != GameState.Combat)
             {
                 _cameraManager.LateUpdate(deltaTime);
                 _miniMapManager.LateUpdate(deltaTime);

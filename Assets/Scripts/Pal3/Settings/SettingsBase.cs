@@ -212,6 +212,21 @@ namespace Pal3.Settings
             }
         }
 
+        private bool _isTurnBasedCombatEnabled = false;
+        public bool IsTurnBasedCombatEnabled
+        {
+            get => _isTurnBasedCombatEnabled;
+            internal set
+            {
+                if (_isTurnBasedCombatEnabled != value)
+                {
+                    _isTurnBasedCombatEnabled = value;
+                    SettingsStore.Set(nameof(IsTurnBasedCombatEnabled), value);
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         #endregion
     }
 }
