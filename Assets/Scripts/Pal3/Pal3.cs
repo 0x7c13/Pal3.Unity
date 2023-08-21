@@ -322,7 +322,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_dialogueManager);
 
             _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
-                _playerActorManager, _sceneManager);
+                _playerActorManager, _audioManager, _sceneManager);
             ServiceLocator.Instance.Register(_combatCoordinator);
 
             _saveManager = new SaveManager(_sceneManager, _playerActorManager,

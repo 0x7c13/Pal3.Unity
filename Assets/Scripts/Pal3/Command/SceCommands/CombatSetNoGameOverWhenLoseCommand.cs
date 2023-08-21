@@ -6,9 +6,9 @@
 namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
-    [SceCommand(83, "设置战斗为必败")]
-    public class CombatSetUnwinnableCommand : ICommand
+    [SceCommand(131, "设置战斗失败不显示结束游戏")]
+    public class CombatSetNoGameOverWhenLoseCommand : ICommand
     {
-        public CombatSetUnwinnableCommand() {}
+        public CombatSetNoGameOverWhenLoseCommand() {}
     }
 }

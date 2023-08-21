@@ -5,12 +5,13 @@
 
 namespace Pal3.MetaData
 {
+    using System;
     using System.Collections.Generic;
 
     public static class MusicConstants
     {
         #if PAL3
-        public static readonly Dictionary<string, string> CombatMusicInfo = new()
+        public static readonly Dictionary<string, string> CombatMusicInfo = new(StringComparer.OrdinalIgnoreCase)
         {
             {"m01", "PI24"},	// 璧山
             {"m02", "PI24"},	// 九龙坡
@@ -37,7 +38,7 @@ namespace Pal3.MetaData
             {"q09", "PI26"},	// 雷州（夜）
         };
         #elif PAL3A
-        public static readonly Dictionary<string, string> CombatMusicInfo = new()
+        public static readonly Dictionary<string, string> CombatMusicInfo = new(StringComparer.OrdinalIgnoreCase)
         {
             {"m01", "P54"},   // 登云麓        （仗剑）
             {"m02", "P30"},   // 地脉门户      （喧哗乱舞）
@@ -66,7 +67,7 @@ namespace Pal3.MetaData
         #endif
 
         #if PAL3
-        public static readonly Dictionary<string, string> SceneMusicInfo = new ()
+        public static readonly Dictionary<string, string> SceneMusicInfo = new (StringComparer.OrdinalIgnoreCase)
         {
             {"q01", "PI27"},  // 渝州
             {"q02", "PI06"},  // 宾化
@@ -143,7 +144,7 @@ namespace Pal3.MetaData
             {"q01_xn04ba", "NONE"},
         };
         #elif PAL3A
-        public static readonly Dictionary<string, string> SceneMusicInfo = new ()
+        public static readonly Dictionary<string, string> SceneMusicInfo = new (StringComparer.OrdinalIgnoreCase)
         {
             {"q01", "P03"},	      // 唐家堡  （软红千丈）
             {"q02", "P14"},	      // 蜀山    （蜀道通仙）

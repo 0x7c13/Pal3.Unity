@@ -17,7 +17,7 @@ namespace Pal3.Command.SceCommands
             uint monster4Id,
             uint monster5Id,
             uint monster6Id,
-            string combatMusic)
+            string combatMusicName)
         {
             Monster1Id = monster1Id;
             Monster2Id = monster2Id;
@@ -25,7 +25,7 @@ namespace Pal3.Command.SceCommands
             Monster4Id = monster4Id;
             Monster5Id = monster5Id;
             Monster6Id = monster6Id;
-            CombatMusic = combatMusic;
+            CombatMusicName = combatMusicName;
         }
 
         public uint Monster1Id { get; }
@@ -34,7 +34,7 @@ namespace Pal3.Command.SceCommands
         public uint Monster4Id { get; }
         public uint Monster5Id { get; }
         public uint Monster6Id { get; }
-        public string CombatMusic { get; }
+        public string CombatMusicName { get; }
     }
     #endif
 }
