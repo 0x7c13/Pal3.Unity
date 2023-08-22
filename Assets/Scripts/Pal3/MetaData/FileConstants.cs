@@ -199,35 +199,35 @@ namespace Pal3.MetaData
                    $"{ACTOR_FOLDER_NAME}{DIR_SEPARATOR}{actorName}{DIR_SEPARATOR}";
         }
 
-        public static string GetNavFileVirtualPath(string sceneFileName, string modelName)
+        public static string GetNavFileVirtualPath(string sceneCityName, string modelName)
         {
             #if PAL3
-            var navFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{DIR_SEPARATOR}" +
+            var navFilePath = $"{sceneCityName}{CpkConstants.FileExtension}{DIR_SEPARATOR}" +
                               $"{modelName}{DIR_SEPARATOR}{modelName}.nav";
             #elif PAL3A
             var navFilePath = $"{SCN_CPK_FILE_NAME}{DIR_SEPARATOR}SCN{DIR_SEPARATOR}" +
-                              $"{sceneFileName}{DIR_SEPARATOR}{modelName}{DIR_SEPARATOR}{modelName}.nav";
+                              $"{sceneCityName}{DIR_SEPARATOR}{modelName}{DIR_SEPARATOR}{modelName}.nav";
             #endif
             return navFilePath;
         }
 
-        public static string GetScnFileVirtualPath(string sceneFileName, string sceneName)
+        public static string GetScnFileVirtualPath(string sceneCityName, string sceneName)
         {
             #if PAL3
-            var scnFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{DIR_SEPARATOR}{sceneName}.scn";
+            var scnFilePath = $"{sceneCityName}{CpkConstants.FileExtension}{DIR_SEPARATOR}{sceneName}.scn";
             #elif PAL3A
             var scnFilePath = $"{SCN_CPK_FILE_NAME}{DIR_SEPARATOR}SCN{DIR_SEPARATOR}" +
-                              $"{sceneFileName}{DIR_SEPARATOR}{sceneFileName}_{sceneName}.scn";
+                              $"{sceneCityName}{DIR_SEPARATOR}{sceneCityName}_{sceneName}.scn";
             #endif
             return scnFilePath;
         }
 
-        public static string GetSceneSceFileVirtualPath(string sceneFileName)
+        public static string GetSceneSceFileVirtualPath(string sceneCityName)
         {
             #if PAL3
-            var sceFilePath = $"{sceneFileName}{CpkConstants.FileExtension}{DIR_SEPARATOR}{sceneFileName}.sce";
+            var sceFilePath = $"{sceneCityName}{CpkConstants.FileExtension}{DIR_SEPARATOR}{sceneCityName}.sce";
             #elif PAL3A
-            var sceFilePath = $"{SCE_CPK_FILE_NAME}{DIR_SEPARATOR}Sce{DIR_SEPARATOR}{sceneFileName}.sce";
+            var sceFilePath = $"{SCE_CPK_FILE_NAME}{DIR_SEPARATOR}Sce{DIR_SEPARATOR}{sceneCityName}.sce";
             #endif
             return sceFilePath;
         }

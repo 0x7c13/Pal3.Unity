@@ -5,7 +5,7 @@
 
 namespace Pal3.Combat
 {
-    using Audio;
+    using System;
     using Command;
     using Command.SceCommands;
     using Core.DataReader.Ini;
@@ -16,9 +16,12 @@ namespace Pal3.Combat
     using Scene;
     using State;
     using UnityEngine;
+    using UnityEngine.InputSystem;
 
     public sealed class CombatManager
     {
+        public event EventHandler<bool> OnCombatFinished;
+
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
         private const string COMBAT_CAMERA_CONFIG_FILE_NAME = "cbCam.ini";
 
@@ -32,15 +35,17 @@ namespace Pal3.Combat
         private readonly CombatConfigFile _combatConfigFile;
         private readonly CombatCameraConfigFile _combatCameraConfigFile;
 
+        private Vector3 _cameraPositionBeforeCombat;
+        private Quaternion _cameraRotationBeforeCombat;
+        private float _cameraFovBeforeCombat;
+
         public CombatManager(GameResourceProvider resourceProvider,
             Camera mainCamera,
-            SceneManager sceneManager,
-            GameStateManager gameStateManager)
+            SceneManager sceneManager)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
-            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
 
             _combatConfigFile = _resourceProvider.GetGameResourceFile<CombatConfigFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CONFIG_FILE_NAME);
@@ -50,9 +55,12 @@ namespace Pal3.Combat
 
         public void EnterCombat(CombatContext combatContext)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
+            _mainCamera.transform.GetPositionAndRotation(out _cameraPositionBeforeCombat,
+                out _cameraRotationBeforeCombat);
+            _cameraFovBeforeCombat = _mainCamera.fieldOfView;
 
-            _gameStateManager.TryGoToState(GameState.Combat);
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
 
             _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
 
@@ -67,8 +75,10 @@ namespace Pal3.Combat
 
         private void SetCameraPosition(CombatCameraConfig config)
         {
-            _mainCamera.transform.position = GameBoxInterpreter.ToUnityPosition(
+            var cameraPosition = GameBoxInterpreter.ToUnityPosition(
                 new Vector3(config.GameBoxPositionX, config.GameBoxPositionY, config.GameBoxPositionZ));
+
+            _mainCamera.transform.position = cameraPosition;
 
             // _mainCamera.transform.rotation = GameBoxInterpreter.ToUnityRotation(
             //     config.Pitch, config.Yaw, config.Roll);
@@ -77,9 +87,25 @@ namespace Pal3.Combat
             _mainCamera.fieldOfView = COMBAT_CAMERA_DEFAULT_FOV;
         }
 
+        private void ResetCameraPosition()
+        {
+            _mainCamera.transform.SetPositionAndRotation(_cameraPositionBeforeCombat,
+                _cameraRotationBeforeCombat);
+            _mainCamera.fieldOfView = _cameraFovBeforeCombat;
+        }
+
         public void Update(float deltaTime)
         {
-
+            if (Keyboard.current.f1Key.wasPressedThisFrame)
+            {
+                ResetCameraPosition();
+                OnCombatFinished?.Invoke(this, true);
+            }
+            else if (Keyboard.current.f2Key.wasPressedThisFrame)
+            {
+                ResetCameraPosition();
+                OnCombatFinished?.Invoke(this, false);
+            }
         }
     }
 }

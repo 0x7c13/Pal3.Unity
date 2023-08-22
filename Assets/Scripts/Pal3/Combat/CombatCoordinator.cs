@@ -15,13 +15,16 @@ namespace Pal3.Combat
     using Command.SceCommands;
     using Core.DataReader.Gdb;
     using Core.DataReader.Nav;
+    using Core.DataReader.Scn;
     using Core.DataReader.Txt;
     using Core.Utils;
     using Data;
     using GamePlay;
     using MetaData;
     using Scene;
+    using Script.Waiter;
     using Settings;
+    using State;
     using UnityEngine;
     using Random = System.Random;
 
@@ -33,6 +36,7 @@ namespace Pal3.Combat
         ICommandExecutor<CombatEnterBossFightCommand>,
         #if PAL3A
         ICommandExecutor<CombatEnterBossFightUsingMusicCommand>,
+        ICommandExecutor<CombatEnterBossFightUsingMusicWithSpecialActorCommand>,
         #endif
         ICommandExecutor<CombatSetUnbeatableCommand>,
         ICommandExecutor<CombatSetMaxRoundCommand>,
@@ -46,6 +50,7 @@ namespace Pal3.Combat
         private readonly PlayerActorManager _playerActorManager;
         private readonly AudioManager _audioManager;
         private readonly SceneManager _sceneManager;
+        private readonly GameStateManager _gameStateManager;
 
         private readonly CombatScnFile _combatScnFile;
         private readonly CombatContext _currentCombatContext = new();
@@ -55,7 +60,8 @@ namespace Pal3.Combat
             CombatManager combatManager,
             PlayerActorManager playerActorManager,
             AudioManager audioManager,
-            SceneManager sceneManager)
+            SceneManager sceneManager,
+            GameStateManager gameStateManager)
         {
             Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
@@ -63,15 +69,18 @@ namespace Pal3.Combat
             _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _audioManager = Requires.IsNotNull(audioManager, nameof(audioManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
 
             _combatScnFile = resourceProvider.GetGameResourceFile<CombatScnFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_SCN_FILE_NAME);
 
+            _combatManager.OnCombatFinished += OnOnCombatFinished;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         public void Dispose()
         {
+            _combatManager.OnCombatFinished -= OnOnCombatFinished;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -105,12 +114,39 @@ namespace Pal3.Combat
                 }
             }
 
+            // Check current state and add script waiter to pause script execution
+            // if we are in cutscene state.
+            if (_gameStateManager.GetCurrentState() == GameState.Cutscene)
+            {
+                var combatWaiter = new WaitUntilCanceled();
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ScriptRunnerAddWaiterRequest(combatWaiter));
+                _currentCombatContext.SetScriptWaiter(combatWaiter);
+            }
+
             // Start combat
             Debug.LogWarning($"[{nameof(CombatCoordinator)}] Starting combat with context: {_currentCombatContext}");
+            _gameStateManager.TryGoToState(GameState.Combat);
             _combatManager.EnterCombat(_currentCombatContext);
+        }
 
-            // Reset combat context
-            _currentCombatContext.ResetContext();
+        private void OnOnCombatFinished(object sender, bool isPlayerWin)
+        {
+            if (isPlayerWin)
+            {
+                // Stop combat music
+                CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
+
+                _sceneManager.UnloadCombatScene();
+                _currentCombatContext.ScriptWaiter?.CancelWait();
+
+                _gameStateManager.GoToPreviousState();
+                _currentCombatContext.ResetContext();
+            }
+            else
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(new GameSwitchToMainMenuCommand());
+            }
         }
 
         private string GetCombatSceneName(Scene currentScene)
@@ -217,6 +253,20 @@ namespace Pal3.Combat
                 command.Monster5Id,
                 command.Monster6Id);
             _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
+            StartCombat();
+        }
+
+        public void Execute(CombatEnterBossFightUsingMusicWithSpecialActorCommand command)
+        {
+            _currentCombatContext.SetMonsterIds(
+                command.Monster1Id,
+                command.Monster2Id,
+                command.Monster3Id,
+                command.Monster4Id,
+                command.Monster5Id,
+                command.Monster6Id);
+            _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
+            // TODO: NanGoongHuang enter fight using wolf state
             StartCombat();
         }
         #endif

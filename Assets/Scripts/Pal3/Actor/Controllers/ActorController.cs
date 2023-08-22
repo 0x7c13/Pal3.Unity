@@ -178,12 +178,14 @@ namespace Pal3.Actor.Controllers
                     .GetPlayerActor() == actorController.GetActor().Info.Id)
             {
                 // Player actor collides with combat NPC in maze
-
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorActivateCommand(_actor.Info.Id, 0));
 
                 if (ServiceLocator.Instance.Get<GameSettings>().IsTurnBasedCombatEnabled)
                 {
+                    CommandDispatcher<ICommand>.Instance.Dispatch(
+                        new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+
                     CommandDispatcher<ICommand>.Instance.Dispatch(
                         new CombatEnterNormalFightCommand(
                             _actor.Info.NumberOfMonsters,

@@ -7,16 +7,16 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(63, "切换场景，" +
-                    "参数：场景关（文件）名称，场景区块名称")]
+                    "参数：场景城市/关卡（文件）名称，场景名称")]
     public class SceneLoadCommand : ICommand
     {
-        public SceneLoadCommand(string sceneFileName, string sceneName)
+        public SceneLoadCommand(string sceneCityName, string sceneName)
         {
-            SceneFileName = sceneFileName;
+            SceneCityName = sceneCityName;
             SceneName = sceneName;
         }
 
-        public string SceneFileName { get; }
+        public string SceneCityName { get; }
         public string SceneName { get; }
     }
 }

@@ -13,7 +13,7 @@ namespace Core.DataReader.Txt
 
     public sealed class CombatScnFileReader : IFileReader<CombatScnFile>
     {
-        private const int COMBAT_SCN_FILE_CODEPAGE = 936;
+        private const int DEFAULT_CODEPAGE = 936;
 
         public CombatScnFile Read(IBinaryReader reader, int _)
         {
@@ -22,7 +22,7 @@ namespace Core.DataReader.Txt
 
         public CombatScnFile Read(byte[] data, int _)
         {
-            var content = Encoding.GetEncoding(COMBAT_SCN_FILE_CODEPAGE).GetString(data, 0, data.Length);
+            var content = Encoding.GetEncoding(DEFAULT_CODEPAGE).GetString(data, 0, data.Length);
             var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             string currentCombatSceneName = string.Empty;

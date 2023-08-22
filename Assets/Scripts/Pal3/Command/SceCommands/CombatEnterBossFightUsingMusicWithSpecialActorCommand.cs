@@ -7,18 +7,18 @@ namespace Pal3.Command.SceCommands
 {
     #if PAL3A
     [AvailableInConsole]
-    [SceCommand(192, "南宫煌以变身状态下进入Boss战斗？")]
-    public class UnknownCommand192 : ICommand
+    [SceCommand(192, "南宫煌以变身状态下进入Boss战斗")]
+    public class CombatEnterBossFightUsingMusicWithSpecialActorCommand : ICommand
     {
-        public UnknownCommand192(
+        public CombatEnterBossFightUsingMusicWithSpecialActorCommand(
             uint monster1Id,
             uint monster2Id,
             uint monster3Id,
             uint monster4Id,
             uint monster5Id,
             uint monster6Id,
-            string combatMusic,
-            int unknown)
+            string combatMusicName,
+            int combatCommandId)
         {
             Monster1Id = monster1Id;
             Monster2Id = monster2Id;
@@ -26,8 +26,8 @@ namespace Pal3.Command.SceCommands
             Monster4Id = monster4Id;
             Monster5Id = monster5Id;
             Monster6Id = monster6Id;
-            CombatMusic = combatMusic;
-            Unknown = unknown;
+            CombatMusicName = combatMusicName;
+            CombatCommandId = combatCommandId;
         }
 
         public uint Monster1Id { get; }
@@ -36,8 +36,8 @@ namespace Pal3.Command.SceCommands
         public uint Monster4Id { get; }
         public uint Monster5Id { get; }
         public uint Monster6Id { get; }
-        public string CombatMusic { get; }
-        public int Unknown { get; }
+        public string CombatMusicName { get; }
+        public int CombatCommandId { get; }
     }
     #endif
 }

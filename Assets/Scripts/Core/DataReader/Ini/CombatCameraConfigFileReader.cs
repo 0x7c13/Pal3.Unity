@@ -15,17 +15,18 @@ namespace Core.DataReader.Ini
     public sealed class CombatCameraConfigFileReader : IFileReader<CombatCameraConfigFile>
     {
         private const string DEFAULT_CAM_SECTION_HEADER_PREFIX = "DefaultCam";
+        private const int DEFAULT_CODEPAGE = 936;
 
-        public CombatCameraConfigFile Read(IBinaryReader reader, int codepage)
+        public CombatCameraConfigFile Read(IBinaryReader reader, int _)
         {
             throw new NotImplementedException();
         }
 
-        public CombatCameraConfigFile Read(byte[] data, int codepage)
+        public CombatCameraConfigFile Read(byte[] data, int _)
         {
             var parser = new FileIniDataParser();
             using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
+            using var reader = new StreamReader(stream, Encoding.GetEncoding(DEFAULT_CODEPAGE));
 
             IniData iniData = parser.ReadData(reader);
 

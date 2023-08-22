@@ -8,6 +8,7 @@ namespace Pal3.Scene
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
@@ -36,6 +37,7 @@ namespace Pal3.Scene
         private readonly Camera _mainCamera;
 
         private GameObject _currentSceneRoot;
+        private GameObject _currentCombatSceneRoot;
 
         private Scene _currentScene;
         private CombatScene _currentCombatScene;
@@ -72,19 +74,19 @@ namespace Pal3.Scene
             return _currentSceneRoot;
         }
 
-        public void LoadScene(string sceneFileName, string sceneName)
+        public void LoadScene(string sceneCityName, string sceneName)
         {
             var timer = new Stopwatch();
             timer.Start();
             DisposeCurrentScene();
 
             ScnFile scnFile = _resourceProvider.GetGameResourceFile<ScnFile>(
-                    FileConstants.GetScnFileVirtualPath(sceneFileName, sceneName));
+                    FileConstants.GetScnFileVirtualPath(sceneCityName, sceneName));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
             Debug.Log($"[{nameof(SceneManager)}] Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
 
-            _currentSceneRoot = new GameObject($"Scene_{sceneFileName}_{sceneName}");
+            _currentSceneRoot = new GameObject($"Scene_{sceneCityName}_{sceneName}");
             _currentSceneRoot.transform.SetParent(null);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
             _currentScene.Init(_resourceProvider,
@@ -98,10 +100,11 @@ namespace Pal3.Scene
             _sceneObjectIdsToNotLoadFromSaveState.Clear();
 
             // Add scene script if exists.
-            SceFile sceFile = _resourceProvider.GetGameResourceFile<SceFile>(FileConstants.GetSceneSceFileVirtualPath(sceneFileName));
+            SceFile sceFile = _resourceProvider.GetGameResourceFile<SceFile>(
+                FileConstants.GetSceneSceFileVirtualPath(sceneCityName));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                _scriptManager.TryAddSceneScript(sceFile, $"_{sceneFileName}_{sceneName}", out var sceneScriptId)
+                _scriptManager.TryAddSceneScript(sceFile, $"_{sceneCityName}_{sceneName}", out var sceneScriptId)
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
                     : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
 
@@ -116,20 +119,80 @@ namespace Pal3.Scene
         {
             var timer = new Stopwatch();
             timer.Start();
-            DisposeCurrentScene();
 
-            _currentSceneRoot = new GameObject($"CombatScene_{combatSceneName}");
-            _currentSceneRoot.transform.SetParent(null);
-            _currentCombatScene = _currentSceneRoot.AddComponent<CombatScene>();
-            _currentCombatScene.Init(_resourceProvider,
-                _gameSettings.IsRealtimeLightingAndShadowsEnabled);
-            _currentCombatScene.Load(_currentSceneRoot, combatSceneName);
+            HideCurrentScene();
+
+            _currentCombatSceneRoot = new GameObject($"CombatScene_{combatSceneName}");
+            _currentCombatSceneRoot.transform.SetParent(null);
+            _currentCombatSceneRoot.transform.localPosition = new Vector3(0f, 0f, 0f);
+
+            _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
+            _currentCombatScene.Init(_resourceProvider);
+            _currentCombatScene.Load(_currentCombatSceneRoot, combatSceneName);
 
             timer.Stop();
             Debug.Log($"[{nameof(SceneManager)}] CombatScene loaded in {timer.Elapsed.TotalSeconds} seconds.");
 
             // Also a good time to collect garbage
             System.GC.Collect();
+        }
+
+        public void UnloadCombatScene()
+        {
+            if (_currentCombatScene != null)
+            {
+                _currentCombatScene.Destroy();
+                _currentCombatScene = null;
+            }
+
+            if (_currentCombatSceneRoot != null)
+            {
+                _currentCombatSceneRoot.Destroy();
+                _currentCombatSceneRoot = null;
+            }
+
+            ShowCurrentScene();
+        }
+
+        private void HideCurrentScene()
+        {
+            foreach (ActorMovementController movementController in
+                     _currentSceneRoot.GetComponentsInChildren<ActorMovementController>())
+            {
+                movementController.PauseMovement();
+            }
+
+            foreach (MeshRenderer meshRenderer in
+                     _currentSceneRoot.GetComponentsInChildren<MeshRenderer>())
+            {
+                meshRenderer.enabled = false;
+            }
+
+            foreach (SpriteRenderer spriteRenderer in
+                     _currentSceneRoot.GetComponentsInChildren<SpriteRenderer>())
+            {
+                spriteRenderer.enabled = false;
+            }
+        }
+
+        private void ShowCurrentScene()
+        {
+            foreach (SpriteRenderer spriteRenderer in
+                     _currentSceneRoot.GetComponentsInChildren<SpriteRenderer>())
+            {
+                spriteRenderer.enabled = true;
+            }
+
+            foreach (MeshRenderer meshRenderer in _currentSceneRoot.GetComponentsInChildren<MeshRenderer>())
+            {
+                meshRenderer.enabled = true;
+            }
+
+            foreach (ActorMovementController movementController in
+                     _currentSceneRoot.GetComponentsInChildren<ActorMovementController>())
+            {
+                movementController.ResumeMovement();
+            }
         }
 
         private void DisposeCurrentScene()
@@ -156,7 +219,7 @@ namespace Pal3.Scene
 
         public void Execute(SceneLoadCommand command)
         {
-            LoadScene(command.SceneFileName, command.SceneName);
+            LoadScene(command.SceneCityName, command.SceneName);
         }
 
         public void Execute(ResetGameStateCommand command)

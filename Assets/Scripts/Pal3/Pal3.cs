@@ -324,11 +324,12 @@ namespace Pal3
             ServiceLocator.Instance.Register(_dialogueManager);
 
             _combatManager = new CombatManager(_gameResourceProvider,
-                mainCamera, _sceneManager, _gameStateManager);
+                mainCamera, _sceneManager);
             ServiceLocator.Instance.Register(_combatManager);
 
             _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
-                _gameSettings, _combatManager, _playerActorManager, _audioManager, _sceneManager);
+                _gameSettings, _combatManager, _playerActorManager,
+                _audioManager, _sceneManager, _gameStateManager);
             ServiceLocator.Instance.Register(_combatCoordinator);
 
             _saveManager = new SaveManager(_sceneManager, _playerActorManager,
@@ -467,7 +468,6 @@ namespace Pal3
                 currentState != GameState.Combat)
             {
                 _scriptManager.Update(deltaTime);
-                _playerGamePlayManager.Update(deltaTime);
                 _dialogueManager.Update(deltaTime);
             }
 
@@ -476,6 +476,7 @@ namespace Pal3
                 _combatManager.Update(deltaTime);
             }
 
+            _playerGamePlayManager.Update(deltaTime);
             _informationManager.Update(deltaTime);
             _renderingSettingsManager.Update(deltaTime);
         }

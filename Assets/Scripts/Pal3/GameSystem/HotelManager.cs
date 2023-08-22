@@ -33,9 +33,9 @@ namespace Pal3.GameSystem
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        private void Rest(string sceneFileName, string sceneName, uint afterRestTalkScript)
+        private void Rest(string sceneCityName, string sceneName, uint afterRestTalkScript)
         {
-            _sceneManager.LoadScene(sceneFileName, sceneName);
+            _sceneManager.LoadScene(sceneCityName, sceneName);
             CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
             _scriptManager.AddScript(afterRestTalkScript);

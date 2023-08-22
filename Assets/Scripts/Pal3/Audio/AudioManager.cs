@@ -432,8 +432,11 @@ namespace Pal3.Audio
             _currentScriptMusic = string.Empty;
             _currentMusicClipName = string.Empty;
 
-            ScnSceneInfo sceneInfo = _sceneManager.GetCurrentScene().GetSceneInfo();
-            Pal3.Instance.StartCoroutine(PlaySceneMusicAsync(sceneInfo.CityName, sceneInfo.SceneName));
+            if (_sceneManager.GetCurrentScene() is {} scene)
+            {
+                ScnSceneInfo sceneInfo = scene.GetSceneInfo();
+                Pal3.Instance.StartCoroutine(PlaySceneMusicAsync(sceneInfo.CityName, sceneInfo.SceneName));
+            }
         }
 
         public void Execute(ScenePreLoadingNotification command)

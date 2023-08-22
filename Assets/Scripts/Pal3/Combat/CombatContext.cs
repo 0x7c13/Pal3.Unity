@@ -6,12 +6,14 @@
 namespace Pal3.Combat
 {
     using Core.DataReader.Gdb;
+    using Script.Waiter;
 
     /// <summary>
     /// Data contract for combat context.
     /// </summary>
     public sealed class CombatContext
     {
+        public WaitUntilCanceled ScriptWaiter { get; private set; }
         public string CombatSceneName { get; private set; }
         public ElementType CombatSceneElementType { get; private set; }
         public string CombatMusicName { get; private set; }
@@ -23,6 +25,11 @@ namespace Pal3.Combat
         public CombatContext()
         {
             ResetContext();
+        }
+
+        public void SetScriptWaiter(WaitUntilCanceled scriptWaiter)
+        {
+            ScriptWaiter = scriptWaiter;
         }
 
         public void SetCombatSceneName(string combatSceneName)
@@ -76,6 +83,7 @@ namespace Pal3.Combat
 
         public void ResetContext()
         {
+            ScriptWaiter = null;
             CombatSceneName = string.Empty;
             CombatSceneElementType = ElementType.None;
             CombatMusicName = string.Empty;
@@ -87,7 +95,8 @@ namespace Pal3.Combat
 
         public override string ToString()
         {
-            return $"CombatContext: CombatScene: {CombatSceneName} " +
+            return $"CombatContext: " +
+                   $"CombatScene: {CombatSceneName} " +
                    $"ElementType: {CombatSceneElementType} " +
                    $"CombatMusic: {CombatMusicName} " +
                    $"MaxRound: {MaxRound} " +
