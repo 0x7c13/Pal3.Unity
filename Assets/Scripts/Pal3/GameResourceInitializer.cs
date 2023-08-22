@@ -16,6 +16,7 @@ namespace Pal3
     using Core.Animation;
     using Core.DataReader;
     using Core.DataReader.Cpk;
+    using Core.Extensions;
     using Core.FileSystem;
     using Core.Services;
     using Data;
@@ -267,14 +268,14 @@ namespace Pal3
         {
             foreach (Transform child in transform)
             {
-                Destroy(child.gameObject);
+                child.gameObject.Destroy();
             }
 
             // Since everything except for ServiceLocator will be destroyed,
             // we can just name the current game object as ServiceLocator
             gameObject.name = nameof(ServiceLocator);
 
-            Destroy(this);
+            this.Destroy();
         }
 
         private IEnumerator InitFileSystemAsync(string gameDataFolderPath,

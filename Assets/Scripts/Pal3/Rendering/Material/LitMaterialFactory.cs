@@ -8,11 +8,11 @@ namespace Pal3.Rendering.Material
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Core.Extensions;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
     using Debug = UnityEngine.Debug;
-    using Object = UnityEngine.Object;
 
     /// <summary>
     /// Lit material factory for generating materials
@@ -113,12 +113,12 @@ namespace Pal3.Rendering.Material
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                Object.Destroy(_opaqueMaterialPool.Pop());
+                _opaqueMaterialPool.Pop().Destroy();
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                Object.Destroy(_transparentMaterialPool.Pop());
+                _transparentMaterialPool.Pop().Destroy();
             }
 
             _isMaterialPoolAllocated = false;

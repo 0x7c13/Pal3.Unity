@@ -7,7 +7,7 @@ namespace Core.Extensions
 {
     using UnityEngine;
 
-    public static class GameObjectExtension
+    public static class GameObjectExtensions
     {
         /// <summary>
         /// Helper method to get or add a component to the GameObject.

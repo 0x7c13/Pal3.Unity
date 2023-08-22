@@ -15,6 +15,7 @@ namespace Pal3.GameSystem
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using Input;
@@ -413,7 +414,7 @@ namespace Pal3.GameSystem
             foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
-                UnityEngine.Object.Destroy(button);
+                button.Destroy();
             }
             _selectionButtons.Clear();
         }

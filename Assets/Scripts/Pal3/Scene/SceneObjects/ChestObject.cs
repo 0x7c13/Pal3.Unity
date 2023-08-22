@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using UnityEngine;
 
@@ -85,7 +86,8 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
+                _meshCollider = null;
             }
 
             base.Deactivate();

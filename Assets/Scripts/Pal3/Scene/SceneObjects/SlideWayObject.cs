@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
     using Actor.Controllers;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Navigation;
     using Data;
@@ -88,7 +89,8 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
+                _triggerController = null;
             }
 
             base.Deactivate();

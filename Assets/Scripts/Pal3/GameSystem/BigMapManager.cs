@@ -12,6 +12,7 @@ namespace Pal3.GameSystem
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Input;
     using Script;
@@ -252,7 +253,7 @@ namespace Pal3.GameSystem
             foreach (GameObject button in _selectionButtons)
             {
                 button.GetComponent<Button>().onClick.RemoveAllListeners();
-                UnityEngine.Object.Destroy(button);
+                button.Destroy();
             }
             _selectionButtons.Clear();
             _gameStateManager.RemoveGamePlayStateLocker(_stateLockerGuid);

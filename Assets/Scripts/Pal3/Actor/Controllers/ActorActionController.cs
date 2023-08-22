@@ -10,6 +10,7 @@ namespace Pal3.Actor.Controllers
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Extensions;
     using Core.Renderer;
     using Core.Services;
     using Data;
@@ -139,19 +140,19 @@ namespace Pal3.Actor.Controllers
 
             if (_shadow != null)
             {
-                Destroy(_shadow);
+                _shadow.Destroy();
                 _shadow = null;
             }
 
             if (_rigidbody != null)
             {
-                Destroy(_rigidbody);
+                _rigidbody.Destroy();
                 _rigidbody = null;
             }
 
             if (_collider != null)
             {
-                Destroy(_collider);
+                _collider.Destroy();
                 _collider = null;
             }
         }
@@ -277,8 +278,8 @@ namespace Pal3.Actor.Controllers
 
             yield return billboardRenderer.PlayAnimationAsync(ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
 
-            Destroy(billboardRenderer);
-            Destroy(emojiGameObject);
+            billboardRenderer.Destroy();
+            emojiGameObject.Destroy();
             waiter.CancelWait();
         }
 
@@ -288,7 +289,8 @@ namespace Pal3.Actor.Controllers
             {
                 if (!_actor.IsActive && !_actor.IsMainActor())
                 {
-                    Debug.LogError($"[{nameof(ActorActionController)}] Failed to perform action since actor {command.ActorId} is inactive.");
+                    Debug.LogError($"[{nameof(ActorActionController)}] Failed to perform action " +
+                                   $"since actor {command.ActorId} is inactive.");
                     return;
                 }
 

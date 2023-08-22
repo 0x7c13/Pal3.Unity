@@ -11,6 +11,7 @@ namespace Pal3.GamePlay
     using System.Linq;
     using Core.Animation;
     using Core.DataReader.Nav;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Renderer;
     using MetaData;
@@ -91,13 +92,13 @@ namespace Pal3.GamePlay
             if (_jumpIndicatorRenderer != null)
             {
                 _jumpIndicatorRenderer.StopAnimation();
-                UnityEngine.Object.Destroy(_jumpIndicatorRenderer);
+                _jumpIndicatorRenderer.Destroy();
                 _jumpIndicatorRenderer = null;
             }
 
             if (_jumpIndicatorGameObject != null)
             {
-                UnityEngine.Object.Destroy(_jumpIndicatorGameObject);
+                _jumpIndicatorGameObject.Destroy();
                 _jumpIndicatorGameObject = null;
             }
         }

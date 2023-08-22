@@ -6,9 +6,9 @@
 namespace Pal3.Effect
 {
     using System;
+    using Core.Extensions;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     public class PortalEffect : MonoBehaviour, IEffect
     {
@@ -32,7 +32,7 @@ namespace Pal3.Effect
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
 
-            Object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
+            UnityEngine.Object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
             if (rayEffectPrefab != null)
             {
                 _rayEffect = (GameObject)Instantiate(rayEffectPrefab, transform, false);
@@ -50,11 +50,14 @@ namespace Pal3.Effect
             if (_baseEffect != null)
             {
                 _baseEffect.Dispose();
+                _baseEffect.Destroy();
+                _baseEffect = null;
             }
 
             if (_rayEffect != null)
             {
-                Destroy(_rayEffect);
+                _rayEffect.Destroy();
+                _rayEffect = null;
             }
         }
     }

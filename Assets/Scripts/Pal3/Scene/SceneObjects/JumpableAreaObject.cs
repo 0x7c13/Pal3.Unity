@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using GamePlay;
@@ -55,7 +56,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 _triggerController.OnPlayerActorExited -= OnPlayerActorExited;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
                 _triggerController = null;
             }
 

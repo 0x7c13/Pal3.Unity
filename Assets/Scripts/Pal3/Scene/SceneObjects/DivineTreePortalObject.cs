@@ -13,10 +13,10 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using MetaData;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
     public sealed class DivineTreePortalObject : SceneObject
@@ -148,7 +148,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
                 _platformController.OnPlayerActorExited -= OnPlayerActorExited;
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

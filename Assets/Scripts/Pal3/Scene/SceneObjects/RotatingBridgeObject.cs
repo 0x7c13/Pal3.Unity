@@ -14,9 +14,9 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
     public sealed class RotatingBridgeObject : SceneObject
@@ -90,7 +90,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

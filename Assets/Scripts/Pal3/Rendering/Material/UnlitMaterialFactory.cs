@@ -7,6 +7,7 @@ namespace Pal3.Rendering.Material
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Core.Extensions;
     using Core.GameBox;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -120,22 +121,22 @@ namespace Pal3.Rendering.Material
 
             while (_waterMaterialPool.Count > 0)
             {
-                Object.Destroy(_waterMaterialPool.Pop());
+                _waterMaterialPool.Pop().Destroy();
             }
 
             while (_transparentMaterialPool.Count > 0)
             {
-                Object.Destroy(_transparentMaterialPool.Pop());
+                _transparentMaterialPool.Pop().Destroy();
             }
 
             while (_transparentOpaquePartMaterialPool.Count > 0)
             {
-                Object.Destroy(_transparentOpaquePartMaterialPool.Pop());
+                _transparentOpaquePartMaterialPool.Pop().Destroy();
             }
 
             while (_opaqueMaterialPool.Count > 0)
             {
-                Object.Destroy(_opaqueMaterialPool.Pop());
+                _opaqueMaterialPool.Pop().Destroy();
             }
 
             _isMaterialPoolAllocated = false;

@@ -14,12 +14,12 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Data;
     using MetaData;
     using Rendering.Renderer;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
@@ -158,7 +158,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 

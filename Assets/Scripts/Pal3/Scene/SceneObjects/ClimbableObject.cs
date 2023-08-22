@@ -12,6 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Services;
     using Core.Utils;
@@ -184,23 +185,27 @@ namespace Pal3.Scene.SceneObjects
             if (_upperInteractionIndicatorRenderer != null)
             {
                 _upperInteractionIndicatorRenderer.Dispose();
-                Object.Destroy(_upperInteractionIndicatorRenderer);
+                _upperInteractionIndicatorRenderer.Destroy();
+                _upperInteractionIndicatorRenderer = null;
             }
 
             if (_lowerInteractionIndicatorRenderer != null)
             {
                 _lowerInteractionIndicatorRenderer.Dispose();
-                Object.Destroy(_lowerInteractionIndicatorRenderer);
+                _lowerInteractionIndicatorRenderer.Destroy();
+                _lowerInteractionIndicatorRenderer = null;
             }
 
             if (_upperInteractionIndicatorGameObject != null)
             {
-                Object.Destroy(_upperInteractionIndicatorGameObject);
+                _upperInteractionIndicatorGameObject.Destroy();
+                _upperInteractionIndicatorGameObject = null;
             }
 
             if (_lowerInteractionIndicatorGameObject != null)
             {
-                Object.Destroy(_lowerInteractionIndicatorGameObject);
+                _lowerInteractionIndicatorGameObject.Destroy();
+                _lowerInteractionIndicatorGameObject = null;
             }
 
             base.Deactivate();

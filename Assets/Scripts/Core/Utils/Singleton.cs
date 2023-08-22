@@ -5,6 +5,7 @@
 
 namespace Core.Utils
 {
+    using Extensions;
     using UnityEngine;
 
     /// <summary>
@@ -40,7 +41,7 @@ namespace Core.Utils
         {
             if (_instance != null)
             {
-                Destroy(gameObject);
+                gameObject.Destroy();
                 return;
             }
 

@@ -271,7 +271,7 @@ namespace Pal3.Audio
                     audioSource.Stop();
                 }
 
-                UnityEngine.Object.Destroy(audioSourceParentTransform.gameObject);
+                audioSourceParentTransform.gameObject.Destroy();
             }
 
             _playingSfxSourceNames.Clear();
@@ -387,7 +387,7 @@ namespace Pal3.Audio
 
             if (command.DisposeSource)
             {
-                UnityEngine.Object.Destroy(audioSourceParent);
+                audioSourceParent.Destroy();
             }
         }
 

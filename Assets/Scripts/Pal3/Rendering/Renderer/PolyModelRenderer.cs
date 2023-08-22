@@ -10,6 +10,7 @@ namespace Pal3.Rendering.Renderer
     using System.Collections.Generic;
     using Core.DataLoader;
     using Core.DataReader.Pol;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Renderer;
     using Dev;
@@ -279,7 +280,7 @@ namespace Pal3.Rendering.Renderer
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
                 _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
-                Destroy(meshRenderer.gameObject);
+                meshRenderer.gameObject.Destroy();
             }
         }
     }

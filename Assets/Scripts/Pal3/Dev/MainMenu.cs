@@ -14,6 +14,7 @@ namespace Pal3.Dev
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Extensions;
     using Core.Utils;
     using GameSystem;
     using IngameDebugConsole;
@@ -795,7 +796,7 @@ namespace Pal3.Dev
             foreach (GameObject item in _menuItems)
             {
                 item.GetComponent<Button>()?.onClick.RemoveAllListeners();
-                UnityEngine.Object.Destroy(item);
+                item.Destroy();
             }
             _menuItems.Clear();
         }

@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using Rendering.Renderer;
@@ -84,19 +85,19 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 
             if (_subObjectMeshCollider != null)
             {
-                Object.Destroy(_subObjectMeshCollider);
+                _subObjectMeshCollider.Destroy();
                 _subObjectMeshCollider = null;
             }
 
             if (_subObjectGameObject != null)
             {
-                Object.Destroy(_subObjectGameObject);
+                _subObjectGameObject.Destroy();
                 _subObjectGameObject = null;
             }
 

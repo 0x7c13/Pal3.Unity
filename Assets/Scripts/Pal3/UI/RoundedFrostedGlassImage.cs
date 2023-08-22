@@ -5,6 +5,7 @@
 
 namespace Pal3.UI
 {
+    using Core.Extensions;
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -61,7 +62,7 @@ namespace Pal3.UI
 
         private void OnDestroy()
         {
-            Destroy(_material);
+            _material.Destroy();
             _material = null;
             image = null;
         }

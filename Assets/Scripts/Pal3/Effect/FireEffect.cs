@@ -9,6 +9,7 @@ namespace Pal3.Effect
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
+    using Core.Extensions;
     using Core.Renderer;
     using Core.Utils;
     using Data;
@@ -89,22 +90,27 @@ namespace Pal3.Effect
         {
             if (_sceneObjectRenderer != null)
             {
-                Destroy(_sceneObjectRenderer);
+                _sceneObjectRenderer.Dispose();
+                _sceneObjectRenderer.Destroy();
+                _sceneObjectRenderer = null;
             }
 
             if (_billboardRenderer != null)
             {
-                Destroy(_billboardRenderer);
+                _billboardRenderer.Destroy();
+                _billboardRenderer = null;
             }
 
             if (EffectGameObject != null)
             {
-                Destroy(EffectGameObject);
+                EffectGameObject.Destroy();
+                EffectGameObject = null;
             }
 
             if (_spriteMaterial != null)
             {
-                Destroy(_spriteMaterial);
+                _spriteMaterial.Destroy();
+                _spriteMaterial = null;
             }
         }
     }

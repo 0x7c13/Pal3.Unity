@@ -7,6 +7,7 @@ namespace Core.Renderer
 {
     using System.Collections;
     using System.Threading;
+    using Extensions;
     using UnityEngine;
 
     public class AnimatedBillboardRenderer : MonoBehaviour
@@ -28,8 +29,13 @@ namespace Core.Renderer
         private void OnDisable()
         {
             _animationCts.Cancel();
-            Destroy(_billboardRenderer);
-            Destroy(_spriteRenderer);
+            _animationCts = null;
+
+            _spriteRenderer.Destroy();
+            _spriteRenderer = null;
+
+            _billboardRenderer.Destroy();
+            _billboardRenderer = null;
         }
 
         public void Init(Sprite[] sprites,

@@ -14,10 +14,10 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
     public sealed class MovableCarrierObject : SceneObject
@@ -247,7 +247,7 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

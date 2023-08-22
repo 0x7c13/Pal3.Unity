@@ -674,7 +674,7 @@ namespace ResourceViewer
                 if (audioSource.isPlaying)
                 {
                     audioSource.Stop();
-                    Destroy(audioSource.clip);
+                    audioSource.clip.Destroy();
                 }
                 audioSource.clip = audioClip;
                 audioSource.volume = 0.5f;
@@ -687,7 +687,7 @@ namespace ResourceViewer
         {
             foreach (Transform child in _renderingRoot.transform)
             {
-                Destroy(child.gameObject);
+                child.gameObject.Destroy();
             }
 
             // Unloads assets that are not used (textures etc.)

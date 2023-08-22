@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
@@ -118,7 +119,7 @@ namespace Pal3.Scene.SceneObjects
 
                 if (_meshCollider != null)
                 {
-                    Object.Destroy(_meshCollider);
+                    _meshCollider.Destroy();
                     _meshCollider = null;
                 }
 
@@ -152,13 +153,15 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
+                _triggerController = null;
             }
 
             #if PAL3A
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
+                _meshCollider = null;
             }
             #endif
 

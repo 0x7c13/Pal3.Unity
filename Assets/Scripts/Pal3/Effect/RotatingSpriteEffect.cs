@@ -8,6 +8,7 @@ namespace Pal3.Effect
     using System;
     using Data;
     using System.Collections;
+    using Core.Extensions;
     using UnityEngine;
 
     public class RotatingSpriteEffect : MonoBehaviour, IDisposable
@@ -74,17 +75,20 @@ namespace Pal3.Effect
 
             if (_material != null)
             {
-                Destroy(_material);
+                _material.Destroy();
+                _material = null;
             }
 
             if (_spriteRenderer != null)
             {
-                Destroy(_spriteRenderer);
+                _spriteRenderer.Destroy();
+                _spriteRenderer = null;
             }
 
             if (_root != null)
             {
-                Destroy(_root);
+                _root.Destroy();
+                _root = null;
             }
         }
     }

@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using UnityEngine;
@@ -91,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

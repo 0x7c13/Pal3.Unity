@@ -6,6 +6,7 @@
 namespace Core.Renderer
 {
     using System;
+    using Extensions;
     using UnityEngine;
 
     public sealed class StaticMeshRenderer : MonoBehaviour, IDisposable
@@ -90,15 +91,19 @@ namespace Core.Renderer
         {
             if (_meshFilter != null)
             {
-                Destroy(_meshFilter.sharedMesh);
-                Destroy(_meshFilter);
+                _meshFilter.sharedMesh.Destroy();
+                _meshFilter.Destroy();
+                _meshFilter = null;
             }
 
             if (_meshRenderer != null)
             {
-                Destroy(_meshRenderer);
+                _meshRenderer.Destroy();
+                _meshRenderer = null;
             }
 
+            // Do not destroy materials here, because their lifetime
+            // is managed by the IMaterialFactory.
             _materials = null;
         }
     }

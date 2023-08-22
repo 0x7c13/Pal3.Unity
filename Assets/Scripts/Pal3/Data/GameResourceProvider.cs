@@ -20,6 +20,7 @@ namespace Pal3.Data
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Mv3;
+    using Core.Extensions;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -27,7 +28,6 @@ namespace Pal3.Data
     using Rendering.Material;
     using Settings;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     /// <summary>
     /// Single resource provider for accessing game data.
@@ -54,7 +54,7 @@ namespace Pal3.Data
 
         private readonly Dictionary<string, Sprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
-        private readonly Dictionary<int, Object> _vfxEffectPrefabCache = new ();
+        private readonly Dictionary<int, UnityEngine.Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
@@ -97,13 +97,13 @@ namespace Pal3.Data
 
             foreach (Sprite sprite in _spriteCache.Values)
             {
-                Object.Destroy(sprite);
+                sprite.Destroy();
             }
             _spriteCache.Clear();
 
             foreach (AudioClip audioClip in _audioClipCache.Values)
             {
-                Object.Destroy(audioClip);
+                audioClip.Destroy();
             }
             _audioClipCache.Clear();
 
@@ -510,14 +510,14 @@ namespace Pal3.Data
             return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
         }
 
-        public Object GetVfxEffectPrefab(int effectGroupId)
+        public UnityEngine.Object GetVfxEffectPrefab(int effectGroupId)
         {
-            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out Object vfxEffectPrefab))
+            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out UnityEngine.Object vfxEffectPrefab))
             {
                 return vfxEffectPrefab;
             }
 
-            Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
+            UnityEngine.Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
 
             if (vfxPrefab == null)
             {
@@ -594,7 +594,7 @@ namespace Pal3.Data
             // Clean up sprite cache after exiting current scene block
             foreach (Sprite sprite in _spriteCache.Values)
             {
-                Object.Destroy(sprite);
+                sprite.Destroy();
             }
             _spriteCache.Clear();
 

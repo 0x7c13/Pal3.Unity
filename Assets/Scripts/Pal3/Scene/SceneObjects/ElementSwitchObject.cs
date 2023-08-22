@@ -13,12 +13,12 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Data;
     using MetaData;
     using Rendering.Renderer;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.ElementSwitch)]
     public sealed class ElementSwitchObject : SceneObject
@@ -98,7 +98,7 @@ namespace Pal3.Scene.SceneObjects
                 // Remove collider to allow player to pass through
                 if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
                 {
-                    Object.Destroy(_meshCollider);
+                    _meshCollider.Destroy();
                     _meshCollider = null;
                 }
             }
@@ -143,7 +143,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 

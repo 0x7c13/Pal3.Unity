@@ -19,12 +19,12 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using MetaData;
     using Rendering.Renderer;
     using UnityEngine;
-    using Object = UnityEngine.Object;
     using Random = UnityEngine.Random;
 
     [ScnSceneObject(ScnSceneObjectType.Impulsive)]
@@ -121,12 +121,14 @@ namespace Pal3.Scene.SceneObjects
             if (_subObjectController != null)
             {
                 _subObjectController.OnPlayerActorHit -= OnPlayerActorHit;
-                Object.Destroy(_subObjectController);
+                _subObjectController.Destroy();
+                _subObjectController = null;
             }
 
             if (_subObjectGameObject != null)
             {
-                Object.Destroy(_subObjectGameObject);
+                _subObjectGameObject.Destroy();
+                _subObjectGameObject = null;
             }
 
             base.Deactivate();
@@ -184,7 +186,8 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Destroy(_triggerController);
+                _triggerController.Destroy();
+                _triggerController = null;
             }
         }
 

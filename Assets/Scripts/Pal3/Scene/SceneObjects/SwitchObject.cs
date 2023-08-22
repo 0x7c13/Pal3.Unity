@@ -17,12 +17,12 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using MetaData;
     using Rendering.Renderer;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
@@ -126,9 +126,10 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.Times == 0 && _interactionIndicatorGameObject != null)
             {
                 _interactionIndicatorRenderer.Dispose();
-                Object.Destroy(_interactionIndicatorRenderer);
-                Object.Destroy(_interactionIndicatorGameObject);
+                _interactionIndicatorRenderer.Destroy();
                 _interactionIndicatorRenderer = null;
+
+                _interactionIndicatorGameObject.Destroy();
                 _interactionIndicatorGameObject = null;
             }
 
@@ -156,7 +157,7 @@ namespace Pal3.Scene.SceneObjects
                 // Remove collider to allow player to pass through
                 if (ObjectInfo.Parameters[0] == 1 && _meshCollider != null)
                 {
-                    Object.Destroy(_meshCollider);
+                    _meshCollider.Destroy();
                 }
             }
 
@@ -203,19 +204,20 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
+                _meshCollider = null;
             }
 
             if (_interactionIndicatorRenderer != null)
             {
                 _interactionIndicatorRenderer.Dispose();
-                Object.Destroy(_interactionIndicatorRenderer);
+                _interactionIndicatorRenderer.Destroy();
                 _interactionIndicatorRenderer = null;
             }
 
             if (_interactionIndicatorGameObject != null)
             {
-                Object.Destroy(_interactionIndicatorGameObject);
+                _interactionIndicatorGameObject.Destroy();
                 _interactionIndicatorGameObject = null;
             }
 

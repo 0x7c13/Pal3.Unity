@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using MetaData;
     using UnityEngine;
@@ -102,7 +103,7 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
                 _triggerController = null;
             }
 

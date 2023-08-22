@@ -12,11 +12,11 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using State;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.ElevatorPedal)]
     public sealed class ElevatorPedalObject : SceneObject
@@ -119,7 +119,7 @@ namespace Pal3.Scene.SceneObjects
             if (_platformController != null)
             {
                 _platformController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

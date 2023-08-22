@@ -11,11 +11,11 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.RoadElevatorOrBlocker)]
     public sealed class RoadElevatorOrBlockerObject : SceneObject
@@ -129,13 +129,13 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 

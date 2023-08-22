@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
     using Actor.Controllers;
+    using Core.Extensions;
     using Core.Services;
     using GamePlay;
     using UnityEngine;
@@ -79,7 +80,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             if (_collider != null)
             {
-                Destroy(_collider);
+                _collider.Destroy();
                 _collider = null;
             }
         }

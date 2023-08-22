@@ -15,10 +15,10 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using MetaData;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.SpecialSwitch)]
     public sealed class SpecialSwitchObject : SceneObject
@@ -112,7 +112,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 

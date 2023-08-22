@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Common;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using State;
@@ -107,7 +108,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (_standingPlatformController != null)
             {
-                Object.Destroy(_standingPlatformController);
+                _standingPlatformController.Destroy();
                 _standingPlatformController = null;
             }
 

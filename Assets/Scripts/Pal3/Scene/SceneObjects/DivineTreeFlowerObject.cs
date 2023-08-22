@@ -10,11 +10,11 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using State;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.DivineTreeFlower)]
     public sealed class DivineTreeFlowerObject : SceneObject
@@ -74,7 +74,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

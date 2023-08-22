@@ -8,9 +8,9 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using Common;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.General)]
     public sealed class GeneralSceneObject : SceneObject
@@ -92,7 +92,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 

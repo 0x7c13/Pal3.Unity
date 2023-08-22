@@ -13,6 +13,7 @@ namespace Pal3.Rendering.Renderer
     using Core.DataReader.Mov;
     using Core.DataLoader;
     using Core.DataReader.Mtl;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
@@ -464,8 +465,8 @@ namespace Pal3.Rendering.Renderer
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
                     _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
-                    Destroy(renderMeshComponent.Mesh);
-                    Destroy(renderMeshComponent.MeshRenderer);
+                    renderMeshComponent.Mesh.Destroy();
+                    renderMeshComponent.MeshRenderer.Destroy();
                 }
 
                 _renderMeshComponents = null;
@@ -475,7 +476,7 @@ namespace Pal3.Rendering.Renderer
             {
                 foreach (GameObject meshObject in _meshObjects)
                 {
-                    Destroy(meshObject);
+                    meshObject.Destroy();
                 }
 
                 _meshObjects = null;
@@ -485,7 +486,7 @@ namespace Pal3.Rendering.Renderer
             {
                 foreach (Bone bone in _bones.Values)
                 {
-                    Destroy(bone.GameObject);
+                    bone.GameObject.Destroy();
                 }
 
                 _bones.Clear();
@@ -493,7 +494,7 @@ namespace Pal3.Rendering.Renderer
 
             if (_rootBoneObject != null)
             {
-                Destroy(_rootBoneObject);
+                _rootBoneObject.Destroy();
                 _rootBoneObject = null;
             }
 

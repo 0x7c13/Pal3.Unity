@@ -11,6 +11,7 @@ namespace Pal3.GameSystem
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using Input;
@@ -83,8 +84,8 @@ namespace Pal3.GameSystem
             yield return new WaitUntil(() => _skipCaptionRequested);
 
             _captionImage.color = Color.clear;
-            UnityEngine.Object.Destroy(texture);
-            UnityEngine.Object.Destroy(sprite);
+            texture.Destroy();
+            sprite.Destroy();
 
             _skipCaptionWaiter.CancelWait();
             _skipCaptionWaiter = null;

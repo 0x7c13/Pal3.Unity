@@ -10,6 +10,7 @@ namespace Pal3.GameSystem
     using Command.InternalCommands;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Scene;
     using State;
@@ -165,7 +166,7 @@ namespace Pal3.GameSystem
             {
                 foreach (Sprite sprite in _miniMapSprites)
                 {
-                    UnityEngine.Object.Destroy(sprite);
+                    sprite.Destroy();
                 }
 
                 _miniMapSprites = null;
@@ -175,7 +176,7 @@ namespace Pal3.GameSystem
             {
                 foreach (Texture2D texture in _miniMapTextures)
                 {
-                    UnityEngine.Object.Destroy(texture);
+                    texture.Destroy();
                 }
 
                 _miniMapTextures = null;

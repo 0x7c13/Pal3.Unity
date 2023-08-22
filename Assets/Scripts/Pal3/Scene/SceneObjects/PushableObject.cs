@@ -17,12 +17,12 @@ namespace Pal3.Scene.SceneObjects
     using Core.Animation;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Services;
     using Data;
     using MetaData;
     using State;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     [ScnSceneObject(ScnSceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
@@ -390,13 +390,14 @@ namespace Pal3.Scene.SceneObjects
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
                 _triggerController = null;
             }
 
             if (_standingPlatformController != null)
             {
-                Object.Destroy(_standingPlatformController);
+                _standingPlatformController.Destroy();
+                _standingPlatformController = null;
             }
 
             base.Deactivate();

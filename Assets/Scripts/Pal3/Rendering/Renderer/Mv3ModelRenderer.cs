@@ -11,6 +11,7 @@ namespace Pal3.Rendering.Renderer
     using Core.DataLoader;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Renderer;
     using Core.Utils;
@@ -474,8 +475,8 @@ namespace Pal3.Rendering.Renderer
                         #endif
                         _materialFactory.ReturnToPool(materials);
                     }
-                    Destroy(renderMeshComponent.Mesh);
-                    Destroy(renderMeshComponent.MeshRenderer);
+                    renderMeshComponent.Mesh.Destroy();
+                    renderMeshComponent.MeshRenderer.Destroy();
                 }
 
                 _renderMeshComponents = null;
@@ -485,7 +486,7 @@ namespace Pal3.Rendering.Renderer
             {
                 foreach (GameObject meshObject in _meshObjects)
                 {
-                    Destroy(meshObject);
+                    meshObject.Destroy();
                 }
 
                 _meshObjects = null;
@@ -495,7 +496,7 @@ namespace Pal3.Rendering.Renderer
             {
                 foreach (GameObject tagNode in _tagNodes)
                 {
-                    Destroy(tagNode);
+                    tagNode.Destroy();
                 }
 
                 _tagNodes = null;

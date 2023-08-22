@@ -19,6 +19,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.DataReader.Cvd;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Utils;
     using Data;
@@ -30,7 +31,6 @@ namespace Pal3.Scene.SceneObjects
     using Script;
     using Script.Waiter;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     public struct InteractionContext
     {
@@ -281,7 +281,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (_sceneObjectGameObject != null)
             {
-                Object.Destroy(_sceneObjectGameObject);
+                _sceneObjectGameObject.Destroy();
                 _sceneObjectGameObject = null;
             }
         }

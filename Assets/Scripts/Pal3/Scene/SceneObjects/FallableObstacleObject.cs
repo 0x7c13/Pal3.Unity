@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Animation;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Services;
     using Data;
@@ -88,14 +89,14 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_meshCollider != null)
             {
-                Object.Destroy(_meshCollider);
+                _meshCollider.Destroy();
                 _meshCollider = null;
             }
 
             if (_triggerController != null)
             {
                 _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                Object.Destroy(_triggerController);
+                _triggerController.Destroy();
                 _triggerController = null;
             }
 

@@ -18,7 +18,6 @@ namespace Pal3.Effect
     using MetaData;
     using Scene;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     public sealed class EffectManager : IDisposable,
         ICommandExecutor<EffectPreLoadCommand>,
@@ -88,7 +87,7 @@ namespace Pal3.Effect
             #endif
 
             // Play VFX
-            Object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
+            UnityEngine.Object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
             if (vfxPrefab != null)
             {
                 Transform parent = null;
@@ -110,7 +109,7 @@ namespace Pal3.Effect
 
                 if (parent != null)
                 {
-                    var vfx = (GameObject)Object.Instantiate(vfxPrefab, parent, false);
+                    var vfx = (GameObject)UnityEngine.Object.Instantiate(vfxPrefab, parent, false);
                     vfx.name = "VFX_" + command.EffectGroupId;
                     vfx.transform.localPosition += localPosition;
                 }

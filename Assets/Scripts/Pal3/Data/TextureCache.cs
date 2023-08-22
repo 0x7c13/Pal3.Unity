@@ -6,6 +6,7 @@
 namespace Pal3.Data
 {
     using System.Collections.Generic;
+    using Core.Extensions;
     using UnityEngine;
 
     /// <summary>
@@ -52,7 +53,7 @@ namespace Pal3.Data
             Debug.Log($"[{nameof(TextureCache)}] Disposing all cached textures: {_textureCache.Count}");
             foreach ((Texture2D texture, _) in _textureCache.Values)
             {
-                UnityEngine.Object.Destroy(texture);
+                texture.Destroy();
             }
             _textureCache.Clear();
         }

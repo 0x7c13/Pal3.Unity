@@ -13,6 +13,7 @@ namespace Pal3.Scene
     using Command.SceCommands;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.Utils;
     using Data;
     using MetaData;
@@ -22,7 +23,6 @@ namespace Pal3.Scene
     using State;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
-    using Object = UnityEngine.Object;
 
     public sealed class SceneManager : IDisposable,
         ICommandExecutor<SceneLoadCommand>,
@@ -137,19 +137,19 @@ namespace Pal3.Scene
             if (_currentScene != null)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLeavingCurrentSceneNotification());
-                Object.Destroy(_currentScene);
+                _currentScene.Destroy();
                 _currentScene = null;
             }
 
             if (_currentCombatScene != null)
             {
-                Object.Destroy(_currentCombatScene);
+                _currentCombatScene.Destroy();
                 _currentCombatScene = null;
             }
 
             if (_currentSceneRoot != null)
             {
-                Object.Destroy(_currentSceneRoot);
+                _currentSceneRoot.Destroy();
                 _currentSceneRoot = null;
             }
         }

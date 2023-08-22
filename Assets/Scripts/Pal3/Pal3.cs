@@ -17,6 +17,7 @@ namespace Pal3
     using Command;
     using Command.SceCommands;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.FileSystem;
     using Core.Services;
     using Core.Utils;
@@ -418,10 +419,10 @@ namespace Pal3
                 if (!Application.isPlaying) return;
 
                 InputSystem.onEvent -= OnInputEvent; // Only listen to the first touch event.
-                Destroy(logoImage.sprite.texture);
-                Destroy(logoImage.sprite);
-                Destroy(logoImage);
-                Destroy(logoCanvas);
+                logoImage.sprite.texture.Destroy();
+                logoImage.sprite.Destroy();
+                logoImage.Destroy();
+                logoCanvas.Destroy();
                 StartCoroutine(ShowMainMenuAfterLogoAsync());
             }
         }

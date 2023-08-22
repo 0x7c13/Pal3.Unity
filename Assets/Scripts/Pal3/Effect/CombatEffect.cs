@@ -6,9 +6,9 @@
 namespace Pal3.Effect
 {
     using System;
+    using Core.Extensions;
     using Data;
     using UnityEngine;
-    using Object = UnityEngine.Object;
 
     public class CombatEffect : MonoBehaviour, IEffect
     {
@@ -71,7 +71,7 @@ namespace Pal3.Effect
             if (effectParameter == 344) // 重盘古元灵特效
             #endif
             {
-                Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
+                UnityEngine.Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
                 if (vfxPrefab != null)
                 {
                     _effect = (GameObject)Instantiate(vfxPrefab, transform, false);
@@ -90,16 +90,21 @@ namespace Pal3.Effect
             if (_bridgeBaseEffect != null)
             {
                 _bridgeBaseEffect.Dispose();
+                _bridgeBaseEffect.Destroy();
+                _bridgeBaseEffect = null;
             }
 
             if (_bridgeEffect != null)
             {
                 _bridgeEffect.Dispose();
+                _bridgeEffect.Destroy();
+                _bridgeEffect = null;
             }
 
             if (_effect != null)
             {
-                Destroy(_effect);
+                _effect.Destroy();
+                _effect = null;
             }
         }
     }

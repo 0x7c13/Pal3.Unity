@@ -7,7 +7,7 @@ namespace Core.Extensions
 {
     using System.Collections.Generic;
 
-    public static class DictionaryExtension
+    public static class DictionaryExtensions
     {
         public static Dictionary<TValue, TKey> Reverse<TKey, TValue>(this IDictionary<TKey, TValue> source)
         {

@@ -6,6 +6,7 @@
 namespace Core.Renderer
 {
     using System;
+    using Extensions;
     using UnityEngine;
 
     public class SkyBoxRenderer : MonoBehaviour
@@ -34,7 +35,12 @@ namespace Core.Renderer
 
         private void OnDisable()
         {
-            if (_skybox != null) Destroy(_skybox);
+            if (_skybox != null)
+            {
+                _skybox.material.Destroy();
+                _skybox.Destroy();
+                _skybox = null;
+            }
         }
 
         private static Material CreateSkyboxMaterial(Texture2D rightTex,

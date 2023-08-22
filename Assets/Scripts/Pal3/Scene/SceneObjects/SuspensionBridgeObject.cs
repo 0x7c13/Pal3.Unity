@@ -88,7 +88,7 @@ namespace Pal3.Scene.SceneObjects
         {
             if (_platformController != null)
             {
-                Object.Destroy(_platformController);
+                _platformController.Destroy();
                 _platformController = null;
             }
 

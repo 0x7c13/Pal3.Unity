@@ -16,6 +16,7 @@ namespace Pal3.Scene
     using Command.SceCommands;
     using Core.Animation;
     using Core.DataReader.Scn;
+    using Core.Extensions;
     using Core.GameBox;
     using Core.Navigation;
     using Core.Renderer;
@@ -97,17 +98,17 @@ namespace Pal3.Scene
 
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
 
-            Destroy(_mesh);
+            _mesh.Destroy();
 
             foreach (MeshCollider meshCollider in _meshColliders.Values)
             {
-                Destroy(meshCollider.sharedMesh);
-                Destroy(meshCollider);
+                meshCollider.sharedMesh.Destroy();
+                meshCollider.Destroy();
             }
 
             foreach (GameObject navMeshLayer in _navMeshLayers)
             {
-                Destroy(navMeshLayer);
+                navMeshLayer.Destroy();
             }
 
             foreach (int sceneObjectId in _activatedSceneObjects)
@@ -117,12 +118,12 @@ namespace Pal3.Scene
 
             foreach (var actor in _actorObjects)
             {
-                Destroy(actor.Value);
+                actor.Value.Destroy();
             }
 
             if (_skyBoxRenderer != null)
             {
-                Destroy(_skyBoxRenderer);
+                _skyBoxRenderer.Destroy();
             }
         }
 
