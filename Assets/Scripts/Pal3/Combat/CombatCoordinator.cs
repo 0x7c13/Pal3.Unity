@@ -85,11 +85,11 @@ namespace Pal3.Combat
             string combatSceneName = GetCombatSceneName(currentScene);
             _currentCombatContext.SetCombatSceneName(combatSceneName);
 
-            // Figure out WuLing property of the combat scene
-            if (_combatScnFile.CombatSceneWuLingInfo.TryGetValue(combatSceneName,
-                    out WuLingType combatSceneWuLingType))
+            // Figure out element property of the combat scene
+            if (_combatScnFile.CombatSceneElementTypeInfo.TryGetValue(combatSceneName,
+                    out ElementType combatSceneElementType))
             {
-                _currentCombatContext.SetCombatSceneWuLingType(combatSceneWuLingType);
+                _currentCombatContext.SetCombatSceneElementType(combatSceneElementType);
             }
 
             // Figure out which combat music to play

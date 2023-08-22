@@ -13,7 +13,7 @@ namespace Pal3.Combat
     public sealed class CombatContext
     {
         public string CombatSceneName { get; private set; }
-        public WuLingType? CombatSceneWuLingType { get; private set; }
+        public ElementType CombatSceneElementType { get; private set; }
         public string CombatMusicName { get; private set; }
         public int MaxRound { get; private set; }
         public bool IsUnbeatable { get; private set; }
@@ -30,9 +30,9 @@ namespace Pal3.Combat
             CombatSceneName = combatSceneName;
         }
 
-        public void SetCombatSceneWuLingType(WuLingType combatSceneWuLingType)
+        public void SetCombatSceneElementType(ElementType combatSceneElementType)
         {
-            CombatSceneWuLingType = combatSceneWuLingType;
+            CombatSceneElementType = combatSceneElementType;
         }
 
         public void SetCombatMusicName(string combatMusicName)
@@ -76,9 +76,9 @@ namespace Pal3.Combat
 
         public void ResetContext()
         {
-            CombatSceneName = null;
-            CombatSceneWuLingType = null;
-            CombatMusicName = null;
+            CombatSceneName = string.Empty;
+            CombatSceneElementType = ElementType.None;
+            CombatMusicName = string.Empty;
             MaxRound = -1; // -1 means no limit
             IsUnbeatable = false;
             IsNoGameOverWhenLose = false;
@@ -88,7 +88,7 @@ namespace Pal3.Combat
         public override string ToString()
         {
             return $"CombatContext: CombatScene: {CombatSceneName} " +
-                   $"WuLingType: {CombatSceneWuLingType} " +
+                   $"ElementType: {CombatSceneElementType} " +
                    $"CombatMusic: {CombatMusicName} " +
                    $"MaxRound: {MaxRound} " +
                    $"IsUnbeatable: {IsUnbeatable} " +

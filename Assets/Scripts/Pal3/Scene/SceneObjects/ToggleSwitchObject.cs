@@ -57,8 +57,8 @@ namespace Pal3.Scene.SceneObjects
                    ObjectInfo.Times > 0;
         }
 
-        // TODO: Implement WuLing interaction logic for this switch
-        // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
+        // TODO: Implement element interaction logic for this switch
+        // Can only toggle this switch if ObjectInfo.ElementType matches current player actor's element type.
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (ObjectInfo is { Times: INFINITE_TIMES_COUNT, CanOnlyBeTriggeredOnce: 1 })

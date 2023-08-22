@@ -7,13 +7,14 @@ namespace Core.DataReader.Gdb
 {
     using System.Collections.Generic;
 
-    public enum WuLingType
+    public enum ElementType
     {
-        Water   = 0,    // 水
-        Fire    = 1,    // 火
-        Wind    = 2,    // 风
-        Thunder = 3,    // 雷
-        Earth   = 4,    // 土
+        None    = 0,
+        Water   = 1,    // 水
+        Fire    = 2,    // 火
+        Wind    = 3,    // 风
+        Thunder = 4,    // 雷
+        Earth   = 5,    // 土
     }
 
     public enum ItemType
@@ -147,28 +148,28 @@ namespace Core.DataReader.Gdb
 
     public struct GameItemInfo
     {
-        public uint Id;                         // 物品ID
+        public uint Id;                          // 物品ID
 
-        public string Name;                     // 物品名称
-        public string ModelName;                // 物品模型名称
-        public string IconName;                 // 物品图标名称
-        public string Description;              // 物品描述
-        public int Price;                       // 物品价格
+        public string Name;                      // 物品名称
+        public string ModelName;                 // 物品模型名称
+        public string IconName;                  // 物品图标名称
+        public string Description;               // 物品描述
+        public int Price;                        // 物品价格
 
-        public ItemType Type;                   // 物品类型
-        public WeaponType WeaponType;           // 武器类型（只有物品为武器的时候有意义）
+        public ItemType Type;                    // 物品类型
+        public WeaponType WeaponType;            // 武器类型（只有物品为武器的时候有意义）
 
-        public byte[] MainActorCanUse;          // 主角可使用信息
-        public byte[] WuLing;                   // 五灵属性
+        public byte[] MainActorCanUse;           // 主角可使用信息
+        public byte[] ElementProperties;         // 五灵属性
 
-        public int AncientValue;                // 古董价值
+        public int AncientValue;                 // 古董价值
 
-        public SpecialType SpecialType;         // 特殊类型
-        public TargetRangeType TargetRangeType; // 目标范围类型
-        public PlaceOfUseType PlaceOfUseType;   // 使用地点类型
+        public SpecialType SpecialType;          // 特殊类型
+        public TargetRangeType TargetRangeType;  // 目标范围类型
+        public PlaceOfUseType PlaceOfUseType;    // 使用地点类型
 
-        public byte[] AttributeImpactType;      // 角色属性影响类型 (0绝对值，1百分比值，2恢复到上限，3增加上限值)
-        public short[] AttributeImpactValue;    // 角色属性影响值
+        public byte[] AttributeImpactType;       // 角色属性影响类型 (0绝对值，1百分比值，2恢复到上限，3增加上限值)
+        public short[] AttributeImpactValue;     // 角色属性影响值
 
         public byte[] CombatStateImpactType;     // 战斗状态影响类型（0不影响，1增加，2解除）
         public short[] CombatStateImpactValue;   // 战斗状态值
@@ -200,7 +201,7 @@ namespace Core.DataReader.Gdb
         public string ModelId;                  // 战斗角色模型ID
         public string IconId;                   // 战斗角色图标ID
 
-        public int[] WuLing;                    // 五灵属性
+        public int[] ElementProperties;         // 五灵属性
         public string Name;                     // 战斗角色名称
         public int Level;                       // 战斗角色等级
         public int[] AttributeValue;            // 角色属性值
@@ -239,7 +240,7 @@ namespace Core.DataReader.Gdb
     {
         public uint Id;                                     // 技能ID
         public SkillType Type;                              // 技能类型
-        public int[] WuLing;                                // 五灵属性
+        public int[] ElementProperties;                     // 五灵属性
         public string Name;                                 // 技能名称
         public string Description;                          // 技能描述
         public byte[] MainActorCanUse;                      // 主角是否可以使用
@@ -276,7 +277,7 @@ namespace Core.DataReader.Gdb
         public string Name;                             // 合击技名称
         public uint Id;                                 // 合击技ID
         public uint[] MainActorRequirements;            // 需要的人
-        public byte[] WuLingPositionRequirements;       // 需要每个人的五灵位置,于上面数组一一对应[0-任意 1-水...6-中 7-风火雷[任意] 8-水火土[任意]]
+        public byte[] ElementPositionRequirements;      // 需要每个人的五灵位置,于上面数组一一对应[0-任意 1-水...6-中 7-风火雷[任意] 8-水火土[任意]]
         public uint SkillId;                            // 发动技能ID
         public byte[] WeaponTypeRequirements;           // 对应每个参战者的武器类型
         public int[] CombatStateRequirements;           // 对应每个参战者的战斗状态要求

@@ -28,7 +28,7 @@ namespace Core.DataReader.Txt
             string currentCombatSceneName = string.Empty;
             Dictionary<NavFloorKind, string> currentCombatSceneMap = null;
 
-            Dictionary<string, WuLingType> combatSceneWuLingInfo = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, ElementType> combatSceneElementTypeInfo = new(StringComparer.OrdinalIgnoreCase);
             Dictionary<string, Dictionary<NavFloorKind, string>> combatSceneMapInfo = new(StringComparer.OrdinalIgnoreCase);
 
             for (var i = 0; i < lines.Length; i++)
@@ -46,7 +46,11 @@ namespace Core.DataReader.Txt
                 {
                     if (!line.StartsWith("BEGIN,fivemagic"))
                     {
-                        currentCombatSceneName = line.Substring(6).Trim();
+                        currentCombatSceneName = line[6..].Trim();
+                        if (currentCombatSceneName.Contains("\t"))
+                        {
+                            currentCombatSceneName = currentCombatSceneName[..currentCombatSceneName.IndexOf('\t')].Trim();
+                        }
                         currentCombatSceneMap = new Dictionary<NavFloorKind, string>();
                     }
                 }
@@ -68,15 +72,14 @@ namespace Core.DataReader.Txt
                 }
                 else
                 {
-                    // Parsing Scene WuLingType
+                    // Parsing Scene Element Type
                     string[] parts = line.Split('$');
                     string sceneName = parts[0].Trim();
-                    WuLingType type = (WuLingType)(int.Parse(parts[1].Trim().Split('&')[0]) - 1);
-                    combatSceneWuLingInfo[sceneName] = type;
+                    combatSceneElementTypeInfo[sceneName] = (ElementType)int.Parse(parts[1].Trim().Split('&')[0]);
                 }
             }
 
-            return new CombatScnFile(combatSceneWuLingInfo, combatSceneMapInfo);
+            return new CombatScnFile(combatSceneElementTypeInfo, combatSceneMapInfo);
         }
     }
 }

@@ -10,6 +10,15 @@ namespace Core.DataReader.Scn
     using Newtonsoft.Json;
     using UnityEngine;
 
+    public enum SceneObjectElementType
+    {
+        Water   = 0,    // 水
+        Fire    = 1,    // 火
+        Wind    = 2,    // 风
+        Thunder = 3,    // 雷
+        Earth   = 4,    // 土
+    }
+
     [System.Serializable]
     public enum ScnActorKind
     {
@@ -55,7 +64,7 @@ namespace Core.DataReader.Scn
         #if PAL3
         Collidable                    =  2,   // 碰到后翻倒的物品(仙三独有)
         #elif PAL3A
-        WuLingSwitch                  =  2,   // 五灵开关 (可触发其他机关,外传独有)
+        ElementSwitch                 =  2,   // 五灵开关 (可触发其他机关,外传独有)
         #endif
         Arrow                         =  3,   // 飞箭类 (霹雳堂总舵飞剑)
         FallableWeapon                =  4,   // 落下的伤害物体 (冰棱)
@@ -317,7 +326,7 @@ namespace Core.DataReader.Scn
         public byte LayerIndex;
 
         // 五灵属性,0~5代表,用于大宝箱和三外中具有五灵属性的机关
-        public byte WuLing;
+        public SceneObjectElementType ElementType;
 
         /*
             通用参数 int[6]:

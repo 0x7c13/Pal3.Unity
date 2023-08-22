@@ -20,14 +20,14 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
     using Object = UnityEngine.Object;
 
-    [ScnSceneObject(ScnSceneObjectType.WuLingSwitch)]
-    public sealed class WuLingSwitchObject : SceneObject
+    [ScnSceneObject(ScnSceneObjectType.ElementSwitch)]
+    public sealed class ElementSwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3f;
 
         private SceneObjectMeshCollider _meshCollider;
 
-        public WuLingSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+        public ElementSwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
@@ -64,8 +64,8 @@ namespace Pal3.Scene.SceneObjects
                                                        // 2 means interactable but executing script only
         }
 
-        // TODO: Implement WuLing interaction logic for this switch
-        // Can only toggle this switch if ObjectInfo.WuLing matches current player actor's WuLing.
+        // TODO: Implement element interaction logic for this switch
+        // Can only toggle this switch if ObjectInfo.ElementType matches current player actor's element type.
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (ObjectInfo is { Times: INFINITE_TIMES_COUNT, CanOnlyBeTriggeredOnce: 1 })

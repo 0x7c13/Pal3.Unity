@@ -122,6 +122,17 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        T[] ReadEnums<T>(int count) where T : Enum
+        {
+            var array = new T[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = (T)Enum.ToObject(typeof(T), ReadInt32());
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public char[] ReadChars(int count)
         {
             return Encoding.ASCII.GetChars(ReadBytes(count));

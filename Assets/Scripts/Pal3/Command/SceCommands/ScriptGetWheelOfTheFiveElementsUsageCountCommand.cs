@@ -9,9 +9,9 @@ namespace Pal3.Command.SceCommands
     [AvailableInConsole]
     [SceCommand(182, "取出五灵轮当前使用次数并赋值给变量，" +
                      "参数：变量名")]
-    public class ScriptGetWuLingLunUsageCountCommand : ICommand
+    public class ScriptGetWheelOfTheFiveElementsUsageCountCommand : ICommand
     {
-        public ScriptGetWuLingLunUsageCountCommand(int variable)
+        public ScriptGetWheelOfTheFiveElementsUsageCountCommand(int variable)
         {
             Variable = variable;
         }

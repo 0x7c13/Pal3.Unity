@@ -71,7 +71,7 @@ namespace Core.DataReader.Gdb
             var description = reader.ReadString(512, codepage);
             var modelId = reader.ReadString(30, codepage);
             var iconId = reader.ReadString(32, codepage);
-            var wuLing = reader.ReadInt32s(5);
+            var elementProperties = reader.ReadInt32s(5);
             var name = reader.ReadString(32, codepage);
             var level = reader.ReadInt32();
             var attributeValue = reader.ReadInt32s(12);
@@ -113,7 +113,7 @@ namespace Core.DataReader.Gdb
                 Description = description,
                 ModelId = modelId,
                 IconId = iconId,
-                WuLing = wuLing,
+                ElementProperties = elementProperties,
                 Name = name,
                 Level = level,
                 AttributeValue = attributeValue,
@@ -151,7 +151,7 @@ namespace Core.DataReader.Gdb
             var id = reader.ReadUInt32();
             var type = (SkillType)reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var wuLing = reader.ReadInt32s(5);
+            var elementProperties = reader.ReadInt32s(5);
             var name = reader.ReadString(32, codepage);
             var description = reader.ReadString(512, codepage);
             var mainActorCanUse = reader.ReadBytes(5);
@@ -188,7 +188,7 @@ namespace Core.DataReader.Gdb
             {
                 Id = id,
                 Type = type,
-                WuLing = wuLing,
+                ElementProperties = elementProperties,
                 Name = name,
                 Description = description,
                 MainActorCanUse = mainActorCanUse,
@@ -228,7 +228,7 @@ namespace Core.DataReader.Gdb
             var type = (ItemType) reader.ReadByte();
             var weaponType = (WeaponType) reader.ReadByte();
             var mainActorCanUse = reader.ReadBytes(5);
-            var wuLing = reader.ReadBytes(5);
+            var elementProperties = reader.ReadBytes(5);
             var ancientValue = reader.ReadInt32();
             var specialType = (SpecialType) reader.ReadByte();
             var targetRangeType = (TargetRangeType) reader.ReadByte();
@@ -262,7 +262,7 @@ namespace Core.DataReader.Gdb
                 Type = type,
                 WeaponType = weaponType,
                 MainActorCanUse = mainActorCanUse,
-                WuLing = wuLing,
+                ElementProperties = elementProperties,
                 AncientValue = ancientValue,
                 SpecialType = specialType,
                 TargetRangeType = targetRangeType,
@@ -289,7 +289,7 @@ namespace Core.DataReader.Gdb
             var name = reader.ReadString(32, codepage);
             var id = reader.ReadUInt32();
             var mainActorRequirements = reader.ReadUInt32s(4);
-            var wuLingPositionRequirements = reader.ReadBytes(4);
+            var elementPositionRequirements = reader.ReadBytes(4);
             var skillId = reader.ReadUInt32();
             var weaponTypeRequirements = reader.ReadBytes(4);
             _ = reader.ReadBytes(4); // not used
@@ -308,7 +308,7 @@ namespace Core.DataReader.Gdb
                 Name = name,
                 Id = id,
                 MainActorRequirements = mainActorRequirements,
-                WuLingPositionRequirements = wuLingPositionRequirements,
+                ElementPositionRequirements = elementPositionRequirements,
                 SkillId = skillId,
                 WeaponTypeRequirements = weaponTypeRequirements,
                 CombatStateRequirements = combatStateRequirements,

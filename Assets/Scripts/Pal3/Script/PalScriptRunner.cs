@@ -58,7 +58,7 @@ namespace Pal3.Script
         #if PAL3
         ICommandExecutor<MiniGameGetAppraisalsResultCommand>,
         #elif PAL3A
-        ICommandExecutor<ScriptGetWuLingLunUsageCountCommand>,
+        ICommandExecutor<ScriptGetWheelOfTheFiveElementsUsageCountCommand>,
         #endif
         ICommandExecutor<ScriptVarGetCombatResultCommand>
     {
@@ -470,7 +470,7 @@ namespace Pal3.Script
 
         // TODO: Impl
         #if PAL3A
-        public void Execute(ScriptGetWuLingLunUsageCountCommand command)
+        public void Execute(ScriptGetWheelOfTheFiveElementsUsageCountCommand command)
         {
             if (!_isExecuting) return;
             var rand = Random.Range(0f, 1f);

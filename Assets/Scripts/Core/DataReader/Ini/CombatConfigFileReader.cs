@@ -39,15 +39,8 @@ namespace Core.DataReader.Ini
                         string x = iniData[section.SectionName][$"Role{i}-x"];
                         string z = iniData[section.SectionName][$"Role{i}-z"];
 
-                        if (x.Contains(";"))
-                        {
-                            x = x.Substring(0, x.IndexOf(';')).Trim();
-                        }
-
-                        if (z.Contains(";"))
-                        {
-                            z = z.Substring(0, z.IndexOf(';')).Trim();
-                        }
+                        if (x.Contains(";")) x = x[..x.IndexOf(';')].Trim();
+                        if (z.Contains(";"))z = z[..z.IndexOf(';')].Trim();
 
                         actorGameBoxPositions[i] = new Vector3(float.Parse(x), 0f, float.Parse(z));
                     }

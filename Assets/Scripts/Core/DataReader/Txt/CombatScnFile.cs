@@ -11,13 +11,13 @@ namespace Core.DataReader.Txt
 
     public sealed class CombatScnFile
     {
-        public Dictionary<string, WuLingType> CombatSceneWuLingInfo  { get; }
+        public Dictionary<string, ElementType> CombatSceneElementTypeInfo  { get; }
         public Dictionary<string, Dictionary<NavFloorKind, string>> CombatSceneMapInfo  { get; }
 
-        public CombatScnFile(Dictionary<string, WuLingType> combatSceneWuLingInfo,
+        public CombatScnFile(Dictionary<string, ElementType> combatSceneElementTypeInfo,
             Dictionary<string, Dictionary<NavFloorKind, string>> combatSceneMapInfo)
         {
-            CombatSceneWuLingInfo = combatSceneWuLingInfo;
+            CombatSceneElementTypeInfo = combatSceneElementTypeInfo;
             CombatSceneMapInfo = combatSceneMapInfo;
         }
     }
