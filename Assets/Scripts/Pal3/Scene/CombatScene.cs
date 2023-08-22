@@ -66,7 +66,7 @@ namespace Pal3.Scene
             polyMeshRenderer.Render(_scenePolyMesh.PolFile,
                 _scenePolyMesh.TextureProvider,
                 _materialFactory,
-                isStaticObject: true, // Scene mesh is static
+                isStaticObject: true, // Combat Scene mesh is static
                 Color.white);
         }
     }

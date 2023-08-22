@@ -59,7 +59,7 @@ namespace Pal3.Combat
                 out _cameraRotationBeforeCombat);
             _cameraFovBeforeCombat = _mainCamera.fieldOfView;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
+            //CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
 
             _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
@@ -71,6 +71,14 @@ namespace Pal3.Combat
             }
 
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
+        }
+
+        public void ExitCombat()
+        {
+            // Stop combat music
+            CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
+            _sceneManager.UnloadCombatScene();
+            ResetCameraPosition();
         }
 
         private void SetCameraPosition(CombatCameraConfig config)
@@ -98,12 +106,10 @@ namespace Pal3.Combat
         {
             if (Keyboard.current.f1Key.wasPressedThisFrame)
             {
-                ResetCameraPosition();
                 OnCombatFinished?.Invoke(this, true);
             }
             else if (Keyboard.current.f2Key.wasPressedThisFrame)
             {
-                ResetCameraPosition();
                 OnCombatFinished?.Invoke(this, false);
             }
         }

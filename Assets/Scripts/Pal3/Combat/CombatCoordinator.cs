@@ -132,19 +132,17 @@ namespace Pal3.Combat
 
         private void OnOnCombatFinished(object sender, bool isPlayerWin)
         {
+            _combatManager.ExitCombat();
+            _currentCombatContext.ScriptWaiter?.CancelWait();
+
             if (isPlayerWin)
             {
-                // Stop combat music
-                CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
-
-                _sceneManager.UnloadCombatScene();
-                _currentCombatContext.ScriptWaiter?.CancelWait();
-
                 _gameStateManager.GoToPreviousState();
                 _currentCombatContext.ResetContext();
             }
             else
             {
+                _currentCombatContext.ResetContext();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new GameSwitchToMainMenuCommand());
             }
         }

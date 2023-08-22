@@ -124,7 +124,6 @@ namespace Pal3.Scene
 
             _currentCombatSceneRoot = new GameObject($"CombatScene_{combatSceneName}");
             _currentCombatSceneRoot.transform.SetParent(null);
-            _currentCombatSceneRoot.transform.localPosition = new Vector3(0f, 0f, 0f);
 
             _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
             _currentCombatScene.Init(_resourceProvider);
@@ -173,10 +172,22 @@ namespace Pal3.Scene
             {
                 spriteRenderer.enabled = false;
             }
+
+            foreach (ParticleSystem particleSystem in
+                     _currentSceneRoot.GetComponentsInChildren<ParticleSystem>())
+            {
+                particleSystem.gameObject.SetActive(false);
+            }
         }
 
         private void ShowCurrentScene()
         {
+            foreach (ParticleSystem particleSystem in
+                     _currentSceneRoot.GetComponentsInChildren<ParticleSystem>(includeInactive: true))
+            {
+                particleSystem.gameObject.SetActive(true);
+            }
+
             foreach (SpriteRenderer spriteRenderer in
                      _currentSceneRoot.GetComponentsInChildren<SpriteRenderer>())
             {

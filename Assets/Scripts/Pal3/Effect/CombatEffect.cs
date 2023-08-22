@@ -80,7 +80,7 @@ namespace Pal3.Effect
             }
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             Dispose();
         }
