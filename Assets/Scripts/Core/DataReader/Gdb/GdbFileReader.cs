@@ -8,6 +8,7 @@ namespace Core.DataReader.Gdb
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Contracts;
 
     public sealed class GdbFileReader : IFileReader<GdbFile>
@@ -73,13 +74,13 @@ namespace Core.DataReader.Gdb
             var description = reader.ReadString(512, codepage);
             var modelId = reader.ReadString(30, codepage);
             var iconId = reader.ReadString(32, codepage);
-            var elementProperties = reader.ReadInt32s(5);
+            var elementAttributeValues = reader.ReadInt32s(5);
             var name = reader.ReadString(32, codepage);
             var level = reader.ReadInt32();
-            var attributeValue = reader.ReadInt32s(12);
+            var attributeValues = reader.ReadInt32s(12);
             var combatStateImpactTypes = reader.ReadBytes(31);
             _ = reader.ReadByte(); // padding
-            var roundNumber = reader.ReadInt32();
+            var maxRound = reader.ReadInt32();
             var specialActionId = reader.ReadInt32();
             var escapeRate = reader.ReadSingle();
             var mainActorFavor = reader.ReadUInt16s(6);
@@ -115,12 +116,12 @@ namespace Core.DataReader.Gdb
                 Description = description,
                 ModelId = modelId,
                 IconId = iconId,
-                ElementProperties = elementProperties,
+                ElementAttributeValues = GetElementAttributeValues(elementAttributeValues),
                 Name = name,
                 Level = level,
-                AttributeValue = attributeValue,
+                AttributeValues = GetActorAttributeValues(attributeValues),
                 CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes),
-                RoundNumber = roundNumber,
+                MaxRound = maxRound,
                 SpecialActionId = specialActionId,
                 EscapeRate = escapeRate,
                 MainActorFavor = mainActorFavor,
@@ -153,7 +154,8 @@ namespace Core.DataReader.Gdb
             var id = reader.ReadUInt32();
             var type = (SkillType)reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var elementProperties = reader.ReadInt32s(5);
+            var elementAttributes = reader.ReadInt32s(5).Select(_ => (byte)_).ToArray();
+
             var name = reader.ReadString(32, codepage);
             var description = reader.ReadString(512, codepage);
             var mainActorCanUse = reader.ReadBytes(5);
@@ -164,22 +166,22 @@ namespace Core.DataReader.Gdb
             var attributeImpactValue = reader.ReadInt16s(12);
             var successRateLevel = reader.ReadByte();
             _ = reader.ReadByte(); // padding
-            var combatStateImpactTypes = reader.ReadInt16s(31);
+            var combatStateImpactTypes = reader.ReadInt16s(31).Select(_ => (byte)_).ToArray();
 
-            // convert combatStateImpactTypes to byte array
-            byte[] combatStateImpactTypesBytes = new byte[31];
-            for (var i = 0; i < combatStateImpactTypes.Length; i++)
-            {
-                combatStateImpactTypesBytes[i] = (byte)combatStateImpactTypes[i];
-            }
+            var spConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
+            var mpConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
 
-            var consumeAttributeType = reader.ReadInt32s(2);
-            var consumeAttributeKind = reader.ReadInt32s(3);
-            var specialConsumeType = reader.ReadByte();
+            var spConsumeValue = reader.ReadInt32();
+            var mpConsumeValue = reader.ReadInt32();
+
+            var specialConsumeType = reader.ReadInt32();
+            var specialConsumeImpactType = (AttributeImpactType)reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
             var specialConsumeValue = reader.ReadInt32();
+
             var level = reader.ReadByte();
             var timesBeforeLevelUp = reader.ReadBytes(4);
+
             var requiredActorLevel = reader.ReadByte();
             var magicLevel = reader.ReadByte();
             _ = reader.ReadByte(); // padding
@@ -198,18 +200,21 @@ namespace Core.DataReader.Gdb
             {
                 Id = id,
                 Type = type,
-                ElementProperties = elementProperties,
+                ElementAttributes = GetElementAttributes(elementAttributes),
                 Name = name,
                 Description = description,
-                MainActorCanUse = mainActorCanUse,
+                ApplicableActors = GetPlayerActorIds(mainActorCanUse),
                 TargetRangeType = targetRangeType,
                 SpecialSkillId = specialSkillId,
                 AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue),
                 SuccessRateLevel = successRateLevel,
-                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypesBytes),
-                ConsumeAttributeType = consumeAttributeType,
-                ConsumeAttributeKind = consumeAttributeKind,
+                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes),
+                SpConsumeImpactType = spConsumeImpactType,
+                MpConsumeImpactType = mpConsumeImpactType,
+                SpConsumeValue = spConsumeValue,
+                MpConsumeValue = mpConsumeValue,
                 SpecialConsumeType = specialConsumeType,
+                SpecialConsumeImpactType = specialConsumeImpactType,
                 SpecialConsumeValue = specialConsumeValue,
                 Level = level,
                 TimesBeforeLevelUp = timesBeforeLevelUp,
@@ -237,7 +242,7 @@ namespace Core.DataReader.Gdb
             var type = (ItemType) reader.ReadByte();
             var weaponType = (WeaponType) reader.ReadByte();
             var mainActorCanUse = reader.ReadBytes(5);
-            var elementProperties = reader.ReadBytes(5);
+            var elementAttributes = reader.ReadBytes(5);
             var ancientValue = reader.ReadInt32();
             var itemSpecialType = (ItemSpecialType) reader.ReadByte();
             var targetRangeType = (TargetRangeType) reader.ReadByte();
@@ -270,8 +275,8 @@ namespace Core.DataReader.Gdb
                 Price = price,
                 Type = type,
                 WeaponType = weaponType,
-                MainActorCanUse = mainActorCanUse,
-                ElementProperties = elementProperties,
+                ApplicableActors = GetPlayerActorIds(mainActorCanUse),
+                ElementAttributes = GetElementAttributes(elementAttributes),
                 AncientValue = ancientValue,
                 ItemSpecialType = itemSpecialType,
                 TargetRangeType = targetRangeType,
@@ -292,31 +297,18 @@ namespace Core.DataReader.Gdb
             };
         }
 
-        private static HashSet<PlayerActorId> GetPlayerActorIds(byte[] mainActorCanUse)
-        {
-            HashSet<PlayerActorId> playerActorIds = new ();
-
-            for (int i = 0; i < 5; i++)
-            {
-                if (mainActorCanUse[i] == 1)
-                {
-                    playerActorIds.Add((PlayerActorId)i);
-                }
-            }
-
-            return playerActorIds;
-        }
-
         private ComboSkillInfo ReadComboSkillInfo(IBinaryReader reader, int codepage)
         {
             var name = reader.ReadString(32, codepage);
             var id = reader.ReadUInt32();
             var mainActorRequirements = reader.ReadUInt32s(4);
-            var elementPositionRequirements = reader.ReadBytes(4);
+            var elementPositionRequirements = reader.ReadBytes(4)
+                .Select(_ => (ElementPositionRequirementType)_).ToArray();
             var skillId = reader.ReadUInt32();
-            var weaponTypeRequirements = reader.ReadBytes(4);
+            var weaponTypeRequirements = reader.ReadBytes(4).Select(_ => (WeaponType)_).ToArray();
             _ = reader.ReadBytes(4); // not used
-            var combatStateRequirements = reader.ReadInt32s(3);
+            var combatStateRequirements = reader.ReadInt32s(3)
+                .Select(_ => (ActorCombatStateType)_).ToArray();
             var description = reader.ReadString(512, codepage);
             var targetRangeType = (TargetRangeType)reader.ReadByte();
 
@@ -344,6 +336,61 @@ namespace Core.DataReader.Gdb
                 Unknown = unknown,
                 #endif
             };
+        }
+
+        private static Dictionary<ElementType, int> GetElementAttributeValues(int[] elementAttributeValues)
+        {
+            Dictionary<ElementType, int> elementAttributeValueMap = new ();
+
+            foreach (ElementType elementType in Enum.GetValues(typeof(ElementType)))
+            {
+                if (elementType == ElementType.None) continue;
+                elementAttributeValueMap[elementType] = elementAttributeValues[(int)elementType - 1];
+            }
+
+            return elementAttributeValueMap;
+        }
+
+        private static Dictionary<ActorAttributeType, int> GetActorAttributeValues(int[] attributeValues)
+        {
+            Dictionary<ActorAttributeType, int> attributeValueMap = new ();
+
+            foreach (ActorAttributeType attributeType in Enum.GetValues(typeof(ActorAttributeType)))
+            {
+                attributeValueMap[attributeType] = attributeValues[(int)attributeType];
+            }
+
+            return attributeValueMap;
+        }
+
+        private static HashSet<PlayerActorId> GetPlayerActorIds(byte[] mainActorCanUse)
+        {
+            HashSet<PlayerActorId> playerActorIds = new ();
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (mainActorCanUse[i] == 1)
+                {
+                    playerActorIds.Add((PlayerActorId)i);
+                }
+            }
+
+            return playerActorIds;
+        }
+
+        private static HashSet<ObjectElementType> GetElementAttributes(byte[] elementAttributes)
+        {
+            HashSet<ObjectElementType> elementAttributeSet = new ();
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (elementAttributes[i] == 1)
+                {
+                    elementAttributeSet.Add((ObjectElementType)i);
+                }
+            }
+
+            return elementAttributeSet;
         }
 
         private static Dictionary<ActorCombatStateType, CombatStateImpactType> GetCombatStateImpactTypes(

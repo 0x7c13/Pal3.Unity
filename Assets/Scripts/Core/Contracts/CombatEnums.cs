@@ -17,15 +17,29 @@ namespace Core.Contracts
     }
 
     [System.Serializable]
+    public enum ElementPositionRequirementType
+    {
+        Any     = 0,            // 任意位置
+        Water   = 1,            // 水
+        Fire    = 2,            // 火
+        Wind    = 3,            // 风
+        Thunder = 4,            // 雷
+        Earth   = 5,            // 土
+        Middle  = 6,            // 中
+        WindFireThunder = 7,    // 风火雷[任意]
+        WaterFireEarth = 8,     // 水火土[任意]
+    }
+
+    [System.Serializable]
     public enum TargetRangeType
     {
         None = 0,
-        FirstParty,        // 我方单体
-        FirstPartyAll,     // 我方全体
-        EnemyParty,        // 敌方单体
-        EnemyPartyAll,     // 敌方全体
-        EnemyPartyRow,     // 敌方一排
-        EnemyPartyColumn,  // 敌方一列
+        FirstPartySingle,    // 我方单体
+        FirstPartyAll,       // 我方全体
+        EnemyPartySingle,    // 敌方单体
+        EnemyPartyAll,       // 敌方全体
+        EnemyPartyOneRow,    // 敌方一排
+        EnemyPartyOneColumn, // 敌方一列
     }
 
     [System.Serializable]

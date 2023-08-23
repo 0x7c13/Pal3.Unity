@@ -118,7 +118,7 @@ namespace Core.DataReader.Scn
             var type = (SceneObjectType)reader.ReadByte();
             var saveState = reader.ReadByte();
             var layerIndex = reader.ReadByte();
-            var elementType = (SceneObjectElementType)reader.ReadByte();
+            var elementType = (ObjectElementType)reader.ReadByte();
 
             #if PAL3
             var parameters = reader.ReadInt32s(6);

@@ -39,8 +39,11 @@ namespace Core.DataReader.Gdb
         public ItemType Type;                       // 物品类型
         public WeaponType WeaponType;               // 武器类型（只有物品为武器的时候有意义）
 
-        public byte[] MainActorCanUse;              // 主角可使用信息
-        public byte[] ElementProperties;            // 五灵属性
+        // 主角可使用信息
+        public HashSet<PlayerActorId> ApplicableActors;
+
+        // 五灵属性
+        public HashSet<ObjectElementType> ElementAttributes;
 
         public int AncientValue;                    // 古董价值
 
@@ -81,20 +84,24 @@ namespace Core.DataReader.Gdb
         public string ModelId;                  // 战斗角色模型ID
         public string IconId;                   // 战斗角色图标ID
 
-        public int[] ElementProperties;         // 五灵属性
+        // 角色基础五灵属性值
+        public Dictionary<ElementType, int> ElementAttributeValues;
+
         public string Name;                     // 战斗角色名称
         public int Level;                       // 战斗角色等级
-        public int[] AttributeValue;            // 角色属性值
+
+        // 角色基础属性值
+        public Dictionary<ActorAttributeType, int> AttributeValues;
 
         // 战斗状态影响类型
         public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
 
-        public int RoundNumber;                 // 指定回合数
+        public int MaxRound;                    // 指定最大回合数 （保存或者初始化的时候用，数据库文件里均为-1，主角为0）
         public int SpecialActionId;             // 特殊动作ID
         public float EscapeRate;                // 逃跑概率
-        public ushort[] MainActorFavor;         // 对每个主角的好感
+        public ushort[] MainActorFavor;         // 对每个主角的好感（保存用）
         public int Experience;                  // 经验值
-        public ushort Money;                    // 金钱
+        public ushort Money;                    // 金钱（保存用）
         public uint NormalAttackActionId;       // 普通攻击动作ID
 
         public byte HeightLevel;                // 迷宫高度 0-2 对应 低 中 高
@@ -121,53 +128,64 @@ namespace Core.DataReader.Gdb
 
     public struct SkillInfo
     {
-        public uint Id;                                     // 技能ID
-        public SkillType Type;                              // 技能类型
-        public int[] ElementProperties;                     // 五灵属性
-        public string Name;                                 // 技能名称
-        public string Description;                          // 技能描述
-        public byte[] MainActorCanUse;                      // 主角是否可以使用
+        public uint Id;                                       // 技能ID
+        public SkillType Type;                                // 技能类型
+        public HashSet<ObjectElementType> ElementAttributes;  // 五灵属性
+        public string Name;                                   // 技能名称
+        public string Description;                            // 技能描述
 
-        public TargetRangeType TargetRangeType;             // 目标范围类型
-        public byte SpecialSkillId;                         // 特殊技能ID 0为无特殊效果 1开头为偷敌人东西
+        // 主角是否可以使用
+        public HashSet<PlayerActorId> ApplicableActors;
+
+        public TargetRangeType TargetRangeType;               // 目标范围类型
+        public byte SpecialSkillId;                           // 特殊技能ID 0为无特殊效果 1开头为偷敌人东西
 
         // 角色属性影响类型和影响值
         public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
-        public byte SuccessRateLevel;                       // 施法成功率 0～10对应不约定的计算方式 其他为百分比
+        public byte SuccessRateLevel;                         // 施法成功率 0～10对应不约定的计算方式 其他为百分比
 
         // 战斗状态影响类型
         public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
 
-        public int[] ConsumeAttributeType;                  // 消耗属性类型
-        public int[] ConsumeAttributeKind;                  // 消耗属性种类数值 0-消耗气,1-消耗神,2-特殊消耗[精气神武防,情经速运级,钱水火风雷土蛊];
-        public byte SpecialConsumeType;                     // 特殊消耗类型 增加(或减少)数值的类型(0为绝对值,1为百分数,2为恢复到上限,3为增加上限值)
-        public int SpecialConsumeValue;                     // 特殊消耗数值
+        // 消耗属性类型
+        public AttributeImpactType SpConsumeImpactType;
+        public AttributeImpactType MpConsumeImpactType;
 
-        public byte Level;                                  // 技能等级
-        public byte[] TimesBeforeLevelUp;                   // 升级前需使用次数
-        public byte RequiredActorLevel;                     // 使用所需角色等级
-        public byte MagicLevel;                             // 本级法术等级
-        public uint NextLevelSkillId;                       // 下一级法术ID
-        public byte IsUsableOutsideCombat;                  // 是否可以在战斗外使用
+        public int SpConsumeValue;                            // 消耗气数值
+        public int MpConsumeValue;                            // 消耗神数值
 
-        public uint[] CompositeSkillIds;                    // 可以合成的法术ID
-        public uint[] CompositeRequiredSkillIds;            // 合成所需其他法术ID
-        public byte[] CompositeRequiredSkillLevels;         // 合成所需其他法术等级
-        public byte[] CompositeRequiredCurrentSkillLevels;  // 合成所需法术当前等级
-        public byte[] CompositeRequiredActorLevels;         // 合成所需角色等级
-        public byte CanTriggerComboSkill;                   // 是否可以触发合击技
+        public int SpecialConsumeType;                        // 特殊消耗[精气神武防,情经速运级,钱水火风雷土蛊]
+        public AttributeImpactType SpecialConsumeImpactType;  // 特殊消耗类型
+        public int SpecialConsumeValue;                       // 特殊消耗数值
+
+        public byte Level;                                    // 技能等级
+        public byte[] TimesBeforeLevelUp;                     // 升级前需使用次数
+        public byte RequiredActorLevel;                       // 使用所需角色等级
+        public byte MagicLevel;                               // 本级法术等级
+        public uint NextLevelSkillId;                         // 下一级法术ID
+        public byte IsUsableOutsideCombat;                    // 是否可以在战斗外使用
+
+        public uint[] CompositeSkillIds;                      // 可以合成的法术ID
+        public uint[] CompositeRequiredSkillIds;              // 合成所需其他法术ID
+        public byte[] CompositeRequiredSkillLevels;           // 合成所需其他法术等级
+        public byte[] CompositeRequiredCurrentSkillLevels;    // 合成所需法术当前等级
+        public byte[] CompositeRequiredActorLevels;           // 合成所需角色等级
+        public byte CanTriggerComboSkill;                     // 是否可以触发合击技
     }
 
     public struct ComboSkillInfo
     {
         public string Name;                             // 合击技名称
         public uint Id;                                 // 合击技ID
-        public uint[] MainActorRequirements;            // 需要的人
-        public byte[] ElementPositionRequirements;      // 需要每个人的五灵位置,于上面数组一一对应[0-任意 1-水...6-中 7-风火雷[任意] 8-水火土[任意]]
+        public uint[] MainActorRequirements;            // 需要的人(角色ID)
+
+        // 需要每个人的五灵位置,于上面数组一一对应
+        public ElementPositionRequirementType[] ElementPositionRequirements;
+
         public uint SkillId;                            // 发动技能ID
-        public byte[] WeaponTypeRequirements;           // 对应每个参战者的武器类型
-        public int[] CombatStateRequirements;           // 对应每个参战者的战斗状态要求
+        public WeaponType[] WeaponTypeRequirements;     // 对应每个参战者的武器类型
+        public ActorCombatStateType[] CombatStateRequirements;  // 对应每个参战者的战斗状态要求
         public string Description;                      // 合击技描述
         public TargetRangeType TargetRangeType;         // 使用范围类型
 

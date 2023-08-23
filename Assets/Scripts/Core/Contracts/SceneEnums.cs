@@ -35,7 +35,7 @@ namespace Core.Contracts
     }
 
     [System.Serializable]
-    public enum SceneObjectElementType
+    public enum ObjectElementType
     {
         Water   = 0,    // 水
         Fire    = 1,    // 火

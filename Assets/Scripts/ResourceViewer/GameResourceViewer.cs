@@ -507,20 +507,26 @@ namespace ResourceViewer
 
             consoleTextUI.text = "正在解包GDB文件，请稍等...";
 
+            JsonConverter[] converters =
+            {
+                new StringEnumConverter(),
+                new ByteArrayConverter()
+            };
+
             var combatActorInfos = JsonConvert.SerializeObject(_resourceProvider.GetCombatActorInfos(),
-                Formatting.Indented, new StringEnumConverter());
+                Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatActors.json", combatActorInfos);
 
             var combatSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetSkillInfos(),
-                Formatting.Indented, new StringEnumConverter());
+                Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatSkills.json", combatSkillInfos);
 
             var combatComboSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetComboSkillInfos(),
-                Formatting.Indented, new StringEnumConverter());
+                Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatComboSkills.json", combatComboSkillInfos);
 
             var gameItemInfos = JsonConvert.SerializeObject(_resourceProvider.GetGameItemInfos(),
-                Formatting.Indented, new StringEnumConverter());
+                Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "GameItems.json", gameItemInfos);
 
             consoleTextUI.text = "GDB文件已解包完成！";

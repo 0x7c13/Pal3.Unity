@@ -206,7 +206,7 @@ namespace Core.DataReader.Scn
         public byte LayerIndex;
 
         // 五灵属性,0~5代表,用于大宝箱和三外中具有五灵属性的机关
-        public SceneObjectElementType ElementType;
+        public ObjectElementType ElementType;
 
         /*
             通用参数 int[6]:
