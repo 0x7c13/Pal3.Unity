@@ -5,7 +5,7 @@
 
 namespace Pal3.Combat
 {
-    using Core.DataReader.Gdb;
+    using Core.Contracts;
     using Script.Waiter;
 
     /// <summary>

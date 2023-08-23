@@ -10,11 +10,12 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Teapot)]
+    [ScnSceneObject(SceneObjectType.Teapot)]
     public sealed class TeapotObject : SceneObject
     {
         public TeapotObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

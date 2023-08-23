@@ -15,6 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.Extensions;
@@ -24,7 +25,7 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Pushable)]
+    [ScnSceneObject(SceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
     {
         private const float PUSH_ANIMATION_DURATION = 1.7f;

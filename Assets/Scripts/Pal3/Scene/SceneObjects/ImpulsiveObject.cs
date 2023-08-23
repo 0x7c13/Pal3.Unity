@@ -15,6 +15,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
@@ -27,7 +28,7 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
     using Random = UnityEngine.Random;
 
-    [ScnSceneObject(ScnSceneObjectType.Impulsive)]
+    [ScnSceneObject(SceneObjectType.Impulsive)]
     public sealed class ImpulsiveObject : SceneObject
     {
         private const float HIT_ANIMATION_DURATION = 0.5f;

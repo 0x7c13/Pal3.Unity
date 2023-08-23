@@ -8,9 +8,9 @@ namespace Pal3.Actor
     using System;
     using System.Collections.Generic;
     using Controllers;
+    using Core.Contracts;
     using Data;
     using Dev;
-    using MetaData;
     using Scene;
     using UnityEngine;
 

@@ -7,6 +7,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
@@ -14,9 +15,9 @@ namespace Pal3.Scene.SceneObjects
     using UnityEngine;
 
     #if PAL3
-    [ScnSceneObject(ScnSceneObjectType.Collidable)]
+    [ScnSceneObject(SceneObjectType.Collidable)]
     #endif
-    [ScnSceneObject(ScnSceneObjectType.Shakeable)]
+    [ScnSceneObject(SceneObjectType.Shakeable)]
     public sealed class CollidableObject : SceneObject
     {
         private BoundsTriggerController _triggerController;

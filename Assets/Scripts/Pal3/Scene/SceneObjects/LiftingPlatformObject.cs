@@ -11,6 +11,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -19,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.LiftingPlatform)]
+    [ScnSceneObject(SceneObjectType.LiftingPlatform)]
     public sealed class LiftingPlatformObject : SceneObject
     {
         private const float LIFTING_ANIMATION_DURATION = 2.5f;

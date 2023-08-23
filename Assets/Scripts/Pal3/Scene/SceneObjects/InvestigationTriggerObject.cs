@@ -9,13 +9,14 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Data;
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.VirtualInvestigationTrigger)]
-    [ScnSceneObject(ScnSceneObjectType.InvestigationTrigger)]
+    [ScnSceneObject(SceneObjectType.VirtualInvestigationTrigger)]
+    [ScnSceneObject(SceneObjectType.InvestigationTrigger)]
     public sealed class InvestigationTriggerObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 4f;

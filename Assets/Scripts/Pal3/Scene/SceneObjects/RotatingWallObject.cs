@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
@@ -20,7 +21,7 @@ namespace Pal3.Scene.SceneObjects
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.RotatingWall)]
+    [ScnSceneObject(SceneObjectType.RotatingWall)]
     public sealed class RotatingWallObject : SceneObject
     {
         private SceneObjectMeshCollider _meshCollider;

@@ -8,14 +8,14 @@ namespace Pal3.Combat
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Linq;
     using Actor.Controllers;
     using Audio;
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Gdb;
+    using Core.Contracts;
     using Core.DataReader.Nav;
-    using Core.DataReader.Scn;
     using Core.DataReader.Txt;
     using Core.Utils;
     using Data;
@@ -157,7 +157,7 @@ namespace Pal3.Combat
                 throw new DataException($"Combat scene not found for {sceneInfo.CityName}_{sceneInfo.SceneName}!");
             }
 
-            var floorKind = NavFloorKind.Default;
+            var floorType = FloorType.Default;
 
             PlayerActorId actorId = _playerActorManager.GetPlayerActor();
             GameObject playerActorGo = currentScene.GetActorGameObject((int) actorId);
@@ -168,12 +168,12 @@ namespace Pal3.Combat
             Tilemap tileMap = currentScene.GetTilemap();
             if (tileMap.TryGetTile(playerActorTilePosition, playerActorLayerIndex, out NavTile tile))
             {
-                floorKind = tile.FloorKind;
+                floorType = tile.FloorType;
             }
 
-            if (!combatSceneFloorKindToMapInfo.TryGetValue(floorKind, out var combatSceneName))
+            if (!combatSceneFloorKindToMapInfo.TryGetValue(floorType, out var combatSceneName))
             {
-                combatSceneName = combatSceneFloorKindToMapInfo[NavFloorKind.Default];
+                combatSceneName = combatSceneFloorKindToMapInfo[FloorType.Default];
             }
 
             #if PAL3
@@ -185,12 +185,14 @@ namespace Pal3.Combat
 
         public void Execute(CombatEnterNormalFightCommand command)
         {
-            List<uint> availableIds = new List<uint>();
-            if (command.Monster1Id != 0) availableIds.Add(command.Monster1Id);
-            if (command.Monster2Id != 0) availableIds.Add(command.Monster2Id);
-            if (command.Monster3Id != 0) availableIds.Add(command.Monster3Id);
+            uint[] availableIds = new HashSet<uint>()
+            {
+                command.Monster1Id,
+                command.Monster2Id,
+                command.Monster3Id,
+            }.Where(id => id != 0).ToArray();
 
-            if (availableIds.Count == 0)
+            if (availableIds.Length == 0)
             {
                 throw new ArgumentException("At least one monster id must be specified!");
             }
@@ -199,15 +201,15 @@ namespace Pal3.Combat
             Random rand = new Random();
 
             // Use each available ID at least once.
-            for (var i = 0; i < availableIds.Count; i++)
+            for (var i = 0; i < availableIds.Length; i++)
             {
                 monsterIds[i] = availableIds[i];
             }
 
             // Randomly select from available IDs to populate remaining monsterIds.
-            for (var i = availableIds.Count; i < command.NumberOfMonster; i++)
+            for (var i = availableIds.Length; i < command.NumberOfMonster; i++)
             {
-                int randomIndex = rand.Next(0, availableIds.Count);
+                int randomIndex = rand.Next(0, availableIds.Length);
                 monsterIds[i] = availableIds[randomIndex];
             }
 

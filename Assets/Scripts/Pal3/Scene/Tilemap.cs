@@ -9,6 +9,7 @@ namespace Pal3.Scene
     using System.Collections.Generic;
 
     using Core.Algorithm.PathFinding;
+    using Core.Contracts;
     using Core.DataReader.Nav;
     using Core.GameBox;
     using Core.Navigation;
@@ -208,7 +209,7 @@ namespace Pal3.Scene
             return false;
         }
 
-        public void MarkFloorKindAsObstacle(NavFloorKind floorKind, bool isObstacle)
+        public void MarkFloorTypeAsObstacle(FloorType floorType, bool isObstacle)
         {
             for (var i = 0; i < _navFile.TileLayers.Length; i++)
             {
@@ -218,7 +219,7 @@ namespace Pal3.Scene
                 {
                     NavTile navTile = _navFile.TileLayers[i].Tiles[j];
 
-                    if (navTile.FloorKind == floorKind)
+                    if (navTile.FloorType == floorType)
                     {
                         navTile.IsObstacle = isObstacle;
                     }

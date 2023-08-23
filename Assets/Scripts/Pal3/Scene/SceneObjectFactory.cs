@@ -9,6 +9,7 @@ namespace Pal3.Scene
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using SceneObjects;
     using SceneObjects.Common;
@@ -16,7 +17,7 @@ namespace Pal3.Scene
 
     public static class SceneObjectFactory
     {
-        private static readonly Dictionary<ScnSceneObjectType, Type> SceneObjectTypeCache = new ();
+        private static readonly Dictionary<SceneObjectType, Type> SceneObjectTypeCache = new ();
 
         private static readonly IEnumerable<Type> SceneObjectTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.IsClass && t.BaseType == typeof(SceneObject));

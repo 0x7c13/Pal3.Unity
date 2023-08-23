@@ -6,29 +6,8 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
+    using Core.Contracts;
     using Core.DataReader.Cpk;
-
-    public enum GraphicsEffect
-    {
-        None        = -1,
-        PoisonFog   =  0,  // 雪见.瘴气
-        Portal      =  1,  // 传送点
-        SavePoint   =  2,  // 存盘点
-        Fire        =  3,  // 火焰类特效
-        Combat      =  4,  // 战斗特效
-    }
-
-    public enum FireEffectType
-    {
-        Type1 = 0,
-        Type2,
-        Type3,
-        Type4,
-        Type5,
-        #if PAL3A
-        Type6,
-        #endif
-    }
 
     public static class EffectConstants
     {

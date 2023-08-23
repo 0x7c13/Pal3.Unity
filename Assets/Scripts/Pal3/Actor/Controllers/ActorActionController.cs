@@ -10,6 +10,7 @@ namespace Pal3.Actor.Controllers
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.Extensions;
     using Core.Renderer;
     using Core.Services;

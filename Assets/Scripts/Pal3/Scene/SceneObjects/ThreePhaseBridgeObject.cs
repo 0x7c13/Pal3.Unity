@@ -12,6 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Services;
@@ -19,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.ThreePhaseBridge)]
+    [ScnSceneObject(SceneObjectType.ThreePhaseBridge)]
     public sealed class ThreePhaseBridgeObject : SceneObject,
         ICommandExecutor<ThreePhaseSwitchStateChangedNotification>
     {

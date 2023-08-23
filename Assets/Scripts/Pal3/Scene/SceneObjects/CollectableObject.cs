@@ -9,9 +9,10 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
 
-    [ScnSceneObject(ScnSceneObjectType.Collectable)]
+    [ScnSceneObject(SceneObjectType.Collectable)]
     public sealed class CollectableObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3.8f;

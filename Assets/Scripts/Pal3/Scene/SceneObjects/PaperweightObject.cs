@@ -8,9 +8,10 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
 
-    [ScnSceneObject(ScnSceneObjectType.Paperweight)]
+    [ScnSceneObject(SceneObjectType.Paperweight)]
     public sealed class PaperweightObject : SceneObject
     {
         public PaperweightObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

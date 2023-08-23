@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Services;
@@ -20,7 +21,7 @@ namespace Pal3.Scene.SceneObjects
     using GameSystem;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.GravitySwitch)]
+    [ScnSceneObject(SceneObjectType.GravitySwitch)]
     public sealed class GravitySwitchObject : SceneObject
     {
         private const float DESCENDING_HEIGHT = 0.5f;

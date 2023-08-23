@@ -13,12 +13,13 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.RotatingBridge)]
+    [ScnSceneObject(SceneObjectType.RotatingBridge)]
     public sealed class RotatingBridgeObject : SceneObject
     {
         private float ROTATION_ANIMATION_DURATION = 3.5f;

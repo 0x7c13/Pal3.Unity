@@ -6,6 +6,7 @@
 namespace Pal3.Effect
 {
     using System;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
@@ -49,7 +50,7 @@ namespace Pal3.Effect
             if (!string.IsNullOrEmpty(info.TexturePathFormat))
             {
                 _effectTextures = resourceProvider.GetEffectTextures(
-                    GraphicsEffect.Fire, info.TexturePathFormat);
+                    GraphicsEffectType.Fire, info.TexturePathFormat);
 
                 var sprites = new Sprite[_effectTextures.Length];
                 for (var i = 0; i < _effectTextures.Length; i++)
@@ -67,7 +68,7 @@ namespace Pal3.Effect
                     yPosition = _sceneObjectRenderer.GetMeshBounds().max.y;
                 }
 
-                EffectGameObject = new GameObject($"Effect_{GraphicsEffect.Fire.ToString()}_{FireEffectType.ToString()}");
+                EffectGameObject = new GameObject($"Effect_{GraphicsEffectType.Fire.ToString()}_{FireEffectType.ToString()}");
                 EffectGameObject.transform.SetParent(gameObject.transform, false);
                 EffectGameObject.transform.localScale = new Vector3(info.Size, info.Size, info.Size);
                 EffectGameObject.transform.localPosition = new Vector3(0f, yPosition, 0f);

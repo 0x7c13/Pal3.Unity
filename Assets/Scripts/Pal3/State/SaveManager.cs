@@ -16,6 +16,7 @@ namespace Pal3.State
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.DataReader.Txt;
     using Core.GameBox;
@@ -283,7 +284,7 @@ namespace Pal3.State
 
                     // Save position and rotation if not in initial state
                     // Only save position and rotation if the actor behavior is None or Hold
-                    if (actor.Info.InitBehaviour is ScnActorBehaviour.None or ScnActorBehaviour.Hold)
+                    if (actor.Info.InitBehaviour is ActorBehaviourType.None or ActorBehaviourType.Hold)
                     {
                         if (actorMovementController.GetCurrentLayerIndex() != actor.Info.LayerIndex)
                         {

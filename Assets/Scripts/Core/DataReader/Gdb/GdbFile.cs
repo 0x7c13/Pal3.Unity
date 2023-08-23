@@ -6,175 +6,55 @@
 namespace Core.DataReader.Gdb
 {
     using System.Collections.Generic;
+    using Contracts;
 
-    public enum ElementType
+    public struct AttributeImpact
     {
-        None    = 0,
-        Water   = 1,    // 水
-        Fire    = 2,    // 火
-        Wind    = 3,    // 风
-        Thunder = 4,    // 雷
-        Earth   = 5,    // 土
+        public AttributeImpactType Type;     // 属性影响类型
+        public short Value;                  // 属性影响值
     }
 
-    public enum ItemType
+    public struct CombatStateImpact
     {
-        None = 0,
-        Healing,       // 治疗
-        Throwable,     // 投掷
-        Treasure,      // 仙宝
-        Antique,       // 古董
-        Ore,           // 矿石
-        Plot,          // 剧情
-        Cloth,         // 衣服
-        Hat,           // 帽子
-        Shoes,         // 鞋子
-        Wearable,      // 饰品
-        Weapon,        // 武器
-        Corpse,        // 尸块
-        Blueprint,     // 蓝图（梦溪杂录，美食方）
-    }
+        public CombatStateImpactType Type;   // 战斗状态影响类型
+        public short Value;                  // 战斗状态影响值
 
-    public enum WeaponType
-    {
-        None = 0,
-        Spear,        // 长矛
-        Sword,        // 剑
-        Staff,        // 杖
-        Machete,      // 刀
-        Bow,          // 弓
-        Spine,        // 刺
-        Sickle,       // 镰刀
-    }
-
-    public enum SpecialType
-    {
-        None = 0,
-        Poison,        // 随机中毒
-        Flee,          // 100%逃跑
-        Navigation,    // 引路蜂类
-        LevelUp,       // 升级类（等级提高1）
-    }
-
-    public enum TargetRangeType
-    {
-        None = 0,
-        FirstParty,        // 我方单体
-        FirstPartyAll,     // 我方全体
-        EnemyParty,        // 敌方单体
-        EnemyPartyAll,     // 敌方全体
-        EnemyPartyRow,     // 敌方一排
-        EnemyPartyColumn,  // 敌方一列
-    }
-
-    public enum PlaceOfUseType
-    {
-        None = 0,
-        Combat,        // 战斗中
-        OutOfCombat,   // 非战斗中
-        Anywhere,      // 任何地方
-    }
-
-    public enum ActorAttributeType
-    {
-        Hp,            // 精
-        Sp,            // 气
-        Mp,            // 神
-        Attack,        // 攻击
-        Defense,       // 防御
-        Speed,         // 速度
-        Luck,          // 幸运
-        Water,         // 水
-        Fire,          // 火
-        Wind,          // 风
-        Thunder,       // 雷
-        Earth,         // 土
-    }
-
-    public enum CombatActorType
-    {
-        MainActor = 0,   // 主角
-        Human,           // 人
-        Monster,         // 妖
-        Fairy,           // 仙
-        God,             // 神
-        Ghost,           // 鬼
-        Demon            // 魔
-    }
-
-    public enum ActorCombatState
-    {
-        PoisonWind = 0,         // 风毒
-        PoisonThunder,          // 雷毒
-        PoisonWater,            // 水毒
-        PoisonFire,             // 火毒
-        PoisonEarth,            // 土毒
-        AttackIncrease,         // 武 临时增加10%
-        AttackDecrease,         // 武 临时降低10%
-        DefenseIncrease,        // 防 临时增加10%
-        DefenseDecrease,        // 防 临时降低10%
-        LuckIncrease,           // 运 临时增加10%
-        LuckDecrease,           // 运 临时降低10%
-        SpeedIncrease,          // 速 临时增加10%
-        SpeedDecrease,          // 速 临时降低10%
-        Paralysis,              // 定(麻痹)
-        Seal,                   // 封(封咒)
-        Forbidden,              // 禁(禁忌)
-        Sleep,                  // 眠(催眠)
-        Chaos,                  // 乱(混乱)
-        Madness,                // 狂(疯狂)
-        Reflection,             // 镜(攻击反射)
-        Evade,                  // 避(防避,物理攻击无效)
-        Barrier,                // 界(结界,仙术攻击无效)
-        Invisible,              // 隐形
-        Dying,                  // 濒死
-        Death,                  // 死亡
-        PoisonResist,           // 避毒
-        PoisonAny,              // 任意毒
-        EvilResist,             // 辟邪
-        DemonResist,            // 退魔
-        GodsEye,                // 神眼
-        ExpIncrease,            // 精进
-    }
-
-    public enum SkillType
-    {
-        StandardMagic = 0,    // 标准技能
-        AssistMagic,          // 辅助技能
-        DamageMagic,          // 伤害法术
-        RecoverMagic,         // 恢复法术
-        WeaponMagic,          // 武器技
+        public CombatStateImpact(CombatStateImpactType type, short value)
+        {
+            Type = type;
+            Value = value;
+        }
     }
 
     public struct GameItemInfo
     {
-        public uint Id;                          // 物品ID
+        public uint Id;                             // 物品ID
 
-        public string Name;                      // 物品名称
-        public string ModelName;                 // 物品模型名称
-        public string IconName;                  // 物品图标名称
-        public string Description;               // 物品描述
-        public int Price;                        // 物品价格
+        public string Name;                         // 物品名称
+        public string ModelName;                    // 物品模型名称
+        public string IconName;                     // 物品图标名称
+        public string Description;                  // 物品描述
+        public int Price;                           // 物品价格
 
-        public ItemType Type;                    // 物品类型
-        public WeaponType WeaponType;            // 武器类型（只有物品为武器的时候有意义）
+        public ItemType Type;                       // 物品类型
+        public WeaponType WeaponType;               // 武器类型（只有物品为武器的时候有意义）
 
-        public byte[] MainActorCanUse;           // 主角可使用信息
-        public byte[] ElementProperties;         // 五灵属性
+        public byte[] MainActorCanUse;              // 主角可使用信息
+        public byte[] ElementProperties;            // 五灵属性
 
-        public int AncientValue;                 // 古董价值
+        public int AncientValue;                    // 古董价值
 
-        public SpecialType SpecialType;          // 特殊类型
-        public TargetRangeType TargetRangeType;  // 目标范围类型
-        public PlaceOfUseType PlaceOfUseType;    // 使用地点类型
+        public ItemSpecialType ItemSpecialType;     // 特殊类型
+        public TargetRangeType TargetRangeType;     // 目标范围类型
+        public PlaceOfUseType PlaceOfUseType;       // 使用地点类型
 
-        public byte[] AttributeImpactType;       // 角色属性影响类型 (0绝对值，1百分比值，2恢复到上限，3增加上限值)
-        public short[] AttributeImpactValue;     // 角色属性影响值
+        // 角色属性影响类型和影响值
+        public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
-        public byte[] CombatStateImpactType;     // 战斗状态影响类型（0不影响，1增加，2解除）
-        public short[] CombatStateImpactValue;   // 战斗状态值
+        // 战斗状态影响类型和值
+        public Dictionary<ActorCombatStateType, CombatStateImpact>  CombatStateImpacts;
 
-        public int ComboCount;                   // 连击次数
+        public int ComboCount;                      // 连击次数
 
         // 装备属性
         public short SpSavingPercentage;                // 气消耗减少百分比
@@ -205,7 +85,10 @@ namespace Core.DataReader.Gdb
         public string Name;                     // 战斗角色名称
         public int Level;                       // 战斗角色等级
         public int[] AttributeValue;            // 角色属性值
-        public byte[] CombatStateImpactType;    // 战斗状态影响类型（0不影响，1增加，2解除）
+
+        // 战斗状态影响类型
+        public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
+
         public int RoundNumber;                 // 指定回合数
         public int SpecialActionId;             // 特殊动作ID
         public float EscapeRate;                // 逃跑概率
@@ -247,11 +130,15 @@ namespace Core.DataReader.Gdb
 
         public TargetRangeType TargetRangeType;             // 目标范围类型
         public byte SpecialSkillId;                         // 特殊技能ID 0为无特殊效果 1开头为偷敌人东西
-        public byte[] AttributeImpactType;                  // 属性影响类型 增加(或减少)数值的类型(0为绝对值,1为百分数,2为恢复到上限,3为增加上限值)
-        public short[] AttributeImpactValue;                // 属性影响数值
+
+        // 角色属性影响类型和影响值
+        public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
         public byte SuccessRateLevel;                       // 施法成功率 0～10对应不约定的计算方式 其他为百分比
-        public short[] CombatStateImpactType;               // 战斗状态影响类型（0不影响，1增加，2解除）
+
+        // 战斗状态影响类型
+        public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
+
         public int[] ConsumeAttributeType;                  // 消耗属性类型
         public int[] ConsumeAttributeKind;                  // 消耗属性种类数值 0-消耗气,1-消耗神,2-特殊消耗[精气神武防,情经速运级,钱水火风雷土蛊];
         public byte SpecialConsumeType;                     // 特殊消耗类型 增加(或减少)数值的类型(0为绝对值,1为百分数,2为恢复到上限,3为增加上限值)
@@ -283,8 +170,9 @@ namespace Core.DataReader.Gdb
         public int[] CombatStateRequirements;           // 对应每个参战者的战斗状态要求
         public string Description;                      // 合击技描述
         public TargetRangeType TargetRangeType;         // 使用范围类型
-        public byte[] AttributeImpactType;              // 属性影响类型 增加(或减少)数值的类型(0为绝对值,1为百分数,2为恢复到上限,3为增加上限值)
-        public short[] AttributeImpactValue;            // 属性影响数值
+
+        // 角色属性影响类型和影响值
+        public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
         #if PAL3A
         public int Unknown;  // 三外特有数据 暂时未知 猜测是需要气的总数值？

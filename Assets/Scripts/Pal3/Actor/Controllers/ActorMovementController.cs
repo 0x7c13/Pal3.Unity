@@ -13,12 +13,11 @@ namespace Pal3.Actor.Controllers
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataReader.Nav;
-    using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Navigation;
     using Core.Utils;
-    using MetaData;
     using Scene;
     using Scene.SceneObjects.Common;
     using Script.Waiter;
@@ -103,7 +102,7 @@ namespace Pal3.Actor.Controllers
                 actor.Info.GameBoxZPosition));
 
             // Setup actor's initial position
-            if (actor.Info.InitBehaviour != ScnActorBehaviour.Hold &&
+            if (actor.Info.InitBehaviour != ActorBehaviourType.Hold &&
                 _tilemap.TryGetTile(initPosition, _currentLayerIndex, out NavTile tile))
             {
                 // If the actor is initially placed on a walkable tile, snap to the tile
@@ -431,7 +430,9 @@ namespace Pal3.Actor.Controllers
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
                 Debug.LogWarning($"[{nameof(ActorMovementController)}] Portal to: {position}, " +
                                  $"layer: {layerIndex}, " +
-                                 $"tile: {tilePosition} DistanceToNearestObstacle: {tile.DistanceToNearestObstacle}, FloorKind: {tile.FloorKind}");
+                                 $"tile: {tilePosition}, " +
+                                 $"DistanceToNearestObstacle: {tile.DistanceToNearestObstacle}, " +
+                                 $"FloorKind: {tile.FloorType}");
             }
         }
 

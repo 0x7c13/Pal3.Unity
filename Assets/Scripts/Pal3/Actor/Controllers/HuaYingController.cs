@@ -9,10 +9,9 @@ namespace Pal3.Actor.Controllers
 {
     using Command;
     using Command.SceCommands;
-    using Core.GameBox;
+    using Core.Contracts;
     using Core.Navigation;
     using Core.Services;
-    using MetaData;
     using Scene;
     using UnityEngine;
 

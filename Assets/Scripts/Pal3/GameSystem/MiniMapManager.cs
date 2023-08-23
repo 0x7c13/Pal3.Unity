@@ -8,8 +8,8 @@ namespace Pal3.GameSystem
     using System;
     using Command;
     using Command.InternalCommands;
+    using Core.Contracts;
     using Core.DataReader.Nav;
-    using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Utils;
     using Scene;
@@ -139,7 +139,7 @@ namespace Pal3.GameSystem
 
         public void Execute(ScenePostLoadingNotification command)
         {
-            if (command.NewSceneInfo.SceneType == ScnSceneType.InDoor) return;
+            if (command.NewSceneInfo.SceneType == SceneType.InDoor) return;
 
             _currentTilemap = _sceneManager.GetCurrentScene().GetTilemap();
             _miniMapTextures = new Texture2D[_currentTilemap.GetLayerCount()];

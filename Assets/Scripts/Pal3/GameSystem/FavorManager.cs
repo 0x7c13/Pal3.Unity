@@ -11,7 +11,7 @@ namespace Pal3.GameSystem
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using MetaData;
+    using Core.Contracts;
     using UnityEngine;
 
     public sealed class FavorManager : IDisposable,

@@ -9,13 +9,14 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SectorBridge)]
+    [ScnSceneObject(SceneObjectType.SectorBridge)]
     public sealed class SectorBridgeObject : SceneObject
     {
         private StandingPlatformController _standingPlatformController;

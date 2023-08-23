@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor.Controllers;
     using Common;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -23,7 +24,7 @@ namespace Pal3.Scene.SceneObjects
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Climbable)]
+    [ScnSceneObject(SceneObjectType.Climbable)]
     public sealed class ClimbableObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 5f;

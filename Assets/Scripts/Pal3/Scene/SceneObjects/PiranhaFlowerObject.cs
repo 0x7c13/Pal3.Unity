@@ -10,6 +10,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -17,7 +18,7 @@ namespace Pal3.Scene.SceneObjects
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.PiranhaFlower)]
+    [ScnSceneObject(SceneObjectType.PiranhaFlower)]
     public sealed class PiranhaFlowerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;

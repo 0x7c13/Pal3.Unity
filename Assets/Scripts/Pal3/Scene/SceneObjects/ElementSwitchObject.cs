@@ -12,6 +12,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -20,7 +21,7 @@ namespace Pal3.Scene.SceneObjects
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.ElementSwitch)]
+    [ScnSceneObject(SceneObjectType.ElementSwitch)]
     public sealed class ElementSwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3f;

@@ -8,8 +8,7 @@ namespace Core.DataReader.Txt
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using Gdb;
-    using Nav;
+    using Contracts;
 
     public sealed class CombatScnFileReader : IFileReader<CombatScnFile>
     {
@@ -26,10 +25,10 @@ namespace Core.DataReader.Txt
             var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             string currentCombatSceneName = string.Empty;
-            Dictionary<NavFloorKind, string> currentCombatSceneMap = null;
+            Dictionary<FloorType, string> currentCombatSceneMap = null;
 
             Dictionary<string, ElementType> combatSceneElementTypeInfo = new(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, Dictionary<NavFloorKind, string>> combatSceneMapInfo = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, Dictionary<FloorType, string>> combatSceneMapInfo = new(StringComparer.OrdinalIgnoreCase);
 
             for (var i = 0; i < lines.Length; i++)
             {
@@ -51,7 +50,7 @@ namespace Core.DataReader.Txt
                         {
                             currentCombatSceneName = currentCombatSceneName[..currentCombatSceneName.IndexOf('\t')].Trim();
                         }
-                        currentCombatSceneMap = new Dictionary<NavFloorKind, string>();
+                        currentCombatSceneMap = new Dictionary<FloorType, string>();
                     }
                 }
                 else if (line == "END")
@@ -67,8 +66,8 @@ namespace Core.DataReader.Txt
                 {
                     // Parsing floor kind to scene property
                     string[] floorParts = line.Split('$');
-                    NavFloorKind floorKind = Enum.Parse<NavFloorKind>(floorParts[0].Trim(), true);
-                    currentCombatSceneMap[floorKind] = floorParts[1].Split('&')[0].Trim();
+                    FloorType floorType = Enum.Parse<FloorType>(floorParts[0].Trim(), true);
+                    currentCombatSceneMap[floorType] = floorParts[1].Split('&')[0].Trim();
                 }
                 else
                 {

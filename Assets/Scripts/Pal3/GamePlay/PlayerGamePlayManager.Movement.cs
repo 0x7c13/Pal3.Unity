@@ -10,6 +10,7 @@ namespace Pal3.GamePlay
     using Actor.Controllers;
     using Command;
     using Command.InternalCommands;
+    using Core.Contracts;
     using Core.DataReader.Nav;
     using Core.Navigation;
     using MetaData;
@@ -190,11 +191,11 @@ namespace Pal3.GamePlay
             if ((_lastKnownPosition.HasValue && _lastKnownLayerIndex.HasValue) &&
                 tileMap.TryGetTile(_lastKnownPosition.Value, _lastKnownLayerIndex.Value, out NavTile tile))
             {
-                return tile.FloorKind switch
+                return tile.FloorType switch
                 {
-                    NavFloorKind.Grass => sfxPrefix + 'b',
-                    NavFloorKind.Snow => sfxPrefix + 'c',
-                    NavFloorKind.Sand => sfxPrefix + 'd',
+                    FloorType.Grass => sfxPrefix + 'b',
+                    FloorType.Snow => sfxPrefix + 'c',
+                    FloorType.Sand => sfxPrefix + 'd',
                     _ => sfxPrefix + 'a'
                 };
             }

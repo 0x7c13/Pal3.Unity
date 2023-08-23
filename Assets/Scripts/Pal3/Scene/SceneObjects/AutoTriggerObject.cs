@@ -9,13 +9,14 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.AutoTrigger)]
+    [ScnSceneObject(SceneObjectType.AutoTrigger)]
     public sealed class AutoTriggerObject : SceneObject
     {
         private TilemapTriggerController _triggerController;
@@ -53,7 +54,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             #if PAL3A
-            if (ObjectInfo.Parameters[2] == 1 && GraphicsEffect == GraphicsEffect.Portal)
+            if (ObjectInfo.Parameters[2] == 1 && GraphicsEffectType == GraphicsEffectType.Portal)
             {
                 sceneGameObject.transform.rotation *= Quaternion.Euler(180, 0, 0);
             }

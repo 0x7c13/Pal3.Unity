@@ -13,13 +13,14 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.MovableCarrier)]
+    [ScnSceneObject(SceneObjectType.MovableCarrier)]
     public sealed class MovableCarrierObject : SceneObject
     {
         private const float MOVE_SPEED = 5f;

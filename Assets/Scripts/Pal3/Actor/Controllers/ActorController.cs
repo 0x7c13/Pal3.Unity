@@ -11,6 +11,7 @@ namespace Pal3.Actor.Controllers
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Navigation;
@@ -56,7 +57,7 @@ namespace Pal3.Actor.Controllers
 
         private bool _isScriptChanged;
 
-        private ScnActorBehaviour _currentBehaviour;
+        private ActorBehaviourType _currentBehaviour;
 
         public void Init(Actor actor,
             ActorActionController actionController,
@@ -83,7 +84,7 @@ namespace Pal3.Actor.Controllers
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public ScnActorBehaviour GetCurrentBehaviour()
+        public ActorBehaviourType GetCurrentBehaviour()
         {
             return _currentBehaviour;
         }
@@ -115,7 +116,7 @@ namespace Pal3.Actor.Controllers
             }
             #endif
 
-            if (_actor.Info.Kind == ScnActorKind.MainActor)
+            if (_actor.Info.Type == ActorType.MainActor)
             {
                 if (string.IsNullOrEmpty(_actionController.GetCurrentAction()))
                 {
@@ -129,30 +130,30 @@ namespace Pal3.Actor.Controllers
             {
                 switch (_actor.Info.InitBehaviour)
                 {
-                    case ScnActorBehaviour.None:
-                        _currentBehaviour = ScnActorBehaviour.None;
+                    case ActorBehaviourType.None:
+                        _currentBehaviour = ActorBehaviourType.None;
                         _actionController.PerformAction(_actor.GetIdleAction());
                         break;
-                    case ScnActorBehaviour.Hold:
-                        _currentBehaviour = ScnActorBehaviour.Hold;
+                    case ActorBehaviourType.Hold:
+                        _currentBehaviour = ActorBehaviourType.Hold;
                         _actionController.PerformAction(_actor.GetInitAction());
                         if (_actor.Info.LoopAction == 0)
                         {
                             _actionController.PauseAnimation(); // Hold at the first frame
                         }
                         break;
-                    case ScnActorBehaviour.Wander:
-                        _currentBehaviour = ScnActorBehaviour.Wander;
+                    case ActorBehaviourType.Wander:
+                        _currentBehaviour = ActorBehaviourType.Wander;
                         _actionController.PerformAction(_actor.GetIdleAction());
                         break;
-                    case ScnActorBehaviour.PathFollow:
-                        _currentBehaviour = ScnActorBehaviour.PathFollow;
+                    case ActorBehaviourType.PathFollow:
+                        _currentBehaviour = ActorBehaviourType.PathFollow;
                         _actionController.PerformAction(_actor.GetIdleAction());
                         break;
                 }
             }
 
-            if (_currentBehaviour == ScnActorBehaviour.PathFollow &&
+            if (_currentBehaviour == ActorBehaviourType.PathFollow &&
                 _actor.Info.Path.NumberOfWaypoints > 0)
             {
                 var waypoints = new Vector3[_actor.Info.Path.NumberOfWaypoints];
@@ -171,7 +172,7 @@ namespace Pal3.Actor.Controllers
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (_actor.Info.Kind == ScnActorKind.CombatNpc &&
+            if (_actor.Info.Type == ActorType.CombatNpc &&
                 (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
                 collision.gameObject.GetComponent<ActorController>() is {} actorController &&
                 (byte) ServiceLocator.Instance.Get<PlayerActorManager>()

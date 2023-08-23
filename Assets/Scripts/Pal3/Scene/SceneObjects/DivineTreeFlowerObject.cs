@@ -9,6 +9,7 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Services;
@@ -16,7 +17,7 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.DivineTreeFlower)]
+    [ScnSceneObject(SceneObjectType.DivineTreeFlower)]
     public sealed class DivineTreeFlowerObject : SceneObject
     {
         private StandingPlatformController _platformController;

@@ -11,7 +11,7 @@ namespace Pal3.GameSystem
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
     using Core.Extensions;
     using Core.Utils;
     using Input;
@@ -133,7 +133,7 @@ namespace Pal3.GameSystem
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
                 // Only enable big map toggling in non-maze scenes.
-                if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
+                if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != SceneType.Maze)
                 {
                     Show();
                 }

@@ -11,14 +11,14 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.Animation;
-    using Core.DataReader.Nav;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Services;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.WaterSurfaceRoadBlocker)]
+    [ScnSceneObject(SceneObjectType.WaterSurfaceRoadBlocker)]
     public sealed class WaterSurfaceRoadBlockerObject : SceneObject
     {
         private const float WATER_ANIMATION_DURATION = 4f;
@@ -73,7 +73,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 _sceneManager.GetCurrentScene()
                     .GetTilemap()
-                    .MarkFloorKindAsObstacle(NavFloorKind.Soil, setSoilFloorAsObstacle);
+                    .MarkFloorTypeAsObstacle(FloorType.Soil, setSoilFloorAsObstacle);
             }
         }
     }

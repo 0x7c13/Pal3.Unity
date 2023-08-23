@@ -13,13 +13,14 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Services;
     using GameSystem;
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.PaperweightDesk)]
+    [ScnSceneObject(SceneObjectType.PaperweightDesk)]
     public sealed class PaperweightDeskObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 2f;

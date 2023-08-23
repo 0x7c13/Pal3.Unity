@@ -7,12 +7,13 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.General)]
+    [ScnSceneObject(SceneObjectType.General)]
     public sealed class GeneralSceneObject : SceneObject
     {
         private SceneObjectMeshCollider _meshCollider;

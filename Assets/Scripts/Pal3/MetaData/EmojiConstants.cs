@@ -6,25 +6,7 @@
 namespace Pal3.MetaData
 {
     using System.Collections.Generic;
-
-    public enum ActorEmojiType
-    {
-        None = 0,
-        Sleepy,     // 睡
-        Shock,      // 惊
-        Doubt,      // 疑
-        Anger,      // 怒
-        Happy,      // 喜
-        Heart,      // 心
-        Sweat,      // 汗
-        Bother,     // 乱
-        Anxious,    // 急
-        Cry,        // 泣
-        Dizzy,      // 晕
-        #if PAL3A
-        Speechless  // 无语
-        #endif
-    }
+    using Core.Contracts;
 
     public static class ActorEmojiConstants
     {

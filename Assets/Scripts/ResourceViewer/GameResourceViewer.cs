@@ -31,6 +31,7 @@ namespace ResourceViewer
     using Core.Utils;
     using IngameDebugConsole;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using Pal3.Command;
     using Pal3.Command.SceCommands;
     using Pal3.Data;
@@ -75,7 +76,7 @@ namespace ResourceViewer
         private GameObject _renderingRoot;
 
         private int _codePage;
-        private HashSet<char> _charSet;
+        //private HashSet<char> _charSet;
 
         private void OnEnable()
         {
@@ -135,6 +136,9 @@ namespace ResourceViewer
             DebugLogConsole.AddCommand("ExtractAllCpkArchives",
                 "Extract all .cpk archives into the output directory.",
                 ExtractAllCpkArchives);
+            DebugLogConsole.AddCommand("ExportAllGdbFiles",
+                "Export all .gdb files into the output directory.",
+                ExportAllGdbFiles);
             #endif
 
             //__Malicious__Dev_Only__();
@@ -447,46 +451,79 @@ namespace ResourceViewer
                 Directory.CreateDirectory(outputFolderPath);
             }
 
-            _charSet = new HashSet<char>();
+            // _charSet = new HashSet<char>();
+            //
+            // foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
+            //
+            // foreach (var itemInfo in _resourceProvider.GetGameItemInfos().Values)
+            // {
+            //     foreach (var ch in itemInfo.Name) _charSet.Add(ch);
+            //     foreach (var ch in itemInfo.Description) _charSet.Add(ch);
+            // }
+            //
+            // foreach (var actorInfo in _resourceProvider.GetCombatActorInfos().Values)
+            // {
+            //     foreach (var ch in actorInfo.Name) _charSet.Add(ch);
+            //     foreach (var ch in actorInfo.Description) _charSet.Add(ch);
+            // }
+            //
+            // foreach (var skillInfo in _resourceProvider.GetSkillInfos().Values)
+            // {
+            //     foreach (var ch in skillInfo.Name) _charSet.Add(ch);
+            //     foreach (var ch in skillInfo.Description) _charSet.Add(ch);
+            // }
+            //
+            // foreach (var comboSkillInfo in _resourceProvider.GetComboSkillInfos().Values)
+            // {
+            //     foreach (var ch in comboSkillInfo.Name) _charSet.Add(ch);
+            //     foreach (var ch in comboSkillInfo.Description) _charSet.Add(ch);
+            // }
+            //
+            // #if PAL3A
+            // var taskDefinitionFile = _resourceProvider.GetGameResourceFile<TaskDefinitionFile>(
+            //     FileConstants.DataScriptFolderVirtualPath + "task.txt");
+            // foreach (Task task in taskDefinitionFile.Tasks)
+            // {
+            //     foreach (var ch in task.Title) _charSet.Add(ch);
+            //     foreach (var ch in task.Description) _charSet.Add(ch);
+            // }
+            // #endif
+            //
+            // File.WriteAllText($"{outputFolderPath}{Path.DirectorySeparatorChar}charset.txt", string.Join("", _charSet));
+            // _charSet.Clear();
+        }
 
-            foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
+        private void ExportAllGdbFiles()
+        {
+            var outputFolderPath = EditorUtility.SaveFolderPanel("选择GDB文件解包后的导出目录", "", "");
+            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
 
-            foreach (var itemInfo in _resourceProvider.GetGameItemInfos().Values)
+            outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
+
+            if (!Directory.Exists(outputFolderPath))
             {
-                foreach (var ch in itemInfo.Name) _charSet.Add(ch);
-                foreach (var ch in itemInfo.Description) _charSet.Add(ch);
+                Directory.CreateDirectory(outputFolderPath);
             }
 
-            foreach (var actorInfo in _resourceProvider.GetCombatActorInfos().Values)
-            {
-                foreach (var ch in actorInfo.Name) _charSet.Add(ch);
-                foreach (var ch in actorInfo.Description) _charSet.Add(ch);
-            }
+            consoleTextUI.text = "正在解包GDB文件，请稍等...";
 
-            foreach (var skillInfo in _resourceProvider.GetSkillInfos().Values)
-            {
-                foreach (var ch in skillInfo.Name) _charSet.Add(ch);
-                foreach (var ch in skillInfo.Description) _charSet.Add(ch);
-            }
+            var combatActorInfos = JsonConvert.SerializeObject(_resourceProvider.GetCombatActorInfos(),
+                Formatting.Indented, new StringEnumConverter());
+            File.WriteAllText(outputFolderPath + "CombatActors.json", combatActorInfos);
 
-            foreach (var comboSkillInfo in _resourceProvider.GetComboSkillInfos().Values)
-            {
-                foreach (var ch in comboSkillInfo.Name) _charSet.Add(ch);
-                foreach (var ch in comboSkillInfo.Description) _charSet.Add(ch);
-            }
+            var combatSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetSkillInfos(),
+                Formatting.Indented, new StringEnumConverter());
+            File.WriteAllText(outputFolderPath + "CombatSkills.json", combatSkillInfos);
 
-            #if PAL3A
-            var taskDefinitionFile = _resourceProvider.GetGameResourceFile<TaskDefinitionFile>(
-                FileConstants.DataScriptFolderVirtualPath + "task.txt");
-            foreach (Task task in taskDefinitionFile.Tasks)
-            {
-                foreach (var ch in task.Title) _charSet.Add(ch);
-                foreach (var ch in task.Description) _charSet.Add(ch);
-            }
-            #endif
+            var combatComboSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetComboSkillInfos(),
+                Formatting.Indented, new StringEnumConverter());
+            File.WriteAllText(outputFolderPath + "CombatComboSkills.json", combatComboSkillInfos);
 
-            File.WriteAllText($"{outputFolderPath}{Path.DirectorySeparatorChar}charset.txt", string.Join("", _charSet));
-            _charSet.Clear();
+            var gameItemInfos = JsonConvert.SerializeObject(_resourceProvider.GetGameItemInfos(),
+                Formatting.Indented, new StringEnumConverter());
+            File.WriteAllText(outputFolderPath + "GameItems.json", gameItemInfos);
+
+            consoleTextUI.text = "GDB文件已解包完成！";
         }
 
         private void ExtractAllCpkArchives()
@@ -580,9 +617,9 @@ namespace ResourceViewer
 
                     ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, _codePage);
 
-                    if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
-                    if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);
-                    if (command is UIDisplayNoteCommand unc) foreach (var ch in unc.Note) _charSet.Add(ch);
+                    // if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
+                    // if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);
+                    // if (command is UIDisplayNoteCommand unc) foreach (var ch in unc.Note) _charSet.Add(ch);
 
                     if (dialogueOnly && command is DialogueRenderTextCommand
                             or DialogueRenderTextWithTimeLimitCommand)

@@ -7,6 +7,7 @@ namespace Core.DataReader.Nav
 {
     using System;
     using System.IO;
+    using Contracts;
     using GameBox;
     using UnityEngine;
     using Utils;
@@ -83,7 +84,7 @@ namespace Core.DataReader.Nav
                 {
                     GameBoxYPosition = reader.ReadSingle(),
                     DistanceToNearestObstacle = reader.ReadByte(), //---| 1
-                    FloorKind = (NavFloorKind) reader.ReadByte()  //----| 2
+                    FloorType = (FloorType) reader.ReadByte()  //----| 2
                 };
                 _ = reader.ReadBytes(2); //-----------------------------| ^ to complete 4-byte alignment
             }

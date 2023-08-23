@@ -12,7 +12,7 @@ namespace Pal3.GamePlay
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
     using MetaData;
     using Scene;
     using Scene.SceneObjects;
@@ -180,7 +180,7 @@ namespace Pal3.GamePlay
             // Pause current path follow movement of the interacting actor
             if (actorController != null &&
                 movementController != null &&
-                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
+                actorController.GetCurrentBehaviour() == ActorBehaviourType.PathFollow)
             {
                 movementController.PauseMovement();
             }
@@ -193,7 +193,7 @@ namespace Pal3.GamePlay
 
             // Only let target actor look at player actor when NoTurn is set to false
             // and InitBehaviour is not set to Hold
-            if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ScnActorBehaviour.Hold)
+            if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ActorBehaviourType.Hold)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorLookAtActorCommand(targetActor.Info.Id, _playerActor.Info.Id));
@@ -201,7 +201,7 @@ namespace Pal3.GamePlay
             }
 
             // Resume animation of the target actor if it is set to hold and loop action is set to 0
-            if (targetActor.Info.InitBehaviour == ScnActorBehaviour.Hold &&
+            if (targetActor.Info.InitBehaviour == ActorBehaviourType.Hold &&
                 targetActor.Info.LoopAction == 0)
             {
                 var actionController = actorGameObject.GetComponent<ActorActionController>();
@@ -219,7 +219,7 @@ namespace Pal3.GamePlay
             // Resume current path follow movement of the interacting actor
             if (actorController != null &&
                 movementController != null &&
-                actorController.GetCurrentBehaviour() == ScnActorBehaviour.PathFollow)
+                actorController.GetCurrentBehaviour() == ActorBehaviourType.PathFollow)
             {
                 movementController.ResumeMovement();
             }

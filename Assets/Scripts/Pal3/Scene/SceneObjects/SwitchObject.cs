@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -24,7 +25,7 @@ namespace Pal3.Scene.SceneObjects
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Switch)]
+    [ScnSceneObject(SceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3f;
@@ -178,7 +179,7 @@ namespace Pal3.Scene.SceneObjects
                 var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
                 var allFlowerObjects = ctx.CurrentScene.GetAllSceneObjects().Where(
                     _ => allActivatedSceneObjects.Contains(_.Key) &&
-                         _.Value.ObjectInfo.Type == ScnSceneObjectType.DivineTreeFlower);
+                         _.Value.ObjectInfo.Type == SceneObjectType.DivineTreeFlower);
                 foreach (var flowerObject in allFlowerObjects)
                 {
                     // Re-activate all flowers in current scene to refresh their state

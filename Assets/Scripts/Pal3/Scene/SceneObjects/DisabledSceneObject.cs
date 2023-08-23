@@ -6,21 +6,22 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
 
     /// <summary>
     /// Disabled scene objects will not be loaded to the scene.
     /// </summary>
-    [ScnSceneObject(ScnSceneObjectType.SavingPoint)]
+    [ScnSceneObject(SceneObjectType.SavingPoint)]
     #if PAL3
-    [ScnSceneObject(ScnSceneObjectType.WishPool)]
+    [ScnSceneObject(SceneObjectType.WishPool)]
     #endif
-    [ScnSceneObject(ScnSceneObjectType.FallableWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.Arrow)]
-    [ScnSceneObject(ScnSceneObjectType.ColdWeapon)]
-    [ScnSceneObject(ScnSceneObjectType.WindBlower)]
-    [ScnSceneObject(ScnSceneObjectType.Billboard)]
-    [ScnSceneObject(ScnSceneObjectType.PreciseTrigger)]
+    [ScnSceneObject(SceneObjectType.FallableWeapon)]
+    [ScnSceneObject(SceneObjectType.Arrow)]
+    [ScnSceneObject(SceneObjectType.ColdWeapon)]
+    [ScnSceneObject(SceneObjectType.WindBlower)]
+    [ScnSceneObject(SceneObjectType.Billboard)]
+    [ScnSceneObject(SceneObjectType.PreciseTrigger)]
     public sealed class DisabledSceneObject : SceneObject
     {
         public DisabledSceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

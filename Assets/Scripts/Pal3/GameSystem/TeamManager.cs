@@ -12,9 +12,8 @@ namespace Pal3.GameSystem
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
     using Core.Utils;
-    using MetaData;
     using GamePlay;
     using Scene;
     using UnityEngine;

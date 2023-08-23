@@ -14,6 +14,7 @@ namespace Pal3.Data
     using System.Threading;
     using Command;
     using Command.InternalCommands;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader;
     using Core.DataReader.Cpk;
@@ -483,12 +484,12 @@ namespace Pal3.Data
                                 $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}.");
         }
 
-        public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffect effect, string texturePathFormat)
+        public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
                 Utility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
 
-            if (effect == GraphicsEffect.Fire)
+            if (effect == GraphicsEffectType.Fire)
             {
                 var numberOfFrames = EffectConstants.AnimatedFireEffectFrameCount;
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];

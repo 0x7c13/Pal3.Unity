@@ -6,16 +6,15 @@
 namespace Core.DataReader.Txt
 {
     using System.Collections.Generic;
-    using Gdb;
-    using Nav;
+    using Contracts;
 
     public sealed class CombatScnFile
     {
         public Dictionary<string, ElementType> CombatSceneElementTypeInfo  { get; }
-        public Dictionary<string, Dictionary<NavFloorKind, string>> CombatSceneMapInfo  { get; }
+        public Dictionary<string, Dictionary<FloorType, string>> CombatSceneMapInfo  { get; }
 
         public CombatScnFile(Dictionary<string, ElementType> combatSceneElementTypeInfo,
-            Dictionary<string, Dictionary<NavFloorKind, string>> combatSceneMapInfo)
+            Dictionary<string, Dictionary<FloorType, string>> combatSceneMapInfo)
         {
             CombatSceneElementTypeInfo = combatSceneElementTypeInfo;
             CombatSceneMapInfo = combatSceneMapInfo;

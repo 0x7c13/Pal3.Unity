@@ -14,6 +14,7 @@ namespace Pal3.Camera
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Utils;
@@ -404,19 +405,19 @@ namespace Pal3.Camera
         {
             switch (sceneInfo.SceneType)
             {
-                case ScnSceneType.OutDoor:
+                case SceneType.OutDoor:
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
                     ApplyDefaultSettings(initTransformOption ?? 0, initRotation);
                     break;
-                case ScnSceneType.InDoor:
+                case SceneType.InDoor:
                     _lookAtPointYOffset = SCENE_IN_DOOR_ROOM_FLOOR_HEIGHT;
                     _camera.nearClipPlane = 1f;
                     _camera.farClipPlane = 500f;
                     ApplyDefaultSettings(initTransformOption ?? 1, initRotation);
                     break;
-                case ScnSceneType.Maze:
+                case SceneType.Maze:
                     _lookAtPointYOffset = 0;
                     _camera.nearClipPlane = 2f;
                     _camera.farClipPlane = 800f;
@@ -718,7 +719,7 @@ namespace Pal3.Camera
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             // Remember the current scene's camera position and rotation
-            if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != ScnSceneType.InDoor)
+            if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != SceneType.InDoor)
             {
                 var cameraTransform = _camera.transform;
                 _cameraLastKnownState.Add((
@@ -745,7 +746,7 @@ namespace Pal3.Camera
             int? initTransformOption = _initTransformOptionOnSceneLoad;
 
             // Use the last known camera rotation based on last known state found in record.
-            if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != ScnSceneType.InDoor)
+            if (_cameraFollowPlayer && notification.NewSceneInfo.SceneType != SceneType.InDoor)
             {
                 if (_cameraLastKnownState.Count > 0 && _cameraLastKnownState.Any(_ =>
                         _.sceneInfo.ModelEquals(notification.NewSceneInfo)))

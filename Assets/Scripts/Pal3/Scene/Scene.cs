@@ -15,6 +15,7 @@ namespace Pal3.Scene
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -226,7 +227,7 @@ namespace Pal3.Scene
             foreach (var objectId in _activatedSceneObjects)
             {
                 SceneObject sceneObject = SceneObjects[objectId];
-                if (sceneObject.ObjectInfo.Type == ScnSceneObjectType.JumpableArea &&
+                if (sceneObject.ObjectInfo.Type == SceneObjectType.JumpableArea &&
                     layerIndex == sceneObject.ObjectInfo.LayerIndex &&
                     GameBoxInterpreter.IsPointInsideRect(sceneObject.ObjectInfo.TileMapTriggerRect,
                         tilePosition))
@@ -315,11 +316,11 @@ namespace Pal3.Scene
         private void SetupEnvironmentLighting()
         {
             Vector3 mainLightPosition = new Vector3(0, 20f, 0);
-            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor ?
+            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == SceneType.InDoor ?
                     Quaternion.Euler(120f, -20f, 0f) :
                     Quaternion.Euler(70f, -30f, 0f);
 
-            if (ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor && IsNightScene())
+            if (ScnFile.SceneInfo.SceneType == SceneType.InDoor && IsNightScene())
             {
                 mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
             }
@@ -354,12 +355,12 @@ namespace Pal3.Scene
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(220f / 255f, 210f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.75f : 0.9f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.75f : 0.9f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
                 new Color(60f / 255f, 80f / 255f, 170f / 255f) :
                 new Color(200f / 255f, 200f / 255f, 200f / 255f);
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor) ? 0.65f : 0.9f;
+            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.65f : 0.9f;
             #endif
 
             // Ambient light
@@ -460,7 +461,7 @@ namespace Pal3.Scene
 
             if (_isLightingEnabled)
             {
-                if (sceneObject.GraphicsEffect == GraphicsEffect.Fire &&
+                if (sceneObject.GraphicsEffectType == GraphicsEffectType.Fire &&
                     sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
                     fireEffect.EffectGameObject != null)
                 {

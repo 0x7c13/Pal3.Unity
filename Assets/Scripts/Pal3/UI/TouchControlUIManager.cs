@@ -8,7 +8,7 @@ namespace Pal3.UI
     using System;
     using Command;
     using Command.InternalCommands;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
     using Core.Utils;
     using Scene;
     using State;
@@ -65,7 +65,7 @@ namespace Pal3.UI
         private void MultiFunctionButtonClicked()
         {
             if (_sceneManager.GetCurrentScene() is { } currentScene &&
-                currentScene.GetSceneInfo().SceneType == ScnSceneType.Maze)
+                currentScene.GetSceneInfo().SceneType == SceneType.Maze)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SwitchPlayerActorRequest());
             }

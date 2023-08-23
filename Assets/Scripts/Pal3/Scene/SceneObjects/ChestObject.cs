@@ -9,12 +9,13 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Chest)]
+    [ScnSceneObject(SceneObjectType.Chest)]
     public sealed class ChestObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3f;

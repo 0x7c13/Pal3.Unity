@@ -8,6 +8,7 @@ namespace Pal3.Actor
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using MetaData;
@@ -26,10 +27,10 @@ namespace Pal3.Actor
             {
                 Id = (byte)actorId,
                 Name = ActorConstants.MainActorNameMap[actorId],
-                Kind = ScnActorKind.MainActor,
+                Type = ActorType.MainActor,
                 InitActive = 0,
                 InitAction = ActorConstants.ActionToNameMap[ActorActionType.Stand],
-                InitBehaviour = ScnActorBehaviour.None,
+                InitBehaviour = ActorBehaviourType.None,
                 GameBoxXPosition = gameBoxInitPosition.x,
                 GameBoxYPosition = gameBoxInitPosition.y,
                 GameBoxZPosition = gameBoxInitPosition.z,

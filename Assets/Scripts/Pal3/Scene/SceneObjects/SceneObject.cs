@@ -14,6 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.InternalCommands;
     using Command.SceCommands;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
@@ -48,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
 
         public ScnObjectInfo ObjectInfo;
         public ScnSceneInfo SceneInfo;
-        public GraphicsEffect GraphicsEffect { get; }
+        public GraphicsEffectType GraphicsEffectType { get; }
         public SceneObjectModelType ModelType { get; }
 
         internal bool IsActivated;
@@ -71,17 +72,17 @@ namespace Pal3.Scene.SceneObjects
             ModelType = SceneObjectModelTypeResolver.GetType(
                 Utility.GetFileName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
 
-            GraphicsEffect = GetEffectType(objectInfo);
+            GraphicsEffectType = GetEffectType(objectInfo);
         }
 
-        private GraphicsEffect GetEffectType(ScnObjectInfo objectInfo)
+        private GraphicsEffectType GetEffectType(ScnObjectInfo objectInfo)
         {
-            if (!objectInfo.Name.StartsWith('+')) return GraphicsEffect.None;
+            if (!objectInfo.Name.StartsWith('+')) return GraphicsEffectType.None;
 
             if (objectInfo.Parameters[1] == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
                 // Dead object
-                return GraphicsEffect.None;
+                return GraphicsEffectType.None;
             }
 
             return EffectTypeResolver.GetEffectByNameAndType(objectInfo.Name, objectInfo.EffectModelType);
@@ -149,7 +150,7 @@ namespace Pal3.Scene.SceneObjects
                     materialFactory,
                     tintColor);
 
-                if (ObjectInfo.Type == ScnSceneObjectType.General)
+                if (ObjectInfo.Type == SceneObjectType.General)
                 {
                     _cvdModelRenderer.LoopAnimation();
                 }
@@ -166,8 +167,8 @@ namespace Pal3.Scene.SceneObjects
 
             _sceneObjectGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
 
-            if (GraphicsEffect != GraphicsEffect.None &&
-                EffectTypeResolver.GetEffectComponentType(GraphicsEffect) is {} effectComponentType)
+            if (GraphicsEffectType != GraphicsEffectType.None &&
+                EffectTypeResolver.GetEffectComponentType(GraphicsEffectType) is {} effectComponentType)
             {
                 _effectComponent = _sceneObjectGameObject.AddComponent(effectComponentType) as IEffect;
                 #if PAL3
@@ -175,7 +176,7 @@ namespace Pal3.Scene.SceneObjects
                 #elif PAL3A
                 var effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
-                Debug.Log($"[{nameof(SceneObject)}] Adding {GraphicsEffect} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
+                Debug.Log($"[{nameof(SceneObject)}] Adding {GraphicsEffectType} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
                 _effectComponent!.Init(resourceProvider, effectParameter);
             }
 

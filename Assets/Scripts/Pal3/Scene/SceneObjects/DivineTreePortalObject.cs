@@ -12,13 +12,14 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.DivineTreePortal)]
+    [ScnSceneObject(SceneObjectType.DivineTreePortal)]
     public sealed class DivineTreePortalObject : SceneObject
     {
         private float MOVEMENT_ANIMATION_DURATION = 3f;

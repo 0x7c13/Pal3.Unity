@@ -11,6 +11,7 @@ namespace Pal3.Scene.SceneObjects
     using Actor.Controllers;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -19,7 +20,7 @@ namespace Pal3.Scene.SceneObjects
     using State;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Elevator)]
+    [ScnSceneObject(SceneObjectType.Elevator)]
     public sealed class ElevatorObject : SceneObject
     {
         private const float ELEVATOR_SPEED = 9f;

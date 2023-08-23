@@ -12,16 +12,16 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
-    using Core.Services;
     using Data;
     using MetaData;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.FallableObstacle)]
+    [ScnSceneObject(SceneObjectType.FallableObstacle)]
     public sealed class FallableObstacleObject : SceneObject
     {
         private const float FALLING_DURATION = 1.1f;

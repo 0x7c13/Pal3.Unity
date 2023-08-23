@@ -6,7 +6,7 @@
 namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
 
     /// <summary>
     /// Attribute for SceneObject
@@ -15,11 +15,11 @@ namespace Pal3.Scene.SceneObjects.Common
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ScnSceneObjectAttribute : Attribute
     {
-        public ScnSceneObjectAttribute(ScnSceneObjectType type)
+        public ScnSceneObjectAttribute(SceneObjectType type)
         {
             Type = type;
         }
 
-        public ScnSceneObjectType Type { get; }
+        public SceneObjectType Type { get; }
     }
 }

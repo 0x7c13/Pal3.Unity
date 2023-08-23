@@ -13,6 +13,7 @@ namespace Pal3.GamePlay
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Utils;
     using Data;

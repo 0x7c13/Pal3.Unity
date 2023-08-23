@@ -13,6 +13,7 @@ namespace Pal3.Scene.SceneObjects
     using Command.SceCommands;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -21,7 +22,7 @@ namespace Pal3.Scene.SceneObjects
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.ToggleSwitch)]
+    [ScnSceneObject(SceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
     {
         private const float MAX_INTERACTION_DISTANCE = 3f;
@@ -117,9 +118,9 @@ namespace Pal3.Scene.SceneObjects
 
                 if (!SceneInfo.Is("m06", "2") &&
                     linkedObject.ObjectInfo.Type
-                        is not ScnSceneObjectType.LiftingPlatform
-                        and not ScnSceneObjectType.MovableCarrier
-                        and not ScnSceneObjectType.WaterSurface)
+                        is not SceneObjectType.LiftingPlatform
+                        and not SceneObjectType.MovableCarrier
+                        and not SceneObjectType.WaterSurface)
                 {
                     yield return MoveCameraToLookAtPointAsync(
                         GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),

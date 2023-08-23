@@ -10,6 +10,7 @@ namespace Pal3.GamePlay
     using System.Collections.Generic;
     using System.Linq;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Nav;
     using Core.Extensions;
     using Core.GameBox;

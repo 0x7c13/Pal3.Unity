@@ -10,12 +10,13 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.InternalCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Services;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.EyeBall)]
+    [ScnSceneObject(SceneObjectType.EyeBall)]
     public sealed class EyeBallObject : SceneObject,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {

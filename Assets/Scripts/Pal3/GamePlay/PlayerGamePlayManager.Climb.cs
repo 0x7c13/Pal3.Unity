@@ -10,6 +10,7 @@ namespace Pal3.GamePlay
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.GameBox;
     using Core.Renderer;
     using MetaData;

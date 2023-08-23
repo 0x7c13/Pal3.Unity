@@ -7,13 +7,14 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.StaticOrAnimated)]
+    [ScnSceneObject(SceneObjectType.StaticOrAnimated)]
     public sealed class StaticOrAnimatedObject : SceneObject
     {
         public StaticOrAnimatedObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)

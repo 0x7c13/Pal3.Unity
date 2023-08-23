@@ -10,12 +10,13 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.ElevatorDoor)]
+    [ScnSceneObject(SceneObjectType.ElevatorDoor)]
     public sealed class ElevatorDoorObject : SceneObject
     {
         private SceneObjectMeshCollider _meshCollider;

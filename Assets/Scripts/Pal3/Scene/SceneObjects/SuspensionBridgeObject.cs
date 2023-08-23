@@ -11,13 +11,14 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.SceCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SuspensionBridge)]
+    [ScnSceneObject(SceneObjectType.SuspensionBridge)]
     public sealed class SuspensionBridgeObject : SceneObject
     {
         private StandingPlatformController _platformController;

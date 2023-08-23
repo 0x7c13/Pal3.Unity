@@ -8,11 +8,12 @@ namespace Pal3.Scene.SceneObjects
     using Command;
     using Command.InternalCommands;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SceneSfx)]
+    [ScnSceneObject(SceneObjectType.SceneSfx)]
     public sealed class SceneSfxObject : SceneObject
     {
         public string SfxName { get; }

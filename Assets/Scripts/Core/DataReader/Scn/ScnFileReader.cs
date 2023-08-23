@@ -7,7 +7,7 @@ namespace Core.DataReader.Scn
 {
     using System;
     using System.IO;
-    using Extensions;
+    using Contracts;
     using GameBox;
     using UnityEngine;
 
@@ -34,7 +34,7 @@ namespace Core.DataReader.Scn
                 CityName = reader.ReadString(32, codepage),
                 SceneName = reader.ReadString(32, codepage),
                 Model = reader.ReadString(32, codepage),
-                SceneType = (ScnSceneType) reader.ReadInt32(),
+                SceneType = (SceneType) reader.ReadInt32(),
                 LightMap = reader.ReadInt32(),
                 SkyBox = reader.ReadUInt32(),
                 Reserved = reader.ReadUInt32s(6),
@@ -63,7 +63,7 @@ namespace Core.DataReader.Scn
             return new ScnNpcInfo()
             {
                 Id = reader.ReadByte(),
-                Kind = (ScnActorKind)reader.ReadByte(),
+                Type = (ActorType)reader.ReadByte(),
                 Name = reader.ReadString(32, codepage),
                 Texture = reader.ReadString(34, codepage),
                 FacingDirection = reader.ReadSingle(),
@@ -71,7 +71,7 @@ namespace Core.DataReader.Scn
                 GameBoxXPosition = reader.ReadSingle(),
                 GameBoxZPosition = reader.ReadSingle(),
                 InitActive = reader.ReadInt32(),
-                InitBehaviour = (ScnActorBehaviour) reader.ReadInt32(),
+                InitBehaviour = (ActorBehaviourType) reader.ReadInt32(),
                 ScriptId = reader.ReadUInt32(),
                 GameBoxYPosition = reader.ReadSingle(),
                 InitAction = reader.ReadString(16, codepage),
@@ -115,7 +115,7 @@ namespace Core.DataReader.Scn
                 Bottom = reader.ReadInt32(),
             };
 
-            var type = (ScnSceneObjectType)reader.ReadByte();
+            var type = (SceneObjectType)reader.ReadByte();
             var saveState = reader.ReadByte();
             var layerIndex = reader.ReadByte();
             var elementType = (SceneObjectElementType)reader.ReadByte();

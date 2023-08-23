@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Services;
@@ -13,7 +14,7 @@ namespace Pal3.Scene.SceneObjects
     using GamePlay;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.JumpableArea)]
+    [ScnSceneObject(SceneObjectType.JumpableArea)]
     public sealed class JumpableAreaObject : SceneObject
     {
         private TilemapTriggerController _triggerController;

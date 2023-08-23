@@ -9,13 +9,14 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Services;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.MushroomBridge)]
+    [ScnSceneObject(SceneObjectType.MushroomBridge)]
     public sealed class MushroomBridgeObject : SceneObject
     {
         private const float ROTATION_DEGREES_PER_SECOND = 45f;

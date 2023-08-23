@@ -10,12 +10,13 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SwordBridge)]
+    [ScnSceneObject(SceneObjectType.SwordBridge)]
     public sealed class SwordBridgeObject : SceneObject
     {
         private const float EXTEND_LENGTH = 6f;

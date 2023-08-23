@@ -153,50 +153,55 @@ namespace Pal3.Scene
             ShowCurrentScene();
         }
 
+        private readonly IList<Renderer> _temporarilyDisabledRenderers = new List<Renderer>();
+        private readonly IList<GameObject> _temporarilyDisabledGameObjects = new List<GameObject>();
         private void HideCurrentScene()
         {
+            _temporarilyDisabledRenderers.Clear();
+            _temporarilyDisabledGameObjects.Clear();
+
             foreach (ActorMovementController movementController in
                      _currentSceneRoot.GetComponentsInChildren<ActorMovementController>())
             {
                 movementController.PauseMovement();
             }
 
-            foreach (MeshRenderer meshRenderer in
-                     _currentSceneRoot.GetComponentsInChildren<MeshRenderer>())
+            foreach (Renderer renderer in _currentSceneRoot.GetComponentsInChildren<Renderer>())
             {
-                meshRenderer.enabled = false;
+                if (renderer.enabled)
+                {
+                    renderer.enabled = false;
+                    _temporarilyDisabledRenderers.Add(renderer);
+                }
             }
 
-            foreach (SpriteRenderer spriteRenderer in
-                     _currentSceneRoot.GetComponentsInChildren<SpriteRenderer>())
+            foreach (ParticleSystem particleSystem in _currentSceneRoot.GetComponentsInChildren<ParticleSystem>())
             {
-                spriteRenderer.enabled = false;
+                GameObject particleGo = particleSystem.gameObject;
+                if (particleGo.activeInHierarchy)
+                {
+                    particleGo.SetActive(false);
+                    _temporarilyDisabledGameObjects.Add(particleGo);
+                }
             }
 
-            foreach (ParticleSystem particleSystem in
-                     _currentSceneRoot.GetComponentsInChildren<ParticleSystem>())
-            {
-                particleSystem.gameObject.SetActive(false);
-            }
+            // Move the scene root to a lower position just to be safe.
+            _currentSceneRoot.transform.localPosition = Vector3.down * 100f;
         }
 
         private void ShowCurrentScene()
         {
-            foreach (ParticleSystem particleSystem in
-                     _currentSceneRoot.GetComponentsInChildren<ParticleSystem>(includeInactive: true))
+            // Move the scene root back to the original position.
+            _currentSceneRoot.transform.localPosition = Vector3.zero;
+
+            foreach (GameObject disabledGo in _temporarilyDisabledGameObjects)
             {
-                particleSystem.gameObject.SetActive(true);
+                if (disabledGo != null) disabledGo.SetActive(true);
             }
 
-            foreach (SpriteRenderer spriteRenderer in
-                     _currentSceneRoot.GetComponentsInChildren<SpriteRenderer>())
+            foreach (Renderer renderer in _temporarilyDisabledRenderers)
             {
-                spriteRenderer.enabled = true;
-            }
-
-            foreach (MeshRenderer meshRenderer in _currentSceneRoot.GetComponentsInChildren<MeshRenderer>())
-            {
-                meshRenderer.enabled = true;
+                if (renderer != null) renderer.enabled = true;
             }
 
             foreach (ActorMovementController movementController in
@@ -204,10 +209,16 @@ namespace Pal3.Scene
             {
                 movementController.ResumeMovement();
             }
+
+            _temporarilyDisabledRenderers.Clear();
+            _temporarilyDisabledGameObjects.Clear();
         }
 
         private void DisposeCurrentScene()
         {
+            _temporarilyDisabledRenderers.Clear();
+            _temporarilyDisabledGameObjects.Clear();
+
             if (_currentScene != null)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLeavingCurrentSceneNotification());

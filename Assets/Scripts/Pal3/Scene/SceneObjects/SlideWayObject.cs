@@ -8,6 +8,7 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor.Controllers;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.GameBox;
@@ -15,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Data;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.SlideWay)]
+    [ScnSceneObject(SceneObjectType.SlideWay)]
     public sealed class SlideWayObject : SceneObject
     {
         private const uint ACTOR_SLIDE_SPEED = 500;

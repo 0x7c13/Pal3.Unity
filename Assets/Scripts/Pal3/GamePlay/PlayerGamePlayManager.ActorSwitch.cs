@@ -9,8 +9,7 @@ namespace Pal3.GamePlay
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Scn;
-    using MetaData;
+    using Core.Contracts;
     using UnityEngine.InputSystem;
 
     public partial class PlayerGamePlayManager :
@@ -18,7 +17,7 @@ namespace Pal3.GamePlay
     {
         public void Execute(SwitchPlayerActorRequest command)
         {
-            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == ScnSceneType.Maze)
+            if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType == SceneType.Maze)
             {
                 SwitchPlayerActorInCurrentTeam(true);
             }
@@ -38,7 +37,7 @@ namespace Pal3.GamePlay
         {
             if (!_playerActorManager.IsPlayerActorControlEnabled() ||
                 !_playerActorManager.IsPlayerInputEnabled() ||
-                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != ScnSceneType.Maze)
+                _sceneManager.GetCurrentScene().GetSceneInfo().SceneType != SceneType.Maze)
             {
                 return;
             }

@@ -12,6 +12,7 @@ namespace Pal3.GameSystem
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataReader.Gdb;
     using Core.Utils;
     using Data;

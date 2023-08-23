@@ -10,6 +10,7 @@ namespace Pal3.Actor
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using MetaData;
 
@@ -21,7 +22,7 @@ namespace Pal3.Actor
             {
                 Id = (byte)actorId,
                 Name = ActorConstants.FengYaSongActorNameMap[actorId],
-                Kind = ScnActorKind.StoryNpc,
+                Type = ActorType.StoryNpc,
                 InitActive = 0,
                 InitAction = ActorConstants.ActionToNameMap[ActorActionType.Stand],
             };

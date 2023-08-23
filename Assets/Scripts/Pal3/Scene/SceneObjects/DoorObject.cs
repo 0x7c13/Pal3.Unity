@@ -7,13 +7,14 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
     using Rendering.Renderer;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.Door)]
+    [ScnSceneObject(SceneObjectType.Door)]
     public sealed class DoorObject : SceneObject
     {
         private TilemapTriggerController _triggerController;

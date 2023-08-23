@@ -12,11 +12,11 @@ namespace Pal3.Script
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataReader;
     using Core.DataReader.Sce;
     using Core.Services;
     using GameSystem;
-    using MetaData;
     using Newtonsoft.Json;
     #if PAL3
     using MiniGame;

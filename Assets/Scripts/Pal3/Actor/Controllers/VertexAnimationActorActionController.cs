@@ -9,11 +9,11 @@ namespace Pal3.Actor.Controllers
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
-    using Core.DataReader.Scn;
     using Core.Extensions;
     using Core.Utils;
     using Data;
@@ -57,7 +57,7 @@ namespace Pal3.Actor.Controllers
             _materialFactory = resourceProvider.GetMaterialFactory();
 
             // Should not auto stand if the actor is on hold.
-            _autoStand = actor.Info.InitBehaviour != ScnActorBehaviour.Hold;
+            _autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
         }
 
         private void OnEnable()
@@ -83,7 +83,7 @@ namespace Pal3.Actor.Controllers
             bool shouldPlayHoldAnimation = !_isHoldAnimationStarted &&
                                            isNewActionSameAsCurrent &&
                                            loopCount == 1 &&
-                                           _actor.Info.InitBehaviour == ScnActorBehaviour.Hold &&
+                                           _actor.Info.InitBehaviour == ActorBehaviourType.Hold &&
                                            _actor.Info.LoopAction == 0;
 
             // Skip if the action is the same as current and not overwrite or hold animation.

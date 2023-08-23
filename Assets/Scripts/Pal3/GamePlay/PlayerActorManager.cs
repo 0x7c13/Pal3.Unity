@@ -9,7 +9,7 @@ namespace Pal3.GamePlay
     using Command;
     using Command.InternalCommands;
     using Command.SceCommands;
-    using Core.DataReader.Scn;
+    using Core.Contracts;
     using MetaData;
 
     public sealed class PlayerActorManager : IDisposable,
@@ -90,7 +90,7 @@ namespace Pal3.GamePlay
         public void Execute(ScenePreLoadingNotification command)
         {
             // Need to set main actor as player actor for non-maze scenes
-            if (command.NewSceneInfo.SceneType != ScnSceneType.Maze &&
+            if (command.NewSceneInfo.SceneType != SceneType.Maze &&
                 _playerActor != 0)
             {
                 _playerActor = 0;

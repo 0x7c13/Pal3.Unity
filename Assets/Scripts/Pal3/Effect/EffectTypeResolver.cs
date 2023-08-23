@@ -7,39 +7,39 @@ namespace Pal3.Effect
 {
     using System;
     using System.Globalization;
-    using MetaData;
+    using Core.Contracts;
 
     public static class EffectTypeResolver
     {
-        public static Type GetEffectComponentType(GraphicsEffect effect)
+        public static Type GetEffectComponentType(GraphicsEffectType effect)
         {
             return effect switch
             {
-                GraphicsEffect.Fire   => typeof(FireEffect),
-                GraphicsEffect.Portal => typeof(PortalEffect),
-                GraphicsEffect.Combat => typeof(CombatEffect),
+                GraphicsEffectType.Fire   => typeof(FireEffect),
+                GraphicsEffectType.Portal => typeof(PortalEffect),
+                GraphicsEffectType.Combat => typeof(CombatEffect),
                 _ => null
             };
         }
 
-        public static GraphicsEffect GetEffectByNameAndType(string name, uint effectModelType)
+        public static GraphicsEffectType GetEffectByNameAndType(string name, uint effectModelType)
         {
             #if PAL3
-            if (name == "+") return GraphicsEffect.None;
+            if (name == "+") return GraphicsEffectType.None;
 
             if (!string.IsNullOrEmpty(name) && name.StartsWith('+'))
             {
                 var hexName = '0' + name[^1..];
                 var effect = int.Parse(hexName, NumberStyles.HexNumber);
-                return (GraphicsEffect)effect;
+                return (GraphicsEffectType)effect;
             }
             else
             {
-                return GraphicsEffect.None;
+                return GraphicsEffectType.None;
             }
             #elif PAL3A
-            if (name != "+") return GraphicsEffect.None;
-            else return (GraphicsEffect)effectModelType;
+            if (name != "+") return GraphicsEffectType.None;
+            else return (GraphicsEffectType)effectModelType;
             #endif
         }
     }

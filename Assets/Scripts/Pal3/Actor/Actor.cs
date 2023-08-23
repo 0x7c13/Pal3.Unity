@@ -5,6 +5,7 @@
 
 namespace Pal3.Actor
 {
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.GameBox;
     using Core.Navigation;
@@ -114,7 +115,7 @@ namespace Pal3.Actor
                 return Info.GameBoxMoveSpeed / GameBoxInterpreter.GameBoxUnitToUnityUnit;
             }
 
-            if (Info.Kind == ScnActorKind.MainActor)
+            if (Info.Type == ActorType.MainActor)
             {
                 return movementMode == MovementMode.Run
                     ? ActorConstants.PlayerActorRunSpeed
@@ -130,13 +131,13 @@ namespace Pal3.Actor
 
         public float GetInteractionMaxDistance()
         {
-            return Info.Kind switch
+            return Info.Type switch
             {
-                ScnActorKind.Soldier => 4f,
-                ScnActorKind.MainActor => 4f,
-                ScnActorKind.StoryNpc => 4f,
-                ScnActorKind.HotelManager => 6f,
-                ScnActorKind.Dealer => 6f,
+                ActorType.Soldier => 4f,
+                ActorType.MainActor => 4f,
+                ActorType.StoryNpc => 4f,
+                ActorType.HotelManager => 6f,
+                ActorType.Dealer => 6f,
                 _ => 4f
             };
         }

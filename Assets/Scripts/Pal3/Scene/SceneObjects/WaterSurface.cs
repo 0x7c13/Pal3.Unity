@@ -11,10 +11,11 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Common;
     using Core.Animation;
+    using Core.Contracts;
     using Core.DataReader.Scn;
     using UnityEngine;
 
-    [ScnSceneObject(ScnSceneObjectType.WaterSurface)]
+    [ScnSceneObject(SceneObjectType.WaterSurface)]
     public sealed class WaterSurfaceObject : SceneObject
     {
         private const float WATER_ANIMATION_DURATION = 3f;
