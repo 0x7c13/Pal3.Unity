@@ -26,7 +26,7 @@ namespace Pal3.Actor
             float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
-            var actorGameObject = new GameObject($"Actor_{actor.Info.Id}_{actor.Info.Name}")
+            var actorGameObject = new GameObject($"Actor_{actor.Id}_{actor.Name}")
             {
                 layer = LayerMask.NameToLayer("Ignore Raycast")
             };
@@ -38,9 +38,9 @@ namespace Pal3.Actor
             #endif
 
             #if PAL3
-            var hasColliderAndRigidBody = (PlayerActorId) actor.Info.Id != PlayerActorId.HuaYing;
+            var hasColliderAndRigidBody = (PlayerActorId) actor.Id != PlayerActorId.HuaYing;
             #elif PAL3A
-            var hasColliderAndRigidBody = (PlayerActorId) actor.Info.Id != PlayerActorId.TaoZi;
+            var hasColliderAndRigidBody = (PlayerActorId) actor.Id != PlayerActorId.TaoZi;
             #endif
 
             ActorActionController actionController;
@@ -48,9 +48,12 @@ namespace Pal3.Actor
             {
                 case ActorAnimationType.Vertex:
                 {
+                    var autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
+                    var canPerformHoldAnimation = actor.Info is {InitBehaviour: ActorBehaviourType.Hold, LoopAction: 0};
                     VertexAnimationActorActionController vertexActionController =
                         actorGameObject.AddComponent<VertexAnimationActorActionController>();
-                    vertexActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled, tintColor);
+                    vertexActionController.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled,
+                        autoStand, canPerformHoldAnimation, tintColor);
                     actionController = vertexActionController;
                     break;
                 }
@@ -80,7 +83,7 @@ namespace Pal3.Actor
 
             // Attach additional controller(s) to special actor
             #if PAL3
-            switch ((PlayerActorId)actor.Info.Id)
+            switch ((PlayerActorId)actor.Id)
             {
                 case PlayerActorId.HuaYing:
                     actorGameObject.AddComponent<HuaYingController>().Init(actor, actorController, actionController);
@@ -90,7 +93,7 @@ namespace Pal3.Actor
                     break;
             }
             #elif PAL3A
-            switch ((PlayerActorId)actor.Info.Id)
+            switch ((PlayerActorId)actor.Id)
             {
                 case PlayerActorId.TaoZi:
                     actorGameObject.AddComponent<FlyingActorController>().Init(actor, actorController, actionController);

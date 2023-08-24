@@ -64,7 +64,7 @@ namespace Pal3.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject
-                .GetComponent<ActorController>().GetActor().Info.Id;
+                .GetComponent<ActorController>().GetActor().Id;
 
             if (!Enum.IsDefined(typeof(PlayerActorId), actorId)) yield break;
 

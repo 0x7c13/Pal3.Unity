@@ -340,7 +340,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_dialogueManager);
 
             _combatManager = new CombatManager(_gameResourceProvider,
-                mainCamera, _sceneManager);
+                _teamManager, mainCamera, _sceneManager);
             ServiceLocator.Instance.Register(_combatManager);
 
             _combatCoordinator = new CombatCoordinator(_gameResourceProvider,

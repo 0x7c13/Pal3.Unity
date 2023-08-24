@@ -15,12 +15,12 @@ namespace Pal3.Actor.Controllers
     public sealed class LongKuiController : MonoBehaviour,
         ICommandExecutor<LongKuiSwitchModeCommand>
     {
-        private Actor _actor;
+        private ActorBase _actor;
         private ActorActionController _actionController;
 
         private int _currentMode = 0;
 
-        public void Init(Actor actor, ActorActionController actionController)
+        public void Init(ActorBase actor, ActorActionController actionController)
         {
             _actor = actor;
             _actionController = actionController;

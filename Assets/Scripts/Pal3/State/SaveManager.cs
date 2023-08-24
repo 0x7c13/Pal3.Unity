@@ -18,7 +18,6 @@ namespace Pal3.State
     using Command.SceCommands;
     using Core.Contracts;
     using Core.DataReader.Scn;
-    using Core.DataReader.Txt;
     using Core.GameBox;
     using Core.Utils;
     using Effect.PostProcessing;
@@ -379,10 +378,10 @@ namespace Pal3.State
             }
 
             // Save script id if changed by the script
-            if (actorController.IsScriptChanged())
+            if (actor.IsScriptIdChanged())
             {
                 commands.Add(new ActorSetScriptCommand(actorId,
-                    (int) actor.Info.ScriptId));
+                    (int) actor.GetScriptId()));
             }
         }
 

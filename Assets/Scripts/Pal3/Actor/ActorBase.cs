@@ -7,9 +7,12 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections.Generic;
+    using Core.Contracts;
     using Core.DataReader.Ini;
+    using Core.Navigation;
     using Data;
     using MetaData;
+    using UnityEngine;
 
     public enum ActorAnimationType
     {
@@ -19,6 +22,10 @@ namespace Pal3.Actor
 
     public abstract class ActorBase
     {
+        public int Id { get; }
+        public string Name { get; private set; }
+        public bool IsActive { get; set; }
+
         public ActorAnimationType AnimationType { get; private set; }
 
         private readonly Dictionary<string, string> _actionNameToFileNameMap = new (StringComparer.OrdinalIgnoreCase);
@@ -27,12 +34,12 @@ namespace Pal3.Actor
 
         private readonly GameResourceProvider _resourceProvider;
 
-        private string _actorName;
-
-        protected ActorBase(GameResourceProvider resourceProvider, string name)
+        protected ActorBase(GameResourceProvider resourceProvider, int id, string name)
         {
-            _actorName = name;
             _resourceProvider = resourceProvider;
+
+            Id = id;
+            Name = name;
 
             InitActorConfig(name);
         }
@@ -86,11 +93,85 @@ namespace Pal3.Actor
             }
         }
 
-        protected void ChangeName(string name)
+        public void ChangeName(string name)
         {
-            if (_actorName == name) return;
-            _actorName = name;
+            if (string.Equals(Name, name, StringComparison.Ordinal)) return;
+
+            Name = name;
+
+            // Re-init actor config since name is changed
             InitActorConfig(name);
+        }
+
+        public bool IsMainActor()
+        {
+            return Name.StartsWith("1"); // 101-110 are all main actor models
+        }
+
+        public bool IsMonsterActor()
+        {
+            return !Name.StartsWith("1") && !Name.StartsWith("2");
+        }
+
+        public string GetIdleAction()
+        {
+            if (IsMainActor())
+            {
+                return ActorConstants.ActionToNameMap[ActorActionType.Stand];
+            }
+
+            if (IsMonsterActor() && HasAction(ActorConstants.MonsterIdleAction))
+            {
+                return ActorConstants.MonsterIdleAction;
+            }
+
+            if (HasAction(ActorConstants.ActionToNameMap[ActorActionType.NpcStand1]))
+            {
+                return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
+            }
+
+            if (HasAction(ActorConstants.ActionToNameMap[ActorActionType.NpcStand2]))
+            {
+                return ActorConstants.ActionToNameMap[ActorActionType.NpcStand2];
+            }
+
+            Debug.LogError($"[{nameof(ActorBase)}] No default idle animation found for {Id}_{Name}");
+            return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
+        }
+
+        public string GetMovementAction(MovementMode mode)
+        {
+            if (IsMainActor())
+            {
+                return mode switch
+                {
+                    MovementMode.Walk => ActorConstants.ActionToNameMap[ActorActionType.Walk],
+                    MovementMode.Run => HasAction(ActorConstants.ActionToNameMap[ActorActionType.Run])
+                        ? ActorConstants.ActionToNameMap[ActorActionType.Run]
+                        : ActorConstants.ActionToNameMap[ActorActionType.Walk],
+                    MovementMode.StepBack => ActorConstants.ActionToNameMap[ActorActionType.StepBack],
+                    _ => ActorConstants.ActionToNameMap[ActorActionType.Walk]
+                };
+            }
+
+            if (IsMonsterActor() && HasAction(ActorConstants.MonsterWalkAction))
+            {
+                return ActorConstants.MonsterWalkAction;
+            }
+
+            return mode switch
+            {
+                MovementMode.Walk => ActorConstants.ActionToNameMap[ActorActionType.NpcWalk],
+                MovementMode.Run => ActorConstants.ActionToNameMap[ActorActionType.NpcRun],
+                _ => ActorConstants.ActionToNameMap[ActorActionType.NpcWalk]
+            };
+        }
+
+        // TODO: Get weapon based on inventory context
+        public string GetTagObjectName()
+        {
+            return ActorConstants.MainActorWeaponMap.TryGetValue(Name, out var value) ?
+                value : null;
         }
 
         public bool HasAction(string actionName)
@@ -105,7 +186,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Action file name not found for action name {actionName}");
             }
 
-            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{actionFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(Name)}{actionFileName}";
         }
 
         public string GetMeshFilePath(string actionName)
@@ -120,7 +201,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Msh file name not found for action name {actionName}");
             }
 
-            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{meshFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(Name)}{meshFileName}";
         }
 
         public string GetMaterialFilePath(string actionName)
@@ -135,7 +216,7 @@ namespace Pal3.Actor
                 throw new ArgumentException($"Mtl file name not found for action name {actionName}");
             }
 
-            return $"{FileConstants.GetActorFolderVirtualPath(_actorName)}{mtlFileName}";
+            return $"{FileConstants.GetActorFolderVirtualPath(Name)}{mtlFileName}";
         }
     }
 }

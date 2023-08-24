@@ -238,10 +238,14 @@ namespace Pal3.GameSystems.WorldMap
 
         private void WorldMapButtonClicked(int buttonIndex)
         {
+            // Stop existing script music
+            CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
+
             if (buttonIndex != -1)
             {
                 _scriptManager.AddScript((uint)(100 + buttonIndex), true);
             }
+
             Hide();
             _gameStateManager.TryGoToState(GameState.Gameplay);
         }

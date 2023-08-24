@@ -30,7 +30,7 @@ namespace Pal3.Actor.Controllers
         private const PlayerActorId FOLLOW_ACTOR_ID = PlayerActorId.XueJian;
 
         private SceneManager _sceneManager;
-        private Actor _actor;
+        private ActorBase _actor;
         private ActorController _actorController;
         private ActorActionController _actorActionController;
 
@@ -42,7 +42,7 @@ namespace Pal3.Actor.Controllers
         private bool _followTarget = true;
         private int _currentMode = 1; // defaults to follow target actor
 
-        public new void Init(Actor actor,
+        public new void Init(ActorBase actor,
             ActorController actorController,
             ActorActionController actionController)
         {

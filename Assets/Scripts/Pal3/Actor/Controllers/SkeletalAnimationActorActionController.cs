@@ -22,15 +22,12 @@ namespace Pal3.Actor.Controllers
     using UnityEngine;
 
     public class SkeletalAnimationActorActionController : ActorActionController,
-        ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorStopActionCommand>
     {
         private GameResourceProvider _resourceProvider;
         private IMaterialFactory _materialFactory;
-        private Actor _actor;
+        private ActorBase _actor;
         private Color _tintColor;
-
-        private bool _autoStand = true;
 
         private SkeletalModelRenderer _skeletalModelRenderer;
 
@@ -38,7 +35,7 @@ namespace Pal3.Actor.Controllers
         private Bounds _meshBounds;
 
         public void Init(GameResourceProvider resourceProvider,
-            Actor actor,
+            ActorBase actor,
             bool hasColliderAndRigidBody,
             bool isDropShadowEnabled,
             Color tintColor)
@@ -75,7 +72,7 @@ namespace Pal3.Actor.Controllers
 
             if (!_actor.HasAction(actionName))
             {
-                Debug.LogError($"[{nameof(SkeletalAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Info.Name}.");
+                Debug.LogError($"[{nameof(SkeletalAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Name}.");
                 waiter?.CancelWait();
                 return;
             }
@@ -162,14 +159,9 @@ namespace Pal3.Actor.Controllers
             base.DeActivate();
         }
 
-        public void Execute(ActorAutoStandCommand command)
-        {
-            if (command.ActorId == _actor.Info.Id) _autoStand = (command.AutoStand == 1);
-        }
-
         public void Execute(ActorStopActionCommand command)
         {
-            if (command.ActorId != _actor.Info.Id ||
+            if (command.ActorId != _actor.Id ||
                 _skeletalModelRenderer == null ||
                 !_skeletalModelRenderer.IsVisible()) return;
 

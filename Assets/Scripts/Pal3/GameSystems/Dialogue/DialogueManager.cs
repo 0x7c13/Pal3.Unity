@@ -224,7 +224,7 @@ namespace Pal3.GameSystems.Dialogue
 
             if (avatarCommand != null &&
                 _sceneManager.GetCurrentScene().GetActor(avatarCommand.ActorId) is { } actor &&
-                _resourceProvider.GetActorAvatarSprite(actor.Info.Name, avatarCommand.AvatarTextureName) is { } avatarSprite)
+                _resourceProvider.GetActorAvatarSprite(actor.Name, avatarCommand.AvatarTextureName) is { } avatarSprite)
             {
                 isRightAligned = avatarCommand.RightAligned == 1;
 

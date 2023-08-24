@@ -289,7 +289,7 @@ namespace Pal3.GamePlay
 
             // Deactivate current player actor
             if (_playerActorGameObject != null &&
-                _playerActor.Info.Id != command.ActorId &&
+                _playerActor.Id != command.ActorId &&
                 _playerActorController != null &&
                 _playerActorController.IsActive)
             {
@@ -297,7 +297,7 @@ namespace Pal3.GamePlay
                 _playerActorGameObject.transform.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);
                 lastActivePlayerActorPosition = currentPosition;
                 lastActivePlayerActorRotation = currentRotation;
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 0));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Id, 0));
             }
 
             // Set target actor as player actor
@@ -318,7 +318,7 @@ namespace Pal3.GamePlay
             // Just to make sure the new actor is activated
             if (!_playerActorController.IsActive)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Info.Id, 1));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_playerActor.Id, 1));
 
                 // Inherent nav layer index
                 if (lastActivePlayerActorNavLayerIndex.HasValue)
@@ -377,7 +377,7 @@ namespace Pal3.GamePlay
         public void Execute(ActorSetTilePositionCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID ||
-                (_playerActor != null && _playerActor.Info.Id == command.ActorId))
+                (_playerActor != null && _playerActor.Id == command.ActorId))
             {
                 _isTilePositionPendingNotify = true;
             }

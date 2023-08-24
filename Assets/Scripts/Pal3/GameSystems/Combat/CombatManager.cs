@@ -15,6 +15,7 @@ namespace Pal3.GameSystems.Combat
     using MetaData;
     using Scene;
     using State;
+    using Team;
     using UnityEngine;
     using UnityEngine.InputSystem;
 
@@ -28,6 +29,7 @@ namespace Pal3.GameSystems.Combat
         private const float COMBAT_CAMERA_DEFAULT_FOV = 39f;
 
         private readonly GameResourceProvider _resourceProvider;
+        private readonly TeamManager _teamManager;
         private readonly Camera _mainCamera;
         private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
@@ -40,10 +42,12 @@ namespace Pal3.GameSystems.Combat
         private float _cameraFovBeforeCombat;
 
         public CombatManager(GameResourceProvider resourceProvider,
+            TeamManager teamManager,
             Camera mainCamera,
             SceneManager sceneManager)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 

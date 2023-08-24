@@ -55,8 +55,6 @@ namespace Pal3.Actor.Controllers
             }
         }
 
-        private bool _isScriptChanged;
-
         private ActorBehaviourType _currentBehaviour;
 
         public void Init(Actor actor,
@@ -92,7 +90,7 @@ namespace Pal3.Actor.Controllers
         public bool IsDirectlyInteractable(float distance)
         {
             if (distance > _actor.GetInteractionMaxDistance()) return false;
-            return _actor.Info.ScriptId != ScriptConstants.InvalidScriptId;
+            return _actor.GetScriptId() != ScriptConstants.InvalidScriptId;
         }
 
         public Actor GetActor()
@@ -100,17 +98,12 @@ namespace Pal3.Actor.Controllers
             return _actor;
         }
 
-        public bool IsScriptChanged()
-        {
-            return _isScriptChanged;
-        }
-
         private void Activate()
         {
             #if PAL3A
             // Reset NanGongHuang actor name
-            if (_actor.Info.Id == (byte)PlayerActorId.NanGongHuang &&
-                !string.Equals(_actor.Info.Name, ActorConstants.NanGongHuangHumanModeActorName))
+            if (_actor.Id == (int)PlayerActorId.NanGongHuang &&
+                !string.Equals(_actor.Name, ActorConstants.NanGongHuangHumanModeActorName))
             {
                 _actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
             }
@@ -175,12 +168,12 @@ namespace Pal3.Actor.Controllers
             if (_actor.Info.Type == ActorType.CombatNpc &&
                 (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
                 collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                (byte) ServiceLocator.Instance.Get<PlayerActorManager>()
-                    .GetPlayerActor() == actorController.GetActor().Info.Id)
+                (int) ServiceLocator.Instance.Get<PlayerActorManager>()
+                    .GetPlayerActor() == actorController.GetActor().Id)
             {
                 // Player actor collides with combat NPC in maze
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorActivateCommand(_actor.Info.Id, 0));
+                    new ActorActivateCommand(_actor.Id, 0));
 
                 if (ServiceLocator.Instance.Get<GameSettings>().IsTurnBasedCombatEnabled)
                 {
@@ -214,13 +207,13 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetFacingCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             transform.rotation = Quaternion.Euler(0, command.Degrees, 0);
         }
 
         public void Execute(ActorRotateFacingCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             #if PAL3
             var currentYAngles = transform.rotation.eulerAngles.y;
             transform.rotation = Quaternion.Euler(0, currentYAngles - command.Degrees, 0);
@@ -231,7 +224,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetFacingDirectionCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
 
             if (command.Direction is >= 0 and < 8)
             {
@@ -250,7 +243,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorRotateFacingDirectionCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
 
             if (command.Direction is >= 0 and < 8)
             {
@@ -269,17 +262,16 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetScriptCommand command)
         {
-            if (command.ActorId != _actor.Info.Id) return;
-            if (_actor.Info.ScriptId != (uint) command.ScriptId)
+            if (command.ActorId != _actor.Id) return;
+            if (_actor.GetScriptId() != (uint)command.ScriptId)
             {
-                _isScriptChanged = true;
-                _actor.Info.ScriptId = (uint) command.ScriptId;
+                _actor.ChangeScriptId((uint)command.ScriptId);
             }
         }
 
         public void Execute(ActorChangeScaleCommand command)
         {
-            if (command.ActorId != _actor.Info.Id) return;
+            if (command.ActorId != _actor.Id) return;
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(AnimateScaleAsync(command.Scale, 2f, () => waiter.CancelWait()));
@@ -287,7 +279,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetYPositionCommand command)
         {
-            if (command.ActorId != _actor.Info.Id) return;
+            if (command.ActorId != _actor.Id) return;
             Vector3 oldPosition = transform.position;
             transform.position = new Vector3(oldPosition.x,
                 GameBoxInterpreter.ToUnityYPosition(command.GameBoxYPosition),
