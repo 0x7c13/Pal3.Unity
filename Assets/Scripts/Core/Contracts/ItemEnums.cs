@@ -21,7 +21,10 @@ namespace Core.Contracts
         Wearable,      // 饰品
         Weapon,        // 武器
         Corpse,        // 尸块
+
+        #if PAL3A
         Blueprint,     // 蓝图（梦溪杂录，美食方）
+        #endif
     }
 
     [System.Serializable]
@@ -49,9 +52,11 @@ namespace Core.Contracts
     public enum ItemSpecialType
     {
         None = 0,
-        Poison,        // 随机中毒
-        Flee,          // 100%逃跑
-        Navigation,    // 引路蜂类
-        LevelUp,       // 升级类（等级提高1）
+        Poison = 1,           // 随机中毒
+        Flee = 2,             // 100%逃跑
+
+        LevelIncrease = 15,           // 等级提升一级
+        ExIncrease5Percent = 20,      // 经验增加5%
+        ExIncrease15Percent = 21,     // 经验增加15%
     }
 }

@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.Minimap
 {
     using System;
     using Command;
@@ -17,7 +17,7 @@ namespace Pal3.GameSystem
     using UnityEngine;
     using UnityEngine.UI;
 
-    public sealed class MiniMapManager : IDisposable,
+    public sealed class MinimapManager : IDisposable,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
@@ -33,6 +33,7 @@ namespace Pal3.GameSystem
         private readonly RectTransform _miniMapRectTransform;
         private readonly float _miniMapWidth;
         private readonly Image _miniMapImage;
+        private readonly MinimapTextureCreator _miniMapTextureCreator;
 
         private Texture2D[] _miniMapTextures;
         private Sprite[] _miniMapSprites;
@@ -41,16 +42,19 @@ namespace Pal3.GameSystem
         private int _currentLayerIndex = -1;
         private GameState _currentGameState = GameState.UI;
 
-        public MiniMapManager(Camera mainCamera,
+        public MinimapManager(Camera mainCamera,
             SceneManager sceneManager,
             CanvasGroup miniMapCanvasGroup,
-            Image miniMapImage)
+            Image miniMapImage,
+            MinimapTextureCreator minimapTextureCreator)
         {
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _miniMapCanvasGroup = Requires.IsNotNull(miniMapCanvasGroup, nameof(miniMapCanvasGroup));
             _miniMapImage = Requires.IsNotNull(miniMapImage, nameof(miniMapImage));
             _miniMapImage.preserveAspect = true;
+
+            _miniMapTextureCreator = Requires.IsNotNull(minimapTextureCreator, nameof(minimapTextureCreator));
 
             _miniMapRectTransform = Requires.IsNotNull(_miniMapCanvasGroup.GetComponent<RectTransform>(), nameof(miniMapImage));
             _miniMapWidth = _miniMapRectTransform.rect.width;
@@ -68,38 +72,6 @@ namespace Pal3.GameSystem
         public void LateUpdate(float deltaTime)
         {
             _miniMapRectTransform.localRotation = Quaternion.Euler(0, 0, _mainCamera.transform.eulerAngles.y + 180f);
-        }
-
-        private Texture2D CreateMiniMapTexture(NavTileLayer layer)
-        {
-            Color[] colors = new Color[layer.Width * layer.Height];
-
-            for (var i = 0; i < layer.Width; i++)
-            {
-                for (int j = 0; j < layer.Height; j++)
-                {
-                    var index = i + j * layer.Width;
-                    NavTile tile = layer.Tiles[index];
-
-                    // NOTE: the texture is flipped vertically compared to the tilemap space
-                    var colorIndex = i + (layer.Height - j - 1) * layer.Width;
-                    colors[colorIndex] = tile.DistanceToNearestObstacle switch
-                    {
-                        0 => new Color(0f, 0f, 0f, 0f),
-                        1 => new Color(1f, 0.9f, 0.1f, 0.7f),
-                        #if PAL3
-                        _ => new Color(30f / 255f, 75f / 255f, 140f / 255f, 100f / 255f),
-                        #elif PAL3A
-                        _ => new Color(160f / 255f, 40f / 255f, 110f / 255f, 100f / 255f),
-                        #endif
-                    };
-                }
-            }
-
-            Texture2D texture = new Texture2D(layer.Width, layer.Height, TextureFormat.RGBA32, mipChain: false);
-            texture.SetPixels(colors);
-            texture.Apply(updateMipmaps: false);
-            return texture;
         }
 
         public void Execute(PlayerActorTilePositionUpdatedNotification command)
@@ -148,7 +120,7 @@ namespace Pal3.GameSystem
             for (var i = 0; i < _currentTilemap.GetLayerCount(); i++)
             {
                 NavTileLayer tileLayer = _currentTilemap.GetLayer(i);
-                _miniMapTextures[i] = CreateMiniMapTexture(tileLayer);
+                _miniMapTextures[i] = _miniMapTextureCreator.CreateMinimapTexture(tileLayer);
 
                 _miniMapSprites[i] = Sprite.Create(_miniMapTextures[i],
                     new Rect(0, 0, tileLayer.Width, tileLayer.Height),

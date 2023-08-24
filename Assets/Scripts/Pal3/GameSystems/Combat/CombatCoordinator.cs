@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Combat
+namespace Pal3.GameSystems.Combat
 {
     using System;
     using System.Collections.Generic;

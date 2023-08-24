@@ -57,22 +57,40 @@ namespace Core.DataReader.Gdb
         // 战斗状态影响类型和值
         public Dictionary<ActorCombatStateType, CombatStateImpact>  CombatStateImpacts;
 
-        public int ComboCount;                      // 连击次数
+        #if PAL3
+            public int ComboCount;                      // 连击次数
 
-        // 装备属性
-        public short SpSavingPercentage;                // 气消耗减少百分比
-        public short MpSavingPercentage;                // 神消耗减少百分比
-        public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
-        public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
+            // 装备属性
+            public short SpSavingPercentage;                // 气消耗减少百分比
+            public short MpSavingPercentage;                // 神消耗减少百分比
+            public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
+            public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
 
-        // 尸块属性
-        public uint OreId;                      // 矿石ID
-        public uint ProductId;                  // 炼制出的物品ID
-        public int ProductPrice;                // 炼制出的物品价格
+            // 尸块属性
+            public uint OreId;                      // 矿石ID
+            public uint ProductId;                  // 炼制出的物品ID
+            public int ProductPrice;                // 炼制出的物品价格
 
-        // 合成属性
-        public uint[] SynthesisMaterialIds;     // 两种合成材料的ID
-        public uint SynthesisProductId;         // 合成出的物品ID
+            // 合成属性
+            public uint[] SynthesisMaterialIds;     // 两种合成材料的ID
+            public uint SynthesisProductId;         // 合成出的物品ID
+        #elif PAL3A
+            public int Unknown1;
+            public uint Unknown2;
+
+            public short SpSavingPercentage;                // 气消耗减少百分比
+            public short MpSavingPercentage;                // 神消耗减少百分比
+            public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
+            public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
+
+            public int MaterialAmount;       // 炼制材料的数量
+            public uint MaterialId;          // 炼制材料的ID
+
+            public int ProductAmount;        // 炼制次数限制 (0无限制)
+            public uint ProductId;           // 炼制出的物品ID
+
+            public uint RequiredActorLevel;  // 炼制所需角色等级
+        #endif
     }
 
     public struct CombatActorInfo
@@ -155,7 +173,8 @@ namespace Core.DataReader.Gdb
         public int SpConsumeValue;                            // 消耗气数值
         public int MpConsumeValue;                            // 消耗神数值
 
-        public int SpecialConsumeType;                        // 特殊消耗[精气神武防,情经速运级,钱水火风雷土蛊]
+        // -1 无，(0精，10钱, 16蛊) [0精 1气 2神 3武 4防 5情 6经 7速 8运 9级 10钱 11水 12火 13风 14雷 15土 16蛊]
+        public int SpecialConsumeType;                        // 特殊消耗
         public AttributeImpactType SpecialConsumeImpactType;  // 特殊消耗类型
         public int SpecialConsumeValue;                       // 特殊消耗数值
 

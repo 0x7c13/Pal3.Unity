@@ -8,11 +8,11 @@ namespace Pal3.MetaData
     using System.Collections.Generic;
     using UnityEngine;
 
-    public static class BigMapConstants
+    public static class WorldMapConstants
     {
         #if PAL3
         // Order matters
-        public static string[] BigMapRegions = new[]
+        public static string[] WorldMapRegions = new[]
         {
             "安宁村",
             "安溪",
@@ -55,7 +55,7 @@ namespace Pal3.MetaData
         };
         #elif PAL3A
         // Order matters
-        public static string[] BigMapRegions = new[]
+        public static string[] WorldMapRegions = new[]
         {
             "唐家堡",
             "登云麓",
@@ -77,7 +77,7 @@ namespace Pal3.MetaData
         #endif
 
         // From basedata.cpk\ui\BigMap\Element\色表.doc
-        public static readonly Dictionary<string, Color32> BigMapRegionColorInfo = new()
+        public static readonly Dictionary<string, Color32> WorldMapRegionColorInfo = new()
         {
             {"安宁村", new Color(115, 81, 53)},
             {"船长江", new Color(48, 94, 95)},

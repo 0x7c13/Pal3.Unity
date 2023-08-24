@@ -16,7 +16,10 @@ namespace Pal3.Script
     using Core.DataReader;
     using Core.DataReader.Sce;
     using Core.Services;
-    using GameSystem;
+    using GameSystems.Dialogue;
+    using GameSystems.Favor;
+    using GameSystems.Inventory;
+    using GameSystems.Team;
     using Newtonsoft.Json;
     #if PAL3
     using MiniGame;

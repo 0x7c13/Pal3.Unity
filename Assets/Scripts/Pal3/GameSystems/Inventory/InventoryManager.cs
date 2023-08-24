@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.Inventory
 {
     using System;
     using System.Collections.Generic;

@@ -17,7 +17,7 @@ namespace Pal3.GamePlay
     using Core.DataReader.Scn;
     using Core.Utils;
     using Data;
-    using GameSystem;
+    using GameSystems.Team;
     using Input;
     using MetaData;
     using Scene;

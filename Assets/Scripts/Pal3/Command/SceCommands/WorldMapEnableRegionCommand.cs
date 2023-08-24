@@ -8,9 +8,9 @@ namespace Pal3.Command.SceCommands
     [AvailableInConsole]
     [SceCommand(125, "大地图打开或关闭某个区域，" +
                      "参数：区域ID，0关闭，1显示但不可飞行，2显示且可以飞行")]
-    public class BigMapEnableRegionCommand : ICommand
+    public class WorldMapEnableRegionCommand : ICommand
     {
-        public BigMapEnableRegionCommand(int region, int enablementFlag)
+        public WorldMapEnableRegionCommand(int region, int enablementFlag)
         {
             Region = region;
             EnablementFlag = enablementFlag;

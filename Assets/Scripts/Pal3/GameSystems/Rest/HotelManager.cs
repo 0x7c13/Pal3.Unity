@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.Rest
 {
     using System;
     using Command;

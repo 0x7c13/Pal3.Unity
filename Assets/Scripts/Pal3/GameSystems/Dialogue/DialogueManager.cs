@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.Dialogue
 {
     using System;
     using System.Collections;
@@ -211,35 +211,6 @@ namespace Pal3.GameSystem
             _isDialogueRenderingAnimationInProgress = false;
         }
 
-        /// <summary>
-        /// Break long dialogue into pieces
-        /// Basically separate a dialogue into two pieces if there are more
-        /// than three new line chars found in the dialogue text.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns>One or two sub dialogues</returns>
-        private IEnumerable<string> GetSubDialoguesAsync(string text)
-        {
-            if (text.Contains('\n'))
-            {
-                var indexOfSecondNewLineChar = text.IndexOf('\n', text.IndexOf('\n') + 1);
-                if (indexOfSecondNewLineChar != -1)
-                {
-                    var indexOfThirdNewLineChar = text.IndexOf('\n', indexOfSecondNewLineChar + 1);
-                    if (indexOfThirdNewLineChar != -1 && indexOfThirdNewLineChar != text.Length)
-                    {
-                        var firstPart = text.Substring(0, indexOfThirdNewLineChar);
-                        var secondPart = text.Substring(indexOfThirdNewLineChar, text.Length - indexOfThirdNewLineChar);
-                        yield return firstPart;
-                        yield return text.Substring(0, text.IndexOf('\n')) + secondPart;
-                        yield break;
-                    }
-                }
-            }
-
-            yield return text;
-        }
-
         private IEnumerator RenderDialogueAndWaitAsync(string text,
             bool trackReactionTime,
             DialogueRenderActorAvatarCommand avatarCommand = null,
@@ -295,7 +266,7 @@ namespace Pal3.GameSystem
             }
 
             // Render dialogue text typing animation
-            foreach (var dialogue in GetSubDialoguesAsync(text))
+            foreach (var dialogue in DialogueTextProcessor.GetSubDialoguesAsync(text))
             {
                 IEnumerator renderDialogue = RenderDialogueTextWithAnimationAsync(dialogueTextUI, dialogue);
 
@@ -425,48 +396,6 @@ namespace Pal3.GameSystem
             _isSkipDialogueRequested = false;
         }
 
-        private string GetDisplayText(string text)
-        {
-            var formattedText = text.Replace("\\n", "\n");
-
-            return ReplaceStringWithPatternForEachChar(formattedText,
-                "\\i", "\\r",
-                $"<color={INFORMATION_TEXT_COLOR_HEX}>", "</color>");
-        }
-
-        private string ReplaceStringWithPatternForEachChar(string str,
-            string startPattern,
-            string endPattern,
-            string charStartPattern,
-            string charEndPattern)
-        {
-            var newStr = string.Empty;
-
-            var currentIndex = 0;
-            var startOfInformation = str.IndexOf(startPattern, StringComparison.Ordinal);
-            while (startOfInformation != -1)
-            {
-                var endOfInformation = str.IndexOf(endPattern, startOfInformation, StringComparison.Ordinal);
-
-                newStr += str.Substring(currentIndex, startOfInformation - currentIndex);
-
-                foreach (var ch in str.Substring(
-                             startOfInformation + startPattern.Length,
-                             endOfInformation - startOfInformation - startPattern.Length))
-                {
-                    newStr += $"{charStartPattern}{ch}{charEndPattern}";
-                }
-
-                currentIndex = endOfInformation + endPattern.Length;
-                startOfInformation = str.IndexOf(
-                    startPattern, currentIndex, StringComparison.Ordinal);
-            }
-
-            newStr += str.Substring(currentIndex, str.Length - currentIndex);
-
-            return newStr;
-        }
-
         private void SkipDialoguePerformed(InputAction.CallbackContext _)
         {
             if (_dialogueSelectionButtonsCanvas.enabled) return;
@@ -479,7 +408,7 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
-                GetDisplayText(command.DialogueText),
+                DialogueTextProcessor.GetDisplayText(command.DialogueText, INFORMATION_TEXT_COLOR_HEX),
                 false,
                 avatarCommand,
                 () => skipDialogueWaiter.CancelWait()));
@@ -492,7 +421,7 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
-                GetDisplayText(command.DialogueText),
+                DialogueTextProcessor.GetDisplayText(command.DialogueText, INFORMATION_TEXT_COLOR_HEX),
                 true,
                 avatarCommand,
                 () => skipDialogueWaiter.CancelWait()));
@@ -503,43 +432,6 @@ namespace Pal3.GameSystem
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             _lastAvatarCommand = command;
-        }
-
-        private string GetSelectionDisplayText(object selection)
-        {
-            var selectionString = (string)selection;
-
-            if (selectionString.EndsWith("；") || selectionString.EndsWith("。")) selectionString = selectionString[..^1];
-
-            if (selectionString.Contains('.'))
-            {
-                var numberStr = selectionString[..selectionString.IndexOf('.')];
-                if (int.TryParse(numberStr, out _))
-                {
-                    return selectionString[(selectionString.IndexOf('.') + 1)..];
-                }
-            }
-
-            if (selectionString.Contains('、'))
-            {
-                var numberStr = selectionString[..selectionString.IndexOf('、')];
-                if (int.TryParse(numberStr, out _))
-                {
-                    return selectionString[(selectionString.IndexOf('、') + 1)..];
-                }
-            }
-
-            // I don't think there will be more than 20 options, so let's start with 20
-            for (var i = 20; i >= 0; i--)
-            {
-                var intStr = i.ToString();
-                if (selectionString.StartsWith(intStr) && !string.Equals(selectionString, intStr))
-                {
-                    return selectionString[intStr.Length..];
-                }
-            }
-
-            return selectionString;
         }
 
         public void Execute(DialogueAddSelectionsCommand command)
@@ -554,7 +446,7 @@ namespace Pal3.GameSystem
             {
                 GameObject selectionButton = UnityEngine.Object.Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
-                buttonTextUI.text = GetSelectionDisplayText(command.Selections[i]);
+                buttonTextUI.text = DialogueTextProcessor.GetSelectionDisplayText((string)command.Selections[i]);
                 var buttonIndex = i;
                 var button = selectionButton.GetComponentInChildren<Button>();
                 button.colors = UITheme.GetButtonColors();

@@ -6,8 +6,8 @@
 namespace Pal3.Command.InternalCommands
 {
     [AvailableInConsole]
-    public class ToggleBigMapRequest : ICommand
+    public class ToggleWorldMapRequest : ICommand
     {
-        public ToggleBigMapRequest() {}
+        public ToggleWorldMapRequest() {}
     }
 }

@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.UI
 {
     using System;
     using System.Collections;
@@ -21,7 +21,6 @@ namespace Pal3.GameSystem
 
     public sealed class InformationManager : IDisposable,
         ICommandExecutor<UIDisplayNoteCommand>,
-        ICommandExecutor<UIShowDealerMenuCommand>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<SettingChangedNotification>,
         ICommandExecutor<GameStateChangedNotification>
@@ -170,12 +169,6 @@ namespace Pal3.GameSystem
             }
             _noteCanvasGroup.alpha = 0f;
             _noteText.text = string.Empty;
-        }
-
-        // TODO: Remove this
-        public void Execute(UIShowDealerMenuCommand command)
-        {
-            Execute(new UIDisplayNoteCommand("交易功能暂未开启"));
         }
 
         public void Execute(SettingChangedNotification command)

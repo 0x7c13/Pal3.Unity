@@ -23,12 +23,18 @@ namespace Pal3.State
     using Core.Utils;
     using Effect.PostProcessing;
     using GamePlay;
-    using GameSystem;
+    using GameSystems.WorldMap;
+    using GameSystems.Favor;
+    using GameSystems.Inventory;
+    using GameSystems.Team;
     using MetaData;
     using Scene;
     using Script;
     using UnityEngine;
-    using Path = System.IO.Path;
+
+    #if PAL3A
+    using GameSystems.Task;
+    #endif
 
     public enum SaveLevel
     {
@@ -53,7 +59,7 @@ namespace Pal3.State
         private readonly TeamManager _teamManager;
         private readonly InventoryManager _inventoryManager;
         private readonly SceneStateManager _sceneStateManager;
-        private readonly BigMapManager _bigMapManager;
+        private readonly WorldMapManager _worldMapManager;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
         #if PAL3A
@@ -70,7 +76,7 @@ namespace Pal3.State
             TeamManager teamManager,
             InventoryManager inventoryManager,
             SceneStateManager sceneStateManager,
-            BigMapManager bigMapManager,
+            WorldMapManager worldMapManager,
             ScriptManager scriptManager,
             FavorManager favorManager,
             #if PAL3A
@@ -85,7 +91,7 @@ namespace Pal3.State
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _inventoryManager = Requires.IsNotNull(inventoryManager, nameof(inventoryManager));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
-            _bigMapManager = Requires.IsNotNull(bigMapManager, nameof(bigMapManager));
+            _worldMapManager = Requires.IsNotNull(worldMapManager, nameof(worldMapManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _favorManager = Requires.IsNotNull(favorManager, nameof(favorManager));
             #if PAL3A
@@ -209,9 +215,9 @@ namespace Pal3.State
             commands.AddRange(_favorManager.GetAllActorFavorInfo()
                 .Select(favorInfo => new FavorAddCommand(favorInfo.Key, favorInfo.Value)));
 
-            // Save big map region activation state
-            commands.AddRange(_bigMapManager.GetRegionEnablementInfo()
-                .Select(regionEnablement => new BigMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
+            // Save world map region activation state
+            commands.AddRange(_worldMapManager.GetRegionEnablementInfo()
+                .Select(regionEnablement => new WorldMapEnableRegionCommand(regionEnablement.Key, regionEnablement.Value)));
 
             // Save inventory state
             commands.Add(new InventoryAddMoneyCommand(_inventoryManager.GetTotalMoney()));
@@ -257,72 +263,11 @@ namespace Pal3.State
             var allActors = currentScene.GetAllActors();
             var allActorGameObjects = currentScene.GetAllActorGameObjects();
 
-            // Save actor activation state changed by the script
-            // + actor position changed by the script
-            // + actor rotation changed by the script
-            // + actor layer changed by the script
-            // + actor script id changed by the script
+            // Save npc actor state
             foreach ((int actorId, GameObject actorGameObject)  in allActorGameObjects)
             {
                 if (currentPlayerActorId == actorId) continue;
-
-                var actorController = actorGameObject.GetComponent<ActorController>();
-                var actorMovementController = actorGameObject.GetComponent<ActorMovementController>();
-
-                if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
-                {
-                    commands.Add(new ActorActivateCommand(actorId, 0));
-                }
-                else if (actorController.IsActive)
-                {
-                    Actor actor = actorController.GetActor();
-
-                    if (actor.Info.InitActive == 0)
-                    {
-                        commands.Add(new ActorActivateCommand(actorId, 1));
-                    }
-
-                    // Save position and rotation if not in initial state
-                    // Only save position and rotation if the actor behavior is None or Hold
-                    if (actor.Info.InitBehaviour is ActorBehaviourType.None or ActorBehaviourType.Hold)
-                    {
-                        if (actorMovementController.GetCurrentLayerIndex() != actor.Info.LayerIndex)
-                        {
-                            commands.Add(new ActorSetNavLayerCommand(actorId,
-                                actorMovementController.GetCurrentLayerIndex()));
-                        }
-
-                        var currentPosition = actorGameObject.transform.position;
-                        var currentGameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(currentPosition);
-
-                        if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
-                            Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)
-                        {
-                            commands.Add(new ActorSetWorldPositionCommand(actorId,
-                                currentPosition.x, currentPosition.z));
-                        }
-
-                        if (Mathf.Abs(currentGameBoxPosition.y - actor.Info.GameBoxYPosition) > 0.01f)
-                        {
-                            commands.Add(new ActorSetYPositionCommand(actorId,
-                                currentGameBoxPosition.y));
-                        }
-
-                        if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=
-                            actorGameObject.transform.rotation)
-                        {
-                            commands.Add(new ActorSetFacingCommand(actorId,
-                                (int) actorGameObject.transform.rotation.eulerAngles.y));
-                        }
-                    }
-
-                    // Save script id if changed by the script
-                    if (actorController.IsScriptChanged())
-                    {
-                        commands.Add(new ActorSetScriptCommand(actorId,
-                            (int)actor.Info.ScriptId));
-                    }
-                }
+                SaveNpcActorState(commands, actorId, actorGameObject, allActors);
             }
 
             #if PAL3
@@ -367,6 +312,78 @@ namespace Pal3.State
             commands.Add(new CameraFadeInCommand());
 
             return commands;
+        }
+
+        // Save npc actor activation state changed by the script
+        // + actor position changed by the script
+        // + actor rotation changed by the script
+        // + actor layer changed by the script
+        // + actor script id changed by the script
+        private static void SaveNpcActorState(List<ICommand> commands,
+            int actorId,
+            GameObject actorGameObject,
+            Dictionary<int, Actor> allActors)
+        {
+            var actorController = actorGameObject.GetComponent<ActorController>();
+
+            // Save activation state if changed by the script
+            if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
+            {
+                commands.Add(new ActorActivateCommand(actorId, 0));
+                return;
+            }
+
+            if (!actorController.IsActive) return; // Skip inactive actor
+
+            Actor actor = actorController.GetActor();
+
+            if (actor.Info.InitActive == 0)
+            {
+                commands.Add(new ActorActivateCommand(actorId, 1));
+            }
+
+            var actorMovementController = actorGameObject.GetComponent<ActorMovementController>();
+
+            // Save position and rotation if not in initial state
+            // Only save position and rotation if the actor behavior is None or Hold
+            if (actor.Info.InitBehaviour is ActorBehaviourType.None or ActorBehaviourType.Hold)
+            {
+                if (actorMovementController.GetCurrentLayerIndex() != actor.Info.LayerIndex)
+                {
+                    commands.Add(new ActorSetNavLayerCommand(actorId,
+                        actorMovementController.GetCurrentLayerIndex()));
+                }
+
+                var currentPosition = actorGameObject.transform.position;
+                var currentGameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(currentPosition);
+
+                if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
+                    Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)
+                {
+                    commands.Add(new ActorSetWorldPositionCommand(actorId,
+                        currentPosition.x, currentPosition.z));
+                }
+
+                if (Mathf.Abs(currentGameBoxPosition.y - actor.Info.GameBoxYPosition) > 0.01f)
+                {
+                    commands.Add(new ActorSetYPositionCommand(actorId,
+                        currentGameBoxPosition.y));
+                }
+
+                if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=
+                    actorGameObject.transform.rotation)
+                {
+                    commands.Add(new ActorSetFacingCommand(actorId,
+                        (int) actorGameObject.transform.rotation.eulerAngles.y));
+                }
+            }
+
+            // Save script id if changed by the script
+            if (actorController.IsScriptChanged())
+            {
+                commands.Add(new ActorSetScriptCommand(actorId,
+                    (int) actor.Info.ScriptId));
+            }
         }
 
         public void Execute(GameStateChangedNotification command)

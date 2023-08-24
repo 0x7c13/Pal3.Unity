@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.WorldMap
 {
     using System;
     using System.Collections.Generic;
@@ -27,12 +27,12 @@ namespace Pal3.GameSystem
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
 
-    public sealed class BigMapManager : IDisposable,
-        ICommandExecutor<BigMapEnableRegionCommand>,
+    public sealed class WorldMapManager : IDisposable,
+        ICommandExecutor<WorldMapEnableRegionCommand>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<GameSwitchRenderingStateCommand>,
         ICommandExecutor<GameSwitchToMainMenuCommand>,
-        ICommandExecutor<ToggleBigMapRequest>
+        ICommandExecutor<ToggleWorldMapRequest>
     {
         private readonly EventSystem _eventSystem;
         private readonly GameStateManager _gameStateManager;
@@ -40,11 +40,11 @@ namespace Pal3.GameSystem
         private readonly PlayerInputActions _playerInputActions;
         private readonly ScriptManager _scriptManager;
         private readonly SceneManager _sceneManager;
-        private readonly CanvasGroup _bigMapCanvas;
-        private readonly GridLayoutGroup _bigMapCanvasGridLayoutGroup;
-        private readonly GameObject _bigMapRegionButtonPrefab;
-        private readonly RectTransform _bigMapBackgroundTransform;
-        private readonly CanvasGroup _bigMapBackgroundCanvasGroup;
+        private readonly CanvasGroup _worldMapCanvas;
+        private readonly GridLayoutGroup _worldMapCanvasGridLayoutGroup;
+        private readonly GameObject _worldMapRegionButtonPrefab;
+        private readonly RectTransform _worldMapBackgroundTransform;
+        private readonly CanvasGroup _worldMapBackgroundCanvasGroup;
 
         private bool _isVisible;
 
@@ -53,38 +53,41 @@ namespace Pal3.GameSystem
         private readonly List<GameObject> _selectionButtons = new();
         private readonly Dictionary<int, int> _regionEnablementInfo = new ();
 
-        public BigMapManager(EventSystem eventSystem,
+        public WorldMapManager(EventSystem eventSystem,
             GameStateManager gameStateManager,
             SceneManager sceneManager,
             InputManager inputManager,
             ScriptManager scriptManager,
-            CanvasGroup bigMapCanvas,
-            GameObject bigMapRegionButtonPrefab,
-            GameObject bigMapBackground)
+            CanvasGroup worldMapCanvas,
+            GameObject worldMapRegionButtonPrefab,
+            GameObject worldMapBackground)
         {
             _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
-            _bigMapCanvas = Requires.IsNotNull(bigMapCanvas, nameof(bigMapCanvas));
-            _bigMapCanvasGridLayoutGroup = Requires.IsNotNull(_bigMapCanvas.GetComponent<GridLayoutGroup>(), "bigMapCanvasGridLayoutGroup");
-            _bigMapRegionButtonPrefab = Requires.IsNotNull(bigMapRegionButtonPrefab, nameof(bigMapRegionButtonPrefab));
+            _worldMapCanvas = Requires.IsNotNull(worldMapCanvas, nameof(worldMapCanvas));
+            _worldMapCanvasGridLayoutGroup = Requires.IsNotNull(
+                _worldMapCanvas.GetComponent<GridLayoutGroup>(), "worldMapCanvasGridLayoutGroup");
+            _worldMapRegionButtonPrefab = Requires.IsNotNull(worldMapRegionButtonPrefab, nameof(worldMapRegionButtonPrefab));
 
-            Requires.IsNotNull(bigMapBackground, nameof(bigMapBackground));
-            _bigMapBackgroundTransform = Requires.IsNotNull(bigMapBackground.GetComponent<RectTransform>(), "bigMapBackgroundRectTransform");
-            _bigMapBackgroundCanvasGroup = Requires.IsNotNull(bigMapBackground.GetComponent<CanvasGroup>(), "bigMapBackgroundCanvasGroup");
+            Requires.IsNotNull(worldMapBackground, nameof(worldMapBackground));
+            _worldMapBackgroundTransform = Requires.IsNotNull(
+                worldMapBackground.GetComponent<RectTransform>(), "worldMapBackgroundRectTransform");
+            _worldMapBackgroundCanvasGroup = Requires.IsNotNull(
+                worldMapBackground.GetComponent<CanvasGroup>(), "worldMapBackgroundCanvasGroup");
 
             _playerInputActions = inputManager.GetPlayerInputActions();
 
-            _bigMapCanvas.alpha = 0f;
-            _bigMapCanvas.interactable = false;
-            _bigMapBackgroundCanvasGroup.alpha = 0f;
+            _worldMapCanvas.alpha = 0f;
+            _worldMapCanvas.interactable = false;
+            _worldMapBackgroundCanvasGroup.alpha = 0f;
             _isVisible = false;
 
-            _playerInputActions.Gameplay.ToggleBigMap.performed += ToggleBigMapOnPerformed;
-            _playerInputActions.UI.ToggleBigMap.performed += ToggleBigMapOnPerformed;
-            _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideBigMapOnPerformed;
+            _playerInputActions.Gameplay.ToggleWorldMap.performed += ToggleWorldMapOnPerformed;
+            _playerInputActions.UI.ToggleWorldMap.performed += ToggleWorldMapOnPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed += HideWorldMapOnPerformed;
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -92,17 +95,17 @@ namespace Pal3.GameSystem
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            _playerInputActions.Gameplay.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
-            _playerInputActions.UI.ToggleBigMap.performed -= ToggleBigMapOnPerformed;
-            _playerInputActions.UI.ExitCurrentShowingMenu.performed -= HideBigMapOnPerformed;
+            _playerInputActions.Gameplay.ToggleWorldMap.performed -= ToggleWorldMapOnPerformed;
+            _playerInputActions.UI.ToggleWorldMap.performed -= ToggleWorldMapOnPerformed;
+            _playerInputActions.UI.ExitCurrentShowingMenu.performed -= HideWorldMapOnPerformed;
         }
 
-        private void ToggleBigMapOnPerformed(InputAction.CallbackContext _)
+        private void ToggleWorldMapOnPerformed(InputAction.CallbackContext _)
         {
-            ToggleBigMap();
+            ToggleWorldMap();
         }
 
-        private void HideBigMapOnPerformed(InputAction.CallbackContext _)
+        private void HideWorldMapOnPerformed(InputAction.CallbackContext _)
         {
             if (_isVisible)
             {
@@ -121,7 +124,7 @@ namespace Pal3.GameSystem
             return _regionEnablementInfo;
         }
 
-        private void ToggleBigMap()
+        private void ToggleWorldMap()
         {
             if (_sceneManager.GetCurrentScene() == null) return;
 
@@ -132,7 +135,7 @@ namespace Pal3.GameSystem
             }
             else if (_gameStateManager.GetCurrentState() == GameState.Gameplay)
             {
-                // Only enable big map toggling in non-maze scenes.
+                // Only enable world map toggling in non-maze scenes.
                 if (_sceneManager.GetCurrentScene().GetSceneInfo().SceneType != SceneType.Maze)
                 {
                     Show();
@@ -149,7 +152,7 @@ namespace Pal3.GameSystem
             }
 
             _gameStateManager.TryGoToState(GameState.UI);
-            // Scene script can execute GameSwitchRenderingStateCommand to toggle BigMap
+            // Scene script can execute GameSwitchRenderingStateCommand to toggle WorldMap
             // After the script finishes, the state will be reset to Gameplay. Thus we need to
             // block the state change.
             _gameStateManager.AddGamePlayStateLocker(_stateLockerGuid);
@@ -157,26 +160,26 @@ namespace Pal3.GameSystem
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            GameObject exitButtonObj = UnityEngine.Object.Instantiate(_bigMapRegionButtonPrefab,
-                _bigMapCanvas.transform);
+            GameObject exitButtonObj = UnityEngine.Object.Instantiate(_worldMapRegionButtonPrefab,
+                _worldMapCanvas.transform);
             var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             exitButtonTextUI.text =  "关闭";
             var exitButton = exitButtonObj.GetComponent<Button>();
             exitButton.colors = UITheme.GetButtonColors();
-            exitButton.onClick.AddListener(delegate { BigMapButtonClicked(-1);});
+            exitButton.onClick.AddListener(delegate { WorldMapButtonClicked(-1);});
             _selectionButtons.Add(exitButtonObj);
 
-            for (var i = 0; i < BigMapConstants.BigMapRegions.Length; i++)
+            for (var i = 0; i < WorldMapConstants.WorldMapRegions.Length; i++)
             {
                 if (!_regionEnablementInfo.ContainsKey(i) || _regionEnablementInfo[i] != 2) continue;
-                GameObject selectionButton = UnityEngine.Object.Instantiate(_bigMapRegionButtonPrefab,
-                    _bigMapCanvas.transform);
+                GameObject selectionButton = UnityEngine.Object.Instantiate(_worldMapRegionButtonPrefab,
+                    _worldMapCanvas.transform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
-                buttonTextUI.text = BigMapConstants.BigMapRegions[i];
+                buttonTextUI.text = WorldMapConstants.WorldMapRegions[i];
                 var buttonIndex = i;
                 var button = selectionButton.GetComponent<Button>();
                 button.colors = UITheme.GetButtonColors();
-                button.onClick.AddListener(delegate { BigMapButtonClicked(buttonIndex);});
+                button.onClick.AddListener(delegate { WorldMapButtonClicked(buttonIndex);});
                 _selectionButtons.Add(selectionButton);
             }
 
@@ -218,22 +221,22 @@ namespace Pal3.GameSystem
                     ConfigureButtonNavigation(button, i, _selectionButtons.Count);
                 }
 
-                float width = (_bigMapCanvasGridLayoutGroup.cellSize.x + _bigMapCanvasGridLayoutGroup.spacing.x) *
-                    _selectionButtons.Count - _bigMapCanvasGridLayoutGroup.spacing.x;
-                float height = _bigMapCanvasGridLayoutGroup.cellSize.y;
+                float width = (_worldMapCanvasGridLayoutGroup.cellSize.x + _worldMapCanvasGridLayoutGroup.spacing.x) *
+                    _selectionButtons.Count - _worldMapCanvasGridLayoutGroup.spacing.x;
+                float height = _worldMapCanvasGridLayoutGroup.cellSize.y;
 
-                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width + 50f);
-                _bigMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height + 60f);
-                _bigMapBackgroundTransform.ForceUpdateRectTransforms();
+                _worldMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width + 50f);
+                _worldMapBackgroundTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height + 60f);
+                _worldMapBackgroundTransform.ForceUpdateRectTransforms();
 
-                _bigMapCanvas.alpha = 1f;
-                _bigMapCanvas.interactable = true;
-                _bigMapBackgroundCanvasGroup.alpha = 1f;
+                _worldMapCanvas.alpha = 1f;
+                _worldMapCanvas.interactable = true;
+                _worldMapBackgroundCanvasGroup.alpha = 1f;
                 _isVisible = true;
             }
         }
 
-        private void BigMapButtonClicked(int buttonIndex)
+        private void WorldMapButtonClicked(int buttonIndex)
         {
             if (buttonIndex != -1)
             {
@@ -245,9 +248,9 @@ namespace Pal3.GameSystem
 
         private void Hide()
         {
-            _bigMapCanvas.alpha = 0f;
-            _bigMapCanvas.interactable = false;
-            _bigMapBackgroundCanvasGroup.alpha = 0f;
+            _worldMapCanvas.alpha = 0f;
+            _worldMapCanvas.interactable = false;
+            _worldMapBackgroundCanvasGroup.alpha = 0f;
             _isVisible = false;
 
             foreach (GameObject button in _selectionButtons)
@@ -259,7 +262,7 @@ namespace Pal3.GameSystem
             _gameStateManager.RemoveGamePlayStateLocker(_stateLockerGuid);
         }
 
-        public void Execute(BigMapEnableRegionCommand command)
+        public void Execute(WorldMapEnableRegionCommand command)
         {
             _regionEnablementInfo[command.Region] = command.EnablementFlag;
         }
@@ -271,20 +274,20 @@ namespace Pal3.GameSystem
 
         public void Execute(GameSwitchRenderingStateCommand command)
         {
-            if ((RenderingState)command.State == RenderingState.BigMap)
+            if ((RenderingState)command.State == RenderingState.WorldMap)
             {
                 Show();
             }
         }
 
-        public void Execute(ToggleBigMapRequest command)
+        public void Execute(ToggleWorldMapRequest command)
         {
-            ToggleBigMap();
+            ToggleWorldMap();
         }
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {
-            if (_bigMapCanvas.interactable)
+            if (_worldMapCanvas.interactable)
             {
                 Hide();
             }

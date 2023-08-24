@@ -5,7 +5,7 @@
 
 #if PAL3A
 
-namespace Pal3.GameSystem
+namespace Pal3.GameSystems.Task
 {
     using System;
     using System.Collections.Generic;

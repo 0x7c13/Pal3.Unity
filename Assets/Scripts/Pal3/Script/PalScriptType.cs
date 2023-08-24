@@ -8,7 +8,7 @@ namespace Pal3.Script
     public enum PalScriptType
     {
         System,
-        BigMap,
+        WorldMap,
         Scene
     }
 }
