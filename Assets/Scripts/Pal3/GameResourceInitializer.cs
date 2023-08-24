@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Pal3.Effect;
+
 namespace Pal3
 {
     using System;
@@ -192,12 +194,16 @@ namespace Pal3
             {
                 unlitMaterialFactory.AllocateMaterialPool();
             }
+            
+            // Common Effect Factory
+            CommonEffectFactory effectFactory = new CommonEffectFactory();
 
             // Init Game resource provider
             var resourceProvider = new GameResourceProvider(cpkFileSystem,
                 new TextureLoaderFactory(),
                 unlitMaterialFactory,
                 litMaterialFactory,
+                effectFactory,
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 

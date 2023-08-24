@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Pal3.Effect;
+
 namespace Pal3.Actor
 {
     using System;
@@ -87,6 +89,12 @@ namespace Pal3.Actor
                     break;
                 case PlayerActorId.LongKui:
                     actorGameObject.AddComponent<LongKuiController>().Init(actor, actionController);
+                    break;
+                case PlayerActorId.JingTian:
+                    var trailGameObject = resourceProvider.GetEffectFactory().CreateTrail();
+                    trailGameObject.transform.SetParent(actorGameObject.transform);
+                    var trailController = trailGameObject.GetComponent<TrailController>();
+                    trailController.SetPointLifeSpan(0.5f);
                     break;
             }
             #elif PAL3A
