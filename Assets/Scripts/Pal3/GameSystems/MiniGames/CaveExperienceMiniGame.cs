@@ -1,20 +1,20 @@
-// ---------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------
 //  Copyright (c) 2021-2023, Jiaqi Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
 #if PAL3
 
-namespace Pal3.MiniGame
+namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
     using Command.SceCommands;
 
-    public sealed class AppraisalsMiniGame : IDisposable,
-        ICommandExecutor<MiniGameStartAppraisalsCommand>
+    public sealed class CaveExperienceMiniGame : IDisposable,
+        ICommandExecutor<MiniGameStartCaveExperienceCommand>
     {
-        public AppraisalsMiniGame()
+        public CaveExperienceMiniGame()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -24,13 +24,10 @@ namespace Pal3.MiniGame
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public bool GetResult()
+        public void Execute(MiniGameStartCaveExperienceCommand command)
         {
-            return true;
-        }
-
-        public void Execute(MiniGameStartAppraisalsCommand command)
-        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new UIDisplayNoteCommand("山洞初体验小游戏暂未实现，现已跳过"));
         }
     }
 }

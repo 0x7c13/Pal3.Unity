@@ -83,13 +83,12 @@ namespace Core.DataReader.Gdb
             public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
             public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
 
-            public int MaterialAmount;       // 炼制材料的数量
-            public uint MaterialId;          // 炼制材料的ID
+            public PlayerActorId CreatorActorId;     // 制作角色ID
+            public uint MaterialId;                  // 制作所需材料的ID
 
-            public int ProductAmount;        // 炼制次数限制 (0无限制)
-            public uint ProductId;           // 炼制出的物品ID
-
-            public uint RequiredActorLevel;  // 炼制所需角色等级
+            public int ProductType;                  // 制作出的物品类型（0美食方，梦溪杂录，1装备图谱，花种，2武器图谱）
+            public uint ProductId;                   // 制作出的物品ID
+            public uint RequiredFavorValue;          // 制作所需的最低好感度
         #endif
     }
 

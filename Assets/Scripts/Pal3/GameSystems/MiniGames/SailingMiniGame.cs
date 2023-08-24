@@ -5,7 +5,7 @@
 
 #if PAL3
 
-namespace Pal3.MiniGame
+namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
@@ -38,6 +38,9 @@ namespace Pal3.MiniGame
             }
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(command.EndScriptId));
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new UIDisplayNoteCommand("行船小游戏暂未实现，现已跳过"));
         }
     }
 }

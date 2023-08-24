@@ -29,6 +29,7 @@ namespace Pal3
     using GameSystems.Dialogue;
     using GameSystems.Favor;
     using GameSystems.Inventory;
+    using GameSystems.MiniGames;
     using GameSystems.Minimap;
     using GameSystems.Rest;
     using GameSystems.Team;
@@ -55,9 +56,7 @@ namespace Pal3
     using Video;
     using PostProcessManager = Effect.PostProcessing.PostProcessManager;
 
-    #if PAL3
-    using MiniGame;
-    #elif PAL3A
+    #if PAL3A
     using GameSystems.Task;
     #endif
 
@@ -178,6 +177,7 @@ namespace Pal3
         private SwatAFlyMiniGame _swatAFlyMiniGame;
         private CaveExperienceMiniGame _caveExperienceMiniGame;
         #elif PAL3A // PAL3A specific components
+        private GhostHuntingMiniGame _ghostHuntingMiniGame;
         private TaskManager _taskManager;
         #endif
 
@@ -291,6 +291,8 @@ namespace Pal3
             _caveExperienceMiniGame = new CaveExperienceMiniGame();
             ServiceLocator.Instance.Register(_caveExperienceMiniGame);
             #elif PAL3A
+            _ghostHuntingMiniGame = new GhostHuntingMiniGame();
+            ServiceLocator.Instance.Register(_ghostHuntingMiniGame);
             _taskManager = new TaskManager(_gameResourceProvider, taskInfoText);
             ServiceLocator.Instance.Register(_taskManager);
             #endif

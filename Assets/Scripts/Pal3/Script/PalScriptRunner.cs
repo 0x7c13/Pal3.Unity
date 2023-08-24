@@ -19,11 +19,9 @@ namespace Pal3.Script
     using GameSystems.Dialogue;
     using GameSystems.Favor;
     using GameSystems.Inventory;
+    using GameSystems.MiniGames;
     using GameSystems.Team;
     using Newtonsoft.Json;
-    #if PAL3
-    using MiniGame;
-    #endif
     using Scene;
     using State;
     using UnityEngine;

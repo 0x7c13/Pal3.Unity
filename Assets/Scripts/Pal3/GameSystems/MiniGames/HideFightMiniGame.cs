@@ -5,7 +5,7 @@
 
 #if PAL3
 
-namespace Pal3.MiniGame
+namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
@@ -36,6 +36,9 @@ namespace Pal3.MiniGame
                     new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
             }
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(1701));
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new UIDisplayNoteCommand("此处小游戏暂未实现，现已跳过"));
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Core.FileSystem
             {
                 var error = $"游戏数据加载失败，原始游戏数据根目录不存在: {rootPath}";
                 Debug.LogError(error);
-                throw new ArgumentException(error);
+                throw new DirectoryNotFoundException(error);
             }
 
             _rootPath = rootPath;

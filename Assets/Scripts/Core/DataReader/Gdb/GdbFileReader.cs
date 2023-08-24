@@ -275,11 +275,11 @@ namespace Core.DataReader.Gdb
             var criticalAttackAmplifyPercentage = reader.ReadInt16();
             var specialSkillSuccessRate = reader.ReadInt16();
 
-            var materialAmount = reader.ReadInt32();
+            var creatorActorId = (PlayerActorId)reader.ReadInt32();
             var materialId = reader.ReadUInt32();
-            var productAmount = reader.ReadInt32();
+            var productType = reader.ReadInt32();
             var productId = reader.ReadUInt32();
-            var requiredActorLevel = reader.ReadUInt32();
+            var requiredFavorValue = reader.ReadUInt32();
             #endif
 
             return new GameItemInfo()
@@ -320,11 +320,11 @@ namespace Core.DataReader.Gdb
                 MpSavingPercentage = mpSavingPercentage,
                 CriticalAttackAmplifyPercentage = criticalAttackAmplifyPercentage,
                 SpecialSkillSuccessRate = specialSkillSuccessRate,
-                MaterialAmount = materialAmount,
+                CreatorActorId = creatorActorId,
                 MaterialId = materialId,
-                ProductAmount = productAmount,
+                ProductType = productType,
                 ProductId = productId,
-                RequiredActorLevel = requiredActorLevel,
+                RequiredFavorValue = requiredFavorValue,
                 #endif
             };
         }

@@ -5,22 +5,17 @@
 
 #if PAL3
 
-namespace Pal3.MiniGame
+namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
     using Command.SceCommands;
-    using Core.Utils;
-    using Script;
 
-    public sealed class SkiMiniGame : IDisposable,
-        ICommandExecutor<MiniGameStartSkiCommand>
+    public sealed class AppraisalsMiniGame : IDisposable,
+        ICommandExecutor<MiniGameStartAppraisalsCommand>
     {
-        private readonly ScriptManager _scriptManager;
-
-        public SkiMiniGame(ScriptManager scriptManager)
+        public AppraisalsMiniGame()
         {
-            _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -29,9 +24,15 @@ namespace Pal3.MiniGame
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void Execute(MiniGameStartSkiCommand command)
+        public bool GetResult()
         {
-            _scriptManager.AddScript((uint)command.EndGameScriptId);
+            return true;
+        }
+
+        public void Execute(MiniGameStartAppraisalsCommand command)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new UIDisplayNoteCommand("鉴宝小游戏暂未实现，现已跳过"));
         }
     }
 }
