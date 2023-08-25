@@ -316,7 +316,10 @@ namespace Pal3
             ServiceLocator.Instance.Register(_cameraManager);
 
             _minimapManager = new MinimapManager(mainCamera,
-                _sceneManager, miniMapCanvasGroup, miniMapImage, new MinimapTextureCreator());
+                _sceneManager, miniMapCanvasGroup, miniMapImage,
+                new MinimapTextureCreator(UITheme.MinimapObstacleColor,
+                    UITheme.MinimapWallColor,
+                    UITheme.MinimapFloorColor));
             ServiceLocator.Instance.Register(_minimapManager);
 
             _informationManager = new InformationManager(_gameSettings,

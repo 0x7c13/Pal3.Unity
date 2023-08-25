@@ -6,6 +6,7 @@
 namespace Core.DataLoader
 {
 	using System;
+	using System.IO;
 	using DataReader;
 	using DataReader.Dxt;
 	using UnityEngine;
@@ -22,24 +23,20 @@ namespace Core.DataLoader
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
-			#if ENABLE_IL2CPP || UNITY_EDITOR
-			using var reader = new UnsafeBinaryReader(data);
-			#else
-			using var reader = new SafeBinaryReader(data);
-			#endif
+			using var stream = new MemoryStream(data);
+			using var headerReader = new BinaryReader(stream);
 
-			if (!IsValidDxtFile(reader))
+			if (new string(headerReader.ReadChars(4)) != "DDS ")
 			{
-				throw new ArgumentException($"Not a valid DXT file.");
+				throw new InvalidDataException($"Not a valid DXT file.");
 			}
 
-			DxtHeader header = DxtHeader.ReadHeader(reader);
-			var format = header.DxtPixelFormat.Format;
+			DxtHeader header = DxtHeader.ReadHeader(headerReader);
 
 			_width = header.Width;
 			_height = header.Height;
 
-			switch (format)
+			switch (header.DxtPixelFormat.Format)
 			{
 				case "DXT1":
 					hasAlphaChannel = false;
@@ -52,16 +49,8 @@ namespace Core.DataLoader
 				case "DXT5":
 					throw new NotImplementedException("DXT5 decoder not implemented yet.");
 				default:
-					throw new Exception($"Texture format: {format} not supported.");
+					throw new Exception($"DXT Texture format: {header.DxtPixelFormat.Format} is not supported.");
 			}
-		}
-
-		private bool IsValidDxtFile(IBinaryReader reader)
-		{
-			var header = new string(reader.ReadChars(4));
-			if (header == "DDS ") return true;
-			Debug.Log($"[{nameof(DxtTextureLoader)}] Invalid DXT header: {header}");
-			return false;
 		}
 
 		// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android

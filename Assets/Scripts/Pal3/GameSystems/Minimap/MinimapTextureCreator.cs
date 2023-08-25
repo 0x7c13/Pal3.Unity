@@ -10,21 +10,17 @@ namespace Pal3.GameSystems.Minimap
 
     public class MinimapTextureCreator
     {
-        private readonly Color _obstacleColor = new Color(0f, 0f, 0f, 0f);
-        private readonly Color _wallColor = new Color(1f, 0.9f, 0.1f, 0.7f);
-        #if PAL3
-        private readonly Color _floorColor = new Color(30f / 255f, 75f / 255f, 140f / 255f, 100f / 255f);
-        #elif PAL3A
-        private readonly Color _floorColor = new Color(160f / 255f, 40f / 255f, 110f / 255f, 100f / 255f);
-        #endif
+        private readonly Color _obstacleColor;
+        private readonly Color _wallColor;
+        private readonly Color _floorColor;
 
-        public MinimapTextureCreator(Color? obstacleColor = null,
-            Color? wallColor = null,
-            Color? floorColor = null)
+        public MinimapTextureCreator(Color obstacleColor,
+            Color wallColor,
+            Color floorColor)
         {
-            _obstacleColor = obstacleColor ?? _obstacleColor;
-            _wallColor = wallColor ?? _wallColor;
-            _floorColor = floorColor ?? _floorColor;
+            _obstacleColor = obstacleColor;
+            _wallColor = wallColor;
+            _floorColor = floorColor;
         }
 
         /// <summary>

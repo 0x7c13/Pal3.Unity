@@ -32,5 +32,15 @@ namespace Pal3.UI
             };
             #endif
         }
+
+        public static Color MinimapObstacleColor = new Color(0f, 0f, 0f, 0f);
+        public static Color MinimapWallColor = new Color(1f, 0.9f, 0.1f, 0.7f);
+
+        #if PAL3
+        public static Color MinimapFloorColor = new Color(30f / 255f, 75f / 255f, 140f / 255f, 100f / 255f);
+        #elif PAL3A
+        public static Color MinimapFloorColor = new Color(160f / 255f, 40f / 255f, 110f / 255f, 100f / 255f);
+        #endif
+
     }
 }

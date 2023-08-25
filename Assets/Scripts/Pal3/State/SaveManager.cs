@@ -48,7 +48,6 @@ namespace Pal3.State
         public const int AutoSaveSlotIndex = 0;
         public bool IsAutoSaveEnabled { get; set; } = false;
 
-        private const string LEGACY_SAVE_FILE_NAME = "save.txt";
         private const string SAVE_FILE_FORMAT = "slot_{0}.txt";
         private const string SAVE_FOLDER_NAME = "Saves";
         private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
@@ -104,18 +103,6 @@ namespace Pal3.State
             if (!Directory.Exists(saveFolder))
             {
                 Directory.CreateDirectory(saveFolder);
-            }
-
-            // Migrate old save file if exists
-            // TODO: Remove this after a few versions
-            {
-                string legacySaveFilePath = Application.persistentDataPath +
-                                            Path.DirectorySeparatorChar + LEGACY_SAVE_FILE_NAME;
-                if (File.Exists(legacySaveFilePath))
-                {
-                    // Migrate old save file to slot 1
-                    File.Move(legacySaveFilePath, GetSaveFilePath(1));
-                }
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

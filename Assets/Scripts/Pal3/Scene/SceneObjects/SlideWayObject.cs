@@ -65,7 +65,7 @@ namespace Pal3.Scene.SceneObjects
 
             var actorController = playerActorGameObject.GetComponent<ActorController>();
 
-            // Temporarily set the speed to a higher value to make the actor slide
+            // Temporarily set the speed to a higher value to make the actor slide faster
             actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_GAME_BOX_SPEED);
 
             movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
