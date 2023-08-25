@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Dev
+namespace Pal3.Dev.Presenters
 {
     using Core.DataReader.Lgt;
     using UnityEngine;
@@ -11,7 +11,7 @@ namespace Pal3.Dev
     /// <summary>
     /// LightNode holder component to present LightNode in the Unity inspector.
     /// </summary>
-    public class LightSourceInfoPresenter : MonoBehaviour
+    public sealed class LightSourceInfoPresenter : MonoBehaviour
     {
         [SerializeField] public LightNode lightNode;
     }

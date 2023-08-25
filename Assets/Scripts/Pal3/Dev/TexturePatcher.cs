@@ -10,11 +10,11 @@ namespace Pal3.Dev
     using System;
     using System.Collections.Generic;
 
-    public static class Pal3AMv3TextureTilingIssue
+    public static class TexturePatcher
     {
-        // These textures have wrong scaling/tiling,
-        // Should be (1, 1) but these are (1, -1)
-        public static readonly HashSet<string> KnownTextureFiles = new (StringComparer.OrdinalIgnoreCase)
+        // These textures have wrong scaling/tiling in PAL3A game,
+        // Scale should be (1, 1) by default but these are (1, -1) in PAL3A
+        private static readonly HashSet<string> KnownUpsideDownTextureFilesInPal3A = new (StringComparer.OrdinalIgnoreCase)
         {
             "basedata.cpk\\role\\607\\607.tga",
             "basedata.cpk\\role\\611\\611.tga",
@@ -29,6 +29,11 @@ namespace Pal3.Dev
             "basedata.cpk\\role\\b19\\b19.tga",
             "basedata.cpk\\role\\b22\\b22.tga",
         };
+
+        public static bool TextureFileHasWrongTiling(string textureFile)
+        {
+            return KnownUpsideDownTextureFilesInPal3A.Contains(textureFile);
+        }
     }
 }
 

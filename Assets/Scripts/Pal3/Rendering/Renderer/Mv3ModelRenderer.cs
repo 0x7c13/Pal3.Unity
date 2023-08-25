@@ -16,6 +16,7 @@ namespace Pal3.Rendering.Renderer
     using Core.Renderer;
     using Core.Utils;
     using Dev;
+    using Dev.Presenters;
     using Material;
     using Rendering;
     using UnityEngine;
@@ -186,7 +187,7 @@ namespace Pal3.Rendering.Renderer
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
             var texturePath = _textureProvider.GetTexturePath(textureName);
-            if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Contains(texturePath))
+            if (TexturePatcher.TextureFileHasWrongTiling(texturePath))
             {
                 _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
             }

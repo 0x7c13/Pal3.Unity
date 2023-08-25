@@ -54,7 +54,7 @@ namespace Pal3.Actor.Controllers
 
             // If actor is inactive or at it's init position, just teleport to target position
             if (!_actorController.IsActive ||
-                Vector3.Distance(transform.position, PlayerActorNpcInfoFactory.ActorInitPosition) < float.Epsilon)
+                Vector3.Distance(transform.position, NpcInfoFactory.ActorInitPosition) < float.Epsilon)
             {
                 transform.position = targetPosition;
                 return;

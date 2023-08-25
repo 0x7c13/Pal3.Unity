@@ -3,16 +3,16 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Dev
+namespace Pal3.Dev.Presenters
 {
-    using Core.DataReader.Scn;
+    using Core.DataReader.Gdb;
     using UnityEngine;
 
     /// <summary>
-    /// ScnNpcInfo holder component to present ScnNpcInfo in the Unity inspector.
+    /// CombatActorInfo holder component to present ScnObjectInfo in the Unity inspector.
     /// </summary>
-    public class NpcInfoPresenter : MonoBehaviour
+    public sealed class CombatActorInfoPresenter : MonoBehaviour
     {
-        [SerializeField] public ScnNpcInfo npcInfo;
+        [SerializeField] public CombatActorInfo combatActorInfo;
     }
 }
