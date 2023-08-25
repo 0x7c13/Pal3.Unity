@@ -168,7 +168,7 @@ namespace Pal3.Dev
             _deferredExecutionCommands.Add("CameraSetTransform -33.24 -19.48 688.0 308.31 240.44 480.61");
             _deferredExecutionCommands.Add("CameraFadeIn");
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q01", "yn09a"));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand(AudioConstants.ThemeMusicName, -1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayScriptMusicCommand(AudioConstants.ThemeMusicName, -1));
             #elif PAL3A
             // 南宫煌房间
             _deferredExecutionCommands.Add("PlayerEnableInput 0");
@@ -176,7 +176,7 @@ namespace Pal3.Dev
             _deferredExecutionCommands.Add("CameraSetTransform -21.69 -22.48 688.0 182.87 263.07 531.61");
             _deferredExecutionCommands.Add("CameraFadeIn");
             CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("q02", "qn08y"));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayMusicCommand(AudioConstants.ThemeMusicName, -1));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayScriptMusicCommand(AudioConstants.ThemeMusicName, -1));
             #endif
 
             if (!_initViewCameraOrbitAnimationCts.IsCancellationRequested)

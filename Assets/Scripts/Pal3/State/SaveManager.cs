@@ -151,7 +151,17 @@ namespace Pal3.State
 
         public string LoadFromSaveSlot(int slotIndex)
         {
-            return SaveSlotExists(slotIndex) ? File.ReadAllText(GetSaveFilePath(slotIndex)) : null;
+            var content = SaveSlotExists(slotIndex) ? File.ReadAllText(GetSaveFilePath(slotIndex)) : null;
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                // TODO: Remove this after a few versions
+                return content.Replace("StopMusic", "StopScriptMusic")
+                    .Replace("PlayMusic", "PlayScriptMusic")
+                    .Replace("BigMapEnableRegion", "WorldMapEnableRegion");
+            }
+
+            return null;
         }
 
         public List<ICommand> ConvertCurrentGameStateToCommands(SaveLevel saveLevel)
@@ -190,7 +200,7 @@ namespace Pal3.State
             var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
             if (!string.IsNullOrEmpty(currentScriptMusic))
             {
-                commands.Add(new PlayMusicCommand(currentScriptMusic, 0));
+                commands.Add(new PlayScriptMusicCommand(currentScriptMusic, 0));
             }
 
             // Save team state

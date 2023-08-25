@@ -7,9 +7,9 @@ namespace Pal3.Command.SceCommands
 {
     [AvailableInConsole]
     [SceCommand(133, "播放剧情音乐")]
-    public class PlayMusicCommand : ICommand
+    public class PlayScriptMusicCommand : ICommand
     {
-        public PlayMusicCommand(string musicName, int loop)
+        public PlayScriptMusicCommand(string musicName, int loop)
         {
             MusicName = musicName;
             Loop = loop;

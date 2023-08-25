@@ -26,11 +26,11 @@ namespace Pal3.Audio
 
     public sealed class AudioManager : IDisposable,
         ICommandExecutor<PlaySfxCommand>,
-        ICommandExecutor<PlayMusicCommand>,
+        ICommandExecutor<PlayScriptMusicCommand>,
+        ICommandExecutor<StopScriptMusicCommand>,
         ICommandExecutor<AttachSfxToGameObjectRequest>,
         ICommandExecutor<StopSfxPlayingAtGameObjectRequest>,
         ICommandExecutor<GameStateChangedNotification>,
-        ICommandExecutor<StopMusicCommand>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>,
@@ -391,7 +391,7 @@ namespace Pal3.Audio
             }
         }
 
-        public void Execute(PlayMusicCommand command)
+        public void Execute(PlayScriptMusicCommand command)
         {
             if (command.MusicName.Equals(AudioConstants.StopMusicName))
             {
@@ -422,8 +422,10 @@ namespace Pal3.Audio
                 command.Loop == 0 ? -1 : command.Loop));
         }
 
-        public void Execute(StopMusicCommand command)
+        public void Execute(StopScriptMusicCommand command)
         {
+            if (string.IsNullOrEmpty(_currentScriptMusic)) return;
+
             if (_musicPlayer.isPlaying)
             {
                 _musicPlayer.Stop();

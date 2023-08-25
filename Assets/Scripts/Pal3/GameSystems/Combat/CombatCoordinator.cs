@@ -134,15 +134,14 @@ namespace Pal3.GameSystems.Combat
         {
             _combatManager.ExitCombat();
             _currentCombatContext.ScriptWaiter?.CancelWait();
+            _currentCombatContext.ResetContext();
 
             if (isPlayerWin)
             {
                 _gameStateManager.GoToPreviousState();
-                _currentCombatContext.ResetContext();
             }
             else
             {
-                _currentCombatContext.ResetContext();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new GameSwitchToMainMenuCommand());
             }
         }

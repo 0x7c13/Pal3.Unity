@@ -71,7 +71,7 @@ namespace Pal3.GameSystems.Combat
             if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayMusicCommand(combatContext.CombatMusicName, -1));
+                    new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
             }
 
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
@@ -80,7 +80,7 @@ namespace Pal3.GameSystems.Combat
         public void ExitCombat()
         {
             // Stop combat music
-            CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
+            CommandDispatcher<ICommand>.Instance.Dispatch(new StopScriptMusicCommand());
             _sceneManager.UnloadCombatScene();
             ResetCameraPosition();
         }

@@ -238,8 +238,8 @@ namespace Pal3.GameSystems.WorldMap
 
         private void WorldMapButtonClicked(int buttonIndex)
         {
-            // Stop existing script music
-            CommandDispatcher<ICommand>.Instance.Dispatch(new StopMusicCommand());
+            // Stop existing script music if any when changing scene from world map
+            CommandDispatcher<ICommand>.Instance.Dispatch(new StopScriptMusicCommand());
 
             if (buttonIndex != -1)
             {
