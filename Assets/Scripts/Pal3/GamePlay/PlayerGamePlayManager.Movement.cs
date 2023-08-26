@@ -210,7 +210,7 @@ namespace Pal3.GamePlay
             }
             else
             {
-                return _playerActor.Info.Id == (byte)PlayerActorId.WangPengXu ?
+                return _playerActor.Id == (int)PlayerActorId.WangPengXu ?
                     AudioConstants.WangPengXuFlySfxName : AudioConstants.MainActorRunSfxName;
             }
             #endif

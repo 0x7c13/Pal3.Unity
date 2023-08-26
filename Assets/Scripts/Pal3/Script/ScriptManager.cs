@@ -28,7 +28,7 @@ namespace Pal3.Script
         private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
 
         private readonly SceFile _systemSceFile;
-        private readonly SceFile _bigMapSceFile;
+        private readonly SceFile _worldMapSceFile;
         private SceFile _currentSceFile;
 
         private readonly Queue<PalScriptRunner> _pendingScripts = new ();
@@ -44,7 +44,7 @@ namespace Pal3.Script
             _cmdPreprocessor = Requires.IsNotNull(commandPreprocessor, nameof(commandPreprocessor));
 
             _systemSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath);
-            _bigMapSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.BigMapSceFileVirtualPath);
+            _worldMapSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.WorldMapSceFileVirtualPath);
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -91,7 +91,7 @@ namespace Pal3.Script
             return _pendingScripts.Count + _runningScripts.Count;
         }
 
-        public bool AddScript(uint scriptId, bool isBigMapScript = false)
+        public bool AddScript(uint scriptId, bool isWorldMapScript = false)
         {
             if (scriptId == ScriptConstants.InvalidScriptId) return false;
 
@@ -103,21 +103,21 @@ namespace Pal3.Script
             }
 
             PalScriptRunner scriptRunner;
-            if (isBigMapScript)
+            if (isWorldMapScript)
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add BigMap script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_bigMapSceFile,
-                    PalScriptType.BigMap, scriptId, _globalVariables, _cmdPreprocessor);
+                Debug.Log($"[{nameof(ScriptManager)}] Add WorldMap script id: {scriptId}");
+                scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
+                    PalScriptType.WorldMap, scriptId, _globalVariables, _cmdPreprocessor);
             }
             else if (scriptId <= ScriptConstants.SystemScriptIdMax)
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add system script id: {scriptId}");
+                Debug.Log($"[{nameof(ScriptManager)}] Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
                     PalScriptType.System, scriptId, _globalVariables, _cmdPreprocessor);
             }
             else
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add scene script id: {scriptId}");
+                Debug.Log($"[{nameof(ScriptManager)}] Add Scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
                     PalScriptType.Scene, scriptId, _globalVariables, _cmdPreprocessor);
             }

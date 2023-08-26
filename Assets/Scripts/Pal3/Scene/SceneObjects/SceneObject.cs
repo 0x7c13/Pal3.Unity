@@ -8,7 +8,6 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Command;
     using Command.InternalCommands;
@@ -24,7 +23,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.GameBox;
     using Core.Utils;
     using Data;
-    using Dev;
+    using Dev.Presenters;
     using Effect;
     using MetaData;
     using Rendering.Material;

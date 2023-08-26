@@ -14,7 +14,7 @@ namespace Pal3.Rendering.Renderer
     using Core.Extensions;
     using Core.Renderer;
     using Core.Utils;
-    using Dev;
+    using Dev.Presenters;
     using Material;
     using UnityEngine;
 
@@ -258,12 +258,12 @@ namespace Pal3.Rendering.Renderer
 
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
-                        ref meshDataBuffer.VertexBuffer,
-                        ref meshSection.Triangles,
-                        ref meshDataBuffer.NormalBuffer,
-                        ref meshDataBuffer.UvBuffer,
-                        ref meshDataBuffer.UvBuffer,
-                        ref materials,
+                        meshDataBuffer.VertexBuffer,
+                        meshSection.Triangles,
+                        meshDataBuffer.NormalBuffer,
+                        meshDataBuffer.UvBuffer,
+                        meshDataBuffer.UvBuffer,
+                        materials,
                         true);
 
                     renderMesh.RecalculateNormals();

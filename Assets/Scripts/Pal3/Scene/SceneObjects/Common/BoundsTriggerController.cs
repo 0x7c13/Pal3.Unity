@@ -51,7 +51,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, collision.gameObject);
             }
@@ -60,7 +60,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerEnter(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
             }
@@ -69,7 +69,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnCollisionExit(Collision collision)
         {
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, collision.gameObject);
             }
@@ -78,7 +78,7 @@ namespace Pal3.Scene.SceneObjects.Common
         private void OnTriggerExit(Collider otherCollider)
         {
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
-                actorController.GetActor().Info.Id == (byte) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
             }

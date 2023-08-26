@@ -40,7 +40,7 @@ namespace Core.DataReader.Cpk
         {
             if (!File.Exists(cpkFilePath))
             {
-                throw new ArgumentException($"游戏数据加载失败，游戏原CPK压缩包不存在: {cpkFilePath}");
+                throw new FileNotFoundException($"游戏数据加载失败，游戏原CPK数据文件不存在: {cpkFilePath}");
             }
 
             _filePath = cpkFilePath;

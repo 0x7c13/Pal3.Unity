@@ -681,7 +681,7 @@ namespace Pal3.Actor.Controllers
             switch (_currentPath.EndOfPathAction)
             {
                 case EndOfPathActionType.DisposeSelf:
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_actor.Info.Id, 0));
+                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_actor.Id, 0));
                     break;
                 case EndOfPathActionType.Idle:
                     _actionController.PerformAction(_actor.GetIdleAction());
@@ -757,7 +757,7 @@ namespace Pal3.Actor.Controllers
             }
 
             Vector2Int[] path = Array.Empty<Vector2Int>();
-            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {(int)_actor.Info.Id});
+            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Id});
 
             var pathFindingThread = new Thread(() =>
             {
@@ -826,7 +826,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetWorldPositionCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
 
             Vector2Int tilePosition = _tilemap.GetTilePosition(
                 new Vector3(command.XPosition, 0f, command.ZPosition), _currentLayerIndex);
@@ -849,7 +849,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetTilePositionCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
 
             CancelMovement();
 
@@ -890,7 +890,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorPathToCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
@@ -901,7 +901,7 @@ namespace Pal3.Actor.Controllers
         #if PAL3A
         public void Execute(ActorWalkToUsingActionCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
@@ -912,13 +912,13 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorMoveToCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             MoveToTilePosition(new Vector2Int(command.TileXPosition, command.TileYPosition), (MovementMode)command.Mode);
         }
 
         public void Execute(ActorMoveBackwardsCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             var moveDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
             Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
             MoveTo(newPosition, MovementMode.StepBack);
@@ -926,7 +926,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorMoveOutOfScreenCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
 
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
@@ -942,7 +942,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorStopActionAndStandCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementCts?.Cancel();
             _movementCts = new CancellationTokenSource();
@@ -951,13 +951,13 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorSetNavLayerCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             SetNavLayer(command.LayerIndex);
         }
 
         public void Execute(ActorActivateCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             if (command.IsActive == 0)
             {
                 _movementWaiter?.CancelWait();

@@ -187,7 +187,7 @@ namespace Pal3.GamePlay
 
             // Look at the target actor
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorLookAtActorCommand(_playerActor.Info.Id, targetActor.Info.Id));
+                new ActorLookAtActorCommand(_playerActor.Id, targetActor.Id));
 
             bool shouldResetFacingAfterInteraction = false;
 
@@ -196,7 +196,7 @@ namespace Pal3.GamePlay
             if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ActorBehaviourType.Hold)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorLookAtActorCommand(targetActor.Info.Id, _playerActor.Info.Id));
+                    new ActorLookAtActorCommand(targetActor.Id, _playerActor.Id));
                 shouldResetFacingAfterInteraction = true;
             }
 
@@ -211,10 +211,10 @@ namespace Pal3.GamePlay
 
             // Run dialogue script
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunCommand((int)targetActor.Info.ScriptId));
+                new ScriptRunCommand((int)targetActor.GetScriptId()));
 
             // Wait until the dialogue script is finished
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.Info.ScriptId);
+            yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.GetScriptId());
 
             // Resume current path follow movement of the interacting actor
             if (actorController != null &&

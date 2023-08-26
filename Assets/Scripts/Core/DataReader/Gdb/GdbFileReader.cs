@@ -254,6 +254,8 @@ namespace Core.DataReader.Gdb
             _ = reader.ReadByte(); // padding
             var combatStateImpactValue = reader.ReadInt16s(31);
             _ = reader.ReadBytes(2); // padding
+
+            #if PAL3
             var comboCount = reader.ReadInt32();
             var spSavingPercentage = reader.ReadInt16();
             var mpSavingPercentage = reader.ReadInt16();
@@ -264,6 +266,21 @@ namespace Core.DataReader.Gdb
             var productPrice = reader.ReadInt32();
             var synthesisMaterialIds = reader.ReadUInt32s(2);
             var synthesisProductId = reader.ReadUInt32();
+            #elif PAL3A
+            var unknown1 = reader.ReadInt32();
+            var unknown2 = reader.ReadUInt32();
+
+            var spSavingPercentage = reader.ReadInt16();
+            var mpSavingPercentage = reader.ReadInt16();
+            var criticalAttackAmplifyPercentage = reader.ReadInt16();
+            var specialSkillSuccessRate = reader.ReadInt16();
+
+            var creatorActorId = (PlayerActorId)reader.ReadInt32();
+            var materialId = reader.ReadUInt32();
+            var productType = reader.ReadInt32();
+            var productId = reader.ReadUInt32();
+            var requiredFavorValue = reader.ReadUInt32();
+            #endif
 
             return new GameItemInfo()
             {
@@ -284,6 +301,8 @@ namespace Core.DataReader.Gdb
                 AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue),
                 CombatStateImpacts = GetCombatStateImpacts(
                     GetCombatStateImpactTypes(combatStateImpactTypes), combatStateImpactValue),
+
+                #if PAL3
                 ComboCount = comboCount,
                 SpSavingPercentage = spSavingPercentage,
                 MpSavingPercentage = mpSavingPercentage,
@@ -294,6 +313,19 @@ namespace Core.DataReader.Gdb
                 ProductPrice = productPrice,
                 SynthesisMaterialIds = synthesisMaterialIds,
                 SynthesisProductId = synthesisProductId,
+                #elif PAL3A
+                Unknown1 = unknown1,
+                Unknown2 = unknown2,
+                SpSavingPercentage = spSavingPercentage,
+                MpSavingPercentage = mpSavingPercentage,
+                CriticalAttackAmplifyPercentage = criticalAttackAmplifyPercentage,
+                SpecialSkillSuccessRate = specialSkillSuccessRate,
+                CreatorActorId = creatorActorId,
+                MaterialId = materialId,
+                ProductType = productType,
+                ProductId = productId,
+                RequiredFavorValue = requiredFavorValue,
+                #endif
             };
         }
 

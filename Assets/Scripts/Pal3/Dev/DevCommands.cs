@@ -288,34 +288,34 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
                 CameraFadeIn"},
             {"鬼界外围\n\n第一次进入", @"
                 ScriptVarSetValue -32768 120400
@@ -327,35 +327,35 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 123 274
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
                 CameraFadeIn"},
             {"蜀山\n\n从黄泉路返回后", @"
                 ScriptVarSetValue -32768 121200
@@ -369,37 +369,37 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
                 CameraFadeIn"},
             {"雪岭镇\n\n第一次进入", @"
                 ScriptVarSetValue -32768 130200
@@ -413,38 +413,38 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
                 CameraFadeIn"},
             {"安溪\n\n第一次进入", @"
                 ScriptVarSetValue -32768 131100
@@ -458,40 +458,40 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 1 2
                 CameraFadeIn"},
             {"双剑选择\n\n雪见最高好感", @"
                 ScriptVarSetValue -32768 140900
@@ -505,42 +505,42 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 14 2
-                BigMapEnableRegion 16 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 14 2
+                WorldMapEnableRegion 16 2
                 FavorAdd 1 50
                 CameraFadeIn"},
             {"双剑选择\n\n龙葵最高好感", @"
@@ -555,42 +555,42 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 14 2
-                BigMapEnableRegion 16 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 14 2
+                WorldMapEnableRegion 16 2
                 FavorAdd 2 50
                 CameraFadeIn"},
             {"双剑选择\n\n紫萱最高好感", @"
@@ -605,42 +605,42 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 14 2
-                BigMapEnableRegion 16 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 14 2
+                WorldMapEnableRegion 16 2
                 FavorAdd 3 50
                 FavorAdd 1 10
                 CameraFadeIn"},
@@ -656,42 +656,42 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 3 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 1
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 2
-                BigMapEnableRegion 11 2
-                BigMapEnableRegion 12 2
-                BigMapEnableRegion 17 2
-                BigMapEnableRegion 18 2
-                BigMapEnableRegion 19 2
-                BigMapEnableRegion 20 2
-                BigMapEnableRegion 21 1
-                BigMapEnableRegion 22 2
-                BigMapEnableRegion 23 2
-                BigMapEnableRegion 24 2
-                BigMapEnableRegion 26 1
-                BigMapEnableRegion 27 1
-                BigMapEnableRegion 28 2
-                BigMapEnableRegion 29 2
-                BigMapEnableRegion 30 2
-                BigMapEnableRegion 31 2
-                BigMapEnableRegion 32 2
-                BigMapEnableRegion 36 2
-                BigMapEnableRegion 37 2
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 13 1
-                BigMapEnableRegion 25 1
-                BigMapEnableRegion 15 1
-                BigMapEnableRegion 35 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 14 2
-                BigMapEnableRegion 16 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 3 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 1
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 2
+                WorldMapEnableRegion 11 2
+                WorldMapEnableRegion 12 2
+                WorldMapEnableRegion 17 2
+                WorldMapEnableRegion 18 2
+                WorldMapEnableRegion 19 2
+                WorldMapEnableRegion 20 2
+                WorldMapEnableRegion 21 1
+                WorldMapEnableRegion 22 2
+                WorldMapEnableRegion 23 2
+                WorldMapEnableRegion 24 2
+                WorldMapEnableRegion 26 1
+                WorldMapEnableRegion 27 1
+                WorldMapEnableRegion 28 2
+                WorldMapEnableRegion 29 2
+                WorldMapEnableRegion 30 2
+                WorldMapEnableRegion 31 2
+                WorldMapEnableRegion 32 2
+                WorldMapEnableRegion 36 2
+                WorldMapEnableRegion 37 2
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 13 1
+                WorldMapEnableRegion 25 1
+                WorldMapEnableRegion 15 1
+                WorldMapEnableRegion 35 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 14 2
+                WorldMapEnableRegion 16 2
                 FavorAdd 5 50
                 FavorAdd 2 10
                 CameraFadeIn"},
@@ -748,11 +748,11 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 29 66
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
                 TaskOpen 089
                 CameraFadeIn"},
             {"第一次进入里蜀山", @"
@@ -770,12 +770,12 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
                 TaskOpen 092
                 CameraFadeIn"},
             {"里蜀山外城南\n\n厥阴心包", @"
@@ -793,12 +793,12 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
                 TaskOpen 097
                 CameraFadeIn"},
             {"厥阴心包\n\n胜州", @"
@@ -816,12 +816,12 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
                 TaskOpen 098
                 CameraFadeIn"},
             {"蜀山\n\n深夜去经库", @"
@@ -839,14 +839,14 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
                 TaskOpen 107
                 CameraFadeIn"},
             {"地脉门户大厅\n\n阳名百纳", @"
@@ -863,14 +863,14 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 55 18
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
                 TaskOpen 111
                 CameraFadeIn"},
             {"血濡回魂\n\n初入京城", @"
@@ -886,15 +886,15 @@ namespace Pal3.Dev
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 13 192
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
                 TaskOpen 112
                 CameraFadeIn"},
             {"失散\n\n双溪", @"
@@ -912,16 +912,16 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
                 TaskOpen 120
                 CameraFadeIn"},
             {"双溪\n\n里蜀山", @"
@@ -940,16 +940,16 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
                 TaskOpen 122
                 CameraFadeIn"},
             {"里蜀山外城南\n\n太阴归尘", @"
@@ -968,16 +968,16 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 3 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
                 TaskOpen 123
                 CameraFadeIn"},
             {"太阴归尘\n\n蜀山故道", @"
@@ -994,16 +994,16 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 265 400
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
                 TaskOpen 127
                 CameraFadeIn"},
             {"蜀山深夜\n\n养父常纪房间", @"
@@ -1021,17 +1021,17 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
                 TaskOpen 134
                 CameraFadeIn"},
             {"无极阁找掌门去锁妖塔", @"
@@ -1049,17 +1049,17 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
                 CameraSetDefaultTransform 2
                 TaskOpen 137
                 CameraFadeIn"},
@@ -1078,19 +1078,19 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 12 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 12 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 140
                 CameraFadeIn"},
             {"地脉门户\n\n太阳华池", @"
@@ -1106,18 +1106,18 @@ namespace Pal3.Dev
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 123 226
                 TeamAddOrRemoveActor 0 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 144
                 CameraFadeIn"},
             {"小秘屋会和", @"
@@ -1134,18 +1134,18 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 112 160
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 147
                 CameraFadeIn"},
             {"里蜀山\n\n魔界之门", @"
@@ -1163,18 +1163,18 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 148
                 CameraFadeIn"},
             {"里蜀山外城北\n\n少阴凝碧", @"
@@ -1192,18 +1192,18 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 150
                 CameraFadeIn"},
             {"施洞", @"
@@ -1222,18 +1222,18 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 154
                 CameraFadeIn"},
             {"出发去月光城", @"
@@ -1252,18 +1252,18 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
                 TaskOpen 155
                 CameraFadeIn"},
             {"蜀山\n\n重回绿萝山", @"
@@ -1281,19 +1281,19 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 4 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 160
                 CameraFadeIn"},
             {"地脉门户\n\n少阳参天", @"
@@ -1310,19 +1310,19 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 76 45
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 161
                 CameraFadeIn"},
             {"回里蜀山秘密基地", @"
@@ -1340,19 +1340,19 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 163
                 CameraFadeIn"},
             {"里蜀山内城\n\n厥阴蔽日", @"
@@ -1371,19 +1371,19 @@ namespace Pal3.Dev
                 TeamAddOrRemoveActor 1 1
                 TeamAddOrRemoveActor 2 1
                 TeamAddOrRemoveActor 3 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 171
                 CameraFadeIn"},
             {"地脉门户\n\n蜀山前山", @"
@@ -1400,19 +1400,19 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 132 155
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 174
                 CameraFadeIn"},
             {"花圃\n\n温慧最高好感", @"
@@ -1429,19 +1429,19 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 353 98
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 180
                 FavorAdd 1 50
                 FavorAdd 2 10
@@ -1460,19 +1460,19 @@ namespace Pal3.Dev
                 ActorSetTilePosition -1 353 98
                 TeamAddOrRemoveActor 0 1
                 TeamAddOrRemoveActor 1 1
-                BigMapEnableRegion 0 2
-                BigMapEnableRegion 1 2
-                BigMapEnableRegion 2 2
-                BigMapEnableRegion 4 2
-                BigMapEnableRegion 5 2
-                BigMapEnableRegion 6 1
-                BigMapEnableRegion 7 2
-                BigMapEnableRegion 8 2
-                BigMapEnableRegion 9 1
-                BigMapEnableRegion 10 2
-                BigMapEnableRegion 11 1
-                BigMapEnableRegion 13 2
-                BigMapEnableRegion 14 2
+                WorldMapEnableRegion 0 2
+                WorldMapEnableRegion 1 2
+                WorldMapEnableRegion 2 2
+                WorldMapEnableRegion 4 2
+                WorldMapEnableRegion 5 2
+                WorldMapEnableRegion 6 1
+                WorldMapEnableRegion 7 2
+                WorldMapEnableRegion 8 2
+                WorldMapEnableRegion 9 1
+                WorldMapEnableRegion 10 2
+                WorldMapEnableRegion 11 1
+                WorldMapEnableRegion 13 2
+                WorldMapEnableRegion 14 2
                 TaskOpen 180
                 FavorAdd 1 10
                 FavorAdd 2 50

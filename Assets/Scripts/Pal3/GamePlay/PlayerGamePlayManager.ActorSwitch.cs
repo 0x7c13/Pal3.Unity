@@ -46,7 +46,7 @@ namespace Pal3.GamePlay
             if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
 
             var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
-            int targetPlayerActorId = _playerActor.Info.Id;
+            int targetPlayerActorId = _playerActor.Id;
 
             do
             {

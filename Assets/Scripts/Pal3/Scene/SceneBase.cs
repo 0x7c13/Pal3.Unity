@@ -172,7 +172,7 @@ namespace Pal3.Scene
                 Actors[npcInfo.Id] = new Actor(_resourceProvider, npcInfo);
             }
 
-            foreach (ScnNpcInfo playerInfo in PlayerActorNpcInfoFactory.CreateAll())
+            foreach (ScnNpcInfo playerInfo in NpcInfoFactory.CreateAllPlayerActorNpcInfos())
             {
                 if (!Actors.ContainsKey(playerInfo.Id))
                 {
@@ -181,15 +181,11 @@ namespace Pal3.Scene
             }
 
             #if PAL3A
-            foreach (ScnNpcInfo fengYaSongInfo in FengYaSongActorNpcInfoFactory.CreateAll())
+            foreach (ScnNpcInfo fengYaSongInfo in NpcInfoFactory.CreateAllFengYaSongNpcInfos())
             {
                 if (!Actors.ContainsKey(fengYaSongInfo.Id))
                 {
                     Actors[fengYaSongInfo.Id] = new Actor(_resourceProvider, fengYaSongInfo);
-                }
-                else
-                {
-                    Debug.LogError($"[{nameof(SceneBase)}] FengYsSong actor id is already used by another actor!");
                 }
             }
             #endif

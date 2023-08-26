@@ -30,9 +30,9 @@ namespace Core.Contracts
     [System.Serializable]
     public enum FengYaSongActorId
     {
-        Feng       = 250,
-        Ya         = 251,
-        Song       = 252,
+        Feng       = 0xFF - 3,  // Use last 3 IDs for FengYaSong actors
+        Ya         = 0xFF - 2,  // to avoid conflict with other actors
+        Song       = 0xFF - 1,
     }
     #endif
 

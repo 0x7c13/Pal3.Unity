@@ -71,7 +71,7 @@ namespace Pal3.UI
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleBigMapRequest());
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleWorldMapRequest());
             }
         }
 

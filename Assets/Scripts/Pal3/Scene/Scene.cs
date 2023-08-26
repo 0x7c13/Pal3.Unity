@@ -490,7 +490,7 @@ namespace Pal3.Scene
 
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
-            if (_actorObjects.ContainsKey(actor.Info.Id)) return;
+            if (_actorObjects.ContainsKey(actor.Id)) return;
             GameObject actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider,
                 actor,
                 tileMap,
@@ -501,7 +501,7 @@ namespace Pal3.Scene
                 ActorMovementMaxYDifferentialCrossPlatform,
                 GetAllActiveActorBlockingTilePositions);
             actorGameObject.transform.SetParent(_parent.transform, false);
-            _actorObjects[actor.Info.Id] = actorGameObject;
+            _actorObjects[actor.Id] = actorGameObject;
         }
 
         private void ActivateActorObject(int id, bool isActive)

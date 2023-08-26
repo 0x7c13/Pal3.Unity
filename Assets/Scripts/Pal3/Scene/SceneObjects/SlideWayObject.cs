@@ -19,7 +19,7 @@ namespace Pal3.Scene.SceneObjects
     [ScnSceneObject(SceneObjectType.SlideWay)]
     public sealed class SlideWayObject : SceneObject
     {
-        private const uint ACTOR_SLIDE_SPEED = 500;
+        private const uint ACTOR_SLIDE_GAME_BOX_SPEED = 500;
 
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
@@ -64,10 +64,9 @@ namespace Pal3.Scene.SceneObjects
             movementController.CancelMovement();
 
             var actorController = playerActorGameObject.GetComponent<ActorController>();
-            uint originalSpeed = actorController.GetActor().Info.GameBoxMoveSpeed;
 
-            // Temporarily set the speed to a higher value to make the actor slide
-            actorController.GetActor().Info.GameBoxMoveSpeed = ACTOR_SLIDE_SPEED;
+            // Temporarily set the speed to a higher value to make the actor slide faster
+            actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_GAME_BOX_SPEED);
 
             movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
 
@@ -77,7 +76,7 @@ namespace Pal3.Scene.SceneObjects
             }
 
             // Restore the original speed
-            actorController.GetActor().Info.GameBoxMoveSpeed = originalSpeed;
+            actorController.GetActor().ResetMoveSpeed();
 
             ExecuteScriptIfAny();
             _isInteractionInProgress = false;

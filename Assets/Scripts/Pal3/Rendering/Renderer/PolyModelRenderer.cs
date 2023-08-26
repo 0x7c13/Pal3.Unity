@@ -14,6 +14,7 @@ namespace Pal3.Rendering.Renderer
     using Core.GameBox;
     using Core.Renderer;
     using Dev;
+    using Dev.Presenters;
     using Material;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
@@ -219,12 +220,12 @@ namespace Pal3.Rendering.Renderer
                         StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture);
                     }
 
-                    _ = meshRenderer.Render(ref mesh.VertexInfo.Positions,
-                        ref mesh.Textures[i].Triangles,
-                        ref mesh.VertexInfo.Normals,
-                        ref mesh.VertexInfo.Uvs[mainTextureIndex],
-                        ref mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)],
-                        ref materials,
+                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
+                        mesh.Textures[i].Triangles,
+                        mesh.VertexInfo.Normals,
+                        mesh.VertexInfo.Uvs[mainTextureIndex],
+                        mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)],
+                        materials,
                         false);
                 }
 

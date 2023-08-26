@@ -16,6 +16,7 @@ namespace Pal3.Rendering.Renderer
     using Core.Renderer;
     using Core.Utils;
     using Dev;
+    using Dev.Presenters;
     using Material;
     using Rendering;
     using UnityEngine;
@@ -186,7 +187,7 @@ namespace Pal3.Rendering.Renderer
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
             var texturePath = _textureProvider.GetTexturePath(textureName);
-            if (Pal3AMv3TextureTilingIssue.KnownTextureFiles.Contains(texturePath))
+            if (TexturePatcher.TextureFileHasWrongTiling(texturePath))
             {
                 _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
             }
@@ -198,12 +199,12 @@ namespace Pal3.Rendering.Renderer
                 NormalBuffer = mv3Mesh.Normals,
             };
 
-            Mesh renderMesh = meshRenderer.Render(ref mv3Mesh.KeyFrames[0].Vertices,
-                ref mv3Mesh.Triangles,
-                ref meshDataBuffer.NormalBuffer,
-                ref mv3Mesh.Uvs,
-                ref mv3Mesh.Uvs,
-                ref _materials[index],
+            Mesh renderMesh = meshRenderer.Render(mv3Mesh.KeyFrames[0].Vertices,
+                mv3Mesh.Triangles,
+                meshDataBuffer.NormalBuffer,
+                mv3Mesh.Uvs,
+                mv3Mesh.Uvs,
+                _materials[index],
                 true);
 
             renderMesh.RecalculateTangents();
@@ -442,7 +443,7 @@ namespace Pal3.Rendering.Renderer
         {
             if (_renderMeshComponents == null) return false;
 
-            foreach (var renderMeshComponent in _renderMeshComponents)
+            foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
                 if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
             }

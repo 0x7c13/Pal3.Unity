@@ -103,7 +103,7 @@ namespace Pal3.Scene.SceneObjects
 
             if (!shouldGoUp.HasValue)
             {
-                shouldGoUp = (PlayerActorId) ctx.PlayerActorGameObject.GetComponent<ActorController>().GetActor().Info.Id is
+                shouldGoUp = (PlayerActorId) ctx.PlayerActorGameObject.GetComponent<ActorController>().GetActor().Id is
                     PlayerActorId.JingTian or PlayerActorId.XueJian;
             }
             #elif PAL3A

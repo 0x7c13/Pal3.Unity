@@ -5,6 +5,7 @@
 
 namespace Core.DataReader.Dat
 {
+    using System.Collections.Generic;
     using UnityEngine;
 
     public struct EffectGroupInfo
@@ -27,11 +28,25 @@ namespace Core.DataReader.Dat
 
     public sealed class EffectLinkerFile
     {
+        public Dictionary<int, EffectGroupInfo[]> SkillIdToEffectGroupMap { get; }
+
         public EffectLinkerFile(EffectLinker[] effectLinkers)
         {
-            EffectLinkers = effectLinkers;
-        }
+            SkillIdToEffectGroupMap = new Dictionary<int, EffectGroupInfo[]>();
 
-        public EffectLinker[] EffectLinkers { get; }
+            foreach (EffectLinker effectLinker in effectLinkers)
+            {
+                if (effectLinker.SkillId == 0) continue; // Skip empty effect linker
+
+                if (SkillIdToEffectGroupMap.ContainsKey((int) effectLinker.SkillId))
+                {
+                    Debug.LogError("Duplicate skill id found!"); // Should never happen
+                }
+                else
+                {
+                    SkillIdToEffectGroupMap[(int) effectLinker.SkillId] = effectLinker.EffectGroupInfos;
+                }
+            }
+        }
     }
 }

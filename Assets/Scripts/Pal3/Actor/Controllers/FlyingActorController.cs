@@ -24,11 +24,11 @@ namespace Pal3.Actor.Controllers
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         private const float MAX_TARGET_DISTANCE = 20f;
 
-        private Actor _actor;
+        private ActorBase _actor;
         private ActorController _actorController;
         private ActorActionController _actionController;
 
-        public void Init(Actor actor, ActorController actorController, ActorActionController actionController)
+        public void Init(ActorBase actor, ActorController actorController, ActorActionController actionController)
         {
             _actor = actor;
             _actorController = actorController;
@@ -54,7 +54,7 @@ namespace Pal3.Actor.Controllers
 
             // If actor is inactive or at it's init position, just teleport to target position
             if (!_actorController.IsActive ||
-                Vector3.Distance(transform.position, PlayerActorNpcInfoFactory.ActorInitPosition) < float.Epsilon)
+                Vector3.Distance(transform.position, NpcInfoFactory.ActorInitPosition) < float.Epsilon)
             {
                 transform.position = targetPosition;
                 return;

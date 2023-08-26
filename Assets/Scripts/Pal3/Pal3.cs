@@ -13,7 +13,6 @@ namespace Pal3
     using Actor.Controllers;
     using Audio;
     using Camera;
-    using Combat;
     using Command;
     using Command.SceCommands;
     using Core.DataReader.Scn;
@@ -25,7 +24,17 @@ namespace Pal3
     using Dev;
     using Effect;
     using GamePlay;
-    using GameSystem;
+    using GameSystems.Caption;
+    using GameSystems.Combat;
+    using GameSystems.Dialogue;
+    using GameSystems.Favor;
+    using GameSystems.Inventory;
+    using GameSystems.MiniGames;
+    using GameSystems.Minimap;
+    using GameSystems.Rest;
+    using GameSystems.Team;
+    using GameSystems.Trading;
+    using GameSystems.WorldMap;
     using Input;
     using IngameDebugConsole;
     using MetaData;
@@ -47,8 +56,8 @@ namespace Pal3
     using Video;
     using PostProcessManager = Effect.PostProcessing.PostProcessManager;
 
-    #if PAL3
-    using MiniGame;
+    #if PAL3A
+    using GameSystems.Task;
     #endif
 
     /// <summary>
@@ -92,10 +101,10 @@ namespace Pal3
         [SerializeField] private TextMeshProUGUI debugInfo;
         [SerializeField] private FpsCounter fpsCounter;
 
-        // BigMap
-        [SerializeField] private CanvasGroup bigMapCanvasGroup;
-        [SerializeField] private GameObject bigMapRegionButtonPrefab;
-        [SerializeField] private GameObject bigMapBackground;
+        // WorldMap
+        [SerializeField] private CanvasGroup worldMapCanvasGroup;
+        [SerializeField] private GameObject worldMapRegionButtonPrefab;
+        [SerializeField] private GameObject worldMapBackground;
 
         // Main menu
         [SerializeField] private CanvasGroup mainMenuCanvasGroup;
@@ -140,16 +149,17 @@ namespace Pal3
         private AudioManager _audioManager;
         private PlayerActorManager _playerActorManager;
         private InventoryManager _inventoryManager;
+        private TradingManager _tradingManager;
         private DialogueManager _dialogueManager;
         private PostProcessManager _postProcessManager;
         private EffectManager _effectManager;
-        private MiniMapManager _miniMapManager;
+        private MinimapManager _minimapManager;
         private TouchControlUIManager _touchControlUIManager;
         private PlayerGamePlayManager _playerGamePlayManager;
         private TeamManager _teamManager;
         private HotelManager _hotelManager;
         private InformationManager _informationManager;
-        private BigMapManager _bigMapManager;
+        private WorldMapManager _worldMapManager;
         private FavorManager _favorManager;
         private CaptionRenderer _captionRenderer;
         private CursorManager _cursorManager;
@@ -167,6 +177,7 @@ namespace Pal3
         private SwatAFlyMiniGame _swatAFlyMiniGame;
         private CaveExperienceMiniGame _caveExperienceMiniGame;
         #elif PAL3A // PAL3A specific components
+        private GhostHuntingMiniGame _ghostHuntingMiniGame;
         private TaskManager _taskManager;
         #endif
 
@@ -214,6 +225,9 @@ namespace Pal3
             _inventoryManager = new InventoryManager(_gameResourceProvider);
             ServiceLocator.Instance.Register(_inventoryManager);
 
+            _tradingManager = new TradingManager();
+            ServiceLocator.Instance.Register(_tradingManager);
+
             _teamManager = new TeamManager(_playerActorManager, _sceneManager);
             ServiceLocator.Instance.Register(_teamManager);
 
@@ -238,10 +252,10 @@ namespace Pal3
             _hotelManager = new HotelManager(_scriptManager, _sceneManager);
             ServiceLocator.Instance.Register(_hotelManager);
 
-            _bigMapManager = new BigMapManager(eventSystem,
+            _worldMapManager = new WorldMapManager(eventSystem,
                 _gameStateManager, _sceneManager, _inputManager, _scriptManager,
-                bigMapCanvasGroup, bigMapRegionButtonPrefab, bigMapBackground);
-            ServiceLocator.Instance.Register(_bigMapManager);
+                worldMapCanvasGroup, worldMapRegionButtonPrefab, worldMapBackground);
+            ServiceLocator.Instance.Register(_worldMapManager);
 
             _postProcessManager = new PostProcessManager(postProcessVolume,
                 postProcessLayer, _gameSettings);
@@ -277,6 +291,8 @@ namespace Pal3
             _caveExperienceMiniGame = new CaveExperienceMiniGame();
             ServiceLocator.Instance.Register(_caveExperienceMiniGame);
             #elif PAL3A
+            _ghostHuntingMiniGame = new GhostHuntingMiniGame();
+            ServiceLocator.Instance.Register(_ghostHuntingMiniGame);
             _taskManager = new TaskManager(_gameResourceProvider, taskInfoText);
             ServiceLocator.Instance.Register(_taskManager);
             #endif
@@ -299,9 +315,12 @@ namespace Pal3
                 curtainImage);
             ServiceLocator.Instance.Register(_cameraManager);
 
-            _miniMapManager = new MiniMapManager(mainCamera,
-                _sceneManager, miniMapCanvasGroup, miniMapImage);
-            ServiceLocator.Instance.Register(_miniMapManager);
+            _minimapManager = new MinimapManager(mainCamera,
+                _sceneManager, miniMapCanvasGroup, miniMapImage,
+                new MinimapTextureCreator(UITheme.MinimapObstacleColor,
+                    UITheme.MinimapWallColor,
+                    UITheme.MinimapFloorColor));
+            ServiceLocator.Instance.Register(_minimapManager);
 
             _informationManager = new InformationManager(_gameSettings,
                 fpsCounter, noteCanvasGroup, noteText, debugInfo);
@@ -324,7 +343,7 @@ namespace Pal3
             ServiceLocator.Instance.Register(_dialogueManager);
 
             _combatManager = new CombatManager(_gameResourceProvider,
-                mainCamera, _sceneManager);
+                _teamManager, mainCamera, _sceneManager);
             ServiceLocator.Instance.Register(_combatManager);
 
             _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
@@ -334,7 +353,7 @@ namespace Pal3
 
             _saveManager = new SaveManager(_sceneManager, _playerActorManager,
                 _teamManager, _inventoryManager, _sceneStateManager,
-                _bigMapManager, _scriptManager, _favorManager,
+                _worldMapManager, _scriptManager, _favorManager,
                 #if PAL3A
                 _taskManager,
                 #endif
@@ -493,7 +512,7 @@ namespace Pal3
                 currentState != GameState.Combat)
             {
                 _cameraManager.LateUpdate(deltaTime);
-                _miniMapManager.LateUpdate(deltaTime);
+                _minimapManager.LateUpdate(deltaTime);
             }
         }
 

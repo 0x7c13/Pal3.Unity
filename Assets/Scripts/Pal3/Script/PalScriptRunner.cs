@@ -16,11 +16,12 @@ namespace Pal3.Script
     using Core.DataReader;
     using Core.DataReader.Sce;
     using Core.Services;
-    using GameSystem;
+    using GameSystems.Dialogue;
+    using GameSystems.Favor;
+    using GameSystems.Inventory;
+    using GameSystems.MiniGames;
+    using GameSystems.Team;
     using Newtonsoft.Json;
-    #if PAL3
-    using MiniGame;
-    #endif
     using Scene;
     using State;
     using UnityEngine;

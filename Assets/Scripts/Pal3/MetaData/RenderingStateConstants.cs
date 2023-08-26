@@ -8,8 +8,8 @@ namespace Pal3.MetaData
     // OG game rendering state constants
     public enum RenderingState
     {
-        Gameplay = 0,           // 游戏
-        BigMap = 13,            // 大地图
-        MonsterCatalogue = 17,  // 降妖谱
+        Gameplay = 0,             // 游戏
+        WorldMap = 13,            // 大地图
+        MonsterCatalogue = 17,    // 降妖谱
     }
 }

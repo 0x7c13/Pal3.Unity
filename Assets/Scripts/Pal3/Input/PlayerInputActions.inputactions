@@ -141,7 +141,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ToggleBigMap",
+                    "name": "ToggleWorldMap",
                     "type": "Button",
                     "id": "c8c9d299-5a22-4938-b5c8-648116b188b6",
                     "expectedControlType": "Button",
@@ -473,7 +473,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleBigMap",
+                    "action": "ToggleWorldMap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -484,7 +484,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleBigMap",
+                    "action": "ToggleWorldMap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -740,7 +740,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ToggleBigMap",
+                    "name": "ToggleWorldMap",
                     "type": "Button",
                     "id": "c0eb7e88-5de5-45e8-b93a-d5a669cb1e87",
                     "expectedControlType": "Button",
@@ -1149,7 +1149,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleBigMap",
+                    "action": "ToggleWorldMap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1160,7 +1160,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleBigMap",
+                    "action": "ToggleWorldMap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

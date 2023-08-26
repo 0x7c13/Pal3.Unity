@@ -16,7 +16,7 @@ namespace Pal3.Scene.SceneObjects
     using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Services;
-    using GameSystem;
+    using GameSystems.Inventory;
     using MetaData;
     using UnityEngine;
 

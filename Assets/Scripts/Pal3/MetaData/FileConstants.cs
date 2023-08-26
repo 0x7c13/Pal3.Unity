@@ -37,7 +37,7 @@ namespace Pal3.MetaData
         private const string EFFECT_FOLDER_NAME = "effect";
         private const string UI_FOLDER_NAME = "ui";
         private const string UI_LIBRARY_FOLDER_NAME = "UILib";
-        private const string BIG_MAP_FOLDER_NAME = "BigMap";
+        private const string WORLD_MAP_FOLDER_NAME = "BigMap";
         private const string OBJECT_FOLDER_NAME = "object";
         private const string COMBAT_DATA_FOLDER_NAME = "cbdata";
         private const string CAPTION_FOLDER_NAME = "caption";
@@ -160,7 +160,7 @@ namespace Pal3.MetaData
 
         public static readonly string SystemSceFileVirtualPath = $"{BASE_DATA_CPK_FILE_NAME}{DIR_SEPARATOR}init.sce";
 
-        public static readonly string BigMapSceFileVirtualPath = $"{UIFolderVirtualPath}{BIG_MAP_FOLDER_NAME}{DIR_SEPARATOR}BigMap.sce";
+        public static readonly string WorldMapSceFileVirtualPath = $"{UIFolderVirtualPath}{WORLD_MAP_FOLDER_NAME}{DIR_SEPARATOR}BigMap.sce";
 
         public static string GetWeaponModelFileVirtualPath(string weaponName)
         {

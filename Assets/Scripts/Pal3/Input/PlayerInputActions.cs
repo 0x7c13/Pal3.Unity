@@ -165,7 +165,7 @@ namespace Pal3.Input
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ToggleBigMap"",
+                    ""name"": ""ToggleWorldMap"",
                     ""type"": ""Button"",
                     ""id"": ""c8c9d299-5a22-4938-b5c8-648116b188b6"",
                     ""expectedControlType"": ""Button"",
@@ -497,7 +497,7 @@ namespace Pal3.Input
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
+                    ""action"": ""ToggleWorldMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -508,7 +508,7 @@ namespace Pal3.Input
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
+                    ""action"": ""ToggleWorldMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -764,7 +764,7 @@ namespace Pal3.Input
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ToggleBigMap"",
+                    ""name"": ""ToggleWorldMap"",
                     ""type"": ""Button"",
                     ""id"": ""c0eb7e88-5de5-45e8-b93a-d5a669cb1e87"",
                     ""expectedControlType"": ""Button"",
@@ -1173,7 +1173,7 @@ namespace Pal3.Input
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
+                    ""action"": ""ToggleWorldMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1184,7 +1184,7 @@ namespace Pal3.Input
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ToggleBigMap"",
+                    ""action"": ""ToggleWorldMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1277,7 +1277,7 @@ namespace Pal3.Input
             m_Gameplay_Touch1Start = m_Gameplay.FindAction("Touch1Start", throwIfNotFound: true);
             m_Gameplay_Touch1Delta = m_Gameplay.FindAction("Touch1Delta", throwIfNotFound: true);
             m_Gameplay_ToggleStorySelector = m_Gameplay.FindAction("ToggleStorySelector", throwIfNotFound: true);
-            m_Gameplay_ToggleBigMap = m_Gameplay.FindAction("ToggleBigMap", throwIfNotFound: true);
+            m_Gameplay_ToggleWorldMap = m_Gameplay.FindAction("ToggleWorldMap", throwIfNotFound: true);
             m_Gameplay_SwitchToPreviousPlayerActor = m_Gameplay.FindAction("SwitchToPreviousPlayerActor", throwIfNotFound: true);
             m_Gameplay_SwitchToNextPlayerActor = m_Gameplay.FindAction("SwitchToNextPlayerActor", throwIfNotFound: true);
             // Cutscene
@@ -1298,7 +1298,7 @@ namespace Pal3.Input
             m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
             m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
             m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
-            m_UI_ToggleBigMap = m_UI.FindAction("ToggleBigMap", throwIfNotFound: true);
+            m_UI_ToggleWorldMap = m_UI.FindAction("ToggleWorldMap", throwIfNotFound: true);
             m_UI_ToggleStorySelector = m_UI.FindAction("ToggleStorySelector", throwIfNotFound: true);
             m_UI_ExitCurrentShowingMenu = m_UI.FindAction("ExitCurrentShowingMenu", throwIfNotFound: true);
             // Debug
@@ -1381,7 +1381,7 @@ namespace Pal3.Input
         private readonly InputAction m_Gameplay_Touch1Start;
         private readonly InputAction m_Gameplay_Touch1Delta;
         private readonly InputAction m_Gameplay_ToggleStorySelector;
-        private readonly InputAction m_Gameplay_ToggleBigMap;
+        private readonly InputAction m_Gameplay_ToggleWorldMap;
         private readonly InputAction m_Gameplay_SwitchToPreviousPlayerActor;
         private readonly InputAction m_Gameplay_SwitchToNextPlayerActor;
         public struct GameplayActions
@@ -1403,7 +1403,7 @@ namespace Pal3.Input
             public InputAction @Touch1Start => m_Wrapper.m_Gameplay_Touch1Start;
             public InputAction @Touch1Delta => m_Wrapper.m_Gameplay_Touch1Delta;
             public InputAction @ToggleStorySelector => m_Wrapper.m_Gameplay_ToggleStorySelector;
-            public InputAction @ToggleBigMap => m_Wrapper.m_Gameplay_ToggleBigMap;
+            public InputAction @ToggleWorldMap => m_Wrapper.m_Gameplay_ToggleWorldMap;
             public InputAction @SwitchToPreviousPlayerActor => m_Wrapper.m_Gameplay_SwitchToPreviousPlayerActor;
             public InputAction @SwitchToNextPlayerActor => m_Wrapper.m_Gameplay_SwitchToNextPlayerActor;
             public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
@@ -1460,9 +1460,9 @@ namespace Pal3.Input
                 @ToggleStorySelector.started += instance.OnToggleStorySelector;
                 @ToggleStorySelector.performed += instance.OnToggleStorySelector;
                 @ToggleStorySelector.canceled += instance.OnToggleStorySelector;
-                @ToggleBigMap.started += instance.OnToggleBigMap;
-                @ToggleBigMap.performed += instance.OnToggleBigMap;
-                @ToggleBigMap.canceled += instance.OnToggleBigMap;
+                @ToggleWorldMap.started += instance.OnToggleWorldMap;
+                @ToggleWorldMap.performed += instance.OnToggleWorldMap;
+                @ToggleWorldMap.canceled += instance.OnToggleWorldMap;
                 @SwitchToPreviousPlayerActor.started += instance.OnSwitchToPreviousPlayerActor;
                 @SwitchToPreviousPlayerActor.performed += instance.OnSwitchToPreviousPlayerActor;
                 @SwitchToPreviousPlayerActor.canceled += instance.OnSwitchToPreviousPlayerActor;
@@ -1518,9 +1518,9 @@ namespace Pal3.Input
                 @ToggleStorySelector.started -= instance.OnToggleStorySelector;
                 @ToggleStorySelector.performed -= instance.OnToggleStorySelector;
                 @ToggleStorySelector.canceled -= instance.OnToggleStorySelector;
-                @ToggleBigMap.started -= instance.OnToggleBigMap;
-                @ToggleBigMap.performed -= instance.OnToggleBigMap;
-                @ToggleBigMap.canceled -= instance.OnToggleBigMap;
+                @ToggleWorldMap.started -= instance.OnToggleWorldMap;
+                @ToggleWorldMap.performed -= instance.OnToggleWorldMap;
+                @ToggleWorldMap.canceled -= instance.OnToggleWorldMap;
                 @SwitchToPreviousPlayerActor.started -= instance.OnSwitchToPreviousPlayerActor;
                 @SwitchToPreviousPlayerActor.performed -= instance.OnSwitchToPreviousPlayerActor;
                 @SwitchToPreviousPlayerActor.canceled -= instance.OnSwitchToPreviousPlayerActor;
@@ -1650,7 +1650,7 @@ namespace Pal3.Input
         private readonly InputAction m_UI_RightClick;
         private readonly InputAction m_UI_TrackedDevicePosition;
         private readonly InputAction m_UI_TrackedDeviceOrientation;
-        private readonly InputAction m_UI_ToggleBigMap;
+        private readonly InputAction m_UI_ToggleWorldMap;
         private readonly InputAction m_UI_ToggleStorySelector;
         private readonly InputAction m_UI_ExitCurrentShowingMenu;
         public struct UIActions
@@ -1667,7 +1667,7 @@ namespace Pal3.Input
             public InputAction @RightClick => m_Wrapper.m_UI_RightClick;
             public InputAction @TrackedDevicePosition => m_Wrapper.m_UI_TrackedDevicePosition;
             public InputAction @TrackedDeviceOrientation => m_Wrapper.m_UI_TrackedDeviceOrientation;
-            public InputAction @ToggleBigMap => m_Wrapper.m_UI_ToggleBigMap;
+            public InputAction @ToggleWorldMap => m_Wrapper.m_UI_ToggleWorldMap;
             public InputAction @ToggleStorySelector => m_Wrapper.m_UI_ToggleStorySelector;
             public InputAction @ExitCurrentShowingMenu => m_Wrapper.m_UI_ExitCurrentShowingMenu;
             public InputActionMap Get() { return m_Wrapper.m_UI; }
@@ -1709,9 +1709,9 @@ namespace Pal3.Input
                 @TrackedDeviceOrientation.started += instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.performed += instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.canceled += instance.OnTrackedDeviceOrientation;
-                @ToggleBigMap.started += instance.OnToggleBigMap;
-                @ToggleBigMap.performed += instance.OnToggleBigMap;
-                @ToggleBigMap.canceled += instance.OnToggleBigMap;
+                @ToggleWorldMap.started += instance.OnToggleWorldMap;
+                @ToggleWorldMap.performed += instance.OnToggleWorldMap;
+                @ToggleWorldMap.canceled += instance.OnToggleWorldMap;
                 @ToggleStorySelector.started += instance.OnToggleStorySelector;
                 @ToggleStorySelector.performed += instance.OnToggleStorySelector;
                 @ToggleStorySelector.canceled += instance.OnToggleStorySelector;
@@ -1752,9 +1752,9 @@ namespace Pal3.Input
                 @TrackedDeviceOrientation.started -= instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.performed -= instance.OnTrackedDeviceOrientation;
                 @TrackedDeviceOrientation.canceled -= instance.OnTrackedDeviceOrientation;
-                @ToggleBigMap.started -= instance.OnToggleBigMap;
-                @ToggleBigMap.performed -= instance.OnToggleBigMap;
-                @ToggleBigMap.canceled -= instance.OnToggleBigMap;
+                @ToggleWorldMap.started -= instance.OnToggleWorldMap;
+                @ToggleWorldMap.performed -= instance.OnToggleWorldMap;
+                @ToggleWorldMap.canceled -= instance.OnToggleWorldMap;
                 @ToggleStorySelector.started -= instance.OnToggleStorySelector;
                 @ToggleStorySelector.performed -= instance.OnToggleStorySelector;
                 @ToggleStorySelector.canceled -= instance.OnToggleStorySelector;
@@ -1871,7 +1871,7 @@ namespace Pal3.Input
             void OnTouch1Start(InputAction.CallbackContext context);
             void OnTouch1Delta(InputAction.CallbackContext context);
             void OnToggleStorySelector(InputAction.CallbackContext context);
-            void OnToggleBigMap(InputAction.CallbackContext context);
+            void OnToggleWorldMap(InputAction.CallbackContext context);
             void OnSwitchToPreviousPlayerActor(InputAction.CallbackContext context);
             void OnSwitchToNextPlayerActor(InputAction.CallbackContext context);
         }
@@ -1895,7 +1895,7 @@ namespace Pal3.Input
             void OnRightClick(InputAction.CallbackContext context);
             void OnTrackedDevicePosition(InputAction.CallbackContext context);
             void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
-            void OnToggleBigMap(InputAction.CallbackContext context);
+            void OnToggleWorldMap(InputAction.CallbackContext context);
             void OnToggleStorySelector(InputAction.CallbackContext context);
             void OnExitCurrentShowingMenu(InputAction.CallbackContext context);
         }

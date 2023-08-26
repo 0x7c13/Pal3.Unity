@@ -36,7 +36,7 @@ namespace Pal3.Actor.Controllers
         private const float ACTOR_COLLIDER_RADIUS_MAX = 1.5f;
 
         private GameResourceProvider _resourceProvider;
-        private Actor _actor;
+        private ActorBase _actor;
 
         private bool _isDropShadowEnabled;
         private GameObject _shadow;
@@ -53,7 +53,7 @@ namespace Pal3.Actor.Controllers
         private bool _isKinematic = true;
 
         internal void Init(GameResourceProvider resourceProvider,
-            Actor actor,
+            ActorBase actor,
             bool hasColliderAndRigidBody,
             bool isDropShadowEnabled)
         {
@@ -165,14 +165,14 @@ namespace Pal3.Actor.Controllers
 
             // Disable shadow for some of the actors.
             #if PAL3
-            if (_actor.Info.Id == (byte) PlayerActorId.HuaYing) return;
+            if (_actor.Id == (int) PlayerActorId.HuaYing) return;
             #elif PAL3A
-            switch (_actor.Info.Id)
+            switch (_actor.Id)
             {
-                case (byte) PlayerActorId.TaoZi:
-                case (byte) FengYaSongActorId.Feng:
-                case (byte) FengYaSongActorId.Ya:
-                case (byte) FengYaSongActorId.Song:
+                case (int) PlayerActorId.TaoZi:
+                case (int) FengYaSongActorId.Feng:
+                case (int) FengYaSongActorId.Ya:
+                case (int) FengYaSongActorId.Song:
                     return;
             }
             #endif
@@ -286,7 +286,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorPerformActionCommand command)
         {
-            if (command.ActorId == _actor.Info.Id)
+            if (command.ActorId == _actor.Id)
             {
                 if (!_actor.IsActive && !_actor.IsMainActor())
                 {
@@ -312,7 +312,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorStopActionAndStandCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             PerformAction(_actor.GetIdleAction());
         }
 
@@ -320,7 +320,7 @@ namespace Pal3.Actor.Controllers
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
 
-            _isKinematic = _actor.Info.Id != command.ActorId;
+            _isKinematic = _actor.Id != command.ActorId;
 
             if (_rigidbody != null)
             {
@@ -337,7 +337,7 @@ namespace Pal3.Actor.Controllers
             else if (command.NewState == GameState.Gameplay)
             {
                 PlayerActorId playerActor = ServiceLocator.Instance.Get<PlayerActorManager>().GetPlayerActor();
-                _isKinematic = _actor.Info.Id != (byte)playerActor;
+                _isKinematic = _actor.Id != (int)playerActor;
             }
 
             if (_rigidbody != null)
@@ -348,14 +348,14 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorShowEmojiCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             StartCoroutine(ShowEmojiAnimationAsync((ActorEmojiType) command.EmojiId));
         }
 
         #if PAL3A
         public void Execute(ActorShowEmoji2Command command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             StartCoroutine(ShowEmojiAnimationAsync((ActorEmojiType) command.EmojiId));
         }
         #endif

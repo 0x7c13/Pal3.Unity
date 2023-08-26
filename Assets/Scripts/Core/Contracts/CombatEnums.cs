@@ -57,10 +57,12 @@ namespace Core.Contracts
         Hp = 0,        // 精
         Sp,            // 气
         Mp,            // 神
+
         Attack,        // 攻击
         Defense,       // 防御
         Speed,         // 速度
         Luck,          // 幸运
+
         Water,         // 水
         Fire,          // 火
         Wind,          // 风
@@ -88,6 +90,7 @@ namespace Core.Contracts
         PoisonWater,            // 水毒
         PoisonFire,             // 火毒
         PoisonEarth,            // 土毒
+
         AttackIncrease,         // 武 临时增加10%
         AttackDecrease,         // 武 临时降低10%
         DefenseIncrease,        // 防 临时增加10%
@@ -96,6 +99,7 @@ namespace Core.Contracts
         LuckDecrease,           // 运 临时降低10%
         SpeedIncrease,          // 速 临时增加10%
         SpeedDecrease,          // 速 临时降低10%
+
         Paralysis,              // 定(麻痹)
         Seal,                   // 封(封咒)
         Forbidden,              // 禁(禁忌)
@@ -105,6 +109,7 @@ namespace Core.Contracts
         Reflection,             // 镜(攻击反射)
         Evade,                  // 避(防避,物理攻击无效)
         Barrier,                // 界(结界,仙术攻击无效)
+
         Invisible,              // 隐形
         Dying,                  // 濒死
         Death,                  // 死亡

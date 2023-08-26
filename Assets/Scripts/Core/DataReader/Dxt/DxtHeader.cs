@@ -5,6 +5,8 @@
 
 namespace Core.DataReader.Dxt
 {
+    using System.IO;
+
     public sealed class DxtPixelFormat
     {
         public int Size;
@@ -16,13 +18,13 @@ namespace Core.DataReader.Dxt
         public int BBitMask;
         public int ABitMask;
 
-        public static DxtPixelFormat ReadFormat(IBinaryReader reader)
+        public static DxtPixelFormat ReadFormat(BinaryReader reader)
         {
             return new DxtPixelFormat
             {
                 Size = reader.ReadInt32(),
                 Flags = reader.ReadInt32(),
-                Format = reader.ReadString(4),
+                Format = new string(reader.ReadChars(4)),
                 RGBBitCount = reader.ReadInt32(),
                 RBitMask = reader.ReadInt32(),
                 GBitMask = reader.ReadInt32(),
@@ -41,7 +43,7 @@ namespace Core.DataReader.Dxt
         public int PitchOrLinearSize;
         public int Depth;
         public int MipMapCount;
-        public int[] ReservedBytes; // 11 ints
+        public byte[] ReservedBytes; // 44 bytes
         public DxtPixelFormat DxtPixelFormat;
         public int Caps1;
         public int Caps2;
@@ -49,7 +51,7 @@ namespace Core.DataReader.Dxt
         public int Caps4;
         public int Reserved;
 
-        public static DxtHeader ReadHeader(IBinaryReader reader)
+        public static DxtHeader ReadHeader(BinaryReader reader)
         {
             return new DxtHeader
             {
@@ -60,7 +62,7 @@ namespace Core.DataReader.Dxt
                 PitchOrLinearSize = reader.ReadInt32(),
                 Depth = reader.ReadInt32(),
                 MipMapCount = reader.ReadInt32(),
-                ReservedBytes = reader.ReadInt32s(11),
+                ReservedBytes = reader.ReadBytes(44),
                 DxtPixelFormat = DxtPixelFormat.ReadFormat(reader),
                 Caps1 = reader.ReadInt32(),
                 Caps2 = reader.ReadInt32(),

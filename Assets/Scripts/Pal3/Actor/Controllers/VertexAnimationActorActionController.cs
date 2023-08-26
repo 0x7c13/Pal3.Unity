@@ -30,10 +30,12 @@ namespace Pal3.Actor.Controllers
     {
         private GameResourceProvider _resourceProvider;
         private IMaterialFactory _materialFactory;
-        private Actor _actor;
-        private Color _tintColor;
+        private ActorBase _actor;
+        private Color? _tintColor;
 
-        private bool _autoStand = true;
+        // Auto perform idle action when the current action is finished.
+        private bool _autoStand;
+        private bool _canPerformHoldAnimation;
 
         private Mv3ModelRenderer _mv3ModelRenderer;
         private WaitUntilCanceled _animationLoopPointWaiter;
@@ -44,20 +46,22 @@ namespace Pal3.Actor.Controllers
         private bool _isHoldAnimationStarted = false;
 
         public void Init(GameResourceProvider resourceProvider,
-            Actor actor,
+            ActorBase actor,
             bool hasColliderAndRigidBody,
             bool isDropShadowEnabled,
-            Color tintColor)
+            bool autoStand,
+            bool canPerformHoldAnimation,
+            Color? tintColor = default)
         {
             base.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled);
 
             _resourceProvider = resourceProvider;
             _actor = actor;
+            _autoStand = autoStand;
+            _canPerformHoldAnimation = canPerformHoldAnimation;
             _tintColor = tintColor;
-            _materialFactory = resourceProvider.GetMaterialFactory();
 
-            // Should not auto stand if the actor is on hold.
-            _autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
+            _materialFactory = resourceProvider.GetMaterialFactory();
         }
 
         private void OnEnable()
@@ -83,8 +87,7 @@ namespace Pal3.Actor.Controllers
             bool shouldPlayHoldAnimation = !_isHoldAnimationStarted &&
                                            isNewActionSameAsCurrent &&
                                            loopCount == 1 &&
-                                           _actor.Info.InitBehaviour == ActorBehaviourType.Hold &&
-                                           _actor.Info.LoopAction == 0;
+                                           _canPerformHoldAnimation;
 
             // Skip if the action is the same as current and not overwrite or hold animation.
             if (isNewActionSameAsCurrent && !overwrite && !shouldPlayHoldAnimation)
@@ -99,7 +102,7 @@ namespace Pal3.Actor.Controllers
 
             if (!_actor.HasAction(actionName))
             {
-                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Info.Name}.");
+                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Name}.");
                 _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
@@ -132,7 +135,7 @@ namespace Pal3.Actor.Controllers
 
             if (actionType.HasValue &&
                 mv3File.TagNodes is {Length: > 0} &&
-                _actor.GetWeaponName() is {} weaponName &&
+                _actor.GetTagObjectName() is {} weaponName &&
                 ActorConstants.ActionNameToWeaponArmTypeMap[actionType.Value] != WeaponArmType.None)
             {
                 string weaponPath = FileConstants.GetWeaponModelFileVirtualPath(weaponName);
@@ -232,12 +235,12 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorAutoStandCommand command)
         {
-            if (command.ActorId == _actor.Info.Id) _autoStand = (command.AutoStand == 1);
+            if (command.ActorId == _actor.Id) _autoStand = (command.AutoStand == 1);
         }
 
         public void Execute(ActorStopActionCommand command)
         {
-            if (command.ActorId != _actor.Info.Id ||
+            if (command.ActorId != _actor.Id ||
                 _mv3ModelRenderer == null ||
                 !_mv3ModelRenderer.IsVisible()) return;
 
@@ -262,7 +265,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(ActorChangeTextureCommand command)
         {
-            if (_actor.Info.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId) return;
             _mv3ModelRenderer.ChangeTexture(command.TextureName);
         }
     }

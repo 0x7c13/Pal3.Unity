@@ -94,7 +94,7 @@ namespace Core.DataReader.Scn
     }
 
     [System.Serializable]
-    public class ScnNpcInfo
+    public struct ScnNpcInfo
     {
         // 在一关中唯一的编号 (NPC不能跨场景)
         public byte Id;

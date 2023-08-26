@@ -41,6 +41,30 @@ namespace Pal3.Script.Patcher
             {
                 $"{950}_{PalScriptType.Scene}_{1005}_龍葵甦醒2_{3891}_{typeof(ActorPathToCommand)}",
                 new ActorPathToCommand(ActorConstants.PlayerActorVirtualID, 288, 20, 0)
+            },
+            {
+                $"{936}_{PalScriptType.Scene}_{1001}_初到镇江_{392}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(1, 318, 142, 0)
+            },
+            {
+                $"{950}_{PalScriptType.Scene}_{1001}_初到鎮江_{392}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(1, 318, 142, 0)
+            },
+            {
+                $"{936}_{PalScriptType.Scene}_{1001}_初到镇江_{688}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(3, 327, 140, 0)
+            },
+            {
+                $"{950}_{PalScriptType.Scene}_{1001}_初到鎮江_{688}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(3, 327, 140, 0)
+            },
+            {
+                $"{936}_{PalScriptType.Scene}_{1001}_初到镇江_{930}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(4, 346, 137, 0)
+            },
+            {
+                $"{950}_{PalScriptType.Scene}_{1001}_初到鎮江_{930}_{typeof(ActorMoveToCommand)}",
+                new ActorPathToCommand(4, 346, 137, 0)
             }
         };
     }

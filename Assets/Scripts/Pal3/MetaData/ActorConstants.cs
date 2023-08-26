@@ -35,10 +35,18 @@ namespace Pal3.MetaData
         {
             { PlayerActorId.JingTian,  "101" },
             { PlayerActorId.XueJian,   "104" },
-            { PlayerActorId.LongKui,   "105" },  // 105 蓝葵 106 红葵
+            { PlayerActorId.LongKui,   "105" },  // 105 蓝葵
             { PlayerActorId.ZiXuan,    "107" },
             { PlayerActorId.ChangQing, "102" },
             { PlayerActorId.HuaYing,   "109" }
+        };
+        public static readonly Dictionary<PlayerActorId, int> MainActorCombatActorIdMap = new()
+        {
+            { PlayerActorId.JingTian,  101 },
+            { PlayerActorId.XueJian,   104 },
+            { PlayerActorId.LongKui,   106 },  // 106 红葵
+            { PlayerActorId.ZiXuan,    107 },
+            { PlayerActorId.ChangQing, 102 },
         };
         #elif PAL3A
         public static readonly Dictionary<PlayerActorId, string> MainActorNameMap = new()
@@ -49,6 +57,14 @@ namespace Pal3.MetaData
             { PlayerActorId.XingXuan,      "104" },
             { PlayerActorId.LeiYuanGe,     "105" },
             { PlayerActorId.TaoZi,         "106" },  // 桃子兽形
+        };
+        public static readonly Dictionary<PlayerActorId, int> MainActorCombatActorIdMap = new()
+        {
+            { PlayerActorId.NanGongHuang,  101 },
+            { PlayerActorId.WenHui,        102 },
+            { PlayerActorId.WangPengXu,    103 },
+            { PlayerActorId.XingXuan,      104 },
+            { PlayerActorId.LeiYuanGe,     105 },
         };
         public static readonly Dictionary<FengYaSongActorId, string> FengYaSongActorNameMap = new()
         {
@@ -65,6 +81,7 @@ namespace Pal3.MetaData
             { "102", "WCA" },
             { "104", "WXF" },
             { "105", "WLF" },
+            { "106", "WLF" },
             { "107", "WZC" },
         };
         #elif PAL3A

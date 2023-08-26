@@ -330,9 +330,7 @@ namespace Pal3.Rendering.Renderer
             int numOfIndices = subMesh.Faces.Length * 3;
             int[] triangles = new int[numOfIndices];
             Vector2[] uvs1 = new Vector2[numOfIndices];
-            Vector2[] uvs2 = null;
             int[] indexBuffer = new int[numOfIndices];
-            Vector3[] normals = null;
 
             var index = 0;
             foreach (PhyFace phyFace in subMesh.Faces)
@@ -364,12 +362,12 @@ namespace Pal3.Rendering.Renderer
 
             var meshRenderer = _meshObjects[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
-                ref vertices,
-                ref triangles,
-                ref normals,
-                ref uvs1,
-                ref uvs2,
-                ref materials,
+                vertices,
+                triangles,
+                normals: null,
+                uvs1,
+                secondaryTextureUvs: null,
+                materials,
                 true);
 
             renderMesh.RecalculateNormals();
