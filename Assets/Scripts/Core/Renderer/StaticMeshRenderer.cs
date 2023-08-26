@@ -16,12 +16,12 @@ namespace Core.Renderer
 
         private Material[] _materials;
 
-        public Mesh Render(ref Vector3[] vertices,
-            ref int[] triangles,
-            ref Vector3[] normals,
-            ref Vector2[] mainTextureUvs,
-            ref Vector2[] secondaryTextureUvs,
-            ref Material[] materials,
+        public Mesh Render(Vector3[] vertices,
+            int[] triangles,
+            Vector3[] normals,
+            Vector2[] mainTextureUvs,
+            Vector2[] secondaryTextureUvs,
+            Material[] materials,
             bool isDynamic)
         {
             Dispose();

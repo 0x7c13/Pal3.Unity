@@ -7,12 +7,14 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
+    using Command.InternalCommands;
     using Command.SceCommands;
     using Common;
     using Core.Contracts;
     using Core.DataReader.Scn;
     using Core.Extensions;
     using Data;
+    using MetaData;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.Chest)]
@@ -32,11 +34,6 @@ namespace Pal3.Scene.SceneObjects
             return IsActivated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override bool ShouldGoToCutsceneWhenInteractionStarted()
-        {
-            return false;
-        }
-
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (IsActivated) return GetGameObject();
@@ -49,15 +46,21 @@ namespace Pal3.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                    ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
+
             PlaySfx("wg011");
 
             if (ModelType == SceneObjectModelType.CvdModel)
             {
-                GetCvdModelRenderer().StartOneTimeAnimation(true, 1f, () =>
-                {
-                    ExecuteScriptIfAny();
-                    ChangeAndSaveActivationState(false);
-                });
+                yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
+                ExecuteScriptIfAny();
+                ChangeAndSaveActivationState(false);
             }
             else
             {

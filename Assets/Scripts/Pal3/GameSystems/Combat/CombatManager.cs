@@ -6,8 +6,11 @@
 namespace Pal3.GameSystems.Combat
 {
     using System;
+    using System.Collections.Generic;
     using Command;
     using Command.SceCommands;
+    using Core.Contracts;
+    using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.GameBox;
     using Core.Utils;
@@ -23,18 +26,15 @@ namespace Pal3.GameSystems.Combat
     {
         public event EventHandler<bool> OnCombatFinished;
 
-        private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
         private const string COMBAT_CAMERA_CONFIG_FILE_NAME = "cbCam.ini";
-
         private const float COMBAT_CAMERA_DEFAULT_FOV = 39f;
 
-        private readonly GameResourceProvider _resourceProvider;
         private readonly TeamManager _teamManager;
         private readonly Camera _mainCamera;
         private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
 
-        private readonly CombatConfigFile _combatConfigFile;
+        private readonly IDictionary<int, CombatActorInfo> _combatActorInfos;
         private readonly CombatCameraConfigFile _combatCameraConfigFile;
 
         private Vector3 _cameraPositionBeforeCombat;
@@ -46,14 +46,13 @@ namespace Pal3.GameSystems.Combat
             Camera mainCamera,
             SceneManager sceneManager)
         {
-            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 
-            _combatConfigFile = _resourceProvider.GetGameResourceFile<CombatConfigFile>(
-                FileConstants.DataScriptFolderVirtualPath + COMBAT_CONFIG_FILE_NAME);
-            _combatCameraConfigFile = _resourceProvider.GetGameResourceFile<CombatCameraConfigFile>(
+            _combatActorInfos = resourceProvider.GetCombatActorInfos();
+            _combatCameraConfigFile = resourceProvider.GetGameResourceFile<CombatCameraConfigFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CAMERA_CONFIG_FILE_NAME);
         }
 
@@ -63,18 +62,36 @@ namespace Pal3.GameSystems.Combat
                 out _cameraRotationBeforeCombat);
             _cameraFovBeforeCombat = _mainCamera.fieldOfView;
 
-            //CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
-
-            _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
-
             if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
             }
 
+            CombatScene scene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
+
+            Dictionary<int, CombatActorInfo> monsterActors = new ();
+
+            for (int i = 0; i < combatContext.MonsterIds.Length; i++)
+            {
+                var monsterActorId = combatContext.MonsterIds[i];
+                if (monsterActorId == 0) continue;
+                monsterActors[i] = _combatActorInfos[(int)monsterActorId];
+            }
+
+            Dictionary<int, CombatActorInfo> playerActors = new ();
+            int positionIndex = 0;
+            foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
+            {
+                var combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
+                playerActors[positionIndex++] = _combatActorInfos[combatActorId];
+            }
+
+            scene.LoadActors(monsterActors, playerActors);
+
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
         }
 
         public void ExitCombat()

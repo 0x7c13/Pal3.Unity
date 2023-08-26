@@ -95,5 +95,14 @@ namespace Pal3.Actor
                 _ => 4f
             };
         }
+
+        public bool HasColliderAndRigidBody()
+        {
+            #if PAL3
+            return (PlayerActorId) Id != PlayerActorId.HuaYing;
+            #elif PAL3A
+            return (PlayerActorId) Id != PlayerActorId.TaoZi;
+            #endif
+        }
     }
 }

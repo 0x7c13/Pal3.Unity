@@ -199,12 +199,12 @@ namespace Pal3.Rendering.Renderer
                 NormalBuffer = mv3Mesh.Normals,
             };
 
-            Mesh renderMesh = meshRenderer.Render(ref mv3Mesh.KeyFrames[0].Vertices,
-                ref mv3Mesh.Triangles,
-                ref meshDataBuffer.NormalBuffer,
-                ref mv3Mesh.Uvs,
-                ref mv3Mesh.Uvs,
-                ref _materials[index],
+            Mesh renderMesh = meshRenderer.Render(mv3Mesh.KeyFrames[0].Vertices,
+                mv3Mesh.Triangles,
+                meshDataBuffer.NormalBuffer,
+                mv3Mesh.Uvs,
+                mv3Mesh.Uvs,
+                _materials[index],
                 true);
 
             renderMesh.RecalculateTangents();
@@ -443,7 +443,7 @@ namespace Pal3.Rendering.Renderer
         {
             if (_renderMeshComponents == null) return false;
 
-            foreach (var renderMeshComponent in _renderMeshComponents)
+            foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
                 if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
             }

@@ -70,7 +70,7 @@ namespace Pal3.GameSystems.Combat
             uint monster5Id,
             uint monster6Id)
         {
-            MonsterIds = new uint[6]
+            MonsterIds = new []
             {
                 monster1Id,
                 monster2Id,

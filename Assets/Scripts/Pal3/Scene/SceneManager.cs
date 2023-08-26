@@ -69,12 +69,26 @@ namespace Pal3.Scene
             return _currentScene;
         }
 
-        public GameObject GetSceneRootGameObject()
+        public CombatScene GetCurrentCombatScene()
         {
-            return _currentSceneRoot;
+            return _currentCombatScene;
         }
 
-        public void LoadScene(string sceneCityName, string sceneName)
+        public GameObject GetSceneRootGameObject()
+        {
+            if (_currentCombatSceneRoot != null)
+            {
+                return _currentCombatSceneRoot;
+            }
+            else if (_currentSceneRoot != null)
+            {
+                return _currentSceneRoot;
+            }
+
+            return null;
+        }
+
+        public Scene LoadScene(string sceneCityName, string sceneName)
         {
             var timer = new Stopwatch();
             timer.Start();
@@ -113,9 +127,11 @@ namespace Pal3.Scene
 
             // Also a good time to collect garbage
             System.GC.Collect();
+
+            return _currentScene;
         }
 
-        public void LoadCombatScene(string combatSceneName)
+        public CombatScene LoadCombatScene(string combatSceneName)
         {
             var timer = new Stopwatch();
             timer.Start();
@@ -127,13 +143,17 @@ namespace Pal3.Scene
 
             _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
             _currentCombatScene.Init(_resourceProvider);
-            _currentCombatScene.Load(_currentCombatSceneRoot, combatSceneName);
+            _currentCombatScene.Load(_currentCombatSceneRoot,
+                combatSceneName,
+                _gameSettings.IsRealtimeLightingAndShadowsEnabled);
 
             timer.Stop();
             Debug.Log($"[{nameof(SceneManager)}] CombatScene loaded in {timer.Elapsed.TotalSeconds} seconds.");
 
             // Also a good time to collect garbage
             System.GC.Collect();
+
+            return _currentCombatScene;
         }
 
         public void UnloadCombatScene()

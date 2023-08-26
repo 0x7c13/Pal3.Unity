@@ -31,7 +31,7 @@ namespace Pal3.Actor.Controllers
         private GameResourceProvider _resourceProvider;
         private IMaterialFactory _materialFactory;
         private ActorBase _actor;
-        private Color _tintColor;
+        private Color? _tintColor;
 
         // Auto perform idle action when the current action is finished.
         private bool _autoStand;
@@ -51,7 +51,7 @@ namespace Pal3.Actor.Controllers
             bool isDropShadowEnabled,
             bool autoStand,
             bool canPerformHoldAnimation,
-            Color tintColor)
+            Color? tintColor = default)
         {
             base.Init(resourceProvider, actor, hasColliderAndRigidBody, isDropShadowEnabled);
 

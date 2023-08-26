@@ -92,6 +92,7 @@ namespace Core.DataReader.Gdb
         #endif
     }
 
+    [System.Serializable]
     public struct CombatActorInfo
     {
         public uint Id;                         // 战斗角色ID

@@ -258,12 +258,12 @@ namespace Pal3.Rendering.Renderer
 
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
-                        ref meshDataBuffer.VertexBuffer,
-                        ref meshSection.Triangles,
-                        ref meshDataBuffer.NormalBuffer,
-                        ref meshDataBuffer.UvBuffer,
-                        ref meshDataBuffer.UvBuffer,
-                        ref materials,
+                        meshDataBuffer.VertexBuffer,
+                        meshSection.Triangles,
+                        meshDataBuffer.NormalBuffer,
+                        meshDataBuffer.UvBuffer,
+                        meshDataBuffer.UvBuffer,
+                        materials,
                         true);
 
                     renderMesh.RecalculateNormals();
