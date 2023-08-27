@@ -61,6 +61,8 @@ namespace Pal3.Scene.SceneObjects
             return IsActivated && distance < MAX_INTERACTION_DISTANCE;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject

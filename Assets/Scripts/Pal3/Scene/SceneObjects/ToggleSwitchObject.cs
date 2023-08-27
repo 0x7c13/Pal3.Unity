@@ -58,6 +58,8 @@ namespace Pal3.Scene.SceneObjects
                    ObjectInfo.Times > 0;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         // TODO: Implement element interaction logic for this switch
         // Can only toggle this switch if ObjectInfo.ElementType matches current player actor's element type.
         public override IEnumerator InteractAsync(InteractionContext ctx)

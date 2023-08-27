@@ -120,6 +120,14 @@ namespace Pal3.Actor.Controllers
             base.PerformAction(actionName, overwrite, loopCount, waiter);
         }
 
+        public override void PauseAnimation()
+        {
+            if (_skeletalModelRenderer != null)
+            {
+                _skeletalModelRenderer.PauseAnimation();
+            }
+        }
+
         public override float GetActorHeight()
         {
             if (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible())

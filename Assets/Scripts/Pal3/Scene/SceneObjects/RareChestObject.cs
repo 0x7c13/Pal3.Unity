@@ -34,6 +34,8 @@ namespace Pal3.Scene.SceneObjects
             return IsActivated && distance < MAX_INTERACTION_DISTANCE;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (IsActivated) return GetGameObject();

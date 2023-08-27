@@ -27,10 +27,7 @@ namespace Pal3.Scene.SceneObjects
             return IsActivated && distance < MAX_INTERACTION_DISTANCE;
         }
 
-        public override bool ShouldGoToCutsceneWhenInteractionStarted()
-        {
-            return false;
-        }
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => false;
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {

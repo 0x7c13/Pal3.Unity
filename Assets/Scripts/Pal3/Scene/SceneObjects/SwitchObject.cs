@@ -99,6 +99,8 @@ namespace Pal3.Scene.SceneObjects
                                                        // 2 means interactable but executing script only
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;

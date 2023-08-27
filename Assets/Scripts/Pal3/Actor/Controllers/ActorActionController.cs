@@ -111,24 +111,13 @@ namespace Pal3.Actor.Controllers
             }
         }
 
-        public virtual void PauseAnimation()
-        {
-        }
+        public abstract void PauseAnimation();
 
-        public virtual float GetActorHeight()
-        {
-            return 0f;
-        }
+        public abstract float GetActorHeight();
 
-        public virtual Bounds GetRendererBounds()
-        {
-            return new Bounds(transform.position, Vector3.one);
-        }
+        public abstract Bounds GetRendererBounds();
 
-        public virtual Bounds GetMeshBounds()
-        {
-            return new Bounds(Vector3.zero, Vector3.zero);
-        }
+        public abstract Bounds GetMeshBounds();
 
         internal virtual void DisposeCurrentAction()
         {

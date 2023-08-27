@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Common;
@@ -51,6 +52,15 @@ namespace Pal3.Scene.SceneObjects
                     interval));
 
             return sceneGameObject;
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => false;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            yield break;
         }
     }
 }

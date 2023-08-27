@@ -74,6 +74,10 @@ namespace Pal3.Scene.SceneObjects
             return sceneGameObject;
         }
 
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             Transform transform = GetGameObject().transform;
