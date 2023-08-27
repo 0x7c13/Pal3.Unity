@@ -32,6 +32,7 @@ namespace Pal3.GameSystems.Combat
     /// Receive events and gather context to start a combat.
     /// </summary>
     public sealed class CombatCoordinator : IDisposable,
+        ICommandExecutor<CombatActorCollideWithPlayerActorNotification>,
         ICommandExecutor<CombatEnterNormalFightCommand>,
         ICommandExecutor<CombatEnterBossFightCommand>,
         #if PAL3A
@@ -222,7 +223,7 @@ namespace Pal3.GameSystems.Combat
                 (monsterIds[i], monsterIds[randomIndex]) = (monsterIds[randomIndex], monsterIds[i]);
             }
 
-            _currentCombatContext.SetMonsterIds(
+            _currentCombatContext.SetEnemyIds(
                 monsterIds[0],
                 monsterIds[1],
                 monsterIds[2],
@@ -238,7 +239,7 @@ namespace Pal3.GameSystems.Combat
 
         public void Execute(CombatEnterBossFightCommand command)
         {
-            _currentCombatContext.SetMonsterIds(
+            _currentCombatContext.SetEnemyIds(
                 command.Monster1Id,
                 command.Monster2Id,
                 command.Monster3Id,
@@ -252,7 +253,7 @@ namespace Pal3.GameSystems.Combat
         #if PAL3A
         public void Execute(CombatEnterBossFightUsingMusicCommand command)
         {
-            _currentCombatContext.SetMonsterIds(
+            _currentCombatContext.SetEnemyIds(
                 command.Monster1Id,
                 command.Monster2Id,
                 command.Monster3Id,
@@ -266,7 +267,7 @@ namespace Pal3.GameSystems.Combat
 
         public void Execute(CombatEnterBossFightUsingMusicWithSpecialActorCommand command)
         {
-            _currentCombatContext.SetMonsterIds(
+            _currentCombatContext.SetEnemyIds(
                 command.Monster1Id,
                 command.Monster2Id,
                 command.Monster3Id,
@@ -298,6 +299,60 @@ namespace Pal3.GameSystems.Combat
         public void Execute(ResetGameStateCommand command)
         {
             _currentCombatContext.ResetContext();
+        }
+
+        // Player actor collides with combat NPC in maze
+        public void Execute(CombatActorCollideWithPlayerActorNotification command)
+        {
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new ActorActivateCommand(command.CombatActorId, 0));
+
+            if (_gameSettings.IsTurnBasedCombatEnabled)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+
+                var currentScene = _sceneManager.GetCurrentScene();
+                var combatActor = currentScene.GetActor(command.CombatActorId);
+                var playerTransform = currentScene.GetActorGameObject(command.PlayerActorId).transform;
+                var enemyTransform = currentScene.GetActorGameObject(command.CombatActorId).transform;
+
+                _currentCombatContext.SetMeetType(CalculateMeetType(playerTransform, enemyTransform));
+
+                Execute(new CombatEnterNormalFightCommand(
+                    combatActor.Info.NumberOfMonsters,
+                    combatActor.Info.MonsterIds[0],
+                    combatActor.Info.MonsterIds[1],
+                    combatActor.Info.MonsterIds[2]));
+            }
+            else // TODO: Remove once combat system is fully implemented
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new PlaySfxCommand("wd130", 1));
+            }
+        }
+
+        private MeetType CalculateMeetType(Transform playerTransform, Transform enemyTransform)
+        {
+            Vector3 relativePosition = playerTransform.position - enemyTransform.position;
+
+            // Normalize the vector for more accurate dot product
+            relativePosition.Normalize();
+
+            if (Vector3.Dot(playerTransform.forward, -enemyTransform.forward) > 0.7f)
+            {
+                return MeetType.RunningIntoEachOther;
+            }
+            else if (Vector3.Dot(playerTransform.forward, -relativePosition) > 0.7f)
+            {
+                return MeetType.PlayerChasingEnemy;
+            }
+            else if (Vector3.Dot(enemyTransform.forward, relativePosition) > 0.7f)
+            {
+                return MeetType.EnemyChasingPlayer;
+            }
+
+            return MeetType.RunningIntoEachOther;
         }
     }
 }

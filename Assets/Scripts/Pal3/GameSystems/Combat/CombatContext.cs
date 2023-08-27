@@ -8,6 +8,13 @@ namespace Pal3.GameSystems.Combat
     using Core.Contracts;
     using Script.Waiter;
 
+    public enum MeetType
+    {
+        RunningIntoEachOther,
+        PlayerChasingEnemy,
+        EnemyChasingPlayer,
+    }
+
     /// <summary>
     /// Data contract for combat context.
     /// </summary>
@@ -17,11 +24,12 @@ namespace Pal3.GameSystems.Combat
         public string CombatSceneName { get; private set; }
         public ElementType CombatSceneElementType { get; private set; }
         public bool IsScriptTriggeredCombat { get; private set; }
+        public MeetType MeetType { get; private set; }
         public string CombatMusicName { get; private set; }
         public int MaxRound { get; private set; }
         public bool IsUnbeatable { get; private set; }
         public bool IsNoGameOverWhenLose { get; private set; }
-        public uint[] MonsterIds { get; private set; }
+        public uint[] EnemyIds { get; private set; }
 
         public CombatContext()
         {
@@ -48,6 +56,11 @@ namespace Pal3.GameSystems.Combat
             IsScriptTriggeredCombat = isScriptTriggeredCombat;
         }
 
+        public void SetMeetType(MeetType meetType)
+        {
+            MeetType = meetType;
+        }
+
         public void SetCombatMusicName(string combatMusicName)
         {
             CombatMusicName = combatMusicName;
@@ -68,22 +81,22 @@ namespace Pal3.GameSystems.Combat
             IsNoGameOverWhenLose = isNoGameOverWhenLose;
         }
 
-        public void SetMonsterIds(
-            uint monster1Id,
-            uint monster2Id,
-            uint monster3Id,
-            uint monster4Id,
-            uint monster5Id,
-            uint monster6Id)
+        public void SetEnemyIds(
+            uint enemy1Id,
+            uint enemy2Id,
+            uint enemy3Id,
+            uint enemy4Id,
+            uint enemy5Id,
+            uint enemy6Id)
         {
-            MonsterIds = new []
+            EnemyIds = new []
             {
-                monster1Id,
-                monster2Id,
-                monster3Id,
-                monster4Id,
-                monster5Id,
-                monster6Id
+                enemy1Id,
+                enemy2Id,
+                enemy3Id,
+                enemy4Id,
+                enemy5Id,
+                enemy6Id
             };
         }
 
@@ -94,10 +107,11 @@ namespace Pal3.GameSystems.Combat
             CombatSceneElementType = ElementType.None;
             CombatMusicName = string.Empty;
             IsScriptTriggeredCombat = false;
+            MeetType = MeetType.RunningIntoEachOther;
             MaxRound = -1; // -1 means no limit
             IsUnbeatable = false;
             IsNoGameOverWhenLose = false;
-            MonsterIds = new uint[6];
+            EnemyIds = new uint[6];
         }
 
         public override string ToString()
@@ -106,10 +120,12 @@ namespace Pal3.GameSystems.Combat
                    $"CombatScene: {CombatSceneName} " +
                    $"ElementType: {CombatSceneElementType} " +
                    $"CombatMusic: {CombatMusicName} " +
+                   $"IsScriptTriggeredCombat: {IsScriptTriggeredCombat} " +
+                   $"MeetType: {MeetType} " +
                    $"MaxRound: {MaxRound} " +
                    $"IsUnbeatable: {IsUnbeatable} " +
                    $"IsNoGameOverWhenLose: {IsNoGameOverWhenLose} " +
-                   $"Monsters: {string.Join(" ", MonsterIds)}";
+                   $"Enemies: {string.Join(" ", EnemyIds)}";
         }
     }
 }
