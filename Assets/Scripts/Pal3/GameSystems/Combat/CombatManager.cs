@@ -93,10 +93,13 @@ namespace Pal3.GameSystems.Combat
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand(combatContext.MeetType == MeetType.PlayerChasingEnemy
-                    ? "偷袭敌方成功！"
-                    : "被敌人偷袭！"));
+            if (combatContext.MeetType != MeetType.RunningIntoEachOther)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new UIDisplayNoteCommand(combatContext.MeetType == MeetType.PlayerChasingEnemy
+                        ? "偷袭敌方成功！"
+                        : "被敌人偷袭！"));
+            }
         }
 
         public void ExitCombat()
