@@ -106,11 +106,14 @@ namespace Pal3.GameSystems.Combat
             {
                 if (MusicConstants.CombatMusicInfo.TryGetValue(
                         currentScene.GetSceneInfo().CityName.ToLower(),
-                        out var combatMusic) &&
-                    // Script can override combat music
-                    string.IsNullOrEmpty(_audioManager.GetCurrentScriptMusic()))
+                        out var combatMusic))
                 {
-                    _currentCombatContext.SetCombatMusicName(combatMusic);
+                    // Set music only if it's not set yet or it's not a script triggered combat
+                    if (string.IsNullOrEmpty(_audioManager.GetCurrentScriptMusic()) ||
+                        !_currentCombatContext.IsScriptTriggeredCombat)
+                    {
+                        _currentCombatContext.SetCombatMusicName(combatMusic);
+                    }
                 }
             }
 
@@ -226,6 +229,10 @@ namespace Pal3.GameSystems.Combat
                 monsterIds[3],
                 monsterIds[4],
                 monsterIds[5]);
+
+            // CombatEnterNormalFightCommand is used for normal combat only (player collide with monster)
+            _currentCombatContext.SetIsScriptTriggeredCombat(false);
+
             StartCombat();
         }
 
@@ -238,6 +245,7 @@ namespace Pal3.GameSystems.Combat
                 command.Monster4Id,
                 command.Monster5Id,
                 command.Monster6Id);
+            _currentCombatContext.SetIsScriptTriggeredCombat(true);
             StartCombat();
         }
 
@@ -251,6 +259,7 @@ namespace Pal3.GameSystems.Combat
                 command.Monster4Id,
                 command.Monster5Id,
                 command.Monster6Id);
+            _currentCombatContext.SetIsScriptTriggeredCombat(true);
             _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
             StartCombat();
         }
@@ -264,6 +273,7 @@ namespace Pal3.GameSystems.Combat
                 command.Monster4Id,
                 command.Monster5Id,
                 command.Monster6Id);
+            _currentCombatContext.SetIsScriptTriggeredCombat(true);
             _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
             // TODO: NanGoongHuang enter fight using wolf state
             StartCombat();

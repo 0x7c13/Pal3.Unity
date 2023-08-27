@@ -16,6 +16,7 @@ namespace Pal3.GameSystems.Combat
         public WaitUntilCanceled ScriptWaiter { get; private set; }
         public string CombatSceneName { get; private set; }
         public ElementType CombatSceneElementType { get; private set; }
+        public bool IsScriptTriggeredCombat { get; private set; }
         public string CombatMusicName { get; private set; }
         public int MaxRound { get; private set; }
         public bool IsUnbeatable { get; private set; }
@@ -40,6 +41,11 @@ namespace Pal3.GameSystems.Combat
         public void SetCombatSceneElementType(ElementType combatSceneElementType)
         {
             CombatSceneElementType = combatSceneElementType;
+        }
+
+        public void SetIsScriptTriggeredCombat(bool isScriptTriggeredCombat)
+        {
+            IsScriptTriggeredCombat = isScriptTriggeredCombat;
         }
 
         public void SetCombatMusicName(string combatMusicName)
@@ -87,6 +93,7 @@ namespace Pal3.GameSystems.Combat
             CombatSceneName = string.Empty;
             CombatSceneElementType = ElementType.None;
             CombatMusicName = string.Empty;
+            IsScriptTriggeredCombat = false;
             MaxRound = -1; // -1 means no limit
             IsUnbeatable = false;
             IsNoGameOverWhenLose = false;

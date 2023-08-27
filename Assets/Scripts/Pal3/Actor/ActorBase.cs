@@ -53,7 +53,7 @@ namespace Pal3.Actor
             {
                 AddActorConfig(mv3Config);
                 AnimationType = ActorAnimationType.Vertex;
-                return;
+                return; // No need to continue since MV3 animated actor has only one action config
             }
 
             // Add default config if it is MOV animated

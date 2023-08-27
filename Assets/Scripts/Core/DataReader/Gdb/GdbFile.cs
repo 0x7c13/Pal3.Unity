@@ -120,7 +120,9 @@ namespace Core.DataReader.Gdb
         public ushort[] MainActorFavor;         // 对每个主角的好感（保存用）
         public int Experience;                  // 经验值
         public ushort Money;                    // 金钱（保存用）
-        public uint NormalAttackActionId;       // 普通攻击动作ID
+        public uint NormalAttackModeId;         // 普通攻击动作模式ID
+                                                // 916 917 921 922 926 927 => 行
+                                                // 918 919 920 923 928 => 列
 
         public byte HeightLevel;                // 迷宫高度 0-2 对应 低 中 高
         public byte MoveRangeLevel;             // 运动范围 0-3 对应 不动 小 中 大

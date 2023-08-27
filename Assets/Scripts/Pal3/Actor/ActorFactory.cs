@@ -124,7 +124,6 @@ namespace Pal3.Actor
             ActorActionController actionController;
             switch (actor.AnimationType)
             {
-                // All combat actor is vertex animated
                 case ActorAnimationType.Vertex:
                 {
                     VertexAnimationActorActionController vertexActionController =
@@ -136,6 +135,17 @@ namespace Pal3.Actor
                         autoStand: true, // combat actor always auto stand
                         canPerformHoldAnimation: false); // combat actor can't perform hold animation
                     actionController = vertexActionController;
+                    break;
+                }
+                case ActorAnimationType.Skeletal:
+                {
+                    SkeletalAnimationActorActionController skeletalActionController =
+                        actorGameObject.AddComponent<SkeletalAnimationActorActionController>();
+                    skeletalActionController.Init(resourceProvider,
+                        actor,
+                        hasColliderAndRigidBody: false, // combat actor has no collider and rigidbody
+                        isDropShadowEnabled);
+                    actionController = skeletalActionController;
                     break;
                 }
                 default:
