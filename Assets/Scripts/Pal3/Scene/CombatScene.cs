@@ -14,6 +14,7 @@ namespace Pal3.Scene
     using Core.DataReader.Pol;
     using Core.GameBox;
     using Data;
+    using GameSystems.Combat;
     using MetaData;
     using Rendering.Material;
     using Rendering.Renderer;
@@ -36,7 +37,7 @@ namespace Pal3.Scene
         private (PolFile PolFile, ITextureResourceProvider TextureProvider) _scenePolyMesh;
         private CombatConfigFile _combatConfigFile;
 
-        private static readonly Quaternion MonsterFormationRotation = Quaternion.Euler(0, 145, 0);
+        private static readonly Quaternion EnemyFormationRotation = Quaternion.Euler(0, 145, 0);
         private static readonly Quaternion PlayerFormationRotation = Quaternion.Euler(0, -45, 0);
 
         public void Init(GameResourceProvider resourceProvider)
@@ -86,8 +87,9 @@ namespace Pal3.Scene
                 isStaticObject: true); // Combat Scene mesh is static
         }
 
-        public void LoadActors(Dictionary<int, CombatActorInfo> monsterActors,
-            Dictionary<int, CombatActorInfo> playerActors)
+        public void LoadActors(Dictionary<int, CombatActorInfo> enemyActors,
+            Dictionary<int, CombatActorInfo> playerActors,
+            MeetType meetType)
         {
             foreach ((int positionIndex, CombatActorInfo actorInfo) in playerActors)
             {
@@ -106,10 +108,12 @@ namespace Pal3.Scene
                     _combatConfigFile.ActorGameBoxPositions[positionIndex]);
 
                 combatActorGameObject.transform.SetPositionAndRotation(position,
-                    PlayerFormationRotation);
+                    meetType is MeetType.PlayerChasingEnemy or MeetType.RunningIntoEachOther
+                        ? PlayerFormationRotation
+                        : EnemyFormationRotation);
             }
 
-            foreach ((int positionIndex, CombatActorInfo actorInfo) in monsterActors)
+            foreach ((int positionIndex, CombatActorInfo actorInfo) in enemyActors)
             {
                 CombatActor combatActor = new CombatActor(_resourceProvider, actorInfo);
                 GameObject combatActorGameObject = ActorFactory.CreateCombatActorGameObject(
@@ -123,7 +127,9 @@ namespace Pal3.Scene
                     _combatConfigFile.ActorGameBoxPositions[5 + positionIndex]);
 
                 combatActorGameObject.transform.SetPositionAndRotation(position,
-                    MonsterFormationRotation);
+                    meetType is MeetType.EnemyChasingPlayer or MeetType.RunningIntoEachOther
+                        ? EnemyFormationRotation
+                        : PlayerFormationRotation);
             }
         }
     }

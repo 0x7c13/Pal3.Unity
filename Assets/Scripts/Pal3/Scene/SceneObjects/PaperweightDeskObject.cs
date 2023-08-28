@@ -47,6 +47,8 @@ namespace Pal3.Scene.SceneObjects
                    ObjectInfo.Times > 0;
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             if (!_deskIdToRequiredItemIdMap.ContainsKey(ObjectInfo.Id)) yield break;

@@ -50,6 +50,10 @@ namespace Pal3.Scene.SceneObjects
             RequestForInteraction();
         }
 
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameObject playerActorGameObject = ctx.PlayerActorGameObject;

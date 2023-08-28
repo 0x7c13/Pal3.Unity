@@ -236,21 +236,11 @@ namespace Pal3.Scene.SceneObjects
             return _sceneObjectGameObject;
         }
 
-        public virtual bool IsDirectlyInteractable(float distance)
-        {
-            return false;
-        }
+        public abstract bool IsDirectlyInteractable(float distance);
 
-        public virtual bool ShouldGoToCutsceneWhenInteractionStarted()
-        {
-            return true;
-        }
+        public abstract bool ShouldGoToCutsceneWhenInteractionStarted();
 
-        public virtual IEnumerator InteractAsync(InteractionContext ctx)
-        {
-            // Do nothing
-            yield break;
-        }
+        public abstract IEnumerator InteractAsync(InteractionContext ctx);
 
         /// <summary>
         /// Should be called after the child class has finished its own deactivation.

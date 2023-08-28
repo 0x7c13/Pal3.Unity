@@ -76,6 +76,8 @@ namespace Pal3.Scene.SceneObjects
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
         }
 
+        public override bool IsDirectlyInteractable(float distance) => false;
+
         public override bool ShouldGoToCutsceneWhenInteractionStarted()
         {
             return false; // Bridge can extend itself in gameplay mode

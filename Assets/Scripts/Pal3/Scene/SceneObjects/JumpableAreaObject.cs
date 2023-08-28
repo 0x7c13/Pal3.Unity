@@ -5,6 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Common;
     using Core.Contracts;
     using Core.DataReader.Scn;
@@ -49,6 +50,15 @@ namespace Pal3.Scene.SceneObjects
         private void OnPlayerActorExited(object sender, Vector2Int actorTilePosition)
         {
             _gamePlayManager.PlayerActorExitedJumpableArea();
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            yield break;
         }
 
         public override void Deactivate()

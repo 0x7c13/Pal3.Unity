@@ -12,7 +12,7 @@ jobs:
         targetPlatform:
           - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
     steps:
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3.6.0
         with:
           fetch-depth: 0
           lfs: true
@@ -33,7 +33,7 @@ jobs:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
           restore-keys: Library-
-      - uses: game-ci/unity-builder@v2
+      - uses: game-ci/unity-builder@v3
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:

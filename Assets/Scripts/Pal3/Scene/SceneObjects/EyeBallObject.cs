@@ -7,6 +7,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Command;
     using Command.InternalCommands;
     using Common;
@@ -43,6 +44,15 @@ namespace Pal3.Scene.SceneObjects
             Vector3 actorPosition = _tilemap.GetWorldPosition(command.Position, command.LayerIndex);
             actorPosition.y += 3f; // 3f is about the height of the player actor
             eyeBallGameObject.transform.LookAt(actorPosition);
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            yield break;
         }
 
         public override void Deactivate()

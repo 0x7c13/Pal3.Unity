@@ -7,6 +7,7 @@
 
 namespace Pal3.Scene.SceneObjects
 {
+    using System.Collections;
     using Common;
     using Core.Contracts;
     using Core.DataReader.Scn;
@@ -17,6 +18,15 @@ namespace Pal3.Scene.SceneObjects
         public PaperweightObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => false;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            yield break;
         }
     }
 }

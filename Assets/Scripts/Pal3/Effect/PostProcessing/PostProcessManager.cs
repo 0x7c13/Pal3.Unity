@@ -15,6 +15,9 @@ namespace Pal3.Effect.PostProcessing
 
     public sealed class PostProcessManager : IDisposable,
         ICommandExecutor<EffectSetScreenEffectCommand>,
+        ICommandExecutor<EffectShowSnowCommand>,
+        ICommandExecutor<ScenePostLoadingNotification>,
+        ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
@@ -27,6 +30,7 @@ namespace Pal3.Effect.PostProcessing
         private readonly ColorGrading _colorGrading;
         private readonly Vignette _vignette;
         private readonly Distortion _distortion;
+        private readonly Snow _snow;
 
         private int _currentAppliedEffectMode = -1;
 
@@ -55,6 +59,10 @@ namespace Pal3.Effect.PostProcessing
                 _distortion = _postProcessVolume.profile.GetSetting<Distortion>();
                 _distortion.active = false;
             }
+
+            // Snow effect is controlled by pre-configured scene list
+            _snow = _postProcessVolume.profile.GetSetting<Snow>();
+            _snow.active = false;
 
             TogglePostProcessLayerWhenNeeded();
 
@@ -159,6 +167,36 @@ namespace Pal3.Effect.PostProcessing
                 ToggleAmbientOcclusionBasedOnSetting();
                 TogglePostProcessLayerWhenNeeded();
             }
+        }
+
+        public void Execute(EffectShowSnowCommand command)
+        {
+            // Ignoring this command since now we control the snow effect based
+            // on pre-configured scene list
+        }
+
+        public void Execute(ScenePostLoadingNotification command)
+        {
+            #if PAL3
+            if (command.NewSceneInfo.Is("q15", "q15") ||
+                command.NewSceneInfo.IsCity("m22"))
+            {
+                _snow.active = true;
+            }
+            #elif PAL3A
+            if (command.NewSceneInfo.Is("q02", "hs") ||
+                command.NewSceneInfo.Is("q02", "qs") ||
+                command.NewSceneInfo.Is("q02", "xs") ||
+                command.NewSceneInfo.Is("q02", "zs"))
+            {
+                _snow.active = true;
+            }
+            #endif
+        }
+
+        public void Execute(SceneLeavingCurrentSceneNotification command)
+        {
+            _snow.active = false;
         }
     }
 }

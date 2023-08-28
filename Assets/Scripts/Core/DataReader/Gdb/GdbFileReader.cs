@@ -87,7 +87,7 @@ namespace Core.DataReader.Gdb
             var experience = reader.ReadInt32();
             var money = reader.ReadUInt16();
             _ = reader.ReadUInt16(); // padding
-            var normalAttackActionId = reader.ReadUInt32();
+            var normalAttackModeId = reader.ReadUInt32();
             var heightLevel = reader.ReadByte();
             var moveRangeLevel = reader.ReadByte();
             var attackRangeLevel = reader.ReadByte();
@@ -127,7 +127,7 @@ namespace Core.DataReader.Gdb
                 MainActorFavor = mainActorFavor,
                 Experience = experience,
                 Money = money,
-                NormalAttackActionId = normalAttackActionId,
+                NormalAttackModeId = normalAttackModeId,
                 HeightLevel = heightLevel,
                 MoveRangeLevel = moveRangeLevel,
                 AttackRangeLevel = attackRangeLevel,

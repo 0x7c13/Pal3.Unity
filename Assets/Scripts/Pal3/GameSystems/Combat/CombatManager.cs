@@ -70,13 +70,13 @@ namespace Pal3.GameSystems.Combat
 
             CombatScene scene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
 
-            Dictionary<int, CombatActorInfo> monsterActors = new ();
+            Dictionary<int, CombatActorInfo> enemyActors = new ();
 
-            for (int i = 0; i < combatContext.MonsterIds.Length; i++)
+            for (int i = 0; i < combatContext.EnemyIds.Length; i++)
             {
-                var monsterActorId = combatContext.MonsterIds[i];
-                if (monsterActorId == 0) continue;
-                monsterActors[i] = _combatActorInfos[(int)monsterActorId];
+                var enemyActorId = combatContext.EnemyIds[i];
+                if (enemyActorId == 0) continue;
+                enemyActors[i] = _combatActorInfos[(int)enemyActorId];
             }
 
             Dictionary<int, CombatActorInfo> playerActors = new ();
@@ -87,11 +87,19 @@ namespace Pal3.GameSystems.Combat
                 playerActors[positionIndex++] = _combatActorInfos[combatActorId];
             }
 
-            scene.LoadActors(monsterActors, playerActors);
+            scene.LoadActors(enemyActors, playerActors, combatContext.MeetType);
 
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
+
+            if (combatContext.MeetType != MeetType.RunningIntoEachOther)
+            {
+                CommandDispatcher<ICommand>.Instance.Dispatch(
+                    new UIDisplayNoteCommand(combatContext.MeetType == MeetType.PlayerChasingEnemy
+                        ? "偷袭敌方成功！"
+                        : "被敌人偷袭！"));
+            }
         }
 
         public void ExitCombat()

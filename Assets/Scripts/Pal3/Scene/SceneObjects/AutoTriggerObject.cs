@@ -90,6 +90,8 @@ namespace Pal3.Scene.SceneObjects
             _isInteractionInProgress = false;
         }
 
+        public override bool IsDirectlyInteractable(float distance) => false;
+
         public override bool ShouldGoToCutsceneWhenInteractionStarted()
         {
             // If object has a linked object, we should go to cutscene

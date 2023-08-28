@@ -6,6 +6,7 @@
 namespace Pal3.Scene.SceneObjects
 {
     using System;
+    using System.Collections;
     using Common;
     using Core.Contracts;
     using Core.DataReader.Scn;
@@ -87,6 +88,15 @@ namespace Pal3.Scene.SceneObjects
             #endif
 
             return sceneGameObject;
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => false;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            yield break;
         }
 
         public override void Deactivate()

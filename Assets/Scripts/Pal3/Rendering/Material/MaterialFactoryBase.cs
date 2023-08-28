@@ -53,6 +53,6 @@ namespace Pal3.Rendering.Material
             }
         }
 
-        protected virtual void ReturnToPool(Material material) { }
+        protected abstract void ReturnToPool(Material material);
     }
 }

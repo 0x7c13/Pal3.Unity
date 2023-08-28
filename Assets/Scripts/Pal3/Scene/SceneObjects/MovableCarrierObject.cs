@@ -86,12 +86,17 @@ namespace Pal3.Scene.SceneObjects
             }
         }
 
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             #if PAL3
             if (SceneInfo.Is("m23", "5") &&
                 ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
             {
+                // TODO: Remove this and implement the correct logic
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("中途不停车哦~"));
             }
             #endif

@@ -3,8 +3,6 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-using Core.Extensions;
-
 namespace Pal3.Effect.PostProcessing
 {
     using System;
@@ -12,58 +10,34 @@ namespace Pal3.Effect.PostProcessing
     using UnityEngine.Rendering.PostProcessing;
 
     [Serializable]
-    [PostProcess(typeof(SnowRenderer), PostProcessEvent.AfterStack, "Pal3/Snow")]
+    [PostProcess(typeof(SnowEffectRenderer), PostProcessEvent.AfterStack, "Pal3/Snow")]
     public sealed class Snow : PostProcessEffectSettings
     {
-        // Blizzard
-        // #define LAYERS 200
-        // #define DEPTH .1
-        // #define WIDTH .8
-        // #define SPEED 1.5
-        
-        // Light Snow
-        // _Layers ("Layers",int) = 50
-        // _Depth ("Depth",float) = 0.5
-        // _Width("Width",float) = 0.3
-        // _Speed("Speed",float) = 0.6
-        
-        [Range(0,200),Tooltip("Layers")]
-        public IntParameter Layers = new() { value = 50 };
+        [Range(0.1f, 5.0f), Tooltip("Snow falling speed [X axis]")]
+        public FloatParameter xSpeed = new() { value = 2.0f };
 
-        [Range(0.0f, 1.0f), Tooltip("Depth")] 
-        public FloatParameter Depth = new() { value = 0.5f };
-        
-        [Range(0.0f, 1.0f), Tooltip("Width")] 
-        public FloatParameter Width = new() { value = 0.3f };
-
-        [Range(0.0f, 2.0f), Tooltip("Speed")] 
-        public FloatParameter Speed = new() { value = 0.6f };
-
+        [Range(0.1f, 5.0f), Tooltip("Snow falling speed [Y axis]")]
+        public FloatParameter ySpeed = new() { value = 1.0f };
     }
 
-    public sealed class SnowRenderer : PostProcessEffectRenderer<Snow>
+    public sealed class SnowEffectRenderer : PostProcessEffectRenderer<Snow>
     {
-        private static readonly int LayersPropertyId = Shader.PropertyToID("_Layers");
-        private static readonly int DepthPropertyId = Shader.PropertyToID("_Depth");
-        private static readonly int WidthPropertyId = Shader.PropertyToID("_Width");
-        private static readonly int SpeedPropertyId = Shader.PropertyToID("_Speed");
-        
+        private static readonly int XSpeedPropertyId = Shader.PropertyToID("_xSpeed");
+        private static readonly int YSpeedPropertyId = Shader.PropertyToID("_ySpeed");
+
         private Shader _shader;
 
         public override void Init()
         {
-            _shader = Shader.Find("Pal3/PostEffectSnow");
+            _shader = Shader.Find("Pal3/Snow");
             base.Init();
         }
 
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(_shader);
-            
-            sheet.properties.SetFloat(LayersPropertyId, settings.Layers);
-            sheet.properties.SetFloat(DepthPropertyId, settings.Depth);
-            sheet.properties.SetFloat(WidthPropertyId, settings.Width);
-            sheet.properties.SetFloat(SpeedPropertyId, settings.Speed);
+            sheet.properties.SetFloat(XSpeedPropertyId, settings.xSpeed);
+            sheet.properties.SetFloat(YSpeedPropertyId, settings.ySpeed);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
     }

@@ -51,6 +51,8 @@ namespace Pal3.Scene.SceneObjects
                    ObjectInfo is {Times: > 0};
         }
 
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
         public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
             if (IsActivated) return GetGameObject();
