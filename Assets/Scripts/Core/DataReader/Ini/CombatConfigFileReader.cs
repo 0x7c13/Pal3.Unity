@@ -32,7 +32,7 @@ namespace Core.DataReader.Ini
             IniData iniData = parser.ReadData(reader);
 
             var actorGameBoxPositions = new Vector3[10];
-            FiveElementsFormationConfig playerFormationConfig = default;
+            FiveElementsFormationConfig allyFormationConfig = default;
             FiveElementsFormationConfig enemyFormationConfig = default;
             int[] levelExperienceTable = new int[100];
 
@@ -74,7 +74,7 @@ namespace Core.DataReader.Ini
                     }
                     else
                     {
-                        playerFormationConfig = config;
+                        allyFormationConfig = config;
                     }
                 }
 
@@ -89,8 +89,8 @@ namespace Core.DataReader.Ini
             }
 
             return new CombatConfigFile(actorGameBoxPositions,
+                allyFormationConfig,
                 enemyFormationConfig,
-                playerFormationConfig,
                 levelExperienceTable);
         }
     }

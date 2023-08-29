@@ -7,6 +7,7 @@ namespace Pal3.GameSystems.Combat
 {
     using System;
     using System.Collections.Generic;
+    using Actor.Controllers;
     using Command;
     using Command.SceCommands;
     using Core.Contracts;
@@ -41,6 +42,8 @@ namespace Pal3.GameSystems.Combat
         private Quaternion _cameraRotationBeforeCombat;
         private float _cameraFovBeforeCombat;
 
+        private CombatScene _combatScene;
+
         public CombatManager(GameResourceProvider resourceProvider,
             TeamManager teamManager,
             Camera mainCamera,
@@ -68,26 +71,26 @@ namespace Pal3.GameSystems.Combat
                     new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
             }
 
-            CombatScene scene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
+            _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
 
-            Dictionary<int, CombatActorInfo> enemyActors = new ();
+            Dictionary<CombatSceneElementPosition, CombatActorInfo> combatActors = new ();
+
+            int positionIndex = 0;
+            foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
+            {
+                var combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
+                combatActors[(CombatSceneElementPosition)positionIndex++] = _combatActorInfos[combatActorId];
+            }
 
             for (int i = 0; i < combatContext.EnemyIds.Length; i++)
             {
                 var enemyActorId = combatContext.EnemyIds[i];
                 if (enemyActorId == 0) continue;
-                enemyActors[i] = _combatActorInfos[(int)enemyActorId];
+                combatActors[(CombatSceneElementPosition)((int)CombatSceneElementPosition.EnemyWater + i)] =
+                    _combatActorInfos[(int)enemyActorId];
             }
 
-            Dictionary<int, CombatActorInfo> playerActors = new ();
-            int positionIndex = 0;
-            foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
-            {
-                var combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
-                playerActors[positionIndex++] = _combatActorInfos[combatActorId];
-            }
-
-            scene.LoadActors(enemyActors, playerActors, combatContext.MeetType);
+            _combatScene.LoadActors(combatActors, combatContext.MeetType);
 
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
 
@@ -141,6 +144,24 @@ namespace Pal3.GameSystems.Combat
             {
                 OnCombatFinished?.Invoke(this, false);
             }
+
+            // if (Keyboard.current.f5Key.wasPressedThisFrame)
+            // {
+            //     CombatActorController enemyController = null;
+            //
+            //     for (int i = (int)CombatSceneElementPosition.EnemyWater; i <= (int)CombatSceneElementPosition.EnemyCenter; i++)
+            //     {
+            //         if (_combatScene.GetCombatActorController((CombatSceneElementPosition)i) is {} controller)
+            //         {
+            //             enemyController = controller;
+            //             break;
+            //         }
+            //     }
+            //
+            //     var allyController = _combatScene.GetCombatActorController(CombatSceneElementPosition.AllyWater);
+            //
+            //     Pal3.Instance.StartCoroutine(allyController.StartNormalAttackAsync(enemyController, _combatScene));
+            // }
         }
     }
 }

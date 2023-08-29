@@ -11,6 +11,7 @@ namespace Pal3.Actor
     using Core.Contracts;
     using Data;
     using Dev.Presenters;
+    using GameSystems.Combat;
     using Scene;
     using UnityEngine;
 
@@ -111,6 +112,7 @@ namespace Pal3.Actor
 
         public static GameObject CreateCombatActorGameObject(GameResourceProvider resourceProvider,
             CombatActor actor,
+            CombatSceneElementPosition elementPosition,
             bool isDropShadowEnabled)
         {
             var actorGameObject = new GameObject($"CombatActor_{actor.Id}_{actor.Name}");
@@ -153,7 +155,7 @@ namespace Pal3.Actor
             }
 
             var actorController = actorGameObject.AddComponent<CombatActorController>();
-            actorController.Init(actor, actionController);
+            actorController.Init(actor, actionController, elementPosition);
             actorController.IsActive = true; // combat actor is always active
 
             return actorGameObject;

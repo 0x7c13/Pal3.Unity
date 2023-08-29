@@ -23,14 +23,28 @@ namespace Pal3.Actor
 
         public string GetPreAttackAction()
         {
-            if (Info.Type == CombatActorType.MainActor)
-            {
-                return ActorConstants.ActionToNameMap[ActorActionType.PreAttack];
-            }
-            else
-            {
-                return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
-            }
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.PreAttack] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
+        }
+
+        public string GetCombatMovementAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.AttackMove] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcRun];
+        }
+
+        public string GetCombatAttackAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.Attack1] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcAttack];
+        }
+
+        public float GetCombatMovementSpeed()
+        {
+            return 12f;
         }
     }
 }

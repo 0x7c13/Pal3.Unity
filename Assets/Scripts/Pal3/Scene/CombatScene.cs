@@ -7,6 +7,8 @@ namespace Pal3.Scene
 {
     using System.Collections.Generic;
     using Actor;
+    using Actor.Controllers;
+    using Core.Contracts;
     using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Gdb;
@@ -32,13 +34,13 @@ namespace Pal3.Scene
 
         private GameObject _parent;
         private GameObject _mesh;
-        private Light _mainLight;
 
-        private (PolFile PolFile, ITextureResourceProvider TextureProvider) _scenePolyMesh;
         private CombatConfigFile _combatConfigFile;
 
         private static readonly Quaternion EnemyFormationRotation = Quaternion.Euler(0, 145, 0);
         private static readonly Quaternion PlayerFormationRotation = Quaternion.Euler(0, -45, 0);
+
+        private Dictionary<CombatSceneElementPosition, CombatActorController> _combatActorControllers;
 
         public void Init(GameResourceProvider resourceProvider)
         {
@@ -65,12 +67,10 @@ namespace Pal3.Scene
             PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(meshFileRelativeFolderPath +
                 CpkConstants.DirectorySeparatorChar + combatSceneName.ToLower() + ".pol");
 
-            _scenePolyMesh = (polFile, sceneTextureProvider);
-
-            RenderMesh();
+            RenderMesh(polFile, sceneTextureProvider);
         }
 
-        private void RenderMesh()
+        private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
         {
             // Render mesh
             _mesh = new GameObject($"Mesh_{_combatSceneName}")
@@ -81,55 +81,82 @@ namespace Pal3.Scene
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             _mesh.transform.SetParent(_parent.transform, false);
 
-            polyMeshRenderer.Render(_scenePolyMesh.PolFile,
-                _scenePolyMesh.TextureProvider,
+            polyMeshRenderer.Render(polFile,
+                textureProvider,
                 _materialFactory,
                 isStaticObject: true); // Combat Scene mesh is static
         }
 
-        public void LoadActors(Dictionary<int, CombatActorInfo> enemyActors,
-            Dictionary<int, CombatActorInfo> playerActors,
+        public Vector3 GetWorldPosition(CombatSceneElementPosition position)
+        {
+            int positionIndex = (int) position;
+
+            if (position >= CombatSceneElementPosition.EnemyWater)
+            {
+                positionIndex--;
+            }
+
+            return position switch
+            {
+                CombatSceneElementPosition.AllyCenter =>
+                    GameBoxInterpreter.ToUnityPosition(_combatConfigFile
+                        .AllyFormationConfig.CenterGameBoxPosition),
+                CombatSceneElementPosition.EnemyCenter =>
+                    GameBoxInterpreter.ToUnityPosition(_combatConfigFile
+                        .EnemyFormationConfig.CenterGameBoxPosition),
+                _ => GameBoxInterpreter.ToUnityPosition(_combatConfigFile
+                        .ActorGameBoxPositions[positionIndex])
+            };
+        }
+
+        public CombatActorController GetCombatActorController(CombatSceneElementPosition elementPosition)
+        {
+            return _combatActorControllers.TryGetValue(elementPosition,
+                out CombatActorController combatActorController) ? combatActorController : null;
+        }
+
+        public void LoadActors(Dictionary<CombatSceneElementPosition, CombatActorInfo> combatActors,
             MeetType meetType)
         {
-            foreach ((int positionIndex, CombatActorInfo actorInfo) in playerActors)
+            _combatActorControllers = new Dictionary<CombatSceneElementPosition, CombatActorController>();
+
+            foreach ((CombatSceneElementPosition elementPosition, CombatActorInfo actorInfo) in combatActors)
             {
                 CombatActorInfo combatActorInfo = actorInfo;
-                combatActorInfo.ModelId = combatActorInfo.Id.ToString();
+
+                if (combatActorInfo.Type == CombatActorType.MainActor)
+                {
+                    // Player actor's model id is not set in the file but it is equal
+                    // to its id in string format
+                    combatActorInfo.ModelId = combatActorInfo.Id.ToString();
+                }
 
                 CombatActor combatActor = new CombatActor(_resourceProvider, combatActorInfo);
                 GameObject combatActorGameObject = ActorFactory.CreateCombatActorGameObject(
                     _resourceProvider,
                     combatActor,
+                    elementPosition,
                     isDropShadowEnabled: !_isLightingEnabled);
                 combatActorGameObject.transform.SetParent(_parent.transform, false);
 
-                Vector3 position = GameBoxInterpreter.ToUnityPosition(positionIndex == 5 ?
-                    _combatConfigFile.PlayerFormationConfig.CenterGameBoxPosition :
-                    _combatConfigFile.ActorGameBoxPositions[positionIndex]);
+                Quaternion rotation;
 
-                combatActorGameObject.transform.SetPositionAndRotation(position,
-                    meetType is MeetType.PlayerChasingEnemy or MeetType.RunningIntoEachOther
+                if (elementPosition <= CombatSceneElementPosition.AllyCenter)
+                {
+                    rotation = meetType is MeetType.PlayerChasingEnemy or MeetType.RunningIntoEachOther
                         ? PlayerFormationRotation
-                        : EnemyFormationRotation);
-            }
-
-            foreach ((int positionIndex, CombatActorInfo actorInfo) in enemyActors)
-            {
-                CombatActor combatActor = new CombatActor(_resourceProvider, actorInfo);
-                GameObject combatActorGameObject = ActorFactory.CreateCombatActorGameObject(
-                    _resourceProvider,
-                    combatActor,
-                    isDropShadowEnabled: !_isLightingEnabled);
-                combatActorGameObject.transform.SetParent(_parent.transform, false);
-
-                Vector3 position = GameBoxInterpreter.ToUnityPosition(positionIndex == 5 ?
-                    _combatConfigFile.EnemyFormationConfig.CenterGameBoxPosition :
-                    _combatConfigFile.ActorGameBoxPositions[5 + positionIndex]);
-
-                combatActorGameObject.transform.SetPositionAndRotation(position,
-                    meetType is MeetType.EnemyChasingPlayer or MeetType.RunningIntoEachOther
+                        : EnemyFormationRotation;
+                }
+                else
+                {
+                    rotation = meetType is MeetType.EnemyChasingPlayer or MeetType.RunningIntoEachOther
                         ? EnemyFormationRotation
-                        : PlayerFormationRotation);
+                        : PlayerFormationRotation;
+                }
+
+                combatActorGameObject.transform.SetPositionAndRotation(GetWorldPosition(elementPosition), rotation);
+
+                _combatActorControllers[elementPosition] = combatActorGameObject.GetComponent<CombatActorController>();
             }
         }
     }

@@ -214,7 +214,7 @@ namespace Core.DataReader.Gdb
         public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
         #if PAL3A
-        public int Unknown;  // 三外特有数据 暂时未知 猜测是需要气的总数值？
+        public int Unknown;  // 三外新增数据 暂时未知
         #endif
     }
 

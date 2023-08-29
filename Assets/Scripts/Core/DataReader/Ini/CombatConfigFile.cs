@@ -17,20 +17,20 @@ namespace Core.DataReader.Ini
     {
         public Vector3[] ActorGameBoxPositions { get; }
 
-        public FiveElementsFormationConfig EnemyFormationConfig { get; }
+        public FiveElementsFormationConfig AllyFormationConfig { get; }
 
-        public FiveElementsFormationConfig PlayerFormationConfig { get; }
+        public FiveElementsFormationConfig EnemyFormationConfig { get; }
 
         public int[] LevelExperienceTable { get; }
 
         public CombatConfigFile(Vector3[] actorGameBoxPositions,
+            FiveElementsFormationConfig allyFormationConfig,
             FiveElementsFormationConfig enemyFormationConfig,
-            FiveElementsFormationConfig playerFormationConfig,
             int[] levelExperienceTable)
         {
             ActorGameBoxPositions = actorGameBoxPositions;
+            AllyFormationConfig = allyFormationConfig;
             EnemyFormationConfig = enemyFormationConfig;
-            PlayerFormationConfig = playerFormationConfig;
             LevelExperienceTable = levelExperienceTable;
         }
     }
