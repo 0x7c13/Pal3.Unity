@@ -22,6 +22,7 @@ namespace Pal3.GameSystems.Combat
     using Team;
     using UnityEngine;
     using UnityEngine.InputSystem;
+    using Random = UnityEngine.Random;
 
     public sealed class CombatManager
     {
@@ -73,20 +74,20 @@ namespace Pal3.GameSystems.Combat
 
             _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
 
-            Dictionary<CombatSceneElementPosition, CombatActorInfo> combatActors = new ();
+            Dictionary<ElementPosition, CombatActorInfo> combatActors = new ();
 
             int positionIndex = 0;
             foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
             {
                 var combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
-                combatActors[(CombatSceneElementPosition)positionIndex++] = _combatActorInfos[combatActorId];
+                combatActors[(ElementPosition)positionIndex++] = _combatActorInfos[combatActorId];
             }
 
             for (int i = 0; i < combatContext.EnemyIds.Length; i++)
             {
                 var enemyActorId = combatContext.EnemyIds[i];
                 if (enemyActorId == 0) continue;
-                combatActors[(CombatSceneElementPosition)((int)CombatSceneElementPosition.EnemyWater + i)] =
+                combatActors[(ElementPosition)((int)ElementPosition.EnemyWater + i)] =
                     _combatActorInfos[(int)enemyActorId];
             }
 
@@ -136,32 +137,63 @@ namespace Pal3.GameSystems.Combat
 
         public void Update(float deltaTime)
         {
-            if (Keyboard.current.f1Key.wasPressedThisFrame)
+            if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 OnCombatFinished?.Invoke(this, true);
             }
-            else if (Keyboard.current.f2Key.wasPressedThisFrame)
+
+            CombatActorController fromController = null;
+            int fromPosition = (int)ElementPosition.AllyWater;
+
+            if (Keyboard.current.ctrlKey.isPressed)
             {
-                OnCombatFinished?.Invoke(this, false);
+                fromPosition = (int)ElementPosition.EnemyWater;
             }
 
-            // if (Keyboard.current.f5Key.wasPressedThisFrame)
-            // {
-            //     CombatActorController enemyController = null;
-            //
-            //     for (int i = (int)CombatSceneElementPosition.EnemyWater; i <= (int)CombatSceneElementPosition.EnemyCenter; i++)
-            //     {
-            //         if (_combatScene.GetCombatActorController((CombatSceneElementPosition)i) is {} controller)
-            //         {
-            //             enemyController = controller;
-            //             break;
-            //         }
-            //     }
-            //
-            //     var allyController = _combatScene.GetCombatActorController(CombatSceneElementPosition.AllyWater);
-            //
-            //     Pal3.Instance.StartCoroutine(allyController.StartNormalAttackAsync(enemyController, _combatScene));
-            // }
+            if (Keyboard.current.f1Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)fromPosition);
+            }
+            else if (Keyboard.current.f2Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 1));
+            }
+            else if (Keyboard.current.f3Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 2));
+            }
+            else if (Keyboard.current.f4Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 3));
+            }
+            else if (Keyboard.current.f5Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 4));
+            }
+            else if (Keyboard.current.f6Key.wasPressedThisFrame)
+            {
+                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 5));
+            }
+
+            if (fromController != null)
+            {
+                CombatActorController toController = null;
+
+                while (true)
+                {
+                    var toPosition = (ElementPosition)Random.Range(
+                        (int) (fromPosition == 0 ? ElementPosition.EnemyWater : ElementPosition.AllyWater),
+                        (int) (fromPosition == 0 ? ElementPosition.EnemyCenter : ElementPosition.AllyCenter + 1));
+
+                    if (_combatScene.GetCombatActorController(toPosition) is {} controller)
+                    {
+                        toController = controller;
+                        break;
+                    }
+                }
+
+                Pal3.Instance.StartCoroutine(fromController.StartNormalAttackAsync(toController, _combatScene));
+            }
         }
     }
 }

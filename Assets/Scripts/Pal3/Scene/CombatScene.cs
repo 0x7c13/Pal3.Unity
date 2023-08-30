@@ -40,7 +40,7 @@ namespace Pal3.Scene
         private static readonly Quaternion EnemyFormationRotation = Quaternion.Euler(0, 145, 0);
         private static readonly Quaternion PlayerFormationRotation = Quaternion.Euler(0, -45, 0);
 
-        private Dictionary<CombatSceneElementPosition, CombatActorController> _combatActorControllers;
+        private Dictionary<ElementPosition, CombatActorController> _combatActorControllers;
 
         public void Init(GameResourceProvider resourceProvider)
         {
@@ -87,21 +87,21 @@ namespace Pal3.Scene
                 isStaticObject: true); // Combat Scene mesh is static
         }
 
-        public Vector3 GetWorldPosition(CombatSceneElementPosition position)
+        public Vector3 GetWorldPosition(ElementPosition position)
         {
             int positionIndex = (int) position;
 
-            if (position >= CombatSceneElementPosition.EnemyWater)
+            if (position >= ElementPosition.EnemyWater)
             {
                 positionIndex--;
             }
 
             return position switch
             {
-                CombatSceneElementPosition.AllyCenter =>
+                ElementPosition.AllyCenter =>
                     GameBoxInterpreter.ToUnityPosition(_combatConfigFile
                         .AllyFormationConfig.CenterGameBoxPosition),
-                CombatSceneElementPosition.EnemyCenter =>
+                ElementPosition.EnemyCenter =>
                     GameBoxInterpreter.ToUnityPosition(_combatConfigFile
                         .EnemyFormationConfig.CenterGameBoxPosition),
                 _ => GameBoxInterpreter.ToUnityPosition(_combatConfigFile
@@ -109,18 +109,18 @@ namespace Pal3.Scene
             };
         }
 
-        public CombatActorController GetCombatActorController(CombatSceneElementPosition elementPosition)
+        public CombatActorController GetCombatActorController(ElementPosition elementPosition)
         {
             return _combatActorControllers.TryGetValue(elementPosition,
                 out CombatActorController combatActorController) ? combatActorController : null;
         }
 
-        public void LoadActors(Dictionary<CombatSceneElementPosition, CombatActorInfo> combatActors,
+        public void LoadActors(Dictionary<ElementPosition, CombatActorInfo> combatActors,
             MeetType meetType)
         {
-            _combatActorControllers = new Dictionary<CombatSceneElementPosition, CombatActorController>();
+            _combatActorControllers = new Dictionary<ElementPosition, CombatActorController>();
 
-            foreach ((CombatSceneElementPosition elementPosition, CombatActorInfo actorInfo) in combatActors)
+            foreach ((ElementPosition elementPosition, CombatActorInfo actorInfo) in combatActors)
             {
                 CombatActorInfo combatActorInfo = actorInfo;
 
@@ -141,7 +141,7 @@ namespace Pal3.Scene
 
                 Quaternion rotation;
 
-                if (elementPosition <= CombatSceneElementPosition.AllyCenter)
+                if (elementPosition <= ElementPosition.AllyCenter)
                 {
                     rotation = meetType is MeetType.PlayerChasingEnemy or MeetType.RunningIntoEachOther
                         ? PlayerFormationRotation

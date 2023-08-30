@@ -5,7 +5,7 @@
 
 namespace Pal3.GameSystems.Combat
 {
-    public enum CombatSceneElementPosition
+    public enum ElementPosition
     {
         AllyWater   = 0,
         AllyFire    = 1,

@@ -112,7 +112,7 @@ namespace Pal3.Actor
 
         public static GameObject CreateCombatActorGameObject(GameResourceProvider resourceProvider,
             CombatActor actor,
-            CombatSceneElementPosition elementPosition,
+            ElementPosition elementPosition,
             bool isDropShadowEnabled)
         {
             var actorGameObject = new GameObject($"CombatActor_{actor.Id}_{actor.Name}");
