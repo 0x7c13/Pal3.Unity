@@ -12,7 +12,7 @@ namespace Pal3.Data
     /// <summary>
     /// Texture2D in-memory cache.
     /// </summary>
-    public class TextureCache
+    public sealed class TextureCache
     {
         private readonly Dictionary<string, (Texture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
 

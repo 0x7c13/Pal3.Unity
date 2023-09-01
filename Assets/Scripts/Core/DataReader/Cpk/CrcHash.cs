@@ -15,10 +15,10 @@ namespace Core.DataReader.Cpk
     /// </summary>
     public sealed class Crc32Hash
     {
-        private const uint CRC_TABLE_MAX = 256;
+        private const uint CRC_TABLE_MAX = 0xFF;
         private const uint POLYNOMIAL = 0x04C11DB7; // CRC seed
 
-        private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX];
+        private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX + 1];
         private bool _initialized;
 
         // Cache the crc32 hash result for string since it's expensive to compute.
@@ -27,7 +27,7 @@ namespace Core.DataReader.Cpk
         public void Init()
         {
             // generate the table of CRC remainders for all possible bytes
-            for (uint i = 0; i < CRC_TABLE_MAX; i++)
+            for (uint i = 0; i <= CRC_TABLE_MAX; i++)
             {
                 var crcAccum = i << 24;
                 for (var j = 0; j < 8; j++)

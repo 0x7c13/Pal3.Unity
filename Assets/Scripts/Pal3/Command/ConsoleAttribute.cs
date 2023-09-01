@@ -10,7 +10,7 @@ namespace Pal3.Command
     /// <summary>
     /// Attribute for enabling the command in console.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class AvailableInConsoleAttribute : Attribute
     {
         public AvailableInConsoleAttribute() { }

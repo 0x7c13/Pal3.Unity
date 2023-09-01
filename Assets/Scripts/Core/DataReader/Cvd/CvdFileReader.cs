@@ -126,13 +126,6 @@ namespace Core.DataReader.Cvd
 
             var keyType = (CvdAnimationKeyType)reader.ReadByte();
 
-            // TODO: I have not seen type other than linear so far,
-            // so I just leave the log on for now.
-            if (keyType != CvdAnimationKeyType.Linear)
-            {
-                Debug.LogError($"Key type: {keyType.ToString()}");
-            }
-
             for (var i = 0; i < numberOfKeys; i++)
             {
                 keyInfos[i] = (keyType, reader.ReadBytes(size));

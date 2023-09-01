@@ -20,7 +20,7 @@ namespace Core.DataReader.Cpk
     /// </summary>
     public sealed class CpkArchive
     {
-        private const uint SUPPORTED_CPK_VERSION = 1;
+        private const uint CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
         private const int CPK_DEFAULT_MAX_NUM_OF_FILE = 32768; // Max number of files per archive
 
@@ -237,7 +237,7 @@ namespace Core.DataReader.Cpk
         private static bool IsValidCpkHeader(CpkHeader header)
         {
             if (header.Label != CPK_HEADER_MAGIC) return false;
-            if (header.Version != SUPPORTED_CPK_VERSION) return false;
+            if (header.Version != CPK_VERSION) return false;
             if (header.TableStart == 0) return false;
             if (header.FileNum > header.MaxFileNum) return false;
             if (header.ValidTableNum > header.MaxTableNum) return false;

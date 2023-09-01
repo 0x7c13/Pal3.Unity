@@ -19,7 +19,7 @@ namespace Pal3.Effect
     using Rendering.Renderer;
     using UnityEngine;
 
-    public class FireEffect : MonoBehaviour, IEffect
+    public sealed class FireEffect : MonoBehaviour, IEffect
     {
         public GameObject EffectGameObject { get; private set; }
         public FireEffectType FireEffectType { get; private set; }

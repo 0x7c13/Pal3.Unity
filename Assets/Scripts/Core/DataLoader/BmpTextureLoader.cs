@@ -43,18 +43,19 @@ namespace Core.DataLoader
         // flip image if height is negative
         private void FlipImage()
         {
-            if (_image.Info.Height > 0)
-                return;
+            if (_image.Info.Height > 0) return;
+
             int w = _image.Info.AbsWidth;
             int h = _image.Info.AbsHeight;
-            int h2 = h / 2;
-            for (int y = 0; y < h2; y++)
+
+            for (int y = 0; y < h / 2; y++)
             {
                 for(int x = 0, o1=y*w, o2=(h-y-1)*w; x < w; x++,o1++,o2++)
                 {
                     (_image.ImageData[o1], _image.ImageData[o2]) = (_image.ImageData[o2], _image.ImageData[o1]);
                 }
             }
+
             _image.Info.Height = h;
         }
     }

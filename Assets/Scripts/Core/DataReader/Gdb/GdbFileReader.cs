@@ -453,11 +453,12 @@ namespace Core.DataReader.Gdb
                 short impactValue = combatStateImpactValues[(int) combatState];
                 if (impactValue != 0)
                 {
-                    combatStateImpacts[combatState] = new CombatStateImpact(
-                        type: combatStateImpactTypes.ContainsKey(combatState)
-                            ? combatStateImpactTypes[combatState]
-                            : CombatStateImpactType.None,
-                        value: impactValue);
+                    combatStateImpacts[combatState] = new CombatStateImpact
+                    {
+                        Type = combatStateImpactTypes.TryGetValue(combatState, out CombatStateImpactType impactType) ?
+                            impactType : CombatStateImpactType.None,
+                        Value = impactValue
+                    };
                 }
             }
 

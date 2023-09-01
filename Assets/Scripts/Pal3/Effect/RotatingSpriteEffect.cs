@@ -11,7 +11,7 @@ namespace Pal3.Effect
     using Core.Extensions;
     using UnityEngine;
 
-    public class RotatingSpriteEffect : MonoBehaviour, IDisposable
+    public sealed class RotatingSpriteEffect : MonoBehaviour, IDisposable
     {
         private GameObject _root;
         private SpriteRenderer _spriteRenderer;

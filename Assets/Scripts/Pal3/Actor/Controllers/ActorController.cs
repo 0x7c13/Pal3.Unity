@@ -42,14 +42,8 @@ namespace Pal3.Actor.Controllers
             get => _actor.IsActive;
             set
             {
-                if (value)
-                {
-                    Activate();
-                }
-                else
-                {
-                    DeActivate();
-                }
+                if (value) Activate();
+                else DeActivate();
 
                 _actor.IsActive = value;
             }

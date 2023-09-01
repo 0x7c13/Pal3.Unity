@@ -7,6 +7,7 @@ namespace Core.Utils
 {
     using System;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using DataReader.Cpk;
     using UnityEngine;
@@ -106,6 +107,7 @@ namespace Core.Utils
             return length == -1 ? buffer : buffer[..length];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Rgb565ToRgb888(ushort rgb565Color, out byte r, out byte g, out byte b)
         {
             var temp = (rgb565Color >> 11) * 255 + 16;

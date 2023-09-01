@@ -21,7 +21,7 @@ namespace Pal3.Actor.Controllers
     using Script.Waiter;
     using UnityEngine;
 
-    public class SkeletalAnimationActorActionController : ActorActionController,
+    public sealed class SkeletalAnimationActorActionController : ActorActionController,
         ICommandExecutor<ActorStopActionCommand>
     {
         private GameResourceProvider _resourceProvider;

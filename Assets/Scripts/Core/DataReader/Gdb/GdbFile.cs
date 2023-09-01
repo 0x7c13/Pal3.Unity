@@ -18,12 +18,6 @@ namespace Core.DataReader.Gdb
     {
         public CombatStateImpactType Type;   // 战斗状态影响类型
         public short Value;                  // 战斗状态影响值
-
-        public CombatStateImpact(CombatStateImpactType type, short value)
-        {
-            Type = type;
-            Value = value;
-        }
     }
 
     public struct GameItemInfo

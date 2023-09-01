@@ -23,7 +23,7 @@ namespace Pal3.Actor.Controllers
     using Script.Waiter;
     using UnityEngine;
 
-    public class VertexAnimationActorActionController : ActorActionController,
+    public sealed class VertexAnimationActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
         ICommandExecutor<ActorStopActionCommand>,
         ICommandExecutor<ActorChangeTextureCommand>

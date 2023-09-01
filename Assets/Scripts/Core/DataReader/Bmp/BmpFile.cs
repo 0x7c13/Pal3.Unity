@@ -18,26 +18,5 @@ namespace Core.DataReader.Bmp
         public uint AMask = 0x00000000;
         public List<Color32> Palette;
         public Color32[] ImageData;
-
-        // private void ReplaceColor(Color32 aColorToSearch, Color32 aReplacementColor)
-        // {
-        //     Color32 s = aColorToSearch;
-        //     for (int i = 0; i < ImageData.Length; i++)
-        //     {
-        //         Color32 c = ImageData[i];
-        //         if (c.r == s.r && c.g == s.g && c.b == s.b && c.a == s.a)
-        //             ImageData[i] = aReplacementColor;
-        //     }
-        // }
-        //
-        // private void ReplaceFirstPixelColor(Color32 aReplacementColor)
-        // {
-        //     ReplaceColor(ImageData[0], aReplacementColor);
-        // }
-        //
-        // public void ReplaceFirstPixelColorWithTransparency()
-        // {
-        //     ReplaceFirstPixelColor(new Color32(0, 0, 0, 0));
-        // }
     }
 }

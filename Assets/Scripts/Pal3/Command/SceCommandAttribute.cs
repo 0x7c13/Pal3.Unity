@@ -13,7 +13,7 @@ namespace Pal3.Command
     /// Description: Command description
     /// ParameterFlag: SceCommand parameter flag
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class SceCommandAttribute : Attribute
     {
         public SceCommandAttribute(int id, string description, int parameterFlag = 0)

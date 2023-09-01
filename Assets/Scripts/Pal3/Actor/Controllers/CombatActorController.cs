@@ -23,14 +23,8 @@ namespace Pal3.Actor.Controllers
             get => _actor.IsActive;
             set
             {
-                if (value)
-                {
-                    Activate();
-                }
-                else
-                {
-                    DeActivate();
-                }
+                if (value) Activate();
+                else DeActivate();
 
                 _actor.IsActive = value;
             }
@@ -80,10 +74,13 @@ namespace Pal3.Actor.Controllers
             var enemySize = combatActorController.GetActionController().GetMeshBounds().size;
             var enemyRadius = Mathf.Max(enemySize.x, enemySize.z) / 2f;
 
+            var mySize = _actionController.GetMeshBounds().size;
+            var myRadius = Mathf.Max(mySize.x, mySize.z) / 2f;
+
             var targetElementPosition = combatScene.GetWorldPosition(combatActorController.GetElementPosition());
             var myElementPosition = combatScene.GetWorldPosition(GetElementPosition());
 
-            targetElementPosition += (myElementPosition - targetElementPosition).normalized * enemyRadius;
+            targetElementPosition += (myElementPosition - targetElementPosition).normalized * (enemyRadius + myRadius);
 
             var distance = Vector3.Distance(targetElementPosition, myElementPosition);
             var duration = distance / _actor.GetCombatMovementSpeed();
