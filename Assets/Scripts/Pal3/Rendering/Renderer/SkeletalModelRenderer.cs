@@ -189,7 +189,7 @@ namespace Pal3.Rendering.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                uint tick = GameBoxInterpreter.SecondsToTick(Time.timeSinceLevelLoad - startTime);
+                uint tick = (Time.timeSinceLevelLoad - startTime).GameBoxSecondsToTick();
 
                 if (tick >= _movFile.Duration)
                 {
@@ -345,7 +345,7 @@ namespace Pal3.Rendering.Renderer
             }
 
             _indexBuffer[subMeshIndex] = indexBuffer;
-            GameBoxInterpreter.ToUnityTriangles(triangles);
+            triangles.ToUnityTriangles();
 
             Vector3[] vertices = new Vector3[numOfIndices];
             for (var i = 0; i < numOfIndices; i++)

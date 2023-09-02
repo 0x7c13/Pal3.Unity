@@ -94,7 +94,7 @@ namespace Pal3.Scene.SceneObjects
             const float zOffset = 5f; // Move player actor outside the elevator tilemap rect
             var finalPosition = new Vector3(toCenterPosition.x, toCenterPosition.y, toCenterPosition.z + zOffset);
             finalPosition.y = tilemap.TryGetTile(finalPosition, toNavLayer, out var tile)
-                ? GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition)
+                ? tile.GameBoxYPosition.ToUnityYPosition()
                 : finalPosition.y;
 
             yield return actorMovementController.MoveDirectlyToAsync(finalPosition, 0, true);

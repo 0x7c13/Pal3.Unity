@@ -107,9 +107,9 @@ namespace Pal3.Scene.SceneObjects
             // Triggered by other objects
             if (ctx.InitObjectId != ObjectInfo.Id)
             {
-                carrierObject.transform.position = GameBoxInterpreter.ToUnityPosition(isNearFirstWaypoint ?
+                carrierObject.transform.position = (isNearFirstWaypoint ?
                     ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1] :
-                    ObjectInfo.Path.GameBoxWaypoints[0]);
+                    ObjectInfo.Path.GameBoxWaypoints[0]).ToUnityPosition();
 
                 SaveCurrentPosition();
                 yield break;
@@ -156,7 +156,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
                 {
-                    Vector3 waypoint = GameBoxInterpreter.ToUnityPosition(ObjectInfo.Path.GameBoxWaypoints[i]);
+                    Vector3 waypoint = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
                     if (isNearFirstWaypoint)
                     {
                         waypoints.Add(waypoint);
@@ -242,7 +242,7 @@ namespace Pal3.Scene.SceneObjects
 
         private bool IsNearFirstWaypoint()
         {
-            Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(GetGameObject().transform.position);
+            Vector3 gameBoxPosition = GetGameObject().transform.position.ToGameBoxPosition();
             Vector3 firstWaypoint = ObjectInfo.Path.GameBoxWaypoints[0];
             Vector3 lastWaypoint = ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1];
             return Vector3.Distance(gameBoxPosition, firstWaypoint) < Vector3.Distance(gameBoxPosition, lastWaypoint);

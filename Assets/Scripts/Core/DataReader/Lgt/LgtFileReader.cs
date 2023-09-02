@@ -44,7 +44,7 @@ namespace Core.DataReader.Lgt
 
             var lightNode = new LightNode
             {
-                WorldMatrix = GameBoxInterpreter.ToUnityMatrix4x4(transformMatrix),
+                WorldMatrix = transformMatrix.ToUnityMatrix4x4(),
                 LightType = (GameBoxLightType)reader.ReadInt32(),
                 LightColor = Utility.ToColor(reader.ReadSingles(4)),
                 AmbientColor = Utility.ToColor(reader.ReadSingles(4)),

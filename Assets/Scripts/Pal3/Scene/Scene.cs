@@ -229,8 +229,7 @@ namespace Pal3.Scene
                 SceneObject sceneObject = SceneObjects[objectId];
                 if (sceneObject.ObjectInfo.Type == SceneObjectType.JumpableArea &&
                     layerIndex == sceneObject.ObjectInfo.LayerIndex &&
-                    GameBoxInterpreter.IsPointInsideRect(sceneObject.ObjectInfo.TileMapTriggerRect,
-                        tilePosition))
+                    sceneObject.ObjectInfo.TileMapTriggerRect.IsPointInsideRect(tilePosition))
                 {
                     return true;
                 }
@@ -670,7 +669,7 @@ namespace Pal3.Scene
                 }
 
                 GameObject sceneObjectGo = sceneObject.GetGameObject();
-                Vector3 offset = GameBoxInterpreter.ToUnityPosition(gameBoxPositionOffset);
+                Vector3 offset = gameBoxPositionOffset.ToUnityPosition();
                 Vector3 toPosition = sceneObjectGo.transform.position + offset;
                 StartCoroutine(sceneObjectGo.transform.MoveAsync(toPosition, command.Duration));
 
@@ -679,7 +678,7 @@ namespace Pal3.Scene
                     new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         command.ObjectId,
-                        GameBoxInterpreter.ToGameBoxPosition(toPosition)));
+                        toPosition.ToGameBoxPosition()));
             }
             else
             {
@@ -727,8 +726,8 @@ namespace Pal3.Scene
                 command.Green / 255f,
                 command.Blue / 255f,
                 command.Alpha);
-            RenderSettings.fogStartDistance = GameBoxInterpreter.ToUnityDistance(command.StartDistance);
-            RenderSettings.fogEndDistance = GameBoxInterpreter.ToUnityDistance(command.EndDistance);
+            RenderSettings.fogStartDistance = command.StartDistance.ToUnityDistance();
+            RenderSettings.fogEndDistance = command.EndDistance.ToUnityDistance();
             RenderSettings.fog = true;
         }
 

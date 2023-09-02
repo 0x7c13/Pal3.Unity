@@ -116,8 +116,10 @@ namespace Pal3.GameSystems.Combat
 
         private void SetCameraPosition(CombatCameraConfig config)
         {
-            var cameraPosition = GameBoxInterpreter.ToUnityPosition(
-                new Vector3(config.GameBoxPositionX, config.GameBoxPositionY, config.GameBoxPositionZ));
+            var cameraPosition = new Vector3(
+                    config.GameBoxPositionX,
+                    config.GameBoxPositionY,
+                    config.GameBoxPositionZ).ToUnityPosition();
 
             _mainCamera.transform.position = cameraPosition;
 

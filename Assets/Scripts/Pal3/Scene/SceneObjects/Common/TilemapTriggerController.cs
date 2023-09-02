@@ -50,8 +50,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             if (notification.LayerIndex != _layerIndex || notification.MovedByScript) return;
 
-            bool isInsideTriggerArea = GameBoxInterpreter.IsPointInsideRect(
-                _tileMapTriggerRect, notification.Position);
+            bool isInsideTriggerArea = _tileMapTriggerRect.IsPointInsideRect(notification.Position);
 
             if (!isInsideTriggerArea)
             {

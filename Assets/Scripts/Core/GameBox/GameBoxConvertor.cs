@@ -11,71 +11,65 @@ namespace Core.GameBox
     using UnityEngine;
 
     /// <summary>
-    /// Interpreter/convertor to convert GameBox specific rendering related metrics to Unity standard units that fits
+    /// Convertor to convert GameBox specific rendering related metrics to Unity standard units that fits
     /// well with the engine and editor.
     /// </summary>
-    public static class GameBoxInterpreter
+    public static class GameBoxConvertor
     {
         public const float GameBoxUnitToUnityUnit = 20f;
         public const float GameBoxMv3UnitToUnityUnit = 1270f;
         public const uint GameBoxTicksPerSecond = 4800;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToUnityVertex(Vector3 vertex, float scale)
-        {
-            return ToUnityVector3(vertex, scale);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToUnityPosition(Vector3 position, float scale = GameBoxUnitToUnityUnit)
+        public static Vector3 ToUnityPosition(this Vector3 position, float scale = GameBoxUnitToUnityUnit)
         {
             return ToUnityVector3(position, scale);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToUnityDistance(float gameBoxDistance)
+        public static float ToUnityDistance(this float gameBoxDistance)
         {
             return gameBoxDistance / GameBoxUnitToUnityUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToUnityXPosition(float gameBoxXPosition)
+        public static float ToUnityXPosition(this float gameBoxXPosition)
         {
             return -gameBoxXPosition / GameBoxUnitToUnityUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToUnityYPosition(float gameBoxYPosition)
+        public static float ToUnityYPosition(this float gameBoxYPosition)
         {
             return gameBoxYPosition / GameBoxUnitToUnityUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToUnityZPosition(float gameBoxZPosition)
+        public static float ToUnityZPosition(this float gameBoxZPosition)
         {
             return gameBoxZPosition / GameBoxUnitToUnityUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToGameBoxXRotation(float eulerAnglesX)
+        public static float ToGameBoxXEulerAngle(this float xEulerAngle)
         {
-            return eulerAnglesX;
+            return xEulerAngle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToGameBoxYRotation(float eulerAnglesY)
+        public static float ToGameBoxYEulerAngle(this float yEulerAngle)
         {
-            return -eulerAnglesY;
+            return -yEulerAngle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToGameBoxZRotation(float eulerAnglesZ)
+        public static float ToGameBoxZEulerAngle(this float zEulerAngle)
         {
-            return eulerAnglesZ;
+            return zEulerAngle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion ToUnityRotation(Vector3 gameBoxEulerAngles)
+        public static Quaternion ToUnityQuaternion(this Vector3 gameBoxEulerAngles)
         {
             return Quaternion.Euler(
                 gameBoxEulerAngles.x,
@@ -84,7 +78,7 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToGameBoxPosition(Vector3 position, float scale = GameBoxUnitToUnityUnit)
+        public static Vector3 ToGameBoxPosition(this Vector3 position, float scale = GameBoxUnitToUnityUnit)
         {
             return new Vector3(
                 -position.x * scale,
@@ -93,7 +87,7 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 CvdPositionToUnityPosition(Vector3 cvdPosition, float scale = GameBoxUnitToUnityUnit)
+        public static Vector3 CvdPositionToUnityPosition(this Vector3 cvdPosition, float scale = GameBoxUnitToUnityUnit)
         {
             return new Vector3(
                 -cvdPosition.x / scale,
@@ -102,7 +96,7 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 CvdScaleToUnityScale(Vector3 scale)
+        public static Vector3 CvdScaleToUnityScale(this Vector3 scale)
         {
             return new Vector3(
                 scale.x,
@@ -111,7 +105,7 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToUnityNormal(Vector3 normal)
+        public static Vector3 ToUnityNormal(this Vector3 normal)
         {
             return new Vector3(
                 -normal.x,
@@ -120,41 +114,41 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion CvdQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        public static Quaternion CvdQuaternionToUnityQuaternion(this GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Z, -quaternion.Y, quaternion.W);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion Mv3QuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        public static Quaternion Mv3QuaternionToUnityQuaternion(this GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion MovQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        public static Quaternion MovQuaternionToUnityQuaternion(this GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion MshQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        public static Quaternion MshQuaternionToUnityQuaternion(this GameBoxQuaternion quaternion)
         {
             return new Quaternion(-quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion LgtQuaternionToUnityQuaternion(GameBoxQuaternion quaternion)
+        public static Quaternion LgtQuaternionToUnityQuaternion(this GameBoxQuaternion quaternion)
         {
-            var rotation = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);
-            rotation.eulerAngles = new Vector3(rotation.eulerAngles.x + 90f,
-                -rotation.eulerAngles.y,
-                rotation.eulerAngles.z);
-            return rotation;
+            var unityQuaternion = new Quaternion(quaternion.X, quaternion.Y, -quaternion.Z, quaternion.W);
+            unityQuaternion.eulerAngles = new Vector3(unityQuaternion.eulerAngles.x + 90f,
+                -unityQuaternion.eulerAngles.y,
+                unityQuaternion.eulerAngles.z);
+            return unityQuaternion;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Quaternion ToUnityRotation(float pitch, float yaw, float roll)
+        public static Quaternion ToUnityQuaternion(float pitch, float yaw, float roll)
         {
             return Quaternion.Euler(pitch - 180, yaw, roll -180);
         }
@@ -163,7 +157,7 @@ namespace Core.GameBox
         // Here we are flipping the x here to minor it back to the Unity axis.
         // Also we want to scale it to proper unity unit.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Vector3 ToUnityVector3(Vector3 vector3, float scale)
+        private static Vector3 ToUnityVector3(this Vector3 vector3, float scale)
         {
             return new Vector3(
                 -vector3.x / scale,
@@ -172,19 +166,19 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityTriangles(List<int> triangles)
+        public static void ToUnityTriangles(this List<int> triangles)
         {
             triangles.Reverse();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityTriangles(int[] triangles)
+        public static void ToUnityTriangles(this int[] triangles)
         {
             Array.Reverse(triangles);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsPointInsideRect(GameBoxRect rect, Vector2Int point)
+        public static bool IsPointInsideRect(this GameBoxRect rect, Vector2Int point)
         {
             return point.x >= rect.Left &&
                    point.x <= rect.Right &&
@@ -193,7 +187,7 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4x4 ToUnityMatrix4x4(GameBoxMatrix4X4 matrix)
+        public static Matrix4x4 ToUnityMatrix4x4(this GameBoxMatrix4X4 matrix)
         {
             return new Matrix4x4(
                 new Vector4(matrix.Xx, matrix.Xy, matrix.Xz, matrix.Xw),
@@ -203,13 +197,13 @@ namespace Core.GameBox
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint SecondsToTick(float seconds)
+        public static uint GameBoxSecondsToTick(this float seconds)
         {
             return (uint)(seconds * GameBoxTicksPerSecond);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float TickToSeconds(uint tick)
+        public static float GameBoxTickToSeconds(this uint tick)
         {
             return (float)tick / GameBoxTicksPerSecond;
         }

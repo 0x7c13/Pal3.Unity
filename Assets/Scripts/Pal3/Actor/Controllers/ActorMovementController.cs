@@ -96,10 +96,10 @@ namespace Pal3.Actor.Controllers
             _movementMaxYDifferentialCrossPlatform = movementMaxYDifferentialCrossPlatform;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
-            Vector3 initPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+            Vector3 initPosition = new Vector3(
                 actor.Info.GameBoxXPosition,
                 actor.Info.GameBoxYPosition,
-                actor.Info.GameBoxZPosition));
+                actor.Info.GameBoxZPosition).ToUnityPosition();
 
             // Setup actor's initial position
             if (actor.Info.InitBehaviour != ActorBehaviourType.Hold &&
@@ -110,7 +110,7 @@ namespace Pal3.Actor.Controllers
                 if (tile.IsWalkable() || actor.Info.NoTurn == 1)
                 {
                     transform.position = new Vector3(initPosition.x,
-                        GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
+                        tile.GameBoxYPosition.ToUnityYPosition(),
                         initPosition.z);
                 }
                 else // This is to handle the case where the actor is initially placed on a non-walkable tile
@@ -311,7 +311,7 @@ namespace Pal3.Actor.Controllers
                     else
                     {
                         var adjustedPosition = new Vector3(currentPosition.x,
-                            GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
+                            tile.GameBoxYPosition.ToUnityYPosition(),
                             currentPosition.z);
                         transform.position = adjustedPosition;
                     }
@@ -424,7 +424,7 @@ namespace Pal3.Actor.Controllers
                 SetNavLayer(layerIndex);
                 transform.position = new Vector3(
                     position.x,
-                    GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition),
+                    tile.GameBoxYPosition.ToUnityYPosition(),
                     position.z);
 
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
@@ -619,7 +619,7 @@ namespace Pal3.Actor.Controllers
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())
             {
-                var tileYPosition = GameBoxInterpreter.ToUnityYPosition(tileAtCurrentLayer.GameBoxYPosition);
+                var tileYPosition = tileAtCurrentLayer.GameBoxYPosition.ToUnityYPosition();
 
                 // Choose a higher position if possible
                 if (tileYPosition > newYPosition)
@@ -640,7 +640,7 @@ namespace Pal3.Actor.Controllers
             if (_tilemap.TryGetTile(newPosition, nextLayer, out NavTile tileAtNextLayer) &&
                 tileAtNextLayer.IsWalkable())
             {
-                var yPositionAtNextLayer = GameBoxInterpreter.ToUnityYPosition(tileAtNextLayer.GameBoxYPosition);
+                var yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition.ToUnityYPosition();
 
                 if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > _movementMaxYDifferentialCrossLayer)
                 {
@@ -919,7 +919,7 @@ namespace Pal3.Actor.Controllers
         public void Execute(ActorMoveBackwardsCommand command)
         {
             if (_actor.Id != command.ActorId) return;
-            var moveDistance = GameBoxInterpreter.ToUnityDistance(command.GameBoxDistance);
+            var moveDistance = command.GameBoxDistance.ToUnityDistance();
             Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
             MoveTo(newPosition, MovementMode.StepBack);
         }

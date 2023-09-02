@@ -77,7 +77,7 @@ namespace Pal3.Scene.SceneObjects
                     ObjectInfo.LayerIndex,
                     out NavTile tile))
             {
-                finalYPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
+                finalYPosition = tile.GameBoxYPosition.ToUnityYPosition();
             }
 
             yield return obstacleObject.transform.MoveAsync(

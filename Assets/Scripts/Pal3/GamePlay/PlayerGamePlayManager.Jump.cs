@@ -122,7 +122,7 @@ namespace Pal3.GamePlay
                     tile.IsWalkable())
                 {
                     distanceToObstacle = tile.DistanceToNearestObstacle;
-                    yPosition = GameBoxInterpreter.ToUnityYPosition(tile.GameBoxYPosition);
+                    yPosition = tile.GameBoxYPosition.ToUnityYPosition();
 
                     if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
 

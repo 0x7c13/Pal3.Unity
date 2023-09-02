@@ -155,13 +155,17 @@ namespace Pal3.Scene.SceneObjects
                 }
             }
 
-            Vector3 newPosition = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition);
+            Vector3 newPosition = ObjectInfo.GameBoxPosition.ToUnityPosition();
             #if PAL3
-            Quaternion newRotation = GameBoxInterpreter.ToUnityRotation(
-                new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, 0f));
+            Quaternion newRotation = new Vector3(
+                    ObjectInfo.GameBoxXRotation,
+                    ObjectInfo.GameBoxYRotation,
+                    0f).ToUnityQuaternion();
             #elif PAL3A
-            Quaternion newRotation = GameBoxInterpreter.ToUnityRotation(
-                new Vector3(ObjectInfo.GameBoxXRotation, ObjectInfo.GameBoxYRotation, ObjectInfo.GameBoxZRotation));
+            Quaternion newRotation = new Vector3(
+                    ObjectInfo.GameBoxXRotation,
+                    ObjectInfo.GameBoxYRotation,
+                    ObjectInfo.GameBoxZRotation).ToUnityQuaternion();
             #endif
 
             _sceneObjectGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
@@ -216,7 +220,7 @@ namespace Pal3.Scene.SceneObjects
 
             return new Bounds
             {
-                center = GameBoxInterpreter.ToUnityPosition(ObjectInfo.GameBoxPosition),
+                center = ObjectInfo.GameBoxPosition.ToUnityPosition(),
                 size = Vector3.one
             };
         }
@@ -392,7 +396,7 @@ namespace Pal3.Scene.SceneObjects
                         yield return null; // Wait for one frame to make sure camera is reset
 
                         yield return MoveCameraToLookAtPointAsync(
-                            GameBoxInterpreter.ToUnityPosition(nextLinkedObject.ObjectInfo.GameBoxPosition),
+                            nextLinkedObject.ObjectInfo.GameBoxPosition.ToUnityPosition(),
                             ctx.PlayerActorGameObject);
 
                         yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
@@ -426,7 +430,7 @@ namespace Pal3.Scene.SceneObjects
                 new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    GameBoxInterpreter.ToGameBoxPosition(_sceneObjectGameObject.transform.position)));
+                    _sceneObjectGameObject.transform.position.ToGameBoxPosition()));
         }
 
         internal void SaveCurrentYRotation()
@@ -435,7 +439,7 @@ namespace Pal3.Scene.SceneObjects
                 new SceneSaveGlobalObjectYRotationCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    GameBoxInterpreter.ToGameBoxYRotation(_sceneObjectGameObject.transform.rotation.eulerAngles.y)));
+                    _sceneObjectGameObject.transform.rotation.eulerAngles.y.ToGameBoxYEulerAngle()));
         }
 
         internal IEnumerator MoveCameraToLookAtPointAsync(

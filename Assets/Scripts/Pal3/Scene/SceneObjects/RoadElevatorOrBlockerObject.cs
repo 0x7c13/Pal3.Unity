@@ -83,7 +83,7 @@ namespace Pal3.Scene.SceneObjects
                 if (ObjectInfo.Parameters[2] != 0)
                 {
                     Transform transform = floorObject.transform;
-                    float yOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
+                    float yOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
                     Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
                     yield return floorObject.transform.MoveAsync(finalPosition, 0.5f);
                     SaveCurrentPosition();
@@ -98,10 +98,10 @@ namespace Pal3.Scene.SceneObjects
             {
                 Vector3 currentPosition = floorObject.transform.position;
 
-                float lowerYPosition = GameBoxInterpreter.ToUnityYPosition(
-                    ObjectInfo.Parameters[0] * ObjectInfo.Parameters[4]);
-                float upperYPosition = GameBoxInterpreter.ToUnityYPosition(
-                    ObjectInfo.Parameters[2] * ObjectInfo.Parameters[5]);
+                float lowerYPosition =
+                    ((float)ObjectInfo.Parameters[0] * ObjectInfo.Parameters[4]).ToUnityYPosition();
+                float upperYPosition =
+                    ((float)ObjectInfo.Parameters[2] * ObjectInfo.Parameters[5]).ToUnityYPosition();
 
                 if (SceneInfo.Is("m05", "3"))
                 {

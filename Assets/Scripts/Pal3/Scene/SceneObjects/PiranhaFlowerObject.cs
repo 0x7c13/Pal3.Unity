@@ -100,10 +100,10 @@ namespace Pal3.Scene.SceneObjects
 
             yield return  GetCvdModelRenderer().PlayAnimationAsync(1.9f, 1, 1f, true);
 
-            Vector3 worldPosition = GameBoxInterpreter.ToUnityPosition(
-                new Vector3(ObjectInfo.Parameters[0],
+            Vector3 worldPosition = new Vector3(
+                    ObjectInfo.Parameters[0],
                     0f,
-                    ObjectInfo.Parameters[1]));
+                    ObjectInfo.Parameters[1]).ToUnityPosition();
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 1));

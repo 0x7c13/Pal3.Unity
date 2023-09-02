@@ -107,7 +107,7 @@ namespace Core.DataReader.Nav
             var vertices = new Vector3[numberOfVertices];
             for (var i = 0; i < numberOfVertices; i++)
             {
-                vertices[i] = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
+                vertices[i] = reader.ReadVector3().ToUnityPosition();
             }
 
             var triangles = new int[numberOfFaces * 3];

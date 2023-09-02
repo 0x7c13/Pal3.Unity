@@ -86,7 +86,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 #if PAL3A
                 Transform transform = GetGameObject().transform;
-                float yOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
+                float yOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
                 Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
                 yield return transform.MoveAsync(finalPosition, 0.5f);
                 #endif

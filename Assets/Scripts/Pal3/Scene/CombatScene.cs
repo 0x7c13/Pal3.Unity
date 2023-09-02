@@ -98,14 +98,9 @@ namespace Pal3.Scene
 
             return position switch
             {
-                ElementPosition.AllyCenter =>
-                    GameBoxInterpreter.ToUnityPosition(_combatConfigFile
-                        .AllyFormationConfig.CenterGameBoxPosition),
-                ElementPosition.EnemyCenter =>
-                    GameBoxInterpreter.ToUnityPosition(_combatConfigFile
-                        .EnemyFormationConfig.CenterGameBoxPosition),
-                _ => GameBoxInterpreter.ToUnityPosition(_combatConfigFile
-                        .ActorGameBoxPositions[positionIndex])
+                ElementPosition.AllyCenter => _combatConfigFile.AllyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
+                ElementPosition.EnemyCenter => _combatConfigFile.EnemyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
+                _ => _combatConfigFile.ActorGameBoxPositions[positionIndex].ToUnityPosition()
             };
         }
 

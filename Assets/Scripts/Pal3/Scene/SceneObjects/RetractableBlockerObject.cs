@@ -49,7 +49,7 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject blockerObject = GetGameObject();
             Vector3 currentPosition = blockerObject.transform.position;
-            var zOffset = GameBoxInterpreter.ToUnityDistance(ObjectInfo.Parameters[2]);
+            var zOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
             Vector3 toPosition = currentPosition + blockerObject.transform.forward * -zOffset;
 
             yield return blockerObject.transform.MoveAsync(toPosition, 1.5f);

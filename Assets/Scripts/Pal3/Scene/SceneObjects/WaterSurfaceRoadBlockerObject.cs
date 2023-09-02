@@ -51,7 +51,7 @@ namespace Pal3.Scene.SceneObjects
 
             GameObject waterSurfaceGameObject = GetGameObject();
             Vector3 finalPosition = waterSurfaceGameObject.transform.position;
-            finalPosition.y = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.Parameters[0]);
+            finalPosition.y = ((float)ObjectInfo.Parameters[0]).ToUnityYPosition();
 
             PlaySfx("wc007");
 

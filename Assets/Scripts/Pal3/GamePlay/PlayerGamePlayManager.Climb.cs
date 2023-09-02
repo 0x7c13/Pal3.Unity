@@ -34,8 +34,8 @@ namespace Pal3.GamePlay
             }
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = GameBoxInterpreter.ToUnityRotation(
-                new Vector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)) * Vector3.forward;
+            Vector3 climbableObjectFacing = new Vector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)
+                .ToUnityQuaternion() * Vector3.forward;
 
             Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
             Vector3 lowerStandingPosition = climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;

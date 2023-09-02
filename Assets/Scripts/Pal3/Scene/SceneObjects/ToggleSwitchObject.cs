@@ -125,7 +125,7 @@ namespace Pal3.Scene.SceneObjects
                         and not SceneObjectType.WaterSurface)
                 {
                     yield return MoveCameraToLookAtPointAsync(
-                        GameBoxInterpreter.ToUnityPosition(linkedObjectGameBoxPosition),
+                        linkedObjectGameBoxPosition.ToUnityPosition(),
                         ctx.PlayerActorGameObject);
                 }
 

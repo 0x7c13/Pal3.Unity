@@ -126,8 +126,8 @@ namespace Pal3.Scene.SceneObjects
             GameObject climbableObject = GetGameObject();
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = GameBoxInterpreter.ToUnityRotation(
-                new Vector3(0f, ObjectInfo.GameBoxYRotation, 0f)) * Vector3.forward;
+            Vector3 climbableObjectFacing = new Vector3(0f, ObjectInfo.GameBoxYRotation, 0f)
+                .ToUnityQuaternion() * Vector3.forward;
 
             Tilemap tileMap = ctx.CurrentScene.GetTilemap();
 

@@ -97,10 +97,10 @@ namespace Pal3.Effect
                     _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
                 {
                     parent = sceneRootGameObject.transform;
-                    localPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+                    localPosition = new Vector3(
                             positionCommand.GameBoxXPosition,
                             positionCommand.GameBoxYPosition,
-                            positionCommand.GameBoxZPosition));
+                            positionCommand.GameBoxZPosition).ToUnityPosition();
                 }
                 else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
                 {

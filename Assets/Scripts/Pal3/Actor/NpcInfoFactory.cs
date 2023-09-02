@@ -35,7 +35,7 @@ namespace Pal3.Actor
 
         private static ScnNpcInfo CreateActorNpcInfo(byte actorId, string actorName, ActorType actorType)
         {
-            Vector3 gameBoxInitPosition = GameBoxInterpreter.ToGameBoxPosition(ActorInitPosition);
+            Vector3 gameBoxInitPosition = ActorInitPosition.ToGameBoxPosition();
 
             return new ScnNpcInfo
             {

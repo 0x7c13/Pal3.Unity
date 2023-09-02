@@ -50,7 +50,7 @@ namespace Core.DataReader.Dat
                 IsCenteredAroundReceiver = reader.ReadBoolean(),
                 IsCasterActor = reader.ReadBoolean(),
                 IsReceiverActor = reader.ReadBoolean(),
-                Position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
+                Position = reader.ReadVector3().ToUnityPosition(),
                 WaitDurationInSeconds = reader.ReadSingle(),
                 EffectDurationInSeconds = reader.ReadSingle(),
             };

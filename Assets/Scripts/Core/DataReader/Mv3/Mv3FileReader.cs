@@ -79,8 +79,8 @@ namespace Core.DataReader.Mv3
 
             var bounds = new Bounds();
             bounds.SetMinMax(
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+                reader.ReadVector3().ToUnityPosition(),
+                reader.ReadVector3().ToUnityPosition());
 
             var numberOfFrames = reader.ReadInt32();
             var frames = new Mv3VertFrame[numberOfFrames];
@@ -179,9 +179,8 @@ namespace Core.DataReader.Mv3
                         Mv3VertFrame frame = vertFrames[k];
                         Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
 
-                        keyFrameVertices[k].Add((GameBoxInterpreter
-                            .ToUnityVertex(new Vector3(vertex.X, vertex.Y, vertex.Z),
-                                GameBoxInterpreter.GameBoxMv3UnitToUnityUnit)));
+                        keyFrameVertices[k].Add(new Vector3(vertex.X, vertex.Y, vertex.Z)
+                            .ToUnityPosition(GameBoxConvertor.GameBoxMv3UnitToUnityUnit));
                     }
 
                     uvs[triangleIndex] = texCoords[indexBuffer.TexCoordIndex[j]];
@@ -190,7 +189,7 @@ namespace Core.DataReader.Mv3
                 }
             }
 
-            GameBoxInterpreter.ToUnityTriangles(triangles);
+            triangles.ToUnityTriangles();
 
             var animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
             for (var i = 0; i < animationKeyFrames.Length; i++)
@@ -237,15 +236,15 @@ namespace Core.DataReader.Mv3
         private static Mv3TagFrame ReadTagFrame(IBinaryReader reader)
         {
             var tick = reader.ReadUInt32();
-            Vector3 position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3());
+            Vector3 position = reader.ReadVector3().ToUnityPosition();
 
-            var rotation = GameBoxInterpreter.Mv3QuaternionToUnityQuaternion(new GameBoxQuaternion()
+            var rotation = new GameBoxQuaternion()
             {
                 X = reader.ReadSingle(),
                 Y = reader.ReadSingle(),
                 Z = reader.ReadSingle(),
                 W = reader.ReadSingle(),
-            });
+            }.Mv3QuaternionToUnityQuaternion();
 
             var scale = new []
             {

@@ -61,7 +61,7 @@ namespace Pal3.Scene.SceneObjects
             var waypoints = new Vector3[ObjectInfo.Path.NumberOfWaypoints];
             for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
             {
-                waypoints[i] = GameBoxInterpreter.ToUnityPosition(ObjectInfo.Path.GameBoxWaypoints[i]);
+                waypoints[i] = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
             }
 
             var movementController = playerActorGameObject.GetComponent<ActorMovementController>();

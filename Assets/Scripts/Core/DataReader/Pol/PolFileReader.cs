@@ -33,7 +33,7 @@ namespace Core.DataReader.Pol
                 nodeInfos[i] = new PolGeometryNode
                 {
                     Name     = reader.ReadString(32, codepage),
-                    Position = GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
+                    Position = reader.ReadVector3().ToUnityPosition(),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
                 };
@@ -65,14 +65,14 @@ namespace Core.DataReader.Pol
         private static TagNode ReadTagNodeInfo(IBinaryReader reader, int codepage)
         {
             var name = reader.ReadString(32, codepage);
-            Matrix4x4 transformMatrix = GameBoxInterpreter.ToUnityMatrix4x4(new GameBoxMatrix4X4()
+            Matrix4x4 transformMatrix = new GameBoxMatrix4X4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
-            });
-            Vector3 origin = GameBoxInterpreter.ToUnityPosition(transformMatrix.MultiplyPoint(Vector3.zero));
+            }.ToUnityMatrix4x4();
+            Vector3 origin = transformMatrix.MultiplyPoint(Vector3.zero).ToUnityPosition();
 
             var type = reader.ReadInt32();
             var customColorStringLength = reader.ReadInt32();
@@ -106,8 +106,8 @@ namespace Core.DataReader.Pol
         {
             var bounds = new Bounds();
             bounds.SetMinMax(
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+                reader.ReadVector3().ToUnityPosition(),
+                reader.ReadVector3().ToUnityPosition());
 
             var vertexTypeFlag = reader.ReadUInt32();
             var numberOfVertices = reader.ReadInt32();
@@ -132,20 +132,16 @@ namespace Core.DataReader.Pol
             {
                 if ((vertexTypeFlag & GameBoxVertexType.XYZ) != 0)
                 {
-                    positions[i] = GameBoxInterpreter
-                        .ToUnityVertex(reader.ReadVector3(),
-                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
+                    positions[i] = reader.ReadVector3().ToUnityPosition();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.XYZRHW) != 0)
                 {
-                    positions[i] = GameBoxInterpreter
-                        .ToUnityVertex(reader.ReadVector3(),
-                            GameBoxInterpreter.GameBoxUnitToUnityUnit);
+                    positions[i] = reader.ReadVector3().ToUnityPosition();
                     _ = reader.ReadSingle();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    normals[i] = GameBoxInterpreter.ToUnityNormal(reader.ReadVector3());
+                    normals[i] = reader.ReadVector3().ToUnityNormal();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {
@@ -253,7 +249,7 @@ namespace Core.DataReader.Pol
                 triangles[index + 2] = reader.ReadUInt16();
             }
 
-            GameBoxInterpreter.ToUnityTriangles(triangles);
+            triangles.ToUnityTriangles();
 
             return new PolTexture()
             {

@@ -123,7 +123,7 @@ namespace Pal3.Scene.SceneObjects
                 shouldResetCamera = true;
 
                 yield return MoveCameraToLookAtPointAsync(
-                    GameBoxInterpreter.ToUnityPosition(linkedObject.ObjectInfo.GameBoxPosition),
+                    linkedObject.ObjectInfo.GameBoxPosition.ToUnityPosition(),
                     ctx.PlayerActorGameObject);
 
                 if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))

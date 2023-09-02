@@ -146,7 +146,7 @@ namespace Pal3.Actor.Controllers
                 var waypoints = new Vector3[_actor.Info.Path.NumberOfWaypoints];
                 for (var i = 0; i < _actor.Info.Path.NumberOfWaypoints; i++)
                 {
-                    waypoints[i] = GameBoxInterpreter.ToUnityPosition(_actor.Info.Path.GameBoxWaypoints[i]);
+                    waypoints[i] = _actor.Info.Path.GameBoxWaypoints[i].ToUnityPosition();
                 }
                 _movementController.SetupPath(waypoints, 0, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);
             }
@@ -258,7 +258,7 @@ namespace Pal3.Actor.Controllers
             if (command.ActorId != _actor.Id) return;
             Vector3 oldPosition = transform.position;
             transform.position = new Vector3(oldPosition.x,
-                GameBoxInterpreter.ToUnityYPosition(command.GameBoxYPosition),
+                command.GameBoxYPosition.ToUnityYPosition(),
                 oldPosition.z);
         }
     }

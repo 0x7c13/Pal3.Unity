@@ -44,12 +44,12 @@ namespace Pal3.Actor
         {
             if (_overwrittenMoveSpeed != null)
             {
-                return _overwrittenMoveSpeed.Value / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                return _overwrittenMoveSpeed.Value / GameBoxConvertor.GameBoxUnitToUnityUnit;
             }
 
             if (Info.GameBoxMoveSpeed > 0)
             {
-                return Info.GameBoxMoveSpeed / GameBoxInterpreter.GameBoxUnitToUnityUnit;
+                return Info.GameBoxMoveSpeed / GameBoxConvertor.GameBoxUnitToUnityUnit;
             }
 
             if (Info.Type == ActorType.MainActor)

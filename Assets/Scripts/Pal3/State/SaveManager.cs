@@ -171,8 +171,7 @@ namespace Pal3.State
             var playerActorMovementController = currentScene
                 .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
-            Vector3 playerActorGameBoxPosition = GameBoxInterpreter
-                .ToGameBoxPosition(playerActorMovementController.GetWorldPosition());
+            Vector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
             var varsToSave = _scriptManager.GetGlobalVariables();
             if (saveLevel == SaveLevel.Minimal)
@@ -290,7 +289,7 @@ namespace Pal3.State
                 commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
                     huaYingMovementController.GetCurrentLayerIndex()));
                 Vector3 position = huaYingMovementController.GetWorldPosition();
-                Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
+                Vector3 gameBoxPosition = position.ToGameBoxPosition();
                 commands.Add(new ActorSetWorldPositionCommand((int)PlayerActorId.HuaYing, position.x, position.z));
                 commands.Add(new ActorSetYPositionCommand((int)PlayerActorId.HuaYing, gameBoxPosition.y));
                 commands.Add(new ActorSetFacingCommand((int)PlayerActorId.HuaYing,
@@ -351,7 +350,7 @@ namespace Pal3.State
                 }
 
                 var currentPosition = actorGameObject.transform.position;
-                var currentGameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(currentPosition);
+                var currentGameBoxPosition = currentPosition.ToGameBoxPosition();
 
                 if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
                     Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)

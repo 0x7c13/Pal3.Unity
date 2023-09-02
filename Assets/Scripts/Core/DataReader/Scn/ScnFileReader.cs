@@ -162,8 +162,8 @@ namespace Core.DataReader.Scn
 
             var bounds = new Bounds();
             bounds.SetMinMax(
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()),
-                GameBoxInterpreter.ToUnityPosition(reader.ReadVector3()));
+                reader.ReadVector3().ToUnityPosition(),
+                reader.ReadVector3().ToUnityPosition());
 
             var xRotation = reader.ReadSingle();
 

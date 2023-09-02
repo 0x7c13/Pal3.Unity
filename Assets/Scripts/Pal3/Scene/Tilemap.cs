@@ -50,12 +50,12 @@ namespace Pal3.Scene
                 currentLayer.Min.x + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
                 isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
                 currentLayer.Min.z + (tilePosition.y + 1/2f) * NAV_TILE_SIZE);
-            return GameBoxInterpreter.ToUnityPosition(position);
+            return position.ToUnityPosition();
         }
 
         public Vector2Int GetTilePosition(Vector3 position, int layerIndex)
         {
-            Vector3 gameBoxPosition = GameBoxInterpreter.ToGameBoxPosition(position);
+            Vector3 gameBoxPosition = position.ToGameBoxPosition();
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return new Vector2Int(
                 (int) ((gameBoxPosition.x - currentLayer.Min.x) / NAV_TILE_SIZE),
@@ -112,7 +112,7 @@ namespace Pal3.Scene
                     Bottom = horizontalLength < verticalLength ? portalRect.Bottom : portalRect.Bottom + 1
                 };
 
-                if (GameBoxInterpreter.IsPointInsideRect(tweakedRect, tilePosition)) return true;
+                if (tweakedRect.IsPointInsideRect(tilePosition)) return true;
             }
 
             return false;

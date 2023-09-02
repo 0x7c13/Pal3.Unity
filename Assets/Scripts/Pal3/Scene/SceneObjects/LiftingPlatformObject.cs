@@ -61,7 +61,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 Vector3 position = sceneGameObject.transform.position;
                 float gameBoxYPosition = ObjectInfo.Parameters[0];
-                var finalYPosition = GameBoxInterpreter.ToUnityYPosition(gameBoxYPosition);
+                var finalYPosition = gameBoxYPosition.ToUnityYPosition();
                 position.y = finalYPosition;
                 sceneGameObject.transform.position = position;
             }
@@ -115,9 +115,9 @@ namespace Pal3.Scene.SceneObjects
 
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 
-            var finalYPosition = GameBoxInterpreter.ToUnityYPosition(ObjectInfo.SwitchState == 0 ?
+            var finalYPosition = (ObjectInfo.SwitchState == 0 ?
                 gameBoxYPosition :
-                ObjectInfo.GameBoxPosition.y);
+                ObjectInfo.GameBoxPosition.y).ToUnityYPosition();
             var yOffset = finalYPosition - position.y;
 
             FlipAndSaveSwitchState();
@@ -161,7 +161,7 @@ namespace Pal3.Scene.SceneObjects
                     new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Parameters[2],
-                        GameBoxInterpreter.ToGameBoxPosition(objectOnThePlatform.transform.position)));
+                        objectOnThePlatform.transform.position.ToGameBoxPosition()));
             }
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);

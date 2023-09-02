@@ -47,10 +47,10 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(FlyingActorFlyToCommand command)
         {
-            Vector3 targetPosition = GameBoxInterpreter.ToUnityPosition(new Vector3(
+            Vector3 targetPosition = new Vector3(
                 command.GameBoxXPosition,
                 command.GameBoxYPosition,
-                command.GameBoxZPosition));
+                command.GameBoxZPosition).ToUnityPosition();
 
             // If actor is inactive or at it's init position, just teleport to target position
             if (!_actorController.IsActive ||

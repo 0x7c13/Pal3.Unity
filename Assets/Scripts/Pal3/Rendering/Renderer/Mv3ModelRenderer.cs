@@ -374,7 +374,7 @@ namespace Pal3.Rendering.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                uint tick = GameBoxInterpreter.SecondsToTick(Time.timeSinceLevelLoad - startTime) + startTick;
+                uint tick = (Time.timeSinceLevelLoad - startTime).GameBoxSecondsToTick() + startTick;
 
                 if (tick >= endTick)
                 {
