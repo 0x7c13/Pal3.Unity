@@ -18,10 +18,6 @@ namespace  Pal3.Effect
         
         void Start()
         {
-            // @temp
-            _radius = 12.0f;
-            _angle = 70;
-        
             transform.localPosition = new Vector3(0, 0.1f, 0);
             _meshTransform = transform.GetChild(0);
             //_meshTransform.forward = transform.forward;
