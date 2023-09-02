@@ -188,10 +188,13 @@ namespace Pal3.Scene.SceneObjects
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
                     (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.5f);
 
-                // Do not ignore obstacles when moving out of the carrier in PAL3 scene m17 7
+                // Do not ignore obstacles when moving out of the carrier in
+                // PAL3 scene m17-7 and PAL3A scene m11-4 (锁妖塔4层)
                 // since the final position might be blocked by a lifted platform
                 #if PAL3
                 bool ignoreObstacle = !SceneInfo.Is("m17", "7");
+                #elif PAL3A
+                bool ignoreObstacle = !SceneInfo.Is("m11", "4");
                 #else
                 bool ignoreObstacle = true;
                 #endif

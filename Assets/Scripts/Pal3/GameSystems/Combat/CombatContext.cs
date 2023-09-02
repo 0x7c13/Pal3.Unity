@@ -36,69 +36,32 @@ namespace Pal3.GameSystems.Combat
             ResetContext();
         }
 
-        public void SetScriptWaiter(WaitUntilCanceled scriptWaiter)
-        {
-            ScriptWaiter = scriptWaiter;
-        }
+        public void SetScriptWaiter(WaitUntilCanceled scriptWaiter) => ScriptWaiter = scriptWaiter;
 
-        public void SetCombatSceneName(string combatSceneName)
-        {
-            CombatSceneName = combatSceneName;
-        }
+        public void SetCombatSceneName(string combatSceneName) => CombatSceneName = combatSceneName;
 
-        public void SetCombatSceneElementType(ElementType combatSceneElementType)
-        {
-            CombatSceneElementType = combatSceneElementType;
-        }
+        public void SetCombatSceneElementType(ElementType combatSceneElementType) => CombatSceneElementType = combatSceneElementType;
 
-        public void SetIsScriptTriggeredCombat(bool isScriptTriggeredCombat)
-        {
-            IsScriptTriggeredCombat = isScriptTriggeredCombat;
-        }
+        public void SetIsScriptTriggeredCombat(bool isScriptTriggeredCombat) => IsScriptTriggeredCombat = isScriptTriggeredCombat;
 
-        public void SetMeetType(MeetType meetType)
-        {
-            MeetType = meetType;
-        }
+        public void SetMeetType(MeetType meetType) => MeetType = meetType;
 
-        public void SetCombatMusicName(string combatMusicName)
-        {
-            CombatMusicName = combatMusicName;
-        }
+        public void SetCombatMusicName(string combatMusicName) => CombatMusicName = combatMusicName;
 
-        public void SetMaxRound(int maxRound)
-        {
-            MaxRound = maxRound;
-        }
+        public void SetMaxRound(int maxRound) => MaxRound = maxRound;
 
-        public void SetUnbeatable(bool isUnbeatable)
-        {
-            IsUnbeatable = isUnbeatable;
-        }
+        public void SetUnbeatable(bool isUnbeatable) => IsUnbeatable = isUnbeatable;
 
-        public void SetNoGameOverWhenLose(bool isNoGameOverWhenLose)
-        {
-            IsNoGameOverWhenLose = isNoGameOverWhenLose;
-        }
+        public void SetNoGameOverWhenLose(bool isNoGameOverWhenLose) => IsNoGameOverWhenLose = isNoGameOverWhenLose;
 
         public void SetEnemyIds(
-            uint enemy1Id,
-            uint enemy2Id,
-            uint enemy3Id,
-            uint enemy4Id,
-            uint enemy5Id,
-            uint enemy6Id)
-        {
-            EnemyIds = new []
-            {
-                enemy1Id,
-                enemy2Id,
-                enemy3Id,
-                enemy4Id,
-                enemy5Id,
-                enemy6Id
-            };
-        }
+            uint enemy1Id, uint enemy2Id, uint enemy3Id, uint enemy4Id, uint enemy5Id, uint enemy6Id)
+            =>
+                EnemyIds = new []
+                {
+                    enemy1Id, enemy2Id, enemy3Id, enemy4Id, enemy5Id, enemy6Id
+                };
+
 
         public void ResetContext()
         {
