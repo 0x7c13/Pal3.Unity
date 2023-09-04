@@ -126,14 +126,14 @@ namespace Pal3
         [SerializeField] private PostProcessVolume postProcessVolume;
         [SerializeField] private PostProcessLayer postProcessLayer;
 
-        // LOGO
+        // Game logo
         [SerializeField] private GameObject logoCanvas;
         [SerializeField] private Image logoImage;
 
         // Global texture cache store
         private readonly TextureCache _textureCache = new ();
 
-        // Core game systems amd components
+        // Core game systems and components
         private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
@@ -185,7 +185,7 @@ namespace Pal3
         private MazeSkipper _mazeSkipper;
         private MainMenu _mainMenu;
 
-        private IEnumerable<object> _allRegisteredServices;
+        private IEnumerable<object> _allDisposableServices;
 
         private void OnEnable()
         {
@@ -196,178 +196,267 @@ namespace Pal3
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
 
-            _fileSystemCacheManager = new FileSystemCacheManager(_fileSystem);
-            ServiceLocator.Instance.Register(_fileSystemCacheManager);
+            ServiceLocator.Instance.Register(_fileSystemCacheManager =
+                new FileSystemCacheManager(_fileSystem)
+            );
 
-            _inputActions = new PlayerInputActions();
-            ServiceLocator.Instance.Register(_inputActions);
+            ServiceLocator.Instance.Register(_inputActions =
+                new PlayerInputActions()
+            );
 
-            _inputManager= new InputManager(_inputActions);
-            ServiceLocator.Instance.Register(_inputManager);
+            ServiceLocator.Instance.Register(_inputManager =
+                new InputManager(_inputActions)
+            );
 
-            _scriptManager = new ScriptManager(_gameResourceProvider,
-                new PalScriptCommandPreprocessor(new PalScriptPatcher()));
-            ServiceLocator.Instance.Register(_scriptManager);
+            ServiceLocator.Instance.Register(_scriptManager =
+                new ScriptManager(_gameResourceProvider,
+                    new PalScriptCommandPreprocessor(new PalScriptPatcher()))
+            );
 
-            _gameStateManager = new GameStateManager(_inputManager, _scriptManager);
-            ServiceLocator.Instance.Register(_gameStateManager);
+            ServiceLocator.Instance.Register(_gameStateManager =
+                new GameStateManager(_inputManager, _scriptManager)
+            );
 
-            _sceneStateManager = new SceneStateManager();
-            ServiceLocator.Instance.Register(_sceneStateManager);
+            ServiceLocator.Instance.Register(_sceneStateManager =
+                new SceneStateManager());
 
-            _sceneManager = new SceneManager(_gameResourceProvider,
-                _sceneStateManager, _scriptManager, _gameSettings, mainCamera);
-            ServiceLocator.Instance.Register(_sceneManager);
+            ServiceLocator.Instance.Register(_sceneManager =
+                new SceneManager(_gameResourceProvider,
+                    _sceneStateManager,
+                    _scriptManager,
+                    _gameSettings,
+                    mainCamera)
+            );
 
-            _playerActorManager = new PlayerActorManager();
-            ServiceLocator.Instance.Register(_playerActorManager);
+            ServiceLocator.Instance.Register(_playerActorManager =
+                new PlayerActorManager()
+            );
 
-            _inventoryManager = new InventoryManager(_gameResourceProvider);
-            ServiceLocator.Instance.Register(_inventoryManager);
+            ServiceLocator.Instance.Register(_inventoryManager =
+                new InventoryManager(_gameResourceProvider)
+            );
 
-            _tradingManager = new TradingManager();
-            ServiceLocator.Instance.Register(_tradingManager);
+            ServiceLocator.Instance.Register(_tradingManager =
+                new TradingManager()
+            );
 
-            _teamManager = new TeamManager(_playerActorManager, _sceneManager);
-            ServiceLocator.Instance.Register(_teamManager);
+            ServiceLocator.Instance.Register(_teamManager =
+                new TeamManager(_playerActorManager, _sceneManager)
+            );
 
-            _touchControlUIManager = new TouchControlUIManager(_sceneManager,
-                touchControlUI, interactionButton, multiFunctionButton, mainMenuButton);
-            ServiceLocator.Instance.Register(_touchControlUIManager);
+            ServiceLocator.Instance.Register(_touchControlUIManager =
+                new TouchControlUIManager(_sceneManager,
+                    touchControlUI,
+                    interactionButton,
+                    multiFunctionButton,
+                    mainMenuButton)
+            );
 
-            _favorManager = new FavorManager();
-            ServiceLocator.Instance.Register(_favorManager);
+            ServiceLocator.Instance.Register(_favorManager =
+                new FavorManager()
+            );
 
-            _videoManager = new VideoManager(_gameResourceProvider,
-                _gameStateManager, _inputActions, videoPlayerCanvas, videoPlayer);
-            ServiceLocator.Instance.Register(_videoManager);
+            ServiceLocator.Instance.Register(_videoManager =
+                new VideoManager(_gameResourceProvider,
+                    _gameStateManager,
+                    _inputActions,
+                    videoPlayerCanvas,
+                    videoPlayer)
+            );
 
-            _audioManager = new AudioManager(mainCamera,
-                _gameResourceProvider, _sceneManager, musicSource, _gameSettings);
-            ServiceLocator.Instance.Register(_audioManager);
+            ServiceLocator.Instance.Register(_audioManager =
+                new AudioManager(mainCamera,
+                    _gameResourceProvider,
+                    _sceneManager,
+                    musicSource,
+                    _gameSettings)
+            );
 
-            _captionRenderer = new CaptionRenderer(_gameResourceProvider, _inputActions, captionImage);
-            ServiceLocator.Instance.Register(_captionRenderer);
+            ServiceLocator.Instance.Register(_captionRenderer =
+                new CaptionRenderer(_gameResourceProvider,
+                    _inputActions,
+                    captionImage)
+            );
 
-            _hotelManager = new HotelManager(_scriptManager, _sceneManager);
-            ServiceLocator.Instance.Register(_hotelManager);
+            ServiceLocator.Instance.Register(_hotelManager =
+                new HotelManager(_scriptManager, _sceneManager)
+            );
 
-            _worldMapManager = new WorldMapManager(eventSystem,
-                _gameStateManager, _sceneManager, _inputManager, _scriptManager,
-                worldMapCanvasGroup, worldMapRegionButtonPrefab, worldMapBackground);
-            ServiceLocator.Instance.Register(_worldMapManager);
+            ServiceLocator.Instance.Register(_worldMapManager =
+                new WorldMapManager(eventSystem,
+                    _gameStateManager,
+                   _sceneManager,
+                   _inputManager,
+                   _scriptManager,
+                   worldMapCanvasGroup,
+                   worldMapRegionButtonPrefab,
+                   worldMapBackground)
+            );
 
-            _postProcessManager = new PostProcessManager(postProcessVolume,
-                postProcessLayer, _gameSettings);
-            ServiceLocator.Instance.Register(_postProcessManager);
+            ServiceLocator.Instance.Register(_postProcessManager =
+                new PostProcessManager(postProcessVolume,
+                    postProcessLayer,
+                    _gameSettings)
+            );
 
-            _effectManager = new EffectManager(_gameResourceProvider, _sceneManager);
-            ServiceLocator.Instance.Register(_effectManager);
+            ServiceLocator.Instance.Register(_effectManager =
+                new EffectManager(_gameResourceProvider, _sceneManager)
+            );
 
-            _mazeSkipper = new MazeSkipper(_sceneManager);
-            ServiceLocator.Instance.Register(_mazeSkipper);
+            ServiceLocator.Instance.Register(_mazeSkipper =
+                new MazeSkipper(_sceneManager)
+            );
 
-            _renderingSettingsManager = new RenderingSettingsManager(_gameSettings);
-            ServiceLocator.Instance.Register(_renderingSettingsManager);
+            ServiceLocator.Instance.Register(_renderingSettingsManager =
+                new RenderingSettingsManager(_gameSettings)
+            );
 
             #if UNITY_STANDALONE || UNITY_EDITOR
-            _cursorManager = new CursorManager(_gameResourceProvider);
-            ServiceLocator.Instance.Register(_cursorManager);
+            ServiceLocator.Instance.Register(_cursorManager =
+                new CursorManager(_gameResourceProvider)
+            );
             #endif
 
             #if PAL3
-            _appraisalsMiniGame = new AppraisalsMiniGame();
-            ServiceLocator.Instance.Register(_appraisalsMiniGame);
-            _sailingMiniGame = new SailingMiniGame();
-            ServiceLocator.Instance.Register(_sailingMiniGame);
-            _hideFightMiniGame = new HideFightMiniGame();
-            ServiceLocator.Instance.Register(_hideFightMiniGame);
-            _encampMiniGame = new EncampMiniGame();
-            ServiceLocator.Instance.Register(_encampMiniGame);
-            _skiMiniGame = new SkiMiniGame(_scriptManager);
-            ServiceLocator.Instance.Register(_skiMiniGame);
-            _swatAFlyMiniGame = new SwatAFlyMiniGame();
-            ServiceLocator.Instance.Register(_swatAFlyMiniGame);
-            _caveExperienceMiniGame = new CaveExperienceMiniGame();
-            ServiceLocator.Instance.Register(_caveExperienceMiniGame);
+            ServiceLocator.Instance.Register(_appraisalsMiniGame =
+                new AppraisalsMiniGame()
+            );
+            ServiceLocator.Instance.Register(_sailingMiniGame =
+                new SailingMiniGame()
+            );
+            ServiceLocator.Instance.Register(_hideFightMiniGame =
+                new HideFightMiniGame()
+            );
+            ServiceLocator.Instance.Register(_encampMiniGame =
+                new EncampMiniGame()
+            );
+            ServiceLocator.Instance.Register(_skiMiniGame =
+                new SkiMiniGame(_scriptManager)
+            );
+            ServiceLocator.Instance.Register(_swatAFlyMiniGame =
+                new SwatAFlyMiniGame()
+            );
+            ServiceLocator.Instance.Register(_caveExperienceMiniGame =
+                new CaveExperienceMiniGame()
+            );
             #elif PAL3A
-            _ghostHuntingMiniGame = new GhostHuntingMiniGame();
-            ServiceLocator.Instance.Register(_ghostHuntingMiniGame);
-            _taskManager = new TaskManager(_gameResourceProvider, taskInfoText);
-            ServiceLocator.Instance.Register(_taskManager);
+            ServiceLocator.Instance.Register(_ghostHuntingMiniGame =
+                new GhostHuntingMiniGame()
+            );
+            ServiceLocator.Instance.Register(_taskManager =
+                new TaskManager(_gameResourceProvider, taskInfoText)
+            );
             #endif
 
-            _playerGamePlayManager = new PlayerGamePlayManager(_gameResourceProvider,
-                _gameStateManager,
-                _playerActorManager,
-                _teamManager,
-                _inputActions,
-                _sceneManager,
-                mainCamera);
-            ServiceLocator.Instance.Register(_playerGamePlayManager);
+            ServiceLocator.Instance.Register(_playerGamePlayManager =
+                new PlayerGamePlayManager(_gameResourceProvider,
+                    _gameStateManager,
+                    _playerActorManager,
+                    _teamManager,
+                    _inputActions,
+                    _sceneManager,
+                    mainCamera)
+            );
 
-            _cameraManager = new CameraManager(_inputActions,
-                _playerGamePlayManager,
-                _sceneManager,
-                _gameStateManager,
-                mainCamera,
-                touchControlUI,
-                curtainImage);
-            ServiceLocator.Instance.Register(_cameraManager);
+            ServiceLocator.Instance.Register(_cameraManager =
+                new CameraManager(_inputActions,
+                    _playerGamePlayManager,
+                    _sceneManager,
+                    _gameStateManager,
+                    mainCamera,
+                    touchControlUI,
+                    curtainImage)
+            );
 
-            _minimapManager = new MinimapManager(mainCamera,
-                _sceneManager, miniMapCanvasGroup, miniMapImage,
-                new MinimapTextureCreator(UITheme.MinimapObstacleColor,
-                    UITheme.MinimapWallColor,
-                    UITheme.MinimapFloorColor));
-            ServiceLocator.Instance.Register(_minimapManager);
+            ServiceLocator.Instance.Register(_minimapManager =
+                new MinimapManager(mainCamera,
+                    _sceneManager,
+                    miniMapCanvasGroup,
+                    miniMapImage,
+                    new MinimapTextureCreator(
+                        UITheme.MinimapObstacleColor,
+                        UITheme.MinimapWallColor,
+                        UITheme.MinimapFloorColor))
+            );
 
-            _informationManager = new InformationManager(_gameSettings,
-                fpsCounter, noteCanvasGroup, noteText, debugInfo);
-            ServiceLocator.Instance.Register(_informationManager);
+            ServiceLocator.Instance.Register(_informationManager =
+                new InformationManager(_gameSettings,
+                    fpsCounter,
+                    noteCanvasGroup,
+                    noteText,
+                    debugInfo)
+            );
 
-            _dialogueManager = new DialogueManager(_gameResourceProvider,
-                _gameStateManager,
-                _sceneManager,
-                _inputManager,
-                eventSystem,
-                dialogueCanvasGroup,
-                dialogueBackgroundImage,
-                dialogueAvatarImageLeft,
-                dialogueAvatarImageRight,
-                dialogueTextLeft,
-                dialogueTextRight,
-                dialogueTextDefault,
-                dialogueSelectionButtonsCanvas,
-                dialogueSelectionButtonPrefab);
-            ServiceLocator.Instance.Register(_dialogueManager);
+            ServiceLocator.Instance.Register(_dialogueManager =
+                new DialogueManager(_gameResourceProvider,
+                    _gameStateManager,
+                    _sceneManager,
+                    _inputManager,
+                    eventSystem,
+                    dialogueCanvasGroup,
+                    dialogueBackgroundImage,
+                    dialogueAvatarImageLeft,
+                    dialogueAvatarImageRight,
+                    dialogueTextLeft,
+                    dialogueTextRight,
+                    dialogueTextDefault,
+                    dialogueSelectionButtonsCanvas,
+                    dialogueSelectionButtonPrefab)
+            );
 
-            _combatManager = new CombatManager(_gameResourceProvider,
-                _teamManager, mainCamera, _sceneManager);
-            ServiceLocator.Instance.Register(_combatManager);
+            ServiceLocator.Instance.Register(_combatManager =
+                new CombatManager(_gameResourceProvider,
+                    _teamManager,
+                    mainCamera,
+                    _sceneManager)
+            );
 
-            _combatCoordinator = new CombatCoordinator(_gameResourceProvider,
-                _gameSettings, _combatManager, _playerActorManager,
-                _audioManager, _sceneManager, _gameStateManager);
-            ServiceLocator.Instance.Register(_combatCoordinator);
+            ServiceLocator.Instance.Register(_combatCoordinator =
+                new CombatCoordinator(_gameResourceProvider,
+                    _gameSettings,
+                    _combatManager,
+                    _playerActorManager,
+                    _audioManager,
+                    _sceneManager,
+                    _gameStateManager)
+            );
 
-            _saveManager = new SaveManager(_sceneManager, _playerActorManager,
-                _teamManager, _inventoryManager, _sceneStateManager,
-                _worldMapManager, _scriptManager, _favorManager,
-                #if PAL3A
-                _taskManager,
-                #endif
-                _cameraManager, _audioManager, _postProcessManager);
-            ServiceLocator.Instance.Register(_saveManager);
+            ServiceLocator.Instance.Register(_saveManager =
+                new SaveManager(_sceneManager,
+                    _playerActorManager,
+                    _teamManager,
+                    _inventoryManager,
+                    _sceneStateManager,
+                    _worldMapManager,
+                    _scriptManager,
+                    _favorManager,
+                    #if PAL3A
+                    _taskManager,
+                    #endif
+                    _cameraManager,
+                    _audioManager,
+                    _postProcessManager)
+            );
 
-            _mainMenu = new MainMenu(_gameSettings, _inputManager, _sceneManager,
-                _gameStateManager, _scriptManager, _teamManager,
-                _saveManager,_informationManager, _mazeSkipper,
-                mainMenuCanvasGroup, menuButtonPrefab, contentScrollRect,
-                backgroundTransform, contentTransform, eventSystem, mainCamera);
-            ServiceLocator.Instance.Register(_mainMenu);
+            ServiceLocator.Instance.Register(_mainMenu =
+                new MainMenu(_gameSettings,
+                    _inputManager,
+                    _sceneManager,
+                    _gameStateManager,
+                    _scriptManager,
+                    _teamManager,
+                    _saveManager,
+                    _informationManager,
+                    _mazeSkipper,
+                    mainMenuCanvasGroup,
+                    menuButtonPrefab,
+                    contentScrollRect,
+                    backgroundTransform,
+                    contentTransform,
+                    eventSystem,
+                    mainCamera));
 
-            _allRegisteredServices = ServiceLocator.Instance.GetAllRegisteredServices();
+            _allDisposableServices = ServiceLocator.Instance.GetAllRegisteredServices().Where(o => o is IDisposable);
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
@@ -521,7 +610,7 @@ namespace Pal3
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
 
-            foreach (IDisposable service in _allRegisteredServices.Where(s => s is IDisposable))
+            foreach (IDisposable service in _allDisposableServices)
             {
                 Debug.Log($"[{nameof(Pal3)}] Disposing service {service.GetType().Name}.");
                 service.Dispose();
