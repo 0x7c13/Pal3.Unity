@@ -75,13 +75,13 @@ namespace Pal3.GameSystems.Combat
             _combatScnFile = resourceProvider.GetGameResourceFile<CombatScnFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_SCN_FILE_NAME);
 
-            _combatManager.OnCombatFinished += OnOnCombatFinished;
+            _combatManager.OnCombatFinished += OnCombatFinished;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         public void Dispose()
         {
-            _combatManager.OnCombatFinished -= OnOnCombatFinished;
+            _combatManager.OnCombatFinished -= OnCombatFinished;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
@@ -134,7 +134,7 @@ namespace Pal3.GameSystems.Combat
             _combatManager.EnterCombat(_currentCombatContext);
         }
 
-        private void OnOnCombatFinished(object sender, bool isPlayerWin)
+        private void OnCombatFinished(object sender, bool isPlayerWin)
         {
             _combatManager.ExitCombat();
             _currentCombatContext.ScriptWaiter?.CancelWait();
