@@ -14,22 +14,25 @@ namespace Pal3.State
     using Audio;
     using Camera;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Utils;
+    using Core.Primitives;
     using Effect.PostProcessing;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using GamePlay;
     using GameSystems.WorldMap;
     using GameSystems.Favor;
     using GameSystems.Inventory;
     using GameSystems.Team;
-    using MetaData;
     using Scene;
     using Script;
     using UnityEngine;
+    using Path = System.IO.Path;
 
     #if PAL3A
     using GameSystems.Task;
@@ -171,7 +174,7 @@ namespace Pal3.State
             var playerActorMovementController = currentScene
                 .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
-            Vector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
+            GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
             var varsToSave = _scriptManager.GetGlobalVariables();
             if (saveLevel == SaveLevel.Minimal)
@@ -250,7 +253,7 @@ namespace Pal3.State
                 new ActorSetWorldPositionCommand(currentPlayerActorId,
                     playerActorWorldPosition.x, playerActorWorldPosition.z),
                 new ActorSetYPositionCommand(currentPlayerActorId,
-                    playerActorGameBoxPosition.y),
+                    playerActorGameBoxPosition.Y),
                 new ActorSetFacingCommand(currentPlayerActorId,
                     (int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
             });
@@ -289,9 +292,9 @@ namespace Pal3.State
                 commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
                     huaYingMovementController.GetCurrentLayerIndex()));
                 Vector3 position = huaYingMovementController.GetWorldPosition();
-                Vector3 gameBoxPosition = position.ToGameBoxPosition();
+                GameBoxVector3 gameBoxPosition = position.ToGameBoxPosition();
                 commands.Add(new ActorSetWorldPositionCommand((int)PlayerActorId.HuaYing, position.x, position.z));
-                commands.Add(new ActorSetYPositionCommand((int)PlayerActorId.HuaYing, gameBoxPosition.y));
+                commands.Add(new ActorSetYPositionCommand((int)PlayerActorId.HuaYing, gameBoxPosition.Y));
                 commands.Add(new ActorSetFacingCommand((int)PlayerActorId.HuaYing,
                     (int)huaYingGameObject.transform.rotation.eulerAngles.y));
             }
@@ -352,17 +355,17 @@ namespace Pal3.State
                 var currentPosition = actorGameObject.transform.position;
                 var currentGameBoxPosition = currentPosition.ToGameBoxPosition();
 
-                if (Mathf.Abs(currentGameBoxPosition.x - actor.Info.GameBoxXPosition) > 0.01f ||
-                    Mathf.Abs(currentGameBoxPosition.z - actor.Info.GameBoxZPosition) > 0.01f)
+                if (Mathf.Abs(currentGameBoxPosition.X - actor.Info.GameBoxXPosition) > 0.01f ||
+                    Mathf.Abs(currentGameBoxPosition.Z - actor.Info.GameBoxZPosition) > 0.01f)
                 {
                     commands.Add(new ActorSetWorldPositionCommand(actorId,
                         currentPosition.x, currentPosition.z));
                 }
 
-                if (Mathf.Abs(currentGameBoxPosition.y - actor.Info.GameBoxYPosition) > 0.01f)
+                if (Mathf.Abs(currentGameBoxPosition.Y - actor.Info.GameBoxYPosition) > 0.01f)
                 {
                     commands.Add(new ActorSetYPositionCommand(actorId,
-                        currentGameBoxPosition.y));
+                        currentGameBoxPosition.Y));
                 }
 
                 if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=

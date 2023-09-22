@@ -10,18 +10,19 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using System.Linq;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
-    using MetaData;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
 
@@ -78,7 +79,7 @@ namespace Pal3.Scene.SceneObjects
 
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(interactionIndicatorModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(interactionIndicatorModelPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(interactionIndicatorModelPath, CpkConstants.DirectorySeparatorChar));
                 _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,

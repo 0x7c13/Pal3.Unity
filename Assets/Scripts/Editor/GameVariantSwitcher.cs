@@ -7,7 +7,7 @@ namespace Editor
 {
     using System;
     using System.Linq;
-    using Pal3.MetaData;
+    using Pal3.Constants;
     using UnityEditor;
     using UnityEditor.Build;
     using UnityEngine;

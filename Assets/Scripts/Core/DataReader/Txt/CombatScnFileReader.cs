@@ -8,7 +8,7 @@ namespace Core.DataReader.Txt
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using Contracts;
+    using Contract.Enums;
 
     public sealed class CombatScnFileReader : IFileReader<CombatScnFile>
     {

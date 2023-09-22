@@ -5,9 +5,8 @@
 
 namespace Core.DataReader.Nav
 {
-    using Contracts;
-    using GameBox;
-    using UnityEngine;
+    using Contract.Enums;
+    using Primitives;
 
     // NAV (.nav) file header
     internal struct NavHeader
@@ -33,19 +32,11 @@ namespace Core.DataReader.Nav
         }
     }
 
-    // public struct NavLayerNode
-    // {
-    //     public GameBoxAABBox BoundBox;
-    //     public Vector3[] Triangles;
-    //     public int Level; // 0: root,  child level = parent level + 1
-    //     public NavLayerNode[] Children; // 4
-    // }
-
     public struct NavTileLayer
     {
         public GameBoxRect[] Portals; // Max of 8
-        public Vector3 Max;
-        public Vector3 Min;
+        public GameBoxVector3 GameBoxMaxWorldPosition;
+        public GameBoxVector3 GameBoxMinWorldPosition;
         public int Width;
         public int Height;
         public NavTile[] Tiles;
@@ -53,8 +44,8 @@ namespace Core.DataReader.Nav
 
     public struct NavFaceLayer
     {
-        public Vector3[] Vertices;
-        public int[] Triangles;
+        public GameBoxVector3[] GameBoxVertices;
+        public int[] GameBoxTriangles;
         //public NavLayerNode[] Nodes;
     }
 

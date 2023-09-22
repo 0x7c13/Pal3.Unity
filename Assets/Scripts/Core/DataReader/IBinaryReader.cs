@@ -9,7 +9,7 @@ namespace Core.DataReader
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using UnityEngine;
+    using Primitives;
 
     /// <summary>
     /// Binary reader interface for reading data from binary file
@@ -151,15 +151,15 @@ namespace Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector2 ReadVector2() => new (ReadSingle(), ReadSingle());
+        GameBoxVector2 ReadVector2() => new (ReadSingle(), ReadSingle());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector3 ReadVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
+        GameBoxVector3 ReadVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Vector3[] ReadVector3s(int count)
+        GameBoxVector3[] ReadVector3s(int count)
         {
-            var array = new Vector3[count];
+            var array = new GameBoxVector3[count];
             for (var i = 0; i < count; i++)
             {
                 array[i] = ReadVector3();

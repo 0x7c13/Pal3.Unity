@@ -13,19 +13,22 @@ namespace Pal3.Data
     using System.Text;
     using System.Threading;
     using Command;
-    using Command.InternalCommands;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Command.Extensions;
+    using Constants;
+    using Core.Command;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader;
     using Core.DataReader.Cpk;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Mv3;
-    using Core.Extensions;
     using Core.FileSystem;
-    using Core.Services;
-    using Core.Utils;
-    using MetaData;
+    using Core.Utilities;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Services;
+    using Engine.Utilities;
     using Rendering.Material;
     using Settings;
     using UnityEngine;
@@ -86,7 +89,7 @@ namespace Pal3.Data
 
         private GdbFile GetGameDatabaseFile()
         {
-            var gdbFilePath = FileConstants.GameDatabaseFileVirtualPath;
+            var gdbFilePath = FileConstants.CombatDataFolderVirtualPath + $"{GameConstants.AppName}_Softstar.gdb";
             return GetGameResourceFile<GdbFile>(gdbFilePath);
         }
 
@@ -349,12 +352,12 @@ namespace Pal3.Data
             var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
+                CoreUtility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
 
             var textures = new Texture2D[FileConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
-                var textureNameFormat = Utility.GetFileName(
+                var textureNameFormat = CoreUtility.GetFileName(
                     string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DIR_SEPARATOR);
                 Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
@@ -487,7 +490,7 @@ namespace Pal3.Data
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                Utility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
+                CoreUtility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
 
             if (effect == GraphicsEffectType.Fire)
             {
@@ -495,7 +498,7 @@ namespace Pal3.Data
                 var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
-                    var textureNameFormat = Utility.GetFileName(texturePathFormat, DIR_SEPARATOR);
+                    var textureNameFormat = CoreUtility.GetFileName(texturePathFormat, DIR_SEPARATOR);
                     Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }

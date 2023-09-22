@@ -8,7 +8,6 @@ namespace Core.DataReader.Cpk
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using UnityEngine;
 
     /// <summary>
     /// Crc32 hash provider.
@@ -40,8 +39,6 @@ namespace Core.DataReader.Cpk
             }
 
             _initialized = true;
-
-            Debug.Log($"[{nameof(Crc32Hash)}] CRC32 table initialized.");
         }
 
         public uint Compute(string str, int codepage, bool useCache = true)

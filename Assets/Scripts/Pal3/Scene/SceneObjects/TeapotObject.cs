@@ -9,10 +9,10 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Animation;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.Teapot)]

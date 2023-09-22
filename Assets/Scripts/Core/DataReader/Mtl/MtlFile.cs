@@ -5,7 +5,7 @@
 
 namespace Core.DataReader.Mtl
 {
-    using GameBox;
+    using Primitives;
 
     public sealed class MtlFile
     {

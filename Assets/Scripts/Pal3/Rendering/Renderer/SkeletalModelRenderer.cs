@@ -11,15 +11,16 @@ namespace Pal3.Rendering.Renderer
     using System.Threading;
     using Core.DataReader.Msh;
     using Core.DataReader.Mov;
-    using Core.DataLoader;
     using Core.DataReader.Mtl;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Renderer;
-    using Core.Utils;
+    using Core.Primitives;
+    using Core.Utilities;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Material;
     using Rendering;
     using UnityEngine;
+    using Color = UnityEngine.Color;
 
     internal class Bone
     {
@@ -56,7 +57,7 @@ namespace Pal3.Rendering.Renderer
 
             for (var i = 0; i < track.KeyFrames.Length; i++)
             {
-                FrameTicks[i] = track.KeyFrames[i].Tick;
+                FrameTicks[i] = track.KeyFrames[i].KeySeconds.SecondsToGameBoxTick();
             }
         }
 
@@ -189,15 +190,16 @@ namespace Pal3.Rendering.Renderer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                uint tick = (Time.timeSinceLevelLoad - startTime).GameBoxSecondsToTick();
+                float seconds = Time.timeSinceLevelLoad - startTime;
 
-                if (tick >= _movFile.Duration)
+                if (seconds >= _movFile.Duration)
                 {
                     yield break;
                 }
 
                 if (IsVisibleToCamera())
                 {
+                    uint tick = seconds.SecondsToGameBoxTick();
                     UpdateBone(_bones[0], tick);
                     UpdateSkinning();
                 }
@@ -226,21 +228,21 @@ namespace Pal3.Rendering.Renderer
 
             if (track != null)
             {
-                int currentFrameIndex = Utility.GetFloorIndex(bone.FrameTicks, tick);
+                int currentFrameIndex = CoreUtility.GetFloorIndex(bone.FrameTicks, tick);
                 uint currentFrameTick = bone.FrameTicks[currentFrameIndex];
                 var nextFrameIndex = currentFrameIndex < bone.FrameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                uint nextFrameTick = nextFrameIndex == 0 ? _movFile.Duration : bone.FrameTicks[nextFrameIndex];
+                uint nextFrameTick = nextFrameIndex == 0 ? _movFile.Duration.SecondsToGameBoxTick() : bone.FrameTicks[nextFrameIndex];
 
                 var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
                 Vector3 localPosition = Vector3.Lerp(
-                    track.Value.KeyFrames[currentFrameIndex].Translation,
-                    track.Value.KeyFrames[nextFrameIndex].Translation,
+                    track.Value.KeyFrames[currentFrameIndex].GameBoxTranslation.ToUnityPosition(),
+                    track.Value.KeyFrames[nextFrameIndex].GameBoxTranslation.ToUnityPosition(),
                     influence);
 
                 Quaternion localRotation = Quaternion.Slerp(
-                    track.Value.KeyFrames[currentFrameIndex].Rotation,
-                    track.Value.KeyFrames[nextFrameIndex].Rotation,
+                    track.Value.KeyFrames[currentFrameIndex].GameBoxRotation.MshQuaternionToUnityQuaternion(),
+                    track.Value.KeyFrames[nextFrameIndex].GameBoxRotation.MshQuaternionToUnityQuaternion(),
                     influence);
 
                 boneGo.transform.SetLocalPositionAndRotation(localPosition, localRotation);
@@ -279,7 +281,8 @@ namespace Pal3.Rendering.Renderer
             GameObject boneGo = new GameObject($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
 
             boneGo.transform.SetParent(parentBone == null ? gameObject.transform : parentBone.GameObject.transform);
-            boneGo.transform.SetLocalPositionAndRotation(boneNode.Translation, boneNode.Rotation);
+            boneGo.transform.SetLocalPositionAndRotation(boneNode.GameBoxTranslation.ToUnityPosition(),
+                boneNode.GameBoxRotation.MshQuaternionToUnityQuaternion());
 
             Bone bone = new (boneNode.Name, boneGo, boneNode);
 
@@ -290,8 +293,8 @@ namespace Pal3.Rendering.Renderer
             else
             {
                 _bones.Add(boneNode.Id, bone);
-                Matrix4x4 translationMatrix = Matrix4x4.Translate(boneNode.Translation);
-                Matrix4x4 rotationMatrix = Matrix4x4.Rotate(boneNode.Rotation);
+                Matrix4x4 translationMatrix = Matrix4x4.Translate(boneNode.GameBoxTranslation.ToUnityPosition());
+                Matrix4x4 rotationMatrix = Matrix4x4.Rotate(boneNode.GameBoxRotation.MshQuaternionToUnityQuaternion());
                 bone.BindPoseModelToBoneSpace = Matrix4x4.Inverse(rotationMatrix)
                                                 * Matrix4x4.Inverse(translationMatrix)
                                                 * parentBone.BindPoseModelToBoneSpace;
@@ -345,12 +348,11 @@ namespace Pal3.Rendering.Renderer
             }
 
             _indexBuffer[subMeshIndex] = indexBuffer;
-            triangles.ToUnityTriangles();
 
             Vector3[] vertices = new Vector3[numOfIndices];
             for (var i = 0; i < numOfIndices; i++)
             {
-                vertices[i] = subMesh.Vertices[indexBuffer[i]].Position;
+                vertices[i] = subMesh.Vertices[indexBuffer[i]].GameBoxPosition.ToUnityPosition();
             }
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
@@ -363,7 +365,7 @@ namespace Pal3.Rendering.Renderer
             var meshRenderer = _meshObjects[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
                 vertices,
-                triangles,
+                triangles.ToUnityTriangles(),
                 normals: null,
                 uvs1,
                 secondaryTextureUvs: null,
@@ -396,8 +398,9 @@ namespace Pal3.Rendering.Renderer
                 int boneId = vert.BoneIds[0];
                 Bone bone = _bones[boneId];
 
-                Vector4 originalPosition = new Vector4(vert.Position.x, vert.Position.y, vert.Position.z, 1.0f);
-                Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace * originalPosition;
+                Vector3 originalPosition = vert.GameBoxPosition.ToUnityPosition();
+                Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace *
+                                          new Vector4(originalPosition.x, originalPosition.y, originalPosition.z, 1.0f);
 
                 vertexBuffer[i] = new Vector3(
                     currentPosition.x / currentPosition.w,

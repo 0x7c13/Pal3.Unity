@@ -5,8 +5,7 @@
 
 namespace Core.DataReader.Pol
 {
-    using GameBox;
-    using UnityEngine;
+    using Primitives;
 
     // POLY (.pol) file header
     public struct PolHeader
@@ -19,23 +18,24 @@ namespace Core.DataReader.Pol
     public struct PolGeometryNode
     {
         public string Name;
-        public Vector3 Position;
+        public GameBoxVector3 GameBoxPosition;
         public float Radius;
         public int Offset;
     }
 
     public struct PolVertexInfo
     {
-        public Vector3[] Positions;
-        public Vector3[] Normals;
+        public GameBoxVector3[] GameBoxPositions;
+        public GameBoxVector3[] GameBoxNormals;
         public Color32[] DiffuseColors;
         public Color32[] SpecularColors;
-        public Vector2[][] Uvs;
+        public GameBoxVector2[][] Uvs;
     }
 
     public struct PolMesh
     {
-        public Bounds Bounds;
+        public GameBoxVector3 GameBoxBoundsMin;
+        public GameBoxVector3 GameBoxBoundsMax;
         public uint VertexFvfFlag;
         public PolVertexInfo VertexInfo;
         public PolTexture[] Textures;
@@ -47,13 +47,13 @@ namespace Core.DataReader.Pol
         public GameBoxMaterial Material;
         public uint VertStart;
         public uint VertEnd;
-        public int[] Triangles;
+        public int[] GameBoxTriangles;
     }
 
     public struct TagNode
     {
         public string Name;
-        public Vector3 Origin;
+        public GameBoxMatrix4x4 GameBoxTransformMatrix;
         public uint TintColor;
     }
 

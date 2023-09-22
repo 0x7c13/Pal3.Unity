@@ -6,7 +6,7 @@
 namespace Core.DataReader.Msh
 {
     using System;
-    using UnityEngine;
+    using Primitives;
 
     public enum BoneNodeType
     {
@@ -35,7 +35,7 @@ namespace Core.DataReader.Msh
 
     public struct PhyVertex
     {
-        public Vector3 Position;
+        public GameBoxVector3 GameBoxPosition;
         public byte[] BoneIds;
         public byte[] Weights;
     }
@@ -65,11 +65,11 @@ namespace Core.DataReader.Msh
         public int ParentId;
         public BoneNode[] Children;
 
-        public Vector3 Translation;
-        public Quaternion Rotation;
-        public Matrix4x4 Scale;
+        public GameBoxVector3 GameBoxTranslation;
+        public GameBoxQuaternion GameBoxRotation;
+        public GameBoxMatrix4x4 GameBoxScale;
         public float FlipScaleSign; // Sign of the determinant of the matrix
-        public Matrix4x4 LocalTransform; // The matrix transform from model space to bone space
+        public GameBoxMatrix4x4 GameBoxLocalTransform; // The matrix transform from model space to bone space
     }
 
     public sealed class MshFile

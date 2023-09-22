@@ -7,9 +7,10 @@ namespace Pal3.UI
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Core.Contracts;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Contract.Enums;
+    using Engine.Utilities;
     using Scene;
     using State;
     using UnityEngine;

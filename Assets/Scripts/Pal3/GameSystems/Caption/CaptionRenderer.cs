@@ -8,12 +8,13 @@ namespace Pal3.GameSystems.Caption
     using System;
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Extensions;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using Input;
     using Script.Waiter;
     using UnityEngine;

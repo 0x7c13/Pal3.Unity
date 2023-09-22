@@ -5,7 +5,7 @@
 
 namespace Core.DataReader.Dxt
 {
-	using Utils;
+	using Utilities;
 
 	/// <summary>
 	/// Decode DXT1 image data and convert it to RGBA32(RGB888).
@@ -43,8 +43,8 @@ namespace Core.DataReader.Dxt
 			ushort color0 = *(ushort*)src;
 			ushort color1 = *(ushort*)(src + 2);
 
-			Utility.Rgb565ToRgb888(color0, out var r0, out var g0, out var b0);
-			Utility.Rgb565ToRgb888(color1, out var r1, out var g1, out var b1);
+			CoreUtility.Rgb565ToRgb888(color0, out var r0, out var g0, out var b0);
+			CoreUtility.Rgb565ToRgb888(color1, out var r1, out var g1, out var b1);
 
 			uint lookupTable = *(uint*)(src + 4);
 

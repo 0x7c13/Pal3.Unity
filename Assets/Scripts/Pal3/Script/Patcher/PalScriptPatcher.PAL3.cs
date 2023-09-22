@@ -8,9 +8,10 @@
 namespace Pal3.Script.Patcher
 {
     using System.Collections.Generic;
-    using Command;
-    using Command.SceCommands;
-    using MetaData;
+    using Constants;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
 
     public sealed class PalScriptPatcher : IPalScriptPatcher
     {

@@ -9,14 +9,12 @@ namespace Pal3.Scene.SceneObjects
 {
     using System;
     using System.Collections;
-    using Command;
-    using Command.SceCommands;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.RotatingBridge)]

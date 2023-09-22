@@ -7,17 +7,18 @@ namespace Pal3.Actor.Controllers
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Mv3;
     using Core.DataReader.Pol;
-    using Core.Extensions;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
-    using MetaData;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
@@ -115,7 +116,7 @@ namespace Pal3.Actor.Controllers
                 string mv3FilePath = _actor.GetActionFilePath(actionName);
                 mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(mv3FilePath);
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(mv3FilePath, CpkConstants.DirectorySeparatorChar));
             }
             catch (Exception ex)
             {
@@ -141,7 +142,7 @@ namespace Pal3.Actor.Controllers
                 string weaponPath = FileConstants.GetWeaponModelFileVirtualPath(weaponName);
                 PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(weaponPath);
                 ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(weaponPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(weaponPath, CpkConstants.DirectorySeparatorChar));
                 _mv3ModelRenderer.Init(mv3File,
                     _materialFactory,
                     textureProvider,

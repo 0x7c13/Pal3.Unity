@@ -6,15 +6,15 @@
 namespace Pal3.Effect
 {
     using System;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
-    using Core.Extensions;
-    using Core.Renderer;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
-    using MetaData;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Rendering.Material;
     using Rendering.Renderer;
     using UnityEngine;
@@ -39,7 +39,7 @@ namespace Pal3.Effect
             {
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(info.ModelPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(info.ModelPath, CpkConstants.DirectorySeparatorChar));
                 _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,

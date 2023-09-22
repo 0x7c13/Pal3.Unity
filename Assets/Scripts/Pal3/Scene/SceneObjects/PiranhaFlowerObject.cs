@@ -7,15 +7,16 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
+    using Core.Primitives;
     using Data;
-    using MetaData;
+    using Engine.Extensions;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.PiranhaFlower)]
@@ -29,7 +30,7 @@ namespace Pal3.Scene.SceneObjects
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider,
-            Color tintColor)
+            UnityEngine.Color tintColor)
         {
             if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
@@ -100,7 +101,7 @@ namespace Pal3.Scene.SceneObjects
 
             yield return  GetCvdModelRenderer().PlayAnimationAsync(1.9f, 1, 1f, true);
 
-            Vector3 worldPosition = new Vector3(
+            Vector3 worldPosition = new GameBoxVector3(
                     ObjectInfo.Parameters[0],
                     0f,
                     ObjectInfo.Parameters[1]).ToUnityPosition();

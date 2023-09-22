@@ -9,9 +9,10 @@ namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
-    using Command.SceCommands;
-    using Core.Services;
-    using MetaData;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Engine.Services;
     using Script;
 
     public sealed class HideFightMiniGame : IDisposable,

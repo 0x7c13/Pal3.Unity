@@ -10,12 +10,12 @@ namespace Pal3.Scene.SceneObjects
     using System;
     using System.Collections;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Services;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Services;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.WaterSurfaceRoadBlocker)]

@@ -9,9 +9,8 @@ namespace Core.DataReader.Cvd
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
-    using GameBox;
-    using UnityEngine;
-    using Utils;
+    using Primitives;
+    using Utilities;
 
     public sealed class CvdFileReader : IFileReader<CvdFile>
     {
@@ -70,26 +69,23 @@ namespace Core.DataReader.Cvd
             ref float animationDuration,
             int codepage)
         {
-            var positionKeySize = Mathf.Max(
-                Marshal.SizeOf(typeof(CvdTcbVector3Key)),
-                Marshal.SizeOf(typeof(CvdBezierVector3Key)),
-                Marshal.SizeOf(typeof(CvdLinearVector3Key)));
+            var positionKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbVector3Key)),
+                Math.Max(Marshal.SizeOf(typeof(CvdBezierVector3Key)),
+                    Marshal.SizeOf(typeof(CvdLinearVector3Key))));
 
             var positionKeyInfos = ReadPositionAnimationKeyInfo(reader, positionKeySize);
             if (positionKeyInfos[^1].Time > animationDuration) animationDuration = positionKeyInfos[^1].Time;
 
-            var rotationKeySize = Mathf.Max(
-                Marshal.SizeOf(typeof(CvdTcbRotationKey)),
-                Marshal.SizeOf(typeof(CvdBezierRotationKey)),
-                Marshal.SizeOf(typeof(CvdLinearRotationKey)));
+            var rotationKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbRotationKey)),
+                Math.Max(Marshal.SizeOf(typeof(CvdBezierRotationKey)),
+                Marshal.SizeOf(typeof(CvdLinearRotationKey))));
 
             var rotationKeyInfos = ReadRotationAnimationKeyInfo(reader, rotationKeySize);
             if (rotationKeyInfos[^1].Time > animationDuration) animationDuration = rotationKeyInfos[^1].Time;
 
-            var scaleKeySize = Mathf.Max(
-                Marshal.SizeOf(typeof(CvdTcbScaleKey)),
-                Marshal.SizeOf(typeof(CvdBezierScaleKey)),
-                Marshal.SizeOf(typeof(CvdLinearScaleKey)));
+            var scaleKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbScaleKey)),
+                Math.Max(Marshal.SizeOf(typeof(CvdBezierScaleKey)),
+                Marshal.SizeOf(typeof(CvdLinearScaleKey))));
 
             var scaleKeyInfos = ReadScaleAnimationKeyInfo(reader, scaleKeySize);
             if (scaleKeyInfos[^1].Time > animationDuration) animationDuration = scaleKeyInfos[^1].Time;
@@ -99,7 +95,7 @@ namespace Core.DataReader.Cvd
             CvdMesh mesh = ReadMesh(reader, version, codepage);
             if (mesh.AnimationTimeKeys[^1] > animationDuration) animationDuration = mesh.AnimationTimeKeys[^1];
 
-            var transformMatrix = new GameBoxMatrix4X4()
+            var transformMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
@@ -147,34 +143,34 @@ namespace Core.DataReader.Cvd
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var positionKey = Utility.ReadStruct<CvdTcbVector3Key>(data);
+                        var positionKey = CoreUtility.ReadStruct<CvdTcbVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
                             Time = positionKey.TcbKey.AnimationKey.Time,
-                            Position = positionKey.Value.CvdPositionToUnityPosition(),
+                            GameBoxPosition = positionKey.Value,
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var positionKey = Utility.ReadStruct<CvdBezierVector3Key>(data);
+                        var positionKey = CoreUtility.ReadStruct<CvdBezierVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
                             Time = positionKey.AnimationKey.Time,
-                            Position = positionKey.Value.CvdPositionToUnityPosition(),
+                            GameBoxPosition = positionKey.Value,
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var positionKey = Utility.ReadStruct<CvdLinearVector3Key>(data);
+                        var positionKey = CoreUtility.ReadStruct<CvdLinearVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
                             Time = positionKey.AnimationKey.Time,
-                            Position = positionKey.Value.CvdPositionToUnityPosition(),
+                            GameBoxPosition = positionKey.Value,
                         };
                         break;
                     }
@@ -197,41 +193,41 @@ namespace Core.DataReader.Cvd
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var rotationKey = Utility.ReadStruct<CvdTcbRotationKey>(data);
-                        Quaternion quaternion = Quaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
+                        var rotationKey = CoreUtility.ReadStruct<CvdTcbRotationKey>(data);
+                        GameBoxQuaternion quaternion = GameBoxQuaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
                             Time = rotationKey.TcbKey.AnimationKey.Time,
-                            Rotation = new GameBoxQuaternion()
+                            GameBoxRotation = new GameBoxQuaternion()
                             {
-                                X = quaternion.x,
-                                Y = quaternion.y,
-                                Z = quaternion.z,
-                                W = quaternion.w,
-                            }.CvdQuaternionToUnityQuaternion()
+                                X = quaternion.X,
+                                Y = quaternion.Y,
+                                Z = quaternion.Z,
+                                W = quaternion.W,
+                            }
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var rotationKey = Utility.ReadStruct<CvdBezierRotationKey>(data);
+                        var rotationKey = CoreUtility.ReadStruct<CvdBezierRotationKey>(data);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
                             Time = rotationKey.AnimationKey.Time,
-                            Rotation = rotationKey.Value.CvdQuaternionToUnityQuaternion()
+                            GameBoxRotation = rotationKey.Value
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var rotationKey = Utility.ReadStruct<CvdLinearRotationKey>(data);
+                        var rotationKey = CoreUtility.ReadStruct<CvdLinearRotationKey>(data);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
                             Time = rotationKey.AnimationKey.Time,
-                            Rotation = rotationKey.Value.CvdQuaternionToUnityQuaternion()
+                            GameBoxRotation = rotationKey.Value
                         };
                         break;
                     }
@@ -254,37 +250,37 @@ namespace Core.DataReader.Cvd
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var scaleKey = Utility.ReadStruct<CvdTcbScaleKey>(data);
+                        var scaleKey = CoreUtility.ReadStruct<CvdTcbScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
                             Time = scaleKey.TcbKey.AnimationKey.Time,
-                            Scale = scaleKey.Value.CvdScaleToUnityScale(),
-                            Rotation = scaleKey.Rotation.CvdQuaternionToUnityQuaternion()
+                            GameBoxScale = scaleKey.Value,
+                            GameBoxRotation = scaleKey.Rotation
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var scaleKey = Utility.ReadStruct<CvdBezierScaleKey>(data);
+                        var scaleKey = CoreUtility.ReadStruct<CvdBezierScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
                             Time = scaleKey.AnimationKey.Time,
-                            Scale = scaleKey.Value.CvdScaleToUnityScale(),
-                            Rotation = scaleKey.Rotation.CvdQuaternionToUnityQuaternion()
+                            GameBoxScale = scaleKey.Value,
+                            GameBoxRotation = scaleKey.Rotation
                         };
                         break;
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var scaleKey = Utility.ReadStruct<CvdLinearScaleKey>(data);
+                        var scaleKey = CoreUtility.ReadStruct<CvdLinearScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
                             Time = scaleKey.AnimationKey.Time,
-                            Scale = scaleKey.Value.CvdScaleToUnityScale(),
-                            Rotation = scaleKey.Rotation.CvdQuaternionToUnityQuaternion()
+                            GameBoxScale = scaleKey.Value,
+                            GameBoxRotation = scaleKey.Rotation
                         };
                         break;
                     }
@@ -305,17 +301,20 @@ namespace Core.DataReader.Cvd
                 var vertices = new CvdVertex[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
-                    Vector2 uv = reader.ReadVector2();
-                    Vector3 normal = reader.ReadVector3().ToUnityNormal();
-                    Vector3 position = reader.ReadVector3().CvdPositionToUnityPosition();
+                    GameBoxVector2 uv = reader.ReadVector2();
+                    GameBoxVector3 normal = reader.ReadVector3();
+                    GameBoxVector3 position = reader.ReadVector3();
 
                     // Quick fix for the missing/wrong normals
-                    if (normal == Vector3.zero) normal = Vector3.up;
+                    if (normal == GameBoxVector3.Zero)
+                    {
+                        normal = new GameBoxVector3(0, 1, 0); // Up
+                    }
 
                     vertices[j] = new CvdVertex()
                     {
-                        Normal = normal,
-                        Position = position,
+                        GameBoxNormal = normal,
+                        GameBoxPosition = position,
                         Uv = uv
                     };
                 }
@@ -351,10 +350,10 @@ namespace Core.DataReader.Cvd
 
             GameBoxMaterial material = new ()
             {
-                Diffuse = Utility.ToColor32(reader.ReadBytes(4)),
-                Ambient = Utility.ToColor32(reader.ReadBytes(4)),
-                Specular = Utility.ToColor32(reader.ReadBytes(4)),
-                Emissive = Utility.ToColor32(reader.ReadBytes(4)),
+                Diffuse = CoreUtility.ToColor32(reader.ReadBytes(4)),
+                Ambient = CoreUtility.ToColor32(reader.ReadBytes(4)),
+                Specular = CoreUtility.ToColor32(reader.ReadBytes(4)),
+                Emissive = CoreUtility.ToColor32(reader.ReadBytes(4)),
                 SpecularPower = reader.ReadSingle(),
                 TextureFileNames = new [] { reader.ReadString(64, codepage) }
             };
@@ -387,10 +386,10 @@ namespace Core.DataReader.Cvd
                 {
                     animationMaterials[i] = new GameBoxMaterial()
                     {
-                        Diffuse = Utility.ToColor(reader.ReadSingles(4)),
-                        Ambient = Utility.ToColor(reader.ReadSingles(4)),
-                        Specular = Utility.ToColor(reader.ReadSingles(4)),
-                        Emissive = Utility.ToColor(reader.ReadSingles(4)),
+                        Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
+                        Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
+                        Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
+                        Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
                         SpecularPower = reader.ReadSingle()
                     };
                 }
@@ -399,8 +398,6 @@ namespace Core.DataReader.Cvd
             var frameVertices = new CvdVertex[allFrameVertices.Length][];
 
             (List<int> triangles, List<int> indexBuffer) = CalculateTriangles(indices);
-
-            triangles.ToUnityTriangles();
 
             for (var i = 0; i < allFrameVertices.Length; i++)
             {
@@ -420,7 +417,7 @@ namespace Core.DataReader.Cvd
                 BlendFlag = blendFlag,
                 Material = material,
                 FrameVertices = frameVertices,
-                Triangles = triangles.ToArray(),
+                GameBoxTriangles = triangles.ToArray(),
                 AnimationTimeKeys = animationTimeKeys,
                 AnimationMaterials = animationMaterials
             };

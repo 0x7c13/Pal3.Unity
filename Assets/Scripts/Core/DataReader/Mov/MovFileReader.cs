@@ -6,7 +6,7 @@
 namespace Core.DataReader.Mov
 {
     using System.IO;
-    using GameBox;
+    using Primitives;
 
     public sealed class MovFileReader : IFileReader<MovFile>
     {
@@ -43,16 +43,16 @@ namespace Core.DataReader.Mov
                 boneAnimationTracks[i] = ReadBoneAnimationTrack(reader, codepage);
             }
 
-            uint totalDuration = 0;
+            float totalDuration = 0;
             for (var i = 0; i < boneAnimationTracks.Length; i++)
             {
                 int numOfKeyFrames = boneAnimationTracks[i].KeyFrames.Length;
                 if (numOfKeyFrames > 0)
                 {
-                    uint tick = boneAnimationTracks[i].KeyFrames[numOfKeyFrames - 1].Tick;
-                    if (tick > totalDuration)
+                    float keySeconds = boneAnimationTracks[i].KeyFrames[numOfKeyFrames - 1].KeySeconds;
+                    if (keySeconds > totalDuration)
                     {
-                        totalDuration = tick;
+                        totalDuration = keySeconds;
                     }
                 }
             }
@@ -64,7 +64,7 @@ namespace Core.DataReader.Mov
         {
             return new MovAnimationEvent()
             {
-                Tick = reader.ReadSingle().GameBoxSecondsToTick(),
+                KeySeconds = reader.ReadSingle(),
                 Name = reader.ReadString(16, codepage)
             };
         }
@@ -84,16 +84,16 @@ namespace Core.DataReader.Mov
             {
                 animationKeyFrames[i] = new MovAnimationKeyFrame()
                 {
-                    Tick = reader.ReadSingle().GameBoxSecondsToTick(),
-                    Translation = reader.ReadVector3().ToUnityPosition(),
-                    Rotation = new GameBoxQuaternion()
+                    KeySeconds = reader.ReadSingle(),
+                    GameBoxTranslation = reader.ReadVector3(),
+                    GameBoxRotation = new GameBoxQuaternion()
                     {
                         X = reader.ReadSingle(),
                         Y = reader.ReadSingle(),
                         Z = reader.ReadSingle(),
                         W = reader.ReadSingle(),
-                    }.MovQuaternionToUnityQuaternion(),
-                    Scale = new []
+                    },
+                    GameBoxScale = new []
                     {
                         new [] {reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()},
                         new [] {reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()},

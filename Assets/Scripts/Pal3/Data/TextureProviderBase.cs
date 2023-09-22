@@ -5,8 +5,8 @@
 
 namespace Pal3.Data
 {
-    using Core.DataLoader;
     using Core.FileSystem;
+    using Engine.DataLoader;
     using UnityEngine;
 
     public abstract class TextureProviderBase

@@ -1,0 +1,19 @@
+﻿// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2023, Jiaqi Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ---------------------------------------------------------------------------------------------
+
+namespace Core.Command.SceCommands
+{
+    [SceCommand(78, "检查玩家是否拥有某个物品，" +
+                    "参数：该物品的数据库ID，此命令结果影响标志变量（类似VarEqualTo）")]
+    public class ScriptCheckIfPlayerHaveItemCommand : ICommand
+    {
+        public ScriptCheckIfPlayerHaveItemCommand(int itemId)
+        {
+            ItemId = itemId;
+        }
+
+        public int ItemId { get; }
+    }
+}

@@ -5,8 +5,7 @@
 
 namespace Pal3.Rendering
 {
-    using Core.Renderer;
-    using Rendering;
+    using Engine.Renderer;
     using UnityEngine;
 
     public class RenderMeshComponent

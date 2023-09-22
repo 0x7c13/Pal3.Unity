@@ -7,9 +7,10 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.SceCommands;
     using Common;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
 
     [ScnSceneObject(SceneObjectType.Collectable)]

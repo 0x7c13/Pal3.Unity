@@ -8,18 +8,18 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor.Controllers;
     using Common;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Services;
-    using Core.Utils;
+    using Core.Primitives;
+    using Core.Utilities;
     using Data;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Services;
     using GamePlay;
-    using MetaData;
     using Rendering.Material;
     using Rendering.Renderer;
     using UnityEngine;
@@ -51,7 +51,8 @@ namespace Pal3.Scene.SceneObjects
 
         public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            UnityEngine.Color tintColor)
         {
             if (IsActivated) return GetGameObject();
             GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
@@ -67,7 +68,7 @@ namespace Pal3.Scene.SceneObjects
             string indicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(INTERACTION_INDICATOR_MODEL_FILE_NAME);
             CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(indicatorModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                Utility.GetDirectoryName(indicatorModelPath, CpkConstants.DirectorySeparatorChar));
+                CoreUtility.GetDirectoryName(indicatorModelPath, CpkConstants.DirectorySeparatorChar));
 
             // Upper indicator
             {
@@ -126,7 +127,7 @@ namespace Pal3.Scene.SceneObjects
             GameObject climbableObject = GetGameObject();
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = new Vector3(0f, ObjectInfo.GameBoxYRotation, 0f)
+            Vector3 climbableObjectFacing = new GameBoxVector3(0f, ObjectInfo.GameBoxYRotation, 0f)
                 .ToUnityQuaternion() * Vector3.forward;
 
             Tilemap tileMap = ctx.CurrentScene.GetTilemap();

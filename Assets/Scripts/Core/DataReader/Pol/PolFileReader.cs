@@ -7,10 +7,8 @@ namespace Core.DataReader.Pol
 {
     using System;
     using System.IO;
-    using Extensions;
-    using GameBox;
-    using UnityEngine;
-    using Utils;
+    using Primitives;
+    using Utilities;
 
     public sealed class PolFileReader : IFileReader<PolFile>
     {
@@ -33,7 +31,7 @@ namespace Core.DataReader.Pol
                 nodeInfos[i] = new PolGeometryNode
                 {
                     Name     = reader.ReadString(32, codepage),
-                    Position = reader.ReadVector3().ToUnityPosition(),
+                    GameBoxPosition = reader.ReadVector3(),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
                 };
@@ -65,14 +63,13 @@ namespace Core.DataReader.Pol
         private static TagNode ReadTagNodeInfo(IBinaryReader reader, int codepage)
         {
             var name = reader.ReadString(32, codepage);
-            Matrix4x4 transformMatrix = new GameBoxMatrix4X4()
+            GameBoxMatrix4x4 gameBoxTransformMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
-            }.ToUnityMatrix4x4();
-            Vector3 origin = transformMatrix.MultiplyPoint(Vector3.zero).ToUnityPosition();
+            };
 
             var type = reader.ReadInt32();
             var customColorStringLength = reader.ReadInt32();
@@ -97,17 +94,15 @@ namespace Core.DataReader.Pol
             return new TagNode()
             {
                 Name = name,
-                Origin = origin,
+                GameBoxTransformMatrix = gameBoxTransformMatrix,
                 TintColor = tintColor
             };
         }
 
         private static PolMesh ReadMeshData(IBinaryReader reader, int version, int codepage)
         {
-            var bounds = new Bounds();
-            bounds.SetMinMax(
-                reader.ReadVector3().ToUnityPosition(),
-                reader.ReadVector3().ToUnityPosition());
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
 
             var vertexTypeFlag = reader.ReadUInt32();
             var numberOfVertices = reader.ReadInt32();
@@ -117,73 +112,76 @@ namespace Core.DataReader.Pol
                 throw new InvalidDataException($"Invalid POLY(.pol) file: vertices == 0");
             }
 
-            var positions = new Vector3[numberOfVertices];
-            var normals = new Vector3[numberOfVertices];
+            var gameBoxPositions = new GameBoxVector3[numberOfVertices];
+            var gameBoxNormals = new GameBoxVector3[numberOfVertices];
             var diffuseColors = new Color32[numberOfVertices];
             var specularColors = new Color32[numberOfVertices];
-            var uvs = new Vector2[4][];
+            var uvs = new GameBoxVector2[4][];
 
-            uvs[0] = new Vector2[numberOfVertices];
-            uvs[1] = new Vector2[numberOfVertices];
-            uvs[2] = new Vector2[numberOfVertices];
-            uvs[3] = new Vector2[numberOfVertices];
+            uvs[0] = new GameBoxVector2[numberOfVertices];
+            uvs[1] = new GameBoxVector2[numberOfVertices];
+            uvs[2] = new GameBoxVector2[numberOfVertices];
+            uvs[3] = new GameBoxVector2[numberOfVertices];
 
             for (var i = 0; i < numberOfVertices; i++)
             {
                 if ((vertexTypeFlag & GameBoxVertexType.XYZ) != 0)
                 {
-                    positions[i] = reader.ReadVector3().ToUnityPosition();
+                    gameBoxPositions[i] = reader.ReadVector3();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.XYZRHW) != 0)
                 {
-                    positions[i] = reader.ReadVector3().ToUnityPosition();
+                    gameBoxPositions[i] = reader.ReadVector3();
                     _ = reader.ReadSingle();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    normals[i] = reader.ReadVector3().ToUnityNormal();
+                    gameBoxNormals[i] = reader.ReadVector3();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {
-                    diffuseColors[i] = Utility.ToColor32(reader.ReadBytes(4));
+                    diffuseColors[i] = CoreUtility.ToColor32(reader.ReadBytes(4));
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Specular) != 0)
                 {
-                    specularColors[i] = Utility.ToColor32(reader.ReadBytes(4));
+                    specularColors[i] = CoreUtility.ToColor32(reader.ReadBytes(4));
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV0) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    uvs[0][i] = new Vector2(x, y);
+                    uvs[0][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV1) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    uvs[1][i] = new Vector2(x, y);
+                    uvs[1][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV2) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    uvs[2][i] = new Vector2(x, y);
+                    uvs[2][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV3) != 0)
                 {
                     var x = reader.ReadSingle();
                     var y = reader.ReadSingle();
-                    uvs[3][i] = new Vector2(x, y);
+                    uvs[3][i] = new GameBoxVector2(x, y);
                 }
 
                 // Quick fix for the missing/wrong normals
-                if (normals[i] == Vector3.zero) normals[i] = Vector3.up;
+                if (gameBoxNormals[i] == GameBoxVector3.Zero)
+                {
+                    gameBoxNormals[i] = new GameBoxVector3(0, 1, 0); // Up
+                }
             }
 
             var vertexInfo = new PolVertexInfo()
             {
-                Positions = positions,
-                Normals = normals,
+                GameBoxPositions = gameBoxPositions,
+                GameBoxNormals = gameBoxNormals,
                 DiffuseColors = diffuseColors,
                 SpecularColors = specularColors,
                 Uvs = uvs,
@@ -200,7 +198,8 @@ namespace Core.DataReader.Pol
 
             return new PolMesh
             {
-                Bounds = bounds,
+                GameBoxBoundsMin = gameBoxBoundsMin,
+                GameBoxBoundsMax = gameBoxBoundsMax,
                 VertexFvfFlag = vertexTypeFlag,
                 VertexInfo = vertexInfo,
                 Textures = textureInfos
@@ -213,10 +212,10 @@ namespace Core.DataReader.Pol
 
             GameBoxMaterial material = new ()
             {
-                Diffuse = Utility.ToColor(reader.ReadSingles(4)),
-                Ambient = Utility.ToColor(reader.ReadSingles(4)),
-                Specular = Utility.ToColor(reader.ReadSingles(4)),
-                Emissive = Utility.ToColor(reader.ReadSingles(4)),
+                Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
                 SpecularPower = reader.ReadSingle()
             };
 
@@ -240,16 +239,14 @@ namespace Core.DataReader.Pol
             var vertEnd = reader.ReadUInt32();
             var numberOfFaces = reader.ReadInt32();
 
-            var triangles = new int[numberOfFaces * 3];
+            var gameBoxTriangles = new int[numberOfFaces * 3];
             for (var i = 0; i < numberOfFaces; i++)
             {
                 var index = i * 3;
-                triangles[index] = reader.ReadUInt16();
-                triangles[index + 1] = reader.ReadUInt16();
-                triangles[index + 2] = reader.ReadUInt16();
+                gameBoxTriangles[index] = reader.ReadUInt16();
+                gameBoxTriangles[index + 1] = reader.ReadUInt16();
+                gameBoxTriangles[index + 2] = reader.ReadUInt16();
             }
-
-            triangles.ToUnityTriangles();
 
             return new PolTexture()
             {
@@ -257,7 +254,7 @@ namespace Core.DataReader.Pol
                 Material = material,
                 VertStart = vertStart,
                 VertEnd = vertEnd,
-                Triangles = triangles
+                GameBoxTriangles = gameBoxTriangles
             };
         }
     }

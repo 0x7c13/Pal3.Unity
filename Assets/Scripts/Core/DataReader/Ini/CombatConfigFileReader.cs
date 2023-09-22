@@ -10,7 +10,7 @@ namespace Core.DataReader.Ini
     using System.Text;
     using IniParser;
     using IniParser.Model;
-    using UnityEngine;
+    using Primitives;
 
     public sealed class CombatConfigFileReader : IFileReader<CombatConfigFile>
     {
@@ -31,7 +31,7 @@ namespace Core.DataReader.Ini
 
             IniData iniData = parser.ReadData(reader);
 
-            var actorGameBoxPositions = new Vector3[10];
+            var actorGameBoxPositions = new GameBoxVector3[10];
             FiveElementsFormationConfig allyFormationConfig = default;
             FiveElementsFormationConfig enemyFormationConfig = default;
             int[] levelExperienceTable = new int[100];
@@ -49,7 +49,7 @@ namespace Core.DataReader.Ini
                         if (x.Contains(";")) x = x[..x.IndexOf(';')].Trim();
                         if (z.Contains(";")) z = z[..z.IndexOf(';')].Trim();
 
-                        actorGameBoxPositions[i] = new Vector3(float.Parse(x), 0f, float.Parse(z));
+                        actorGameBoxPositions[i] = new GameBoxVector3(float.Parse(x), 0f, float.Parse(z));
                     }
                 }
 
@@ -64,7 +64,7 @@ namespace Core.DataReader.Ini
 
                     var config = new FiveElementsFormationConfig()
                     {
-                        CenterGameBoxPosition = new Vector3(float.Parse(x), float.Parse(y), float.Parse(z)),
+                        CenterGameBoxPosition = new GameBoxVector3(float.Parse(x), float.Parse(y), float.Parse(z)),
                         GameBoxRadius = float.Parse(radius),
                     };
 

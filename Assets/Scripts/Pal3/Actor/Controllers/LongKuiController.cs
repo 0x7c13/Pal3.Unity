@@ -8,8 +8,9 @@
 namespace Pal3.Actor.Controllers
 {
     using Command;
-    using Command.SceCommands;
-    using MetaData;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
     using UnityEngine;
 
     public sealed class LongKuiController : MonoBehaviour,

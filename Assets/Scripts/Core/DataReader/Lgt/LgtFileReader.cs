@@ -7,8 +7,8 @@ namespace Core.DataReader.Lgt
 {
     using System;
     using System.Collections.Generic;
-    using GameBox;
-    using Utils;
+    using Primitives;
+    using Utilities;
 
     public sealed class LgtFileReader : IFileReader<LgtFile>
     {
@@ -33,7 +33,7 @@ namespace Core.DataReader.Lgt
 
         private static LightNode ReadLightNode(IBinaryReader reader)
         {
-            var transformMatrix = new GameBoxMatrix4X4()
+            var transformMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
@@ -44,10 +44,10 @@ namespace Core.DataReader.Lgt
 
             var lightNode = new LightNode
             {
-                WorldMatrix = transformMatrix.ToUnityMatrix4x4(),
+                GameBoxWorldMatrix = transformMatrix,
                 LightType = (GameBoxLightType)reader.ReadInt32(),
-                LightColor = Utility.ToColor(reader.ReadSingles(4)),
-                AmbientColor = Utility.ToColor(reader.ReadSingles(4)),
+                LightColor = CoreUtility.ToColor(reader.ReadSingles(4)),
+                AmbientColor = CoreUtility.ToColor(reader.ReadSingles(4)),
                 UseDiffuse = reader.ReadBoolean(),
                 UseSpecular = reader.ReadBoolean(),
                 NearStart = reader.ReadSingle(),

@@ -6,10 +6,9 @@
 namespace Core.DataReader.Scn
 {
     using System;
-    using Contracts;
-    using GameBox;
+    using Contract.Enums;
     using Newtonsoft.Json;
-    using UnityEngine;
+    using Primitives;
 
     // SCN (.scn) file header
     public struct ScnHeader
@@ -26,7 +25,7 @@ namespace Core.DataReader.Scn
     public struct ScnPath
     {
         public int NumberOfWaypoints;
-        public Vector3[] GameBoxWaypoints;   // 原GameBox引擎坐标系下的路径点（X, Y, Z）数组。固定数组长度为16.
+        public GameBoxVector3[] GameBoxWaypoints;   // 原GameBox引擎坐标系下的路径点（X, Y, Z）数组。固定数组长度为16.
     }
 
     public struct ScnSceneInfo
@@ -188,7 +187,7 @@ namespace Core.DataReader.Scn
         public byte IsNonBlocking;
 
         // 原GameBox引擎下的模型位置
-        public Vector3 GameBoxPosition;
+        public GameBoxVector3 GameBoxPosition;
 
         // 渲染模型的时候转动多少角度(绕Y轴)
         public float GameBoxYRotation;
@@ -256,7 +255,9 @@ namespace Core.DataReader.Scn
         public string DependentSceneName;  // char[32]
         public byte DependentObjectId;
 
-        public Bounds Bounds;
+        public GameBoxVector3 GameBoxBoundsMin;
+        public GameBoxVector3 GameBoxBoundsMax;
+
         public float GameBoxXRotation;     // 绕X轴旋转
         #if PAL3A
         public float GameBoxZRotation;     // 绕Z轴旋转

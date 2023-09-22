@@ -7,12 +7,13 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.SceCommands;
     using Common;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
-    using MetaData;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.VirtualInvestigationTrigger)]

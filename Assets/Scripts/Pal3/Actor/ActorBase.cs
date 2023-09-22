@@ -7,11 +7,10 @@ namespace Pal3.Actor
 {
     using System;
     using System.Collections.Generic;
-    using Core.Contracts;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Ini;
-    using Core.Navigation;
     using Data;
-    using MetaData;
     using UnityEngine;
 
     public enum ActorAnimationType

@@ -9,10 +9,11 @@ namespace Pal3.Video
     using System.Collections;
     using System.IO;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
     using Data;
+    using Engine.Utilities;
     using Input;
     using Script.Waiter;
     using State;

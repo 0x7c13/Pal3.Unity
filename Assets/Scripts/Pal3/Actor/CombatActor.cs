@@ -5,10 +5,10 @@
 
 namespace Pal3.Actor
 {
-    using Core.Contracts;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Gdb;
     using Data;
-    using MetaData;
 
     public sealed class CombatActor : ActorBase
     {

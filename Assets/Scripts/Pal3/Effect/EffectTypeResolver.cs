@@ -7,7 +7,7 @@ namespace Pal3.Effect
 {
     using System;
     using System.Globalization;
-    using Core.Contracts;
+    using Core.Contract.Enums;
 
     public static class EffectTypeResolver
     {

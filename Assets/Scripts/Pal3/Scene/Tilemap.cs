@@ -7,13 +7,12 @@ namespace Pal3.Scene
 {
     using System;
     using System.Collections.Generic;
-
     using Core.Algorithm.PathFinding;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Core.GameBox;
-    using Core.Navigation;
-    using MetaData;
+    using Core.Primitives;
+    using Engine.Extensions;
+    using Engine.Navigation;
     using UnityEngine;
 
     public class Tilemap
@@ -46,20 +45,20 @@ namespace Pal3.Scene
         {
             var isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
-            var position = new Vector3(
-                currentLayer.Min.x + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
+            var position = new GameBoxVector3(
+                currentLayer.GameBoxMinWorldPosition.X + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
                 isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
-                currentLayer.Min.z + (tilePosition.y + 1/2f) * NAV_TILE_SIZE);
+                currentLayer.GameBoxMinWorldPosition.Z + (tilePosition.y + 1/2f) * NAV_TILE_SIZE);
             return position.ToUnityPosition();
         }
 
         public Vector2Int GetTilePosition(Vector3 position, int layerIndex)
         {
-            Vector3 gameBoxPosition = position.ToGameBoxPosition();
+            GameBoxVector3 gameBoxPosition = position.ToGameBoxPosition();
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
             return new Vector2Int(
-                (int) ((gameBoxPosition.x - currentLayer.Min.x) / NAV_TILE_SIZE),
-                (int) ((gameBoxPosition.z - currentLayer.Min.z) / NAV_TILE_SIZE));
+                (int) ((gameBoxPosition.X - currentLayer.GameBoxMinWorldPosition.X) / NAV_TILE_SIZE),
+                (int) ((gameBoxPosition.Z - currentLayer.GameBoxMinWorldPosition.Z) / NAV_TILE_SIZE));
         }
 
         public bool TryGetTile(Vector3 position, int layerIndex, out NavTile tile)
@@ -112,7 +111,7 @@ namespace Pal3.Scene
                     Bottom = horizontalLength < verticalLength ? portalRect.Bottom : portalRect.Bottom + 1
                 };
 
-                if (tweakedRect.IsPointInsideRect(tilePosition)) return true;
+                if (tweakedRect.IsPointInsideRect(tilePosition.x, tilePosition.y)) return true;
             }
 
             return false;
@@ -153,32 +152,34 @@ namespace Pal3.Scene
             var path = new List<Vector2Int>();
             NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
 
-            bool IsObstacle(Vector2Int position)
+            bool IsObstacle((int x, int y) position)
             {
+                Vector2Int pos = new Vector2Int(position.x, position.y);
+
                 // Check if position is blocked by predefined obstacles
                 // Ignore obstacles nearest to from and to positions just to be safe
-                if (Vector2Int.Distance(from, position) > 1 &&
-                    Vector2Int.Distance(to, position) > 1 &&
-                    obstacles.Contains(position)) return true;
+                if (Vector2Int.Distance(from, pos) > 1 &&
+                    Vector2Int.Distance(to, pos) > 1 &&
+                    obstacles.Contains(pos)) return true;
                 var index = position.x + position.y * currentLayer.Width;
 
                 return !currentLayer.Tiles[index].IsWalkable();
             }
 
-            int GetDistanceCost(Vector2Int fromTile, Vector2Int toTile)
+            int GetDistanceCost((int x, int y) fromTile, (int x, int y) toTile)
             {
                 int xDistance = Mathf.Abs(fromTile.x - toTile.x);
                 int yDistance = Mathf.Abs(fromTile.y - toTile.y);
                 int remaining = Mathf.Abs(xDistance - yDistance);
                 return MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
                        MOVE_COST_STRAIGHT * remaining +
-                       GetTileExtraWeight(GetTile(toTile, layerIndex));
+                       GetTileExtraWeight(GetTile(new Vector2Int(toTile.x, toTile.y), layerIndex));
             }
 
             var result = LazyThetaStarPathFinder.FindPath(
-                from,
-                to,
-                new Vector2Int(currentLayer.Width, currentLayer.Height),
+                (from.x, from.y),
+                (to.x, to.y),
+                (currentLayer.Width, currentLayer.Height),
                 IsObstacle,
                 GetDistanceCost);
 

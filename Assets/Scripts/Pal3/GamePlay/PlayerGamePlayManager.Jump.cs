@@ -9,13 +9,12 @@ namespace Pal3.GamePlay
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Renderer;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Scene;
     using State;
     using UnityEngine;

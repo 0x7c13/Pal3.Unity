@@ -5,8 +5,8 @@
 
 namespace Pal3.Script
 {
-    using Command;
-    using Core.Utils;
+    using Core.Command;
+    using Engine.Utilities;
     using Patcher;
 
     public sealed class PalScriptCommandPreprocessor

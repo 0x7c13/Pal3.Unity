@@ -9,12 +9,13 @@ namespace Pal3.Dev
     using System.Collections.Generic;
     using System.Linq;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
     using Core.DataReader.Scn;
-    using Core.Services;
-    using Core.Utils;
-    using MetaData;
+    using Engine.Services;
+    using Engine.Utilities;
     using Scene;
     using Script;
 

@@ -7,8 +7,9 @@ namespace Pal3.Settings
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Engine.Utilities;
     using UnityEngine;
 
     public sealed class RenderingSettingsManager : IDisposable,

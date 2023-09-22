@@ -6,8 +6,7 @@
 namespace Core.DataReader.Msh
 {
     using System.IO;
-    using GameBox;
-    using UnityEngine;
+    using Primitives;
 
     public sealed class MshFileReader : IFileReader<MshFile>
     {
@@ -64,31 +63,31 @@ namespace Core.DataReader.Msh
             var nameLength = reader.ReadInt32();
             var name = reader.ReadString(nameLength, codepage);
 
-            Vector3 translation = reader.ReadVector3().ToUnityPosition();
-            Quaternion rotation = new GameBoxQuaternion()
+            GameBoxVector3 gameBoxTranslation = reader.ReadVector3();
+            GameBoxQuaternion gameBoxRotation = new GameBoxQuaternion()
             {
                 X = reader.ReadSingle(),
                 Y = reader.ReadSingle(),
                 Z = reader.ReadSingle(),
                 W = reader.ReadSingle(),
-            }.MshQuaternionToUnityQuaternion();
+            };
 
-            Matrix4x4 scaleMatrix = new GameBoxMatrix4X4()
+            GameBoxMatrix4x4 gameBoxScaleMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = 0,
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = 0,
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = 0,
                 Tx = 0, Ty = 0, Tz = 0, Tw = 1,
-            }.ToUnityMatrix4x4();
+            };
 
             float flipScaleSign = reader.ReadSingle();
-            Matrix4x4 localTransformMatrix = new GameBoxMatrix4X4()
+            GameBoxMatrix4x4 gameBoxLocalTransformMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
                 Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
-            }.ToUnityMatrix4x4();
+            };
 
             var boneID = reader.ReadInt32();
             var parentBoneID = reader.ReadInt32();
@@ -101,11 +100,11 @@ namespace Core.DataReader.Msh
                 Name = name,
                 Parent = parent,
                 ParentId = parentBoneID,
-                Translation = translation,
-                Rotation = rotation,
-                Scale = scaleMatrix,
+                GameBoxTranslation = gameBoxTranslation,
+                GameBoxRotation = gameBoxRotation,
+                GameBoxScale = gameBoxScaleMatrix,
                 FlipScaleSign = flipScaleSign,
-                LocalTransform = localTransformMatrix,
+                GameBoxLocalTransform = gameBoxLocalTransformMatrix,
             };
 
             var childBoneNodes = new BoneNode[numberOfChildBones];
@@ -128,13 +127,13 @@ namespace Core.DataReader.Msh
             var numberOfLods = reader.ReadInt32();
             var layerFlag = (MshLayerFlag)reader.ReadInt32();
 
-            var vertices = new Vector3[numberOfVertices];
+            var gameBoxVertices = new GameBoxVector3[numberOfVertices];
 
             if (layerFlag.HasFlag(MshLayerFlag.Position))
             {
                 for (var i = 0; i < numberOfVertices; i++)
                 {
-                    vertices[i] = reader.ReadVector3().ToUnityPosition();
+                    gameBoxVertices[i] = reader.ReadVector3();
                 }
             }
 
@@ -154,7 +153,7 @@ namespace Core.DataReader.Msh
 
                     phyVertices[i] = new PhyVertex
                     {
-                        Position = vertices[i],
+                        GameBoxPosition = gameBoxVertices[i],
                         BoneIds = boneIds,
                         Weights = weights,
                     };

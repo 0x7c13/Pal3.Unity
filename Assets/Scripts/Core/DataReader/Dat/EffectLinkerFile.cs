@@ -6,18 +6,19 @@
 namespace Core.DataReader.Dat
 {
     using System.Collections.Generic;
-    using UnityEngine;
+    using System.IO;
+    using Primitives;
 
     public struct EffectGroupInfo
     {
-        public int EffGroupId;                   // 特效组Id
-        public bool IsCenteredAroundCaster;      // 以发动方中心
-        public bool IsCenteredAroundReceiver;    // 以接收方中心
-        public bool IsCasterActor;               // 发动方是人物
-        public bool IsReceiverActor;             // 接收方是人物
-        public Vector3 Position;                 // 特效位置
-        public float WaitDurationInSeconds;      // 等待时间
-        public float EffectDurationInSeconds;    // 特效时间
+        public int EffGroupId;                          // 特效组Id
+        public bool IsCenteredAroundCaster;             // 以发动方中心
+        public bool IsCenteredAroundReceiver;           // 以接收方中心
+        public bool IsCasterActor;                      // 发动方是人物
+        public bool IsReceiverActor;                    // 接收方是人物
+        public GameBoxVector3 EffectGameBoxPosition;    // 特效位置
+        public float WaitDurationInSeconds;             // 等待时间
+        public float EffectDurationInSeconds;           // 特效时间
     }
 
     public struct EffectLinker
@@ -40,7 +41,7 @@ namespace Core.DataReader.Dat
 
                 if (SkillIdToEffectGroupMap.ContainsKey((int) effectLinker.SkillId))
                 {
-                    Debug.LogError("Duplicate skill id found!"); // Should never happen
+                    throw new InvalidDataException("Duplicate skill id found!"); // Should never happen
                 }
                 else
                 {

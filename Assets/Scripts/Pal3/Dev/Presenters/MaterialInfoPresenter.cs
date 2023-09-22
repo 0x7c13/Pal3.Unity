@@ -5,7 +5,7 @@
 
 namespace Pal3.Dev.Presenters
 {
-    using Core.GameBox;
+    using Core.Primitives;
     using UnityEngine;
 
     /// <summary>

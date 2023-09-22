@@ -10,12 +10,13 @@ namespace Pal3.Script
     using System.IO;
     using System.Reflection;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using Core.DataReader;
     using Core.DataReader.Sce;
-    using Core.Services;
+    using Engine.Services;
     using GameSystems.Dialogue;
     using GameSystems.Favor;
     using GameSystems.Inventory;

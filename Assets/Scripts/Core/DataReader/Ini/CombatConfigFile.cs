@@ -5,17 +5,17 @@
 
 namespace Core.DataReader.Ini
 {
-    using UnityEngine;
+    using Primitives;
 
     public struct FiveElementsFormationConfig
     {
-        public Vector3 CenterGameBoxPosition;
+        public GameBoxVector3 CenterGameBoxPosition;
         public float GameBoxRadius;
     }
 
     public sealed class CombatConfigFile
     {
-        public Vector3[] ActorGameBoxPositions { get; }
+        public GameBoxVector3[] ActorGameBoxPositions { get; }
 
         public FiveElementsFormationConfig AllyFormationConfig { get; }
 
@@ -23,7 +23,7 @@ namespace Core.DataReader.Ini
 
         public int[] LevelExperienceTable { get; }
 
-        public CombatConfigFile(Vector3[] actorGameBoxPositions,
+        public CombatConfigFile(GameBoxVector3[] actorGameBoxPositions,
             FiveElementsFormationConfig allyFormationConfig,
             FiveElementsFormationConfig enemyFormationConfig,
             int[] levelExperienceTable)

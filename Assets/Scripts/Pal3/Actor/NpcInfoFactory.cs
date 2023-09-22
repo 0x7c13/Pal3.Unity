@@ -8,10 +8,11 @@ namespace Pal3.Actor
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Core.Contracts;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using MetaData;
+    using Core.Primitives;
+    using Engine.Extensions;
     using UnityEngine;
 
     public static class NpcInfoFactory
@@ -35,7 +36,7 @@ namespace Pal3.Actor
 
         private static ScnNpcInfo CreateActorNpcInfo(byte actorId, string actorName, ActorType actorType)
         {
-            Vector3 gameBoxInitPosition = ActorInitPosition.ToGameBoxPosition();
+            GameBoxVector3 gameBoxInitPosition = ActorInitPosition.ToGameBoxPosition();
 
             return new ScnNpcInfo
             {
@@ -45,9 +46,9 @@ namespace Pal3.Actor
                 InitActive = 0,
                 InitAction = ActorConstants.ActionToNameMap[ActorActionType.Stand],
                 InitBehaviour = ActorBehaviourType.None,
-                GameBoxXPosition = gameBoxInitPosition.x,
-                GameBoxYPosition = gameBoxInitPosition.y,
-                GameBoxZPosition = gameBoxInitPosition.z,
+                GameBoxXPosition = gameBoxInitPosition.X,
+                GameBoxYPosition = gameBoxInitPosition.Y,
+                GameBoxZPosition = gameBoxInitPosition.Z,
             };
         }
     }

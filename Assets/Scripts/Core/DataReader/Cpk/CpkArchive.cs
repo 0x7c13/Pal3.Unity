@@ -11,7 +11,7 @@ namespace Core.DataReader.Cpk
     using System.Runtime.InteropServices;
     using System.Text;
     using Lzo;
-    using Utils;
+    using Utilities;
 
     /// <summary>
     /// Load and create a structural mapping of the internal
@@ -60,7 +60,7 @@ namespace Core.DataReader.Cpk
                 bufferSize: 8196,
                 FileOptions.SequentialScan); // Use SequentialScan option to increase reading speed
 
-            var header = Utility.ReadStruct<CpkHeader>(stream);
+            var header = CoreUtility.ReadStruct<CpkHeader>(stream);
 
             if (!IsValidCpkHeader(header))
             {
@@ -82,7 +82,7 @@ namespace Core.DataReader.Cpk
             var indexTableOffset = 0;
             for (uint i = 0; i < maxFileCount; i++)
             {
-                var tableEntity = Utility.ReadStruct<CpkTableEntity>(indexTableBuffer, indexTableOffset);
+                var tableEntity = CoreUtility.ReadStruct<CpkTableEntity>(indexTableBuffer, indexTableOffset);
                 indexTableOffset += cpkTableEntitySize;
                 if (tableEntity.IsEmpty() || tableEntity.IsDeleted()) continue;
 
@@ -298,7 +298,7 @@ namespace Core.DataReader.Cpk
                 stream.Seek(extraInfoOffset, SeekOrigin.Begin);
                 _ = stream.Read(extraInfo);
 
-                var fileName = Utility.TrimEnd(extraInfo, new byte[] { 0x00, 0x00 });
+                var fileName = CoreUtility.TrimEnd(extraInfo, new byte[] { 0x00, 0x00 });
                 _fileNameMap[entity.CRC] = fileName;
             }
 

@@ -8,12 +8,14 @@ namespace Pal3.GamePlay
     using System;
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
-    using Core.GameBox;
-    using Core.Renderer;
-    using MetaData;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
+    using Core.Primitives;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Scene;
     using Scene.SceneObjects;
     using Script.Waiter;
@@ -34,7 +36,7 @@ namespace Pal3.GamePlay
             }
 
             Vector3 climbableObjectPosition = climbableObject.transform.position;
-            Vector3 climbableObjectFacing = new Vector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)
+            Vector3 climbableObjectFacing = new GameBoxVector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)
                 .ToUnityQuaternion() * Vector3.forward;
 
             Vector3 lowerPosition = climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;

@@ -8,9 +8,8 @@ namespace Core.DataReader.Mv3
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using GameBox;
-    using UnityEngine;
-    using Utils;
+    using Primitives;
+    using Utilities;
 
     public sealed class Mv3FileReader : IFileReader<Mv3File>
     {
@@ -77,16 +76,14 @@ namespace Core.DataReader.Mv3
             var name = reader.ReadString(64, codepage);
             var numberOfVertices = reader.ReadInt32();
 
-            var bounds = new Bounds();
-            bounds.SetMinMax(
-                reader.ReadVector3().ToUnityPosition(),
-                reader.ReadVector3().ToUnityPosition());
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
 
             var numberOfFrames = reader.ReadInt32();
             var frames = new Mv3VertFrame[numberOfFrames];
             for (var i = 0; i < numberOfFrames; i++)
             {
-                var tick = reader.ReadUInt32();
+                var gameBoxTick = reader.ReadUInt32();
                 var vertices = new Mv3Vert[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
@@ -100,21 +97,20 @@ namespace Core.DataReader.Mv3
                 }
                 frames[i] = new Mv3VertFrame()
                 {
-                    Tick = tick,
+                    GameBoxTick = gameBoxTick,
                     Vertices = vertices
                 };
             }
 
             var numberOfTexCoords = reader.ReadInt32();
-            Vector2[] texCoords;
+            GameBoxVector2[] texCoords;
             if (numberOfTexCoords == 0)
             {
-                texCoords = new Vector2[] { new (0f, 0f) };
-                Debug.LogWarning("numberOfTexCoords == 0");
+                texCoords = new GameBoxVector2[] { new (0f, 0f) };
             }
             else
             {
-                texCoords = new Vector2[numberOfTexCoords];
+                texCoords = new GameBoxVector2[numberOfTexCoords];
                 for (var i = 0; i < numberOfTexCoords; i++)
                 {
                     texCoords[i] = reader.ReadVector2();
@@ -153,19 +149,20 @@ namespace Core.DataReader.Mv3
                 };
             }
 
-            return GetMv3Mesh(name, bounds, attributes, frames, texCoords);
+            return GetMv3Mesh(name, gameBoxBoundsMin, gameBoxBoundsMax, attributes, frames, texCoords);
         }
 
         private static Mv3Mesh GetMv3Mesh(string name,
-            Bounds bounds,
+            GameBoxVector3 gameBoxBoundsMin,
+            GameBoxVector3 gameBoxBoundsMax,
             Mv3Attribute[] attributes,
             Mv3VertFrame[] vertFrames,
-            Vector2[] texCoords)
+            GameBoxVector2[] texCoords)
         {
             var triangles = new int[attributes[0].IndexBuffers.Length * 3];
-            var keyFrameVertices = new List<Vector3>[vertFrames.Length]
-                .Select(item=>new List<Vector3>()).ToArray();
-            var uvs = new Vector2[attributes[0].IndexBuffers.Length * 3];
+            var keyFrameVertices = new List<GameBoxVector3>[vertFrames.Length]
+                .Select(item=>new List<GameBoxVector3>()).ToArray();
+            var uvs = new GameBoxVector2[attributes[0].IndexBuffers.Length * 3];
 
             var triangleIndex = 0;
 
@@ -179,8 +176,7 @@ namespace Core.DataReader.Mv3
                         Mv3VertFrame frame = vertFrames[k];
                         Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
 
-                        keyFrameVertices[k].Add(new Vector3(vertex.X, vertex.Y, vertex.Z)
-                            .ToUnityPosition(GameBoxConvertor.GameBoxMv3UnitToUnityUnit));
+                        keyFrameVertices[k].Add(new GameBoxVector3(vertex.X, vertex.Y, vertex.Z));
                     }
 
                     uvs[triangleIndex] = texCoords[indexBuffer.TexCoordIndex[j]];
@@ -189,26 +185,25 @@ namespace Core.DataReader.Mv3
                 }
             }
 
-            triangles.ToUnityTriangles();
-
             var animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
             for (var i = 0; i < animationKeyFrames.Length; i++)
             {
                 animationKeyFrames[i] = new Mv3AnimationKeyFrame()
                 {
-                    Tick = vertFrames[i].Tick,
-                    Vertices = keyFrameVertices[i].ToArray(),
+                    GameBoxTick = vertFrames[i].GameBoxTick,
+                    GameBoxVertices = keyFrameVertices[i].ToArray(),
                 };
             }
 
             return new Mv3Mesh
             {
                 Name = name,
-                Bounds = bounds,
+                GameBoxBoundsMin = gameBoxBoundsMin,
+                GameBoxBoundsMax = gameBoxBoundsMax,
                 Attributes = attributes,
-                Triangles = triangles,
+                GameBoxTriangles = triangles,
                 Uvs = uvs,
-                Normals = Utility.CalculateNormals(animationKeyFrames[0].Vertices, triangles),
+                GameBoxNormals = CoreUtility.CalculateNormals(animationKeyFrames[0].GameBoxVertices, triangles),
                 KeyFrames = animationKeyFrames,
             };
         }
@@ -235,16 +230,16 @@ namespace Core.DataReader.Mv3
 
         private static Mv3TagFrame ReadTagFrame(IBinaryReader reader)
         {
-            var tick = reader.ReadUInt32();
-            Vector3 position = reader.ReadVector3().ToUnityPosition();
+            var gameBoxTick = reader.ReadUInt32();
+            GameBoxVector3 gameBoxPosition = reader.ReadVector3();
 
-            var rotation = new GameBoxQuaternion()
+            var gameBoxRotation = new GameBoxQuaternion()
             {
                 X = reader.ReadSingle(),
                 Y = reader.ReadSingle(),
                 Z = reader.ReadSingle(),
                 W = reader.ReadSingle(),
-            }.Mv3QuaternionToUnityQuaternion();
+            };
 
             var scale = new []
             {
@@ -255,9 +250,9 @@ namespace Core.DataReader.Mv3
 
             return new Mv3TagFrame()
             {
-                Tick = tick,
-                Position = position,
-                Rotation = rotation,
+                GameBoxTick = gameBoxTick,
+                GameBoxPosition = gameBoxPosition,
+                GameBoxRotation = gameBoxRotation,
                 Scale = scale,
             };
         }
@@ -266,7 +261,7 @@ namespace Core.DataReader.Mv3
         {
             return new Mv3AnimationEvent()
             {
-                Tick = reader.ReadUInt32(),
+                GameBoxTick = reader.ReadUInt32(),
                 Name = reader.ReadString(16, codepage),
             };
         }
@@ -275,10 +270,10 @@ namespace Core.DataReader.Mv3
         {
             GameBoxMaterial material = new ()
             {
-                Diffuse = Utility.ToColor(reader.ReadSingles(4)),
-                Ambient = Utility.ToColor(reader.ReadSingles(4)),
-                Specular = Utility.ToColor(reader.ReadSingles(4)),
-                Emissive = Utility.ToColor(reader.ReadSingles(4)),
+                Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
                 SpecularPower = reader.ReadSingle()
             };
 

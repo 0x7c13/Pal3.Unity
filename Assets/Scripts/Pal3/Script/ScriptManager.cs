@@ -9,12 +9,13 @@ namespace Pal3.Script
     using System.Collections.Generic;
     using System.Linq;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
     using Core.DataReader.Sce;
-    using Core.Utils;
     using Data;
-    using MetaData;
+    using Engine.Utilities;
     using UnityEngine;
 
     public sealed class ScriptManager : IDisposable,

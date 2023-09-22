@@ -10,13 +10,13 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor.Controllers;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Services;
+    using Core.Primitives;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Services;
     using State;
     using UnityEngine;
 
@@ -36,7 +36,7 @@ namespace Pal3.Scene.SceneObjects
         }
 
         public override GameObject Activate(GameResourceProvider resourceProvider,
-            Color tintColor)
+            UnityEngine.Color tintColor)
         {
             if (IsActivated) return GetGameObject();
 

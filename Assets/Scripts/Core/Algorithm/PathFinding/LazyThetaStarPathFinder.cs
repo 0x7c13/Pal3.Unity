@@ -7,7 +7,6 @@ namespace Core.Algorithm.PathFinding
 {
     using System;
     using System.Collections.Generic;
-    using UnityEngine;
     using PriorityQueue;
 
     public enum SearchType
@@ -25,8 +24,6 @@ namespace Core.Algorithm.PathFinding
         public int X { get; set; }
 
         public int Y { get; set; }
-
-        public Vector2Int Position => new (X, Y);
 
         public bool IsObstacle { get; set; }
 
@@ -84,21 +81,21 @@ namespace Core.Algorithm.PathFinding
     /// </summary>
     public static class LazyThetaStarPathFinder
     {
-        public static IList<Vector2Int> FindPath(
-            Vector2Int from,
-            Vector2Int to,
-            Vector2Int gridSize,
-            Func<Vector2Int, bool> isObstacle,
-            Func<Vector2Int, Vector2Int, int> heuristicFunc)
+        public static IList<(int x, int y)> FindPath(
+            (int x, int y) from,
+            (int x, int y) to,
+            (int width, int height) gridSize,
+            Func<(int x, int y), bool> isObstacle,
+            Func<(int x, int y), (int x, int y), int> heuristicFunc)
         {
-            var nodes = new SearchNode[gridSize.x, gridSize.y];
+            var nodes = new SearchNode[gridSize.width, gridSize.height];
 
             // Init
-            for (var x = 0; x < gridSize.x; x++)
+            for (var x = 0; x < gridSize.width; x++)
             {
-                for (var y = 0; y < gridSize.y; y++)
+                for (var y = 0; y < gridSize.height; y++)
                 {
-                    var position = new Vector2Int(x, y);
+                    (int x, int y) position = (x, y);
                     var node = new SearchNode()
                     {
                         X = x,
@@ -123,18 +120,18 @@ namespace Core.Algorithm.PathFinding
             return SearchPath(startNode, endNode, nodes, heuristicFunc);
         }
 
-        private static IList<Vector2Int> SearchPath(SearchNode startNode,
+        private static IList<(int x, int y)> SearchPath(SearchNode startNode,
             SearchNode endNode,
             SearchNode[,] nodes,
-            Func<Vector2Int, Vector2Int, int> heuristicFunc)
+            Func<(int x, int y), (int x, int y), int> heuristicFunc)
         {
-            IPriorityQueue<Vector2Int, float> searchQueue = new SimplePriorityQueue<Vector2Int>();
+            IPriorityQueue<(int x, int y), float> searchQueue = new SimplePriorityQueue<(int x, int y)>();
 
             AddNodeToQueue(startNode, searchQueue);
             while (searchQueue.Count > 0)
             {
-                Vector2Int currentPosition = searchQueue.Dequeue();
-                SearchNode node = GetNode(currentPosition, nodes);
+                (int x, int y) currentPosition = searchQueue.Dequeue();
+                SearchNode node = GetNode(currentPosition.x, currentPosition.y, nodes);
 
                 if (!(node.X == startNode.X && node.Y == startNode.Y))
                 {
@@ -149,7 +146,7 @@ namespace Core.Algorithm.PathFinding
                             if (neighbor.Closed)
                             {
                                 var newGCost = neighbor.GCost +
-                                             heuristicFunc(new Vector2Int(neighbor.X, neighbor.Y), new Vector2Int(node.X, node.Y));
+                                             heuristicFunc((neighbor.X, neighbor.Y), (node.X, node.Y));
                                 if (newGCost < node.GCost)
                                     node.SetParent(neighbor, newGCost);
                             }
@@ -157,7 +154,8 @@ namespace Core.Algorithm.PathFinding
                     }
                 }
 
-                if (currentPosition == endNode.Position) break;
+                if (currentPosition.x == endNode.X &&
+                    currentPosition.y == endNode.Y) break;
 
                 node.SearchType = SearchType.Expanded;
                 node.Closed = true;
@@ -184,11 +182,11 @@ namespace Core.Algorithm.PathFinding
                 }
             }
 
-            var path = new List<Vector2Int>();
-            SearchNode lastNode = GetNode(endNode.Position, nodes);
+            var path = new List<(int x, int y)>();
+            SearchNode lastNode = GetNode(endNode.X, endNode.Y, nodes);
             while (lastNode != null)
             {
-                path.Add(new Vector2Int(lastNode.X, lastNode.Y));
+                path.Add((lastNode.X, lastNode.Y));
                 lastNode.SearchType = SearchType.Path;
                 lastNode = lastNode.Parent;
             }
@@ -202,11 +200,6 @@ namespace Core.Algorithm.PathFinding
             return (x >= 0 && x < nodes.GetLength(0) && y >= 0 && y < nodes.GetLength(1));
         }
 
-        private static SearchNode GetNode(Vector2Int pos, SearchNode[,] nodes)
-        {
-            return GetNode(pos.x, pos.y, nodes);
-        }
-
         private static SearchNode GetNode(int x, int y, SearchNode[,] nodes)
         {
             return IsPositionInsideGrid(x, y, nodes) ? nodes[x, y] : null;
@@ -217,9 +210,9 @@ namespace Core.Algorithm.PathFinding
             return neighbor.Closed == false;
         }
 
-        private static void AddNodeToQueue(SearchNode node, IPriorityQueue<Vector2Int, float> queue)
+        private static void AddNodeToQueue(SearchNode node, IPriorityQueue<(int x, int y), float> queue)
         {
-            queue.Enqueue(node.Position, node.CalculateFCost());
+            queue.Enqueue((node.X, node.Y), node.CalculateFCost());
             node.Opened = true;
             node.SearchType = SearchType.Open;
         }
@@ -227,13 +220,12 @@ namespace Core.Algorithm.PathFinding
         private static void ComputeCost(SearchNode currentNode,
             SearchNode nextNode,
             SearchNode startNode,
-            Func<Vector2Int, Vector2Int, int> heuristicFunc)
+            Func<(int x, int y), (int x, int y), int> heuristicFunc)
         {
             SearchNode parent = (currentNode.X == startNode.X && currentNode.Y == startNode.Y)  ?
                 startNode : currentNode.Parent;
 
-            float gCost = parent.GCost +
-                         heuristicFunc(new Vector2Int(parent.X, parent.Y), new Vector2Int(nextNode.X, nextNode.Y));
+            float gCost = parent.GCost + heuristicFunc((parent.X, parent.Y), (nextNode.X, nextNode.Y));
             if (gCost < nextNode.GCost)
             {
                 nextNode.SetParent(parent, gCost);
@@ -243,28 +235,28 @@ namespace Core.Algorithm.PathFinding
         private static List<SearchNode> GetNeighbors(SearchNode node, SearchNode[,] nodes)
         {
             List<SearchNode> result = new List<SearchNode>();
-            Vector2Int pos = node.Position;
+            (int x, int y) position = (node.X, node.Y);
 
-            bool left = TryAddNode(pos, -1, 0, result, nodes);
-            bool right = TryAddNode(pos, 1, 0, result, nodes);
-            bool top = TryAddNode(pos, 0, 1, result, nodes);
-            bool bottom = TryAddNode(pos, 0, -1, result, nodes);
+            bool left = TryAddNode(position, -1, 0, result, nodes);
+            bool right = TryAddNode(position, 1, 0, result, nodes);
+            bool top = TryAddNode(position, 0, 1, result, nodes);
+            bool bottom = TryAddNode(position, 0, -1, result, nodes);
 
-            if (left || top) TryAddNode(pos, -1, 1, result, nodes);
-            if (left || bottom) TryAddNode(pos, -1, -1, result, nodes);
-            if (right || bottom) TryAddNode(pos, 1, -1, result, nodes);
-            if (right || top) TryAddNode(pos, 1, 1, result, nodes);
+            if (left || top) TryAddNode(position, -1, 1, result, nodes);
+            if (left || bottom) TryAddNode(position, -1, -1, result, nodes);
+            if (right || bottom) TryAddNode(position, 1, -1, result, nodes);
+            if (right || top) TryAddNode(position, 1, 1, result, nodes);
 
             return result;
         }
 
-        private static bool TryAddNode(Vector2Int curtPos,
+        private static bool TryAddNode((int x, int y) curtPosition,
             int dx,
             int dy,
             List<SearchNode> result,
             SearchNode[,] nodes)
         {
-            SearchNode node = GetNode(curtPos.x + dx, curtPos.y + dy, nodes);
+            SearchNode node = GetNode(curtPosition.x + dx, curtPosition.y + dy, nodes);
 
             if (node is {IsObstacle: false})
             {
@@ -282,8 +274,8 @@ namespace Core.Algorithm.PathFinding
             int x1 = end.X;
             int y1 = end.Y;
 
-            int dx = Mathf.Abs(x1 - x0);
-            int dy = Mathf.Abs(y1 - y0);
+            int dx = Math.Abs(x1 - x0);
+            int dy = Math.Abs(y1 - y0);
             int sx = x0 < x1 ? 1 : -1;
             int sy = y0 < y1 ? 1 : -1;
             int err = dx - dy;

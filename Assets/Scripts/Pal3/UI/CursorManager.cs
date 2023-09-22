@@ -7,9 +7,10 @@ namespace Pal3.UI
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
     using Data;
+    using Engine.Utilities;
     using UnityEngine;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;

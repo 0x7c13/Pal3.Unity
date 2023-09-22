@@ -5,13 +5,12 @@
 
 namespace Core.DataReader.Lgt
 {
-    using GameBox;
-    using UnityEngine;
+    using Primitives;
 
     [System.Serializable]
     public struct LightNode
     {
-        public Matrix4x4 WorldMatrix;
+        public GameBoxMatrix4x4 GameBoxWorldMatrix;
 
         public GameBoxLightType LightType;
         public Color LightColor;

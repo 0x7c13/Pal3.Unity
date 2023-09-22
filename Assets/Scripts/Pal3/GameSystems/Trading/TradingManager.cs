@@ -7,7 +7,8 @@ namespace Pal3.GameSystems.Trading
 {
     using System;
     using Command;
-    using Command.SceCommands;
+    using Core.Command;
+    using Core.Command.SceCommands;
 
     public sealed class TradingManager : IDisposable,
         ICommandExecutor<UIShowDealerMenuCommand>

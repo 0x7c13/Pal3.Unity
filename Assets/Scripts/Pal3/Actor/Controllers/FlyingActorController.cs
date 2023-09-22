@@ -8,10 +8,12 @@ namespace Pal3.Actor.Controllers
     using System;
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.GameBox;
-    using Core.Navigation;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
+    using Core.Primitives;
+    using Engine.Extensions;
     using Script.Waiter;
     using UnityEngine;
 
@@ -47,7 +49,7 @@ namespace Pal3.Actor.Controllers
 
         public void Execute(FlyingActorFlyToCommand command)
         {
-            Vector3 targetPosition = new Vector3(
+            Vector3 targetPosition = new GameBoxVector3(
                 command.GameBoxXPosition,
                 command.GameBoxYPosition,
                 command.GameBoxZPosition).ToUnityPosition();

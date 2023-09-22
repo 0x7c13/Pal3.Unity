@@ -14,15 +14,18 @@ namespace Pal3
     using Audio;
     using Camera;
     using Command;
-    using Command.SceCommands;
+    using Constants;
+    using Core.Command;
+    using Core.Command.SceCommands;
     using Core.DataReader.Scn;
-    using Core.Extensions;
     using Core.FileSystem;
-    using Core.Services;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
     using Dev;
     using Effect;
+    using Engine.Extensions;
+    using Engine.Services;
+    using Engine.Utilities;
     using GamePlay;
     using GameSystems.Caption;
     using GameSystems.Combat;
@@ -37,7 +40,6 @@ namespace Pal3
     using GameSystems.WorldMap;
     using Input;
     using IngameDebugConsole;
-    using MetaData;
     using Scene;
     using Script;
     using Script.Patcher;
@@ -552,7 +554,7 @@ namespace Pal3
                 latestVersion =>
                 {
                     if (!string.IsNullOrEmpty(latestVersion) &&
-                        Utility.IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
+                        CoreUtility.IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
                     {
                         CommandDispatcher<ICommand>.Instance.Dispatch(
                             #if UNITY_IOS

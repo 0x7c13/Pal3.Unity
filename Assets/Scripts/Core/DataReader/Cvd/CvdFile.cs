@@ -5,8 +5,7 @@
 
 namespace Core.DataReader.Cvd
 {
-    using GameBox;
-    using UnityEngine;
+    using Primitives;
 
     public enum CvdAnimationKeyType
     {
@@ -34,13 +33,13 @@ namespace Core.DataReader.Cvd
     public struct CvdTcbVector3Key
     {
         public CvdTcbKey TcbKey;
-        public Vector3 Value;
+        public GameBoxVector3 Value;
     }
 
     public struct CvdTcbRotationKey
     {
         public CvdTcbKey TcbKey;
-        public Vector3 Axis;
+        public GameBoxVector3 Axis;
         public float Angle;
     }
 
@@ -53,16 +52,16 @@ namespace Core.DataReader.Cvd
     public struct CvdTcbScaleKey
     {
         public CvdTcbKey TcbKey;
-        public Vector3 Value;
+        public GameBoxVector3 Value;
         public GameBoxQuaternion Rotation;
     }
 
     public struct CvdBezierVector3Key
     {
         public CvdAnimationKey AnimationKey;
-        public Vector3 TangentIn;
-        public Vector3 TangentOut;
-        public Vector3 Value;
+        public GameBoxVector3 TangentIn;
+        public GameBoxVector3 TangentOut;
+        public GameBoxVector3 Value;
     }
 
     public struct CvdBezierRotationKey
@@ -84,16 +83,16 @@ namespace Core.DataReader.Cvd
     public struct CvdBezierScaleKey
     {
         public CvdAnimationKey AnimationKey;
-        public Vector3 TangentIn;
-        public Vector3 TangentOut;
-        public Vector3 Value;
+        public GameBoxVector3 TangentIn;
+        public GameBoxVector3 TangentOut;
+        public GameBoxVector3 Value;
         public GameBoxQuaternion Rotation;
     }
 
     public struct CvdLinearVector3Key
     {
         public CvdAnimationKey AnimationKey;
-        public Vector3 Value;
+        public GameBoxVector3 Value;
     }
 
     public struct CvdLinearFloatKey
@@ -111,7 +110,7 @@ namespace Core.DataReader.Cvd
     public struct CvdLinearScaleKey
     {
         public CvdAnimationKey AnimationKey;
-        public Vector3 Value;
+        public GameBoxVector3 Value;
         public GameBoxQuaternion Rotation;
     }
 
@@ -129,7 +128,7 @@ namespace Core.DataReader.Cvd
         public CvdAnimationRotationKeyFrame[] RotationKeyInfos;
         public CvdAnimationScaleKeyFrame[] ScaleKeyInfos;
         public float Scale;
-        public GameBoxMatrix4X4 TransformMatrix;
+        public GameBoxMatrix4x4 TransformMatrix;
         public CvdGeometryNode[] Children;
         public CvdMesh Mesh;
         public bool IsGeometryNode;
@@ -137,9 +136,9 @@ namespace Core.DataReader.Cvd
 
     public struct CvdVertex
     {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public Vector2 Uv;
+        public GameBoxVector3 GameBoxPosition;
+        public GameBoxVector3 GameBoxNormal;
+        public GameBoxVector2 Uv;
     }
 
     public struct CvdMesh
@@ -151,7 +150,7 @@ namespace Core.DataReader.Cvd
     public struct CvdMeshSection
     {
         public CvdVertex[][] FrameVertices;
-        public int[] Triangles;
+        public int[] GameBoxTriangles;
         public GameBoxBlendFlag BlendFlag;
         public GameBoxMaterial Material;
         public float[] AnimationTimeKeys;
@@ -166,18 +165,18 @@ namespace Core.DataReader.Cvd
 
     public class CvdAnimationPositionKeyFrame : CvdAnimationKeyFrame
     {
-        public Vector3 Position { get; set; }
+        public GameBoxVector3 GameBoxPosition { get; set; }
     }
 
     public class CvdAnimationScaleKeyFrame : CvdAnimationKeyFrame
     {
-        public Vector3 Scale { get; set; }
-        public Quaternion Rotation { get; set; }
+        public GameBoxVector3 GameBoxScale { get; set; }
+        public GameBoxQuaternion GameBoxRotation { get; set; }
     }
 
     public class CvdAnimationRotationKeyFrame : CvdAnimationKeyFrame
     {
-        public Quaternion Rotation { get; set; }
+        public GameBoxQuaternion GameBoxRotation { get; set; }
     }
 
     /// <summary>

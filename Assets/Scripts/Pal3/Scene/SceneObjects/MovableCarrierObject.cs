@@ -10,14 +10,15 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections.Generic;
     using Actor.Controllers;
     using Command;
-    using Command.SceCommands;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
+    using Core.Primitives;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.MovableCarrier)]
@@ -34,7 +35,8 @@ namespace Pal3.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            UnityEngine.Color tintColor)
         {
             if (IsActivated) return GetGameObject();
 
@@ -245,10 +247,10 @@ namespace Pal3.Scene.SceneObjects
 
         private bool IsNearFirstWaypoint()
         {
-            Vector3 gameBoxPosition = GetGameObject().transform.position.ToGameBoxPosition();
-            Vector3 firstWaypoint = ObjectInfo.Path.GameBoxWaypoints[0];
-            Vector3 lastWaypoint = ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1];
-            return Vector3.Distance(gameBoxPosition, firstWaypoint) < Vector3.Distance(gameBoxPosition, lastWaypoint);
+            Vector3 position = GetGameObject().transform.position;
+            Vector3 firstWaypoint = ObjectInfo.Path.GameBoxWaypoints[0].ToUnityPosition();
+            Vector3 lastWaypoint = ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1].ToUnityPosition();
+            return Vector3.Distance(position, firstWaypoint) < Vector3.Distance(position, lastWaypoint);
         }
 
         public override void Deactivate()

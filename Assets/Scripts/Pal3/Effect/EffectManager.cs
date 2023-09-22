@@ -9,13 +9,15 @@ namespace Pal3.Effect
     using Actor;
     using Actor.Controllers;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
     using Core.DataReader.Dat;
-    using Core.GameBox;
-    using Core.Utils;
+    using Core.Primitives;
     using Data;
-    using MetaData;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using Scene;
     using UnityEngine;
 
@@ -97,7 +99,7 @@ namespace Pal3.Effect
                     _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
                 {
                     parent = sceneRootGameObject.transform;
-                    localPosition = new Vector3(
+                    localPosition = new GameBoxVector3(
                             positionCommand.GameBoxXPosition,
                             positionCommand.GameBoxYPosition,
                             positionCommand.GameBoxZPosition).ToUnityPosition();

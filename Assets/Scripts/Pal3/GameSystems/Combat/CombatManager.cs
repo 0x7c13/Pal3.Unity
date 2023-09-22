@@ -9,14 +9,16 @@ namespace Pal3.GameSystems.Combat
     using System.Collections.Generic;
     using Actor.Controllers;
     using Command;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
-    using Core.GameBox;
-    using Core.Utils;
+    using Core.Primitives;
     using Data;
-    using MetaData;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using Scene;
     using State;
     using Team;
@@ -116,7 +118,7 @@ namespace Pal3.GameSystems.Combat
 
         private void SetCameraPosition(CombatCameraConfig config)
         {
-            var cameraPosition = new Vector3(
+            Vector3 cameraPosition = new GameBoxVector3(
                     config.GameBoxPositionX,
                     config.GameBoxPositionY,
                     config.GameBoxPositionZ).ToUnityPosition();

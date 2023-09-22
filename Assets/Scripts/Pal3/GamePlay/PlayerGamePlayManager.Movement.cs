@@ -9,11 +9,11 @@ namespace Pal3.GamePlay
     using System.Linq;
     using Actor.Controllers;
     using Command;
-    using Command.InternalCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Core.Navigation;
-    using MetaData;
     using Scene;
     using Scene.SceneObjects.Common;
     using UnityEngine;

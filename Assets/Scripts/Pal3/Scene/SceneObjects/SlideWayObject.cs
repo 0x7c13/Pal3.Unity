@@ -8,18 +8,17 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections;
     using Actor.Controllers;
     using Common;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Navigation;
     using Data;
+    using Engine.Extensions;
+    using Engine.Navigation;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.SlideWay)]
     public sealed class SlideWayObject : SceneObject
     {
-        private const uint ACTOR_SLIDE_GAME_BOX_SPEED = 500;
+        private const uint ACTOR_SLIDE_SPEED = 25;
 
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
@@ -70,7 +69,7 @@ namespace Pal3.Scene.SceneObjects
             var actorController = playerActorGameObject.GetComponent<ActorController>();
 
             // Temporarily set the speed to a higher value to make the actor slide faster
-            actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_GAME_BOX_SPEED);
+            actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_SPEED);
 
             movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
 

@@ -9,7 +9,8 @@ namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
-    using Command.SceCommands;
+    using Core.Command;
+    using Core.Command.SceCommands;
 
     public sealed class GhostHuntingMiniGame : IDisposable,
         ICommandExecutor<MiniGameStartGhostHuntingCommand>

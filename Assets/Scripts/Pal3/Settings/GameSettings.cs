@@ -12,10 +12,11 @@ namespace Pal3.Settings
     using System.Reflection;
     using System.Text;
     using Command;
-    using Command.InternalCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Constants;
+    using Core.Command;
+    using Engine.Utilities;
     using IngameDebugConsole;
-    using MetaData;
     using UnityEngine;
     using UnityEngine.Rendering;
 
@@ -80,7 +81,7 @@ namespace Pal3.Settings
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             // Hide keyboard on handheld devices
-            if (Utility.IsHandheldDevice())
+            if (UnityEngineUtility.IsHandheldDevice())
             {
                 TouchScreenKeyboard.hideInput = true;
             }
@@ -115,7 +116,7 @@ namespace Pal3.Settings
             else
             {
                 // 2x MSAA by default on desktop devices
-                AntiAliasing = Utility.IsDesktopDevice() ? 2 : 0;
+                AntiAliasing = UnityEngineUtility.IsDesktopDevice() ? 2 : 0;
             }
 
             #if UNITY_2022_1_OR_NEWER
@@ -206,7 +207,7 @@ namespace Pal3.Settings
                 {
                     // Enable realtime lighting and shadows by default
                     // unless the device is a legacy mobile device
-                    IsRealtimeLightingAndShadowsEnabled = !Utility.IsLegacyMobileDevice();
+                    IsRealtimeLightingAndShadowsEnabled = !UnityEngineUtility.IsLegacyMobileDevice();
                 }
             }
 
@@ -233,7 +234,7 @@ namespace Pal3.Settings
                 else
                 {
                     // Enable ambient occlusion by default on desktop devices
-                    IsAmbientOcclusionEnabled = Utility.IsDesktopDevice();
+                    IsAmbientOcclusionEnabled = UnityEngineUtility.IsDesktopDevice();
                 }
             }
 

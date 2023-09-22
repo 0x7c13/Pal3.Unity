@@ -9,6 +9,8 @@ namespace Editor.SourceGenerator
     using System.Linq;
     using System.Reflection;
     using Base;
+    using Core.Command;
+    using Core.Command.SceCommands;
     using IngameDebugConsole;
     using Pal3.Command;
     using UnityEngine;
@@ -34,9 +36,10 @@ namespace Editor.SourceGenerator
             writer.BeginBlock();
 
             // Begin using.
+            writer.WriteLine("using Core.Command;");
+            writer.WriteLine("using Core.Command.SceCommands;");
+            writer.WriteLine("using Extensions;");
             writer.WriteLine("using IngameDebugConsole;");
-            writer.WriteLine("using InternalCommands;");
-            writer.WriteLine("using SceCommands;");
             writer.WriteLine();
 
             // Begin class.
@@ -92,7 +95,12 @@ namespace Editor.SourceGenerator
 
         private static bool IsCommandAvailableInConsole(Type command)
         {
-            return command.GetCustomAttributes().Any(attribute => attribute is AvailableInConsoleAttribute);
+            // List<Object> parameters is not supported.
+            if (command == typeof(DialogueAddSelectionsCommand)) return false;
+
+            // Make all SceCommands available in console + all commands with AvailableInConsoleAttribute.
+            return command.GetCustomAttributes()
+                .Any(attribute => attribute is AvailableInConsoleAttribute or SceCommandAttribute);
         }
     }
 }

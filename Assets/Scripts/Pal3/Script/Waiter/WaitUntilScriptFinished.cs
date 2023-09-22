@@ -6,7 +6,8 @@
 namespace Pal3.Script.Waiter
 {
     using Command;
-    using Command.InternalCommands;
+    using Command.Extensions;
+    using Core.Command;
     using UnityEngine;
 
     public class WaitUntilScriptFinished : CustomYieldInstruction,

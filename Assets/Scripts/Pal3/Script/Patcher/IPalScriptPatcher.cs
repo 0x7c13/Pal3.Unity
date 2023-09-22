@@ -6,7 +6,7 @@
 namespace Pal3.Script.Patcher
 {
     using System.Collections.Generic;
-    using Command;
+    using Core.Command;
 
     public interface IPalScriptPatcher
     {

@@ -7,10 +7,9 @@ namespace Core.DataReader.Nav
 {
     using System;
     using System.IO;
-    using Contracts;
-    using GameBox;
-    using UnityEngine;
-    using Utils;
+    using Contract.Enums;
+    using Primitives;
+    using Utilities;
 
     public sealed class NavFileReader : IFileReader<NavFile>
     {
@@ -65,8 +64,8 @@ namespace Core.DataReader.Nav
                 }
             }
 
-            Vector3 max = reader.ReadVector3();
-            Vector3 min = reader.ReadVector3();
+            GameBoxVector3 gameBoxMaxWorldPosition = reader.ReadVector3();
+            GameBoxVector3 gameBoxMinWorldPosition = reader.ReadVector3();
 
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();
@@ -92,8 +91,8 @@ namespace Core.DataReader.Nav
             return new NavTileLayer()
             {
                 Portals = portals,
-                Max = max,
-                Min = min,
+                GameBoxMaxWorldPosition = gameBoxMaxWorldPosition,
+                GameBoxMinWorldPosition = gameBoxMinWorldPosition,
                 Width = width,
                 Height = height,
                 Tiles = tiles
@@ -104,46 +103,46 @@ namespace Core.DataReader.Nav
         {
             var numberOfVertices = reader.ReadUInt16();
             var numberOfFaces = reader.ReadUInt16();
-            var vertices = new Vector3[numberOfVertices];
+            var gameBoxVertices = new GameBoxVector3[numberOfVertices];
             for (var i = 0; i < numberOfVertices; i++)
             {
-                vertices[i] = reader.ReadVector3().ToUnityPosition();
+                gameBoxVertices[i] = reader.ReadVector3();
             }
 
-            var triangles = new int[numberOfFaces * 3];
+            var gameBoxTriangles = new int[numberOfFaces * 3];
             for (var i = 0; i < numberOfFaces; i++)
             {
                 var index = i * 3;
-                triangles[index]     = reader.ReadUInt16();
-                triangles[index + 1] = reader.ReadUInt16();
-                triangles[index + 2] = reader.ReadUInt16();
+                gameBoxTriangles[index]     = reader.ReadUInt16();
+                gameBoxTriangles[index + 1] = reader.ReadUInt16();
+                gameBoxTriangles[index + 2] = reader.ReadUInt16();
             }
 
             // Some of the nav meshes in the original game are upside down (don't know why),
             // so we need to flip them if that's the case. You might argue that we can just
             // make the mesh double sided, but that would cause some other issues (trust me).
             {
-                Vector3[] normals = Utility.CalculateNormals(vertices, triangles);
+                GameBoxVector3[] normals = CoreUtility.CalculateNormals(gameBoxVertices, gameBoxTriangles);
 
                 for (var i = 0; i < numberOfFaces; i++)
                 {
                     var index = i * 3;
 
                     // Determine if the face is pointing downwards.
-                    if (normals[triangles[index]].y +
-                        normals[triangles[index + 1]].y +
-                        normals[triangles[index + 2]].y < 0)
+                    if (normals[gameBoxTriangles[index]].Y +
+                        normals[gameBoxTriangles[index + 1]].Y +
+                        normals[gameBoxTriangles[index + 2]].Y < 0)
                     {
                         // Change the winding order of the face to make it point upwards.
-                        (triangles[index], triangles[index + 1]) = (triangles[index + 1], triangles[index]);
+                        (gameBoxTriangles[index], gameBoxTriangles[index + 1]) = (gameBoxTriangles[index + 1], gameBoxTriangles[index]);
                     }
                 }
             }
 
             return new NavFaceLayer()
             {
-                Vertices = vertices,
-                Triangles = triangles,
+                GameBoxVertices = gameBoxVertices,
+                GameBoxTriangles = gameBoxTriangles,
             };
         }
     }

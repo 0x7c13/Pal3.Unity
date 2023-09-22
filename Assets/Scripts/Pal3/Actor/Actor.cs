@@ -5,12 +5,11 @@
 
 namespace Pal3.Actor
 {
-    using Core.Contracts;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Navigation;
     using Data;
-    using MetaData;
+    using Engine.Extensions;
 
     public sealed class Actor : ActorBase
     {
@@ -44,12 +43,12 @@ namespace Pal3.Actor
         {
             if (_overwrittenMoveSpeed != null)
             {
-                return _overwrittenMoveSpeed.Value / GameBoxConvertor.GameBoxUnitToUnityUnit;
+                return _overwrittenMoveSpeed.Value;
             }
 
             if (Info.GameBoxMoveSpeed > 0)
             {
-                return Info.GameBoxMoveSpeed / GameBoxConvertor.GameBoxUnitToUnityUnit;
+                return Info.GameBoxMoveSpeed / UnityPrimitivesConvertor.GameBoxUnitToUnityUnit;
             }
 
             if (Info.Type == ActorType.MainActor)

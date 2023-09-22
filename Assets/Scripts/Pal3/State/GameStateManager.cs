@@ -8,9 +8,10 @@ namespace Pal3.State
     using System;
     using System.Collections.Generic;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Engine.Utilities;
     using Input;
     using Script;
     using UnityEngine;

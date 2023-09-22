@@ -5,8 +5,8 @@
 
 namespace Core.DataReader.Bmp
 {
+    using Primitives;
     using System.Collections.Generic;
-    using UnityEngine;
 
     public sealed class BmpFile
     {

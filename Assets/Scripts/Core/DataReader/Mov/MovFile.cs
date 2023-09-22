@@ -5,14 +5,14 @@
 
 namespace Core.DataReader.Mov
 {
-    using UnityEngine;
+    using Primitives;
 
     public struct MovAnimationKeyFrame
     {
-        public uint Tick;
-        public Vector3 Translation; // Relative translation to parent bone
-        public Quaternion Rotation; // Relative rotation to parent bone
-        public float[][] Scale; // 3x3
+        public float KeySeconds;
+        public GameBoxVector3 GameBoxTranslation; // Relative translation to parent bone
+        public GameBoxQuaternion GameBoxRotation; // Relative rotation to parent bone
+        public float[][] GameBoxScale; // 3x3
     }
 
     public struct MovBoneAnimationTrack
@@ -25,17 +25,17 @@ namespace Core.DataReader.Mov
 
     public struct MovAnimationEvent
     {
-        public uint Tick;
+        public float KeySeconds;
         public string Name; // 16 chars max
     }
 
     public sealed class MovFile
     {
-        public uint Duration { get; }
+        public float Duration { get; }
         public MovBoneAnimationTrack[] BoneAnimationTracks { get; }
         public MovAnimationEvent[] AnimationEvents { get; }
 
-        public MovFile(uint duration,
+        public MovFile(float duration,
             MovBoneAnimationTrack[] boneAnimationTracks,
             MovAnimationEvent[] animationEvents)
         {

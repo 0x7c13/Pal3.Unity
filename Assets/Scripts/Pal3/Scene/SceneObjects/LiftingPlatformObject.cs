@@ -7,16 +7,15 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Services;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Services;
     using State;
     using UnityEngine;
 
@@ -116,8 +115,7 @@ namespace Pal3.Scene.SceneObjects
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 
             var finalYPosition = (ObjectInfo.SwitchState == 0 ?
-                gameBoxYPosition :
-                ObjectInfo.GameBoxPosition.y).ToUnityYPosition();
+                gameBoxYPosition : ObjectInfo.GameBoxPosition.Y).ToUnityYPosition();
             var yOffset = finalYPosition - position.y;
 
             FlipAndSaveSwitchState();
@@ -161,7 +159,7 @@ namespace Pal3.Scene.SceneObjects
                     new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Parameters[2],
-                        objectOnThePlatform.transform.position.ToGameBoxPosition()));
+                        objectOnThePlatform.transform.position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
             }
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);

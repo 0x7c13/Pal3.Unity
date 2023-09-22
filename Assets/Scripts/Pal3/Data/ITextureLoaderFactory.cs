@@ -5,7 +5,7 @@
 
 namespace Pal3.Data
 {
-    using Core.DataLoader;
+    using Engine.DataLoader;
 
     public interface ITextureLoaderFactory
     {

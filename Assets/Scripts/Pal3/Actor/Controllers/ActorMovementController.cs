@@ -11,13 +11,15 @@ namespace Pal3.Actor.Controllers
     using System.Linq;
     using System.Threading;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Core.GameBox;
-    using Core.Navigation;
-    using Core.Utils;
+    using Core.Primitives;
+    using Engine.Extensions;
+    using Engine.Navigation;
+    using Engine.Utilities;
     using Scene;
     using Scene.SceneObjects.Common;
     using Script.Waiter;
@@ -96,7 +98,7 @@ namespace Pal3.Actor.Controllers
             _movementMaxYDifferentialCrossPlatform = movementMaxYDifferentialCrossPlatform;
             _getAllActiveActorBlockingTilePositions = getAllActiveActorBlockingTilePositions;
 
-            Vector3 initPosition = new Vector3(
+            Vector3 initPosition = new GameBoxVector3(
                 actor.Info.GameBoxXPosition,
                 actor.Info.GameBoxYPosition,
                 actor.Info.GameBoxZPosition).ToUnityPosition();
@@ -465,12 +467,12 @@ namespace Pal3.Actor.Controllers
                 targetPosition = tapPoints.First().Value.point;
             }
 
-            MovementMode mode = isDoubleTap ? MovementMode.Run : MovementMode.Walk;
+            MovementMode movementMode = isDoubleTap ? MovementMode.Run : MovementMode.Walk;
 
             // Keep running when actor is already in running mode regardless of the tap behavior
-            if (_currentPath?.MovementMode == MovementMode.Run) mode = MovementMode.Run;
+            if (_currentPath?.MovementMode == MovementMode.Run) movementMode = MovementMode.Run;
 
-            SetupPath(new[] { targetPosition }, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
+            SetupPath(new[] { targetPosition }, movementMode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
         public MovementResult MoveTowards(Vector3 targetPosition, MovementMode movementMode, bool ignoreObstacle = false)
@@ -575,7 +577,7 @@ namespace Pal3.Actor.Controllers
 
                 if (_actionController.GetCollider() is { } capsuleCollider)
                 {
-                    if (Utility.IsPointWithinCollider(colliderInfo.Collider,
+                    if (UnityEngineUtility.IsPointInsideCollider(colliderInfo.Collider,
                             toCenterPosition + movingDirection * capsuleCollider.radius))
                     {
                         return true;
@@ -604,7 +606,7 @@ namespace Pal3.Actor.Controllers
                     const float tolerance = 0.3f;
 
                     // Make sure actor is on top of the platform
-                    if (Utility.IsPointWithinCollider(platformInfo.Platform.GetCollider(),
+                    if (UnityEngineUtility.IsPointInsideCollider(platformInfo.Platform.GetCollider(),
                             new Vector3(newPosition.x, targetYPosition, newPosition.z), tolerance) &&
                         Mathf.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform)
                     {
@@ -665,13 +667,13 @@ namespace Pal3.Actor.Controllers
         }
 
         public void SetupPath(Vector3[] wayPoints,
-            MovementMode mode,
+            MovementMode movementMode,
             EndOfPathActionType endOfPathAction,
             bool ignoreObstacle,
             string specialAction = null)
         {
-            _currentPath.SetPath(wayPoints, mode, endOfPathAction, ignoreObstacle);
-            _actionController.PerformAction(specialAction ?? _actor.GetMovementAction(mode));
+            _currentPath.SetPath(wayPoints, movementMode, endOfPathAction, ignoreObstacle);
+            _actionController.PerformAction(specialAction ?? _actor.GetMovementAction(movementMode));
         }
 
         private void ReachingToEndOfPath()
@@ -708,26 +710,28 @@ namespace Pal3.Actor.Controllers
             _currentPath.Clear();
         }
 
-        private IEnumerator WaitForSomeTimeAndFollowPathAsync(Vector3[] waypoints, MovementMode mode, CancellationToken cancellationToken)
+        private IEnumerator WaitForSomeTimeAndFollowPathAsync(Vector3[] waypoints,
+            MovementMode movementMode,
+            CancellationToken cancellationToken)
         {
             yield return new WaitForSeconds(Random.Range(3, 8));
             yield return new WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
-                SetupPath(waypoints, mode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);
+                SetupPath(waypoints, movementMode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);
             }
         }
 
-        public IEnumerator MoveDirectlyToAsync(Vector3 position, MovementMode mode, bool ignoreObstacle)
+        public IEnumerator MoveDirectlyToAsync(Vector3 position, MovementMode movementMode, bool ignoreObstacle)
         {
             _currentPath.Clear();
             MovementResult result;
-            _actionController.PerformAction(_actor.GetMovementAction(mode));
+            _actionController.PerformAction(_actor.GetMovementAction(movementMode));
             do
             {
                 Vector3 currentPosition = transform.position;
 
-                result = MoveTowards(position, mode, ignoreObstacle);
+                result = MoveTowards(position, movementMode, ignoreObstacle);
                 yield return null;
 
                 Vector3 newPosition = transform.position;
@@ -742,7 +746,7 @@ namespace Pal3.Actor.Controllers
         }
 
         private IEnumerator FindPathAndMoveToTilePositionAsync(Vector2Int toTilePosition,
-            MovementMode mode,
+            MovementMode movementMode,
             EndOfPathActionType endOfPathAction,
             CancellationToken cancellationToken,
             bool moveTowardsPositionIfNoPathFound = false,
@@ -789,7 +793,7 @@ namespace Pal3.Actor.Controllers
                         _tilemap.GetWorldPosition(toTilePosition, _currentLayerIndex),
                     };
 
-                    SetupPath(directWayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
+                    SetupPath(directWayPoints, movementMode, endOfPathAction, ignoreObstacle: true, specialAction);
                 }
                 else
                 {
@@ -806,22 +810,22 @@ namespace Pal3.Actor.Controllers
                 wayPoints[i] = _tilemap.GetWorldPosition(new Vector2Int(path[i].x, path[i].y), _currentLayerIndex);
             }
 
-            SetupPath(wayPoints, mode, endOfPathAction, ignoreObstacle: true, specialAction);
+            SetupPath(wayPoints, movementMode, endOfPathAction, ignoreObstacle: true, specialAction);
         }
 
-        private void MoveToTilePosition(Vector2Int position, MovementMode mode)
+        private void MoveToTilePosition(Vector2Int position, MovementMode movementMode)
         {
-            MoveTo(_tilemap.GetWorldPosition(position, _currentLayerIndex), mode);
+            MoveTo(_tilemap.GetWorldPosition(position, _currentLayerIndex), movementMode);
         }
 
-        private void MoveTo(Vector3 position, MovementMode mode)
+        private void MoveTo(Vector3 position, MovementMode movementMode)
         {
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             var wayPoints = new [] { position };
-            SetupPath(wayPoints, mode, EndOfPathActionType.Idle, ignoreObstacle: false);
+            SetupPath(wayPoints, movementMode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
         public void Execute(ActorSetWorldPositionCommand command)
@@ -906,7 +910,7 @@ namespace Pal3.Actor.Controllers
             _movementWaiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePositionAsync(new Vector2Int(command.TileXPosition, command.TileYPosition),
-                mode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
+                movementMode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
         }
         #endif
 

@@ -10,10 +10,11 @@ namespace Pal3.GameSystems.Team
     using System.Linq;
     using Actor.Controllers;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
+    using Engine.Utilities;
     using GamePlay;
     using Scene;
     using UnityEngine;

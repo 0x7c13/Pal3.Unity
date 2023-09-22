@@ -11,22 +11,25 @@ namespace Pal3.Camera
     using System.Linq;
     using System.Threading;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Utils;
+    using Core.Primitives;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using GamePlay;
     using Input;
-    using MetaData;
     using Scene;
     using Script.Waiter;
     using State;
     using UnityEngine;
     using UnityEngine.InputSystem.OnScreen;
     using UnityEngine.UI;
+    using Color = UnityEngine.Color;
 
     public sealed class CameraManager : IDisposable,
         ICommandExecutor<CameraSetTransformCommand>,
@@ -121,7 +124,7 @@ namespace Pal3.Camera
 
             _curtainImage = curtainImage;
 
-            _isTouchEnabled = Utility.IsHandheldDevice();
+            _isTouchEnabled = UnityEngineUtility.IsHandheldDevice();
 
             var onScreenStick = touchControlUI.GetComponentInChildren<OnScreenStick>();
             _joyStickMovementRange = onScreenStick.movementRange;
@@ -448,25 +451,25 @@ namespace Pal3.Camera
                     _freeToRotate = true;
                     cameraFov = HorizontalToVerticalFov(26.0f, 4f/3f);
                     cameraDistance = CAMERA_DEFAULT_DISTANCE;
-                    cameraRotation = initRotation ?? GameBoxConvertor.ToUnityQuaternion(-30.37f, -52.65f, 0f);
+                    cameraRotation = initRotation ?? UnityPrimitivesConvertor.ToUnityQuaternion(-30.37f, -52.65f, 0f);
                     break;
                 case 1:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = initRotation ?? GameBoxConvertor.ToUnityQuaternion(-19.48f, 33.24f, 0f);
+                    cameraRotation = initRotation ?? UnityPrimitivesConvertor.ToUnityQuaternion(-19.48f, 33.24f, 0f);
                     break;
                 case 2:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = initRotation ?? GameBoxConvertor.ToUnityQuaternion(-19.48f, -33.24f, 0f);
+                    cameraRotation = initRotation ?? UnityPrimitivesConvertor.ToUnityQuaternion(-19.48f, -33.24f, 0f);
                     break;
                 case 3:
                     _freeToRotate = false;
                     cameraFov = HorizontalToVerticalFov(24.05f, 4f/3f);
                     cameraDistance = CAMERA_IN_DOOR_DISTANCE;
-                    cameraRotation = initRotation ?? GameBoxConvertor.ToUnityQuaternion(-19.48f, 0f, 0f);
+                    cameraRotation = initRotation ?? UnityPrimitivesConvertor.ToUnityQuaternion(-19.48f, 0f, 0f);
                     break;
                 default:
                     return;
@@ -502,11 +505,11 @@ namespace Pal3.Camera
 
             _lookAtGameObject = null;
 
-            Vector3 cameraPosition = new Vector3(
+            Vector3 cameraPosition = new GameBoxVector3(
                 command.GameBoxXPosition,
                 command.GameBoxYPosition,
                 command.GameBoxZPosition).ToUnityPosition();
-            Quaternion cameraRotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+            Quaternion cameraRotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
 
             Transform cameraTransform = _camera.transform;
             cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
@@ -546,7 +549,7 @@ namespace Pal3.Camera
 
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-            Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+            Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
             Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                 command.Duration,
                 (AnimationCurveType)command.CurveType,
@@ -566,7 +569,7 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(RotateAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -576,7 +579,7 @@ namespace Pal3.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(RotateAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -682,7 +685,7 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Vector3 position = new Vector3(
+                Vector3 position = new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition).ToUnityPosition();
@@ -695,7 +698,7 @@ namespace Pal3.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Vector3 position = new Vector3(
+                Vector3 position = new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition).ToUnityPosition();
@@ -813,7 +816,7 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -823,7 +826,7 @@ namespace Pal3.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -845,7 +848,7 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -855,7 +858,7 @@ namespace Pal3.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Quaternion rotation = GameBoxConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
+                Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -877,7 +880,7 @@ namespace Pal3.Camera
             {
                 var waiter = new WaitUntilCanceled();
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                Vector3 position = _cameraOffset + new Vector3(
+                Vector3 position = _cameraOffset + new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition).ToUnityPosition();
@@ -889,7 +892,7 @@ namespace Pal3.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                Vector3 position = _cameraOffset + new Vector3(
+                Vector3 position = _cameraOffset + new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
                     command.GameBoxZPosition).ToUnityPosition();

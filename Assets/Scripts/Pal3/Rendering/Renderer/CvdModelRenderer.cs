@@ -9,12 +9,12 @@ namespace Pal3.Rendering.Renderer
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading;
-    using Core.DataLoader;
     using Core.DataReader.Cvd;
-    using Core.Extensions;
-    using Core.Renderer;
-    using Core.Utils;
+    using Core.Utilities;
     using Dev.Presenters;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Material;
     using UnityEngine;
 
@@ -169,7 +169,7 @@ namespace Pal3.Rendering.Renderer
             }
             else
             {
-                frameIndex = Utility.GetFloorIndex(keyTimes, time);
+                frameIndex = CoreUtility.GetFloorIndex(keyTimes, time);
             }
 
             return frameIndex;
@@ -259,7 +259,7 @@ namespace Pal3.Rendering.Renderer
                     var meshRenderer = meshSectionObject.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
                         meshDataBuffer.VertexBuffer,
-                        meshSection.Triangles,
+                        meshSection.GameBoxTriangles.ToUnityTriangles(),
                         meshDataBuffer.NormalBuffer,
                         meshDataBuffer.UvBuffer,
                         meshDataBuffer.UvBuffer,
@@ -306,8 +306,9 @@ namespace Pal3.Rendering.Renderer
             {
                 for (var i = 0; i < frameVertices.Length; i++)
                 {
-                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(frameVertices[i].Position);
-                    meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv;
+                    meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
+                        frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition());
+                    meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv.ToUnityVector2();
                 }
             }
             else
@@ -315,9 +316,13 @@ namespace Pal3.Rendering.Renderer
                 for (var i = 0; i < frameVertices.Length; i++)
                 {
                     var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
-                    Vector3 lerpPosition = Vector3.Lerp(frameVertices[i].Position, toFrameVertices[i].Position, influence);
+                    Vector3 lerpPosition = Vector3.Lerp(
+                        frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(),
+                        toFrameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(), influence);
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(lerpPosition);
-                    Vector2 lerpUv = Vector2.Lerp(frameVertices[i].Uv, toFrameVertices[i].Uv, influence);
+                    Vector2 lerpUv = Vector2.Lerp(
+                        frameVertices[i].Uv.ToUnityVector2(),
+                        toFrameVertices[i].Uv.ToUnityVector2(), influence);
                     meshDataBuffer.UvBuffer[i] = lerpUv;
                 }
             }
@@ -475,7 +480,7 @@ namespace Pal3.Rendering.Renderer
 
         private Vector3 GetPosition(float time, CvdAnimationPositionKeyFrame[] nodePositionInfo)
         {
-            if (nodePositionInfo.Length == 1) return nodePositionInfo[0].Position;
+            if (nodePositionInfo.Length == 1) return nodePositionInfo[0].GameBoxPosition.CvdPositionToUnityPosition();
 
             // Find the two keyframes that the current time lies between
             // using binary search
@@ -498,7 +503,8 @@ namespace Pal3.Rendering.Renderer
             CvdAnimationPositionKeyFrame fromKeyFrame = nodePositionInfo[startIndex];
             CvdAnimationPositionKeyFrame toKeyFrame = nodePositionInfo[endIndex];
             float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
-            return Vector3.Lerp(fromKeyFrame.Position, toKeyFrame.Position, influence);
+            return Vector3.Lerp(fromKeyFrame.GameBoxPosition.CvdPositionToUnityPosition(),
+                toKeyFrame.GameBoxPosition.CvdPositionToUnityPosition(), influence);
         }
 
         private (Vector3 Scale, Quaternion Rotation) GetScale(float time,
@@ -507,7 +513,8 @@ namespace Pal3.Rendering.Renderer
             if (nodeScaleInfo.Length == 1)
             {
                 CvdAnimationScaleKeyFrame scaleKeyFrame = nodeScaleInfo[0];
-                return (scaleKeyFrame.Scale, scaleKeyFrame.Rotation);
+                return (scaleKeyFrame.GameBoxScale.CvdScaleToUnityScale(),
+                    scaleKeyFrame.GameBoxRotation.CvdQuaternionToUnityQuaternion());
             }
 
             // Find the two keyframes that the current time lies between
@@ -531,15 +538,19 @@ namespace Pal3.Rendering.Renderer
             CvdAnimationScaleKeyFrame fromKeyFrame = nodeScaleInfo[startIndex];
             CvdAnimationScaleKeyFrame toKeyFrame = nodeScaleInfo[endIndex];
             float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
-            Quaternion calculatedRotation = Quaternion.Slerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
-            Vector3 calculatedScale = Vector3.Lerp(fromKeyFrame.Scale, toKeyFrame.Scale, influence);
+            Quaternion calculatedRotation = Quaternion.Slerp(
+                fromKeyFrame.GameBoxRotation.CvdQuaternionToUnityQuaternion(),
+                toKeyFrame.GameBoxRotation.CvdQuaternionToUnityQuaternion(), influence);
+            Vector3 calculatedScale = Vector3.Lerp(
+                fromKeyFrame.GameBoxScale.CvdScaleToUnityScale(),
+                toKeyFrame.GameBoxScale.CvdScaleToUnityScale(), influence);
             return (calculatedScale, calculatedRotation);
         }
 
         private Quaternion GetRotation(float time,
             CvdAnimationRotationKeyFrame[] nodeRotationInfo)
         {
-            if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].Rotation;
+            if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].GameBoxRotation.CvdQuaternionToUnityQuaternion();
 
             // Find the two keyframes that the current time lies between
             int startIndex = 0;
@@ -561,7 +572,9 @@ namespace Pal3.Rendering.Renderer
             CvdAnimationRotationKeyFrame fromKeyFrame = nodeRotationInfo[startIndex];
             CvdAnimationRotationKeyFrame toKeyFrame = nodeRotationInfo[endIndex];
             float influence = (time - fromKeyFrame.Time) / (toKeyFrame.Time - fromKeyFrame.Time);
-            return Quaternion.Slerp(fromKeyFrame.Rotation, toKeyFrame.Rotation, influence);
+            return Quaternion.Slerp(
+                fromKeyFrame.GameBoxRotation.CvdQuaternionToUnityQuaternion(),
+                toKeyFrame.GameBoxRotation.CvdQuaternionToUnityQuaternion(), influence);
         }
 
         public void StopCurrentAnimation()

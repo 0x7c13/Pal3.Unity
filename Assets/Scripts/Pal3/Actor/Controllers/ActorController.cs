@@ -8,19 +8,18 @@ namespace Pal3.Actor.Controllers
     using System;
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Contracts;
-    using Core.DataReader.Scn;
-    using Core.GameBox;
-    using Core.Navigation;
-    using Core.Services;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Navigation;
+    using Engine.Services;
     using Input;
-    using MetaData;
     using GamePlay;
     using Script.Waiter;
-    using Settings;
     using UnityEngine;
 
     public class ActorController : MonoBehaviour,

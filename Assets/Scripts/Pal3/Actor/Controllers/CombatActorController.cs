@@ -6,7 +6,7 @@
 namespace Pal3.Actor.Controllers
 {
     using System.Collections;
-    using Core.Animation;
+    using Engine.Animation;
     using GameSystems.Combat;
     using Scene;
     using Script.Waiter;

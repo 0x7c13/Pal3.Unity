@@ -7,9 +7,10 @@ namespace Pal3.Effect.PostProcessing
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Utils;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Engine.Utilities;
     using Settings;
     using UnityEngine.Rendering.PostProcessing;
 
@@ -79,7 +80,7 @@ namespace Pal3.Effect.PostProcessing
             else
             {
                 // Enable bloom for better VFX visual fidelity on desktop devices
-                _bloom.active = Utility.IsDesktopDevice();
+                _bloom.active = UnityEngineUtility.IsDesktopDevice();
             }
         }
 

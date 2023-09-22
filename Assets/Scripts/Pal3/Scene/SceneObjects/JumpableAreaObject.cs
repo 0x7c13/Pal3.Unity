@@ -7,11 +7,11 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.Services;
     using Data;
+    using Engine.Extensions;
+    using Engine.Services;
     using GamePlay;
     using UnityEngine;
 

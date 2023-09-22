@@ -8,6 +8,7 @@ namespace Pal3.Command
     using System;
     using System.Reflection;
     using System.Text;
+    using Core.Command;
 
     public static class CommandExtensions
     {

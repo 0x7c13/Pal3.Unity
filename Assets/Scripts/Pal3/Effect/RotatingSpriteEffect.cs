@@ -8,7 +8,7 @@ namespace Pal3.Effect
     using System;
     using Data;
     using System.Collections;
-    using Core.Extensions;
+    using Engine.Extensions;
     using UnityEngine;
 
     public sealed class RotatingSpriteEffect : MonoBehaviour, IDisposable

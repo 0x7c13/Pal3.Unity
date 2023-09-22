@@ -7,8 +7,9 @@ namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Core.GameBox;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Primitives;
     using UnityEngine;
 
     public class TilemapTriggerController : MonoBehaviour,
@@ -50,7 +51,7 @@ namespace Pal3.Scene.SceneObjects.Common
         {
             if (notification.LayerIndex != _layerIndex || notification.MovedByScript) return;
 
-            bool isInsideTriggerArea = _tileMapTriggerRect.IsPointInsideRect(notification.Position);
+            bool isInsideTriggerArea = _tileMapTriggerRect.IsPointInsideRect(notification.Position.x, notification.Position.y);
 
             if (!isInsideTriggerArea)
             {

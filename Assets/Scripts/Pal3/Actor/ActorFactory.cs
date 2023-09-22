@@ -8,7 +8,7 @@ namespace Pal3.Actor
     using System;
     using System.Collections.Generic;
     using Controllers;
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Data;
     using Dev.Presenters;
     using GameSystems.Combat;

@@ -8,15 +8,15 @@ namespace Pal3.Rendering.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Core.DataLoader;
     using Core.DataReader.Pol;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Renderer;
-    using Dev;
+    using Core.Primitives;
     using Dev.Presenters;
+    using Engine.DataLoader;
+    using Engine.Extensions;
+    using Engine.Renderer;
     using Material;
     using UnityEngine;
+    using Color = UnityEngine.Color;
     using Debug = UnityEngine.Debug;
 
     /// <summary>
@@ -220,11 +220,11 @@ namespace Pal3.Rendering.Renderer
                         StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture);
                     }
 
-                    _ = meshRenderer.Render(mesh.VertexInfo.Positions,
-                        mesh.Textures[i].Triangles,
-                        mesh.VertexInfo.Normals,
-                        mesh.VertexInfo.Uvs[mainTextureIndex],
-                        mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)],
+                    _ = meshRenderer.Render(mesh.VertexInfo.GameBoxPositions.ToUnityPositions(),
+                        mesh.Textures[i].GameBoxTriangles.ToUnityTriangles(),
+                        mesh.VertexInfo.GameBoxNormals.ToUnityNormals(),
+                        mesh.VertexInfo.Uvs[mainTextureIndex].ToUnityVector2s(),
+                        mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)].ToUnityVector2s(),
                         materials,
                         false);
                 }

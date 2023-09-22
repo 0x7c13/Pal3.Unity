@@ -12,18 +12,19 @@ namespace Pal3.Scene.SceneObjects
     using System.Threading;
     using Actor.Controllers;
     using Command;
-    using Command.SceCommands;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
     using Random = UnityEngine.Random;
@@ -64,7 +65,7 @@ namespace Pal3.Scene.SceneObjects
             var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                Utility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
+                CoreUtility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
             var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(polFile,
                 textureProvider,

@@ -9,8 +9,9 @@ namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
-    using Command.SceCommands;
-    using Core.Utils;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Engine.Utilities;
     using Script;
 
     public sealed class SkiMiniGame : IDisposable,

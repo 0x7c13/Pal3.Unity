@@ -8,16 +8,16 @@ namespace Pal3.Scene
     using System;
     using System.Collections.Generic;
     using Actor;
-    using Core.DataLoader;
+    using Core.Contract.Constants;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Lgt;
     using Core.DataReader.Nav;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
-    using MetaData;
+    using Engine.DataLoader;
     using SceneObjects;
     using State;
     using UnityEngine;
@@ -117,7 +117,7 @@ namespace Pal3.Scene
             var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
 
             ITextureResourceProvider sceneTextureProvider = _resourceProvider.CreateTextureResourceProvider(
-                Utility.GetDirectoryName(sceneMetadataFilePrefix, separator));
+                CoreUtility.GetDirectoryName(sceneMetadataFilePrefix, separator));
 
             PolFile polFile = _resourceProvider.GetGameResourceFile<PolFile>(sceneMetadataFilePrefix + ".pol");
             ScenePolyMesh = (polFile, sceneTextureProvider);

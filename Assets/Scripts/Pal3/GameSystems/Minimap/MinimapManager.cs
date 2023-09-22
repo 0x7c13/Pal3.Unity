@@ -7,11 +7,12 @@ namespace Pal3.GameSystems.Minimap
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Core.Extensions;
-    using Core.Utils;
+    using Engine.Extensions;
+    using Engine.Utilities;
     using Scene;
     using State;
     using UnityEngine;

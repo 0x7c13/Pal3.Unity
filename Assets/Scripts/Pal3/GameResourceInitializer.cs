@@ -9,18 +9,18 @@ namespace Pal3
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
-    using Core.Animation;
+    using Constants;
+    using Core.Contract.Constants;
     using Core.DataReader;
     using Core.DataReader.Cpk;
-    using Core.Extensions;
     using Core.FileSystem;
-    using Core.Services;
     using Data;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Services;
     using Rendering.Material;
     using Settings;
     using SimpleFileBrowser;
@@ -359,6 +359,7 @@ namespace Pal3
 
             foreach (var cpkFileRelativePath in filesToMount)
             {
+                Debug.Log($"[{nameof(GameResourceInitializer)}] Mounting: {cpkFileRelativePath}");
                 cpkFileSystem.Mount(cpkFileRelativePath, codepage);
             }
 

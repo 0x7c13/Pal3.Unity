@@ -7,8 +7,8 @@ namespace Core.DataReader.Mtl
 {
     using System.Collections.Generic;
     using System.IO;
-    using GameBox;
-    using Utils;
+    using Primitives;
+    using Utilities;
 
     public sealed class MtlFileReader : IFileReader<MtlFile>
     {
@@ -35,10 +35,10 @@ namespace Core.DataReader.Mtl
             {
                 materials[i] = new GameBoxMaterial
                 {
-                    Diffuse = Utility.ToColor(reader.ReadSingles(4)),
-                    Ambient = Utility.ToColor(reader.ReadSingles(4)),
-                    Specular = Utility.ToColor(reader.ReadSingles(4)),
-                    Emissive = Utility.ToColor(reader.ReadSingles(4)),
+                    Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
+                    Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
+                    Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
+                    Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
                     SpecularPower = reader.ReadSingle(),
                 };
 

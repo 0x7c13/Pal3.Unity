@@ -7,9 +7,9 @@ namespace Pal3.Data
 {
     using System;
     using System.IO;
-    using Core.DataLoader;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
+    using Engine.DataLoader;
     using UnityEngine;
 
     public class TextureProvider : TextureProviderBase, ITextureResourceProvider

@@ -55,7 +55,7 @@ namespace Core.DataReader.Bmp
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using UnityEngine;
+    using Primitives;
 
     public enum BmpCompressionMode : int
     {
@@ -94,8 +94,8 @@ namespace Core.DataReader.Bmp
         public uint NPaletteColors;
         public uint NImportantColors;
 
-        public int AbsWidth { get { return Mathf.Abs(Width); } }
-        public int AbsHeight { get { return Mathf.Abs(Height); } }
+        public int AbsWidth { get { return Math.Abs(Width); } }
+        public int AbsHeight { get { return Math.Abs(Height); } }
     }
 
     public sealed class BmpFileReader
@@ -128,13 +128,11 @@ namespace Core.DataReader.Bmp
             BmpFile bmp = new BmpFile();
             if (!ReadFileHeader(aReader, ref bmp.Header))
             {
-                Debug.LogError("Not a BMP file");
-                return null;
+                throw new InvalidDataException("Not a valid BMP file");
             }
             if (!ReadInfoHeader(aReader, ref bmp.Info))
             {
-                Debug.LogError("Unsupported header format");
-                return null;
+                throw new InvalidDataException("Unsupported header format");
             }
             if (bmp.Info.CompressionMode != BmpCompressionMode.BI_RGB
                 && bmp.Info.CompressionMode != BmpCompressionMode.BI_BITFIELDS
@@ -143,8 +141,7 @@ namespace Core.DataReader.Bmp
                 && bmp.Info.CompressionMode != BmpCompressionMode.BI_RLE8
                 )
             {
-                Debug.LogError("Unsupported image format: " + bmp.Info.CompressionMode);
-                return null;
+                throw new NotSupportedException("Unsupported image format: " + bmp.Info.CompressionMode);
             }
             long offset = 14 + bmp.Info.Size;
             aReader.BaseStream.Seek(offset, SeekOrigin.Begin);
@@ -189,8 +186,7 @@ namespace Core.DataReader.Bmp
                 ReadIndexedImage(aReader, bmp);
             else
             {
-                Debug.LogError("Unsupported file format: " + bmp.Info.CompressionMode + " BPP: " + bmp.Info.NBitsPerPixel);
-                return null;
+                throw new NotSupportedException("Unsupported file format: " + bmp.Info.CompressionMode + " BPP: " + bmp.Info.NBitsPerPixel);
             }
             return bmp;
         }
@@ -198,13 +194,12 @@ namespace Core.DataReader.Bmp
 
         private static void Read32BitImage(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             Color32[] data = bmp.ImageData = new Color32[w * h];
             if (aReader.BaseStream.Position + w * h * 4 > aReader.BaseStream.Length)
             {
-                Debug.LogError("Unexpected end of file.");
-                return;
+                throw new InvalidDataException("Unexpected end of file");
             }
             int shiftR = GetShiftCount(bmp.RMask);
             int shiftG = GetShiftCount(bmp.GMask);
@@ -225,16 +220,17 @@ namespace Core.DataReader.Bmp
 
         private static void Read24BitImage(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             int rowLength = ((24 * w + 31) / 32) * 4;
             int count = rowLength * h;
             int pad = rowLength - w * 3;
             Color32[] data = bmp.ImageData = new Color32[w * h];
             if (aReader.BaseStream.Position + count > aReader.BaseStream.Length)
             {
-                Debug.LogError("Unexpected end of file. (Have " + (aReader.BaseStream.Position + count) + " bytes, expected " + aReader.BaseStream.Length + " bytes)");
-                return;
+                throw new InvalidDataException("Unexpected end of file. (Have " +
+                                               (aReader.BaseStream.Position + count) + " bytes, expected " +
+                                               aReader.BaseStream.Length + " bytes)");
             }
             int shiftR = GetShiftCount(bmp.RMask);
             int shiftG = GetShiftCount(bmp.GMask);
@@ -256,16 +252,17 @@ namespace Core.DataReader.Bmp
 
         private static void Read16BitImage(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             int rowLength = ((16 * w + 31) / 32) * 4;
             int count = rowLength * h;
             int pad = rowLength - w * 2;
             Color32[] data = bmp.ImageData = new Color32[w * h];
             if (aReader.BaseStream.Position + count > aReader.BaseStream.Length)
             {
-                Debug.LogError("Unexpected end of file. (Have " + (aReader.BaseStream.Position + count) + " bytes, expected " + aReader.BaseStream.Length + " bytes)");
-                return;
+                throw new InvalidDataException("Unexpected end of file. (Have " +
+                                               (aReader.BaseStream.Position + count) + " bytes, expected " +
+                                               aReader.BaseStream.Length + " bytes)");
             }
             int shiftR = GetShiftCount(bmp.RMask);
             int shiftG = GetShiftCount(bmp.GMask);
@@ -291,8 +288,8 @@ namespace Core.DataReader.Bmp
 
         private static void ReadIndexedImage(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             int bitCount = bmp.Info.NBitsPerPixel;
             int rowLength = ((bitCount * w + 31) / 32) * 4;
             int count = rowLength * h;
@@ -300,8 +297,9 @@ namespace Core.DataReader.Bmp
             Color32[] data = bmp.ImageData = new Color32[w * h];
             if (aReader.BaseStream.Position + count > aReader.BaseStream.Length)
             {
-                Debug.LogError("Unexpected end of file. (Have " + (aReader.BaseStream.Position + count) + " bytes, expected " + aReader.BaseStream.Length + " bytes)");
-                return;
+                throw new InvalidDataException("Unexpected end of file. (Have " +
+                                               (aReader.BaseStream.Position + count) + " bytes, expected " +
+                                               aReader.BaseStream.Length + " bytes)");
             }
             BitStreamReader bitReader = new BitStreamReader(aReader);
             for (int y = 0; y < h; y++)
@@ -311,8 +309,7 @@ namespace Core.DataReader.Bmp
                     int v = (int)bitReader.ReadBits(bitCount);
                     if (v >= bmp.Palette.Count)
                     {
-                        Debug.LogError("Indexed bitmap has indices greater than it's color palette");
-                        return;
+                        throw new InvalidDataException("Indexed bitmap has indices greater than it's color palette");
                     }
                     data[x + y * w] = bmp.Palette[v];
                 }
@@ -324,8 +321,8 @@ namespace Core.DataReader.Bmp
 
         private static void ReadIndexedImageRLE4(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             Color32[] data = bmp.ImageData = new Color32[w * h];
             int x = 0;
             int y = 0;
@@ -388,8 +385,8 @@ namespace Core.DataReader.Bmp
 
         private static void ReadIndexedImageRLE8(BinaryReader aReader, BmpFile bmp)
         {
-            int w = Mathf.Abs(bmp.Info.Width);
-            int h = Mathf.Abs(bmp.Info.Height);
+            int w = Math.Abs(bmp.Info.Width);
+            int h = Math.Abs(bmp.Info.Height);
             Color32[] data = bmp.ImageData = new Color32[w * h];
             int x = 0;
             int y = 0;

@@ -8,10 +8,11 @@ namespace Pal3.Rendering.Material
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using Core.Extensions;
-    using Core.GameBox;
+    using Core.Primitives;
+    using Engine.Extensions;
     using UnityEngine;
     using UnityEngine.Rendering;
+    using Color = UnityEngine.Color;
     using Debug = UnityEngine.Debug;
 
     /// <summary>

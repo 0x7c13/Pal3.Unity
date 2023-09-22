@@ -8,11 +8,12 @@ namespace Pal3.UI
     using System;
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Utils;
-    using MetaData;
+    using Command.Extensions;
+    using Constants;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Engine.Animation;
+    using Engine.Utilities;
     using Settings;
     using State;
     using TMPro;

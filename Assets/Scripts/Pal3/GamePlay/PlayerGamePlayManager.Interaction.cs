@@ -10,10 +10,11 @@ namespace Pal3.GamePlay
     using Actor;
     using Actor.Controllers;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
-    using MetaData;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Scene;
     using Scene.SceneObjects;
     using Script;

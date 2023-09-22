@@ -8,8 +8,8 @@ namespace Pal3.Settings
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using Core.Utils;
-    using MetaData;
+    using Constants;
+    using Engine.Utilities;
 
     /// <summary>
     /// Base class to hold all settings properties.

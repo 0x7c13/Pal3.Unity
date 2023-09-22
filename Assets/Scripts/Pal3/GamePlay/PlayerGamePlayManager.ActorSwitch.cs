@@ -7,9 +7,10 @@ namespace Pal3.GamePlay
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using UnityEngine.InputSystem;
 
     public partial class PlayerGamePlayManager :

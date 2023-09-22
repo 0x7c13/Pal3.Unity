@@ -12,8 +12,7 @@ namespace Core.FileSystem
     using System.Linq;
     using System.Threading.Tasks;
     using DataReader.Cpk;
-    using UnityEngine;
-    using Utils;
+    using Utilities;
 
     /// <summary>
     /// File system wrapper for CPack archives
@@ -26,9 +25,6 @@ namespace Core.FileSystem
 
         public CpkFileSystem(string rootPath, Crc32Hash crcHash)
         {
-            rootPath = Requires.IsNotNullOrEmpty(rootPath, nameof(rootPath));
-            crcHash = Requires.IsNotNull(crcHash, nameof(crcHash));
-
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 rootPath += Path.DirectorySeparatorChar;
@@ -36,9 +32,7 @@ namespace Core.FileSystem
 
             if (!Directory.Exists(rootPath))
             {
-                var error = $"游戏数据加载失败，原始游戏数据根目录不存在: {rootPath}";
-                Debug.LogError(error);
-                throw new DirectoryNotFoundException(error);
+                throw new DirectoryNotFoundException($"游戏数据加载失败，原始游戏数据根目录不存在: {rootPath}");
             }
 
             _rootPath = rootPath;
@@ -57,15 +51,13 @@ namespace Core.FileSystem
         /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
         public void Mount(string cpkFileRelativePath, int codepage)
         {
-            var cpkFileName = Utility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
+            var cpkFileName = CoreUtility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
 
             if (_cpkArchives.ContainsKey(cpkFileName))
             {
-                Debug.LogWarning($"[{nameof(CpkFileSystem)}] {cpkFileRelativePath} already mounted.");
                 return;
             }
 
-            Debug.Log($"[{nameof(CpkFileSystem)}] Mounting: {_rootPath + cpkFileRelativePath}");
             var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash, codepage);
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
@@ -169,7 +161,6 @@ namespace Core.FileSystem
         {
             if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
             {
-                Debug.Log($"[{nameof(CpkFileSystem)}] Caching {cpkFileName} archive into memory.");
                 _cpkArchives[cpkFileName.ToLower()].LoadArchiveIntoMemory();
             }
             else
@@ -185,7 +176,6 @@ namespace Core.FileSystem
         {
             if (_cpkArchives.ContainsKey(cpkFileName.ToLower()))
             {
-                Debug.Log($"[{nameof(CpkFileSystem)}] Disposing in-memory cache: {cpkFileName}");
                 _cpkArchives[cpkFileName.ToLower()].DisposeInMemoryArchive();
             }
             else
@@ -220,7 +210,6 @@ namespace Core.FileSystem
                 }
 
                 cpkArchive.ExtractTo(outputDir);
-                Debug.Log($"[{nameof(CpkFileSystem)}] {cpkFileName} extracted to {outputDir}");
             }
         }
 

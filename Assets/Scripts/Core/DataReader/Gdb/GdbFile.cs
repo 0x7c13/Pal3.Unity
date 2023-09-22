@@ -6,7 +6,7 @@
 namespace Core.DataReader.Gdb
 {
     using System.Collections.Generic;
-    using Contracts;
+    using Contract.Enums;
 
     public struct AttributeImpact
     {

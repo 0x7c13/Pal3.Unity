@@ -5,8 +5,6 @@
 
 namespace Core.DataReader.Dat
 {
-    using GameBox;
-
     public sealed class EffectLinkerFileReader : IFileReader<EffectLinkerFile>
     {
         private const int NUM_OF_EFFECT_LINKERS = 384;
@@ -50,7 +48,7 @@ namespace Core.DataReader.Dat
                 IsCenteredAroundReceiver = reader.ReadBoolean(),
                 IsCasterActor = reader.ReadBoolean(),
                 IsReceiverActor = reader.ReadBoolean(),
-                Position = reader.ReadVector3().ToUnityPosition(),
+                EffectGameBoxPosition = reader.ReadVector3(),
                 WaitDurationInSeconds = reader.ReadSingle(),
                 EffectDurationInSeconds = reader.ReadSingle(),
             };

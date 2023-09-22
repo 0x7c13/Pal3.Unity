@@ -5,20 +5,19 @@
 
 namespace Core.DataReader.Mv3
 {
-    using GameBox;
-    using UnityEngine;
+    using Primitives;
 
     public struct Mv3AnimationEvent
     {
-        public uint Tick;
+        public uint GameBoxTick;
         public string Name; // 16 chars max
     }
 
     public struct Mv3TagFrame
     {
-        public uint Tick;
-        public Vector3 Position;
-        public Quaternion Rotation;
+        public uint GameBoxTick;
+        public GameBoxVector3 GameBoxPosition;
+        public GameBoxQuaternion GameBoxRotation;
         public float[][] Scale; // 3x3
     }
 
@@ -52,25 +51,26 @@ namespace Core.DataReader.Mv3
 
     public struct Mv3VertFrame
     {
-        public uint Tick;
+        public uint GameBoxTick;
         public Mv3Vert[] Vertices;
     }
 
     public struct Mv3Mesh
     {
         public string Name; // 64 chars max
-        public Bounds Bounds;
+        public GameBoxVector3 GameBoxBoundsMin;
+        public GameBoxVector3 GameBoxBoundsMax;
         public Mv3Attribute[] Attributes;
-        public Vector3[] Normals;
-        public int[] Triangles;
-        public Vector2[] Uvs;
+        public GameBoxVector3[] GameBoxNormals;
+        public int[] GameBoxTriangles;
+        public GameBoxVector2[] Uvs;
         public Mv3AnimationKeyFrame[] KeyFrames;
     }
 
     public struct Mv3AnimationKeyFrame
     {
-        public uint Tick;
-        public Vector3[] Vertices;
+        public uint GameBoxTick;
+        public GameBoxVector3[] GameBoxVertices;
     }
 
     /// <summary>
@@ -78,19 +78,19 @@ namespace Core.DataReader.Mv3
     /// </summary>
     public sealed class Mv3File
     {
-        public uint Duration { get; }
+        public uint TotalGameBoxTicks { get; }
         public Mv3AnimationEvent[] AnimationEvents { get; }
         public Mv3TagNode[] TagNodes { get; }
         public Mv3Mesh[] Meshes { get; }
         public GameBoxMaterial[] Materials { get; }
 
-        public Mv3File(uint duration,
+        public Mv3File(uint totalGameBoxTicks,
             Mv3AnimationEvent[] animationEvents,
             Mv3TagNode[] tagNodes,
             Mv3Mesh[] meshes,
             GameBoxMaterial[] materials)
         {
-            Duration = duration;
+            TotalGameBoxTicks = totalGameBoxTicks;
             AnimationEvents = animationEvents;
             TagNodes = tagNodes;
             Meshes = meshes;

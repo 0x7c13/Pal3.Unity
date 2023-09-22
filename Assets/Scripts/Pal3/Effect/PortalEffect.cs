@@ -5,9 +5,8 @@
 
 namespace Pal3.Effect
 {
-    using System;
-    using Core.Extensions;
     using Data;
+    using Engine.Extensions;
     using UnityEngine;
 
     public sealed class PortalEffect : MonoBehaviour, IEffect

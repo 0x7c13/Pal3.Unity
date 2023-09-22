@@ -7,9 +7,8 @@ namespace Core.DataReader.Scn
 {
     using System;
     using System.IO;
-    using Contracts;
-    using GameBox;
-    using UnityEngine;
+    using Contract.Enums;
+    using Primitives;
 
     public sealed class ScnFileReader : IFileReader<ScnFile>
     {
@@ -160,10 +159,8 @@ namespace Core.DataReader.Scn
             var dependentObjectId = reader.ReadByte();
             _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
-            var bounds = new Bounds();
-            bounds.SetMinMax(
-                reader.ReadVector3().ToUnityPosition(),
-                reader.ReadVector3().ToUnityPosition());
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
 
             var xRotation = reader.ReadSingle();
 
@@ -236,7 +233,8 @@ namespace Core.DataReader.Scn
                 DependentSceneName = dependentSceneName,
                 DependentObjectId = dependentObjectId,
 
-                Bounds = bounds,
+                GameBoxBoundsMin = gameBoxBoundsMin,
+                GameBoxBoundsMax = gameBoxBoundsMax,
 
                 GameBoxXRotation = xRotation,
 

@@ -9,14 +9,15 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.Services;
     using Data;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Services;
     using State;
     using UnityEngine;
 

@@ -5,7 +5,7 @@
 
 namespace Pal3.GameSystems.Combat
 {
-    using Core.Contracts;
+    using Core.Contract.Enums;
     using Script.Waiter;
 
     public enum MeetType

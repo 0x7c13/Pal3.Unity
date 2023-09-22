@@ -12,24 +12,27 @@ namespace Pal3.Scene
     using Actor;
     using Actor.Controllers;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Constants;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Navigation;
-    using Core.Renderer;
-    using Core.Utils;
+    using Core.Primitives;
     using Data;
     using Effect;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.Extensions;
+    using Engine.Navigation;
+    using Engine.Renderer;
+    using Engine.Utilities;
     using Rendering.Material;
     using Rendering.Renderer;
     using SceneObjects;
     using State;
     using UnityEngine;
+    using Color = UnityEngine.Color;
     using Debug = UnityEngine.Debug;
 
     public class Scene : SceneBase,
@@ -229,7 +232,7 @@ namespace Pal3.Scene
                 SceneObject sceneObject = SceneObjects[objectId];
                 if (sceneObject.ObjectInfo.Type == SceneObjectType.JumpableArea &&
                     layerIndex == sceneObject.ObjectInfo.LayerIndex &&
-                    sceneObject.ObjectInfo.TileMapTriggerRect.IsPointInsideRect(tilePosition))
+                    sceneObject.ObjectInfo.TileMapTriggerRect.IsPointInsideRect(tilePosition.x, tilePosition.y))
                 {
                     return true;
                 }
@@ -282,7 +285,7 @@ namespace Pal3.Scene
 
         private void SetupNavMesh()
         {
-            if (Utility.IsHandheldDevice())
+            if (UnityEngineUtility.IsHandheldDevice())
             {
                 // We only enable joystick/gamepad control for the gameplay on mobile
                 // devices so there is no need for setting up nav mesh.
@@ -303,8 +306,8 @@ namespace Pal3.Scene
                 meshCollider.convex = false;
                 meshCollider.sharedMesh = new Mesh()
                 {
-                    vertices = NavFile.FaceLayers[i].Vertices,
-                    triangles = NavFile.FaceLayers[i].Triangles,
+                    vertices = NavFile.FaceLayers[i].GameBoxVertices.ToUnityPositions(),
+                    triangles = NavFile.FaceLayers[i].GameBoxTriangles.ToUnityTriangles(),
                 };
 
                 _meshColliders[i] = meshCollider;
@@ -646,12 +649,12 @@ namespace Pal3.Scene
             {
                 SceneObject sceneObject = SceneObjects[command.ObjectId];
 
-                var gameBoxPositionOffset = new Vector3(
+                GameBoxVector3 gameBoxPositionOffset = new GameBoxVector3(
                     command.GameBoxXOffset,
                     command.GameBoxYOffset,
                     command.GameBoxZOffset);
 
-                Vector3 originalPosition = ScnFile.ObjectInfos.First(_ => _.Id == command.ObjectId).GameBoxPosition;
+                GameBoxVector3 originalPosition = ScnFile.ObjectInfos.First(_ => _.Id == command.ObjectId).GameBoxPosition;
 
                 // There are some objects that moved by scene scripts right after scene load which are persisted by
                 // SceneStateManager. Next time when the scene is loaded, SceneStateManager will set these objects to
@@ -660,7 +663,7 @@ namespace Pal3.Scene
                 // original position + SceneMoveObjectCommand offset.
                 // Example: The climbable object in PAL3 scene m08 3.
                 if (sceneObject.ObjectInfo.GameBoxPosition != originalPosition &&
-                    Vector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)
+                    GameBoxVector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)
                 {
                     // Don't do anything since this object has already been moved by the SceneStateManager
                     Debug.LogWarning($"[{nameof(Scene)}] Won't move object {command.ObjectId} since it has already been " +
@@ -678,7 +681,7 @@ namespace Pal3.Scene
                     new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         command.ObjectId,
-                        toPosition.ToGameBoxPosition()));
+                        toPosition.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
             }
             else
             {

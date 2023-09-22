@@ -9,15 +9,15 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
+    using Engine.Animation;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
 
@@ -51,7 +51,7 @@ namespace Pal3.Scene.SceneObjects
                 var subObjectModelPath = ModelFileVirtualPath.Replace("1.pol", "2.pol");
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
                 var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
                 subObjectModelRenderer.Render(polFile,
                     textureProvider,

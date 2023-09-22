@@ -5,7 +5,7 @@
 
 namespace Pal3.Scene.SceneObjects.Common
 {
-    using Core.Extensions;
+    using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
 

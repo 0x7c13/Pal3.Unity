@@ -9,8 +9,9 @@ namespace Pal3.GameSystems.MiniGames
 {
     using System;
     using Command;
-    using Command.SceCommands;
-    using MetaData;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
 
     public sealed class SailingMiniGame : IDisposable,
         ICommandExecutor<MiniGameStartSailingCommand>

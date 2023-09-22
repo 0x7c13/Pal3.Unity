@@ -6,7 +6,7 @@
 namespace Pal3.Scene.SceneObjects.Common
 {
     using System;
-    using Core.Contracts;
+    using Core.Contract.Enums;
 
     /// <summary>
     /// Attribute for SceneObject

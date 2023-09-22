@@ -7,15 +7,16 @@ namespace Pal3.Actor.Controllers
 {
     using System;
     using Command;
-    using Command.SceCommands;
-    using Core.DataLoader;
+    using Core.Command;
+    using Core.Command.SceCommands;
     using Core.DataReader.Cpk;
     using Core.DataReader.Mov;
     using Core.DataReader.Msh;
     using Core.DataReader.Mtl;
-    using Core.Extensions;
-    using Core.Utils;
+    using Core.Utilities;
     using Data;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
@@ -93,7 +94,7 @@ namespace Pal3.Actor.Controllers
                 movFile = _resourceProvider.GetGameResourceFile<MovFile>(movFilePath);
 
                 textureProvider = _resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
             }
             catch (Exception ex)
             {

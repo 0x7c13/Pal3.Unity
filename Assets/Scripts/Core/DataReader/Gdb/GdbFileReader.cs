@@ -9,7 +9,7 @@ namespace Core.DataReader.Gdb
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Contracts;
+    using Contract.Enums;
 
     public sealed class GdbFileReader : IFileReader<GdbFile>
     {

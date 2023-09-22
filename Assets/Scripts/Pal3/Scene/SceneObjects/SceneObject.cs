@@ -10,22 +10,23 @@ namespace Pal3.Scene.SceneObjects
     using System.Collections.Generic;
     using System.Linq;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Animation;
-    using Core.Contracts;
-    using Core.DataLoader;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Cpk;
     using Core.DataReader.Cvd;
     using Core.DataReader.Pol;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
-    using Core.Utils;
+    using Core.Primitives;
+    using Core.Utilities;
     using Data;
     using Dev.Presenters;
     using Effect;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.DataLoader;
+    using Engine.Extensions;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script;
@@ -69,7 +70,7 @@ namespace Pal3.Scene.SceneObjects
                 GetModelFilePath(objectInfo, sceneInfo) : string.Empty;
 
             ModelType = SceneObjectModelTypeResolver.GetType(
-                Utility.GetFileName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
+                CoreUtility.GetFileName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
 
             GraphicsEffectType = GetEffectType(objectInfo);
         }
@@ -112,7 +113,7 @@ namespace Pal3.Scene.SceneObjects
         }
 
         public virtual GameObject Activate(GameResourceProvider resourceProvider,
-            Color tintColor)
+            UnityEngine.Color tintColor)
         {
             if (IsActivated) return _sceneObjectGameObject;
 
@@ -130,7 +131,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
                 _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
@@ -142,7 +143,7 @@ namespace Pal3.Scene.SceneObjects
             {
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
-                    Utility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
+                    CoreUtility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
                 _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,
@@ -157,12 +158,12 @@ namespace Pal3.Scene.SceneObjects
 
             Vector3 newPosition = ObjectInfo.GameBoxPosition.ToUnityPosition();
             #if PAL3
-            Quaternion newRotation = new Vector3(
+            Quaternion newRotation = new GameBoxVector3(
                     ObjectInfo.GameBoxXRotation,
                     ObjectInfo.GameBoxYRotation,
                     0f).ToUnityQuaternion();
             #elif PAL3A
-            Quaternion newRotation = new Vector3(
+            Quaternion newRotation = new GameBoxVector3(
                     ObjectInfo.GameBoxXRotation,
                     ObjectInfo.GameBoxYRotation,
                     ObjectInfo.GameBoxZRotation).ToUnityQuaternion();
@@ -430,7 +431,7 @@ namespace Pal3.Scene.SceneObjects
                 new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    _sceneObjectGameObject.transform.position.ToGameBoxPosition()));
+                    _sceneObjectGameObject.transform.position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
         }
 
         internal void SaveCurrentYRotation()

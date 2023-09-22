@@ -9,12 +9,13 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Services;
     using Data;
+    using Engine.Services;
     using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.EyeBall)]

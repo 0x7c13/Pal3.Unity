@@ -8,10 +8,10 @@
 namespace Pal3.Actor.Controllers
 {
     using Command;
-    using Command.SceCommands;
-    using Core.Contracts;
-    using Core.Navigation;
-    using Core.Services;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
+    using Engine.Services;
     using Scene;
     using UnityEngine;
 

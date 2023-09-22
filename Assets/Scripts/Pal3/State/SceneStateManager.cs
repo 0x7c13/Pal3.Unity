@@ -8,9 +8,11 @@ namespace Pal3.State
     using System;
     using System.Collections.Generic;
     using Command;
-    using Command.InternalCommands;
+    using Command.Extensions;
+    using Core.Command;
     using Core.DataReader.Scn;
-    using UnityEngine;
+    using Core.Primitives;
+    using Engine.Extensions;
 
     public class SceneObjectStateOverride
     {
@@ -21,7 +23,7 @@ namespace Pal3.State
         public byte? SwitchState { get; set; }
         public byte? TimesCount { get; set; }
         public byte? LayerIndex { get; set; }
-        public Vector3? GameBoxPosition { get; set; }
+        public GameBoxVector3? GameBoxPosition { get; set; }
         public float? GameBoxYRotation { get; set; }
 
         // Special object states
@@ -67,7 +69,7 @@ namespace Pal3.State
             if (GameBoxPosition.HasValue)
             {
                 yield return new SceneSaveGlobalObjectPositionCommand(
-                    info.cityName, info.sceneName, info.objectId, GameBoxPosition.Value);
+                    info.cityName, info.sceneName, info.objectId, GameBoxPosition.Value.ToUnityPosition(scale: 1f));
             }
             if (GameBoxYRotation.HasValue)
             {
@@ -178,7 +180,7 @@ namespace Pal3.State
         {
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
-            _sceneObjectStateOverrides[key].GameBoxPosition = command.GameBoxPosition;
+            _sceneObjectStateOverrides[key].GameBoxPosition = command.GameBoxPosition.ToGameBoxPosition(scale: 1f);
         }
 
         public void Execute(SceneSaveGlobalObjectYRotationCommand command)

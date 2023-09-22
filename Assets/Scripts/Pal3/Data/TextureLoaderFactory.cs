@@ -6,7 +6,7 @@
 namespace Pal3.Data
 {
     using System;
-    using Core.DataLoader;
+    using Engine.DataLoader;
 
     public class TextureLoaderFactory : ITextureLoaderFactory
     {

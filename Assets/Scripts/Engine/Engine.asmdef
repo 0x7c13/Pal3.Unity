@@ -1,0 +1,14 @@
+{
+    "name": "Engine",
+    "rootNamespace": "",
+    "references": ["GUID:7533bfa30c50146279c8ba7caae699e6"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

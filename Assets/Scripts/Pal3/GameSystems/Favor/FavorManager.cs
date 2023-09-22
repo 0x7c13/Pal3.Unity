@@ -9,9 +9,10 @@ namespace Pal3.GameSystems.Favor
     using System.Collections.Generic;
     using System.Linq;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Contracts;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Enums;
     using UnityEngine;
 
     public sealed class FavorManager : IDisposable,

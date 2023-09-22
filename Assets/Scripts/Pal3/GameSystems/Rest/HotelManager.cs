@@ -7,10 +7,11 @@ namespace Pal3.GameSystems.Rest
 {
     using System;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
-    using Core.Utils;
-    using MetaData;
+    using Command.Extensions;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Engine.Utilities;
     using Scene;
     using Script;
     using State;

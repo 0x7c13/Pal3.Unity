@@ -9,18 +9,20 @@ namespace Pal3.Scene.SceneObjects
 {
     using System.Collections;
     using Command;
-    using Command.InternalCommands;
-    using Command.SceCommands;
+    using Command.Extensions;
     using Common;
-    using Core.Animation;
-    using Core.Contracts;
+    using Core.Command;
+    using Core.Command.SceCommands;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Extensions;
-    using Core.GameBox;
+    using Core.Primitives;
     using Data;
-    using MetaData;
+    using Engine.Animation;
+    using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
+    using Color = UnityEngine.Color;
 
     [ScnSceneObject(SceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
@@ -114,7 +116,7 @@ namespace Pal3.Scene.SceneObjects
             if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
                 SceneObject linkedObject = ctx.CurrentScene.GetSceneObject(ObjectInfo.LinkedObjectId);
-                Vector3 linkedObjectGameBoxPosition = linkedObject.ObjectInfo.GameBoxPosition;
+                GameBoxVector3 linkedObjectGameBoxPosition = linkedObject.ObjectInfo.GameBoxPosition;
 
                 shouldResetCamera = true;
 

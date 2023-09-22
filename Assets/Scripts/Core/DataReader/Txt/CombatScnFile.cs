@@ -6,7 +6,7 @@
 namespace Core.DataReader.Txt
 {
     using System.Collections.Generic;
-    using Contracts;
+    using Contract.Enums;
 
     public sealed class CombatScnFile
     {
