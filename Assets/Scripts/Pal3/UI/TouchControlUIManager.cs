@@ -10,6 +10,7 @@ namespace Pal3.UI
     using Command.Extensions;
     using Core.Command;
     using Core.Contract.Enums;
+    using Core.Utilities;
     using Engine.Utilities;
     using Scene;
     using State;
@@ -49,7 +50,7 @@ namespace Pal3.UI
             #if UNITY_EDITOR
             _isTouchSupported = true;
             #else
-            _isTouchSupported = Utility.IsHandheldDevice();
+            _isTouchSupported = UnityEngineUtility.IsHandheldDevice();
             #endif
 
             if (_isTouchSupported)

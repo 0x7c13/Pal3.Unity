@@ -14,8 +14,8 @@ namespace Pal3.Script
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.DataReader.Sce;
+    using Core.Utilities;
     using Data;
-    using Engine.Utilities;
     using UnityEngine;
 
     public sealed class ScriptManager : IDisposable,

@@ -10,6 +10,7 @@ namespace Pal3.Effect.PostProcessing
     using Command.Extensions;
     using Core.Command;
     using Core.Command.SceCommands;
+    using Core.Utilities;
     using Engine.Utilities;
     using Settings;
     using UnityEngine.Rendering.PostProcessing;

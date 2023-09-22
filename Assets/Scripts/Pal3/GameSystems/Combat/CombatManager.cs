@@ -16,9 +16,9 @@ namespace Pal3.GameSystems.Combat
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.Primitives;
+    using Core.Utilities;
     using Data;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Scene;
     using State;
     using Team;

@@ -15,9 +15,9 @@ namespace Pal3.Effect
     using Core.Contract.Constants;
     using Core.DataReader.Dat;
     using Core.Primitives;
+    using Core.Utilities;
     using Data;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Scene;
     using UnityEngine;
 

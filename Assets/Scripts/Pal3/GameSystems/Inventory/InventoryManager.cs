@@ -15,8 +15,8 @@ namespace Pal3.GameSystems.Inventory
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.DataReader.Gdb;
+    using Core.Utilities;
     using Data;
-    using Engine.Utilities;
     using UnityEngine;
 
     public sealed class InventoryManager : IDisposable,

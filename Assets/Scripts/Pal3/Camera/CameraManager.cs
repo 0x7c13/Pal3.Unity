@@ -18,6 +18,7 @@ namespace Pal3.Camera
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Core.Primitives;
+    using Core.Utilities;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Utilities;

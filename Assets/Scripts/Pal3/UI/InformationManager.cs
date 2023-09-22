@@ -12,6 +12,7 @@ namespace Pal3.UI
     using Constants;
     using Core.Command;
     using Core.Command.SceCommands;
+    using Core.Utilities;
     using Engine.Animation;
     using Engine.Utilities;
     using Settings;

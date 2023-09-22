@@ -11,7 +11,7 @@ namespace Pal3.GameSystems.Rest
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
-    using Engine.Utilities;
+    using Core.Utilities;
     using Scene;
     using Script;
     using State;

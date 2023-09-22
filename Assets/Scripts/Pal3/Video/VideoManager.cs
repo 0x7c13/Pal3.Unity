@@ -12,8 +12,8 @@ namespace Pal3.Video
     using Command.Extensions;
     using Core.Command;
     using Core.Command.SceCommands;
+    using Core.Utilities;
     using Data;
-    using Engine.Utilities;
     using Input;
     using Script.Waiter;
     using State;

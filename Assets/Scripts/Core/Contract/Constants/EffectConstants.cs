@@ -6,8 +6,8 @@
 namespace Core.Contract.Constants
 {
     using System.Collections.Generic;
-    using Core.Contract.Enums;
-    using Core.DataReader.Cpk;
+    using DataReader.Cpk;
+    using Enums;
 
     public static class EffectConstants
     {

@@ -11,7 +11,7 @@ namespace Pal3.Data
     using Core.Command;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
-    using Engine.Utilities;
+    using Core.Utilities;
     using UnityEngine;
 
     /// <summary>

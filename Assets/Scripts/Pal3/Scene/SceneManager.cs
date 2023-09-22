@@ -16,9 +16,9 @@ namespace Pal3.Scene
     using Core.Contract.Constants;
     using Core.DataReader.Sce;
     using Core.DataReader.Scn;
+    using Core.Utilities;
     using Data;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Newtonsoft.Json;
     using Script;
     using Settings;

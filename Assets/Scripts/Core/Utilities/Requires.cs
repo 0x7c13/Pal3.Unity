@@ -3,12 +3,11 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Engine.Utilities
+namespace Core.Utilities
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
 
     /// <summary>
     /// Checks method arguments for both dotnet objects and Unity objects.
@@ -18,20 +17,15 @@ namespace Engine.Utilities
         public static T IsNotNull<T>([NotNull] T instance, string paramName)
             where T : class
         {
-            if (typeof(T) == typeof(UnityEngine.Object) ||
-                typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
+            if (typeof(T) == typeof(System.Object) ||
+                typeof(T).IsSubclassOf(typeof(System.Object)))
             {
-                if (instance == null)
+                if (System.Object.ReferenceEquals(null, instance))
                 {
                     throw new ArgumentNullException(paramName);
                 }
-                else
-                {
-                    return instance;
-                }
             }
-
-            if (System.Object.ReferenceEquals(null, instance))
+            else if (instance == null)
             {
                 throw new ArgumentNullException(paramName);
             }
@@ -55,7 +49,7 @@ namespace Engine.Utilities
         {
             IsNotNull(value, paramName);
 
-            if (!value.Any())
+            if (value.Count == 0)
             {
                 throw new ArgumentException("Collection is empty", paramName);
             }

@@ -6,8 +6,8 @@
 namespace Core.Contract.Constants
 {
     using System.Collections.Generic;
-    using Core.Contract.Enums;
-    using Core.Extensions;
+    using Enums;
+    using Extensions;
 
     public static class ActorConstants
     {

@@ -9,7 +9,7 @@ namespace Core.Primitives
     using System.Runtime.CompilerServices;
 
     [System.Serializable]
-    public struct GameBoxVector3
+    public struct GameBoxVector3 : IEquatable<GameBoxVector3>
     {
         public float X;
         public float Y;
@@ -113,5 +113,32 @@ namespace Core.Primitives
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(GameBoxVector3 a, GameBoxVector3 b) => !(a == b);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object obj)
+        {
+            return obj is GameBoxVector3 gbVector3 && Equals(gbVector3);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(GameBoxVector3 other)
+        {
+            float dx = X - other.X;
+            float dy = Y - other.Y;
+            float dz = Z - other.X;
+
+            return
+                (double) dx * (double) dx +
+                (double) dy * (double) dy +
+                (double) dz * (double) dz < 9.999999439624929E-11;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = this.X.GetHashCode();
+            hash = HashCode.Combine(hash, this.Y.GetHashCode());
+            hash = HashCode.Combine(hash, this.Z.GetHashCode());
+            return hash;
+        }
     }
 }

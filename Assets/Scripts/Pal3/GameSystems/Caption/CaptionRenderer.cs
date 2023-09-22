@@ -11,10 +11,10 @@ namespace Pal3.GameSystems.Caption
     using Command.Extensions;
     using Core.Command;
     using Core.Command.SceCommands;
+    using Core.Utilities;
     using Data;
     using Engine.Animation;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Input;
     using Script.Waiter;
     using UnityEngine;

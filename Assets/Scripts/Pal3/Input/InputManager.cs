@@ -9,7 +9,7 @@ namespace Pal3.Input
     using Command;
     using Command.Extensions;
     using Core.Command;
-    using Engine.Utilities;
+    using Core.Utilities;
     using State;
     using UnityEngine.InputSystem;
 

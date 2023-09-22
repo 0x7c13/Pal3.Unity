@@ -16,10 +16,10 @@ namespace Pal3.GameSystems.Dialogue
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
+    using Core.Utilities;
     using Data;
     using Engine.Animation;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Input;
     using Scene;
     using Script.Waiter;

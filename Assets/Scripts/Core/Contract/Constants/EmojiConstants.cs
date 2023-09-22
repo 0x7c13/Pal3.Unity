@@ -6,7 +6,7 @@
 namespace Core.Contract.Constants
 {
     using System.Collections.Generic;
-    using Core.Contract.Enums;
+    using Enums;
 
     public static class ActorEmojiConstants
     {

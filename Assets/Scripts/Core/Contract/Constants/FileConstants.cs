@@ -7,8 +7,8 @@ namespace Core.Contract.Constants
 {
     using System.Collections.Generic;
     using System.IO;
-    using Core.DataReader.Cpk;
-    using Core.DataReader.Scn;
+    using DataReader.Cpk;
+    using DataReader.Scn;
 
     public static class FileConstants
     {

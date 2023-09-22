@@ -19,8 +19,8 @@ namespace Pal3.GameSystems.Combat
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
     using Core.DataReader.Txt;
+    using Core.Utilities;
     using Data;
-    using Engine.Utilities;
     using GamePlay;
     using Scene;
     using Script.Waiter;

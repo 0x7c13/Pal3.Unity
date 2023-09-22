@@ -11,8 +11,8 @@ namespace Pal3.GameSystems.Minimap
     using Core.Command;
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
+    using Core.Utilities;
     using Engine.Extensions;
-    using Engine.Utilities;
     using Scene;
     using State;
     using UnityEngine;
