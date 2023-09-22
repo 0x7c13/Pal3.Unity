@@ -3,9 +3,10 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Settings
+namespace Engine.Utilities
 {
     using System;
+    using Core.Utilities;
     using UnityEngine;
 
     public sealed class PlayerPrefsStore : ITransactionalKeyValueStore

@@ -20,6 +20,7 @@ namespace Pal3.GameSystems.Dialogue
     using Data;
     using Engine.Animation;
     using Engine.Extensions;
+    using Engine.UI;
     using Input;
     using Scene;
     using Script.Waiter;

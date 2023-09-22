@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.UI
+namespace Engine.UI
 {
     using Engine.Extensions;
     using UnityEngine;

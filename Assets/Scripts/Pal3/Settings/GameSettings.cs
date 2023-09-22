@@ -15,6 +15,7 @@ namespace Pal3.Settings
     using Command.Extensions;
     using Constants;
     using Core.Command;
+    using Core.Utilities;
     using Engine.Utilities;
     using IngameDebugConsole;
     using UnityEngine;

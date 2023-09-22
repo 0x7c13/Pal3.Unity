@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Settings
+namespace Core.Utilities
 {
     public interface ITransactionalKeyValueStore
     {
