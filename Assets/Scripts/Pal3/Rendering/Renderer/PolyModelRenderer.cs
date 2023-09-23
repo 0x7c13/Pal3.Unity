@@ -13,11 +13,11 @@ namespace Pal3.Rendering.Renderer
     using Dev.Presenters;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Material;
     using UnityEngine;
     using Color = UnityEngine.Color;
-    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Poly(.pol) model renderer
@@ -150,7 +150,7 @@ namespace Pal3.Rendering.Renderer
 
                 if (textures.Count == 0)
                 {
-                    Debug.LogWarning($"0 texture found for {meshNode.Name}");
+                    EngineLogger.LogWarning($"0 texture found for {meshNode.Name}");
                     return;
                 }
 

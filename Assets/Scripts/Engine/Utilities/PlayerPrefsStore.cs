@@ -7,6 +7,7 @@ namespace Engine.Utilities
 {
     using System;
     using Core.Utilities;
+    using Logging;
     using UnityEngine;
 
     public sealed class PlayerPrefsStore : ITransactionalKeyValueStore
@@ -35,7 +36,7 @@ namespace Engine.Utilities
             }
             else
             {
-                throw new NotSupportedException("Unsupported type: " + typeof(T).Name);
+                throw new NotSupportedException($"Unsupported type: {typeof(T).Name}");
             }
         }
 
@@ -74,7 +75,7 @@ namespace Engine.Utilities
                 return true;
             }
 
-            Debug.LogError($"[{nameof(PlayerPrefsStore)}] Unsupported type: " + typeof(T).Name);
+            EngineLogger.LogError($"Unsupported type: {typeof(T).Name}");
             value = default;
             return false;
         }

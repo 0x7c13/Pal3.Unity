@@ -87,7 +87,7 @@ namespace Core.DataReader.Pol
                 }
                 else
                 {
-                    throw new Exception("Invalid TagNode color string.");
+                    throw new InvalidDataException("Invalid TagNode color string");
                 }
             }
 

@@ -10,10 +10,10 @@ namespace Pal3.Rendering.Material
     using System.Diagnostics;
     using Core.Primitives;
     using Engine.Extensions;
+    using Engine.Logging;
     using UnityEngine;
     using UnityEngine.Rendering;
     using Color = UnityEngine.Color;
-    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Lit material factory for generating materials
@@ -104,7 +104,7 @@ namespace Pal3.Rendering.Material
             _isMaterialPoolAllocated = true;
 
             timer.Stop();
-            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
+            EngineLogger.Log($"Material pool allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         public void DeallocateMaterialPool()
@@ -125,7 +125,7 @@ namespace Pal3.Rendering.Material
             _isMaterialPoolAllocated = false;
 
             timer.Stop();
-            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool de-allocated in {timer.ElapsedMilliseconds} ms.");
+            EngineLogger.Log($"Material pool de-allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         public MaterialShaderType ShaderType => MaterialShaderType.Lit;

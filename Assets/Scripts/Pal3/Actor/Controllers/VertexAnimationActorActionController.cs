@@ -19,6 +19,7 @@ namespace Pal3.Actor.Controllers
     using Data;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
@@ -103,7 +104,7 @@ namespace Pal3.Actor.Controllers
 
             if (!_actor.HasAction(actionName))
             {
-                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Action {actionName} not found for actor {_actor.Name}.");
+                EngineLogger.LogError($"Action {actionName} not found for actor {_actor.Name}");
                 _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;
@@ -120,7 +121,7 @@ namespace Pal3.Actor.Controllers
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[{nameof(VertexAnimationActorActionController)}] Exception: {ex}");
+                EngineLogger.LogException(ex);
                 _animationLoopPointWaiter?.CancelWait();
                 waiter?.CancelWait();
                 return;

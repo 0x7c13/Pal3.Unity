@@ -36,6 +36,7 @@ namespace ResourceViewer
     using Newtonsoft.Json.Converters;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
+    using Engine.Logging;
     using Pal3.Constants;
     using Pal3.Data;
     using Pal3.Rendering.Renderer;
@@ -183,7 +184,7 @@ namespace ResourceViewer
             //      sb.Append("\n");
             //  }
             //
-            // Debug.Log(sb.ToString());
+            // EngineLogger.Log(sb.ToString());
         }
 
         private void Update()
@@ -220,7 +221,7 @@ namespace ResourceViewer
         {
             foreach (var result in _fileSystem.Search(keyword))
             {
-                Debug.Log(result);
+                EngineLogger.Log(result);
             }
         }
 
@@ -228,7 +229,7 @@ namespace ResourceViewer
         {
             if (!_fileSystem.FileExists(filePath))
             {
-                Debug.LogError($"{filePath} does not exists.");
+                EngineLogger.LogError($"{filePath} does not exists.");
                 return false;
             }
 
@@ -249,7 +250,7 @@ namespace ResourceViewer
             DestroyExistingRenderingObjects();
 
             consoleTextUI.text = $"Loading: {filePath}";
-            Debug.Log($"Loading: {filePath}");
+            EngineLogger.Log($"Loading: {filePath}");
 
             try
             {
@@ -274,7 +275,7 @@ namespace ResourceViewer
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                EngineLogger.LogException(ex);
                 consoleTextUI.text = $"Failed to load: {filePath}";
                 return false;
             }
@@ -285,7 +286,7 @@ namespace ResourceViewer
             DestroyExistingRenderingObjects();
 
             consoleTextUI.text = $"Loading: {filePath}";
-            Debug.Log($"Loading: {filePath}");
+            EngineLogger.Log($"Loading: {filePath}");
 
             try
             {
@@ -311,7 +312,7 @@ namespace ResourceViewer
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                EngineLogger.LogException(ex);
                 consoleTextUI.text = $"Failed to load: {filePath}";
                 return false;
             }
@@ -322,7 +323,7 @@ namespace ResourceViewer
             DestroyExistingRenderingObjects();
 
             consoleTextUI.text = $"Loading: {filePath}";
-            Debug.Log($"Loading: {filePath}");
+            EngineLogger.Log($"Loading: {filePath}");
 
             try
             {
@@ -332,7 +333,7 @@ namespace ResourceViewer
 
                 if (mv3File.Meshes.Length > 1)
                 {
-                    Debug.LogWarning($"{filePath} has {mv3File.Meshes.Length} meshes.");
+                    EngineLogger.LogWarning($"{filePath} has {mv3File.Meshes.Length} meshes.");
                 }
 
                 var animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
@@ -375,7 +376,7 @@ namespace ResourceViewer
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                EngineLogger.LogException(ex);
                 consoleTextUI.text = $"Failed to load: {filePath}";
                 return false;
             }
@@ -386,7 +387,7 @@ namespace ResourceViewer
             DestroyExistingRenderingObjects();
 
             consoleTextUI.text = $"Loading: {filePath}";
-            Debug.Log($"Loading: {filePath}");
+            EngineLogger.Log($"Loading: {filePath}");
 
             try
             {
@@ -429,7 +430,7 @@ namespace ResourceViewer
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                EngineLogger.LogException(ex);
                 consoleTextUI.text = $"Failed to load: {filePath}";
                 return false;
             }
@@ -605,7 +606,7 @@ namespace ResourceViewer
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                EngineLogger.LogException(ex);
                 return true;
             }
 

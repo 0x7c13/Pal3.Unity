@@ -19,6 +19,7 @@ namespace Pal3.GamePlay
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Logging;
     using GameSystems.Team;
     using Input;
     using Scene;
@@ -265,8 +266,8 @@ namespace Pal3.GamePlay
             // Check if actor is player actor.
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Cannot enable player control for actor " +
-                               $"{command.ActorId} since actor is not a player actor.");
+                EngineLogger.LogError("Cannot enable player control for actor " +
+                               $"{command.ActorId} since actor is not a player actor");
                 return;
             }
 

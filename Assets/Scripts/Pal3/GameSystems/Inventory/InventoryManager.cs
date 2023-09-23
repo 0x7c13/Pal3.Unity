@@ -17,7 +17,7 @@ namespace Pal3.GameSystems.Inventory
     using Core.DataReader.Gdb;
     using Core.Utilities;
     using Data;
-    using UnityEngine;
+    using Engine.Logging;
 
     public sealed class InventoryManager : IDisposable,
         ICommandExecutor<InventoryAddItemCommand>,
@@ -99,7 +99,7 @@ namespace Pal3.GameSystems.Inventory
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));
 
-            Debug.LogWarning($"[{nameof(InventoryManager)}] Add item: {itemName}({command.ItemId}) count: {command.Count}");
+            EngineLogger.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
 
         public void Execute(InventoryRemoveItemCommand command)
@@ -118,7 +118,7 @@ namespace Pal3.GameSystems.Inventory
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
 
-            Debug.LogWarning($"[{nameof(InventoryManager)}] Remove item: {itemName}({command.ItemId})");
+            EngineLogger.LogWarning($"Remove item: {itemName}({command.ItemId})");
         }
 
         public void Execute(InventoryAddMoneyCommand command)
@@ -140,7 +140,7 @@ namespace Pal3.GameSystems.Inventory
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
             }
 
-            Debug.LogWarning($"[{nameof(InventoryManager)}] Add money: {command.ChangeAmount} current total: {_items[MONEY_ITEM_ID]}");
+            EngineLogger.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MONEY_ITEM_ID]}");
         }
 
         public void Execute(ResetGameStateCommand command)

@@ -16,6 +16,7 @@ namespace Pal3.Script
     using Core.Contract.Enums;
     using Core.DataReader;
     using Core.DataReader.Sce;
+    using Engine.Logging;
     using Engine.Services;
     using GameSystems.Dialogue;
     using GameSystems.Favor;
@@ -25,7 +26,6 @@ namespace Pal3.Script
     using Newtonsoft.Json;
     using Scene;
     using State;
-    using UnityEngine;
     using Waiter;
     using Random = UnityEngine.Random;
 
@@ -96,7 +96,7 @@ namespace Pal3.Script
             }
 
             SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
-            Debug.Log($"[{nameof(PalScriptRunner)}] Create script runner: [{sceScriptBlock.Id} {sceScriptBlock.Description}]");
+            EngineLogger.Log($"Create script runner: [{sceScriptBlock.Id} {sceScriptBlock.Description}]");
 
             return new PalScriptRunner(scriptType,
                 scriptId,
@@ -197,7 +197,7 @@ namespace Pal3.Script
             Type commandType = command.GetType();
             var sceCommandId = commandType.GetCustomAttribute<SceCommandAttribute>()?.Id;
 
-            Debug.Log($"[{nameof(PalScriptRunner)}] {ScriptType} Script " +
+            EngineLogger.Log($"{ScriptType} Script " +
                       $"[{ScriptId} {ScriptDescription}]: " +
                       $"{commandType.Name.Replace("Command", "")} [{sceCommandId}] " +
                       $"{JsonConvert.SerializeObject(command)}");
@@ -227,12 +227,12 @@ namespace Pal3.Script
         {
             if (variableName < 0)
             {
-                Debug.LogWarning($"[{nameof(PalScriptRunner)}] Set global var {variableName} with value: {value}");
+                EngineLogger.LogWarning($"Set global var {variableName} with value: {value}");
                 _globalVariables[variableName] = value;
             }
             else
             {
-                Debug.LogWarning($"[{nameof(PalScriptRunner)}] Setting value for user var: {variableName}, value: {value}");
+                EngineLogger.LogWarning($"Setting value for user var: {variableName}, value: {value}");
                 _localVariables[variableName] = value;
             }
         }

@@ -14,6 +14,7 @@ namespace Pal3.Video
     using Core.Command.SceCommands;
     using Core.Utilities;
     using Data;
+    using Engine.Logging;
     using Input;
     using Script.Waiter;
     using State;
@@ -119,7 +120,7 @@ namespace Pal3.Video
                     CommandDispatcher<ICommand>.Instance.Dispatch(
                         new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
                 }
-                Debug.LogError($"[{nameof(VideoManager)}] Exception: {ex}");
+                EngineLogger.LogException(ex);
                 _videoPlayingWaiter.CancelWait();
                 _gameStateManager.GoToPreviousState();
             }

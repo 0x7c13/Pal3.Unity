@@ -151,7 +151,7 @@ namespace Core.FileSystem
                 }
             }
 
-            throw new Exception($"{fileVirtualPath} not found.");
+            throw new FileNotFoundException($"<{fileVirtualPath}> not found");
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Core.FileSystem
             }
             else
             {
-                throw new Exception($"{cpkFileName} archive not mounted yet.");
+                throw new Exception($"<{cpkFileName}> archive not mounted yet");
             }
         }
 
@@ -180,7 +180,7 @@ namespace Core.FileSystem
             }
             else
             {
-                throw new Exception($"{cpkFileName} archive not mounted yet.");
+                throw new Exception($"<{cpkFileName}> archive not mounted yet");
             }
         }
 
@@ -247,7 +247,7 @@ namespace Core.FileSystem
         {
             if (!fullVirtualPath.Contains(CpkConstants.DirectorySeparatorChar))
             {
-                throw new ArgumentException($"[{nameof(CpkFileSystem)}] File virtual path is invalid: {fullVirtualPath}.");
+                throw new ArgumentException($"File virtual path is invalid: {fullVirtualPath}");
             }
 
             cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLower();

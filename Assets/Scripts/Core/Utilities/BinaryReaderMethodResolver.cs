@@ -37,7 +37,7 @@ namespace Core.Utilities
                 }
             }
 
-            throw new ArgumentException($"Property type: {readPropertyType.Name} not supported.");
+            throw new ArgumentException($"Property type: {readPropertyType.Name} not supported");
         }
     }
 }

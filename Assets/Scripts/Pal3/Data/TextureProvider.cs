@@ -10,6 +10,7 @@ namespace Pal3.Data
     using Core.DataReader.Cpk;
     using Core.FileSystem;
     using Engine.DataLoader;
+    using Engine.Logging;
     using UnityEngine;
 
     public class TextureProvider : TextureProviderBase, ITextureResourceProvider
@@ -78,7 +79,7 @@ namespace Pal3.Data
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[{nameof(TextureProvider)}] Failed to change path extension for texture: {texturePath}, ex: {ex}");
+                EngineLogger.LogWarning($"Failed to change path extension for texture: {texturePath}, ex: {ex}");
                 hasAlphaChannel = false;
                 return Texture2D.whiteTexture;
             }
@@ -113,7 +114,7 @@ namespace Pal3.Data
             {
                 textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
                 texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
-                if (texture == null) Debug.LogWarning($"[{nameof(TextureProvider)}] Texture not found: {texturePath}");
+                if (texture == null) EngineLogger.LogWarning($"Texture not found: {texturePath}");
                 else _textureCache?.Add(texturePath, texture, hasAlphaChannel);
             }
 

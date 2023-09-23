@@ -41,7 +41,7 @@ namespace Engine.DataLoader
                     Convert24BitData(data, dataStartIndex);
                     break;
                 default:
-                    throw new Exception("TGA texture had non 32/24 bit depth.");
+                    throw new Exception("TGA texture had non 32/24 bit depth");
             }
         }
 

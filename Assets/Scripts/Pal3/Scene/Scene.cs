@@ -24,6 +24,7 @@ namespace Pal3.Scene
     using Effect;
     using Engine.Animation;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Navigation;
     using Engine.Renderer;
     using Engine.Utilities;
@@ -143,7 +144,7 @@ namespace Pal3.Scene
                 _sceneStateManager,
                 _sceneObjectIdsToNotLoadFromSaveState);
 
-            Debug.Log($"[{nameof(Scene)}] Scene data initialized in {timer.ElapsedMilliseconds} ms.");
+            EngineLogger.Log($"Scene data initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             Color actorTintColor = Color.white;
@@ -154,7 +155,7 @@ namespace Pal3.Scene
 
             timer.Restart();
             RenderMesh();
-            Debug.Log($"[{nameof(Scene)}] Mesh initialized in {timer.ElapsedMilliseconds} ms");
+            EngineLogger.Log($"Mesh initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             RenderSkyBox();
@@ -163,15 +164,15 @@ namespace Pal3.Scene
             {
                 SetupEnvironmentLighting();
             }
-            Debug.Log($"[{nameof(Scene)}] SkyBox + NavMesh initialized in {timer.ElapsedMilliseconds} ms");
+            EngineLogger.Log($"SkyBox + NavMesh initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             InitActorObjects(actorTintColor, Tilemap);
-            Debug.Log($"[{nameof(Scene)}] Actors initialized in {timer.ElapsedMilliseconds} ms");
+            EngineLogger.Log($"Actors initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
             InitSceneObjects();
-            Debug.Log($"[{nameof(Scene)}] Objects initialized in {timer.ElapsedMilliseconds} ms");
+            EngineLogger.Log($"Objects initialized in {timer.ElapsedMilliseconds} ms");
             timer.Stop();
         }
 
@@ -639,7 +640,7 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
+                EngineLogger.LogError($"Scene object not found or not activated yet: {command.ObjectId}");
             }
         }
 
@@ -666,8 +667,8 @@ namespace Pal3.Scene
                     GameBoxVector3.Distance(originalPosition + gameBoxPositionOffset, sceneObject.ObjectInfo.GameBoxPosition) < 0.01f)
                 {
                     // Don't do anything since this object has already been moved by the SceneStateManager
-                    Debug.LogWarning($"[{nameof(Scene)}] Won't move object {command.ObjectId} since it has already been " +
-                                   $"moved by the SceneStateManager on scene load.");
+                    EngineLogger.LogWarning($"Won't move object {command.ObjectId} since it has already been " +
+                                   "moved by the SceneStateManager on scene load");
                     return;
                 }
 
@@ -685,7 +686,7 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
+                EngineLogger.LogError($"Scene object not found or not activated yet: {command.ObjectId}");
             }
         }
 
@@ -717,7 +718,7 @@ namespace Pal3.Scene
             }
             else
             {
-                Debug.LogError($"[{nameof(Scene)}] Scene object not found or not activated yet: {command.ObjectId}.");
+                EngineLogger.LogError($"Scene object not found or not activated yet: {command.ObjectId}");
             }
         }
 

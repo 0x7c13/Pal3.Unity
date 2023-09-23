@@ -15,6 +15,7 @@ namespace Pal3.GameSystems.Team
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.Utilities;
+    using Engine.Logging;
     using GamePlay;
     using Scene;
     using UnityEngine;
@@ -171,7 +172,7 @@ namespace Pal3.GameSystems.Team
         {
             if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
             {
-                Debug.LogError($"[{nameof(TeamManager)}] Cannot add non-player actor to the team.");
+                EngineLogger.LogError("Cannot add non-player actor to the team");
                 return;
             }
 
@@ -183,7 +184,7 @@ namespace Pal3.GameSystems.Team
             if (actor == PlayerActorId.TaoZi)
             #endif
             {
-                Debug.LogError($"[{nameof(TeamManager)}] {actor} cannot be added to the team.");
+                EngineLogger.LogError($"{actor} cannot be added to the team");
                 return;
             }
 

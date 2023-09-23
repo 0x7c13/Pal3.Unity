@@ -13,7 +13,7 @@ namespace Pal3.GameSystems.Favor
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
-    using UnityEngine;
+    using Engine.Logging;
 
     public sealed class FavorManager : IDisposable,
         ICommandExecutor<FavorAddCommand>,
@@ -68,7 +68,7 @@ namespace Pal3.GameSystems.Favor
             }
             else
             {
-                Debug.LogError($"[{nameof(FavorManager)}] Actor ID {command.ActorId} is not supported for favor system. " +
+                EngineLogger.LogError($"Actor ID {command.ActorId} is not supported for favor system. " +
                                $"Valid IDs are: {string.Join(", ", _actorFavor.Keys)}");
             }
         }

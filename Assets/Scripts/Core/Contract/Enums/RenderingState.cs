@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Core.Contract.Constants
+namespace Core.Contract.Enums
 {
     // OG game rendering state constants
     public enum RenderingState

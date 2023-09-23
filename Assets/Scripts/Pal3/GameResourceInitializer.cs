@@ -22,6 +22,7 @@ namespace Pal3
     using Data;
     using Engine.Animation;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Services;
     using Engine.Utilities;
     using Rendering.Material;
@@ -30,7 +31,6 @@ namespace Pal3
     using TMPro;
     using UnityEngine;
     using UnityEngine.UI;
-    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// The Game Resource initializer
@@ -72,7 +72,7 @@ namespace Pal3
 
         private IEnumerator InitResourceAsync()
         {
-            Debug.Log($"[{nameof(GameResourceInitializer)}] Initializing game resources...");
+            EngineLogger.Log("Initializing game resources...");
 
             // Create and init Crc32 hash
             Crc32Hash crcHash = new ();
@@ -99,7 +99,7 @@ namespace Pal3
 
             if (gameDataFolderSearchLocations.Count == 0)
             {
-                Debug.LogError($"[{nameof(GameResourceInitializer)}] No game data folder search locations found.");
+                EngineLogger.LogError("No game data folder search locations found");
                 yield break;
             }
 
@@ -204,7 +204,7 @@ namespace Pal3
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 
-            Debug.Log($"[{nameof(GameResourceInitializer)}] Game resources initialized.");
+            EngineLogger.Log($"Game resources initialized");
 
             loadingText.text = "正在启动游戏...";
             yield return null; // Wait for next frame to make sure the text is updated
@@ -298,7 +298,7 @@ namespace Pal3
                     timer.Start();
                     cpkFileSystem = InitializeCpkFileSystem(path, crcHash, codepage);
                     timer.Stop();
-                    Debug.Log($"[{nameof(GameResourceInitializer)}] All .cpk files mounted successfully. " +
+                    EngineLogger.Log("All .cpk files mounted successfully. " +
                               $"Total time: {timer.Elapsed.TotalSeconds:0.000}s");
                 }
                 catch (Exception ex)
@@ -362,7 +362,7 @@ namespace Pal3
 
             foreach (var cpkFileRelativePath in filesToMount)
             {
-                Debug.Log($"[{nameof(GameResourceInitializer)}] Mounting: {cpkFileRelativePath}");
+                EngineLogger.Log($"Mounting CPK file: <{cpkFileRelativePath}>");
                 cpkFileSystem.Mount(cpkFileRelativePath, codepage);
             }
 

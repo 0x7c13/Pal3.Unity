@@ -16,6 +16,7 @@ namespace Pal3.Settings
     using Constants;
     using Core.Command;
     using Core.Utilities;
+    using Engine.Logging;
     using Engine.Utilities;
     using IngameDebugConsole;
     using UnityEngine;
@@ -274,7 +275,7 @@ namespace Pal3.Settings
                 GameDataFolderPath = gameDataFolderPath;
             }
 
-            Debug.Log($"[{nameof(GameSettings)}] Settings initialized.");
+            EngineLogger.Log($"Settings initialized");
             PrintCurrentSettings();
         }
 
@@ -334,7 +335,7 @@ namespace Pal3.Settings
 
         public void PrintCurrentSettings()
         {
-            Debug.Log($"[{nameof(GameSettings)}] Current settings: {this}");
+            EngineLogger.Log($"Current settings: {this}");
         }
 
         public override string ToString()

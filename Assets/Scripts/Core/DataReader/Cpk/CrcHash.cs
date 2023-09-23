@@ -64,7 +64,7 @@ namespace Core.DataReader.Cpk
 
         private unsafe uint ComputeInternal(byte[] data)
         {
-            if (!_initialized) throw new InvalidOperationException($"{nameof(Crc32Hash)} not initialized yet.");
+            if (!_initialized) throw new InvalidOperationException($"Crc32 hash table is not initialized yet");
 
             if (data == null || data.Length == 0 || data[0] == 0)
             {

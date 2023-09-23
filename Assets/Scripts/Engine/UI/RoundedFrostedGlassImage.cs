@@ -5,13 +5,16 @@
 
 namespace Engine.UI
 {
-    using Engine.Extensions;
+    using Extensions;
+    using Logging;
     using UnityEngine;
     using UnityEngine.UI;
 
     [RequireComponent(typeof(RectTransform))]
     public class RoundedFrostedGlassImage : MonoBehaviour
     {
+        private const string ShaderName = "Pal3/RoundedFrostedGlass";
+
         private static readonly int BlurAmountPropertyId = Shader.PropertyToID("_BlurAmount");
         private static readonly int TransparencyPropertyId = Shader.PropertyToID("_Transparency");
         private static readonly int WidthHeightRadiusPropertyId = Shader.PropertyToID("_WidthHeightRadius");
@@ -79,10 +82,10 @@ namespace Engine.UI
         {
             if (_shader == null)
             {
-                _shader = Shader.Find("Pal3/RoundedFrostedGlass");
+                _shader = Shader.Find(ShaderName);
                 if (_shader == null)
                 {
-                    Debug.LogError($"[{nameof(RoundedFrostedGlassImage)}] Shader not found: Pal3/RoundedFrostedGlass");
+                    EngineLogger.LogError($"Shader not found: {ShaderName}");
                     return;
                 }
             }

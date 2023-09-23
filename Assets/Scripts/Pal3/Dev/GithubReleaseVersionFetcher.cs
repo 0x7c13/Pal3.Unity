@@ -8,8 +8,8 @@ namespace Pal3.Dev
     using System;
     using System.Collections;
     using Constants;
+    using Engine.Logging;
     using Newtonsoft.Json.Linq;
-    using UnityEngine;
     using UnityEngine.Networking;
 
     public static class GithubReleaseVersionFetcher
@@ -29,7 +29,7 @@ namespace Pal3.Dev
 
             if (unityWebRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[{nameof(GithubReleaseVersionFetcher)}] Error fetching the latest release: {unityWebRequest.error}");
+                EngineLogger.LogError($"Error fetching the latest release: {unityWebRequest.error}");
             }
             else
             {

@@ -27,6 +27,7 @@ namespace Pal3.Scene.SceneObjects
     using Engine.Animation;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script;
@@ -180,7 +181,7 @@ namespace Pal3.Scene.SceneObjects
                 #elif PAL3A
                 var effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
-                Debug.Log($"[{nameof(SceneObject)}] Adding {GraphicsEffectType} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
+                EngineLogger.Log($"Adding {GraphicsEffectType} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
                 _effectComponent!.Init(resourceProvider, effectParameter);
             }
 

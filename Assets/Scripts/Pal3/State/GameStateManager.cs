@@ -12,9 +12,9 @@ namespace Pal3.State
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Utilities;
+    using Engine.Logging;
     using Input;
     using Script;
-    using UnityEngine;
 
     public sealed class GameStateManager : IDisposable,
         ICommandExecutor<PlayerEnableInputCommand>,
@@ -79,7 +79,7 @@ namespace Pal3.State
                 }
             }
 
-            Debug.Log($"[{nameof(GameStateManager)}] Goto State: {newState.ToString()}");
+            EngineLogger.Log($"Goto State: {newState.ToString()}");
 
             _previousState = _currentState;
             _currentState = newState;

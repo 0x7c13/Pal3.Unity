@@ -11,7 +11,7 @@ namespace Pal3.Actor
     using Core.Contract.Enums;
     using Core.DataReader.Ini;
     using Data;
-    using UnityEngine;
+    using Engine.Logging;
 
     public enum ActorAnimationType
     {
@@ -134,7 +134,7 @@ namespace Pal3.Actor
                 return ActorConstants.ActionToNameMap[ActorActionType.NpcStand2];
             }
 
-            Debug.LogError($"[{nameof(ActorBase)}] No default idle animation found for {Id}_{Name}");
+            EngineLogger.LogError($"No default idle animation found for {Id}_{Name}");
             return ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
         }
 

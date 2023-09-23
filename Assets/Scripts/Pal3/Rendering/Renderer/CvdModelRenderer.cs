@@ -14,6 +14,7 @@ namespace Pal3.Rendering.Renderer
     using Dev.Presenters;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Material;
     using UnityEngine;
@@ -401,7 +402,7 @@ namespace Pal3.Rendering.Renderer
                 _animationDuration < Mathf.Epsilon ||
                 _renderers.Count == 0)
             {
-                Debug.LogError($"[{nameof(CvdModelRenderer)}] Invalid parameters for playing CVD animation.");
+                EngineLogger.LogError("Invalid parameters for playing CVD animation");
                 yield break;
             }
 

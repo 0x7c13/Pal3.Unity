@@ -20,6 +20,7 @@ namespace Pal3.GameSystems.Dialogue
     using Data;
     using Engine.Animation;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.UI;
     using Input;
     using Scene;
@@ -32,7 +33,6 @@ namespace Pal3.GameSystems.Dialogue
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
     using UnityEngine.UI;
-    using Debug = UnityEngine.Debug;
 
     public sealed class DialogueManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
@@ -290,7 +290,7 @@ namespace Pal3.GameSystems.Dialogue
                 _flashingAnimationCts.Cancel();
                 _reactionTimer.Stop();
                 _totalTimeUsedBeforeSkippingTheLastDialogue = _reactionTimer.Elapsed.TotalSeconds;
-                Debug.LogWarning($"[{nameof(DialogueManager)}] Reaction time: {_totalTimeUsedBeforeSkippingTheLastDialogue:0.00f}");
+                EngineLogger.LogWarning($"Reaction time: {_totalTimeUsedBeforeSkippingTheLastDialogue:0.00f}");
             }
 
             yield return PlayDialogueBackgroundPopAnimationAsync(false);

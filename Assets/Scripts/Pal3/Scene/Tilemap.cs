@@ -12,6 +12,7 @@ namespace Pal3.Scene
     using Core.DataReader.Nav;
     using Core.Primitives;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Navigation;
     using UnityEngine;
 
@@ -124,13 +125,13 @@ namespace Pal3.Scene
         {
             if (!IsTilePositionInsideTileMap(from, layerIndex))
             {
-                Debug.LogWarning($"[{nameof(Tilemap)}] From position is not inside tilemap bounds.");
+                EngineLogger.LogWarning("[From] position is not inside tilemap bounds");
                 return Array.Empty<Vector2Int>();
             }
 
             if (!IsTilePositionInsideTileMap(to, layerIndex))
             {
-                Debug.LogWarning($"[{nameof(Tilemap)}] To position is not inside tilemap bounds.");
+                EngineLogger.LogWarning("[To] position is not inside tilemap bounds");
                 return Array.Empty<Vector2Int>();
             }
 
@@ -144,7 +145,7 @@ namespace Pal3.Scene
                 }
                 else
                 {
-                    Debug.LogWarning($"[{nameof(Tilemap)}] To position is not walkable.");
+                    EngineLogger.LogWarning("[To] position is not walkable");
                     return Array.Empty<Vector2Int>();
                 }
             }

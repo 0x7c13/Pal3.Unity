@@ -15,6 +15,7 @@ namespace Pal3.GamePlay
     using Core.Contract.Enums;
     using Core.Primitives;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Scene;
     using Scene.SceneObjects;
@@ -31,7 +32,7 @@ namespace Pal3.GamePlay
             GameObject climbableObject = climbableSceneObject.GetGameObject();
             if (climbableObject == null)
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Scene object not found or not activated yet: {command.ObjectId}.");
+                EngineLogger.LogError($"Scene object not found or not activated yet: {command.ObjectId}");
                 return;
             }
 

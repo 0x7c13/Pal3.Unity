@@ -16,6 +16,7 @@ namespace Pal3.Rendering.Renderer
     using Core.Utilities;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Material;
     using Rendering;
@@ -124,7 +125,7 @@ namespace Pal3.Rendering.Renderer
         {
             if (_renderMeshComponents == null)
             {
-                throw new Exception("Animation model not initialized.");
+                throw new Exception("Animation model not initialized");
             }
 
             PauseAnimation();
@@ -231,9 +232,13 @@ namespace Pal3.Rendering.Renderer
                 int currentFrameIndex = CoreUtility.GetFloorIndex(bone.FrameTicks, tick);
                 uint currentFrameTick = bone.FrameTicks[currentFrameIndex];
                 var nextFrameIndex = currentFrameIndex < bone.FrameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                uint nextFrameTick = nextFrameIndex == 0 ? _movFile.Duration.SecondsToGameBoxTick() : bone.FrameTicks[nextFrameIndex];
+                uint nextFrameTick = bone.FrameTicks[nextFrameIndex];
 
-                var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                float influence = 1f;
+                if (nextFrameTick != currentFrameTick)
+                {
+                    influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                }
 
                 Vector3 localPosition = Vector3.Lerp(
                     track.Value.KeyFrames[currentFrameIndex].GameBoxTranslation.ToUnityPosition(),

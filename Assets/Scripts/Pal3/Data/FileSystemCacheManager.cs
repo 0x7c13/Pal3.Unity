@@ -12,7 +12,7 @@ namespace Pal3.Data
     using Core.DataReader.Cpk;
     using Core.FileSystem;
     using Core.Utilities;
-    using UnityEngine;
+    using Engine.Logging;
 
     /// <summary>
     /// Cache/dispose Cpk archive into memory based on scenarios.
@@ -58,7 +58,7 @@ namespace Pal3.Data
                         _fileSystem.DisposeInMemoryArchive(_currentCityName + CpkConstants.FileExtension);
                     }
 
-                    Debug.Log($"[{nameof(FileSystemCacheManager)}] Disposed {_currentCityName} cpk in-memory archive.");
+                    EngineLogger.Log($"Disposed {_currentCityName} cpk in-memory archive");
                 }
 
                 // Load new scene cpk into memory
@@ -75,7 +75,7 @@ namespace Pal3.Data
                         _fileSystem.LoadArchiveIntoMemory(newCityName + CpkConstants.FileExtension);
                     }
 
-                    Debug.Log($"[{nameof(FileSystemCacheManager)}] Loaded {newCityName} cpk into memory.");
+                    EngineLogger.Log($"Loaded {newCityName} cpk archive into memory");
                 }
 
                 _currentCityName = newCityName;

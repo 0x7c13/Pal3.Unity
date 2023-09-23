@@ -5,14 +5,14 @@
 
 namespace Core.Contract.Constants
 {
-    // using System.Collections.Generic;
-    // using UnityEngine;
+    using System.Collections.Generic;
+    using Primitives;
 
     public static class WorldMapConstants
     {
         #if PAL3
         // Order matters
-        public static string[] WorldMapRegions = new[]
+        public static readonly string[] WorldMapRegions = new[]
         {
             "安宁村",
             "安溪",
@@ -77,46 +77,46 @@ namespace Core.Contract.Constants
         #endif
 
         // From basedata.cpk\ui\BigMap\Element\色表.doc
-        // public static readonly Dictionary<string, Color32> WorldMapRegionColorInfo = new()
-        // {
-        //     {"安宁村", new Color(115, 81, 53)},
-        //     {"船长江", new Color(48, 94, 95)},
-        //     {"古藤林", new Color(62, 87, 50)},
-        //     {"九龙坡", new Color(75, 87, 45)},
-        //     {"安溪", new Color(52, 97, 69)},
-        //     {"船海", new Color(48, 72, 94)},
-        //     {"鬼界外围", new Color(50, 78, 101)},
-        //     {"雷洲", new Color(113, 85, 51)},
-        //     {"壁山", new Color(74, 99, 53)},
-        //     {"大渡口", new Color(47, 73, 44)},
-        //     {"海底城", new Color(52, 101, 74)},
-        //     {"蛮洲", new Color(76, 95, 46)},
-        //     {"宾化", new Color(144, 90, 47)},
-        //     {"德阳", new Color(113, 80, 58)},
-        //     {"黄泉路", new Color(154, 79, 61)},
-        //     {"魔幻空间", new Color(119, 108, 55)},
-        //     {"冰峰谷", new Color(52, 87, 102)},
-        //     {"酆都", new Color(55, 91, 50)},
-        //     {"剑冢", new Color(53, 78, 130)},
-        //     {"蓬莱", new Color(56, 116, 106)},
-        //     {"草海", new Color(52, 97, 65)},
-        //     {"古城镇", new Color(52, 52, 91)},
-        //     {"九顶山", new Color(60, 93, 51)},
-        //     {"蓬莱迷宫", new Color(57, 128, 105)},
-        //     {"霹雳堂", new Color(49, 83, 97)},
-        //     {"熔岩地狱", new Color(133, 90, 61)},
-        //     {"神界天门", new Color(87, 77, 44)},
-        //     {"神树", new Color(80, 93, 46)},
-        //     {"蜀山", new Color(93, 76, 40)},
-        //     {"蜀山故道", new Color(92, 70, 45)},
-        //     {"锁妖塔", new Color(100, 79, 46)},
-        //     {"堂家堡", new Color(100, 81, 55)},
-        //     {"仙人洞", new Color(73, 88, 48)},
-        //     {"新仙界", new Color(49, 95, 90)},
-        //     {"星森", new Color(81, 110, 58)},
-        //     {"雪岭镇", new Color(51, 71, 95)},
-        //     {"渝洲", new Color(48, 85, 91)},
-        //     {"镇江", new Color(51, 97, 82)},
-        // };
+        public static readonly Dictionary<string, Color32> WorldMapRegionColorInfo = new()
+        {
+            {"安宁村", new Color32(115, 81, 53)},
+            {"船长江", new Color32(48, 94, 95)},
+            {"古藤林", new Color32(62, 87, 50)},
+            {"九龙坡", new Color32(75, 87, 45)},
+            {"安溪", new Color32(52, 97, 69)},
+            {"船海", new Color32(48, 72, 94)},
+            {"鬼界外围", new Color32(50, 78, 101)},
+            {"雷洲", new Color32(113, 85, 51)},
+            {"壁山", new Color32(74, 99, 53)},
+            {"大渡口", new Color32(47, 73, 44)},
+            {"海底城", new Color32(52, 101, 74)},
+            {"蛮洲", new Color32(76, 95, 46)},
+            {"宾化", new Color32(144, 90, 47)},
+            {"德阳", new Color32(113, 80, 58)},
+            {"黄泉路", new Color32(154, 79, 61)},
+            {"魔幻空间", new Color32(119, 108, 55)},
+            {"冰峰谷", new Color32(52, 87, 102)},
+            {"酆都", new Color32(55, 91, 50)},
+            {"剑冢", new Color32(53, 78, 130)},
+            {"蓬莱", new Color32(56, 116, 106)},
+            {"草海", new Color32(52, 97, 65)},
+            {"古城镇", new Color32(52, 52, 91)},
+            {"九顶山", new Color32(60, 93, 51)},
+            {"蓬莱迷宫", new Color32(57, 128, 105)},
+            {"霹雳堂", new Color32(49, 83, 97)},
+            {"熔岩地狱", new Color32(133, 90, 61)},
+            {"神界天门", new Color32(87, 77, 44)},
+            {"神树", new Color32(80, 93, 46)},
+            {"蜀山", new Color32(93, 76, 40)},
+            {"蜀山故道", new Color32(92, 70, 45)},
+            {"锁妖塔", new Color32(100, 79, 46)},
+            {"堂家堡", new Color32(100, 81, 55)},
+            {"仙人洞", new Color32(73, 88, 48)},
+            {"新仙界", new Color32(49, 95, 90)},
+            {"星森", new Color32(81, 110, 58)},
+            {"雪岭镇", new Color32(51, 71, 95)},
+            {"渝洲", new Color32(48, 85, 91)},
+            {"镇江", new Color32(51, 97, 82)},
+        };
     }
 }

@@ -7,6 +7,7 @@ namespace Engine.DataLoader
 {
     using System;
     using System.Collections;
+    using Logging;
     using UnityEngine;
     using UnityEngine.Networking;
 
@@ -34,7 +35,7 @@ namespace Engine.DataLoader
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[{nameof(AudioClipLoader)}] Failed to load {url} with error: {request.error}");
+                EngineLogger.LogError($"Failed to load {url} with error: {request.error}");
             }
             else
             {
@@ -59,7 +60,7 @@ namespace Engine.DataLoader
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[{nameof(AudioClipLoader)}] Failed to get audio clip: {filePath} with exception: {ex}");
+                    EngineLogger.LogException(ex);
                 }
             }
         }

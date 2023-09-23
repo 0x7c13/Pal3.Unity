@@ -7,7 +7,7 @@ namespace Engine.Services
 {
     using System;
     using System.Collections.Generic;
-    using UnityEngine;
+    using Logging;
     using Utilities;
 
     /// <summary>
@@ -30,8 +30,8 @@ namespace Engine.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                string error = $"[{nameof(ServiceLocator)}] {typeof(T)} is not registered with name: {GetType().Name}";
-                Debug.LogError(error);
+                string error = $"{typeof(T)} is not registered with name: {GetType().Name}";
+                EngineLogger.LogError(error);
                 throw new InvalidOperationException(error);
             }
 
@@ -50,12 +50,12 @@ namespace Engine.Services
 
             if (_services.ContainsKey(typeof(T)))
             {
-                Debug.LogWarning($"[{nameof(ServiceLocator)}] {typeof(T)} already registered.");
+                EngineLogger.LogWarning($"[{typeof(T)}] is already registered");
                 return;
             }
             else
             {
-                Debug.Log($"[{nameof(ServiceLocator)}] Service type {typeof(T)} registered.");
+                EngineLogger.Log($"Service type [{typeof(T)}] registered");
             }
 
             _services.Add(typeof(T), service);
@@ -69,12 +69,12 @@ namespace Engine.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                Debug.LogWarning($"[{nameof(ServiceLocator)}] Failed to unregister service since {typeof(T)} is not registered yet.");
+                EngineLogger.LogWarning($"Failed to unregister service since [{typeof(T)}] is not registered yet");
                 return;
             }
             else
             {
-                Debug.Log($"[{nameof(ServiceLocator)}] Service type {typeof(T)} unregistered.");
+                EngineLogger.Log($"Service type [{typeof(T)}] unregistered");
             }
 
             _services.Remove(typeof(T));
@@ -93,7 +93,7 @@ namespace Engine.Services
         /// </summary>
         public void UnregisterAll()
         {
-            Debug.Log($"[{nameof(ServiceLocator)}] All services unregistered.");
+            EngineLogger.Log("All services unregistered");
             _services.Clear();
         }
     }

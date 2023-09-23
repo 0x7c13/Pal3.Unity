@@ -18,6 +18,7 @@ namespace Pal3.Actor.Controllers
     using Core.DataReader.Nav;
     using Core.Primitives;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Navigation;
     using Engine.Utilities;
     using Scene;
@@ -416,7 +417,7 @@ namespace Pal3.Actor.Controllers
                 SetNavLayer(layerIndex);
                 transform.position = position;
 
-                Debug.LogWarning($"[{nameof(ActorMovementController)}] Portal to standing platform: {position}, " +
+                EngineLogger.LogWarning($"Portal to standing platform: {position}, " +
                                  $"layer: {layerIndex}");
             }
             else if (_tilemap.TryGetTile(position, layerIndex, out NavTile tile) && tile.IsWalkable())
@@ -430,7 +431,7 @@ namespace Pal3.Actor.Controllers
                     position.z);
 
                 Vector2Int tilePosition = _tilemap.GetTilePosition(position, layerIndex);
-                Debug.LogWarning($"[{nameof(ActorMovementController)}] Portal to: {position}, " +
+                EngineLogger.LogWarning($"Portal to: {position}, " +
                                  $"layer: {layerIndex}, " +
                                  $"tile: {tilePosition}, " +
                                  $"DistanceToNearestObstacle: {tile.DistanceToNearestObstacle}, " +
@@ -798,7 +799,7 @@ namespace Pal3.Actor.Controllers
                 else
                 {
                     _movementWaiter?.CancelWait();
-                    Debug.LogError($"[{nameof(ActorMovementController)}] Failed to find path from tile position {fromTilePosition} " +
+                    EngineLogger.LogError($"Failed to find path from tile position {fromTilePosition} " +
                                    $"to tile position: {toTilePosition}");
                 }
                 yield break;

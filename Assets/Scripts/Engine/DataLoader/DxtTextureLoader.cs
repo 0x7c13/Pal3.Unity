@@ -28,7 +28,7 @@ namespace Engine.DataLoader
 
 			if (new string(headerReader.ReadChars(4)) != "DDS ")
 			{
-				throw new InvalidDataException($"Not a valid DXT file.");
+				throw new InvalidDataException("Not a valid DXT file");
 			}
 
 			DxtHeader header = DxtHeader.ReadHeader(headerReader);
@@ -47,9 +47,9 @@ namespace Engine.DataLoader
 					LoadDxt3Texture(data);
 					break;
 				case "DXT5":
-					throw new NotImplementedException("DXT5 decoder not implemented yet.");
+					throw new NotImplementedException("DXT5 decoder not implemented yet");
 				default:
-					throw new Exception($"DXT Texture format: {header.DxtPixelFormat.Format} is not supported.");
+					throw new Exception($"DXT Texture format: {header.DxtPixelFormat.Format} is not supported");
 			}
 		}
 

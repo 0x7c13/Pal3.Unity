@@ -16,7 +16,7 @@ namespace Pal3.Script
     using Core.DataReader.Sce;
     using Core.Utilities;
     using Data;
-    using UnityEngine;
+    using Engine.Logging;
 
     public sealed class ScriptManager : IDisposable,
         ICommandExecutor<ScriptRunCommand>,
@@ -99,26 +99,26 @@ namespace Pal3.Script
             if (_pendingScripts.Any(s => s.ScriptId == scriptId) ||
                 _runningScripts.Any(s => s.ScriptId == scriptId))
             {
-                Debug.LogError($"[{nameof(ScriptManager)}] Script is already running: {scriptId}");
+                EngineLogger.LogError($"Script is already running: {scriptId}");
                 return false;
             }
 
             PalScriptRunner scriptRunner;
             if (isWorldMapScript)
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add WorldMap script id: {scriptId}");
+                EngineLogger.Log($"Add WorldMap script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
                     PalScriptType.WorldMap, scriptId, _globalVariables, _cmdPreprocessor);
             }
             else if (scriptId <= ScriptConstants.SystemScriptIdMax)
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add System script id: {scriptId}");
+                EngineLogger.Log($"Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
                     PalScriptType.System, scriptId, _globalVariables, _cmdPreprocessor);
             }
             else
             {
-                Debug.Log($"[{nameof(ScriptManager)}] Add Scene script id: {scriptId}");
+                EngineLogger.Log($"Add Scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
                     PalScriptType.Scene, scriptId, _globalVariables, _cmdPreprocessor);
             }
@@ -156,8 +156,8 @@ namespace Pal3.Script
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 finishedScript.Dispose();
 
-                Debug.Log($"[{nameof(ScriptManager)}] Script [{finishedScript.ScriptId} " +
-                          $"{finishedScript.ScriptDescription}] finished running.");
+                EngineLogger.Log($"Script [{finishedScript.ScriptId} " +
+                          $"{finishedScript.ScriptDescription}] finished running");
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ScriptFinishedRunningNotification(finishedScript.ScriptId, finishedScript.ScriptType));
             }
@@ -208,7 +208,7 @@ namespace Pal3.Script
         {
             if (command.Variable < 0)
             {
-                Debug.LogWarning($"[{nameof(ScriptManager)}] Set global var {command.Variable} with value: {command.Value}");
+                EngineLogger.LogWarning($"Set global var {command.Variable} with value: {command.Value}");
                 SetGlobalVariable(command.Variable, command.Value);
             }
         }

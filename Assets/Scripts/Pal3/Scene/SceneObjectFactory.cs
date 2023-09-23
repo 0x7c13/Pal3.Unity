@@ -11,9 +11,9 @@ namespace Pal3.Scene
     using System.Reflection;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Engine.Logging;
     using SceneObjects;
     using SceneObjects.Common;
-    using UnityEngine;
 
     public static class SceneObjectFactory
     {
@@ -48,7 +48,7 @@ namespace Pal3.Scene
                 }
             }
 
-            Debug.LogError($"[{nameof(SceneObjectFactory)}] Scene object type: {objectInfo.Type} is not supported.");
+            EngineLogger.LogError($"Scene object type: {objectInfo.Type} is not supported");
             return null;
         }
     }

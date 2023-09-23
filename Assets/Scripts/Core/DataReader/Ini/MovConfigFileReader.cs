@@ -72,7 +72,7 @@ namespace Core.DataReader.Ini
                 }
             }
 
-            if (actor == null) throw new InvalidDataException("Actor section is missing in MOV config.");
+            if (actor == null) throw new InvalidDataException("Actor section is missing in MOV config");
 
             return new MovActionConfig(actor.Value, actions.ToArray(), materials.ToArray());
         }

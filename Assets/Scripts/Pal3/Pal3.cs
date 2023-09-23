@@ -24,6 +24,7 @@ namespace Pal3
     using Dev;
     using Effect;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Services;
     using Engine.Utilities;
     using GamePlay;
@@ -191,7 +192,7 @@ namespace Pal3
 
         private void OnEnable()
         {
-            Debug.Log($"[{nameof(Pal3)}] Game setup and initialization started...");
+            EngineLogger.Log("Game setup and initialization started...");
 
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
@@ -470,12 +471,12 @@ namespace Pal3
 
             DisableInGameDebugConsoleButtonNavigation();
 
-            Debug.Log($"[{nameof(Pal3)}] Game initialized.");
+            EngineLogger.Log("Game initialized");
         }
 
         private void Start()
         {
-            Debug.Log($"[{nameof(Pal3)}] Game started.");
+            EngineLogger.Log("Game started");
 
             _mainMenu.ShowInitView();
 
@@ -614,11 +615,11 @@ namespace Pal3
 
             foreach (IDisposable service in _allDisposableServices)
             {
-                Debug.Log($"[{nameof(Pal3)}] Disposing service {service.GetType().Name}.");
+                EngineLogger.Log($"Disposing service: [{service.GetType().Name}]");
                 service.Dispose();
             }
 
-            Debug.Log($"[{nameof(Pal3)}] Game exited.");
+            EngineLogger.Log("Game exited");
         }
 
         private void OnDebugWindowShown()
@@ -650,7 +651,7 @@ namespace Pal3
         {
             var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Minimal);
             var state = commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
-            Debug.Log(state + '\n');
+            EngineLogger.Log(state + '\n');
         }
 
         private void PrintCurrentGameInfo()
@@ -679,7 +680,7 @@ namespace Pal3
 
             info.Append(_inventoryManager);
 
-            Debug.Log(info.ToString() + '\n');
+            EngineLogger.Log(info.ToString() + '\n');
         }
 
         private void SetTargetFps(int targetFps)

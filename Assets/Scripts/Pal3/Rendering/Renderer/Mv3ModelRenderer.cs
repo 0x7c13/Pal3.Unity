@@ -225,7 +225,7 @@ namespace Pal3.Rendering.Renderer
         {
             if (_renderMeshComponents == null)
             {
-                throw new Exception("Animation model not initialized.");
+                throw new Exception("Animation model not initialized");
             }
 
             PauseAnimation();

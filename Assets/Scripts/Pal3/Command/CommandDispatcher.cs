@@ -10,7 +10,7 @@ namespace Pal3.Command
     using System.Linq;
     using System.Reflection;
     using Core.Command;
-    using UnityEngine;
+    using Engine.Logging;
 
     /// <summary>
     /// A generic class that dispatches commands to their registered executors.
@@ -53,7 +53,7 @@ namespace Pal3.Command
             }
             else if (Attribute.GetCustomAttribute(typeof(T), typeof(SceCommandAttribute)) != null)
             {
-                Debug.LogWarning($"[{nameof(CommandDispatcher<TCommand>)}] No command executor found for sce command: {typeof(T).Name}");
+                EngineLogger.LogWarning($"No command executor found for sce command: {typeof(T).Name}");
             }
         }
 
@@ -79,7 +79,7 @@ namespace Pal3.Command
             }
             else if (Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
             {
-                Debug.LogWarning($"[{nameof(CommandDispatcher<TCommand>)}] No command executor found for sce command: {command.GetType().Name}");
+                EngineLogger.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
             }
         }
 

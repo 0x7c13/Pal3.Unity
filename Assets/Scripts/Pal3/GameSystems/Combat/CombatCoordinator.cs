@@ -21,6 +21,7 @@ namespace Pal3.GameSystems.Combat
     using Core.DataReader.Txt;
     using Core.Utilities;
     using Data;
+    using Engine.Logging;
     using GamePlay;
     using Scene;
     using Script.Waiter;
@@ -130,7 +131,7 @@ namespace Pal3.GameSystems.Combat
             }
 
             // Start combat
-            Debug.LogWarning($"[{nameof(CombatCoordinator)}] Starting combat with context: {_currentCombatContext}");
+            EngineLogger.LogWarning($"Starting combat with context: {_currentCombatContext}");
             _gameStateManager.TryGoToState(GameState.Combat);
             _combatManager.EnterCombat(_currentCombatContext);
         }

@@ -15,6 +15,7 @@ namespace Pal3.GamePlay
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
+    using Engine.Logging;
     using Scene;
     using Scene.SceneObjects;
     using Script;
@@ -37,8 +38,7 @@ namespace Pal3.GamePlay
             }
             else
             {
-                Debug.LogError($"[{nameof(PlayerGamePlayManager)}] Scene object not found" +
-                               $" or not activated yet: {command.SceneObjectId}.");
+                EngineLogger.LogError($"Scene object not found or not activated yet: {command.SceneObjectId}");
             }
         }
 

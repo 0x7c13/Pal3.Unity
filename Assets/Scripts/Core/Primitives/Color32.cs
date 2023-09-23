@@ -25,6 +25,15 @@ namespace Core.Primitives
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Color32(byte r, byte g, byte b)
+        {
+            R = r;
+            G = g;
+            B = b;
+            A = byte.MaxValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Color(Color32 c) =>
             new Color(
                 (float) c.R / byte.MaxValue,

@@ -9,10 +9,10 @@ namespace Pal3.Rendering.Material
     using System.Diagnostics;
     using Core.Primitives;
     using Engine.Extensions;
+    using Engine.Logging;
     using UnityEngine;
     using UnityEngine.Rendering;
     using Color = UnityEngine.Color;
-    using Debug = UnityEngine.Debug;
 
     /// <summary>
     /// Unlit material factory for generating materials that have similar
@@ -112,7 +112,7 @@ namespace Pal3.Rendering.Material
             }
 
             timer.Stop();
-            Debug.Log($"[{nameof(UnlitMaterialFactory)}] Material pool allocated in {timer.ElapsedMilliseconds} ms.");
+            EngineLogger.Log($"Material pool allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         public void DeallocateMaterialPool()
@@ -143,7 +143,7 @@ namespace Pal3.Rendering.Material
             _isMaterialPoolAllocated = false;
 
             timer.Stop();
-            Debug.Log($"[{nameof(LitMaterialFactory)}] Material pool de-allocated in {timer.ElapsedMilliseconds} ms.");
+            EngineLogger.Log($"Material pool de-allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         /// <inheritdoc/>

@@ -24,6 +24,7 @@ namespace Pal3.State
     using Core.Utilities;
     using Effect.PostProcessing;
     using Engine.Extensions;
+    using Engine.Logging;
     using GamePlay;
     using GameSystems.WorldMap;
     using GameSystems.Favor;
@@ -32,7 +33,6 @@ namespace Pal3.State
     using Scene;
     using Script;
     using UnityEngine;
-    using Path = System.IO.Path;
 
     #if PAL3A
     using GameSystems.Task;
@@ -142,12 +142,12 @@ namespace Pal3.State
             try
             {
                 File.WriteAllText(saveFilePath, string.Join('\n', stateCommands.Select(CommandExtensions.ToString).ToList()));
-                Debug.Log($"[{nameof(SaveManager)}] Game state saved to: {saveFilePath}");
+                EngineLogger.Log($"Game state saved to: {saveFilePath}");
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[{nameof(SaveManager)}] Failed to save game state to file: {saveFilePath} with exception: {ex}");
+                EngineLogger.LogException(ex);
                 return false;
             }
         }
@@ -404,7 +404,7 @@ namespace Pal3.State
                     _lastAutoSaveTime = Time.realtimeSinceStartupAsDouble;
                 }
 
-                Debug.LogWarning($"[{nameof(SaveManager)}] Game state auto-saved to slot {AutoSaveSlotIndex}.");
+                EngineLogger.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}");
             }
         }
 

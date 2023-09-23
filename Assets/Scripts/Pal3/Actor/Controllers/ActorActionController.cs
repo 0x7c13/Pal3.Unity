@@ -15,6 +15,7 @@ namespace Pal3.Actor.Controllers
     using Core.Contract.Enums;
     using Data;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Engine.Services;
     using GamePlay;
@@ -280,8 +281,8 @@ namespace Pal3.Actor.Controllers
             {
                 if (!_actor.IsActive && !_actor.IsMainActor())
                 {
-                    Debug.LogError($"[{nameof(ActorActionController)}] Failed to perform action " +
-                                   $"since actor {command.ActorId} is inactive.");
+                    EngineLogger.LogError("Failed to perform action " +
+                                   $"since actor {command.ActorId} is inactive");
                     return;
                 }
 

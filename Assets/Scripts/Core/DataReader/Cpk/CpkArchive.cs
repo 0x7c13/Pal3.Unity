@@ -64,7 +64,7 @@ namespace Core.DataReader.Cpk
 
             if (!IsValidCpkHeader(header))
             {
-                throw new InvalidDataException($"File: {_filePath} is not a valid CPK file.");
+                throw new InvalidDataException($"File: <{_filePath}> is not a valid CPK file");
             }
 
             var cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
@@ -203,14 +203,14 @@ namespace Core.DataReader.Cpk
             var crc = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
             if (!_crcToTableIndexMap.ContainsKey(crc))
             {
-                throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive.");
+                throw new ArgumentException($"<{fileVirtualPath}> does not exists in the archive");
             }
 
             CpkTableEntity entity = _tableEntities[_crcToTableIndexMap[crc]];
 
             if (entity.IsDirectory())
             {
-                throw new InvalidOperationException($"Cannot open <{fileVirtualPath}> since it is a directory.");
+                throw new InvalidOperationException($"Cannot open <{fileVirtualPath}> since it is a directory");
             }
 
             return entity;

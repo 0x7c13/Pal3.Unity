@@ -27,6 +27,7 @@ namespace Pal3.Data
     using Core.Utilities;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Services;
     using Engine.Utilities;
     using Rendering.Material;
@@ -222,7 +223,7 @@ namespace Pal3.Data
         {
             if (File.Exists(musicFileCachePath)) yield break;
 
-            Debug.Log($"[{nameof(GameResourceProvider)}] Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
+            EngineLogger.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
             var dataMovementThread = new Thread(() =>
             {
                 try
@@ -468,7 +469,7 @@ namespace Pal3.Data
 
             if (!Directory.Exists(videoFolder))
             {
-                throw new DirectoryNotFoundException($"Video directory does not exists: {videoFolder}.");
+                throw new DirectoryNotFoundException($"Video directory does not exists: {videoFolder}");
             }
 
             var supportedVideoFormats = UnitySupportedVideoFormats.GetSupportedVideoFormats(Application.platform);
@@ -484,7 +485,7 @@ namespace Pal3.Data
             }
 
             throw new FileNotFoundException($"Cannot find video file: {videoName} under path: {videoFolder}. " +
-                                $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}.");
+                                $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}");
         }
 
         public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
@@ -525,7 +526,7 @@ namespace Pal3.Data
 
             if (vfxPrefab == null)
             {
-                Debug.LogWarning($"[{nameof(GameResourceProvider)}] VFX prefab not found: " + effectGroupId);
+                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
             }
 
             _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
@@ -548,11 +549,11 @@ namespace Pal3.Data
 
             if (request.asset == null)
             {
-                Debug.LogWarning($"[{nameof(GameResourceProvider)}] VFX prefab not found: " + effectGroupId);
+                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
             }
             else
             {
-                Debug.Log($"[{nameof(GameResourceProvider)}] VFX prefab preloaded: " + effectGroupId);
+                EngineLogger.Log($"VFX prefab preloaded: {effectGroupId}");
             }
 
             _vfxEffectPrefabCache[effectGroupId] = request.asset;
