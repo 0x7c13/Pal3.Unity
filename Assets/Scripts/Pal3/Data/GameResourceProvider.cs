@@ -3,6 +3,8 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
+using Pal3.Effect;
+
 namespace Pal3.Data
 {
     using System;
@@ -51,6 +53,8 @@ namespace Pal3.Data
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly IMaterialFactory _unlitMaterialFactory;
         private readonly IMaterialFactory _litMaterialFactory;
+        private readonly CommonEffectFactory _commonEffectFactory;
+        
         private readonly GameSettings _gameSettings;
 
         private readonly GdbFile _gameDatabase;
@@ -74,12 +78,14 @@ namespace Pal3.Data
             ITextureLoaderFactory textureLoaderFactory,
             IMaterialFactory unlitMaterialFactory,
             IMaterialFactory litMaterialFactory,
+            CommonEffectFactory effectFactory,
             GameSettings gameSettings)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
             _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
             _litMaterialFactory = litMaterialFactory; // Lit materials are not required
+            _commonEffectFactory = effectFactory;
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
@@ -140,6 +146,11 @@ namespace Pal3.Data
             return !_gameSettings.IsOpenSourceVersion && _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
                 _litMaterialFactory :
                 _unlitMaterialFactory;
+        }
+
+        public CommonEffectFactory GetEffectFactory()
+        {
+            return _commonEffectFactory;
         }
 
         public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
