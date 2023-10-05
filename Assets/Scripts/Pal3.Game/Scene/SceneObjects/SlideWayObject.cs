@@ -1,0 +1,102 @@
+﻿// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2023, Jiaqi Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ---------------------------------------------------------------------------------------------
+
+namespace Pal3.Game.Scene.SceneObjects
+{
+    using System.Collections;
+    using Actor.Controllers;
+    using Common;
+    using Core.Contract.Enums;
+    using Core.DataReader.Scn;
+    using Data;
+    using Engine.Extensions;
+    using Engine.Navigation;
+    using UnityEngine;
+
+    [ScnSceneObject(SceneObjectType.SlideWay)]
+    public sealed class SlideWayObject : SceneObject
+    {
+        private const uint ACTOR_SLIDE_SPEED = 25;
+
+        private TilemapTriggerController _triggerController;
+        private bool _isInteractionInProgress;
+
+        public SlideWayObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
+            : base(objectInfo, sceneInfo)
+        {
+        }
+
+        public override GameObject Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
+        {
+            if (IsActivated) return GetGameObject();
+
+            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+
+            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
+            _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
+
+            return sceneGameObject;
+        }
+
+        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        {
+            if (_isInteractionInProgress) return; // Prevent re-entry
+            _isInteractionInProgress = true;
+            RequestForInteraction();
+        }
+
+        public override bool IsDirectlyInteractable(float distance) => false;
+
+        public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
+
+        public override IEnumerator InteractAsync(InteractionContext ctx)
+        {
+            GameObject playerActorGameObject = ctx.PlayerActorGameObject;
+
+            var waypoints = new Vector3[ObjectInfo.Path.NumberOfWaypoints];
+            for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
+            {
+                waypoints[i] = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
+            }
+
+            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
+            movementController.CancelMovement();
+
+            var actorController = playerActorGameObject.GetComponent<ActorController>();
+
+            // Temporarily set the speed to a higher value to make the actor slide faster
+            actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_SPEED);
+
+            movementController.SetupPath(waypoints, MovementMode.Run, EndOfPathActionType.Idle, ignoreObstacle: true);
+
+            while (movementController.IsMovementInProgress())
+            {
+                yield return null;
+            }
+
+            // Restore the original speed
+            actorController.GetActor().ResetMoveSpeed();
+
+            ExecuteScriptIfAny();
+            _isInteractionInProgress = false;
+        }
+
+        public override void Deactivate()
+        {
+            _isInteractionInProgress = false;
+
+            if (_triggerController != null)
+            {
+                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                _triggerController.Destroy();
+                _triggerController = null;
+            }
+
+            base.Deactivate();
+        }
+    }
+}

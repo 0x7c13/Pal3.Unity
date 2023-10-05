@@ -5,8 +5,8 @@
 
 namespace Engine.DataLoader
 {
-    using Core.DataReader.Bmp;
     using Extensions;
+    using Pal3.Core.DataReader.Bmp;
     using UnityEngine;
 
     /// <summary>

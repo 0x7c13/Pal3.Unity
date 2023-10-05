@@ -6,8 +6,8 @@
 namespace Engine.Utilities
 {
     using System;
-    using Core.Utilities;
     using Logging;
+    using Pal3.Core.Utilities;
     using UnityEngine;
 
     public sealed class PlayerPrefsStore : ITransactionalKeyValueStore

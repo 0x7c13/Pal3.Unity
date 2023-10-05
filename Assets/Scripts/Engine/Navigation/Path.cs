@@ -5,7 +5,7 @@
 
 namespace Engine.Navigation
 {
-    using Core.Contract.Enums;
+    using Pal3.Core.Contract.Enums;
     using UnityEngine;
 
     public enum EndOfPathActionType

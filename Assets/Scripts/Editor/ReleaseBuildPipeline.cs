@@ -9,7 +9,7 @@ namespace Editor
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using Pal3.Constants;
+    using Pal3.Game.Constants;
     using UnityEditor;
     using UnityEditor.Build;
     using UnityEditor.Build.Reporting;

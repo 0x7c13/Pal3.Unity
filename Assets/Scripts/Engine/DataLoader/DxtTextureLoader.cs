@@ -7,8 +7,8 @@ namespace Engine.DataLoader
 {
 	using System;
 	using System.IO;
-	using Core.DataReader;
-	using Core.DataReader.Dxt;
+	using Pal3.Core.DataReader;
+	using Pal3.Core.DataReader.Dxt;
 	using UnityEngine;
 
 	/// <summary>

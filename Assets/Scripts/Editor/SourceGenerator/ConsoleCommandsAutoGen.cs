@@ -9,10 +9,10 @@ namespace Editor.SourceGenerator
     using System.Linq;
     using System.Reflection;
     using Base;
-    using Core.Command;
-    using Core.Command.SceCommands;
     using IngameDebugConsole;
-    using Pal3.Command;
+    using Pal3.Core.Command;
+    using Pal3.Core.Command.SceCommands;
+    using Pal3.Game.Command;
     using UnityEngine;
 
     /// <summary>

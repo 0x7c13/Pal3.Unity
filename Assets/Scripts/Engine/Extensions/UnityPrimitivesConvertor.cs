@@ -8,7 +8,7 @@ namespace Engine.Extensions
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using Core.Primitives;
+    using Pal3.Core.Primitives;
 
     /// <summary>
     /// Convertor to convert GameBox specific rendering related metrics to Unity standard units that fits

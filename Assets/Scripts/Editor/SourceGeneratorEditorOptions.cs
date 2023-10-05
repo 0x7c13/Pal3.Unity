@@ -7,7 +7,7 @@ namespace Editor
 {
     using System.IO;
     using System.Text;
-    using Core.Command;
+    using Pal3.Core.Command;
     using SourceGenerator;
     using SourceGenerator.Base;
     using UnityEditor;
