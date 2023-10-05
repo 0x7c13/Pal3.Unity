@@ -13,11 +13,12 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.Primitives;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Script.Waiter;
     using UnityEngine;
 
-    public class FlyingActorController : MonoBehaviour,
+    public class FlyingActorController : GameEntityBase,
         ICommandExecutor<FlyingActorFlyToCommand>
     {
         public const float DefaultFlySpeed = 7.5f;
@@ -30,21 +31,21 @@ namespace Pal3.Game.Actor.Controllers
         private ActorController _actorController;
         private ActorActionController _actionController;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
         public void Init(ActorBase actor, ActorController actorController, ActorActionController actionController)
         {
             _actor = actor;
             _actorController = actorController;
             _actionController = actionController;
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void Execute(FlyingActorFlyToCommand command)

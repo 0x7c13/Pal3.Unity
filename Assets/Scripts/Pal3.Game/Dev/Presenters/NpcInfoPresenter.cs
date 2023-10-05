@@ -6,12 +6,13 @@
 namespace Pal3.Game.Dev.Presenters
 {
     using Core.DataReader.Scn;
+    using Engine.Abstraction;
     using UnityEngine;
 
     /// <summary>
     /// ScnNpcInfo holder component to present ScnNpcInfo in the Unity inspector.
     /// </summary>
-    public sealed class NpcInfoPresenter : MonoBehaviour
+    public sealed class NpcInfoPresenter : GameEntityBase
     {
         [SerializeField] public ScnNpcInfo npcInfo;
     }

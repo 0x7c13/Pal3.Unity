@@ -20,6 +20,7 @@ namespace Pal3.Game
     using Core.FileSystem;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Logging;
@@ -36,7 +37,7 @@ namespace Pal3.Game
     /// The Game Resource initializer
     /// Initialize file system and all required services.
     /// </summary>
-    public sealed class GameResourceInitializer : MonoBehaviour
+    public sealed class GameResourceInitializer : GameEntityBase
     {
         [SerializeField] private GameObject startingComponent;
         [SerializeField] private Image backgroundImage;

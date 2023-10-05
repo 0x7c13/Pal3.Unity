@@ -10,6 +10,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
@@ -52,19 +53,22 @@ namespace Pal3.Game.Scene.SceneObjects
         }
     }
 
-    internal class StaticOrAnimatedObjectController : MonoBehaviour
+    internal class StaticOrAnimatedObjectController : TickableGameEntityBase
     {
         private int[] _parameters;
         private Component _effectComponent;
         private float _initYPosition;
 
+        protected override void OnDisableGameEntity()
+        {
+            _effectComponent.Destroy();
+            _effectComponent = null;
+        }
+
         public void Init(int[] parameters)
         {
             _parameters = parameters;
-        }
 
-        private void Start()
-        {
             _initYPosition = transform.localPosition.y;
 
             // Randomly play animation if Parameters[1] == 0 for Cvd modeled objects.
@@ -88,7 +92,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
         }
 
-        private void LateUpdate()
+        protected override void OnLateUpdateGameEntity(float deltaTime)
         {
             switch (_parameters[2])
             {
@@ -114,12 +118,6 @@ namespace Pal3.Game.Scene.SceneObjects
                     break;
                 }
             }
-        }
-
-        private void OnDisable()
-        {
-            _effectComponent.Destroy();
-            _effectComponent = null;
         }
     }
 }

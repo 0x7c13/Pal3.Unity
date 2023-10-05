@@ -5,18 +5,19 @@
 
 namespace Engine.Renderer
 {
+    using Abstraction;
     using UnityEngine;
 
-    public class StaticBillboardRenderer : MonoBehaviour
+    public class StaticBillboardRenderer : TickableGameEntityBase
     {
         private Camera _camera;
 
-        private void OnEnable()
+        protected override void OnEnableGameEntity()
         {
             _camera = Camera.main;
         }
 
-        private void LateUpdate()
+        protected override void OnLateUpdateGameEntity(float deltaTime)
         {
             Quaternion rotation = _camera.transform.rotation;
             rotation = Quaternion.Euler(0f, rotation.eulerAngles.y, 0f);

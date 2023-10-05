@@ -10,9 +10,10 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Command.Extensions;
     using Core.Command;
     using Core.Primitives;
+    using Engine.Abstraction;
     using UnityEngine;
 
-    public class TilemapTriggerController : MonoBehaviour,
+    public class TilemapTriggerController : GameEntityBase,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
         public event EventHandler<Vector2Int> OnPlayerActorEntered;
@@ -25,6 +26,16 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         private bool _wasTriggered;
         private bool _isScriptRunningInProgress;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex)
         {
             Init(tileMapTriggerRect, layerIndex, Time.realtimeSinceStartupAsDouble);
@@ -35,16 +46,6 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             _tileMapTriggerRect = tileMapTriggerRect;
             _layerIndex = layerIndex;
             _effectiveTime = effectiveTime;
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void Execute(PlayerActorTilePositionUpdatedNotification notification)

@@ -8,10 +8,11 @@ namespace Pal3.Game.Effect
     using System;
     using Data;
     using System.Collections;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
 
-    public sealed class RotatingSpriteEffect : MonoBehaviour, IDisposable
+    public sealed class RotatingSpriteEffect : GameEntityBase, IDisposable
     {
         private GameObject _root;
         private SpriteRenderer _spriteRenderer;
@@ -61,7 +62,7 @@ namespace Pal3.Game.Effect
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyGameEntity()
         {
             Dispose();
         }

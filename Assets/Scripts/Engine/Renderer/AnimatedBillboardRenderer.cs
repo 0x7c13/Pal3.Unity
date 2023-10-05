@@ -7,10 +7,11 @@ namespace Engine.Renderer
 {
     using System.Collections;
     using System.Threading;
+    using Abstraction;
     using Extensions;
     using UnityEngine;
 
-    public class AnimatedBillboardRenderer : MonoBehaviour
+    public class AnimatedBillboardRenderer : GameEntityBase
     {
         private Sprite[] _sprites;
         private WaitForSeconds _spriteAnimationFrameWaiter;
@@ -20,13 +21,13 @@ namespace Engine.Renderer
         private SpriteRenderer _spriteRenderer;
         private CancellationTokenSource _animationCts = new ();
 
-        public void OnEnable()
+        protected override void OnEnableGameEntity()
         {
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _billboardRenderer = gameObject.AddComponent<StaticBillboardRenderer>();
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             _animationCts.Cancel();
             _animationCts = null;

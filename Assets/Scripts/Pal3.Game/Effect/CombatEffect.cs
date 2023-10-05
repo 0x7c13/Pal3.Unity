@@ -6,10 +6,11 @@
 namespace Pal3.Game.Effect
 {
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
 
-    public class CombatEffect : MonoBehaviour, IEffect
+    public class CombatEffect : GameEntityBase, IEffect
     {
         #if PAL3
         private const string SHUSHAN_BRIDGE_TEXTURE_NAME = "q08qiao.dds";
@@ -30,6 +31,11 @@ namespace Pal3.Game.Effect
         private RotatingSpriteEffect _bridgeBaseEffect;
         private RotatingSpriteEffect _bridgeEffect;
         private GameObject _effect;
+
+        protected override void OnDestroyGameEntity()
+        {
+            Dispose();
+        }
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
@@ -77,11 +83,6 @@ namespace Pal3.Game.Effect
                     _effect.name = "VFX_" + effectParameter;
                 }
             }
-        }
-
-        private void OnDestroy()
-        {
-            Dispose();
         }
 
         public void Dispose()

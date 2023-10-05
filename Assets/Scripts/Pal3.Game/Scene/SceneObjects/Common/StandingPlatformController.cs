@@ -7,12 +7,13 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 {
     using System;
     using Actor.Controllers;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
     using GamePlay;
     using UnityEngine;
 
-    public class StandingPlatformController : MonoBehaviour
+    public class StandingPlatformController : GameEntityBase
     {
         public event EventHandler<GameObject> OnPlayerActorEntered;
         public event EventHandler<GameObject> OnPlayerActorExited;
@@ -25,9 +26,18 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
         private PlayerActorManager _playerActorManager;
 
-        private void OnEnable()
+        protected override void OnEnableGameEntity()
         {
             _playerActorManager = ServiceLocator.Instance.Get<PlayerActorManager>();
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            if (_collider != null)
+            {
+                _collider.Destroy();
+                _collider = null;
+            }
         }
 
         public void Init(Bounds triggerBounds, int layerIndex, float platformHeightOffset = 0f)
@@ -73,15 +83,6 @@ namespace Pal3.Game.Scene.SceneObjects.Common
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
                 OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (_collider != null)
-            {
-                _collider.Destroy();
-                _collider = null;
             }
         }
     }

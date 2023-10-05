@@ -14,6 +14,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.Utilities;
     using Dev;
     using Dev.Presenters;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
@@ -25,7 +26,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// MV3(.mv3) model renderer
     /// </summary>
-    public class Mv3ModelRenderer : MonoBehaviour, IDisposable
+    public class Mv3ModelRenderer : GameEntityBase, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
@@ -458,7 +459,7 @@ namespace Pal3.Game.Rendering.Renderer
             return false;
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             Dispose();
         }

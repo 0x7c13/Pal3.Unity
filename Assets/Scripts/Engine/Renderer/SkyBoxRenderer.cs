@@ -5,11 +5,11 @@
 
 namespace Engine.Renderer
 {
-    using System;
+    using Abstraction;
     using Extensions;
     using UnityEngine;
 
-    public class SkyBoxRenderer : MonoBehaviour
+    public class SkyBoxRenderer : GameEntityBase
     {
         private Skybox _skybox;
 
@@ -19,6 +19,16 @@ namespace Engine.Renderer
         private static readonly int FrontTexturePropertyID = Shader.PropertyToID("_FrontTex");
         private static readonly int UpTexturePropertyID = Shader.PropertyToID("_UpTex");
         private static readonly int DownTexturePropertyID = Shader.PropertyToID("_DownTex");
+
+        protected override void OnDisableGameEntity()
+        {
+            if (_skybox != null)
+            {
+                _skybox.material.Destroy();
+                _skybox.Destroy();
+                _skybox = null;
+            }
+        }
 
         public void Render(Camera targetCamera,
             Texture2D rightTex,
@@ -31,16 +41,6 @@ namespace Engine.Renderer
             Material material = CreateSkyboxMaterial(rightTex, backTex, leftTex, frontTex, upTex, downTex);
             _skybox = targetCamera.gameObject.AddComponent<Skybox>();
             _skybox.material = material;
-        }
-
-        private void OnDisable()
-        {
-            if (_skybox != null)
-            {
-                _skybox.material.Destroy();
-                _skybox.Destroy();
-                _skybox = null;
-            }
         }
 
         private static Material CreateSkyboxMaterial(Texture2D rightTex,

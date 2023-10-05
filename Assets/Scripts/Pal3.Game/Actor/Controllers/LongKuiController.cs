@@ -11,9 +11,10 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
+    using Engine.Abstraction;
     using UnityEngine;
 
-    public sealed class LongKuiController : MonoBehaviour,
+    public sealed class LongKuiController : GameEntityBase,
         ICommandExecutor<LongKuiSwitchModeCommand>
     {
         private ActorBase _actor;
@@ -21,22 +22,22 @@ namespace Pal3.Game.Actor.Controllers
 
         private int _currentMode = 0;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
         public void Init(ActorBase actor, ActorActionController actionController)
         {
             _actor = actor;
             _actionController = actionController;
         }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-        }
-
+        
         public int GetCurrentMode()
         {
             return _currentMode;

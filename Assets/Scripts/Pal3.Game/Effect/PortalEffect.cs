@@ -6,10 +6,11 @@
 namespace Pal3.Game.Effect
 {
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
 
-    public sealed class PortalEffect : MonoBehaviour, IEffect
+    public sealed class PortalEffect : GameEntityBase, IEffect
     {
         #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
@@ -39,7 +40,7 @@ namespace Pal3.Game.Effect
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyGameEntity()
         {
             Dispose();
         }

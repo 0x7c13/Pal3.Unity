@@ -22,6 +22,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.DataLoader;
     using Engine.Extensions;
@@ -141,7 +142,7 @@ namespace Pal3.Game.Scene.SceneObjects
         }
     }
 
-    internal class ImpulsiveMechanismSubObjectController : MonoBehaviour
+    internal class ImpulsiveMechanismSubObjectController : GameEntityBase
     {
         public event EventHandler<GameObject> OnPlayerActorHit;
 
@@ -154,6 +155,24 @@ namespace Pal3.Game.Scene.SceneObjects
         private Coroutine _movementCoroutine;
 
         private CancellationTokenSource _movementAnimationCts = new ();
+
+        protected override void OnDisableGameEntity()
+        {
+            _movementAnimationCts.Cancel();
+
+            if (_movementCoroutine != null)
+            {
+                StopCoroutine(_movementCoroutine);
+                _movementCoroutine = null;
+            }
+
+            if (_triggerController != null)
+            {
+                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
+                _triggerController.Destroy();
+                _triggerController = null;
+            }
+        }
 
         public void Init()
         {
@@ -172,35 +191,15 @@ namespace Pal3.Game.Scene.SceneObjects
             Vector3 subObjectInitPosition = transform.position;
             subObjectInitPosition.z = MIN_Z_POSITION;
             transform.position = subObjectInitPosition;
+
+            // Start movement
+            _movementAnimationCts = new CancellationTokenSource();
+            _movementCoroutine = StartCoroutine(StartMovementAsync(_movementAnimationCts.Token));
         }
 
         private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
         {
             OnPlayerActorHit?.Invoke(sender, playerActorGameObject);
-        }
-
-        private void OnDisable()
-        {
-            _movementAnimationCts.Cancel();
-
-            if (_movementCoroutine != null)
-            {
-                StopCoroutine(_movementCoroutine);
-                _movementCoroutine = null;
-            }
-
-            if (_triggerController != null)
-            {
-                _triggerController.OnPlayerActorEntered -= OnPlayerActorEntered;
-                _triggerController.Destroy();
-                _triggerController = null;
-            }
-        }
-
-        private void Start()
-        {
-            _movementAnimationCts = new CancellationTokenSource();
-            _movementCoroutine = StartCoroutine(StartMovementAsync(_movementAnimationCts.Token));
         }
 
         private IEnumerator StartMovementAsync(CancellationToken cancellationToken)

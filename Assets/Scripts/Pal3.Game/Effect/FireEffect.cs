@@ -12,6 +12,7 @@ namespace Pal3.Game.Effect
     using Core.DataReader.Pol;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
@@ -19,7 +20,7 @@ namespace Pal3.Game.Effect
     using Rendering.Renderer;
     using UnityEngine;
 
-    public sealed class FireEffect : MonoBehaviour, IEffect
+    public sealed class FireEffect : GameEntityBase, IEffect
     {
         public GameObject EffectGameObject { get; private set; }
         public FireEffectType FireEffectType { get; private set; }
@@ -82,7 +83,7 @@ namespace Pal3.Game.Effect
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyGameEntity()
         {
             Dispose();
         }

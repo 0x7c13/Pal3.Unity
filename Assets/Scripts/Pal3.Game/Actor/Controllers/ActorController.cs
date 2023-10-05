@@ -13,6 +13,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Navigation;
@@ -22,7 +23,7 @@ namespace Pal3.Game.Actor.Controllers
     using Script.Waiter;
     using UnityEngine;
 
-    public class ActorController : MonoBehaviour,
+    public class ActorController : GameEntityBase,
         ICommandExecutor<ActorSetFacingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
@@ -50,6 +51,16 @@ namespace Pal3.Game.Actor.Controllers
 
         private ActorBehaviourType _currentBehaviour;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
+
         public void Init(Actor actor,
             ActorActionController actionController,
             ActorMovementController movementController)
@@ -63,16 +74,6 @@ namespace Pal3.Game.Actor.Controllers
 
             // Activate if InitActive == 1
             if (_actor.Info.InitActive == 1) IsActive = true;
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public ActorBehaviourType GetCurrentBehaviour()

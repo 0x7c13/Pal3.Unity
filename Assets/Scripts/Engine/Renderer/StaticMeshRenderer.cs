@@ -6,15 +6,21 @@
 namespace Engine.Renderer
 {
     using System;
+    using Abstraction;
     using Extensions;
     using UnityEngine;
 
-    public sealed class StaticMeshRenderer : MonoBehaviour, IDisposable
+    public sealed class StaticMeshRenderer : GameEntityBase, IDisposable
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
         private Material[] _materials;
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public Mesh Render(Vector3[] vertices,
             int[] triangles,
@@ -80,11 +86,6 @@ namespace Engine.Renderer
         public Material[] GetMaterials()
         {
             return _materials;
-        }
-
-        private void OnDisable()
-        {
-            Dispose();
         }
 
         public void Dispose()

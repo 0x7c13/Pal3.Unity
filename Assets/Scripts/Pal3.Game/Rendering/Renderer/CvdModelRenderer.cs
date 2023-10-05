@@ -12,6 +12,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Cvd;
     using Core.Utilities;
     using Dev.Presenters;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -22,7 +23,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// CVD(.cvd) model renderer
     /// </summary>
-    public class CvdModelRenderer : MonoBehaviour, IDisposable
+    public class CvdModelRenderer : GameEntityBase, IDisposable
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
         private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
@@ -583,7 +584,7 @@ namespace Pal3.Game.Rendering.Renderer
             _animationCts.Cancel();
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             Dispose();
         }

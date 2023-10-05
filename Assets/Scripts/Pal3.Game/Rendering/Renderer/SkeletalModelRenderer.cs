@@ -14,6 +14,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Mtl;
     using Core.Primitives;
     using Core.Utilities;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -74,7 +75,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// Skeletal animation model renderer
     /// MSH(.msh) + MOV(.mov)
     /// </summary>
-    public class SkeletalModelRenderer : MonoBehaviour, IDisposable
+    public class SkeletalModelRenderer : GameEntityBase, IDisposable
     {
         private IMaterialFactory _materialFactory;
         private Material[][] _materials;
@@ -457,7 +458,7 @@ namespace Pal3.Game.Rendering.Renderer
             return _meshObjects != null;
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             Dispose();
         }

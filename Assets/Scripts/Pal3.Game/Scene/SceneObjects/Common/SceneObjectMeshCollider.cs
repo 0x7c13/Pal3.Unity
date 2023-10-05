@@ -5,17 +5,35 @@
 
 namespace Pal3.Game.Scene.SceneObjects.Common
 {
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
 
-    public class SceneObjectMeshCollider : MonoBehaviour
+    public class SceneObjectMeshCollider : GameEntityBase
     {
         private BoxCollider _collider;
         private Vector3 _meshBoundsSize;
         private Vector3 _boundsSizeOffset;
 
         private bool _initialized;
+
+        protected override void OnEnableGameEntity()
+        {
+            if (!_initialized)
+            {
+                UpdateBounds();
+            }
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            if (_collider != null)
+            {
+                _collider.Destroy();
+                _collider = null;
+            }
+        }
 
         /// <summary>
         /// Init with a size offset.
@@ -27,14 +45,6 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             _boundsSizeOffset = sizeOffset;
             UpdateBounds();
             _initialized = true;
-        }
-
-        private void Start()
-        {
-            if (!_initialized)
-            {
-                UpdateBounds();
-            }
         }
 
         private void UpdateBounds()
@@ -63,15 +73,6 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
             _collider.center = bounds.center;
             _collider.size = _meshBoundsSize + _boundsSizeOffset;
-        }
-
-        private void OnDisable()
-        {
-            if (_collider != null)
-            {
-                _collider.Destroy();
-                _collider = null;
-            }
         }
     }
 }

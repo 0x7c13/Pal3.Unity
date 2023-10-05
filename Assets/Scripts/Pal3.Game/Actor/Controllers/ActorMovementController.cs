@@ -17,6 +17,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
     using Core.Primitives;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Navigation;
@@ -47,7 +48,7 @@ namespace Pal3.Game.Actor.Controllers
         public double TimeWhenEntered;
     }
 
-    public class ActorMovementController : MonoBehaviour,
+    public class ActorMovementController : TickableGameEntityBase,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorPathToCommand>,
@@ -133,12 +134,12 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void OnEnable()
+        protected override void OnEnableGameEntity()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             _currentPath.Clear();
             _movementWaiter?.CancelWait();
@@ -234,7 +235,7 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void Update()
+        protected override void OnUpdateGameEntity(float deltaTime)
         {
             if (_isMovementOnHold || _currentPath.IsEndOfPath()) return;
 
@@ -258,7 +259,7 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void LateUpdate()
+        protected override void OnLateUpdateGameEntity(float deltaTime)
         {
             // To sync with the platform movement
             if (IsNearOrOnTopOfPlatform() && TryGetLastEnteredStandingPlatform(
@@ -274,7 +275,7 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void FixedUpdate()
+        protected override void OnFixedUpdateGameEntity(float fixedDeltaTime)
         {
             // Sanity cleanup
             if (_activeColliders.Count > 0)

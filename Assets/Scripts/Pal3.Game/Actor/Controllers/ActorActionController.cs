@@ -14,6 +14,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
@@ -23,7 +24,7 @@ namespace Pal3.Game.Actor.Controllers
     using State;
     using UnityEngine;
 
-    public abstract class ActorActionController : MonoBehaviour,
+    public abstract class ActorActionController : GameEntityBase,
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorShowEmojiCommand>,

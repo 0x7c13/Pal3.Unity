@@ -15,6 +15,7 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Ini;
     using Core.DataReader.Pol;
     using Data;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using GameSystems.Combat;
@@ -22,7 +23,7 @@ namespace Pal3.Game.Scene
     using Rendering.Renderer;
     using UnityEngine;
 
-    public sealed class CombatScene : MonoBehaviour
+    public sealed class CombatScene : GameEntityBase
     {
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 

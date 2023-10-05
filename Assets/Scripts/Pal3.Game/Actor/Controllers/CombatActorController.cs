@@ -6,13 +6,14 @@
 namespace Pal3.Game.Actor.Controllers
 {
     using System.Collections;
+    using Engine.Abstraction;
     using Engine.Animation;
     using GameSystems.Combat;
     using Scene;
     using Script.Waiter;
     using UnityEngine;
 
-    public sealed class CombatActorController : MonoBehaviour
+    public sealed class CombatActorController : GameEntityBase
     {
         private CombatActor _actor;
         private ActorActionController _actionController;

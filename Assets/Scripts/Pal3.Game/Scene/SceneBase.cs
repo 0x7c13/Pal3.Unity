@@ -17,6 +17,7 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using SceneObjects;
     using State;
@@ -25,7 +26,7 @@ namespace Pal3.Game.Scene
     /// <summary>
     /// Scene base class used to init and hold scene data models.
     /// </summary>
-    public abstract class SceneBase : MonoBehaviour
+    public abstract class SceneBase : GameEntityBase
     {
         private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_DEFAULT = 2.2f;
         private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_LAYER_DEFAULT = 2f;
