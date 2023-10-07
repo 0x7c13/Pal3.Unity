@@ -12,9 +12,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
-    using UnityEngine;
+    
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.ElevatorDoor)]
     public sealed class ElevatorDoorObject : SceneObject
@@ -26,13 +29,13 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
             // Add collider to block player
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            return sceneGameObject;
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -45,12 +48,12 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfx("wg005");
 
-            GameObject doorObject = GetGameObject();
-            Vector3 currentPosition = doorObject.transform.position;
+            IGameEntity doorEntity = GetGameEntity();
+            Vector3 currentPosition = doorEntity.Transform.Position;
             Vector3 toPosition = currentPosition +
                 (ObjectInfo.SwitchState == 0 ? Vector3.down : Vector3.up) * (GetMeshBounds().size.y + 0.5f);
 
-            yield return doorObject.transform.MoveAsync(toPosition, 2f);
+            yield return doorEntity.Transform.MoveAsync(toPosition, 2f);
 
             FlipAndSaveSwitchState();
             SaveCurrentPosition();

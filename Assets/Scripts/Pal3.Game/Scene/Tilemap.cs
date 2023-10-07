@@ -169,10 +169,10 @@ namespace Pal3.Game.Scene
 
             int GetDistanceCost((int x, int y) fromTile, (int x, int y) toTile)
             {
-                int xDistance = Mathf.Abs(fromTile.x - toTile.x);
-                int yDistance = Mathf.Abs(fromTile.y - toTile.y);
-                int remaining = Mathf.Abs(xDistance - yDistance);
-                return MOVE_COST_DIAGONAL * Mathf.Min(xDistance, yDistance) +
+                int xDistance = Math.Abs(fromTile.x - toTile.x);
+                int yDistance = Math.Abs(fromTile.y - toTile.y);
+                int remaining = Math.Abs(xDistance - yDistance);
+                return MOVE_COST_DIAGONAL * Math.Min(xDistance, yDistance) +
                        MOVE_COST_STRAIGHT * remaining +
                        GetTileExtraWeight(GetTile(new Vector2Int(toTile.x, toTile.y), layerIndex));
             }

@@ -19,8 +19,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.SpecialSwitch)]
     public sealed class SpecialSwitchObject : SceneObject
@@ -34,10 +36,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Add collider to block player, also make the bounds of the collider a little bit bigger
             // to make sure the player can't walk through the collider
@@ -51,10 +53,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 _ => Vector3.one
             };
 
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
             _meshCollider.Init(boundsSizeOffset);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance)
@@ -66,7 +68,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameObject
+            PlayerActorId actorId = (PlayerActorId)ctx.PlayerActorGameEntity
                 .GetComponent<ActorController>().GetActor().Id;
 
             if (!Enum.IsDefined(typeof(PlayerActorId), actorId)) yield break;

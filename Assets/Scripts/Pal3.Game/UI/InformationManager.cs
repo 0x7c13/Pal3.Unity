@@ -114,7 +114,7 @@ namespace Pal3.Game.UI
                 _heapSize,
                 _totalAllocatedMemorySize,
                 _totalReservedMemorySize,
-                Mathf.Ceil(_fpsCounter.GetFps()),
+                MathF.Ceiling(_fpsCounter.GetFps()),
                 Screen.width,
                 Screen.height);
         }

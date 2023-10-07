@@ -13,11 +13,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.LiftingPlatform)]
     public sealed class LiftingPlatformObject : SceneObject
@@ -32,10 +36,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             #if PAL3A
             if (!string.IsNullOrEmpty(ObjectInfo.DependentSceneName))
@@ -58,11 +62,11 @@ namespace Pal3.Game.Scene.SceneObjects
             // Set to final position if the platform is already activated
             if (ObjectInfo.SwitchState == 1)
             {
-                Vector3 position = sceneGameObject.transform.position;
+                Vector3 position = sceneObjectGameEntity.Transform.Position;
                 float gameBoxYPosition = ObjectInfo.Parameters[0];
                 var finalYPosition = gameBoxYPosition.ToUnityYPosition();
                 position.y = finalYPosition;
-                sceneGameObject.transform.position = position;
+                sceneObjectGameEntity.Transform.Position = position;
             }
 
             Bounds bounds = GetMeshBounds();
@@ -70,19 +74,19 @@ namespace Pal3.Game.Scene.SceneObjects
             // near the edge of the platform
             bounds.size += new Vector3(0.6f, 0.2f, 0.6f);
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
             #if PAL3A
             if (bounds.size.y > 1f)
             {
                 // Add a mesh collider to block the player from walking into the object
-                _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
                 _meshCollider.Init(new Vector3(-0.3f, -0.8f, -0.3f));
             }
             #endif
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -104,12 +108,13 @@ namespace Pal3.Game.Scene.SceneObjects
 
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            GameObject liftingMechanismGameObject = GetGameObject();
-            Vector3 position = liftingMechanismGameObject.transform.position;
+            ITransform liftingMechanismTransform = GetGameEntity().Transform;
+            Vector3 position = liftingMechanismTransform.Position;
 
             yield return MoveCameraToLookAtPointAsync(
                 position,
-                ctx.PlayerActorGameObject);
+                ctx.PlayerActorGameEntity.Transform);
+
             CameraFocusOnObject(ObjectInfo.Id);
 
             float gameBoxYPosition = ObjectInfo.Parameters[0];
@@ -123,29 +128,29 @@ namespace Pal3.Game.Scene.SceneObjects
             PlaySfxIfAny();
 
             var hasObjectOnPlatform = false;
-            GameObject objectOnThePlatform = null;
+            IGameEntity objectOnThePlatform = null;
             Vector3 objectOnThePlatformOriginalPosition = Vector3.zero;
 
             // Set Y position of the object on the platform
             if (ObjectInfo.Parameters[2] != 0)
             {
-                objectOnThePlatform = ctx.CurrentScene.GetSceneObject(ObjectInfo.Parameters[2]).GetGameObject();
+                objectOnThePlatform = ctx.CurrentScene.GetSceneObject(ObjectInfo.Parameters[2]).GetGameEntity();
                 if (objectOnThePlatform != null)
                 {
                     hasObjectOnPlatform = true;
-                    objectOnThePlatformOriginalPosition = objectOnThePlatform.transform.position;
+                    objectOnThePlatformOriginalPosition = objectOnThePlatform.Transform.Position;
                 }
             }
 
             yield return CoreAnimation.EnumerateValueAsync(0f, yOffset, LIFTING_ANIMATION_DURATION,
                 AnimationCurveType.Sine, offset =>
                 {
-                    liftingMechanismGameObject.transform.position =
+                    liftingMechanismTransform.Position =
                         new Vector3(position.x, position.y + offset, position.z);
 
                     if (hasObjectOnPlatform && objectOnThePlatform != null)
                     {
-                        objectOnThePlatform.transform.position = new Vector3(
+                        objectOnThePlatform.Transform.Position = new Vector3(
                             objectOnThePlatformOriginalPosition.x,
                             objectOnThePlatformOriginalPosition.y + offset,
                             objectOnThePlatformOriginalPosition.z);
@@ -159,7 +164,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Parameters[2],
-                        objectOnThePlatform.transform.position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
+                        objectOnThePlatform.Transform.Position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
             }
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);

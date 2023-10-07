@@ -12,7 +12,7 @@ namespace Pal3.Game.Dev.Presenters
     /// <summary>
     /// ScnObjectInfo holder component to present ScnObjectInfo in the Unity inspector.
     /// </summary>
-    public sealed class SceneObjectInfoPresenter : GameEntityBase
+    public sealed class SceneObjectInfoPresenter : GameEntityScript
     {
         [SerializeField] public ScnObjectInfo sceneObjectInfo;
     }

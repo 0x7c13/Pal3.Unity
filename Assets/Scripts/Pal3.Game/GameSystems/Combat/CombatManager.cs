@@ -8,7 +8,9 @@ namespace Pal3.Game.GameSystems.Combat
     using System;
     using System.Collections.Generic;
     using Actor.Controllers;
+    using Camera;
     using Command;
+    using Command.Extensions;
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
@@ -18,13 +20,13 @@ namespace Pal3.Game.GameSystems.Combat
     using Core.Primitives;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Scene;
     using State;
     using Team;
     using UnityEngine;
     using UnityEngine.InputSystem;
-    using Random = UnityEngine.Random;
 
     public sealed class CombatManager
     {
@@ -34,8 +36,8 @@ namespace Pal3.Game.GameSystems.Combat
         private const float COMBAT_CAMERA_DEFAULT_FOV = 39f;
 
         private readonly TeamManager _teamManager;
-        private readonly Camera _mainCamera;
         private readonly SceneManager _sceneManager;
+        private readonly CameraManager _cameraManager;
         private readonly GameStateManager _gameStateManager;
 
         private readonly IDictionary<int, CombatActorInfo> _combatActorInfos;
@@ -49,12 +51,12 @@ namespace Pal3.Game.GameSystems.Combat
 
         public CombatManager(GameResourceProvider resourceProvider,
             TeamManager teamManager,
-            Camera mainCamera,
+            CameraManager cameraManager,
             SceneManager sceneManager)
         {
             Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
-            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
+            _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 
             _combatActorInfos = resourceProvider.GetCombatActorInfos();
@@ -64,9 +66,10 @@ namespace Pal3.Game.GameSystems.Combat
 
         public void EnterCombat(CombatContext combatContext)
         {
-            _mainCamera.transform.GetPositionAndRotation(out _cameraPositionBeforeCombat,
+            _cameraManager.GetCameraTransform().GetPositionAndRotation(out _cameraPositionBeforeCombat,
                 out _cameraRotationBeforeCombat);
-            _cameraFovBeforeCombat = _mainCamera.fieldOfView;
+
+            _cameraFovBeforeCombat = _cameraManager.GetFieldOfView();
 
             if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
             {
@@ -123,20 +126,23 @@ namespace Pal3.Game.GameSystems.Combat
                     config.GameBoxPositionY,
                     config.GameBoxPositionZ).ToUnityPosition();
 
-            _mainCamera.transform.position = cameraPosition;
-
-            // _mainCamera.transform.rotation = GameBoxInterpreter.ToUnityRotation(
+            ITransform cameraTransform = _cameraManager.GetCameraTransform();
+            cameraTransform.Position = cameraPosition;
+            // cameraTransform.Rotation = UnityPrimitivesConvertor.ToUnityQuaternion(
             //     config.Pitch, config.Yaw, config.Roll);
+            cameraTransform.LookAt(Vector3.zero);
 
-            _mainCamera.transform.LookAt(Vector3.zero);
-            _mainCamera.fieldOfView = COMBAT_CAMERA_DEFAULT_FOV;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraSetFieldOfViewCommand(COMBAT_CAMERA_DEFAULT_FOV));
         }
 
         private void ResetCameraPosition()
         {
-            _mainCamera.transform.SetPositionAndRotation(_cameraPositionBeforeCombat,
+            _cameraManager.GetCameraTransform().SetPositionAndRotation(_cameraPositionBeforeCombat,
                 _cameraRotationBeforeCombat);
-            _mainCamera.fieldOfView = _cameraFovBeforeCombat;
+
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraSetFieldOfViewCommand(_cameraFovBeforeCombat));
         }
 
         public void Update(float deltaTime)
@@ -185,7 +191,7 @@ namespace Pal3.Game.GameSystems.Combat
 
                 while (true)
                 {
-                    var toPosition = (ElementPosition)Random.Range(
+                    var toPosition = (ElementPosition)RandomGenerator.Range(
                         (int) (fromPosition == 0 ? ElementPosition.EnemyWater : ElementPosition.AllyWater),
                         (int) (fromPosition == 0 ? ElementPosition.EnemyCenter : ElementPosition.AllyCenter + 1));
 

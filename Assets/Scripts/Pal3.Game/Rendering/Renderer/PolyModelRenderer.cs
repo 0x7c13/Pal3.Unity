@@ -8,6 +8,7 @@ namespace Pal3.Game.Rendering.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Threading;
     using Core.DataReader.Pol;
     using Core.Primitives;
     using Dev.Presenters;
@@ -18,12 +19,12 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.Renderer;
     using Material;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     /// <summary>
     /// Poly(.pol) model renderer
     /// </summary>
-    public class PolyModelRenderer : GameEntityBase, IDisposable
+    public class PolyModelRenderer : GameEntityScript, IDisposable
     {
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";
@@ -33,12 +34,12 @@ namespace Pal3.Game.Rendering.Renderer
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
-        private readonly List<Coroutine> _waterAnimations = new ();
         private Dictionary<string, Texture2D> _textureCache = new ();
 
         private bool _isStaticObject;
         private Color _tintColor;
         private bool _isWaterSurfaceOpaque;
+        private CancellationTokenSource _animationCts;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
 
@@ -52,24 +53,27 @@ namespace Pal3.Game.Rendering.Renderer
             _textureProvider = textureProvider;
             _materialFactory = materialFactory;
             _isStaticObject = isStaticObject;
-            _tintColor = tintColor ?? Color.white;
+            _tintColor = tintColor ?? Color.White;
             _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
             _textureCache = BuildTextureCache(polFile, textureProvider);
+
+            _animationCts = new CancellationTokenSource();
 
             for (var i = 0; i < polFile.Meshes.Length; i++)
             {
                 RenderMeshInternal(
                     polFile.NodeDescriptions[i],
-                    polFile.Meshes[i]);
+                    polFile.Meshes[i],
+                    _animationCts.Token);
             }
         }
 
         public Bounds GetRendererBounds()
         {
-            var renderers = GetComponentsInChildren<StaticMeshRenderer>();
+            var renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
             if (renderers.Length == 0)
             {
-                return new Bounds(transform.position, Vector3.one);
+                return new Bounds(Transform.Position, Vector3.one);
             }
             Bounds bounds = renderers[0].GetRendererBounds();
             for (var i = 1; i < renderers.Length; i++)
@@ -81,7 +85,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetMeshBounds()
         {
-            var renderers = GetComponentsInChildren<StaticMeshRenderer>();
+            var renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
             if (renderers.Length == 0)
             {
                 return new Bounds(Vector3.zero, Vector3.one);
@@ -130,7 +134,9 @@ namespace Pal3.Game.Rendering.Renderer
             return textureCache;
         }
 
-        private void RenderMeshInternal(PolGeometryNode meshNode, PolMesh mesh)
+        private void RenderMeshInternal(PolGeometryNode meshNode,
+            PolMesh mesh,
+            CancellationToken cancellationToken)
         {
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
@@ -155,19 +161,17 @@ namespace Pal3.Game.Rendering.Renderer
                     return;
                 }
 
-                GameObject meshObject = new (meshNode.Name)
-                {
-                    isStatic = _isStaticObject
-                };
+                IGameEntity meshEntity = new GameEntity(meshNode.Name);
+                meshEntity.IsStatic = _isStaticObject;
 
-                // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+                // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
                 #if UNITY_EDITOR
-                var materialInfoPresenter = meshObject.AddComponent<MaterialInfoPresenter>();
+                var materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
                 materialInfoPresenter.blendFlag = mesh.Textures[i].BlendFlag;
                 materialInfoPresenter.material = mesh.Textures[i].Material;
                 #endif
 
-                var meshRenderer = meshObject.AddComponent<StaticMeshRenderer>();
+                var meshRenderer = meshEntity.AddComponent<StaticMeshRenderer>();
                 var blendFlag = mesh.Textures[i].BlendFlag;
 
                 Material[] CreateMaterials(bool isWaterSurface, int mainTextureIndex, int shadowTextureIndex = -1)
@@ -218,7 +222,7 @@ namespace Pal3.Game.Rendering.Renderer
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture);
+                        StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture, cancellationToken);
                     }
 
                     _ = meshRenderer.Render(mesh.VertexInfo.GameBoxPositions.ToUnityPositions(),
@@ -230,11 +234,13 @@ namespace Pal3.Game.Rendering.Renderer
                         false);
                 }
 
-                meshObject.transform.SetParent(transform, false);
+                meshEntity.SetParent(GameEntity, worldPositionStays: false);
             }
         }
 
-        private IEnumerator AnimateWaterTextureAsync(Material material, Texture2D defaultTexture)
+        private IEnumerator AnimateWaterTextureAsync(Material material,
+            Texture2D defaultTexture,
+            CancellationToken cancellationToken)
         {
             var waterTextures = new List<Texture2D> { defaultTexture };
 
@@ -249,19 +255,22 @@ namespace Pal3.Game.Rendering.Renderer
 
             var waterAnimationDelay = new WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
 
-            while (isActiveAndEnabled)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
+                    if (cancellationToken.IsCancellationRequested) break;
                     material.SetTexture(_mainTexturePropertyId, waterTextures[i]);
                     yield return waterAnimationDelay;
                 }
             }
         }
 
-        private void StartWaterSurfaceAnimation(Material material, Texture2D defaultTexture)
+        private void StartWaterSurfaceAnimation(Material material,
+            Texture2D defaultTexture,
+            CancellationToken cancellationToken)
         {
-            _waterAnimations.Add(StartCoroutine(AnimateWaterTextureAsync(material, defaultTexture)));
+            StartCoroutine(AnimateWaterTextureAsync(material, defaultTexture, cancellationToken));
         }
 
         protected override void OnDisableGameEntity()
@@ -271,18 +280,16 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Dispose()
         {
-            foreach (Coroutine waterAnimation in _waterAnimations)
+            if (_animationCts is {IsCancellationRequested: false})
             {
-                if (waterAnimation != null)
-                {
-                    StopCoroutine(waterAnimation);
-                }
+                _animationCts.Cancel();
             }
 
-            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (StaticMeshRenderer meshRenderer in GameEntity.GetComponentsInChildren<StaticMeshRenderer>())
             {
                 _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
-                meshRenderer.gameObject.Destroy();
+                meshRenderer.Dispose();
+                meshRenderer.Destroy();
             }
         }
     }

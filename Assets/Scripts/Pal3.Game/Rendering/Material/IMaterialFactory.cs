@@ -7,7 +7,7 @@ namespace Pal3.Game.Rendering.Material
 {
     using Core.Primitives;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     public enum MaterialShaderType
     {

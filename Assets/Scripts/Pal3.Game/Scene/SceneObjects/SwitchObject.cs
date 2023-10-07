@@ -21,11 +21,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
 
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
+    
     [ScnSceneObject(SceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
     {
@@ -36,17 +39,17 @@ namespace Pal3.Game.Scene.SceneObjects
         private const string INTERACTION_INDICATOR_MODEL_FILE_NAME = "g03.cvd";
 
         private CvdModelRenderer _interactionIndicatorRenderer;
-        private GameObject _interactionIndicatorGameObject;
+        private IGameEntity _interactionIndicatorGameEntity;
 
         public SwitchObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
@@ -60,7 +63,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     !IsDivineTreeMasterFlower())
                 {
                     // Add collider to block player
-                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
                 }
             }
 
@@ -71,16 +74,16 @@ namespace Pal3.Game.Scene.SceneObjects
                 string interactionIndicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(
                     INTERACTION_INDICATOR_MODEL_FILE_NAME);
 
-                Vector3 switchPosition = sceneGameObject.transform.position;
-                _interactionIndicatorGameObject = new GameObject("Switch_Interaction_Indicator");
-                _interactionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
-                _interactionIndicatorGameObject.transform.position =
+                Vector3 switchPosition = sceneObjectGameEntity.Transform.Position;
+                _interactionIndicatorGameEntity = new GameEntity("Switch_Interaction_Indicator");
+                _interactionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _interactionIndicatorGameEntity.Transform.Position =
                     new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
 
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(interactionIndicatorModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(interactionIndicatorModelPath, CpkConstants.DirectorySeparatorChar));
-                _interactionIndicatorRenderer = _interactionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _interactionIndicatorRenderer = _interactionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,
                     resourceProvider.GetMaterialFactory(),
@@ -88,7 +91,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _interactionIndicatorRenderer.LoopAnimation();
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance)
@@ -118,8 +121,8 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 shouldResetCamera = true;
                 yield return MoveCameraToLookAtPointAsync(
-                    GetGameObject().transform.position,
-                    ctx.PlayerActorGameObject);
+                    GetGameEntity().Transform.Position,
+                    ctx.PlayerActorGameEntity.Transform);
                 CameraFocusOnObject(ObjectInfo.Id);
             }
 
@@ -127,14 +130,14 @@ namespace Pal3.Game.Scene.SceneObjects
 
             FlipAndSaveSwitchState();
 
-            if (ObjectInfo.Times == 0 && _interactionIndicatorGameObject != null)
+            if (ObjectInfo.Times == 0 && _interactionIndicatorGameEntity != null)
             {
                 _interactionIndicatorRenderer.Dispose();
                 _interactionIndicatorRenderer.Destroy();
                 _interactionIndicatorRenderer = null;
 
-                _interactionIndicatorGameObject.Destroy();
-                _interactionIndicatorGameObject = null;
+                _interactionIndicatorGameEntity.Destroy();
+                _interactionIndicatorGameEntity = null;
             }
 
             if (ctx.StartedByPlayer &&
@@ -219,10 +222,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 _interactionIndicatorRenderer = null;
             }
 
-            if (_interactionIndicatorGameObject != null)
+            if (_interactionIndicatorGameEntity != null)
             {
-                _interactionIndicatorGameObject.Destroy();
-                _interactionIndicatorGameObject = null;
+                _interactionIndicatorGameEntity.Destroy();
+                _interactionIndicatorGameEntity = null;
             }
 
             base.Deactivate();

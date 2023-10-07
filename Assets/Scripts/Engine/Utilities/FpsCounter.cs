@@ -8,7 +8,7 @@ namespace Engine.Utilities
     using Abstraction;
     using UnityEngine;
 
-    public class FpsCounter : TickableGameEntityBase
+    public class FpsCounter : TickableGameEntityScript
     {
         private const float UPDATE_INTERVAL = 0.3f;
 

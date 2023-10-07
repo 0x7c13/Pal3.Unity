@@ -10,9 +10,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.Door)]
     public sealed class DoorObject : SceneObject
@@ -29,11 +31,11 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (!ObjectInfo.TileMapTriggerRect.IsEmpty)
             {
@@ -42,7 +44,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 // We simply disable the auto trigger for a short time window after
                 // a fresh scene load.
                 var effectiveTime = Time.realtimeSinceStartupAsDouble + 1f;
-                _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+                _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
@@ -54,7 +56,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 if (ObjectInfo.SwitchState == 0)
                 {
                     // Add collider to block player
-                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
                 }
                 else if (ObjectInfo.SwitchState == 1)
                 {
@@ -65,16 +67,18 @@ namespace Pal3.Game.Scene.SceneObjects
                     }
                     else if (ModelType == SceneObjectModelType.PolModel)
                     {
-                        GetPolyModelRenderer().Dispose();
+                        var modelRenderer = GetPolyModelRenderer();
+                        modelRenderer.Dispose();
+                        modelRenderer.Destroy();
                     }
                 }
             }
             #endif
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             if (_isInteractionInProgress) return; // Prevent re-entry
 
@@ -115,7 +119,9 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 if (ModelType == SceneObjectModelType.PolModel)
                 {
-                    GetPolyModelRenderer().Dispose();
+                    var polyModelRenderer = GetPolyModelRenderer();
+                    polyModelRenderer.Dispose();
+                    polyModelRenderer.Destroy();
                 }
                 else if (ModelType == SceneObjectModelType.CvdModel)
                 {

@@ -20,9 +20,9 @@ namespace Pal3.Game.Effect
     using Rendering.Renderer;
     using UnityEngine;
 
-    public sealed class FireEffect : GameEntityBase, IEffect
+    public sealed class FireEffect : GameEntityScript, IEffect
     {
-        public GameObject EffectGameObject { get; private set; }
+        public IGameEntity EffectGameEntity { get; private set; }
         public FireEffectType FireEffectType { get; private set; }
 
         private (Texture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(Texture2D texture, bool hasAlphaChannel)>();
@@ -41,7 +41,7 @@ namespace Pal3.Game.Effect
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(info.ModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(info.ModelPath, CpkConstants.DirectorySeparatorChar));
-                _sceneObjectRenderer = gameObject.AddComponent<PolyModelRenderer>();
+                _sceneObjectRenderer = GameEntity.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,
                     materialFactory,
@@ -69,12 +69,12 @@ namespace Pal3.Game.Effect
                     yPosition = _sceneObjectRenderer.GetMeshBounds().max.y;
                 }
 
-                EffectGameObject = new GameObject($"Effect_{GraphicsEffectType.Fire.ToString()}_{FireEffectType.ToString()}");
-                EffectGameObject.transform.SetParent(gameObject.transform, false);
-                EffectGameObject.transform.localScale = new Vector3(info.Size, info.Size, info.Size);
-                EffectGameObject.transform.localPosition = new Vector3(0f, yPosition, 0f);
+                EffectGameEntity = new GameEntity($"Effect_{GraphicsEffectType.Fire.ToString()}_{FireEffectType.ToString()}");
+                EffectGameEntity.SetParent(GameEntity, worldPositionStays: false);
+                EffectGameEntity.Transform.LocalScale = new Vector3(info.Size, info.Size, info.Size);
+                EffectGameEntity.Transform.LocalPosition = new Vector3(0f, yPosition, 0f);
 
-                _billboardRenderer = EffectGameObject.AddComponent<AnimatedBillboardRenderer>();
+                _billboardRenderer = EffectGameEntity.AddComponent<AnimatedBillboardRenderer>();
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
                     : materialFactory.CreateOpaqueSpriteMaterial();
@@ -103,10 +103,10 @@ namespace Pal3.Game.Effect
                 _billboardRenderer = null;
             }
 
-            if (EffectGameObject != null)
+            if (EffectGameEntity != null)
             {
-                EffectGameObject.Destroy();
-                EffectGameObject = null;
+                EffectGameEntity.Destroy();
+                EffectGameEntity = null;
             }
 
             if (_spriteMaterial != null)

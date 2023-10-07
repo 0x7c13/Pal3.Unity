@@ -17,6 +17,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
     using Core.Primitives;
+    using Core.Utilities;
     using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
@@ -26,7 +27,6 @@ namespace Pal3.Game.Actor.Controllers
     using Scene.SceneObjects.Common;
     using Script.Waiter;
     using UnityEngine;
-    using Random = UnityEngine.Random;
 
     public enum MovementResult
     {
@@ -48,7 +48,7 @@ namespace Pal3.Game.Actor.Controllers
         public double TimeWhenEntered;
     }
 
-    public class ActorMovementController : TickableGameEntityBase,
+    public class ActorMovementController : TickableGameEntityScript,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorPathToCommand>,
@@ -62,8 +62,6 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private const float DEFAULT_ROTATION_SPEED = 20f;
-
         private Actor _actor;
         private Tilemap _tilemap;
         private ActorActionController _actionController;
@@ -113,7 +111,7 @@ namespace Pal3.Game.Actor.Controllers
                 // Same for the case when actor is configured to not facing the player actor during dialogue
                 if (tile.IsWalkable() || actor.Info.NoTurn == 1)
                 {
-                    transform.position = new Vector3(initPosition.x,
+                    Transform.Position = new Vector3(initPosition.x,
                         tile.GameBoxYPosition.ToUnityYPosition(),
                         initPosition.z);
                 }
@@ -123,14 +121,14 @@ namespace Pal3.Game.Actor.Controllers
                     // Snap to the nearest adjacent tile if exists
                     var hasAdjacentWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
                         _currentLayerIndex, out Vector2Int nearestTile);
-                    transform.position = hasAdjacentWalkableTile ?
+                    Transform.Position = hasAdjacentWalkableTile ?
                         _tilemap.GetWorldPosition(nearestTile, _currentLayerIndex) :
                         initPosition;
                 }
             }
             else
             {
-                transform.position = initPosition;
+                Transform.Position = initPosition;
             }
         }
 
@@ -186,13 +184,13 @@ namespace Pal3.Game.Actor.Controllers
 
         private Vector3 GetNearestLastKnownPositionWhenCollisionEnter()
         {
-            Vector3 nearestPosition = transform.position;
+            Vector3 nearestPosition = Transform.Position;
             float distance = float.MaxValue;
 
             foreach (var colliderInfo in _activeColliders)
             {
                 var distanceToLastKnownPosition = Vector3.Distance(
-                    colliderInfo.ActorPositionWhenCollisionEnter, transform.position);
+                    colliderInfo.ActorPositionWhenCollisionEnter, Transform.Position);
                 if (distanceToLastKnownPosition < distance)
                 {
                     distance = distanceToLastKnownPosition;
@@ -241,7 +239,9 @@ namespace Pal3.Game.Actor.Controllers
 
             MovementResult result = MoveTowards(_currentPath.GetCurrentWayPoint(),
                 _currentPath.MovementMode,
-                _currentPath.IgnoreObstacle);
+                _currentPath.IgnoreObstacle,
+                _actor.GetMovementSpeed(_currentPath.MovementMode) * deltaTime,
+                _actor.GetRotationSpeed() * deltaTime);
 
             switch (result)
             {
@@ -265,11 +265,11 @@ namespace Pal3.Game.Actor.Controllers
             if (IsNearOrOnTopOfPlatform() && TryGetLastEnteredStandingPlatform(
                     out ActiveStandingPlatformInfo platformInfo))
             {
-                Vector3 currentPlatformPosition = platformInfo.Platform.gameObject.transform.position;
+                Vector3 currentPlatformPosition = platformInfo.Platform.Transform.Position;
 
                 if (currentPlatformPosition != platformInfo.PlatformLastKnownPosition)
                 {
-                    transform.position += currentPlatformPosition - platformInfo.PlatformLastKnownPosition;
+                    Transform.Position += currentPlatformPosition - platformInfo.PlatformLastKnownPosition;
                     platformInfo.PlatformLastKnownPosition = currentPlatformPosition;
                 }
             }
@@ -296,7 +296,8 @@ namespace Pal3.Game.Actor.Controllers
             // player actor's rigidbody.
             if (IsDuringCollision() && _actionController.GetRigidBody() is { isKinematic: false } _)
             {
-                Vector3 currentPosition = transform.position;
+                ITransform actorTransform = Transform;
+                Vector3 currentPosition = actorTransform.Position;
 
                 if (IsNearOrOnTopOfPlatform())
                 {
@@ -304,20 +305,20 @@ namespace Pal3.Game.Actor.Controllers
                 }
                 else if (!_tilemap.TryGetTile(currentPosition, _currentLayerIndex, out NavTile tile))
                 {
-                    transform.position = GetNearestLastKnownPositionWhenCollisionEnter();
+                    actorTransform.Position = GetNearestLastKnownPositionWhenCollisionEnter();
                 }
                 else
                 {
                     if (!tile.IsWalkable())
                     {
-                        transform.position = GetNearestLastKnownPositionWhenCollisionEnter();
+                        actorTransform.Position = GetNearestLastKnownPositionWhenCollisionEnter();
                     }
                     else
                     {
                         var adjustedPosition = new Vector3(currentPosition.x,
                             tile.GameBoxYPosition.ToUnityYPosition(),
                             currentPosition.z);
-                        transform.position = adjustedPosition;
+                        actorTransform.Position = adjustedPosition;
                     }
                 }
             }
@@ -325,7 +326,7 @@ namespace Pal3.Game.Actor.Controllers
 
         private void OnCollisionEnter(Collision collision)
         {
-            Vector3 currentActorPosition = transform.position;
+            Vector3 currentActorPosition = Transform.Position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
 
             Vector3 actorPosition;
@@ -376,12 +377,12 @@ namespace Pal3.Game.Actor.Controllers
                     });
 
                 // Move actor on to the platform if platform is higher than current position
-                Vector3 currentPosition = transform.position;
+                Vector3 currentPosition = Transform.Position;
                 var targetYPosition = standingPlatformController.GetPlatformHeight();
-                if (Mathf.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform &&
+                if (MathF.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform &&
                     currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
                 {
-                    transform.position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
+                    Transform.Position = new Vector3(currentPosition.x, targetYPosition, currentPosition.z);
                 }
             }
         }
@@ -401,12 +402,12 @@ namespace Pal3.Game.Actor.Controllers
 
         public Vector3 GetWorldPosition()
         {
-            return transform.position;
+            return Transform.Position;
         }
 
         public Vector2Int GetTilePosition()
         {
-            return _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+            return _tilemap.GetTilePosition(Transform.Position, _currentLayerIndex);
         }
 
         public void PortalToPosition(Vector3 position, int layerIndex, bool isPositionOnStandingPlatform)
@@ -416,7 +417,7 @@ namespace Pal3.Game.Actor.Controllers
                 _currentPath?.Clear();
                 _actionController.PerformAction(_actor.GetIdleAction());
                 SetNavLayer(layerIndex);
-                transform.position = position;
+                Transform.Position = position;
 
                 EngineLogger.LogWarning($"Portal to standing platform: {position}, " +
                                  $"layer: {layerIndex}");
@@ -426,7 +427,7 @@ namespace Pal3.Game.Actor.Controllers
                 _currentPath?.Clear();
                 _actionController.PerformAction(_actor.GetIdleAction());
                 SetNavLayer(layerIndex);
-                transform.position = new Vector3(
+                Transform.Position = new Vector3(
                     position.x,
                     tile.GameBoxYPosition.ToUnityYPosition(),
                     position.z);
@@ -477,21 +478,20 @@ namespace Pal3.Game.Actor.Controllers
             SetupPath(new[] { targetPosition }, movementMode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
-        public MovementResult MoveTowards(Vector3 targetPosition, MovementMode movementMode, bool ignoreObstacle = false)
+        public MovementResult MoveTowards(Vector3 targetPosition,
+            MovementMode movementMode,
+            bool ignoreObstacle,
+            float maxDistanceDelta,
+            float maxRadiansDelta)
         {
-            Transform currentTransform = transform;
-            Vector3 currentPosition = currentTransform.position;
-
-            float moveSpeed = _actor.GetMoveSpeed(movementMode);
-
-            if (!_actor.IsMainActor()) moveSpeed /= 2f;
+            Vector3 currentPosition = Transform.Position;
 
             var currentXZPosition = new Vector2(currentPosition.x, currentPosition.z);
             var targetXZPosition = new Vector2(targetPosition.x, targetPosition.z);
 
-            Vector2 goalXZPosition = Vector2.MoveTowards(currentXZPosition, targetXZPosition,moveSpeed * Time.deltaTime);
+            Vector2 goalXZPosition = Vector2.MoveTowards(currentXZPosition, targetXZPosition, maxDistanceDelta);
 
-            float goalYPosition = Mathf.Abs(targetPosition.y - currentPosition.y) < 0.01f ? targetPosition.y :
+            float goalYPosition = MathF.Abs(targetPosition.y - currentPosition.y) < 0.01f ? targetPosition.y :
                 (Vector2.Distance(goalXZPosition, currentXZPosition) /
                  Vector2.Distance(targetXZPosition, currentXZPosition)) *
                  (targetPosition.y - currentPosition.y) + currentPosition.y;
@@ -504,7 +504,7 @@ namespace Pal3.Game.Actor.Controllers
             if (IsDuringCollision() && _actionController.GetRigidBody() is { isKinematic: false } &&
                 IsNewPositionInsideCollisionCollider(currentPosition, newPosition))
             {
-                RotateTowards(currentPosition, newPosition, movementMode);
+                RotateTowards(currentPosition, newPosition, movementMode, maxRadiansDelta);
                 return MovementResult.InProgress;
             }
 
@@ -517,22 +517,23 @@ namespace Pal3.Game.Actor.Controllers
 
             switch (ignoreObstacle)
             {
-                case false when Mathf.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
+                case false when MathF.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
                     return MovementResult.Blocked;
-                case true when Mathf.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
+                case true when MathF.Abs(newYPosition - newPosition.y) > _movementMaxYDifferential:
                     newYPosition = currentPosition.y;
                     break;
             }
 
-            RotateTowards(currentPosition, newPosition, movementMode);
+            RotateTowards(currentPosition, newPosition, movementMode, maxRadiansDelta);
 
-            currentTransform.position = new Vector3(
+            ITransform actorTransform = Transform;
+            actorTransform.Position = new Vector3(
                 newPosition.x,
                 newYPosition,
                 newPosition.z);
 
-            if (Mathf.Abs(currentTransform.position.x - targetPosition.x) < 0.05f &&
-                Mathf.Abs(currentTransform.position.z - targetPosition.z) < 0.05f)
+            if (MathF.Abs(actorTransform.Position.x - targetPosition.x) < 0.05f &&
+                MathF.Abs(actorTransform.Position.z - targetPosition.z) < 0.05f)
             {
                 return MovementResult.Completed;
             }
@@ -540,10 +541,11 @@ namespace Pal3.Game.Actor.Controllers
             return MovementResult.InProgress;
         }
 
-        private void RotateTowards(Vector3 currentPosition, Vector3 targetPosition, MovementMode movementMode)
+        private void RotateTowards(Vector3 currentPosition,
+            Vector3 targetPosition,
+            MovementMode movementMode,
+            float maxRadiansDelta)
         {
-            Transform currentTransform = transform;
-
             Vector3 moveDirection = new Vector3(
                 targetPosition.x - currentPosition.x,
                 0f,
@@ -552,12 +554,12 @@ namespace Pal3.Game.Actor.Controllers
             // Special handling for stepping backwards
             if (movementMode == MovementMode.StepBack)
             {
-                currentTransform.forward = moveDirection;
+                Transform.Forward = moveDirection;
             }
             else
             {
-                currentTransform.forward = Vector3.RotateTowards(currentTransform.forward,
-                    moveDirection, DEFAULT_ROTATION_SPEED * Time.deltaTime, 0.0f);
+                Transform.Forward = Vector3.RotateTowards(Transform.Forward,
+                    moveDirection, maxRadiansDelta, 0.0f);
             }
         }
 
@@ -610,7 +612,7 @@ namespace Pal3.Game.Actor.Controllers
                     // Make sure actor is on top of the platform
                     if (UnityEngineUtility.IsPointInsideCollider(platformInfo.Platform.GetCollider(),
                             new Vector3(newPosition.x, targetYPosition, newPosition.z), tolerance) &&
-                        Mathf.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform)
+                        MathF.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform)
                     {
                         newYPosition = targetYPosition;
                         isNewPositionValid = true;
@@ -646,7 +648,7 @@ namespace Pal3.Game.Actor.Controllers
             {
                 var yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition.ToUnityYPosition();
 
-                if (Mathf.Abs(currentPosition.y - yPositionAtNextLayer) > _movementMaxYDifferentialCrossLayer)
+                if (MathF.Abs(currentPosition.y - yPositionAtNextLayer) > _movementMaxYDifferentialCrossLayer)
                 {
                     return false;
                 }
@@ -705,8 +707,7 @@ namespace Pal3.Game.Actor.Controllers
             // Special handling for final rotation after stepping backwards
             if (_currentPath.MovementMode == MovementMode.StepBack)
             {
-                Transform actorTransform = transform;
-                actorTransform.forward = -actorTransform.forward;
+                Transform.Forward = -Transform.Forward;
             }
 
             _currentPath.Clear();
@@ -716,7 +717,7 @@ namespace Pal3.Game.Actor.Controllers
             MovementMode movementMode,
             CancellationToken cancellationToken)
         {
-            yield return new WaitForSeconds(Random.Range(3, 8));
+            yield return new WaitForSeconds(RandomGenerator.Range(3f, 8f));
             yield return new WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
@@ -731,12 +732,18 @@ namespace Pal3.Game.Actor.Controllers
             _actionController.PerformAction(_actor.GetMovementAction(movementMode));
             do
             {
-                Vector3 currentPosition = transform.position;
+                Vector3 currentPosition = Transform.Position;
+                var deltaTime = Time.deltaTime;
 
-                result = MoveTowards(position, movementMode, ignoreObstacle);
+                result = MoveTowards(position,
+                    movementMode,
+                    ignoreObstacle,
+                    _actor.GetMovementSpeed(_currentPath.MovementMode) * deltaTime,
+                    _actor.GetRotationSpeed() * deltaTime);
+
                 yield return null;
 
-                Vector3 newPosition = transform.position;
+                Vector3 newPosition = Transform.Position;
                 if (result == MovementResult.InProgress &&
                     currentPosition == newPosition)
                 {
@@ -754,7 +761,7 @@ namespace Pal3.Game.Actor.Controllers
             bool moveTowardsPositionIfNoPathFound = false,
             string specialAction = default)
         {
-            Vector2Int fromTilePosition = _tilemap.GetTilePosition(transform.position, _currentLayerIndex);
+            Vector2Int fromTilePosition = _tilemap.GetTilePosition(Transform.Position, _currentLayerIndex);
 
             if (fromTilePosition == toTilePosition)
             {
@@ -885,7 +892,7 @@ namespace Pal3.Game.Actor.Controllers
                 }
             }
 
-            transform.position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);
+            Transform.Position = _tilemap.GetWorldPosition(tilePosition, _currentLayerIndex);
 
             // Cancel current action if any
             if (_actionController.GetCurrentAction() != string.Empty)
@@ -926,7 +933,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (_actor.Id != command.ActorId) return;
             var moveDistance = command.GameBoxDistance.ToUnityDistance();
-            Vector3 newPosition = transform.position +  (-transform.forward * moveDistance);
+            Vector3 newPosition = Transform.Position + (-Transform.Forward * moveDistance);
             MoveTo(newPosition, MovementMode.StepBack);
         }
 

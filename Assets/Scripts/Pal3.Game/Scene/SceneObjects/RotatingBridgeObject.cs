@@ -13,9 +13,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
+    using Quaternion = UnityEngine.Quaternion;
 
     [ScnSceneObject(SceneObjectType.RotatingBridge)]
     public sealed class RotatingBridgeObject : SceneObject
@@ -29,11 +34,11 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
 
@@ -56,10 +61,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 };
             }
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -68,20 +73,21 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            GameObject bridgeObject = GetGameObject();
+            ITransform bridgeObjectTransform = GetGameEntity().Transform;
 
             yield return MoveCameraToLookAtPointAsync(
-                bridgeObject.transform.position,
-                ctx.PlayerActorGameObject);
+                bridgeObjectTransform.Position,
+                ctx.PlayerActorGameEntity.Transform);
+
             CameraFocusOnObject(ObjectInfo.Id);
 
-            Vector3 eulerAngles = bridgeObject.transform.rotation.eulerAngles;
+            Vector3 eulerAngles = bridgeObjectTransform.EulerAngles;
             var targetYRotation = (eulerAngles.y  + 90f) % 360f;
             var targetRotation = new Vector3(eulerAngles.x, targetYRotation, eulerAngles.z);
 
             PlaySfx("wg004");
 
-            yield return bridgeObject.transform.RotateAsync(Quaternion.Euler(targetRotation),
+            yield return bridgeObjectTransform.RotateAsync(Quaternion.Euler(targetRotation),
                 ROTATION_ANIMATION_DURATION, AnimationCurveType.Sine);
 
             SaveCurrentYRotation();

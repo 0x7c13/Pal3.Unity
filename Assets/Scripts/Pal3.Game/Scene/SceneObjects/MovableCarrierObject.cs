@@ -15,11 +15,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Core.Primitives;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector2 = UnityEngine.Vector2;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.MovableCarrier)]
     public sealed class MovableCarrierObject : SceneObject
@@ -35,12 +39,11 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
-            UnityEngine.Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
             bounds.size += new Vector3(0.6f, 0.2f, 0.6f); // Extend the bounds a little bit
@@ -68,19 +71,19 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             #endif
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
             if (_isInteractionInProgress) return;
 
             // Make sure player is at the same height as the platform
-            if (Mathf.Abs(playerActorGameObject.transform.position.y -
+            if (MathF.Abs(playerActorGameEntity.Transform.Position.y -
                           _platformController.GetPlatformHeight()) <= 0.5f)
             {
                 _isInteractionInProgress = true;
@@ -103,13 +106,13 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             #endif
 
-            GameObject carrierObject = GetGameObject();
+            IGameEntity carrierEntity = GetGameEntity();
             var isNearFirstWaypoint = IsNearFirstWaypoint();
 
             // Triggered by other objects
             if (ctx.InitObjectId != ObjectInfo.Id)
             {
-                carrierObject.transform.position = (isNearFirstWaypoint ?
+                carrierEntity.Transform.Position = (isNearFirstWaypoint ?
                     ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1] :
                     ObjectInfo.Path.GameBoxWaypoints[0]).ToUnityPosition();
 
@@ -140,12 +143,12 @@ namespace Pal3.Game.Scene.SceneObjects
                 #endif
             }
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
             var waypoints = new List<Vector3>();
 
             // Move player to center of the carrier
             {
-                Vector3 platformPosition = _platformController.transform.position;
+                Vector3 platformPosition = _platformController.Transform.Position;
                 var actorStandingPosition = new Vector3(
                     platformPosition.x,
                     _platformController.GetPlatformHeight(),
@@ -169,18 +172,18 @@ namespace Pal3.Game.Scene.SceneObjects
                     }
                 }
 
-                Transform carrierObjectTransform = carrierObject.transform;
+                ITransform carrierObjectTransform = carrierEntity.Transform;
 
                 for (int i = 1; i < waypoints.Count; i++)
                 {
-                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
+                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
                     yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }
             }
 
             Bounds bounds = _platformController.GetCollider().bounds;
-            Vector3 actorPositionOnCarrier = ctx.PlayerActorGameObject.transform.position;
+            Vector3 actorPositionOnCarrier = ctx.PlayerActorGameEntity.Transform.Position;
 
             // Move actor out of carrier to the final standing position
             {
@@ -188,7 +191,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 lastSectionForwardVector.y = 0f;
 
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
-                    (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.5f);
+                    (MathF.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.5f);
 
                 // Do not ignore obstacles when moving out of the carrier in
                 // PAL3 scene m17-7 and PAL3A scene m11-4 (锁妖塔4层)
@@ -207,8 +210,8 @@ namespace Pal3.Game.Scene.SceneObjects
                 // if so, end the interaction
                 if (Vector2.Distance(
                         new Vector2(actorFinalPosition.x, actorFinalPosition.z),
-                        new Vector2(ctx.PlayerActorGameObject.transform.position.x,
-                            ctx.PlayerActorGameObject.transform.position.z)) < 0.1f)
+                        new Vector2(ctx.PlayerActorGameEntity.Transform.Position.x,
+                            ctx.PlayerActorGameEntity.Transform.Position.z)) < 0.1f)
                 {
                     SaveCurrentPosition();
                     _isInteractionInProgress = false;
@@ -222,11 +225,11 @@ namespace Pal3.Game.Scene.SceneObjects
                 yield return actorMovementController.MoveDirectlyToAsync(actorPositionOnCarrier, 0, true);
 
                 waypoints.Reverse(); // Reverse the waypoints
-                Transform carrierObjectTransform = carrierObject.transform;
+                ITransform carrierObjectTransform = carrierEntity.Transform;
 
                 for (int i = 1; i < waypoints.Count; i++)
                 {
-                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.position) / MOVE_SPEED;
+                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
                     yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }
@@ -234,9 +237,9 @@ namespace Pal3.Game.Scene.SceneObjects
                 Vector3 lastSectionForwardVector = (waypoints[^1] - waypoints[^2]).normalized;
                 lastSectionForwardVector.y = 0f;
 
-                actorPositionOnCarrier = ctx.PlayerActorGameObject.transform.position;
+                actorPositionOnCarrier = ctx.PlayerActorGameEntity.Transform.Position;
                 Vector3 actorFinalPosition = actorPositionOnCarrier + lastSectionForwardVector *
-                    (Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.4f);
+                    (MathF.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) / 2f + 1.4f);
 
                 yield return actorMovementController.MoveDirectlyToAsync(actorFinalPosition, 0, true);
             }
@@ -247,7 +250,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private bool IsNearFirstWaypoint()
         {
-            Vector3 position = GetGameObject().transform.position;
+            Vector3 position = GetGameEntity().Transform.Position;
             Vector3 firstWaypoint = ObjectInfo.Path.GameBoxWaypoints[0].ToUnityPosition();
             Vector3 lastWaypoint = ObjectInfo.Path.GameBoxWaypoints[ObjectInfo.Path.NumberOfWaypoints - 1].ToUnityPosition();
             return Vector3.Distance(position, firstWaypoint) < Vector3.Distance(position, lastWaypoint);

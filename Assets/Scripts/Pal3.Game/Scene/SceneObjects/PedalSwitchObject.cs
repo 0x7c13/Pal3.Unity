@@ -12,11 +12,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.PedalSwitch)]
     public sealed class PedalSwitchObject : SceneObject
@@ -36,11 +40,11 @@ namespace Pal3.Game.Scene.SceneObjects
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
 
@@ -65,22 +69,22 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             #endif
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // Set to final position if it is already activated
             if (ObjectInfo.Times == 0)
             {
-                Vector3 finalPosition = sceneGameObject.transform.position;
+                Vector3 finalPosition = sceneObjectGameEntity.Transform.Position;
                 finalPosition.y -= DESCENDING_HEIGHT;
-                sceneGameObject.transform.position = finalPosition;
+                sceneObjectGameEntity.Transform.Position = finalPosition;
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
             // Prevent duplicate triggers
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
@@ -99,22 +103,22 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            GameObject pedalSwitchGo = GetGameObject();
+            IGameEntity pedalSwitchEntity = GetGameEntity();
             Vector3 platformCenterPosition = _platformController.GetCollider().bounds.center;
             var actorStandingPosition = new Vector3(
                 platformCenterPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformCenterPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             // Play descending animation
-            Vector3 finalPosition = pedalSwitchGo.transform.position;
+            Vector3 finalPosition = pedalSwitchEntity.Transform.Position;
             finalPosition.y -= DESCENDING_HEIGHT;
 
-            yield return pedalSwitchGo.transform.MoveAsync(finalPosition,
+            yield return pedalSwitchEntity.Transform.MoveAsync(finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

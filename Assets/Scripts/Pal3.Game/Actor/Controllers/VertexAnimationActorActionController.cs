@@ -18,12 +18,12 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Utilities;
     using Data;
     using Engine.DataLoader;
-    using Engine.Extensions;
     using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     public sealed class VertexAnimationActorActionController : ActorActionController,
         ICommandExecutor<ActorAutoStandCommand>,
@@ -47,6 +47,18 @@ namespace Pal3.Game.Actor.Controllers
 
         private bool _isHoldAnimationStarted = false;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            DeActivate();
+            base.DeActivate();
+        }
+
         public void Init(GameResourceProvider resourceProvider,
             ActorBase actor,
             bool hasColliderAndRigidBody,
@@ -64,18 +76,6 @@ namespace Pal3.Game.Actor.Controllers
             _tintColor = tintColor;
 
             _materialFactory = resourceProvider.GetMaterialFactory();
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            DeActivate();
-            base.DeActivate();
         }
 
         public override void PerformAction(string actionName,
@@ -130,7 +130,7 @@ namespace Pal3.Game.Actor.Controllers
             DisposeCurrentAction();
 
             _animationLoopPointWaiter = waiter;
-            _mv3ModelRenderer = gameObject.GetOrAddComponent<Mv3ModelRenderer>();
+            _mv3ModelRenderer = GameEntity.AddComponent<Mv3ModelRenderer>();
 
             ActorActionType? actionType = ActorConstants.NameToActionMap.ContainsKey(actionName.ToLower()) ?
                 ActorConstants.NameToActionMap[actionName.ToLower()] : null;

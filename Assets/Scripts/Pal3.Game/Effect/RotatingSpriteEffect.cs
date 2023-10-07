@@ -7,17 +7,15 @@ namespace Pal3.Game.Effect
 {
     using System;
     using Data;
-    using System.Collections;
     using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
 
-    public sealed class RotatingSpriteEffect : GameEntityBase, IDisposable
+    public sealed class RotatingSpriteEffect : TickableGameEntityScript, IDisposable
     {
-        private GameObject _root;
+        private IGameEntity _root;
         private SpriteRenderer _spriteRenderer;
         private Material _material;
-        private Coroutine _animation;
 
         private float _rotationSpeed;
 
@@ -30,8 +28,8 @@ namespace Pal3.Game.Effect
 
             Texture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
 
-            _root = new GameObject($"RotatingSpriteEffect_{textureName}");
-            _root.transform.SetParent(transform, false);
+            _root = new GameEntity($"RotatingSpriteEffect_{textureName}");
+            _root.SetParent(GameEntity, worldPositionStays: false);
 
             _spriteRenderer = _root.AddComponent<SpriteRenderer>();
 
@@ -45,20 +43,17 @@ namespace Pal3.Game.Effect
                 _spriteRenderer.sharedMaterial = _material;
             }
 
-            Quaternion parentRotation = gameObject.transform.rotation;
-            _root.transform.localRotation = Quaternion.Euler(parentRotation.x + 90f, 0f, 0f);
-            _root.transform.localScale = scale;
-
-            _animation = StartCoroutine(AnimateAsync());
+            Quaternion parentRotation = GameEntity.Transform.Rotation;
+            _root.Transform.LocalRotation = Quaternion.Euler(parentRotation.x + 90f, 0f, 0f);
+            _root.Transform.LocalScale = scale;
         }
 
-        private IEnumerator AnimateAsync()
+        protected override void OnUpdateGameEntity(float deltaTime)
         {
-            while (isActiveAndEnabled)
+            if (_root is {IsDisposed: false})
             {
-                var rotationDelta = _rotationSpeed * Time.deltaTime;
-                _root.transform.localRotation *= Quaternion.Euler(0f, 0f, -rotationDelta);
-                yield return null;
+                var rotationDelta = _rotationSpeed * deltaTime;
+                _root.Transform.LocalRotation *= Quaternion.Euler(0f, 0f, -rotationDelta);
             }
         }
 
@@ -69,11 +64,6 @@ namespace Pal3.Game.Effect
 
         public void Dispose()
         {
-            if (_animation != null)
-            {
-                StopCoroutine(_animation);
-            }
-
             if (_material != null)
             {
                 _material.Destroy();

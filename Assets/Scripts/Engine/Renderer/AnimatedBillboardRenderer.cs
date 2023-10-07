@@ -11,7 +11,7 @@ namespace Engine.Renderer
     using Extensions;
     using UnityEngine;
 
-    public class AnimatedBillboardRenderer : GameEntityBase
+    public class AnimatedBillboardRenderer : GameEntityScript
     {
         private Sprite[] _sprites;
         private WaitForSeconds _spriteAnimationFrameWaiter;
@@ -23,8 +23,8 @@ namespace Engine.Renderer
 
         protected override void OnEnableGameEntity()
         {
-            _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-            _billboardRenderer = gameObject.AddComponent<StaticBillboardRenderer>();
+            _spriteRenderer = GameEntity.AddComponent<SpriteRenderer>();
+            _billboardRenderer = GameEntity.AddComponent<StaticBillboardRenderer>();
         }
 
         protected override void OnDisableGameEntity()

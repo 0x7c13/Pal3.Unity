@@ -21,9 +21,11 @@ namespace Pal3.Game.Scene
     using GameSystems.Combat;
     using Rendering.Material;
     using Rendering.Renderer;
-    using UnityEngine;
+    
+    using Vector3 = UnityEngine.Vector3;
+    using Quaternion = UnityEngine.Quaternion;
 
-    public sealed class CombatScene : GameEntityBase
+    public sealed class CombatScene : GameEntityScript
     {
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 
@@ -33,8 +35,8 @@ namespace Pal3.Game.Scene
         private string _combatSceneName;
         private bool _isLightingEnabled;
 
-        private GameObject _parent;
-        private GameObject _mesh;
+        private IGameEntity _parent;
+        private IGameEntity _mesh;
 
         private CombatConfigFile _combatConfigFile;
 
@@ -52,7 +54,7 @@ namespace Pal3.Game.Scene
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CONFIG_FILE_NAME);
         }
 
-        public void Load(GameObject parent,
+        public void Load(IGameEntity parent,
             string combatSceneName,
             bool isLightingEnabled)
         {
@@ -74,13 +76,11 @@ namespace Pal3.Game.Scene
         private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
         {
             // Render mesh
-            _mesh = new GameObject($"Mesh_{_combatSceneName}")
-            {
-                isStatic = true // Combat Scene mesh is static
-            };
+            _mesh = new GameEntity($"Mesh_{_combatSceneName}");
+            _mesh.IsStatic = true; // Combat Scene mesh is static
 
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
-            _mesh.transform.SetParent(_parent.transform, false);
+            _mesh.SetParent(_parent, worldPositionStays: false);
 
             polyMeshRenderer.Render(polFile,
                 textureProvider,
@@ -128,12 +128,12 @@ namespace Pal3.Game.Scene
                 }
 
                 CombatActor combatActor = new CombatActor(_resourceProvider, combatActorInfo);
-                GameObject combatActorGameObject = ActorFactory.CreateCombatActorGameObject(
+                IGameEntity combatActorGameEntity = ActorFactory.CreateCombatActorGameEntity(
                     _resourceProvider,
                     combatActor,
                     elementPosition,
                     isDropShadowEnabled: !_isLightingEnabled);
-                combatActorGameObject.transform.SetParent(_parent.transform, false);
+                combatActorGameEntity.SetParent(_parent, worldPositionStays: false);
 
                 Quaternion rotation;
 
@@ -150,9 +150,9 @@ namespace Pal3.Game.Scene
                         : PlayerFormationRotation;
                 }
 
-                combatActorGameObject.transform.SetPositionAndRotation(GetWorldPosition(elementPosition), rotation);
+                combatActorGameEntity.Transform.SetPositionAndRotation(GetWorldPosition(elementPosition), rotation);
 
-                _combatActorControllers[elementPosition] = combatActorGameObject.GetComponent<CombatActorController>();
+                _combatActorControllers[elementPosition] = combatActorGameEntity.GetComponent<CombatActorController>();
             }
         }
     }

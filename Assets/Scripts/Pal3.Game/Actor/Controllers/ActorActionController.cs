@@ -24,7 +24,7 @@ namespace Pal3.Game.Actor.Controllers
     using State;
     using UnityEngine;
 
-    public abstract class ActorActionController : GameEntityBase,
+    public abstract class ActorActionController : GameEntityScript,
         ICommandExecutor<ActorStopActionAndStandCommand>,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
         ICommandExecutor<ActorShowEmojiCommand>,
@@ -42,7 +42,7 @@ namespace Pal3.Game.Actor.Controllers
         private ActorBase _actor;
 
         private bool _isDropShadowEnabled;
-        private GameObject _shadow;
+        private IGameEntity _shadow;
         private SpriteRenderer _shadowSpriteRenderer;
 
         private string _currentAction = string.Empty;
@@ -185,7 +185,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (_collider == null)
             {
-                _collider = gameObject.AddComponent<CapsuleCollider>();
+                _collider = GameEntity.AddComponent<CapsuleCollider>();
             }
 
             Bounds bounds = GetMeshBounds();
@@ -205,8 +205,8 @@ namespace Pal3.Game.Actor.Controllers
             }
             else
             {
-                _collider.radius = Mathf.Min(Mathf.Max(
-                        Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) * 0.3f,
+                _collider.radius = MathF.Min(MathF.Max(
+                        MathF.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z) * 0.3f,
                         ACTOR_COLLIDER_RADIUS_MIN),
                     ACTOR_COLLIDER_RADIUS_MAX);
             }
@@ -216,7 +216,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (_rigidbody == null)
             {
-                _rigidbody = gameObject.AddComponent<Rigidbody>();
+                _rigidbody = GameEntity.AddComponent<Rigidbody>();
                 _rigidbody.useGravity = false;
                 _rigidbody.constraints = RigidbodyConstraints.FreezePositionY |
                                          RigidbodyConstraints.FreezeRotation;
@@ -228,12 +228,12 @@ namespace Pal3.Game.Actor.Controllers
 
         private void RenderShadow()
         {
-            _shadow = new GameObject("Shadow");
-            _shadow.transform.SetParent(transform, false);
-            Transform shadowTransform = _shadow.transform;
-            shadowTransform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            shadowTransform.localScale = new Vector3(1.4f, 1.4f, 1f);
-            shadowTransform.localPosition = new Vector3(0f, 0.07f, 0f);
+            _shadow = new GameEntity("Shadow");
+            _shadow.SetParent(GameEntity, worldPositionStays: false);
+            ITransform shadowTransform = _shadow.Transform;
+            shadowTransform.LocalRotation = Quaternion.Euler(90f, 0f, 0f);
+            shadowTransform.LocalScale = new Vector3(1.4f, 1.4f, 1f);
+            shadowTransform.LocalPosition = new Vector3(0f, 0.07f, 0f);
 
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
             _shadowSpriteRenderer.sprite = _resourceProvider.GetShadowSprite();
@@ -253,12 +253,12 @@ namespace Pal3.Game.Actor.Controllers
 
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
-            var emojiGameObject = new GameObject($"Emoji_{emojiType.ToString()}");
-            emojiGameObject.transform.SetParent(transform, false);
-            emojiGameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            emojiGameObject.transform.localPosition = new Vector3(0f, GetActorHeight(), 0f);
+            var emojiGameEntity = new GameEntity($"Emoji_{emojiType.ToString()}");
+            emojiGameEntity.SetParent(GameEntity, worldPositionStays: false);
+            emojiGameEntity.Transform.LocalScale = new Vector3(1.5f, 1.5f, 1.5f);
+            emojiGameEntity.Transform.LocalPosition = new Vector3(0f, GetActorHeight(), 0f);
 
-            var billboardRenderer = emojiGameObject.AddComponent<AnimatedBillboardRenderer>();
+            var billboardRenderer = emojiGameEntity.AddComponent<AnimatedBillboardRenderer>();
             billboardRenderer.Init(sprites, EMOJI_ANIMATION_FPS);
 
             #if PAL3
@@ -272,7 +272,7 @@ namespace Pal3.Game.Actor.Controllers
             yield return billboardRenderer.PlayAnimationAsync(ActorEmojiConstants.AnimationLoopCountInfo[emojiType]);
 
             billboardRenderer.Destroy();
-            emojiGameObject.Destroy();
+            emojiGameEntity.Destroy();
             waiter.CancelWait();
         }
 

@@ -5,15 +5,19 @@
 
 namespace Pal3.Game.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
+    using System.Threading;
     using Common;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Core.Utilities;
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.StaticOrAnimated)]
     public sealed class StaticOrAnimatedObject : SceneObject
@@ -23,19 +27,19 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Should block the player if Parameters[0] is 0
             if (ObjectInfo.Parameters[0] == 0)
             {
-                sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
             }
 
-            sceneGameObject.AddComponent<StaticOrAnimatedObjectController>().Init(ObjectInfo.Parameters);
-            return sceneGameObject;
+            sceneObjectGameEntity.AddComponent<StaticOrAnimatedObjectController>().Init(ObjectInfo.Parameters);
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -53,14 +57,20 @@ namespace Pal3.Game.Scene.SceneObjects
         }
     }
 
-    internal class StaticOrAnimatedObjectController : TickableGameEntityBase
+    internal class StaticOrAnimatedObjectController : TickableGameEntityScript
     {
         private int[] _parameters;
         private Component _effectComponent;
         private float _initYPosition;
+        private CancellationTokenSource _animationCts;
 
         protected override void OnDisableGameEntity()
         {
+            if (_animationCts is {IsCancellationRequested: false})
+            {
+                _animationCts.Cancel();
+            }
+
             _effectComponent.Destroy();
             _effectComponent = null;
         }
@@ -69,25 +79,27 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             _parameters = parameters;
 
-            _initYPosition = transform.localPosition.y;
+            _initYPosition = Transform.LocalPosition.y;
 
             // Randomly play animation if Parameters[1] == 0 for Cvd modeled objects.
             if (_parameters[1] == 0)
             {
-                if (gameObject.GetComponent<CvdModelRenderer>() is {} cvdModelRenderer)
+                if (GameEntity.GetComponent<CvdModelRenderer>() is {} cvdModelRenderer)
                 {
-                    StartCoroutine(PlayAnimationRandomlyAsync(cvdModelRenderer));
+                    _animationCts = new CancellationTokenSource();
+                    StartCoroutine(PlayAnimationRandomlyAsync(cvdModelRenderer, _animationCts.Token));
                 }
             }
         }
 
         // Play animation with random wait time.
-        private IEnumerator PlayAnimationRandomlyAsync(CvdModelRenderer cvdModelRenderer)
+        private IEnumerator PlayAnimationRandomlyAsync(CvdModelRenderer cvdModelRenderer,
+            CancellationToken cancellationToken)
         {
-            while (isActiveAndEnabled)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                yield return new WaitForSeconds(Random.Range(0.5f, 3.5f));
-                if (!isActiveAndEnabled) yield break;
+                yield return new WaitForSeconds(RandomGenerator.Range(0.5f, 3.5f));
+                if (cancellationToken.IsCancellationRequested) yield break;
                 yield return cvdModelRenderer.PlayOneTimeAnimationAsync(true);
             }
         }
@@ -102,19 +114,17 @@ namespace Pal3.Game.Scene.SceneObjects
                 // 2 means the object is animated with constant rotation.
                 case 1:
                 {
-                    Transform currentTransform = transform;
-                    Vector3 currentPosition = currentTransform.localPosition;
-                    transform.localPosition = new Vector3(currentPosition.x,
-                        _initYPosition + Mathf.Sin(Time.time) / 6f,
+                    Vector3 currentPosition = Transform.LocalPosition;
+                    Transform.LocalPosition = new Vector3(currentPosition.x,
+                        _initYPosition + MathF.Sin(Time.time) / 6f,
                         currentPosition.z);
                     break;
                 }
                 case 2:
                 {
-                    Transform currentTransform = transform;
-                    transform.RotateAround(currentTransform.position,
-                        currentTransform.up,
-                        Time.deltaTime * 80f);
+                    Transform.RotateAround(Transform.Position,
+                        Transform.Up,
+                        deltaTime * 80f);
                     break;
                 }
             }

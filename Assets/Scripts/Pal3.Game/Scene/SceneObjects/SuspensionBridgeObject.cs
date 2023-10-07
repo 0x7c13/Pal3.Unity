@@ -12,9 +12,13 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
+    
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.SuspensionBridge)]
     public sealed class SuspensionBridgeObject : SceneObject
@@ -26,10 +30,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Set to final position if the bridge is already activated
             if (ObjectInfo.Times == 0)
@@ -39,7 +43,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 EnableStandingPlatform();
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -54,8 +58,9 @@ namespace Pal3.Game.Scene.SceneObjects
             if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
-                yield return MoveCameraToLookAtPointAsync(GetGameObject().transform.position,
-                    ctx.PlayerActorGameObject);
+                yield return MoveCameraToLookAtPointAsync(
+                    GetGameEntity().Transform.Position,
+                    ctx.PlayerActorGameEntity.Transform);
                 CameraFocusOnObject(ObjectInfo.Id);
             }
 
@@ -83,7 +88,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 size = new Vector3(4.5f, 0.7f, 6f),
             };
 
-            _platformController = GetGameObject().GetOrAddComponent<StandingPlatformController>();
+            _platformController = GetGameEntity().GetOrAddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
         }
 

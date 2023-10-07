@@ -8,7 +8,7 @@ namespace Engine.Renderer
     using Abstraction;
     using UnityEngine;
 
-    public class StaticBillboardRenderer : TickableGameEntityBase
+    public class StaticBillboardRenderer : TickableGameEntityScript
     {
         private Camera _camera;
 
@@ -21,7 +21,7 @@ namespace Engine.Renderer
         {
             Quaternion rotation = _camera.transform.rotation;
             rotation = Quaternion.Euler(0f, rotation.eulerAngles.y, 0f);
-            transform.rotation = rotation;
+            Transform.Rotation = rotation;
         }
     }
 }

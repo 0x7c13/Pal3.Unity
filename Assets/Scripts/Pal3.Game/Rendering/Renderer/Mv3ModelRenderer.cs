@@ -21,12 +21,12 @@ namespace Pal3.Game.Rendering.Renderer
     using Material;
     using Rendering;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     /// <summary>
     /// MV3(.mv3) model renderer
     /// </summary>
-    public class Mv3ModelRenderer : GameEntityBase, IDisposable
+    public class Mv3ModelRenderer : GameEntityScript, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
@@ -40,8 +40,7 @@ namespace Pal3.Game.Rendering.Renderer
         private GameBoxMaterial[] _gbMaterials;
         private Mv3AnimationEvent[] _events;
         private bool[] _textureHasAlphaChannel;
-        private GameObject[] _meshObjects;
-        private Coroutine _animation;
+        private IGameEntity[] _meshEntities;
         private Color _tintColor;
         private string[] _animationName;
         private CancellationTokenSource _animationCts;
@@ -59,7 +58,7 @@ namespace Pal3.Game.Rendering.Renderer
         // Tag node
         private Mv3TagNode[] _tagNodesInfo;
         private uint[][] _tagNodeFrameTicks;
-        private GameObject[] _tagNodes;
+        private IGameEntity[] _tagNodes;
 
         public void Init(Mv3File mv3File,
             IMaterialFactory materialFactory,
@@ -73,7 +72,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             _materialFactory = materialFactory;
             _textureProvider = textureProvider;
-            _tintColor = tintColor ?? Color.white;
+            _tintColor = tintColor ?? Color.White;
 
             _events = mv3File.AnimationEvents;
             _totalGameBoxTicks = mv3File.TotalGameBoxTicks;
@@ -87,7 +86,7 @@ namespace Pal3.Game.Rendering.Renderer
             _materials = new Material[_meshCount][];
             _animationName = new string[_meshCount];
             _frameTicks = new uint[_meshCount][];
-            _meshObjects = new GameObject[_meshCount];
+            _meshEntities = new IGameEntity[_meshCount];
             _tagNodesInfo = mv3File.TagNodes;
             _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
 
@@ -116,7 +115,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (tagNodePolFile != null && _tagNodesInfo is {Length: > 0})
             {
-                _tagNodes = new GameObject[_tagNodesInfo.Length];
+                _tagNodes = new IGameEntity[_tagNodesInfo.Length];
 
                 for (var i = 0; i < _tagNodesInfo.Length; i++)
                 {
@@ -126,7 +125,7 @@ namespace Pal3.Game.Rendering.Renderer
                         continue;
                     }
 
-                    _tagNodes[i] = new GameObject(tagNodePolFile.NodeDescriptions[0].Name);
+                    _tagNodes[i] = new GameEntity(tagNodePolFile.NodeDescriptions[0].Name);
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
                     tagNodeRenderer.Render(tagNodePolFile,
                         tagNodeTextureProvider,
@@ -134,8 +133,8 @@ namespace Pal3.Game.Rendering.Renderer
                         isStaticObject: false,
                         tagNodeTintColor);
 
-                    _tagNodes[i].transform.SetParent(transform, true);
-                    _tagNodes[i].transform.SetLocalPositionAndRotation(
+                    _tagNodes[i].SetParent(GameEntity, worldPositionStays: true);
+                    _tagNodes[i].Transform.SetLocalPositionAndRotation(
                         mv3File.TagNodes[i].TagFrames[0].GameBoxPosition.ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
                         mv3File.TagNodes[i].TagFrames[0].GameBoxRotation.Mv3QuaternionToUnityQuaternion());
                 }
@@ -164,18 +163,18 @@ namespace Pal3.Game.Rendering.Renderer
 
             _frameTicks[index] = ticksArray;
 
-            _meshObjects[index] = new GameObject(mv3Mesh.Name);
+            _meshEntities[index] = new GameEntity(mv3Mesh.Name);
 
-            // Attach BlendFlag and GameBoxMaterial to the GameObject for better debuggability
+            // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var materialInfoPresenter = _meshObjects[index].AddComponent<MaterialInfoPresenter>();
+            var materialInfoPresenter = _meshEntities[index].AddComponent<MaterialInfoPresenter>();
             materialInfoPresenter.blendFlag = _textureHasAlphaChannel[index] ?
                 GameBoxBlendFlag.AlphaBlend :
                 GameBoxBlendFlag.Opaque;
             materialInfoPresenter.material = _gbMaterials[index];
             #endif
 
-            var meshRenderer = _meshObjects[index].AddComponent<StaticMeshRenderer>();
+            var meshRenderer = _meshEntities[index].AddComponent<StaticMeshRenderer>();
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Mv3,
@@ -219,7 +218,7 @@ namespace Pal3.Game.Rendering.Renderer
                 MeshDataBuffer = meshDataBuffer
             };
 
-            _meshObjects[index].transform.SetParent(transform, false);
+            _meshEntities[index].SetParent(GameEntity, worldPositionStays: false);
         }
 
         public void StartAnimation(int loopCount = -1, float fps = -1f)
@@ -233,7 +232,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             _animationCts = new CancellationTokenSource();
             _animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
-            _animation = StartCoroutine(PlayAnimationInternalAsync(loopCount,
+            StartCoroutine(PlayAnimationInternalAsync(loopCount,
                 _animationDelay,
                 _animationCts.Token));
         }
@@ -253,24 +252,22 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void PauseAnimation()
         {
-            if (_animation != null)
+            if (_animationCts is {IsCancellationRequested: false})
             {
                 _animationCts.Cancel();
-                StopCoroutine(_animation);
-                _animation = null;
             }
         }
 
         public bool IsVisible()
         {
-            return _meshObjects != null;
+            return _meshEntities != null;
         }
 
         public Bounds GetRendererBounds()
         {
             if (_renderMeshComponents.Length == 0)
             {
-                return new Bounds(transform.position, Vector3.one);
+                return new Bounds(Transform.Position, Vector3.one);
             }
             Bounds bounds = _renderMeshComponents[0].MeshRenderer.GetRendererBounds();
             for (var i = 1; i < _renderMeshComponents.Length; i++)
@@ -439,7 +436,7 @@ namespace Pal3.Game.Rendering.Renderer
                             _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
                             _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
 
-                        _tagNodes[i].transform.SetLocalPositionAndRotation(position, rotation);
+                        _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
                     }
                 }
 
@@ -485,27 +482,28 @@ namespace Pal3.Game.Rendering.Renderer
                         _materialFactory.ReturnToPool(materials);
                     }
                     renderMeshComponent.Mesh.Destroy();
+                    renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
 
                 _renderMeshComponents = null;
             }
 
-            if (_meshObjects != null)
+            if (_meshEntities != null)
             {
-                foreach (GameObject meshObject in _meshObjects)
+                foreach (IGameEntity meshEntity in _meshEntities)
                 {
-                    meshObject.Destroy();
+                    meshEntity?.Destroy();
                 }
 
-                _meshObjects = null;
+                _meshEntities = null;
             }
 
             if (_tagNodes != null)
             {
-                foreach (GameObject tagNode in _tagNodes)
+                foreach (IGameEntity tagNode in _tagNodes)
                 {
-                    tagNode.Destroy();
+                    tagNode?.Destroy();
                 }
 
                 _tagNodes = null;

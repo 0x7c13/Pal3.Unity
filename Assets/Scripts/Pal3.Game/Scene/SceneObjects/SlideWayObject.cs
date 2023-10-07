@@ -11,9 +11,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Navigation;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.SlideWay)]
     public sealed class SlideWayObject : SceneObject
@@ -28,21 +31,21 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             if (_isInteractionInProgress) return; // Prevent re-entry
             _isInteractionInProgress = true;
@@ -55,7 +58,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            GameObject playerActorGameObject = ctx.PlayerActorGameObject;
+            IGameEntity playerActorGameEntity = ctx.PlayerActorGameEntity;
 
             var waypoints = new Vector3[ObjectInfo.Path.NumberOfWaypoints];
             for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
@@ -63,10 +66,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 waypoints[i] = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
             }
 
-            var movementController = playerActorGameObject.GetComponent<ActorMovementController>();
+            var movementController = playerActorGameEntity.GetComponent<ActorMovementController>();
             movementController.CancelMovement();
 
-            var actorController = playerActorGameObject.GetComponent<ActorController>();
+            var actorController = playerActorGameEntity.GetComponent<ActorController>();
 
             // Temporarily set the speed to a higher value to make the actor slide faster
             actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_SPEED);

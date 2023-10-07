@@ -10,7 +10,7 @@ namespace Pal3.Game.Effect
     using Engine.Extensions;
     using UnityEngine;
 
-    public class CombatEffect : GameEntityBase, IEffect
+    public class CombatEffect : GameEntityScript, IEffect
     {
         #if PAL3
         private const string SHUSHAN_BRIDGE_TEXTURE_NAME = "q08qiao.dds";
@@ -53,7 +53,7 @@ namespace Pal3.Game.Effect
             if (effectParameter == 160) // 蜀山太极桥特效
             #endif
             {
-                _bridgeBaseEffect = gameObject.AddComponent<RotatingSpriteEffect>();
+                _bridgeBaseEffect = GameEntity.AddComponent<RotatingSpriteEffect>();
                 _bridgeBaseEffect.Init(resourceProvider,
                     SHUSHAN_BRIDGE_TEXTURE_NAME,
                     new Vector3(SHUSHAN_BRIDGE_DEFAULT_SIZE,
@@ -61,7 +61,7 @@ namespace Pal3.Game.Effect
                         SHUSHAN_BRIDGE_DEFAULT_SIZE),
                     SHUSHAN_BRIDGE_ANIMATION_ROTATION_SPEED);
 
-                _bridgeEffect = gameObject.AddComponent<RotatingSpriteEffect>();
+                _bridgeEffect = GameEntity.AddComponent<RotatingSpriteEffect>();
                 _bridgeEffect.Init(resourceProvider,
                     SHUSHAN_BRIDGE_EFFECT_TEXTURE_NAME,
                     new Vector3(SHUSHAN_BRIDGE_EFFECT_DEFAULT_SIZE,

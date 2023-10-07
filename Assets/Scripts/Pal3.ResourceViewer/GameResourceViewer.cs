@@ -43,6 +43,7 @@ namespace Pal3.ResourceViewer
     using UnityEngine;
     using UnityEngine.UI;
     using Random = System.Random;
+    using Color = Core.Primitives.Color;
 
     /// <summary>
     /// The PAL3/PAL3A Game Resource Viewer app model
@@ -102,7 +103,7 @@ namespace Pal3.ResourceViewer
             if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
             {
                 RenderSettings.ambientIntensity = 1f;
-                RenderSettings.ambientLight = Color.white;
+                RenderSettings.ambientLight = Color.White.ToUnityColor();
             }
 
             _polFiles = _fileSystem.Search(".pol").ToList();
@@ -261,7 +262,7 @@ namespace Pal3.ResourceViewer
                     textureProvider,
                     _resourceProvider.GetMaterialFactory(),
                     isStaticObject: true,
-                    Color.white);
+                    Color.White);
 
                 consoleTextUI.text = $"{filePath}";
 

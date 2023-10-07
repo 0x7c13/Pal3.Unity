@@ -14,6 +14,7 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
+    using Engine.Abstraction;
     using Scene;
     using Scene.SceneObjects.Common;
     using UnityEngine;
@@ -23,7 +24,7 @@ namespace Pal3.Game.GamePlay
         private const float PLAYER_ACTOR_MOVEMENT_SFX_WALK_VOLUME = 0.6f;
         private const float PLAYER_ACTOR_MOVEMENT_SFX_RUN_VOLUME = 1.0f;
 
-        private void ReadInputAndMovePlayerIfNeeded()
+        private void ReadInputAndMovePlayerIfNeeded(float deltaTime)
         {
             var movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
             if (movement.magnitude <= 0.01f) return;
@@ -31,11 +32,11 @@ namespace Pal3.Game.GamePlay
             MovementMode movementMode = movement.magnitude < 0.7f ? MovementMode.Walk : MovementMode.Run;
             ActorActionType movementAction = movementMode == MovementMode.Walk ? ActorActionType.Walk : ActorActionType.Run;
             _playerActorMovementController.CancelMovement();
-            Transform cameraTransform = _camera.transform;
+            ITransform cameraTransform = _cameraManager.GetCameraTransform();
             Vector2 normalizedDirection = movement.normalized;
-            Vector3 inputDirection = cameraTransform.forward * normalizedDirection.y +
-                                     cameraTransform.right * normalizedDirection.x;
-            MovementResult result = PlayerActorMoveTowards(inputDirection, movementMode);
+            Vector3 inputDirection = cameraTransform.Forward * normalizedDirection.y +
+                                     cameraTransform.Right * normalizedDirection.x;
+            MovementResult result = PlayerActorMoveTowards(inputDirection, movementMode, deltaTime);
             _playerActorActionController.PerformAction(result == MovementResult.Blocked
                 ? ActorActionType.Stand
                 : movementAction);
@@ -45,7 +46,7 @@ namespace Pal3.Game.GamePlay
         {
             if (!_lastInputTapPosition.HasValue) return;
 
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
+            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
@@ -87,7 +88,7 @@ namespace Pal3.Game.GamePlay
             Scene currentScene = _sceneManager.GetCurrentScene();
             var meshColliders = currentScene.GetMeshColliders();
 
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
+            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
 
             var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
             if (hitCount == 0) return;
@@ -113,7 +114,7 @@ namespace Pal3.Game.GamePlay
                     continue;
                 }
 
-                Vector3 cameraPosition = _camera.transform.position;
+                Vector3 cameraPosition = _cameraManager.GetCameraTransform().Position;
                 var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
 
                 if (_tapPoints.ContainsKey(layerIndex))
@@ -143,12 +144,21 @@ namespace Pal3.Game.GamePlay
         /// </summary>
         /// <param name="inputDirection">User input direction in game space</param>
         /// <param name="movementMode">Player actor movement mode</param>
+        /// <param name="deltaTime">Delta time</param>
         /// <returns>MovementResult</returns>
-        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, MovementMode movementMode)
+        private MovementResult PlayerActorMoveTowards(Vector3 inputDirection, MovementMode movementMode, float deltaTime)
         {
-            Vector3 playerActorPosition = _playerActorGameObject.transform.position;
+            Vector3 playerActorPosition = _playerActorGameEntity.Transform.Position;
+
+            float maxDistanceDelta = _playerActor.GetMovementSpeed(movementMode) * deltaTime;
+            float maxRadiansDelta = _playerActor.GetRotationSpeed() * deltaTime;
+
             MovementResult result = _playerActorMovementController.MoveTowards(
-                playerActorPosition + inputDirection, movementMode);
+                playerActorPosition + inputDirection,
+                movementMode,
+                ignoreObstacle: false,
+                maxDistanceDelta,
+                maxRadiansDelta);
 
             if (result != MovementResult.Blocked) return result;
 
@@ -164,14 +174,22 @@ namespace Pal3.Game.GamePlay
                 {
                     Vector3 newDirection = Quaternion.Euler(0f, degrees, 0f) * inputDirection;
                     result = _playerActorMovementController.MoveTowards(
-                        playerActorPosition + newDirection, movementMode);
+                        playerActorPosition + newDirection,
+                        movementMode,
+                        ignoreObstacle: false,
+                        maxDistanceDelta,
+                        maxRadiansDelta);
                     if (result != MovementResult.Blocked) return result;
                 }
                 // - degrees
                 {
                     Vector3 newDirection = Quaternion.Euler(0f, -degrees, 0f) * inputDirection;
                     result = _playerActorMovementController.MoveTowards(
-                        playerActorPosition + newDirection, movementMode);
+                        playerActorPosition + newDirection,
+                        movementMode,
+                        ignoreObstacle: false,
+                        maxDistanceDelta,
+                        maxRadiansDelta);
                     if (result != MovementResult.Blocked) return result;
                 }
             }
@@ -188,8 +206,10 @@ namespace Pal3.Game.GamePlay
                 AudioConstants.MainActorWalkSfxNamePrefix : AudioConstants.MainActorRunSfxNamePrefix;
 
             Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
-            if ((_lastKnownPosition.HasValue && _lastKnownLayerIndex.HasValue) &&
-                tileMap.TryGetTile(_lastKnownPosition.Value, _lastKnownLayerIndex.Value, out NavTile tile))
+            if ((_playerActorManager.LastKnownPosition.HasValue &&
+                 _playerActorManager.LastKnownLayerIndex.HasValue) &&
+                tileMap.TryGetTile(_playerActorManager.LastKnownPosition.Value,
+                    _playerActorManager.LastKnownLayerIndex.Value, out NavTile tile))
             {
                 return tile.FloorType switch
                 {
@@ -239,14 +259,14 @@ namespace Pal3.Game.GamePlay
             if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameObjectRequest(_playerActorGameObject,
+                    new StopSfxPlayingAtGameEntityRequest(_playerActorGameEntity,
                         AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         disposeSource: false));
             }
             else
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new AttachSfxToGameObjectRequest(_playerActorGameObject,
+                    new AttachSfxToGameEntityRequest(_playerActorGameEntity,
                         newMovementSfxAudioFileName,
                         AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         loopCount: -1,

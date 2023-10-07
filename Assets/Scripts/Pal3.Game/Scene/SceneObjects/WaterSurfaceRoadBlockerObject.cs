@@ -13,10 +13,13 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.WaterSurfaceRoadBlocker)]
     public sealed class WaterSurfaceRoadBlockerObject : SceneObject
@@ -31,14 +34,14 @@ namespace Pal3.Game.Scene.SceneObjects
             _sceneManager = ServiceLocator.Instance.Get<SceneManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             UpdateTileMapWhenConditionMet(true);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -49,13 +52,13 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            GameObject waterSurfaceGameObject = GetGameObject();
-            Vector3 finalPosition = waterSurfaceGameObject.transform.position;
+            IGameEntity waterSurfaceGameEntity = GetGameEntity();
+            Vector3 finalPosition = waterSurfaceGameEntity.Transform.Position;
             finalPosition.y = ((float)ObjectInfo.Parameters[0]).ToUnityYPosition();
 
             PlaySfx("wc007");
 
-            yield return waterSurfaceGameObject.transform.MoveAsync(finalPosition,
+            yield return waterSurfaceGameEntity.Transform.MoveAsync(finalPosition,
                 WATER_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

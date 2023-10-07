@@ -10,9 +10,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
+    
+    using Color = Core.Primitives.Color;
 
     #if PAL3
     [ScnSceneObject(SceneObjectType.Collidable)]
@@ -28,15 +30,16 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Don't add a trigger if the object is already collided (SwitchState sets to 1).
             if (ObjectInfo.SwitchState == 0)
             {
-                _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
+                _triggerController = sceneObjectGameEntity.AddComponent<BoundsTriggerController>();
                 _triggerController.SetBounds(GetMeshBounds(), ObjectInfo.IsNonBlocking == 1);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
                 _triggerController.OnPlayerActorExited += OnPlayerActorExited;
@@ -51,14 +54,14 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 if (ObjectInfo.IsNonBlocking == 0)
                 {
-                    _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
                 }
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerGameEntity)
         {
             if (ObjectInfo.SwitchState == 0)
             {
@@ -66,13 +69,13 @@ namespace Pal3.Game.Scene.SceneObjects
             }
         }
 
-        private void OnPlayerActorExited(object sender, GameObject playerGameObject)
+        private void OnPlayerActorExited(object sender, IGameEntity playerGameEntity)
         {
             if (ObjectInfo is {SwitchState: 1, IsNonBlocking: 0})
             {
                 if (_meshCollider == null)
                 {
-                    _meshCollider = GetGameObject().AddComponent<SceneObjectMeshCollider>();
+                    _meshCollider = GetGameEntity().AddComponent<SceneObjectMeshCollider>();
                 }
             }
         }

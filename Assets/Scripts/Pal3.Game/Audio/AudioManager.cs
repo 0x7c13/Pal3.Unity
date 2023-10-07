@@ -18,6 +18,7 @@ namespace Pal3.Game.Audio
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Scene;
     using Settings;
@@ -28,15 +29,16 @@ namespace Pal3.Game.Audio
         ICommandExecutor<PlaySfxCommand>,
         ICommandExecutor<PlayScriptMusicCommand>,
         ICommandExecutor<StopScriptMusicCommand>,
-        ICommandExecutor<AttachSfxToGameObjectRequest>,
-        ICommandExecutor<StopSfxPlayingAtGameObjectRequest>,
+        ICommandExecutor<AttachSfxToGameEntityRequest>,
+        ICommandExecutor<StopSfxPlayingAtGameEntityRequest>,
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ScenePreLoadingNotification>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<ResetGameStateCommand>,
         ICommandExecutor<SettingChangedNotification>
     {
-        private readonly Camera _mainCamera;
+        private readonly IGameEntity _cameraEntity;
+
         private readonly AudioSource _musicPlayer;
         private readonly GameResourceProvider _resourceProvider;
         private readonly SceneManager _sceneManager;
@@ -55,13 +57,13 @@ namespace Pal3.Game.Audio
 
         private CancellationTokenSource _sceneAudioCts = new ();
 
-        public AudioManager(Camera mainCamera,
+        public AudioManager(IGameEntity cameraEntity,
             GameResourceProvider resourceProvider,
             SceneManager sceneManager,
             AudioSource musicSource,
             GameSettings gameSettings)
         {
-            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
+            _cameraEntity = Requires.IsNotNull(cameraEntity, nameof(cameraEntity));;
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _musicPlayer = Requires.IsNotNull(musicSource, nameof(musicSource));
@@ -164,7 +166,7 @@ namespace Pal3.Game.Audio
         }
 
         // Spatial Audio
-        private IEnumerator AttachSfxToGameObjectAndPlaySfxAsync(GameObject parent,
+        private IEnumerator AttachSfxToGameEntityAndPlaySfxAsync(IGameEntity parent,
             string sfxFilePath,
             string audioSourceName,
             int loopCount,
@@ -179,34 +181,29 @@ namespace Pal3.Game.Audio
             yield return _resourceProvider.LoadAudioClipAsync(sfxFilePath, AudioType.WAV, streamAudio: false,
                 audioClip => { sfxAudioClip = audioClip; });
 
-            if (parent == null ||
+            if (parent.IsDisposed ||
                 cancellationToken.IsCancellationRequested ||
                 sfxAudioClip == null) yield break;
 
-            if (parent != _mainCamera.gameObject &&
+            if (parent != _cameraEntity &&
                 audioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName &&
                 _playerMovementSfxInProgress == false)
             {
                 yield break; // Means movement sfx is already stopped before it started due to the delay of the coroutine
             }
 
-            if (parent == _mainCamera.gameObject &&
+            if (parent == _cameraEntity &&
                 !_playingSfxSourceNames.Contains(audioSourceName))
             {
                 yield break; // Means sfx is already stopped before it started due to the delay of the coroutine
             }
 
-            GameObject audioSourceParent;
-            Transform audioSourceParentTransform = parent.transform.Find(audioSourceName);
-            if (audioSourceParentTransform != null)
+            IGameEntity audioSourceParent = parent.FindChild(audioSourceName);
+            if (audioSourceParent == null)
             {
-                audioSourceParent = audioSourceParentTransform.gameObject;
-            }
-            else
-            {
-                audioSourceParent = new GameObject(audioSourceName);
-                audioSourceParent.transform.parent = parent.transform;
-                audioSourceParent.transform.position = parent.transform.position;
+                audioSourceParent = new GameEntity(audioSourceName);
+                audioSourceParent.SetParent(parent, worldPositionStays: true);
+                audioSourceParent.Transform.Position = parent.Transform.Position;
             }
 
             var audioSource = audioSourceParent.GetOrAddComponent<AudioSource>();
@@ -262,16 +259,15 @@ namespace Pal3.Game.Audio
         private void DestroyAllSfxAudioSource()
         {
             // Destroy current playing sfx
-            foreach (Transform audioSourceParentTransform in _playingSfxSourceNames
-                         .Select(sfxName => _mainCamera.transform.Find(sfxName))
-                         .Where(audioSourceParentTransform => audioSourceParentTransform != null))
+            foreach (IGameEntity audioSourceParent in _playingSfxSourceNames
+                         .Select(sfxName => _cameraEntity.FindChild(sfxName)))
             {
-                if (audioSourceParentTransform.GetComponent<AudioSource>() is { } audioSource)
+                if (audioSourceParent?.GetComponent<AudioSource>() is { } audioSource)
                 {
                     audioSource.Stop();
                 }
 
-                audioSourceParentTransform.gameObject.Destroy();
+                audioSourceParent?.Destroy();
             }
 
             _playingSfxSourceNames.Clear();
@@ -279,11 +275,10 @@ namespace Pal3.Game.Audio
 
         private void ChangeAllSfxAudioSourceMuteSetting(bool mute)
         {
-            foreach (Transform audioSourceParentTransform in _playingSfxSourceNames
-                         .Select(sfxName => _mainCamera.transform.Find(sfxName))
-                         .Where(audioSourceParentTransform => audioSourceParentTransform != null))
+            foreach (IGameEntity audioSourceParent in _playingSfxSourceNames
+                         .Select(sfxName => _cameraEntity.FindChild(sfxName)))
             {
-                if (audioSourceParentTransform.GetComponent<AudioSource>() is { } audioSource)
+                if (audioSourceParent?.GetComponent<AudioSource>() is { } audioSource)
                 {
                     audioSource.mute = mute;
                 }
@@ -316,7 +311,8 @@ namespace Pal3.Game.Audio
             {
                 case 0: // start playing sfx indefinitely for the given sfxName
                     _playingSfxSourceNames.Add(sfxName);
-                    Pal3.Instance.StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
+                    Pal3.Instance.StartCoroutine(AttachSfxToGameEntityAndPlaySfxAsync(
+                        _cameraEntity,
                         _resourceProvider.GetSfxFilePath(sfxName),
                         sfxName, // use sfx name as audio source name
                         loopCount: -1, // loop indefinitely
@@ -326,8 +322,8 @@ namespace Pal3.Game.Audio
                     break;
                 case -1: // stop playing sfx by sfxName
                     _playingSfxSourceNames.Remove(sfxName);
-                    Execute(new StopSfxPlayingAtGameObjectRequest(
-                        _mainCamera.gameObject,
+                    Execute(new StopSfxPlayingAtGameEntityRequest(
+                        _cameraEntity,
                         sfxName,
                         disposeSource: true));
                     break;
@@ -336,7 +332,8 @@ namespace Pal3.Game.Audio
                     _playingSfxSourceNames.Add(sfxName);
                     var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
                     CancellationToken cancellationToken = _sceneAudioCts.Token;
-                    Pal3.Instance.StartCoroutine(AttachSfxToGameObjectAndPlaySfxAsync(_mainCamera.gameObject,
+                    Pal3.Instance.StartCoroutine(AttachSfxToGameEntityAndPlaySfxAsync(
+                        _cameraEntity,
                         sfxFilePath,
                         sfxName, // use sfx name as audio source name
                         loopCount,
@@ -348,7 +345,7 @@ namespace Pal3.Game.Audio
             }
         }
 
-        public void Execute(AttachSfxToGameObjectRequest request)
+        public void Execute(AttachSfxToGameEntityRequest request)
         {
             if (request.AudioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName)
             {
@@ -358,7 +355,7 @@ namespace Pal3.Game.Audio
             var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
             Pal3.Instance.StartCoroutine(StartWithDelayAsync(request.StartDelayInSeconds,
-                AttachSfxToGameObjectAndPlaySfxAsync(request.Parent,
+                AttachSfxToGameEntityAndPlaySfxAsync(request.Parent,
                     sfxFilePath,
                     request.AudioSourceName,
                     request.LoopCount,
@@ -368,17 +365,18 @@ namespace Pal3.Game.Audio
                 cancellationToken));
         }
 
-        public void Execute(StopSfxPlayingAtGameObjectRequest command)
+        public void Execute(StopSfxPlayingAtGameEntityRequest command)
         {
             if (command.AudioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName)
             {
                 _playerMovementSfxInProgress = false;
             }
 
-            Transform audioSourceParentTransform = command.Parent.transform.Find(command.AudioSourceName);
-            if (audioSourceParentTransform == null) return;
+            if (command.Parent == null || command.Parent.IsDisposed) return;
 
-            GameObject audioSourceParent = audioSourceParentTransform.gameObject;
+            IGameEntity audioSourceParent = command.Parent.FindChild(command.AudioSourceName);
+            if (audioSourceParent == null) return;
+
             var audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
             if (audioSource == default) return;
 

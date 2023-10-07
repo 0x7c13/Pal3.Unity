@@ -12,6 +12,7 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Renderer;
@@ -28,14 +29,14 @@ namespace Pal3.Game.GamePlay
 
         private int _jumpableAreaEnterCount;
 
-        private GameObject _jumpIndicatorGameObject;
+        private IGameEntity _jumpIndicatorGameEntity;
         private AnimatedBillboardRenderer _jumpIndicatorRenderer;
 
         private void JumpToTapPosition()
         {
             if (!_lastInputTapPosition.HasValue) return;
 
-            Ray ray = _camera.ScreenPointToRay(_lastInputTapPosition.Value);
+            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
 
             if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
@@ -48,17 +49,17 @@ namespace Pal3.Game.GamePlay
 
         public void PlayerActorEnteredJumpableArea()
         {
-            if (_jumpIndicatorGameObject == null)
+            if (_jumpIndicatorGameEntity == null)
             {
                 var sprites = _resourceProvider.GetJumpIndicatorSprites();
 
-                _jumpIndicatorGameObject = new GameObject($"JumpIndicator");
-                _jumpIndicatorGameObject.transform.SetParent(_playerActorGameObject.transform, false);
-                _jumpIndicatorGameObject.transform.localScale = new Vector3(3f, 3f, 3f);
-                _jumpIndicatorGameObject.transform.localPosition = new Vector3(0f,
+                _jumpIndicatorGameEntity = new GameEntity($"JumpIndicator");
+                _jumpIndicatorGameEntity.SetParent(_playerActorGameEntity, worldPositionStays: false);
+                _jumpIndicatorGameEntity.Transform.LocalScale = new Vector3(3f, 3f, 3f);
+                _jumpIndicatorGameEntity.Transform.LocalPosition = new Vector3(0f,
                     _playerActorActionController.GetActorHeight() + 1f, 0f);
 
-                _jumpIndicatorRenderer = _jumpIndicatorGameObject.AddComponent<AnimatedBillboardRenderer>();
+                _jumpIndicatorRenderer = _jumpIndicatorGameEntity.AddComponent<AnimatedBillboardRenderer>();
                 _jumpIndicatorRenderer.Init(sprites, 4);
             }
 
@@ -96,10 +97,10 @@ namespace Pal3.Game.GamePlay
                 _jumpIndicatorRenderer = null;
             }
 
-            if (_jumpIndicatorGameObject != null)
+            if (_jumpIndicatorGameEntity != null)
             {
-                _jumpIndicatorGameObject.Destroy();
-                _jumpIndicatorGameObject = null;
+                _jumpIndicatorGameEntity.Destroy();
+                _jumpIndicatorGameEntity = null;
             }
         }
 
@@ -123,7 +124,7 @@ namespace Pal3.Game.GamePlay
                     distanceToObstacle = tile.DistanceToNearestObstacle;
                     yPosition = tile.GameBoxYPosition.ToUnityYPosition();
 
-                    if (Mathf.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
+                    if (MathF.Abs(yPosition - currentPosition.y) > MAX_JUMP_Y_DIFFERENTIAL) return false;
 
                     if (currentScene.IsPositionInsideJumpableArea(layerIndex, tilePosition))
                     {
@@ -144,14 +145,14 @@ namespace Pal3.Game.GamePlay
                 return false;
             }
 
-            Vector3 jumpDirection = _playerActorGameObject.transform.forward;
+            Vector3 jumpDirection = _playerActorGameEntity.Transform.Forward;
 
             if (jumpTargetPosition != null)
             {
-                jumpDirection = jumpTargetPosition.Value - _playerActorGameObject.transform.position;
+                jumpDirection = jumpTargetPosition.Value - _playerActorGameEntity.Transform.Position;
                 jumpDirection.y = 0f;
                 jumpDirection.Normalize();
-                _playerActorGameObject.transform.forward = jumpDirection;
+                _playerActorGameEntity.Transform.Forward = jumpDirection;
             }
 
             var validJumpTargetPositions = new List<(Vector3 position, int layerIndex, int distanceToObstacle)>();
@@ -210,7 +211,7 @@ namespace Pal3.Game.GamePlay
                 {
                     Vector3 calculatedPosition = currentPosition + jumpDirection * (xzOffset * value);
                     calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
-                    _playerActorGameObject.transform.position = calculatedPosition;
+                    _playerActorGameEntity.Transform.Position = calculatedPosition;
                 });
             yield return new WaitForSeconds(0.7f);
 

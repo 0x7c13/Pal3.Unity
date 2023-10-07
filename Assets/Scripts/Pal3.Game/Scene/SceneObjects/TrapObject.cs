@@ -15,10 +15,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.Trap)]
     public sealed class TrapObject : SceneObject
@@ -30,11 +32,11 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Make trap trigger rect a bit smaller for better game experience
             GameBoxRect triggerRect = new()
@@ -45,14 +47,14 @@ namespace Pal3.Game.Scene.SceneObjects
                 Bottom = ObjectInfo.TileMapTriggerRect.Bottom - 1
             };
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(triggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             RequestForInteraction();
         }
@@ -73,7 +75,7 @@ namespace Pal3.Game.Scene.SceneObjects
             #endif
 
             // Let player actor fall down
-            if (ctx.PlayerActorGameObject.GetComponent<Rigidbody>() is { } rigidbody)
+            if (ctx.PlayerActorGameEntity.GetComponent<Rigidbody>() is { } rigidbody)
             {
                 rigidbody.useGravity = true;
                 rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -87,9 +89,9 @@ namespace Pal3.Game.Scene.SceneObjects
             else
             {
                 #if PAL3A
-                Transform transform = GetGameObject().transform;
+                ITransform transform = GetGameEntity().Transform;
                 float yOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
-                Vector3 finalPosition = transform.position + new Vector3(0f, -yOffset, 0f);
+                Vector3 finalPosition = transform.Position + new Vector3(0f, -yOffset, 0f);
                 yield return transform.MoveAsync(finalPosition, 0.5f);
                 #endif
             }

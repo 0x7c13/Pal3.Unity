@@ -20,11 +20,13 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
@@ -51,11 +53,11 @@ namespace Pal3.Game.Scene.SceneObjects
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds meshBounds = GetMeshBounds();
 
@@ -70,7 +72,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 };
             }
 
-            _triggerController = sceneGameObject.AddComponent<BoundsTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<BoundsTriggerController>();
             _triggerController.SetBounds(meshBounds, false);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
@@ -88,10 +90,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 // to block player from walking over the box without pushing it
                 if (ObjectInfo.Id == 13)
                 {
-                    Vector3 currentPosition = sceneGameObject.transform.position;
-                    if (Math.Abs(currentPosition.x - (-49.04671f)) < 0.01f)
+                    Vector3 currentPosition = sceneObjectGameEntity.Transform.Position;
+                    if (MathF.Abs(currentPosition.x - (-49.04671f)) < 0.01f)
                     {
-                        sceneGameObject.transform.position = new Vector3(-47.5f,
+                        sceneObjectGameEntity.Transform.Position = new Vector3(-47.5f,
                             currentPosition.y,
                             currentPosition.z);
                     }
@@ -99,19 +101,19 @@ namespace Pal3.Game.Scene.SceneObjects
                     platformBounds.size = new Vector3(1.3f, 0.7f, 3.5f);
                 }
 
-                _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
+                _standingPlatformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
                 _standingPlatformController.Init(platformBounds, ObjectInfo.LayerIndex, -0.4f);
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
-            GameObject pushableObject = GetGameObject();
+            IGameEntity pushableEntity = GetGameEntity();
 
             // Don't allow player to push object if it's not on the same "layer"
-            if (Math.Abs(playerGameObject.transform.position.y - pushableObject.transform.position.y) > 1f)
+            if (MathF.Abs(playerActorGameEntity.Transform.Position.y - pushableEntity.Transform.Position.y) > 1f)
             {
                 return;
             }
@@ -119,8 +121,8 @@ namespace Pal3.Game.Scene.SceneObjects
             if (_isInteractionInProgress) return;
             _isInteractionInProgress = true;
 
-            Vector3 playerActorPosition =  playerGameObject.transform.position;
-            Vector3 pushableObjectPosition = pushableObject.transform.position;
+            Vector3 playerActorPosition = playerActorGameEntity.Transform.Position;
+            Vector3 pushableObjectPosition = pushableEntity.Transform.Position;
 
             Bounds bounds = GetMeshBounds();
             float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
@@ -148,12 +150,12 @@ namespace Pal3.Game.Scene.SceneObjects
         private Vector3 GetClosetMovableDirection(Vector3 vector)
         {
             List<Vector3> validPushingDirections;
-            GameObject pushableObject = GetGameObject();
+            IGameEntity pushableEntity = GetGameEntity();
 
             // Bi-directional pushable object
             if (ObjectInfo.Parameters[0] == 2)
             {
-                Vector3 forwardDirection = pushableObject.transform.forward;
+                Vector3 forwardDirection = pushableEntity.Transform.Forward;
                 validPushingDirections = new List<Vector3>()
                 {
                     forwardDirection,
@@ -162,8 +164,8 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else // Normal pushable object
             {
-                Vector3 forwardDirection = pushableObject.transform.forward;
-                Vector3 rightDirection = pushableObject.transform.right;
+                Vector3 forwardDirection = pushableEntity.Transform.Forward;
+                Vector3 rightDirection = pushableEntity.Transform.Right;
                 validPushingDirections = new List<Vector3>()
                 {
                     forwardDirection,
@@ -197,22 +199,22 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            GameObject pushableObject = GetGameObject();
-            Transform playerActorTransform =  ctx.PlayerActorGameObject.transform;
-            Transform pushableObjectTransform = pushableObject.transform;
+            IGameEntity pushableEntity = GetGameEntity();
+            ITransform playerActorTransform =  ctx.PlayerActorGameEntity.Transform;
+            ITransform pushableObjectTransform = pushableEntity.Transform;
 
             Bounds bounds = GetMeshBounds();
             float movingDistance = (bounds.size.x + bounds.size.z) / 2f;
 
-            Vector3 relativeDirection = pushableObjectTransform.position - playerActorTransform.position;
+            Vector3 relativeDirection = pushableObjectTransform.Position - playerActorTransform.Position;
             relativeDirection.y = 0f; // Ignore y axis
             Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
 
             // Move player actor to holding position
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
             actorMovementController.CancelMovement();
-            Vector3 actorHoldingPosition = pushableObjectTransform.position + -movingDirection * (movingDistance * 0.8f);
-            actorHoldingPosition.y = playerActorTransform.position.y;
+            Vector3 actorHoldingPosition = pushableObjectTransform.Position + -movingDirection * (movingDistance * 0.8f);
+            actorHoldingPosition.y = playerActorTransform.Position.y;
             yield return actorMovementController.MoveDirectlyToAsync(actorHoldingPosition, 0, false);
 
             Vector3 actorCurrentPosition = actorMovementController.GetWorldPosition();
@@ -223,21 +225,21 @@ namespace Pal3.Game.Scene.SceneObjects
                 yield break; // Actor cannot reach the holding position, abort.
             }
 
-            playerActorTransform.forward = movingDirection;
-            var actorActionController = ctx.PlayerActorGameObject.GetComponent<ActorActionController>();
+            playerActorTransform.Forward = movingDirection;
+            var actorActionController = ctx.PlayerActorGameEntity.GetComponent<ActorActionController>();
             actorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Push],
                 overwrite: true, loopCount: -1);
 
-            Vector3 actorInitPosition = playerActorTransform.position;
-            Vector3 objectInitPosition = pushableObjectTransform.position;
+            Vector3 actorInitPosition = playerActorTransform.Position;
+            Vector3 objectInitPosition = pushableObjectTransform.Position;
 
             PlaySfx("we025", 3);
 
             yield return CoreAnimation.EnumerateValueAsync(0f, movingDistance, PUSH_ANIMATION_DURATION,
                 AnimationCurveType.Linear, value =>
                 {
-                    pushableObjectTransform.position = objectInitPosition + movingDirection * value;
-                    playerActorTransform.position = actorInitPosition + movingDirection * value;
+                    pushableObjectTransform.Position = objectInitPosition + movingDirection * value;
+                    playerActorTransform.Position = actorInitPosition + movingDirection * value;
                 });
 
             // Move player actor back a bit to avoid collision with the pushable object again.
@@ -278,7 +280,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private bool CanPushTo(Vector3 direction, float distance)
         {
-            GameObject pushableObject = GetGameObject();
+            IGameEntity pushableEntity = GetGameEntity();
 
             // Bi-directional pushable object
             if (ObjectInfo.Parameters[0] == 2)
@@ -287,7 +289,7 @@ namespace Pal3.Game.Scene.SceneObjects
                         SceneInfo.SceneName, ObjectInfo.Id, out SceneObjectStateOverride state) &&
                     state.BidirectionalPushableObjectState.HasValue)
                 {
-                    Vector3 pushableObjectForwardDirection = pushableObject.transform.forward;
+                    Vector3 pushableObjectForwardDirection = pushableEntity.Transform.Forward;
 
                     bool canPush = state.BidirectionalPushableObjectState.Value switch
                     {
@@ -301,7 +303,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 }
 
                 _bidiPushableGoalState = _bidiPushableCurrentState +
-                                         (pushableObject.transform.forward == direction ? 1 : -1);
+                                         (pushableEntity.Transform.Forward == direction ? 1 : -1);
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
@@ -334,7 +336,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 }
 
                 // Check if target position is within the scene bounds
-                Vector3 targetPosition = pushableObject.transform.position + direction * distance;
+                Vector3 targetPosition = pushableEntity.Transform.Position + direction * distance;
                 if (!_tilemap.TryGetTile(targetPosition, ObjectInfo.LayerIndex, out NavTile tile) ||
                     !tile.IsWalkable())
                 {
@@ -347,7 +349,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private bool IsDirectionBlockedByOtherObjects(Vector3 direction, float distanceCheckRange)
         {
-            GameObject pushableObject = GetGameObject();
+            IGameEntity pushableEntity = GetGameEntity();
 
             Bounds meshBounds = GetMeshBounds();
             Bounds rendererBounds = GetRendererBounds();
@@ -370,13 +372,13 @@ namespace Pal3.Game.Scene.SceneObjects
 
                     // Ignore raycast only objects (NavMesh in this case) or self
                     if (colliderObject.layer == raycastOnlyLayer ||
-                        colliderObject.gameObject == pushableObject)
+                        colliderObject.gameObject == pushableEntity.GetUnityGameObject())
                     {
                         continue;
                     }
 
                     // Can't push if there is an object in front of it within the distance
-                    if (Vector3.Distance(pushableObject.transform.position,
+                    if (Vector3.Distance(pushableEntity.Transform.Position,
                             colliderObject.transform.position) < distanceCheckRange)
                     {
                         return true;

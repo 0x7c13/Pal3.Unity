@@ -5,6 +5,7 @@
 
 namespace Pal3.Game.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using Actor.Controllers;
     using Common;
@@ -16,13 +17,18 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Primitives;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Services;
     using GamePlay;
     using Rendering.Material;
     using Rendering.Renderer;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.Climbable)]
     public sealed class ClimbableObject : SceneObject
@@ -35,8 +41,9 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private CvdModelRenderer _upperInteractionIndicatorRenderer;
         private CvdModelRenderer _lowerInteractionIndicatorRenderer;
-        private GameObject _upperInteractionIndicatorGameObject;
-        private GameObject _lowerInteractionIndicatorGameObject;
+
+        private IGameEntity _upperInteractionIndicatorGameEntity;
+        private IGameEntity _lowerInteractionIndicatorGameEntity;
 
         public ClimbableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
@@ -51,17 +58,17 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
-            UnityEngine.Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            Vector3 climbablePosition = sceneGameObject.transform.position;
+            Vector3 climbablePosition = sceneObjectGameEntity.Transform.Position;
             Bounds bounds = GetRendererBounds();
 
             Vector3 upperPosition = new Vector3(climbablePosition.x, bounds.max.y, climbablePosition.z) +
-                                    sceneGameObject.transform.forward * 0.7f;
+                                    sceneObjectGameEntity.Transform.Forward * 0.7f;
 
             IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
 
@@ -72,11 +79,11 @@ namespace Pal3.Game.Scene.SceneObjects
 
             // Upper indicator
             {
-                _upperInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Upper");
-                _upperInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
-                _upperInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, -1f, 1f);
-                _upperInteractionIndicatorGameObject.transform.position = upperPosition;
-                _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _upperInteractionIndicatorGameEntity = new GameEntity("Climbable_Interaction_Indicator_Upper");
+                _upperInteractionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _upperInteractionIndicatorGameEntity.Transform.LocalScale = new Vector3(1f, -1f, 1f);
+                _upperInteractionIndicatorGameEntity.Transform.Position = upperPosition;
+                _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _upperInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
                     materialFactory,
@@ -85,15 +92,15 @@ namespace Pal3.Game.Scene.SceneObjects
             }
 
             Vector3 lowerPosition = new Vector3(climbablePosition.x, bounds.min.y + 1f, climbablePosition.z) +
-                                    sceneGameObject.transform.forward * 0.7f;
+                                    sceneObjectGameEntity.Transform.Forward * 0.7f;
 
             // Lower indicator
             {
-                _lowerInteractionIndicatorGameObject = new GameObject("Climbable_Interaction_Indicator_Lower");
-                _lowerInteractionIndicatorGameObject.transform.SetParent(sceneGameObject.transform, false);
-                _lowerInteractionIndicatorGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-                _lowerInteractionIndicatorGameObject.transform.position = lowerPosition;
-                _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameObject.AddComponent<CvdModelRenderer>();
+                _lowerInteractionIndicatorGameEntity = new GameEntity("Climbable_Interaction_Indicator_Lower");
+                _lowerInteractionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _lowerInteractionIndicatorGameEntity.Transform.LocalScale = new Vector3(1f, 1f, 1f);
+                _lowerInteractionIndicatorGameEntity.Transform.Position = lowerPosition;
+                _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _lowerInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
                     materialFactory,
@@ -101,7 +108,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _lowerInteractionIndicatorRenderer.LoopAnimation();
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
@@ -123,10 +130,10 @@ namespace Pal3.Game.Scene.SceneObjects
             var toTilePosition = new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
             var crossLayer = ObjectInfo.Parameters[4] == 1;
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
-            GameObject climbableObject = GetGameObject();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            IGameEntity climbableGameEntity = GetGameEntity();
 
-            Vector3 climbableObjectPosition = climbableObject.transform.position;
+            Vector3 climbableObjectPosition = climbableGameEntity.Transform.Position;
             Vector3 climbableObjectFacing = new GameBoxVector3(0f, ObjectInfo.GameBoxYRotation, 0f)
                 .ToUnityQuaternion() * Vector3.forward;
 
@@ -167,12 +174,12 @@ namespace Pal3.Game.Scene.SceneObjects
             lowerPosition.y = lowerStandingPosition.y;
 
             Vector3 playerActorPosition = actorMovementController.GetWorldPosition();
-            var climbUp = Mathf.Abs(playerActorPosition.y - lowerPosition.y) <
-                              Mathf.Abs(playerActorPosition.y - upperPosition.y);
+            var climbUp = MathF.Abs(playerActorPosition.y - lowerPosition.y) <
+                              MathF.Abs(playerActorPosition.y - upperPosition.y);
 
             var climbableHeight = upperPosition.y - lowerPosition.y;
 
-            yield return _playerGamePlayManager.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
+            yield return _playerGamePlayManager.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableGameEntity,
                 climbUp,
                 false,
                 climbableHeight,
@@ -200,16 +207,16 @@ namespace Pal3.Game.Scene.SceneObjects
                 _lowerInteractionIndicatorRenderer = null;
             }
 
-            if (_upperInteractionIndicatorGameObject != null)
+            if (_upperInteractionIndicatorGameEntity != null)
             {
-                _upperInteractionIndicatorGameObject.Destroy();
-                _upperInteractionIndicatorGameObject = null;
+                _upperInteractionIndicatorGameEntity.Destroy();
+                _upperInteractionIndicatorGameEntity = null;
             }
 
-            if (_lowerInteractionIndicatorGameObject != null)
+            if (_lowerInteractionIndicatorGameEntity != null)
             {
-                _lowerInteractionIndicatorGameObject.Destroy();
-                _lowerInteractionIndicatorGameObject = null;
+                _lowerInteractionIndicatorGameEntity.Destroy();
+                _lowerInteractionIndicatorGameEntity = null;
             }
 
             base.Deactivate();

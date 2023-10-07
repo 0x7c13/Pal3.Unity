@@ -244,6 +244,18 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UnityEngine.Vector2Int ToUnityVector2Int(this GameBoxVector2Int gameBoxVector2Int)
+        {
+            return new UnityEngine.Vector2Int(gameBoxVector2Int.X, gameBoxVector2Int.Y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GameBoxVector2Int ToGameBoxVector2Int(this UnityEngine.Vector2Int vector2Int)
+        {
+            return new GameBoxVector2Int(vector2Int.x, vector2Int.y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Vector2[] ToUnityVector2s(this GameBoxVector2[] gameBoxVector2s)
         {
             if (gameBoxVector2s == null) return null;

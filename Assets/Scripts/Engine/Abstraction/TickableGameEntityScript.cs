@@ -7,31 +7,7 @@ namespace Engine.Abstraction
 {
     using UnityEngine;
 
-    public abstract class GameEntityBase : MonoBehaviour
-    {
-        protected virtual void OnEnableGameEntity() {}
-
-        protected virtual void OnDisableGameEntity() {}
-
-        protected virtual void OnDestroyGameEntity() {}
-
-        private void OnEnable()
-        {
-            OnEnableGameEntity();
-        }
-
-        private void OnDisable()
-        {
-            OnDisableGameEntity();
-        }
-
-        private void OnDestroy()
-        {
-            OnDestroyGameEntity();
-        }
-    }
-
-    public abstract class TickableGameEntityBase : GameEntityBase
+    public abstract class TickableGameEntityScript : GameEntityScript
     {
         protected virtual void OnUpdateGameEntity(float deltaTime) {}
 
@@ -44,7 +20,7 @@ namespace Engine.Abstraction
             OnUpdateGameEntity(Time.deltaTime);
         }
 
-        protected void LateUpdate()
+        private void LateUpdate()
         {
             OnLateUpdateGameEntity(Time.deltaTime);
         }

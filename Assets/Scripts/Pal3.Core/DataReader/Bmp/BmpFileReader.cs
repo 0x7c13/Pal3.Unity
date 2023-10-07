@@ -94,8 +94,8 @@ namespace Pal3.Core.DataReader.Bmp
         public uint NPaletteColors;
         public uint NImportantColors;
 
-        public int AbsWidth { get { return Math.Abs(Width); } }
-        public int AbsHeight { get { return Math.Abs(Height); } }
+        public int AbsWidth => Math.Abs(Width);
+        public int AbsHeight => Math.Abs(Height);
     }
 
     public sealed class BmpFileReader

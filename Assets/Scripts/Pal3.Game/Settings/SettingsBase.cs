@@ -98,7 +98,7 @@ namespace Pal3.Game.Settings
             get => _resolutionScale;
             internal set
             {
-                if (Math.Abs(_resolutionScale - value) > float.Epsilon && value is > 0 and <= 1.0f)
+                if (MathF.Abs(_resolutionScale - value) > float.Epsilon && value is > 0 and <= 1.0f)
                 {
                     _resolutionScale = value;
                     SettingsStore.Set(nameof(ResolutionScale), value);
@@ -113,7 +113,7 @@ namespace Pal3.Game.Settings
             get => _musicVolume;
             internal set
             {
-                if (Math.Abs(_musicVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
+                if (MathF.Abs(_musicVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
                 {
                     _musicVolume = value;
                     SettingsStore.Set(nameof(MusicVolume), value);
@@ -128,7 +128,7 @@ namespace Pal3.Game.Settings
             get => _sfxVolume;
             internal set
             {
-                if (Math.Abs(_sfxVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
+                if (MathF.Abs(_sfxVolume - value) > float.Epsilon && value is >= 0 and <= 1.0f)
                 {
                     _sfxVolume = value;
                     SettingsStore.Set(nameof(SfxVolume), value);

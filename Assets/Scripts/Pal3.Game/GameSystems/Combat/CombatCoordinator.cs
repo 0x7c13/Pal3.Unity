@@ -21,6 +21,7 @@ namespace Pal3.Game.GameSystems.Combat
     using Core.DataReader.Txt;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Logging;
     using GamePlay;
     using Scene;
@@ -165,8 +166,8 @@ namespace Pal3.Game.GameSystems.Combat
             var floorType = FloorType.Default;
 
             PlayerActorId actorId = _playerActorManager.GetPlayerActor();
-            GameObject playerActorGo = currentScene.GetActorGameObject((int) actorId);
-            var playerActorMovementController = playerActorGo.GetComponent<ActorMovementController>();
+            IGameEntity playerActorEntity = currentScene.GetActorGameEntity((int) actorId);
+            var playerActorMovementController = playerActorEntity.GetComponent<ActorMovementController>();
             Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
             int playerActorLayerIndex = playerActorMovementController.GetCurrentLayerIndex();
 
@@ -316,8 +317,8 @@ namespace Pal3.Game.GameSystems.Combat
 
                 var currentScene = _sceneManager.GetCurrentScene();
                 var combatActor = currentScene.GetActor(command.CombatActorId);
-                var playerTransform = currentScene.GetActorGameObject(command.PlayerActorId).transform;
-                var enemyTransform = currentScene.GetActorGameObject(command.CombatActorId).transform;
+                var playerTransform = currentScene.GetActorGameEntity(command.PlayerActorId).Transform;
+                var enemyTransform = currentScene.GetActorGameEntity(command.CombatActorId).Transform;
 
                 _currentCombatContext.SetMeetType(CalculateMeetType(playerTransform, enemyTransform));
 
@@ -334,22 +335,22 @@ namespace Pal3.Game.GameSystems.Combat
             }
         }
 
-        private MeetType CalculateMeetType(Transform playerTransform, Transform enemyTransform)
+        private MeetType CalculateMeetType(ITransform playerTransform, ITransform enemyTransform)
         {
-            Vector3 relativePosition = playerTransform.position - enemyTransform.position;
+            Vector3 relativePosition = playerTransform.Position - enemyTransform.Position;
 
             // Normalize the vector for more accurate dot product
             relativePosition.Normalize();
 
-            if (Vector3.Dot(playerTransform.forward, -enemyTransform.forward) > 0.7f)
+            if (Vector3.Dot(playerTransform.Forward, -enemyTransform.Forward) > 0.7f)
             {
                 return MeetType.RunningIntoEachOther;
             }
-            else if (Vector3.Dot(playerTransform.forward, -relativePosition) > 0.7f)
+            else if (Vector3.Dot(playerTransform.Forward, -relativePosition) > 0.7f)
             {
                 return MeetType.PlayerChasingEnemy;
             }
-            else if (Vector3.Dot(enemyTransform.forward, relativePosition) > 0.7f)
+            else if (Vector3.Dot(enemyTransform.Forward, relativePosition) > 0.7f)
             {
                 return MeetType.EnemyChasingPlayer;
             }

@@ -13,7 +13,7 @@ namespace Pal3.Game.Rendering.Material
     using Engine.Logging;
     using UnityEngine;
     using UnityEngine.Rendering;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     /// <summary>
     /// Lit material factory for generating materials

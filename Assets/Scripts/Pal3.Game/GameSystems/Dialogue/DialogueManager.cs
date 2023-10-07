@@ -199,7 +199,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             string text,
             float waitSecondsBeforeRenderingChar = 0.04f)
         {
-            if (waitSecondsBeforeRenderingChar < Mathf.Epsilon)
+            if (waitSecondsBeforeRenderingChar < float.Epsilon)
             {
                 dialogueTextUI.text = text;
             }

@@ -12,8 +12,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Common;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Engine.Abstraction;
     using Engine.Animation;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.WaterSurface)]
     public sealed class WaterSurfaceObject : SceneObject
@@ -36,8 +38,8 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfxIfAny();
 
-            Transform transform = GetGameObject().transform;
-            Vector3 finalPosition = transform.position;
+            ITransform transform = GetGameEntity().Transform;
+            Vector3 finalPosition = transform.Position;
             finalPosition += new Vector3(0f, -WATER_DESCEND_HEIGHT, 0f);
 
             yield return transform.MoveAsync(finalPosition,

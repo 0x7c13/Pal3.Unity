@@ -12,8 +12,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Command;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Core.Utilities;
     using Data;
-    using UnityEngine;
+    using Engine.Abstraction;
+
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.SceneSfx)]
     public sealed class SceneSfxObject : SceneObject
@@ -29,22 +32,22 @@ namespace Pal3.Game.Scene.SceneObjects
             SfxName = objectInfo.Name;
         }
 
-        public override GameObject Activate(GameResourceProvider gameResourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider gameResourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(gameResourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(gameResourceProvider, tintColor);
 
             // We want some random delay before playing the scene sfx
             // since there might be more than one audio source in the current scene
             // playing the exact same audio sfx, which could potentially cause unwanted
             // "Comb filter" effect.
-            float startDelay = Random.Range(0f, 1f);
+            float startDelay = RandomGenerator.Range(0f, 1f);
 
             float interval = ObjectInfo.Parameters[0] > 0 ? ObjectInfo.Parameters[0] / 1000f : 0f;
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new AttachSfxToGameObjectRequest(sceneGameObject,
+                new AttachSfxToGameEntityRequest(sceneObjectGameEntity,
                     SfxName,
                     SCENE_SFX_AUDIO_SOURCE_NAME,
                     loopCount: -1,
@@ -52,7 +55,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     startDelay,
                     interval));
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;

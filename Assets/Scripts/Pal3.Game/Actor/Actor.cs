@@ -13,6 +13,8 @@ namespace Pal3.Game.Actor
 
     public sealed class Actor : ActorBase
     {
+        private const float DEFAULT_ROTATION_SPEED = 20f;
+
         public ScnNpcInfo Info { get; }
 
         private uint? _overwrittenScriptId;
@@ -39,7 +41,7 @@ namespace Pal3.Game.Actor
             return _overwrittenScriptId != null;
         }
 
-        public float GetMoveSpeed(MovementMode movementMode)
+        public float GetMovementSpeed(MovementMode movementMode)
         {
             if (_overwrittenMoveSpeed != null)
             {
@@ -63,6 +65,11 @@ namespace Pal3.Game.Actor
                     ? ActorConstants.NpcActorRunSpeed
                     : ActorConstants.NpcActorWalkSpeed;
             }
+        }
+
+        public float GetRotationSpeed()
+        {
+            return DEFAULT_ROTATION_SPEED;
         }
 
         public void ChangeMoveSpeed(uint moveSpeed)

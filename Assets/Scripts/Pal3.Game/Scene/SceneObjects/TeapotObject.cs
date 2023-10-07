@@ -12,8 +12,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
 
     [ScnSceneObject(SceneObjectType.Teapot)]
     public sealed class TeapotObject : SceneObject
@@ -23,17 +26,17 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.SwitchState == 1)
             {
-                sceneGameObject.transform.rotation *= Quaternion.Euler(0, 0, -ObjectInfo.Parameters[2]);
+                sceneObjectGameEntity.Transform.Rotation *= Quaternion.Euler(0, 0, -ObjectInfo.Parameters[2]);
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -48,8 +51,8 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfxIfAny();
 
-            Transform objectTransform = GetGameObject().transform;
-            Quaternion rotation = objectTransform.rotation;
+            ITransform objectTransform = GetGameEntity().Transform;
+            Quaternion rotation = objectTransform.Rotation;
             Quaternion targetRotation = rotation * Quaternion.Euler(0, 0, -ObjectInfo.Parameters[2]);
 
             yield return objectTransform.RotateAsync(targetRotation, 1f, AnimationCurveType.Sine);

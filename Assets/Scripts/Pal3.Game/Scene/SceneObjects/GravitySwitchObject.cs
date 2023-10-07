@@ -16,11 +16,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using GameSystems.Team;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.GravitySwitch)]
     public sealed class GravitySwitchObject : SceneObject
@@ -38,11 +42,11 @@ namespace Pal3.Game.Scene.SceneObjects
             _teamManager = ServiceLocator.Instance.Get<TeamManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // wz06.cvd
             var bounds = new Bounds
@@ -51,22 +55,22 @@ namespace Pal3.Game.Scene.SceneObjects
                 size = new Vector3(4f, 1f, 4f),
             };
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // Set to final position if it is already activated
             if (ObjectInfo.Times == 0)
             {
-                Vector3 finalPosition = sceneGameObject.transform.position;
+                Vector3 finalPosition = sceneObjectGameEntity.Transform.Position;
                 finalPosition.y -= DESCENDING_HEIGHT;
-                sceneGameObject.transform.position = finalPosition;
+                sceneObjectGameEntity.Transform.Position = finalPosition;
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
             // Check if total team members are equal to or greater than required headcount
             if (_teamManager.GetActorsInTeam().Count >= ObjectInfo.Parameters[0])
@@ -90,14 +94,14 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            GameObject gravityTriggerGo = GetGameObject();
-            Vector3 platformPosition = _platformController.transform.position;
+            IGameEntity gravityTriggerEntity = GetGameEntity();
+            Vector3 platformPosition = _platformController.Transform.Position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
@@ -107,9 +111,9 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfx("wg005");
 
-            Vector3 finalPosition = gravityTriggerGo.transform.position;
+            Vector3 finalPosition = gravityTriggerEntity.Transform.Position;
             finalPosition.y -= DESCENDING_HEIGHT;
-            yield return gravityTriggerGo.transform.MoveAsync(finalPosition,
+            yield return gravityTriggerEntity.Transform.MoveAsync(finalPosition,
                 DESCENDING_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

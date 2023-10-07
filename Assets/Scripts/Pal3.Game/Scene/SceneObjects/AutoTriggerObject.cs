@@ -14,8 +14,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.AutoTrigger)]
     public sealed class AutoTriggerObject : SceneObject
@@ -28,12 +30,12 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.TileMapTriggerRect.IsEmpty)
             {
@@ -49,7 +51,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 // We simply disable the auto trigger for a short time window after
                 // a fresh scene load.
                 var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
-                _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+                _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             }
@@ -57,14 +59,14 @@ namespace Pal3.Game.Scene.SceneObjects
             #if PAL3A
             if (ObjectInfo.Parameters[2] == 1 && GraphicsEffectType == GraphicsEffectType.Portal)
             {
-                sceneGameObject.transform.rotation *= Quaternion.Euler(180, 0, 0);
+                sceneObjectGameEntity.Transform.Rotation *= Quaternion.Euler(180, 0, 0);
             }
             #endif
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
 

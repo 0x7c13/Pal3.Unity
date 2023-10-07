@@ -18,7 +18,7 @@ namespace Pal3.Game.Actor.Controllers
     using Script.Waiter;
     using UnityEngine;
 
-    public class FlyingActorController : GameEntityBase,
+    public class FlyingActorController : TickableGameEntityScript,
         ICommandExecutor<FlyingActorFlyToCommand>
     {
         public const float DefaultFlySpeed = 7.5f;
@@ -57,22 +57,22 @@ namespace Pal3.Game.Actor.Controllers
 
             // If actor is inactive or at it's init position, just teleport to target position
             if (!_actorController.IsActive ||
-                Vector3.Distance(transform.position, NpcInfoFactory.ActorInitPosition) < float.Epsilon)
+                Vector3.Distance(Transform.Position, NpcInfoFactory.ActorInitPosition) < float.Epsilon)
             {
-                transform.position = targetPosition;
+                Transform.Position = targetPosition;
                 return;
             }
 
             // In case the target position is too far away
-            if (Vector3.Distance(transform.position, targetPosition) > MAX_TARGET_DISTANCE)
+            if (Vector3.Distance(Transform.Position, targetPosition) > MAX_TARGET_DISTANCE)
             {
-                transform.position = (transform.position - targetPosition).normalized * MAX_TARGET_DISTANCE + targetPosition;
+                Transform.Position = (Transform.Position - targetPosition).normalized * MAX_TARGET_DISTANCE + targetPosition;
             }
 
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
-            var distance = (targetPosition - transform.position).magnitude;
+            var distance = (targetPosition - Transform.Position).magnitude;
             var duration = distance / DefaultFlySpeed;
 
             _actionController.PerformAction(distance < FLYING_MOVEMENT_MODE_SWITCH_DISTANCE
@@ -84,10 +84,10 @@ namespace Pal3.Game.Actor.Controllers
 
         private IEnumerator FlyToAsync(Vector3 targetPosition, float duration, Action onFinished = null)
         {
-            Vector3 oldPosition = transform.position;
+            Vector3 oldPosition = Transform.Position;
 
             // Facing towards target position, ignoring y
-            transform.LookAt(new Vector3(targetPosition.x, oldPosition.y, targetPosition.z));
+            Transform.LookAt(new Vector3(targetPosition.x, oldPosition.y, targetPosition.z));
 
             var timePast = 0f;
             while (timePast < duration)
@@ -95,13 +95,13 @@ namespace Pal3.Game.Actor.Controllers
                 Vector3 newPosition = oldPosition;
                 newPosition += (timePast / duration) * (targetPosition - oldPosition);
 
-                transform.position = newPosition;
+                Transform.Position = newPosition;
 
                 timePast += Time.deltaTime;
                 yield return null;
             }
 
-            transform.position = targetPosition;
+            Transform.Position = targetPosition;
             _actionController.PerformAction(_actor.GetIdleAction());
             onFinished?.Invoke();
         }

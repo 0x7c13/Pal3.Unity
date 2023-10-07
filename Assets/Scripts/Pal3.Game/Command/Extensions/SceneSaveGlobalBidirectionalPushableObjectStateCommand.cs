@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-#if PAL3
+    #if PAL3
     [AvailableInConsole]
     public class SceneSaveGlobalBidirectionalPushableObjectStateCommand : ICommand
     {

@@ -14,6 +14,7 @@ namespace Pal3.Game
     using Audio;
     using Camera;
     using Command;
+    using Command.Extensions;
     using Constants;
     using Core.Command;
     using Core.Command.SceCommands;
@@ -23,6 +24,7 @@ namespace Pal3.Game
     using Data;
     using Dev;
     using Effect;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;
@@ -194,6 +196,8 @@ namespace Pal3.Game
         {
             EngineLogger.Log("Game setup and initialization started...");
 
+            IGameEntity cameraEntity = new GameEntity(mainCamera.gameObject);
+
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
@@ -228,7 +232,7 @@ namespace Pal3.Game
                     _sceneStateManager,
                     _scriptManager,
                     _gameSettings,
-                    mainCamera)
+                    cameraEntity)
             );
 
             ServiceLocator.Instance.Register(_playerActorManager =
@@ -268,7 +272,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_audioManager =
-                new AudioManager(mainCamera,
+                new AudioManager(cameraEntity,
                     _gameResourceProvider,
                     _sceneManager,
                     musicSource,
@@ -351,6 +355,17 @@ namespace Pal3.Game
             );
             #endif
 
+            ServiceLocator.Instance.Register(_cameraManager =
+                new CameraManager(_inputActions,
+                    _sceneManager,
+                    _gameStateManager,
+                    _playerActorManager,
+                    mainCamera,
+                    cameraEntity.Transform,
+                    touchControlUI,
+                    curtainImage)
+            );
+
             ServiceLocator.Instance.Register(_playerGamePlayManager =
                 new PlayerGamePlayManager(_gameResourceProvider,
                     _gameStateManager,
@@ -358,21 +373,11 @@ namespace Pal3.Game
                     _teamManager,
                     _inputActions,
                     _sceneManager,
-                    mainCamera)
-            );
-
-            ServiceLocator.Instance.Register(_cameraManager =
-                new CameraManager(_inputActions,
-                    _playerGamePlayManager,
-                    _sceneManager,
-                    _gameStateManager,
-                    mainCamera,
-                    touchControlUI,
-                    curtainImage)
+                    _cameraManager)
             );
 
             ServiceLocator.Instance.Register(_minimapManager =
-                new MinimapManager(mainCamera,
+                new MinimapManager(cameraEntity.Transform,
                     _sceneManager,
                     miniMapCanvasGroup,
                     miniMapImage,
@@ -410,7 +415,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register(_combatManager =
                 new CombatManager(_gameResourceProvider,
                     _teamManager,
-                    mainCamera,
+                    _cameraManager,
                     _sceneManager)
             );
 
@@ -456,8 +461,8 @@ namespace Pal3.Game
                     contentScrollRect,
                     backgroundTransform,
                     contentTransform,
-                    eventSystem,
-                    mainCamera));
+                    eventSystem)
+            );
 
             _allDisposableServices = ServiceLocator.Instance.GetAllRegisteredServices().Where(o => o is IDisposable);
 
@@ -666,7 +671,7 @@ namespace Pal3.Game
                         $"{currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
-                .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameEntity((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
 
             info.Append($"----- Player info -----\n" +
                         $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +
@@ -690,7 +695,8 @@ namespace Pal3.Game
 
         private void SetCameraFov(float fieldOfView)
         {
-            mainCamera.fieldOfView = fieldOfView;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraSetFieldOfViewCommand(fieldOfView));
         }
     }
 }

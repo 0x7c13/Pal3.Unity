@@ -16,8 +16,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.PiranhaFlower)]
     public sealed class PiranhaFlowerObject : SceneObject
@@ -29,20 +32,19 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
-            UnityEngine.Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int playerActorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             RequestForInteraction();
         }
@@ -99,7 +101,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfx("wg008");
 
-            yield return  GetCvdModelRenderer().PlayAnimationAsync(1.9f, 1, 1f, true);
+            yield return GetCvdModelRenderer().PlayAnimationAsync(1.9f, 1, 1f, true);
 
             Vector3 worldPosition = new GameBoxVector3(
                     ObjectInfo.Parameters[0],

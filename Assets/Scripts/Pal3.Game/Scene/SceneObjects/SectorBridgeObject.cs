@@ -12,9 +12,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.SectorBridge)]
     public sealed class SectorBridgeObject : SceneObject
@@ -26,10 +27,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.SwitchState == 1)
             {
@@ -39,11 +40,11 @@ namespace Pal3.Game.Scene.SceneObjects
                     cvdModelRenderer.SetCurrentTime(cvdModelRenderer.GetDefaultAnimationDuration());
                 }
 
-                _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
+                _standingPlatformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
                 _standingPlatformController.Init(GetMeshBounds(), ObjectInfo.LayerIndex);
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -63,7 +64,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 yield return GetCvdModelRenderer().PlayOneTimeAnimationAsync(true);
             }
 
-            _standingPlatformController = GetGameObject().AddComponent<StandingPlatformController>();
+            _standingPlatformController = GetGameEntity().AddComponent<StandingPlatformController>();
             _standingPlatformController.Init(GetMeshBounds(), ObjectInfo.LayerIndex);
         }
 

@@ -22,12 +22,12 @@ namespace Pal3.Game.Rendering.Renderer
     using Material;
     using Rendering;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     internal class Bone
     {
         public string Name { get; }
-        public GameObject GameObject { get; }
+        public IGameEntity GameEntity { get; }
         public BoneNode BoneNode { get; }
 
         public Matrix4x4 BindPoseModelToBoneSpace { get; set; }
@@ -37,10 +37,10 @@ namespace Pal3.Game.Rendering.Renderer
 
         public uint[] FrameTicks { get; private set; }
 
-        public Bone(string name, GameObject gameObject, BoneNode boneNode)
+        public Bone(string name, IGameEntity gameEntity, BoneNode boneNode)
         {
             Name = name;
-            GameObject = gameObject;
+            GameEntity = gameEntity;
             BoneNode = boneNode;
             BindPoseModelToBoneSpace = Matrix4x4.identity;
             CurrentPoseToModelMatrix = Matrix4x4.identity;
@@ -75,7 +75,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// Skeletal animation model renderer
     /// MSH(.msh) + MOV(.mov)
     /// </summary>
-    public class SkeletalModelRenderer : GameEntityBase, IDisposable
+    public class SkeletalModelRenderer : GameEntityScript, IDisposable
     {
         private IMaterialFactory _materialFactory;
         private Material[][] _materials;
@@ -89,8 +89,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private readonly Dictionary<int, Bone> _bones = new ();
 
-        private GameObject _rootBoneObject;
-        private GameObject[] _meshObjects;
+        private IGameEntity _rootBoneEntity;
+        private IGameEntity[] _meshEntities;
         private RenderMeshComponent[] _renderMeshComponents;
 
         private Coroutine _animation;
@@ -109,7 +109,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             _mshFile = mshFile;
             _materialFactory = materialFactory;
-            _tintColor = tintColor ?? Color.white;
+            _tintColor = tintColor ?? Color.White;
 
             // All .mtl files in PAL3 contain only one material,
             // and there is only one texture in the material
@@ -133,17 +133,14 @@ namespace Pal3.Game.Rendering.Renderer
             SetupAnimationTrack(movFile);
 
             _animationCts = new CancellationTokenSource();
-            _animation = StartCoroutine(PlayAnimationInternalAsync(loopCount,
-                _animationCts.Token));
+            StartCoroutine(PlayAnimationInternalAsync(loopCount, _animationCts.Token));
         }
 
         public void PauseAnimation()
         {
-            if (_animation != null)
+            if (_animationCts is {IsCancellationRequested: false})
             {
                 _animationCts.Cancel();
-                StopCoroutine(_animation);
-                _animation = null;
             }
         }
 
@@ -224,7 +221,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void UpdateBone(Bone bone, uint tick)
         {
-            GameObject boneGo = bone.GameObject;
+            IGameEntity boneEntity = bone.GameEntity;
             MovBoneAnimationTrack? track = bone.AnimationTrack;
             BoneNode boneNode = bone.BoneNode;
 
@@ -251,7 +248,7 @@ namespace Pal3.Game.Rendering.Renderer
                     track.Value.KeyFrames[nextFrameIndex].GameBoxRotation.MshQuaternionToUnityQuaternion(),
                     influence);
 
-                boneGo.transform.SetLocalPositionAndRotation(localPosition, localRotation);
+                boneEntity.Transform.SetLocalPositionAndRotation(localPosition, localRotation);
 
                 Matrix4x4 curPoseToModelMatrix = Matrix4x4.Translate(localPosition) * Matrix4x4.Rotate(localRotation);
 
@@ -284,17 +281,17 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void SetupBone(BoneNode boneNode, Bone parentBone)
         {
-            GameObject boneGo = new GameObject($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
+            IGameEntity boneEntity = new GameEntity($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
 
-            boneGo.transform.SetParent(parentBone == null ? gameObject.transform : parentBone.GameObject.transform);
-            boneGo.transform.SetLocalPositionAndRotation(boneNode.GameBoxTranslation.ToUnityPosition(),
+            boneEntity.SetParent(parentBone == null ? GameEntity : parentBone.GameEntity, worldPositionStays: true);
+            boneEntity.Transform.SetLocalPositionAndRotation(boneNode.GameBoxTranslation.ToUnityPosition(),
                 boneNode.GameBoxRotation.MshQuaternionToUnityQuaternion());
 
-            Bone bone = new (boneNode.Name, boneGo, boneNode);
+            Bone bone = new (boneNode.Name, boneEntity, boneNode);
 
             if (parentBone == null)
             {
-                _rootBoneObject = boneGo;
+                _rootBoneEntity = boneEntity;
             }
             else
             {
@@ -318,7 +315,7 @@ namespace Pal3.Game.Rendering.Renderer
             if (_mshFile.SubMeshes.Length == 0) return;
 
             _renderMeshComponents = new RenderMeshComponent[_mshFile.SubMeshes.Length];
-            _meshObjects = new GameObject[_mshFile.SubMeshes.Length];
+            _meshEntities = new IGameEntity[_mshFile.SubMeshes.Length];
             _indexBuffer = new int[_mshFile.SubMeshes.Length][];
             _vertexBuffer = new Vector3[_mshFile.SubMeshes.Length][];
 
@@ -331,8 +328,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void RenderSubMesh(MshMesh subMesh, int subMeshIndex)
         {
-            _meshObjects[subMeshIndex] = new GameObject($"SubMesh_{subMeshIndex}");
-            _meshObjects[subMeshIndex].transform.SetParent(gameObject.transform, false);
+            _meshEntities[subMeshIndex] = new GameEntity($"SubMesh_{subMeshIndex}");
+            _meshEntities[subMeshIndex].SetParent(GameEntity, worldPositionStays: false);
 
             _vertexBuffer[subMeshIndex] = new Vector3[subMesh.Vertices.Length];
 
@@ -368,7 +365,7 @@ namespace Pal3.Game.Rendering.Renderer
                 _tintColor,
                 GameBoxBlendFlag.Opaque);
 
-            var meshRenderer = _meshObjects[subMeshIndex].AddComponent<StaticMeshRenderer>();
+            var meshRenderer = _meshEntities[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
                 vertices,
                 triangles.ToUnityTriangles(),
@@ -429,7 +426,7 @@ namespace Pal3.Game.Rendering.Renderer
         {
             if (_renderMeshComponents.Length == 0)
             {
-                return new Bounds(transform.position, Vector3.one);
+                return new Bounds(Transform.Position, Vector3.one);
             }
             Bounds bounds = _renderMeshComponents[0].MeshRenderer.GetRendererBounds();
             for (var i = 1; i < _renderMeshComponents.Length; i++)
@@ -455,7 +452,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public bool IsVisible()
         {
-            return _meshObjects != null;
+            return _meshEntities != null;
         }
 
         protected override void OnDisableGameEntity()
@@ -473,36 +470,37 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
                     renderMeshComponent.Mesh.Destroy();
+                    renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
 
                 _renderMeshComponents = null;
             }
 
-            if (_meshObjects != null)
+            if (_meshEntities != null)
             {
-                foreach (GameObject meshObject in _meshObjects)
+                foreach (IGameEntity meshEntity in _meshEntities)
                 {
-                    meshObject.Destroy();
+                    meshEntity?.Destroy();
                 }
 
-                _meshObjects = null;
+                _meshEntities = null;
             }
 
             if (_bones != null)
             {
                 foreach (Bone bone in _bones.Values)
                 {
-                    bone.GameObject.Destroy();
+                    bone.GameEntity?.Destroy();
                 }
 
                 _bones.Clear();
             }
 
-            if (_rootBoneObject != null)
+            if (_rootBoneEntity != null)
             {
-                _rootBoneObject.Destroy();
-                _rootBoneObject = null;
+                _rootBoneEntity.Destroy();
+                _rootBoneEntity = null;
             }
 
             _indexBuffer = null;

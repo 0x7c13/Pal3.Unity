@@ -9,7 +9,7 @@ namespace Engine.Renderer
     using Extensions;
     using UnityEngine;
 
-    public class SkyBoxRenderer : GameEntityBase
+    public class SkyBoxRenderer : GameEntityScript
     {
         private Skybox _skybox;
 
@@ -30,7 +30,7 @@ namespace Engine.Renderer
             }
         }
 
-        public void Render(Camera targetCamera,
+        public void Render(IGameEntity cameraEntity,
             Texture2D rightTex,
             Texture2D backTex,
             Texture2D leftTex,
@@ -39,7 +39,7 @@ namespace Engine.Renderer
             Texture2D downTex)
         {
             Material material = CreateSkyboxMaterial(rightTex, backTex, leftTex, frontTex, upTex, downTex);
-            _skybox = targetCamera.gameObject.AddComponent<Skybox>();
+            _skybox = cameraEntity.AddComponent<Skybox>();
             _skybox.material = material;
         }
 

@@ -9,6 +9,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using Camera;
     using Command;
     using Command.Extensions;
     using Core.Command;
@@ -24,22 +25,25 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Dev.Presenters;
     using Effect;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
+    using Engine.Services;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script;
     using Script.Waiter;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     public struct InteractionContext
     {
         public Guid CorrelationId;
         public int InitObjectId;
         public Scene CurrentScene;
-        public GameObject PlayerActorGameObject;
+        public IGameEntity PlayerActorGameEntity;
         public bool StartedByPlayer;
     }
 
@@ -57,10 +61,14 @@ namespace Pal3.Game.Scene.SceneObjects
         internal string ModelFileVirtualPath;
 
         private IEffect _effectComponent;
-        private GameObject _sceneObjectGameObject;
+        private IGameEntity _sceneObjectGameEntity;
 
         private PolyModelRenderer _polyModelRenderer;
         private CvdModelRenderer _cvdModelRenderer;
+
+        private readonly Lazy<ITransform> _cameraTransformLazy =
+            new (() => ServiceLocator.Instance.Get<CameraManager>().GetCameraTransform());
+        private ITransform CameraTransform => _cameraTransformLazy.Value;
 
         protected SceneObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo, bool hasModel = true)
         {
@@ -113,16 +121,16 @@ namespace Pal3.Game.Scene.SceneObjects
             return modelFilePath;
         }
 
-        public virtual GameObject Activate(GameResourceProvider resourceProvider,
-            UnityEngine.Color tintColor)
+        public virtual IGameEntity Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
-            if (IsActivated) return _sceneObjectGameObject;
+            if (IsActivated) return _sceneObjectGameEntity;
 
-            _sceneObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
+            _sceneObjectGameEntity = new GameEntity($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
 
-            // Attach SceneObjectInfo to the GameObject for better debuggability
+            // Attach SceneObjectInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var infoPresenter = _sceneObjectGameObject.AddComponent<SceneObjectInfoPresenter>();
+            var infoPresenter = _sceneObjectGameEntity.AddComponent<SceneObjectInfoPresenter>();
             infoPresenter.sceneObjectInfo = ObjectInfo;
             #endif
 
@@ -133,7 +141,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
-                _polyModelRenderer = _sceneObjectGameObject.AddComponent<PolyModelRenderer>();
+                _polyModelRenderer = _sceneObjectGameEntity.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
                     materialFactory,
@@ -145,7 +153,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 CvdFile cvdFile = resourceProvider.GetGameResourceFile<CvdFile>(ModelFileVirtualPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(ModelFileVirtualPath, CpkConstants.DirectorySeparatorChar));
-                _cvdModelRenderer = _sceneObjectGameObject.AddComponent<CvdModelRenderer>();
+                _cvdModelRenderer = _sceneObjectGameEntity.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,
                     materialFactory,
@@ -170,12 +178,12 @@ namespace Pal3.Game.Scene.SceneObjects
                     ObjectInfo.GameBoxZRotation).ToUnityQuaternion();
             #endif
 
-            _sceneObjectGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
+            _sceneObjectGameEntity.Transform.SetPositionAndRotation(newPosition, newRotation);
 
             if (GraphicsEffectType != GraphicsEffectType.None &&
                 EffectTypeResolver.GetEffectComponentType(GraphicsEffectType) is {} effectComponentType)
             {
-                _effectComponent = _sceneObjectGameObject.AddComponent(effectComponentType) as IEffect;
+                _effectComponent = _sceneObjectGameEntity.AddComponent(effectComponentType) as IEffect;
                 #if PAL3
                 var effectParameter = ObjectInfo.EffectModelType;
                 #elif PAL3A
@@ -186,7 +194,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
 
             IsActivated = true;
-            return _sceneObjectGameObject;
+            return _sceneObjectGameEntity;
         }
 
         protected Bounds GetMeshBounds()
@@ -237,9 +245,9 @@ namespace Pal3.Game.Scene.SceneObjects
             return _polyModelRenderer;
         }
 
-        public GameObject GetGameObject()
+        public IGameEntity GetGameEntity()
         {
-            return _sceneObjectGameObject;
+            return _sceneObjectGameEntity;
         }
 
         public abstract bool IsDirectlyInteractable(float distance);
@@ -266,19 +274,21 @@ namespace Pal3.Game.Scene.SceneObjects
             if (_polyModelRenderer != null)
             {
                 _polyModelRenderer.Dispose();
+                _polyModelRenderer.Destroy();
                 _polyModelRenderer = null;
             }
 
             if (_cvdModelRenderer != null)
             {
                 _cvdModelRenderer.Dispose();
+                _cvdModelRenderer.Destroy();
                 _cvdModelRenderer = null;
             }
 
-            if (_sceneObjectGameObject != null)
+            if (_sceneObjectGameEntity != null)
             {
-                _sceneObjectGameObject.Destroy();
-                _sceneObjectGameObject = null;
+                _sceneObjectGameEntity.Destroy();
+                _sceneObjectGameEntity = null;
             }
         }
 
@@ -399,7 +409,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                         yield return MoveCameraToLookAtPointAsync(
                             nextLinkedObject.ObjectInfo.GameBoxPosition.ToUnityPosition(),
-                            ctx.PlayerActorGameObject);
+                            ctx.PlayerActorGameEntity.Transform);
 
                         yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
                         yield return new WaitForSeconds(1);
@@ -432,7 +442,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    _sceneObjectGameObject.transform.position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
+                    _sceneObjectGameEntity.Transform.Position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
         }
 
         internal void SaveCurrentYRotation()
@@ -441,20 +451,18 @@ namespace Pal3.Game.Scene.SceneObjects
                 new SceneSaveGlobalObjectYRotationCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    _sceneObjectGameObject.transform.rotation.eulerAngles.y.ToGameBoxYEulerAngle()));
+                    _sceneObjectGameEntity.Transform.EulerAngles.y.ToGameBoxYEulerAngle()));
         }
 
         internal IEnumerator MoveCameraToLookAtPointAsync(
             Vector3 position,
-            GameObject playerActorGameObject)
+            ITransform playerActorTransform)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFollowPlayerCommand(0));
-
-            Vector3 offset = position - playerActorGameObject.transform.position;
-            Transform cameraTransform = Camera.main!.transform;
-            Vector3 cameraCurrentPosition = cameraTransform.position;
+            Vector3 offset = position - playerActorTransform.Position;
+            Vector3 cameraCurrentPosition = CameraTransform.Position;
             Vector3 targetPosition = cameraCurrentPosition + offset;
-            yield return cameraTransform.MoveAsync(targetPosition, 2f, AnimationCurveType.Sine);
+            yield return CameraTransform.MoveAsync(targetPosition, 2f, AnimationCurveType.Sine);
         }
 
         internal void CameraFocusOnObject(int objectId)
@@ -470,10 +478,10 @@ namespace Pal3.Game.Scene.SceneObjects
 
         internal bool IsFullyVisibleToCamera()
         {
-            if (_sceneObjectGameObject != null)
+            if (_sceneObjectGameEntity != null)
             {
                 foreach (MeshRenderer renderer in
-                         _sceneObjectGameObject.GetComponentsInChildren<MeshRenderer>())
+                         _sceneObjectGameEntity.GetComponentsInChildren<MeshRenderer>())
                 {
                     if (!renderer.isVisible) return false;
                 }

@@ -15,11 +15,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.ThreePhaseBridge)]
     public sealed class ThreePhaseBridgeObject : SceneObject,
@@ -48,17 +52,17 @@ namespace Pal3.Game.Scene.SceneObjects
             }
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
 
             // Parameters[5] == 1 means not walkable
             if (ObjectInfo.Parameters[5] == 0)
             {
-                _standingPlatformController = sceneGameObject.AddComponent<StandingPlatformController>();
+                _standingPlatformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
                 _standingPlatformController.Init(bounds, ObjectInfo.LayerIndex);
             }
 
@@ -66,13 +70,13 @@ namespace Pal3.Game.Scene.SceneObjects
                     SceneInfo.CityName, SceneInfo.SceneName, ObjectInfo.Id, out _) &&
                 _isMovingAlongYAxis)
             {
-                sceneGameObject.transform.position +=
-                    sceneGameObject.transform.up * -BRIDGE_MOVEMENT_DISTANCE;
+                sceneObjectGameEntity.Transform.Position +=
+                    sceneObjectGameEntity.Transform.Up * -BRIDGE_MOVEMENT_DISTANCE;
             }
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -81,17 +85,17 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            Transform transform = GetGameObject().transform;
+            ITransform transform = GetGameEntity().Transform;
 
-            Vector3 movingDirection = transform.right;
+            Vector3 movingDirection = transform.Right;
 
             // Bridges that move along Y axis
             if (_isMovingAlongYAxis)
             {
-                movingDirection = transform.up;
+                movingDirection = transform.Up;
             }
 
-            Vector3 finalPosition = transform.position +
+            Vector3 finalPosition = transform.Position +
                                     movingDirection * ((_isMovingTowardsNegativeAxis ? -1 : 1) * BRIDGE_MOVEMENT_DISTANCE);
 
             yield return transform.MoveAsync(finalPosition,

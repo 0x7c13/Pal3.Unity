@@ -65,7 +65,6 @@ namespace Pal3.Game.Dev
 
         private bool _isInInitView = true;
         private CancellationTokenSource _initViewCameraOrbitAnimationCts = new ();
-        private readonly Camera _mainCamera;
 
         private readonly List<string> _deferredExecutionCommands = new();
 
@@ -85,8 +84,7 @@ namespace Pal3.Game.Dev
             ScrollRect contentScrollRect,
             RectTransform backgroundTransform,
             RectTransform contentTransform,
-            EventSystem eventSystem,
-            Camera mainCamera)
+            EventSystem eventSystem)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
@@ -103,7 +101,6 @@ namespace Pal3.Game.Dev
             _backgroundTransform = Requires.IsNotNull(backgroundTransform, nameof(backgroundTransform));
             _contentTransform = Requires.IsNotNull(contentTransform, nameof(contentTransform));
             _eventSystem = Requires.IsNotNull(eventSystem, nameof(eventSystem));
-            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
 
             _contentGridLayoutGroup = Requires.IsNotNull(
                 _contentTransform.GetComponent<GridLayoutGroup>(), "ContentTransform's GridLayoutGroup");
@@ -194,9 +191,11 @@ namespace Pal3.Game.Dev
         private IEnumerator StartCameraOrbitAnimationAsync(CancellationToken cancellationToken)
         {
             #if PAL3
-            _mainCamera.fieldOfView = 14f;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraSetFieldOfViewCommand(14f));
             #elif PAL3A
-            _mainCamera.fieldOfView = 16f;
+            CommandDispatcher<ICommand>.Instance.Dispatch(
+                new CameraSetFieldOfViewCommand(16f));
             #endif
 
             yield return new WaitUntil(() => _deferredExecutionCommands.Count == 0);
@@ -434,18 +433,18 @@ namespace Pal3.Game.Dev
             const string fullResolutionScaleText = "渲染分辨率：100%";
             const string halfResolutionScaleText = "渲染分辨率：75%";
             const string quarterResolutionScaleText = "渲染分辨率：50%";
-            string GetResolutionButtonText() => Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? fullResolutionScaleText :
-                Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? halfResolutionScaleText : quarterResolutionScaleText;
+            string GetResolutionButtonText() => MathF.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? fullResolutionScaleText :
+                MathF.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? halfResolutionScaleText : quarterResolutionScaleText;
             CreateMenuButton(GetResolutionButtonText(), buttonTextUGUI => delegate
             {
-                _gameSettings.ResolutionScale = Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f :
-                    Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? 0.5f : 1f;
+                _gameSettings.ResolutionScale = MathF.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? 0.75f :
+                    MathF.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? 0.5f : 1f;
 
                 buttonTextUGUI.text = GetResolutionButtonText();
 
                 CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("渲染分辨率已" +
-                    (Math.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" :
-                        (Math.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? "调整为75%" : "调整为50%"))));
+                    (MathF.Abs(_gameSettings.ResolutionScale - 1f) < 0.01f ? "调整为100%" :
+                        (MathF.Abs(_gameSettings.ResolutionScale - 0.75f) < 0.01f ? "调整为75%" : "调整为50%"))));
             });
             #endif
 

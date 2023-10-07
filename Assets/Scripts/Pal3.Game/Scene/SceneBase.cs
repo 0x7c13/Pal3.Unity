@@ -26,7 +26,7 @@ namespace Pal3.Game.Scene
     /// <summary>
     /// Scene base class used to init and hold scene data models.
     /// </summary>
-    public abstract class SceneBase : GameEntityBase
+    public abstract class SceneBase : GameEntityScript
     {
         private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_DEFAULT = 2.2f;
         private const float ACTOR_MOVEMENT_MAX_Y_DIFFERENTIAL_CROSS_LAYER_DEFAULT = 2f;

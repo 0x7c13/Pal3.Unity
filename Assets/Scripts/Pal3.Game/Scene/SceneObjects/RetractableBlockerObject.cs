@@ -12,9 +12,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.RetractableBlocker)]
     public sealed class RetractableBlockerObject : SceneObject
@@ -26,16 +29,16 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Add mesh collider to block player
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -46,12 +49,12 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             PlaySfxIfAny();
 
-            GameObject blockerObject = GetGameObject();
-            Vector3 currentPosition = blockerObject.transform.position;
+            IGameEntity blockerEntity = GetGameEntity();
+            Vector3 currentPosition = blockerEntity.Transform.Position;
             var zOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
-            Vector3 toPosition = currentPosition + blockerObject.transform.forward * -zOffset;
+            Vector3 toPosition = currentPosition + blockerEntity.Transform.Forward * -zOffset;
 
-            yield return blockerObject.transform.MoveAsync(toPosition, 1.5f);
+            yield return blockerEntity.Transform.MoveAsync(toPosition, 1.5f);
 
             SaveCurrentPosition();
         }

@@ -145,7 +145,7 @@ namespace Pal3.Game.Settings
 
                 // Set target frame rate to screen refresh rate by default
                 // unless it is lower than the minimum target frame rate
-                TargetFrameRate = Mathf.Max(screenRefreshRate, minimumTargetFrameRate);
+                TargetFrameRate = Math.Max(screenRefreshRate, minimumTargetFrameRate);
             }
 
             if (SettingsStore.TryGet(nameof(ResolutionScale), out float resolutionScale))
@@ -166,7 +166,7 @@ namespace Pal3.Game.Settings
             // Reset resolution scale if not in fullscreen mode for desktop devices
             if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen &&
                 Screen.fullScreenMode != FullScreenMode.FullScreenWindow &&
-                Math.Abs(ResolutionScale - 1.0f) > 0.01f)
+                MathF.Abs(ResolutionScale - 1.0f) > 0.01f)
             {
                 ResolutionScale = 1.0f;
             }

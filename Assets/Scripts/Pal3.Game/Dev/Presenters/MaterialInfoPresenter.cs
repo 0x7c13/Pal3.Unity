@@ -12,7 +12,7 @@ namespace Pal3.Game.Dev.Presenters
     /// <summary>
     /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector.
     /// </summary>
-    public sealed class MaterialInfoPresenter : GameEntityBase
+    public sealed class MaterialInfoPresenter : GameEntityScript
     {
         [SerializeField] public GameBoxBlendFlag blendFlag;
         [SerializeField] public GameBoxMaterial material;

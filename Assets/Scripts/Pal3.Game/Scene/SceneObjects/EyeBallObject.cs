@@ -15,8 +15,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Services;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.EyeBall)]
     public sealed class EyeBallObject : SceneObject,
@@ -30,21 +34,22 @@ namespace Pal3.Game.Scene.SceneObjects
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public void Execute(PlayerActorTilePositionUpdatedNotification command)
         {
-            GameObject eyeBallGameObject = GetGameObject();
-            Vector3 actorPosition = _tilemap.GetWorldPosition(command.Position, command.LayerIndex);
+            IGameEntity eyeBallGameEntity = GetGameEntity();
+            Vector3 actorPosition = _tilemap.GetWorldPosition(
+                new Vector2Int(command.TileXPosition, command.TileYPosition), command.LayerIndex);
             actorPosition.y += 3f; // 3f is about the height of the player actor
-            eyeBallGameObject.transform.LookAt(actorPosition);
+            eyeBallGameEntity.Transform.LookAt(actorPosition);
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;

@@ -12,6 +12,7 @@ namespace Pal3.Game.GamePlay
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
+    using UnityEngine;
 
     public sealed class PlayerActorManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,
@@ -58,6 +59,10 @@ namespace Pal3.Game.GamePlay
         private bool _playerActorControlEnabled = true;
         private bool _playerInputEnabled;
 
+        public Vector3? LastKnownPosition { get; set; }
+        public Vector2Int? LastKnownTilePosition { get; set; }
+        public int? LastKnownLayerIndex { get; set; }
+
         public PlayerActorManager()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -103,6 +108,10 @@ namespace Pal3.Game.GamePlay
             _playerActor = 0;
             _playerActorControlEnabled = true;
             _playerInputEnabled = false;
+
+            LastKnownPosition = null;
+            LastKnownTilePosition = null;
+            LastKnownLayerIndex = null;
         }
 
         #region Command routing

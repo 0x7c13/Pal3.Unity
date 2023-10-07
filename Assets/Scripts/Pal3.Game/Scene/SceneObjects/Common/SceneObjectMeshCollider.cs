@@ -10,7 +10,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Rendering.Renderer;
     using UnityEngine;
 
-    public class SceneObjectMeshCollider : GameEntityBase
+    public class SceneObjectMeshCollider : GameEntityScript
     {
         private BoxCollider _collider;
         private Vector3 _meshBoundsSize;
@@ -51,11 +51,11 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         {
             Bounds bounds;
 
-            if (GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
+            if (GameEntity.GetComponent<CvdModelRenderer>() is { } cvdModelRenderer)
             {
                 bounds = cvdModelRenderer.GetMeshBounds();
             }
-            else if (GetComponent<PolyModelRenderer>() is { } polyModelRenderer)
+            else if (GameEntity.GetComponent<PolyModelRenderer>() is { } polyModelRenderer)
             {
                 bounds = polyModelRenderer.GetMeshBounds();
             }
@@ -66,7 +66,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
             if (_collider == null)
             {
-                _collider = gameObject.AddComponent<BoxCollider>();
+                _collider = GameEntity.AddComponent<BoxCollider>();
             }
 
             _meshBoundsSize = bounds.size;

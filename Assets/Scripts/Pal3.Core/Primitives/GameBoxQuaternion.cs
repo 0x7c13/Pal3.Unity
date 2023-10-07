@@ -34,12 +34,12 @@ namespace Pal3.Core.Primitives
             }
 
             // Convert the angle to radians
-            float radian = angle * (float)Math.PI / 180.0f;
+            float radian = angle * MathF.PI / 180.0f;
             radian *= 0.5f;
 
             axis.Normalize();
-            float sinAngle = (float)Math.Sin(radian);
-            float cosAngle = (float)Math.Cos(radian);
+            float sinAngle = MathF.Sin(radian);
+            float cosAngle = MathF.Cos(radian);
 
             return new GameBoxQuaternion(
                 axis.X * sinAngle,

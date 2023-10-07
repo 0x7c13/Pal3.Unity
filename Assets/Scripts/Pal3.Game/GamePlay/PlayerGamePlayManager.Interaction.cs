@@ -15,6 +15,7 @@ namespace Pal3.Game.GamePlay
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
+    using Engine.Abstraction;
     using Engine.Logging;
     using Scene;
     using Scene.SceneObjects;
@@ -77,7 +78,7 @@ namespace Pal3.Game.GamePlay
         /// </summary>
         private void InteractWithFacingInteractable()
         {
-            Vector3 actorFacingDirection = _playerActorMovementController.transform.forward;
+            Vector3 actorFacingDirection = _playerActorMovementController.Transform.Forward;
             Vector3 actorCenterPosition = _playerActorActionController.GetRendererBounds().center;
             var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
@@ -106,7 +107,7 @@ namespace Pal3.Game.GamePlay
             }
 
             foreach (var actorInfo in
-                     _sceneManager.GetCurrentScene().GetAllActorGameObjects())
+                     _sceneManager.GetCurrentScene().GetAllActorGameEntities())
             {
                 var actorController = actorInfo.Value.GetComponent<ActorController>();
                 var actorActionController = actorInfo.Value.GetComponent<ActorActionController>();
@@ -153,7 +154,7 @@ namespace Pal3.Game.GamePlay
             {
                 CorrelationId = correlationId,
                 InitObjectId = sceneObject.ObjectInfo.Id,
-                PlayerActorGameObject = _playerActorGameObject,
+                PlayerActorGameEntity = _playerActorGameEntity,
                 CurrentScene = _sceneManager.GetCurrentScene(),
                 StartedByPlayer = startedByPlayer,
             });
@@ -165,7 +166,7 @@ namespace Pal3.Game.GamePlay
             }
         }
 
-        private IEnumerator InteractWithActorAsync(int actorId, GameObject actorGameObject)
+        private IEnumerator InteractWithActorAsync(int actorId, IGameEntity actorGameEntity)
         {
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new GameStateChangeRequest(GameState.Cutscene));
@@ -173,10 +174,10 @@ namespace Pal3.Game.GamePlay
                 new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
             Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
-            Quaternion rotationBeforeInteraction = actorGameObject.transform.rotation;
+            Quaternion rotationBeforeInteraction = actorGameEntity.Transform.Rotation;
 
-            var actorController = actorGameObject.GetComponent<ActorController>();
-            var movementController = actorGameObject.GetComponent<ActorMovementController>();
+            var actorController = actorGameEntity.GetComponent<ActorController>();
+            var movementController = actorGameEntity.GetComponent<ActorMovementController>();
 
             // Pause current path follow movement of the interacting actor
             if (actorController != null &&
@@ -205,7 +206,7 @@ namespace Pal3.Game.GamePlay
             if (targetActor.Info.InitBehaviour == ActorBehaviourType.Hold &&
                 targetActor.Info.LoopAction == 0)
             {
-                var actionController = actorGameObject.GetComponent<ActorActionController>();
+                var actionController = actorGameEntity.GetComponent<ActorActionController>();
                 // PerformAction internally checks if the target actor is already performing the action
                 actionController.PerformAction(actionController.GetCurrentAction(), false, 1);
             }
@@ -226,9 +227,9 @@ namespace Pal3.Game.GamePlay
             }
 
             // Reset facing rotation of the interacting actor if needed
-            if (shouldResetFacingAfterInteraction && actorGameObject != null)
+            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsDisposed)
             {
-                actorGameObject.transform.rotation = rotationBeforeInteraction;
+                actorGameEntity.Transform.Rotation = rotationBeforeInteraction;
             }
         }
     }

@@ -13,8 +13,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.SwordBridge)]
     public sealed class SwordBridgeObject : SceneObject
@@ -28,11 +32,11 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
             bounds.size += new Vector3(0.1f, 0.1f, 0.1f);
@@ -58,18 +62,18 @@ namespace Pal3.Game.Scene.SceneObjects
                 heightOffset = -1.7f;
             }
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex, heightOffset);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             PlaySfx("wg005");
 
-            GameObject bridgeObject = GetGameObject();
-            bridgeObject.transform.Translate(new Vector3(0f, 0f, EXTEND_LENGTH));
+            IGameEntity bridgeEntity = GetGameEntity();
+            bridgeEntity.Transform.Translate(new Vector3(0f, 0f, EXTEND_LENGTH));
 
             SaveCurrentPosition();
 

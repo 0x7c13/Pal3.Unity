@@ -11,13 +11,14 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Core.Command;
     using Core.Primitives;
     using Engine.Abstraction;
+    using Engine.Extensions;
     using UnityEngine;
 
-    public class TilemapTriggerController : GameEntityBase,
+    public class TilemapTriggerController : GameEntityScript,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
-        public event EventHandler<Vector2Int> OnPlayerActorEntered;
-        public event EventHandler<Vector2Int> OnPlayerActorExited;
+        public event EventHandler<(int x, int y)> OnPlayerActorEntered;
+        public event EventHandler<(int x, int y)> OnPlayerActorExited;
 
         private GameBoxRect _tileMapTriggerRect;
         private int _layerIndex;
@@ -52,14 +53,15 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         {
             if (notification.LayerIndex != _layerIndex || notification.MovedByScript) return;
 
-            bool isInsideTriggerArea = _tileMapTriggerRect.IsPointInsideRect(notification.Position.x, notification.Position.y);
+            bool isInsideTriggerArea = _tileMapTriggerRect.IsPointInsideRect(notification.TileXPosition,
+                notification.TileYPosition);
 
             if (!isInsideTriggerArea)
             {
                 if (_wasTriggered)
                 {
                     _wasTriggered = false;
-                    OnPlayerActorExited?.Invoke(this, notification.Position);
+                    OnPlayerActorExited?.Invoke(this, (notification.TileXPosition, notification.TileYPosition));
                 }
                 return;
             }
@@ -69,7 +71,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (!_wasTriggered)
             {
                 _wasTriggered = true;
-                OnPlayerActorEntered?.Invoke(this, notification.Position);
+                OnPlayerActorEntered?.Invoke(this, (notification.TileXPosition, notification.TileYPosition));
             }
         }
     }

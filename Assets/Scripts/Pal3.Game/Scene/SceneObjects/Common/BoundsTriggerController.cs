@@ -13,10 +13,10 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using GamePlay;
     using UnityEngine;
 
-    public class BoundsTriggerController : GameEntityBase
+    public class BoundsTriggerController : GameEntityScript
     {
-        public event EventHandler<GameObject> OnPlayerActorEntered;
-        public event EventHandler<GameObject> OnPlayerActorExited;
+        public event EventHandler<IGameEntity> OnPlayerActorEntered;
+        public event EventHandler<IGameEntity> OnPlayerActorExited;
 
         private bool _hasCollided;
         private BoxCollider _collider;
@@ -27,7 +27,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         {
             if (_collider == null)
             {
-                _collider = gameObject.AddComponent<BoxCollider>();
+                _collider = GameEntity.AddComponent<BoxCollider>();
             }
 
             _collider.center = bounds.center;
@@ -54,7 +54,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, collision.gameObject);
+                OnPlayerActorEntered?.Invoke(this, new GameEntity(collision.gameObject));
             }
         }
 
@@ -63,7 +63,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
+                OnPlayerActorEntered?.Invoke(this, new GameEntity(otherCollider.gameObject));
             }
         }
 
@@ -72,7 +72,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, collision.gameObject);
+                OnPlayerActorExited?.Invoke(this, new GameEntity(collision.gameObject));
             }
         }
 
@@ -81,7 +81,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
+                OnPlayerActorExited?.Invoke(this, new GameEntity(otherCollider.gameObject));
             }
         }
     }

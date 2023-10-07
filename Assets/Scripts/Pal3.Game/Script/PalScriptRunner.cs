@@ -16,6 +16,7 @@ namespace Pal3.Game.Script
     using Core.Contract.Enums;
     using Core.DataReader;
     using Core.DataReader.Sce;
+    using Core.Utilities;
     using Engine.Logging;
     using Engine.Services;
     using GameSystems.Dialogue;
@@ -27,7 +28,6 @@ namespace Pal3.Game.Script
     using Scene;
     using State;
     using Waiter;
-    using Random = UnityEngine.Random;
 
     public sealed class PalScriptRunner : IDisposable,
         ICommandExecutor<ScriptChangeExecutionModeCommand>,
@@ -348,7 +348,7 @@ namespace Pal3.Game.Script
         public void Execute(ScriptVarSetRandomValueCommand command)
         {
             if (!_isExecuting) return;
-            SetVariableValue(command.Variable, UnityEngine.Random.Range(0, command.MaxValue));
+            SetVariableValue(command.Variable, RandomGenerator.Range(0, command.MaxValue));
         }
 
         public void Execute(ScriptWaitUntilTimeCommand untilTimeCommand)
@@ -475,7 +475,7 @@ namespace Pal3.Game.Script
         public void Execute(ScriptGetWheelOfTheFiveElementsUsageCountCommand command)
         {
             if (!_isExecuting) return;
-            var rand = Random.Range(0f, 1f);
+            var rand = RandomGenerator.Range(0f, 1f);
             var usageCount = rand > 0.35f ? 360 : 0;
             SetVariableValue(command.Variable, usageCount);
         }
@@ -485,7 +485,7 @@ namespace Pal3.Game.Script
         public void Execute(ScriptVarGetCombatResultCommand command)
         {
             if (!_isExecuting) return;
-            var won = Random.Range(0f, 1f);
+            var won = RandomGenerator.Range(0f, 1f);
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.35f
                 ? new UIDisplayNoteCommand("你战胜了重楼")

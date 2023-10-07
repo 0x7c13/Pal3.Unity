@@ -17,6 +17,7 @@ namespace Pal3.Game.Effect
     using Core.Primitives;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Scene;
     using UnityEngine;
@@ -92,13 +93,13 @@ namespace Pal3.Game.Effect
             UnityEngine.Object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
             if (vfxPrefab != null)
             {
-                Transform parent = null;
+                ITransform parent = null;
                 Vector3 localPosition = Vector3.zero;
 
                 if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
-                    _sceneManager.GetSceneRootGameObject() is {} sceneRootGameObject)
+                    _sceneManager.GetSceneRootGameEntity() is {} sceneRootGameEntity)
                 {
-                    parent = sceneRootGameObject.transform;
+                    parent = sceneRootGameEntity.Transform;
                     localPosition = new GameBoxVector3(
                             positionCommand.GameBoxXPosition,
                             positionCommand.GameBoxYPosition,
@@ -106,12 +107,12 @@ namespace Pal3.Game.Effect
                 }
                 else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
                 {
-                    parent = currentScene.GetActorGameObject(actorCommand.ActorId).transform;
+                    parent = currentScene.GetActorGameEntity(actorCommand.ActorId).Transform;
                 }
 
                 if (parent != null)
                 {
-                    var vfx = (GameObject)UnityEngine.Object.Instantiate(vfxPrefab, parent, false);
+                    var vfx = (GameObject)UnityEngine.Object.Instantiate(vfxPrefab, parent.GetUnityTransform(), false);
                     vfx.name = "VFX_" + command.EffectGroupId;
                     vfx.transform.localPosition += localPosition;
                 }
@@ -140,7 +141,7 @@ namespace Pal3.Game.Effect
                     actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameObject(actorId)
+                        var actorActionController = currentScene.GetActorGameEntity(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }
@@ -153,7 +154,7 @@ namespace Pal3.Game.Effect
                     actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameObject(actorId)
+                        var actorActionController = currentScene.GetActorGameEntity(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }

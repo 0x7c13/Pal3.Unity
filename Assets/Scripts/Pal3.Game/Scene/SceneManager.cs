@@ -18,6 +18,7 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Newtonsoft.Json;
@@ -35,10 +36,10 @@ namespace Pal3.Game.Scene
         private readonly SceneStateManager _sceneStateManager;
         private readonly ScriptManager _scriptManager;
         private readonly GameSettings _gameSettings;
-        private readonly Camera _mainCamera;
+        private readonly IGameEntity _cameraEntity;
 
-        private GameObject _currentSceneRoot;
-        private GameObject _currentCombatSceneRoot;
+        private IGameEntity _currentSceneRoot;
+        private IGameEntity _currentCombatSceneRoot;
 
         private Scene _currentScene;
         private CombatScene _currentCombatScene;
@@ -49,13 +50,13 @@ namespace Pal3.Game.Scene
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
             GameSettings gameSettings,
-            Camera mainCamera)
+            IGameEntity cameraEntity)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
-            _mainCamera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
+            _cameraEntity = Requires.IsNotNull(cameraEntity, nameof(cameraEntity));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -75,7 +76,7 @@ namespace Pal3.Game.Scene
             return _currentCombatScene;
         }
 
-        public GameObject GetSceneRootGameObject()
+        public IGameEntity GetSceneRootGameEntity()
         {
             if (_currentCombatSceneRoot != null)
             {
@@ -101,13 +102,13 @@ namespace Pal3.Game.Scene
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
             EngineLogger.Log("Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
 
-            _currentSceneRoot = new GameObject($"Scene_{sceneCityName}_{sceneName}");
-            _currentSceneRoot.transform.SetParent(null);
+            _currentSceneRoot = new GameEntity($"Scene_{sceneCityName}_{sceneName}");
+            _currentSceneRoot.SetParent(null, worldPositionStays: false);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
             _currentScene.Init(_resourceProvider,
                 _sceneStateManager,
                 _gameSettings.IsRealtimeLightingAndShadowsEnabled,
-                _mainCamera,
+                _cameraEntity,
                 _sceneObjectIdsToNotLoadFromSaveState);
             _currentScene.Load(scnFile, _currentSceneRoot);
 
@@ -139,8 +140,8 @@ namespace Pal3.Game.Scene
 
             HideCurrentScene();
 
-            _currentCombatSceneRoot = new GameObject($"CombatScene_{combatSceneName}");
-            _currentCombatSceneRoot.transform.SetParent(null);
+            _currentCombatSceneRoot = new GameEntity($"CombatScene_{combatSceneName}");
+            _currentCombatSceneRoot.SetParent(null, worldPositionStays: false);
 
             _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
             _currentCombatScene.Init(_resourceProvider);
@@ -207,13 +208,13 @@ namespace Pal3.Game.Scene
             }
 
             // Move the scene root to a lower position just to be safe.
-            _currentSceneRoot.transform.localPosition = Vector3.down * 100f;
+            _currentSceneRoot.Transform.LocalPosition = Vector3.down * 100f;
         }
 
         private void ShowCurrentScene()
         {
             // Move the scene root back to the original position.
-            _currentSceneRoot.transform.localPosition = Vector3.zero;
+            _currentSceneRoot.Transform.LocalPosition = Vector3.zero;
 
             foreach (GameObject disabledGo in _temporarilyDisabledGameObjects)
             {

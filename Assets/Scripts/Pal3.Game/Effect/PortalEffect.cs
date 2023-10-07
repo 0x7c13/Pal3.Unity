@@ -10,7 +10,7 @@ namespace Pal3.Game.Effect
     using Engine.Extensions;
     using UnityEngine;
 
-    public sealed class PortalEffect : GameEntityBase, IEffect
+    public sealed class PortalEffect : GameEntityScript, IEffect
     {
         #if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
@@ -26,7 +26,7 @@ namespace Pal3.Game.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
-            _baseEffect = gameObject.AddComponent<RotatingSpriteEffect>();
+            _baseEffect = GameEntity.AddComponent<RotatingSpriteEffect>();
             _baseEffect.Init(resourceProvider,
                 PORTAL_BASE_TEXTURE_NAME,
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),

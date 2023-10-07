@@ -23,7 +23,7 @@ namespace Pal3.Game.Actor.Controllers
     using Script.Waiter;
     using UnityEngine;
 
-    public class ActorController : GameEntityBase,
+    public class ActorController : GameEntityScript,
         ICommandExecutor<ActorSetFacingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
@@ -70,7 +70,7 @@ namespace Pal3.Game.Actor.Controllers
             _movementController = movementController;
 
             // Init facing direction
-            transform.rotation = Quaternion.Euler(0, -_actor.Info.FacingDirection, 0);
+            Transform.Rotation = Quaternion.Euler(0, -_actor.Info.FacingDirection, 0);
 
             // Activate if InitActive == 1
             if (_actor.Info.InitActive == 1) IsActive = true;
@@ -173,10 +173,10 @@ namespace Pal3.Game.Actor.Controllers
 
         private IEnumerator AnimateScaleAsync(float toScale, float duration, Action onFinished = null)
         {
-            yield return CoreAnimation.EnumerateValueAsync(transform.localScale.x,
+            yield return CoreAnimation.EnumerateValueAsync(Transform.LocalScale.x,
                 toScale, duration, AnimationCurveType.Linear, value =>
                 {
-                    transform.localScale = new Vector3(value, value, value);
+                    Transform.LocalScale = new Vector3(value, value, value);
                 });
             onFinished?.Invoke();
         }
@@ -184,17 +184,17 @@ namespace Pal3.Game.Actor.Controllers
         public void Execute(ActorSetFacingCommand command)
         {
             if (_actor.Id != command.ActorId) return;
-            transform.rotation = Quaternion.Euler(0, command.Degrees, 0);
+            Transform.Rotation = Quaternion.Euler(0, command.Degrees, 0);
         }
 
         public void Execute(ActorRotateFacingCommand command)
         {
             if (_actor.Id != command.ActorId) return;
             #if PAL3
-            var currentYAngles = transform.rotation.eulerAngles.y;
-            transform.rotation = Quaternion.Euler(0, currentYAngles - command.Degrees, 0);
+            var currentYAngles = Transform.EulerAngles.y;
+            Transform.Rotation = Quaternion.Euler(0, currentYAngles - command.Degrees, 0);
             #elif PAL3A
-            transform.rotation = Quaternion.Euler(0, - command.Degrees, 0);
+            Transform.Rotation = Quaternion.Euler(0, - command.Degrees, 0);
             #endif
         }
 
@@ -204,7 +204,7 @@ namespace Pal3.Game.Actor.Controllers
 
             if (command.Direction is >= 0 and < 8)
             {
-                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+                Transform.Rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
             }
             else
             {
@@ -223,7 +223,7 @@ namespace Pal3.Game.Actor.Controllers
 
             if (command.Direction is >= 0 and < 8)
             {
-                transform.rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
+                Transform.Rotation = Quaternion.Euler(0, -command.Direction * 45, 0);
             }
             else
             {
@@ -256,8 +256,8 @@ namespace Pal3.Game.Actor.Controllers
         public void Execute(ActorSetYPositionCommand command)
         {
             if (command.ActorId != _actor.Id) return;
-            Vector3 oldPosition = transform.position;
-            transform.position = new Vector3(oldPosition.x,
+            Vector3 oldPosition = Transform.Position;
+            Transform.Position = new Vector3(oldPosition.x,
                 command.GameBoxYPosition.ToUnityYPosition(),
                 oldPosition.z);
         }

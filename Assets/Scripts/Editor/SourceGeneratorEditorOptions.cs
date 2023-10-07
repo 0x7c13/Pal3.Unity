@@ -30,8 +30,8 @@ namespace Editor
         #endif
         public static void GenerateConsoleCommands()
         {
-            var writePath = $"Assets/Scripts/PAL3/Command/{OutputFileName}";
-            var nameSpace = "Pal3.Command";
+            var writePath = $"Assets/Scripts/Pal3.Game/Command/{OutputFileName}";
+            var nameSpace = "Pal3.Game.Command";
             var className = "ConsoleCommands";
             ISourceGenerator sourceGenerator = new ConsoleCommandsAutoGen<ICommand>();
             GenerateSourceInternal(OutputFileName, writePath, className, nameSpace, sourceGenerator, true);

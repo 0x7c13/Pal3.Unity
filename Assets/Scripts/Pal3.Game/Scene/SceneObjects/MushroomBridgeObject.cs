@@ -7,14 +7,17 @@
 
 namespace Pal3.Game.Scene.SceneObjects
 {
+    using System;
     using System.Collections;
     using Common;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.MushroomBridge)]
     public sealed class MushroomBridgeObject : SceneObject
@@ -31,10 +34,10 @@ namespace Pal3.Game.Scene.SceneObjects
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = new()
             {
@@ -43,7 +46,7 @@ namespace Pal3.Game.Scene.SceneObjects
             };
 
             // Add a standing platform controller to make sure the player can walk on the bridge
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
             if (ObjectInfo.SwitchState == 1)
@@ -51,10 +54,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 Vector2Int centerTile = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
                 Vector3 centerPoint = _tilemap.GetWorldPosition(centerTile, ObjectInfo.LayerIndex);
                 float toDegrees = ObjectInfo.Parameters[2];
-                sceneGameObject.transform.RotateAround(centerPoint, Vector3.up, toDegrees);
+                sceneObjectGameEntity.Transform.RotateAround(centerPoint, Vector3.up, toDegrees);
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;
@@ -67,15 +70,16 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfxIfAny();
 
-            Transform transform = GetGameObject().transform;
             Vector2Int centerTile = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
             Vector3 centerPoint = ctx.CurrentScene.GetTilemap().GetWorldPosition(centerTile, ObjectInfo.LayerIndex);
 
             float toDegrees = ObjectInfo.Parameters[2];
             float currentDegrees = 0f;
 
-            float direction = ObjectInfo.SwitchState == 1 ? Mathf.Sign(toDegrees) : -Mathf.Sign(toDegrees);
-            toDegrees = Mathf.Abs(toDegrees);
+            float direction = ObjectInfo.SwitchState == 1 ? MathF.Sign(toDegrees) : -MathF.Sign(toDegrees);
+            toDegrees = MathF.Abs(toDegrees);
+
+            ITransform entityTransform = GetGameEntity().Transform;
 
             while (currentDegrees < toDegrees)
             {
@@ -86,7 +90,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     deltaDegrees = toDegrees - currentDegrees;
                 }
 
-                transform.RotateAround(centerPoint, Vector3.up, deltaDegrees * direction);
+                entityTransform.RotateAround(centerPoint, Vector3.up, deltaDegrees * direction);
 
                 currentDegrees += deltaDegrees;
                 yield return null;

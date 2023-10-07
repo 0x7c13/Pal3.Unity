@@ -10,10 +10,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
     using GamePlay;
-    using UnityEngine;
+    
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.JumpableArea)]
     public sealed class JumpableAreaObject : SceneObject
@@ -27,27 +29,27 @@ namespace Pal3.Game.Scene.SceneObjects
             _gamePlayManager = ServiceLocator.Instance.Get<PlayerGamePlayManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
             _triggerController.OnPlayerActorExited += OnPlayerActorExited;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             _gamePlayManager.PlayerActorEnteredJumpableArea();
         }
 
-        private void OnPlayerActorExited(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorExited(object sender, (int x, int y) tilePosition)
         {
             _gamePlayManager.PlayerActorExitedJumpableArea();
         }

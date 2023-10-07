@@ -13,10 +13,10 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using GamePlay;
     using UnityEngine;
 
-    public class StandingPlatformController : GameEntityBase
+    public class StandingPlatformController : GameEntityScript
     {
-        public event EventHandler<GameObject> OnPlayerActorEntered;
-        public event EventHandler<GameObject> OnPlayerActorExited;
+        public event EventHandler<IGameEntity> OnPlayerActorEntered;
+        public event EventHandler<IGameEntity> OnPlayerActorExited;
 
         public int LayerIndex { get; private set; }
 
@@ -48,7 +48,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
             if (_collider == null)
             {
-                _collider = gameObject.AddComponent<BoxCollider>();
+                _collider = GameEntity.AddComponent<BoxCollider>();
             }
 
             _collider.center = _triggerBounds.center;
@@ -73,7 +73,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, otherCollider.gameObject);
+                OnPlayerActorEntered?.Invoke(this, new GameEntity(otherCollider.gameObject));
             }
         }
 
@@ -82,7 +82,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, otherCollider.gameObject);
+                OnPlayerActorExited?.Invoke(this, new GameEntity(otherCollider.gameObject));
             }
         }
     }

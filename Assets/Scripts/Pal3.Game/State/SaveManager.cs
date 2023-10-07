@@ -23,6 +23,7 @@ namespace Pal3.Game.State
     using Core.Primitives;
     using Core.Utilities;
     using Effect.PostProcessing;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using GamePlay;
@@ -118,7 +119,7 @@ namespace Pal3.Game.State
 
         private string GetSaveFolderPath()
         {
-            return Application.persistentDataPath + Path.DirectorySeparatorChar + SAVE_FOLDER_NAME;
+            return UnityEngine.Application.persistentDataPath + Path.DirectorySeparatorChar + SAVE_FOLDER_NAME;
         }
 
         private string GetSaveFilePath(int slotIndex)
@@ -172,7 +173,7 @@ namespace Pal3.Game.State
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
 
             var playerActorMovementController = currentScene
-                .GetActorGameObject((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameEntity((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
@@ -237,7 +238,7 @@ namespace Pal3.Game.State
 
             // Save current camera state
             int currentCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
-            Vector3 cameraCurrentRotationInEulerAngles = _cameraManager.GetMainCamera().transform.rotation.eulerAngles;
+            Vector3 cameraCurrentRotationInEulerAngles = _cameraManager.GetCameraTransform().EulerAngles;
             commands.Add(new CameraSetInitialStateOnNextSceneLoadCommand(
                 cameraCurrentRotationInEulerAngles, currentCameraTransformOption));
 
@@ -255,22 +256,22 @@ namespace Pal3.Game.State
                 new ActorSetYPositionCommand(currentPlayerActorId,
                     playerActorGameBoxPosition.Y),
                 new ActorSetFacingCommand(currentPlayerActorId,
-                    (int)playerActorMovementController.gameObject.transform.rotation.eulerAngles.y)
+                    (int)playerActorMovementController.GameEntity.Transform.EulerAngles.y)
             });
 
             var allActors = currentScene.GetAllActors();
-            var allActorGameObjects = currentScene.GetAllActorGameObjects();
+            var allActorGameEntities = currentScene.GetAllActorGameEntities();
 
             // Save npc actor state
-            foreach ((int actorId, GameObject actorGameObject)  in allActorGameObjects)
+            foreach ((int actorId, IGameEntity actorGameEntity) in allActorGameEntities)
             {
                 if (currentPlayerActorId == actorId) continue;
-                SaveNpcActorState(commands, actorId, actorGameObject, allActors);
+                SaveNpcActorState(commands, actorId, actorGameEntity, allActors);
             }
 
             #if PAL3
             // Save LongKui state
-            var longKuiCurrentMode = currentScene.GetActorGameObject((int) PlayerActorId.LongKui)
+            var longKuiCurrentMode = currentScene.GetActorGameEntity((int) PlayerActorId.LongKui)
                 .GetComponent<LongKuiController>()
                 .GetCurrentMode();
             if (longKuiCurrentMode != 0)
@@ -279,16 +280,16 @@ namespace Pal3.Game.State
             }
 
             // Save HuaYing state
-            var huaYingGameObject = currentScene.GetActorGameObject((int) PlayerActorId.HuaYing);
-            var huaYingCurrentMode = huaYingGameObject.GetComponent<HuaYingController>().GetCurrentMode();
+            var huaYingGameEntity = currentScene.GetActorGameEntity((int) PlayerActorId.HuaYing);
+            var huaYingCurrentMode = huaYingGameEntity.GetComponent<HuaYingController>().GetCurrentMode();
             if (huaYingCurrentMode != 1)
             {
                 commands.Add(new HuaYingSwitchBehaviourModeCommand(huaYingCurrentMode));
             }
-            if (huaYingCurrentMode == 2 && huaYingGameObject.GetComponent<ActorController>().IsActive)
+            if (huaYingCurrentMode == 2 && huaYingGameEntity.GetComponent<ActorController>().IsActive)
             {
                 commands.Add(new ActorActivateCommand((int) PlayerActorId.HuaYing, 1));
-                var huaYingMovementController = huaYingGameObject.GetComponent<ActorMovementController>();
+                var huaYingMovementController = huaYingGameEntity.GetComponent<ActorMovementController>();
                 commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
                     huaYingMovementController.GetCurrentLayerIndex()));
                 Vector3 position = huaYingMovementController.GetWorldPosition();
@@ -296,7 +297,7 @@ namespace Pal3.Game.State
                 commands.Add(new ActorSetWorldPositionCommand((int)PlayerActorId.HuaYing, position.x, position.z));
                 commands.Add(new ActorSetYPositionCommand((int)PlayerActorId.HuaYing, gameBoxPosition.Y));
                 commands.Add(new ActorSetFacingCommand((int)PlayerActorId.HuaYing,
-                    (int)huaYingGameObject.transform.rotation.eulerAngles.y));
+                    (int)huaYingGameEntity.Transform.EulerAngles.y));
             }
             #elif PAL3A
             // Save Task state
@@ -319,10 +320,10 @@ namespace Pal3.Game.State
         // + actor script id changed by the script
         private static void SaveNpcActorState(List<ICommand> commands,
             int actorId,
-            GameObject actorGameObject,
+            IGameEntity actorGameEntity,
             Dictionary<int, Actor> allActors)
         {
-            var actorController = actorGameObject.GetComponent<ActorController>();
+            var actorController = actorGameEntity.GetComponent<ActorController>();
 
             // Save activation state if changed by the script
             if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
@@ -340,7 +341,7 @@ namespace Pal3.Game.State
                 commands.Add(new ActorActivateCommand(actorId, 1));
             }
 
-            var actorMovementController = actorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = actorGameEntity.GetComponent<ActorMovementController>();
 
             // Save position and rotation if not in initial state
             // Only save position and rotation if the actor behavior is None or Hold
@@ -352,27 +353,27 @@ namespace Pal3.Game.State
                         actorMovementController.GetCurrentLayerIndex()));
                 }
 
-                var currentPosition = actorGameObject.transform.position;
+                var currentPosition = actorGameEntity.Transform.Position;
                 var currentGameBoxPosition = currentPosition.ToGameBoxPosition();
 
-                if (Mathf.Abs(currentGameBoxPosition.X - actor.Info.GameBoxXPosition) > 0.01f ||
-                    Mathf.Abs(currentGameBoxPosition.Z - actor.Info.GameBoxZPosition) > 0.01f)
+                if (MathF.Abs(currentGameBoxPosition.X - actor.Info.GameBoxXPosition) > 0.01f ||
+                    MathF.Abs(currentGameBoxPosition.Z - actor.Info.GameBoxZPosition) > 0.01f)
                 {
                     commands.Add(new ActorSetWorldPositionCommand(actorId,
                         currentPosition.x, currentPosition.z));
                 }
 
-                if (Mathf.Abs(currentGameBoxPosition.Y - actor.Info.GameBoxYPosition) > 0.01f)
+                if (MathF.Abs(currentGameBoxPosition.Y - actor.Info.GameBoxYPosition) > 0.01f)
                 {
                     commands.Add(new ActorSetYPositionCommand(actorId,
                         currentGameBoxPosition.Y));
                 }
 
                 if (Quaternion.Euler(0, -actor.Info.FacingDirection, 0) !=
-                    actorGameObject.transform.rotation)
+                    actorGameEntity.Transform.Rotation)
                 {
                     commands.Add(new ActorSetFacingCommand(actorId,
-                        (int) actorGameObject.transform.rotation.eulerAngles.y));
+                        (int) actorGameEntity.Transform.EulerAngles.y));
                 }
             }
 

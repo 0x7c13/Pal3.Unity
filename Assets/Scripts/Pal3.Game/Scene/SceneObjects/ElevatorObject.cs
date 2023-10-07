@@ -14,11 +14,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+    
+    using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.Elevator)]
     public sealed class ElevatorObject : SceneObject
@@ -35,21 +39,20 @@ namespace Pal3.Game.Scene.SceneObjects
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
-            UnityEngine.Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             // To prevent looping interaction between two elevators during the transition
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
@@ -76,7 +79,7 @@ namespace Pal3.Game.Scene.SceneObjects
             Vector2Int toCenterTilePosition = tilemap.GetTilePosition(fromCenterPosition, toNavLayer);
             Vector3 toCenterPosition = tilemap.GetWorldPosition(toCenterTilePosition, toNavLayer);
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             // Move the player to the center of the elevator
             yield return actorMovementController.MoveDirectlyToAsync(fromCenterPosition, 0, true);
@@ -86,7 +89,7 @@ namespace Pal3.Game.Scene.SceneObjects
             PlaySfx("wc014");
 
             // Lifting up/down
-            yield return ctx.PlayerActorGameObject.transform.MoveAsync(toCenterPosition,
+            yield return ctx.PlayerActorGameEntity.Transform.MoveAsync(toCenterPosition,
                 duration, AnimationCurveType.Sine);
 
             actorMovementController.SetNavLayer(toNavLayer);

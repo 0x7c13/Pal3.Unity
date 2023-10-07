@@ -13,10 +13,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.DivineTreeFlower)]
     public sealed class DivineTreeFlowerObject : SceneObject
@@ -31,9 +35,9 @@ namespace Pal3.Game.Scene.SceneObjects
             _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
             bool isFlowerInOpenState;
 
@@ -54,7 +58,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     StringComparison.OrdinalIgnoreCase);
             }
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Add a standing platform controller to the flower if it is in the open state
             if (isFlowerInOpenState)
@@ -65,11 +69,11 @@ namespace Pal3.Game.Scene.SceneObjects
                     size = new Vector3(17f, 2f, 17f),
                 };
 
-                _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+                _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
                 _platformController.Init(bounds, ObjectInfo.LayerIndex);
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance) => false;

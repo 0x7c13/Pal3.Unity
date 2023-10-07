@@ -19,6 +19,7 @@ namespace Pal3.Game.Camera
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Core.Utilities;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Utilities;
@@ -58,6 +59,7 @@ namespace Pal3.Game.Camera
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<CameraSetInitialStateOnNextSceneLoadCommand>,
+        ICommandExecutor<CameraSetFieldOfViewCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float FADE_ANIMATION_DURATION = 3f;
@@ -79,9 +81,10 @@ namespace Pal3.Game.Camera
         };
 
         private readonly Camera _camera;
+        private readonly ITransform _cameraTransform;
         private readonly Image _curtainImage;
 
-        private GameObject _lookAtGameObject;
+        private IGameEntity _lookAtGameEntity;
         private Vector3 _lastLookAtPoint = Vector3.zero;
         private Vector3 _cameraMoveVelocity = Vector3.zero;
         private Vector3 _actualPosition = Vector3.zero;
@@ -95,9 +98,9 @@ namespace Pal3.Game.Camera
         private int _currentAppliedDefaultTransformOption = 0;
 
         private readonly PlayerInputActions _inputActions;
-        private readonly PlayerGamePlayManager _gamePlayManager;
         private readonly SceneManager _sceneManager;
         private readonly GameStateManager _gameStateManager;
+        private readonly PlayerActorManager _playerActorManager;
 
         private readonly RectTransform _joyStickRectTransform;
         private readonly float _joyStickMovementRange;
@@ -116,20 +119,23 @@ namespace Pal3.Game.Camera
             int transformOption)> _cameraLastKnownState = new ();
 
         public CameraManager(PlayerInputActions inputActions,
-            PlayerGamePlayManager gamePlayManager,
             SceneManager sceneManager,
             GameStateManager gameStateManager,
+            PlayerActorManager playerActorManager,
             Camera mainCamera,
+            ITransform cameraTransform,
             Canvas touchControlUI,
             Image curtainImage)
         {
             _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
-            _gamePlayManager = Requires.IsNotNull(gamePlayManager, nameof(gamePlayManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
+            _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
 
-            _camera = mainCamera;
-            _camera!.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
+            _camera = Requires.IsNotNull(mainCamera, nameof(mainCamera));
+            _cameraTransform = Requires.IsNotNull(cameraTransform, nameof(cameraTransform));
+
+            _camera.fieldOfView = HorizontalToVerticalFov(24.05f, 4f/3f);
 
             _curtainImage = curtainImage;
 
@@ -158,18 +164,18 @@ namespace Pal3.Game.Camera
 
             if (_cameraAnimationInProgress) return;
 
-            if (_lookAtGameObject != null)
+            if (_lookAtGameEntity != null)
             {
-                _lastLookAtPoint = _lookAtGameObject.transform.position;
+                _lastLookAtPoint = _lookAtGameEntity.Transform.Position;
             }
-            else if (_gamePlayManager.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            else if (_playerActorManager.LastKnownPosition.HasValue)
             {
-                _lastLookAtPoint = playerActorPosition;
+                _lastLookAtPoint = _playerActorManager.LastKnownPosition.Value;
             }
 
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             Vector3 targetPosition = _lastLookAtPoint + _cameraOffset;
-            Vector3 currentPosition = _camera.transform.position;
+            Vector3 currentPosition = _cameraTransform.Position;
 
             Vector3 previousLookAtPoint = _lastLookAtPoint + (currentPosition - targetPosition);
 
@@ -191,13 +197,13 @@ namespace Pal3.Game.Camera
                 _actualLookAtPoint = previousLookAtPoint + (_actualPosition - currentPosition);
             }
 
-            _camera.transform.position = _actualPosition;
+            _cameraTransform.Position = _actualPosition;
 
-            if (_lookAtGameObject != null) return;
+            if (_lookAtGameEntity != null) return;
 
             if (!_freeToRotate)
             {
-                _camera.transform.LookAt(_actualLookAtPoint + yOffset);
+                _cameraTransform.LookAt(_actualLookAtPoint + yOffset);
                 return;
             }
 
@@ -265,24 +271,25 @@ namespace Pal3.Game.Camera
         {
             var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             _cameraOffset = Quaternion.AngleAxis(yaw, Vector3.up) * _cameraOffset;
-            _camera.transform.position = _actualLookAtPoint + _cameraOffset;
-            _camera.transform.LookAt(_actualLookAtPoint + yOffset);
+            _cameraTransform.Position = _actualLookAtPoint + _cameraOffset;
+            _cameraTransform.LookAt(_actualLookAtPoint + yOffset);
         }
 
         private static float HorizontalToVerticalFov(float horizontalFov, float aspect)
         {
-            return Mathf.Rad2Deg * 2 * Mathf.Atan(Mathf.Tan((horizontalFov * Mathf.Deg2Rad) / 2f) / aspect);
+            const float rad2Deg = 57.29578f;
+            const float deg2Rad = 0.017453292f;
+            return rad2Deg * 2 * MathF.Atan(MathF.Tan((horizontalFov * deg2Rad) / 2f) / aspect);
         }
 
         private IEnumerator ShakeAsync(float duration, float amplitude, Action onFinished = null)
         {
             _cameraAnimationInProgress = true;
 
-            yield return _camera.transform.ShakeAsync(duration,
-                amplitude,
-                false,
-                true,
-                false);
+            yield return _cameraTransform.ShakeAsync(duration,
+                amplitude / 5f,
+                amplitude,  // More amplitude on y-axis
+                amplitude / 5f);
 
             _cameraAnimationInProgress = false;
             onFinished?.Invoke();
@@ -295,10 +302,9 @@ namespace Pal3.Game.Camera
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            Transform cameraTransform = _camera.transform;
-            Vector3 oldPosition = cameraTransform.position;
+            Vector3 oldPosition = _cameraTransform.Position;
 
-            yield return cameraTransform.MoveAsync(position,
+            yield return _cameraTransform.MoveAsync(position,
                 duration,
                 curveType,
                 cancellationToken);
@@ -306,7 +312,7 @@ namespace Pal3.Game.Camera
             if (!cancellationToken.IsCancellationRequested)
             {
                 _lastLookAtPoint += position - oldPosition;
-                _cameraOffset = _camera.transform.position - _lastLookAtPoint;
+                _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
             }
             _cameraAnimationInProgress = false;
             onFinished?.Invoke();
@@ -321,7 +327,7 @@ namespace Pal3.Game.Camera
         {
             _cameraAnimationInProgress = true;
             Vector3 lookAtPoint = _lastLookAtPoint;
-            yield return _camera.transform.OrbitAroundCenterPointAsync(toRotation,
+            yield return _cameraTransform.OrbitAroundCenterPointAsync(toRotation,
                 lookAtPoint,
                 duration,
                 curveType,
@@ -330,7 +336,7 @@ namespace Pal3.Game.Camera
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                _cameraOffset = _camera.transform.position - lookAtPoint;
+                _cameraOffset = _cameraTransform.Position - lookAtPoint;
             }
             _cameraAnimationInProgress = false;
             onFinished?.Invoke();
@@ -343,7 +349,7 @@ namespace Pal3.Game.Camera
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            yield return _camera.transform.RotateAsync(toRotation,
+            yield return _cameraTransform.RotateAsync(toRotation,
                 duration,
                 curveType,
                 cancellationToken);
@@ -358,20 +364,19 @@ namespace Pal3.Game.Camera
             CancellationToken cancellationToken = default)
         {
             _cameraAnimationInProgress = true;
-            Vector3 oldPosition = _camera.transform.position;
+            Vector3 oldPosition = _cameraTransform.Position;
             var oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
             Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
             Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
-            Transform cameraTransform = _camera.transform;
 
-            yield return cameraTransform.MoveAsync(newPosition,
+            yield return _cameraTransform.MoveAsync(newPosition,
                 duration,
                 curveType,
                 cancellationToken);
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                _cameraOffset = cameraTransform.position - _lastLookAtPoint;
+                _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
             }
             _cameraAnimationInProgress = false;
             onFinished?.Invoke();
@@ -407,9 +412,9 @@ namespace Pal3.Game.Camera
             return _currentAppliedDefaultTransformOption;
         }
 
-        public Camera GetMainCamera()
+        public ITransform GetCameraTransform()
         {
-            return _camera;
+            return _cameraTransform;
         }
 
         private void ApplySceneSettings(ScnSceneInfo sceneInfo,
@@ -488,17 +493,27 @@ namespace Pal3.Game.Camera
             Vector3 cameraFacingDirection = (cameraRotation * Vector3.forward).normalized;
             Vector3 cameraPosition = _lastLookAtPoint + cameraFacingDirection * -cameraDistance + yOffset;
 
-            _camera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
+            _cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
+        }
+
+        public Ray ScreenPointToRay(Vector2 position)
+        {
+            return _camera.ScreenPointToRay(position);
+        }
+
+        public float GetFieldOfView()
+        {
+            return _camera.fieldOfView;
         }
 
         public void Execute(CameraSetDefaultTransformCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            if (_gamePlayManager.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            if (_playerActorManager.LastKnownPosition.HasValue)
             {
-                _lastLookAtPoint = playerActorPosition;
+                _lastLookAtPoint = _playerActorManager.LastKnownPosition.Value;
             }
 
             ApplyDefaultSettings(command.Option);
@@ -509,7 +524,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            _lookAtGameObject = null;
+            _lookAtGameEntity = null;
 
             Vector3 cameraPosition = new GameBoxVector3(
                 command.GameBoxXPosition,
@@ -517,11 +532,10 @@ namespace Pal3.Game.Camera
                 command.GameBoxZPosition).ToUnityPosition();
             Quaternion cameraRotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
 
-            Transform cameraTransform = _camera.transform;
-            cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
+            _cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
 
             _lastLookAtPoint = cameraPosition +
-                               cameraTransform.forward * command.GameBoxDistance.ToUnityDistance();
+                               _cameraTransform.Forward * command.GameBoxDistance.ToUnityDistance();
             _cameraOffset = cameraPosition - _lastLookAtPoint;
 
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay)
@@ -534,7 +548,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            _lookAtGameObject = null;
+            _lookAtGameEntity = null;
             _cameraFollowPlayer = command.Follow == 1;
         }
 
@@ -730,10 +744,9 @@ namespace Pal3.Game.Camera
             // Remember the current scene's camera position and rotation
             if (_cameraFollowPlayer && currentScene.GetSceneInfo().SceneType != SceneType.InDoor)
             {
-                var cameraTransform = _camera.transform;
                 _cameraLastKnownState.Add((
                     currentScene.GetSceneInfo(),
-                    cameraTransform.rotation,
+                    _cameraTransform.Rotation,
                     _currentAppliedDefaultTransformOption));
 
                 if (_cameraLastKnownState.Count > CAMERA_LAST_KNOWN_STATE_LIST_MAX_LENGTH)
@@ -779,15 +792,15 @@ namespace Pal3.Game.Camera
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            _lookAtGameObject = _sceneManager.GetCurrentScene().GetActorGameObject(command.ActorId);
+            _lookAtGameEntity = _sceneManager.GetCurrentScene().GetActorGameEntity(command.ActorId);
         }
 
         public void Execute(CameraFocusOnSceneObjectCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            _lookAtGameObject = _sceneManager.GetCurrentScene()
-                .GetSceneObject(command.SceneObjectId).GetGameObject();
+            _lookAtGameEntity = _sceneManager.GetCurrentScene()
+                .GetSceneObject(command.SceneObjectId).GetGameEntity();
         }
 
         public void Execute(GameStateChangedNotification command)
@@ -808,6 +821,11 @@ namespace Pal3.Game.Camera
             _initRotationOnSceneLoad = null;
             _cameraLastKnownState.Clear();
             _cameraFollowPlayer = true;
+        }
+
+        public void Execute(CameraSetFieldOfViewCommand command)
+        {
+            _camera.fieldOfView = command.FieldOfView;
         }
 
         public void Execute(CameraOrbitHorizontalCommand command)
@@ -917,9 +935,9 @@ namespace Pal3.Game.Camera
             var waiter = new WaitUntilCanceled();
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
-            if (_gamePlayManager.TryGetPlayerActorLastKnownPosition(out Vector3 playerActorPosition))
+            if (_playerActorManager.LastKnownPosition.HasValue)
             {
-                Vector3 position = _cameraOffset + playerActorPosition;
+                Vector3 position = _cameraOffset + _playerActorManager.LastKnownPosition.Value;
                 Pal3.Instance.StartCoroutine(MoveAsync(position,
                     command.Duration,
                     AnimationCurveType.Sine,

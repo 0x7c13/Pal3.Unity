@@ -6,19 +6,19 @@
 namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
+    using Engine.Abstraction;
     using Newtonsoft.Json;
-    using UnityEngine;
 
-    public class StopSfxPlayingAtGameObjectRequest : ICommand
+    public class StopSfxPlayingAtGameEntityRequest : ICommand
     {
-        public StopSfxPlayingAtGameObjectRequest(GameObject parent, string audioSourceName, bool disposeSource)
+        public StopSfxPlayingAtGameEntityRequest(IGameEntity parent, string audioSourceName, bool disposeSource)
         {
             Parent = parent;
             AudioSourceName = audioSourceName;
             DisposeSource = disposeSource;
         }
 
-        [JsonIgnore] public GameObject Parent { get; }
+        [JsonIgnore] public IGameEntity Parent { get; }
         public string AudioSourceName { get; }
         public bool DisposeSource { get; }
     }

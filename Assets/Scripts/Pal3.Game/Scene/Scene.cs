@@ -22,6 +22,7 @@ namespace Pal3.Game.Scene
     using Core.Primitives;
     using Data;
     using Effect;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Logging;
@@ -33,8 +34,7 @@ namespace Pal3.Game.Scene
     using SceneObjects;
     using State;
     using UnityEngine;
-    using Color = UnityEngine.Color;
-    using Debug = UnityEngine.Debug;
+    using Color = Core.Primitives.Color;
 
     public class Scene : SceneBase,
         ICommandExecutor<SceneActivateObjectCommand>,
@@ -54,49 +54,33 @@ namespace Pal3.Game.Scene
 
         private static int _lightCullingMask;
 
-        private GameObject _parent;
-        private GameObject _mesh;
+        private IGameEntity _parent;
+        private IGameEntity _mesh;
 
         private Light _mainLight;
         private readonly List<Light> _pointLights = new();
 
-        private readonly List<GameObject> _navMeshLayers = new ();
+        private readonly List<IGameEntity> _navMeshLayers = new ();
         private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
 
         private readonly HashSet<int> _activatedSceneObjects = new ();
-        private readonly Dictionary<int, GameObject> _actorObjects = new ();
+        private readonly Dictionary<int, IGameEntity> _actorEntities = new ();
 
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
 
         private GameResourceProvider _resourceProvider;
         private SceneStateManager _sceneStateManager;
         private bool _isLightingEnabled;
-        private Camera _mainCamera;
+        private IGameEntity _cameraEntity;
         private SkyBoxRenderer _skyBoxRenderer;
         private IMaterialFactory _materialFactory;
 
-        public void Init(GameResourceProvider resourceProvider,
-            SceneStateManager sceneStateManager,
-            bool isLightingEnabled,
-            Camera mainCamera,
-            HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
-        {
-            _resourceProvider = resourceProvider;
-            _sceneStateManager = sceneStateManager;
-            _isLightingEnabled = isLightingEnabled;
-            _mainCamera = mainCamera;
-            _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
-            _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
-                                (1 << LayerMask.NameToLayer("VFX"));
-            _materialFactory = resourceProvider.GetMaterialFactory();
-        }
-
-        private void OnEnable()
+        protected override void OnEnableGameEntity()
         {
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
-        private void OnDisable()
+        protected override void OnDisableGameEntity()
         {
             // Remove fog when scene is disabled
             if (RenderSettings.fog) RenderSettings.fog = false;
@@ -111,7 +95,7 @@ namespace Pal3.Game.Scene
                 meshCollider.Destroy();
             }
 
-            foreach (GameObject navMeshLayer in _navMeshLayers)
+            foreach (IGameEntity navMeshLayer in _navMeshLayers)
             {
                 navMeshLayer.Destroy();
             }
@@ -121,7 +105,7 @@ namespace Pal3.Game.Scene
                 SceneObjects[sceneObjectId].Deactivate();
             }
 
-            foreach (var actor in _actorObjects)
+            foreach (var actor in _actorEntities)
             {
                 actor.Value.Destroy();
             }
@@ -132,7 +116,23 @@ namespace Pal3.Game.Scene
             }
         }
 
-        public void Load(ScnFile scnFile, GameObject parent)
+        public void Init(GameResourceProvider resourceProvider,
+            SceneStateManager sceneStateManager,
+            bool isLightingEnabled,
+            IGameEntity cameraEntity,
+            HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
+        {
+            _resourceProvider = resourceProvider;
+            _sceneStateManager = sceneStateManager;
+            _isLightingEnabled = isLightingEnabled;
+            _cameraEntity = cameraEntity;
+            _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
+            _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
+                                (1 << LayerMask.NameToLayer("VFX"));
+            _materialFactory = resourceProvider.GetMaterialFactory();
+        }
+
+        public void Load(ScnFile scnFile, IGameEntity parent)
         {
             _parent = parent;
 
@@ -147,7 +147,7 @@ namespace Pal3.Game.Scene
             EngineLogger.Log($"Scene data initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
-            Color actorTintColor = Color.white;
+            Color actorTintColor = Color.White;
             if (IsNightScene())
             {
                 actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
@@ -211,14 +211,14 @@ namespace Pal3.Game.Scene
             return Actors;
         }
 
-        public GameObject GetActorGameObject(int id)
+        public IGameEntity GetActorGameEntity(int id)
         {
-            return _actorObjects.TryGetValue(id, out GameObject actorObject) ? actorObject : null;
+            return _actorEntities.TryGetValue(id, out IGameEntity actorObject) ? actorObject : null;
         }
 
-        public Dictionary<int, GameObject> GetAllActorGameObjects()
+        public Dictionary<int, IGameEntity> GetAllActorGameEntities()
         {
-            return _actorObjects;
+            return _actorEntities;
         }
 
         public Dictionary<int, MeshCollider> GetMeshColliders()
@@ -245,19 +245,17 @@ namespace Pal3.Game.Scene
         private void RenderMesh()
         {
             // Render mesh
-            _mesh = new GameObject($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}")
-            {
-                isStatic = true // Scene mesh is static
-            };
+            _mesh = new GameEntity($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}");
+            _mesh.IsStatic = true; // Scene mesh is static
 
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
-            _mesh.transform.SetParent(_parent.transform, false);
+            _mesh.SetParent(_parent, worldPositionStays: false);
 
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
                 _materialFactory,
                 isStaticObject: true, // Scene mesh is static
-                Color.white,
+                Color.White,
                 IsWaterSurfaceOpaque());
 
             if (SceneCvdMesh != null)
@@ -273,9 +271,9 @@ namespace Pal3.Game.Scene
         private void RenderSkyBox()
         {
             if (ScnFile.SceneInfo.SkyBox == 0) return;
-            _skyBoxRenderer = _mainCamera.gameObject.AddComponent<SkyBoxRenderer>();
+            _skyBoxRenderer = _cameraEntity.AddComponent<SkyBoxRenderer>();
             Texture2D[] skyBoxTextures = _resourceProvider.GetSkyBoxTextures((int) ScnFile.SceneInfo.SkyBox);
-            _skyBoxRenderer.Render(_mainCamera,
+            _skyBoxRenderer.Render(_cameraEntity,
                 skyBoxTextures[0],
                 skyBoxTextures[1],
                 skyBoxTextures[2],
@@ -297,11 +295,10 @@ namespace Pal3.Game.Scene
 
             for (var i = 0; i < NavFile.FaceLayers.Length; i++)
             {
-                var navMesh = new GameObject($"NavMesh_Layer_{i}")
-                {
-                    layer = raycastOnlyLayer
-                };
-                navMesh.transform.SetParent(_parent.transform, false);
+                var navMesh = new GameEntity($"NavMesh_Layer_{i}");
+                navMesh.IsStatic = true; // NavMesh is static
+                navMesh.SetLayer(raycastOnlyLayer);
+                navMesh.SetParent(_parent, worldPositionStays: false);
 
                 var meshCollider = navMesh.AddComponent<MeshCollider>();
                 meshCollider.convex = false;
@@ -333,7 +330,7 @@ namespace Pal3.Game.Scene
             // if (ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor &&
             //     LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
             // {
-            //     float w = Mathf.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
+            //     float w = MathF.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
             //     mainLightRotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
             //     {
             //         X = (mainLight.WorldMatrix.m21 - mainLight.WorldMatrix.m12) / (4.0f * w),
@@ -343,11 +340,11 @@ namespace Pal3.Game.Scene
             //     });
             // }
 
-            var mainLightGo = new GameObject($"LightSource_Main");
-            mainLightGo.transform.SetParent(_parent.transform, false);
-            mainLightGo.transform.SetPositionAndRotation(mainLightPosition, mainLightRotation);
+            var mainLightEntity = new GameEntity($"LightSource_Main");
+            mainLightEntity.SetParent(_parent, worldPositionStays: false);
+            mainLightEntity.Transform.SetPositionAndRotation(mainLightPosition, mainLightRotation);
 
-            _mainLight = mainLightGo.AddComponent<Light>();
+            _mainLight = mainLightEntity.AddComponent<Light>();
             _mainLight.type = LightType.Directional;
             _mainLight.range = 500f;
             _mainLight.shadows = LightShadows.Soft;
@@ -356,47 +353,47 @@ namespace Pal3.Game.Scene
 
             #if PAL3
             _mainLight.color = IsNightScene() ?
-                new Color(60f / 255f, 80f / 255f, 170f / 255f) :
-                new Color(220f / 255f, 210f / 255f, 200f / 255f);
+                new Color(60f / 255f, 80f / 255f, 170f / 255f).ToUnityColor() :
+                new Color(220f / 255f, 210f / 255f, 200f / 255f).ToUnityColor();
             _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.75f : 0.9f;
             #elif PAL3A
             _mainLight.color = IsNightScene() ?
-                new Color(60f / 255f, 80f / 255f, 170f / 255f) :
-                new Color(200f / 255f, 200f / 255f, 200f / 255f);
+                new Color(60f / 255f, 80f / 255f, 170f / 255f).ToUnityColor() :
+                new Color(200f / 255f, 200f / 255f, 200f / 255f).ToUnityColor();
             _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.65f : 0.9f;
             #endif
 
             // Ambient light
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.ambientLight = IsNightScene() ?
-                new Color( 90f/ 255f, 100f / 255f, 130f / 255f) :
-                new Color(180f / 255f, 180f / 255f, 160f / 255f);
+                new Color( 90f/ 255f, 100f / 255f, 130f / 255f).ToUnityColor() :
+                new Color(180f / 255f, 180f / 255f, 160f / 255f).ToUnityColor();
 
             // Apply lighting override
             var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
             if (LightingConstants.MainLightColorInfoGlobal.TryGetValue(ScnFile.SceneInfo.CityName, out Color globalMainLightColorOverride))
             {
-                _mainLight.color = globalMainLightColorOverride;
+                _mainLight.color = globalMainLightColorOverride.ToUnityColor();
             }
             if (LightingConstants.MainLightColorInfo.TryGetValue(key, out Color mainLightColorOverride))
             {
-                _mainLight.color = mainLightColorOverride;
+                _mainLight.color = mainLightColorOverride.ToUnityColor();
             }
             if (LightingConstants.MainLightRotationInfo.TryGetValue(key, out Quaternion mainLightRotationOverride))
             {
-                _mainLight.transform.rotation = mainLightRotationOverride;
+                mainLightEntity.Transform.Rotation = mainLightRotationOverride;
             }
         }
 
-        private void AddPointLight(Transform parent, float yOffset)
+        private void AddPointLight(IGameEntity parent, float yOffset)
         {
             // Add a point light to the fire fx
-            var lightSource = new GameObject($"LightSource_Point");
-            lightSource.transform.SetParent(parent, false);
-            lightSource.transform.localPosition = new Vector3(0f, yOffset, 0f);
+            var lightSource = new GameEntity($"LightSource_Point");
+            lightSource.SetParent(parent, worldPositionStays: false);
+            lightSource.Transform.LocalPosition = new Vector3(0f, yOffset, 0f);
 
             var lightComponent = lightSource.AddComponent<Light>();
-            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f);
+            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f).ToUnityColor();
             lightComponent.type = LightType.Point;
             lightComponent.intensity = IsNightScene() ? 1f : 1.2f;
             lightComponent.range = 50f;
@@ -453,23 +450,23 @@ namespace Pal3.Game.Scene
             if (_activatedSceneObjects.Contains(id)) return;
             SceneObject sceneObject = SceneObjects[id];
 
-            Color tintColor = Color.white;
+            Color tintColor = Color.White;
             if (IsNightScene())
             {
                 tintColor = new Color(0.35f, 0.35f, 0.35f, 1f);
             }
 
-            GameObject sceneObjectGameObject = sceneObject.Activate(_resourceProvider, tintColor);
-            sceneObjectGameObject.transform.SetParent(_parent.transform, false);
+            IGameEntity sceneObjectGameEntity = sceneObject.Activate(_resourceProvider, tintColor);
+            sceneObjectGameEntity.SetParent(_parent, worldPositionStays: false);
 
             if (_isLightingEnabled)
             {
                 if (sceneObject.GraphicsEffectType == GraphicsEffectType.Fire &&
-                    sceneObjectGameObject.GetComponent<FireEffect>() is { } fireEffect &&
-                    fireEffect.EffectGameObject != null)
+                    sceneObjectGameEntity.GetComponent<FireEffect>() is { } fireEffect &&
+                    fireEffect.EffectGameEntity != null)
                 {
                     var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
-                    AddPointLight(fireEffect.EffectGameObject.transform, yOffset);
+                    AddPointLight(fireEffect.EffectGameEntity, yOffset);
                 }
             }
 
@@ -482,7 +479,7 @@ namespace Pal3.Game.Scene
             _activatedSceneObjects.Remove(id);
 
             if (_isLightingEnabled &&
-                SceneObjects[id].GetGameObject().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
+                SceneObjects[id].GetGameEntity().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
             {
                 _pointLights.Remove(pointLight);
                 StripPointLightShadowsIfNecessary();
@@ -493,8 +490,8 @@ namespace Pal3.Game.Scene
 
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
-            if (_actorObjects.ContainsKey(actor.Id)) return;
-            GameObject actorGameObject = ActorFactory.CreateActorGameObject(_resourceProvider,
+            if (_actorEntities.ContainsKey(actor.Id)) return;
+            IGameEntity actorGameEntity = ActorFactory.CreateActorGameEntity(_resourceProvider,
                 actor,
                 tileMap,
                 isDropShadowEnabled: !_isLightingEnabled,
@@ -503,16 +500,16 @@ namespace Pal3.Game.Scene
                 ActorMovementMaxYDifferentialCrossLayer,
                 ActorMovementMaxYDifferentialCrossPlatform,
                 GetAllActiveActorBlockingTilePositions);
-            actorGameObject.transform.SetParent(_parent.transform, false);
-            _actorObjects[actor.Id] = actorGameObject;
+            actorGameEntity.SetParent(_parent, worldPositionStays: false);
+            _actorEntities[actor.Id] = actorGameEntity;
         }
 
         private void ActivateActorObject(int id, bool isActive)
         {
-            if (!_actorObjects.ContainsKey(id)) return;
+            if (!_actorEntities.ContainsKey(id)) return;
 
-            GameObject actorGameObject = _actorObjects[id];
-            var actorController = actorGameObject.GetComponent<ActorController>();
+            IGameEntity actorGameEntity = _actorEntities[id];
+            var actorController = actorGameEntity.GetComponent<ActorController>();
             actorController.IsActive = isActive;
         }
 
@@ -521,10 +518,10 @@ namespace Pal3.Game.Scene
         /// </summary>
         private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, int[] excludeActorIds)
         {
-            var allActors = GetAllActorGameObjects();
+            var allActors = GetAllActorGameEntities();
 
             var actorTiles = new HashSet<Vector2Int>();
-            foreach ((var id, GameObject actor) in allActors)
+            foreach ((var id, IGameEntity actor) in allActors)
             {
                 if (excludeActorIds.Contains(id)) continue;
                 if (actor.GetComponent<ActorController>().IsActive)
@@ -609,22 +606,22 @@ namespace Pal3.Game.Scene
         public void Execute(ActorActivateCommand command)
         {
             if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-            if (!_actorObjects.ContainsKey(command.ActorId)) return;
+            if (!_actorEntities.ContainsKey(command.ActorId)) return;
             ActivateActorObject(command.ActorId, command.IsActive == 1);
         }
 
         public void Execute(ActorLookAtActorCommand command)
         {
-            if (!_actorObjects.ContainsKey(command.ActorId) ||
-                !_actorObjects.ContainsKey(command.LookAtActorId)) return;
+            if (!_actorEntities.ContainsKey(command.ActorId) ||
+                !_actorEntities.ContainsKey(command.LookAtActorId)) return;
 
-            Transform actorTransform = _actorObjects[command.ActorId].transform;
-            Transform lookAtActorTransform = _actorObjects[command.LookAtActorId].transform;
-            Vector3 lookAtActorPosition = lookAtActorTransform.position;
+            ITransform actorTransform = _actorEntities[command.ActorId].Transform;
+            ITransform lookAtActorTransform = _actorEntities[command.LookAtActorId].Transform;
+            Vector3 lookAtActorPosition = lookAtActorTransform.Position;
 
             actorTransform.LookAt(new Vector3(
                 lookAtActorPosition.x,
-                actorTransform.position.y,
+                actorTransform.Position.y,
                 lookAtActorPosition.z));
         }
 
@@ -632,8 +629,8 @@ namespace Pal3.Game.Scene
         {
             if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
-                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                IGameEntity sceneObjectEntity = SceneObjects[command.ObjectId].GetGameEntity();
+                if (sceneObjectEntity.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
                     cvdMeshRenderer.StartOneTimeAnimation(true);
                 }
@@ -672,10 +669,10 @@ namespace Pal3.Game.Scene
                     return;
                 }
 
-                GameObject sceneObjectGo = sceneObject.GetGameObject();
+                IGameEntity sceneObjectEntity = sceneObject.GetGameEntity();
                 Vector3 offset = gameBoxPositionOffset.ToUnityPosition();
-                Vector3 toPosition = sceneObjectGo.transform.position + offset;
-                StartCoroutine(sceneObjectGo.transform.MoveAsync(toPosition, command.Duration));
+                Vector3 toPosition = sceneObjectEntity.Transform.Position + offset;
+                StartCoroutine(sceneObjectEntity.Transform.MoveAsync(toPosition, command.Duration));
 
                 // Save the new position since it is moved by the script
                 CommandDispatcher<ICommand>.Instance.Dispatch(
@@ -709,8 +706,8 @@ namespace Pal3.Game.Scene
         {
             if (_activatedSceneObjects.Contains(command.ObjectId))
             {
-                GameObject sceneObjectGo = SceneObjects[command.ObjectId].GetGameObject();
-                if (sceneObjectGo.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
+                IGameEntity sceneObjectEntity = SceneObjects[command.ObjectId].GetGameEntity();
+                if (sceneObjectEntity.GetComponent<CvdModelRenderer>() is { } cvdMeshRenderer)
                 {
                     cvdMeshRenderer.SetCurrentTime(cvdMeshRenderer.GetDefaultAnimationDuration());
                     cvdMeshRenderer.StartOneTimeAnimation(true, timeScale: -1f);
@@ -729,7 +726,7 @@ namespace Pal3.Game.Scene
                 command.Red / 255f,
                 command.Green / 255f,
                 command.Blue / 255f,
-                command.Alpha);
+                command.Alpha).ToUnityColor();
             RenderSettings.fogStartDistance = command.StartDistance.ToUnityDistance();
             RenderSettings.fogEndDistance = command.EndDistance.ToUnityDistance();
             RenderSettings.fog = true;
@@ -767,21 +764,21 @@ namespace Pal3.Game.Scene
                         }
                     }
 
-                    GameObject leiYuanGeActorGameObject = GetActorGameObject((int)PlayerActorId.LeiYuanGe);
-                    Vector3 leiYuanGePosition = leiYuanGeActorGameObject.transform.position;
-                    float leiYuanGeHeight = leiYuanGeActorGameObject.GetComponent<ActorActionController>()
+                    IGameEntity leiYuanGeActorGameEntity = GetActorGameEntity((int)PlayerActorId.LeiYuanGe);
+                    Vector3 leiYuanGePosition = leiYuanGeActorGameEntity.Transform.Position;
+                    float leiYuanGeHeight = leiYuanGeActorGameEntity.GetComponent<ActorActionController>()
                         .GetActorHeight();
 
                     // Height adjustment based on bird action type
                     var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;
 
-                    GameObject birdActorGameObject = GetActorGameObject((int)activeBirdActorId);
-                    birdActorGameObject.transform.position = new Vector3(leiYuanGePosition.x,
+                    IGameEntity birdActorGameEntity = GetActorGameEntity((int)activeBirdActorId);
+                    birdActorGameEntity.Transform.Position = new Vector3(leiYuanGePosition.x,
                         leiYuanGePosition.y + leiYuanGeHeight + yOffset,
                         leiYuanGePosition.z);
-                    birdActorGameObject.transform.forward = leiYuanGeActorGameObject.transform.forward;
-                    birdActorGameObject.GetComponent<ActorController>().IsActive = true;
-                    birdActorGameObject.GetComponent<ActorActionController>()
+                    birdActorGameEntity.Transform.Forward = leiYuanGeActorGameEntity.Transform.Forward;
+                    birdActorGameEntity.GetComponent<ActorController>().IsActive = true;
+                    birdActorGameEntity.GetComponent<ActorActionController>()
                         .PerformAction(command.ActionType == 0 ? ActorActionType.Stand : ActorActionType.Walk);
                     break;
                 }

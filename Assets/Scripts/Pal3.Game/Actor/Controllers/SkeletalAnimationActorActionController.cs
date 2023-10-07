@@ -16,12 +16,12 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Utilities;
     using Data;
     using Engine.DataLoader;
-    using Engine.Extensions;
     using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     public sealed class SkeletalAnimationActorActionController : ActorActionController,
         ICommandExecutor<ActorStopActionCommand>
@@ -36,6 +36,18 @@ namespace Pal3.Game.Actor.Controllers
         private Bounds _rendererBounds;
         private Bounds _meshBounds;
 
+        protected override void OnEnableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            DeActivate();
+            base.DeActivate();
+        }
+
         public void Init(GameResourceProvider resourceProvider,
             ActorBase actor,
             bool hasColliderAndRigidBody,
@@ -48,18 +60,6 @@ namespace Pal3.Game.Actor.Controllers
             _actor = actor;
             _tintColor = tintColor;
             _materialFactory = resourceProvider.GetMaterialFactory();
-        }
-
-        private void OnEnable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            DeActivate();
-            base.DeActivate();
         }
 
         public override void PerformAction(string actionName,
@@ -106,7 +106,7 @@ namespace Pal3.Game.Actor.Controllers
 
             DisposeCurrentAction();
 
-            _skeletalModelRenderer = gameObject.GetOrAddComponent<SkeletalModelRenderer>();
+            _skeletalModelRenderer = GameEntity.AddComponent<SkeletalModelRenderer>();
 
             _skeletalModelRenderer.Init(mshFile,
                 mtlFile,

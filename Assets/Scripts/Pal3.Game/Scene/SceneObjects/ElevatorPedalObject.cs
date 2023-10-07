@@ -13,11 +13,16 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
+    using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.ElevatorPedal)]
     public sealed class ElevatorPedalObject : SceneObject
@@ -34,15 +39,15 @@ namespace Pal3.Game.Scene.SceneObjects
             _gameStateManager = ServiceLocator.Instance.Get<GameStateManager>();
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             Bounds bounds = GetMeshBounds();
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
 
@@ -51,22 +56,22 @@ namespace Pal3.Game.Scene.SceneObjects
             if (ObjectInfo.LayerIndex == 0)
             {
                 var tilePosition = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
-                Vector3 position = sceneGameObject.transform.position;
+                Vector3 position = sceneObjectGameEntity.Transform.Position;
                 position.y = tilemap.GetWorldPosition(tilePosition, 0).y + bounds.size.y / 2f;
-                sceneGameObject.transform.position = position;
+                sceneObjectGameEntity.Transform.Position = position;
             }
             else
             {
                 var tilePosition = new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
-                Vector3 position = sceneGameObject.transform.position;
+                Vector3 position = sceneObjectGameEntity.Transform.Position;
                 position.y = tilemap.GetWorldPosition(tilePosition, 1).y + bounds.size.y / 2f;
-                sceneGameObject.transform.position = position;
+                sceneObjectGameEntity.Transform.Position = position;
             }
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
             // Prevent duplicate triggers
             if (_gameStateManager.GetCurrentState() != GameState.Gameplay) return;
@@ -98,9 +103,9 @@ namespace Pal3.Game.Scene.SceneObjects
             positions[0] = tilemap.GetWorldPosition(tilePositions[0], 0);
             positions[1] = tilemap.GetWorldPosition(tilePositions[1], 1);
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
-            GameObject elevatorGameObject = GetGameObject();
+            IGameEntity elevatorEntity = GetGameEntity();
             Vector3 platformCenterPosition = _platformController.GetCollider().bounds.center;
             var platformHeight = _platformController.GetCollider().bounds.size.y / 2f;
 
@@ -110,7 +115,7 @@ namespace Pal3.Game.Scene.SceneObjects
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
             var duration = Vector3.Distance(positions[fromLayer], positions[toLayer]) / ELEVATOR_SPPED;
-            yield return elevatorGameObject.transform.MoveAsync(platformFinalPosition,
+            yield return elevatorEntity.Transform.MoveAsync(platformFinalPosition,
                 duration, AnimationCurveType.Sine);
 
             ChangeAndSaveNavLayerIndex(toLayer);

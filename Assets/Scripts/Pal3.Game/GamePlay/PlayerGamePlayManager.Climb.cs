@@ -14,6 +14,7 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.Primitives;
+    using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
@@ -29,14 +30,14 @@ namespace Pal3.Game.GamePlay
         {
             Scene scene = _sceneManager.GetCurrentScene();
             SceneObject climbableSceneObject = scene.GetSceneObject(command.ObjectId);
-            GameObject climbableObject = climbableSceneObject.GetGameObject();
-            if (climbableObject == null)
+            IGameEntity climbableEntity = climbableSceneObject.GetGameEntity();
+            if (climbableEntity == null)
             {
                 EngineLogger.LogError($"Scene object not found or not activated yet: {command.ObjectId}");
                 return;
             }
 
-            Vector3 climbableObjectPosition = climbableObject.transform.position;
+            Vector3 climbableObjectPosition = climbableEntity.Transform.Position;
             Vector3 climbableObjectFacing = new GameBoxVector3(0f, climbableSceneObject.ObjectInfo.GameBoxYRotation, 0f)
                 .ToUnityQuaternion() * Vector3.forward;
 
@@ -48,10 +49,10 @@ namespace Pal3.Game.GamePlay
             var currentPlayerLayer = _playerActorMovementController.GetCurrentLayerIndex();
 
             var climbUp = (command.ClimbUp == 1);
-            var climbableHeight = climbableObject.GetComponentInChildren<StaticMeshRenderer>()
+            var climbableHeight = climbableEntity.GetComponentInChildren<StaticMeshRenderer>()
                                       .GetRendererBounds().max.y / 2f; // Half is enough for the animation
 
-            Vector3 playerCurrentPosition = _playerActorGameObject.transform.position;
+            Vector3 playerCurrentPosition = _playerActorGameEntity.Transform.Position;
             if (command.ClimbUp == 1)
             {
                 lowerPosition.y = playerCurrentPosition.y;
@@ -71,7 +72,7 @@ namespace Pal3.Game.GamePlay
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             var climbAnimationOnly = command.ClimbUp != -1;
-            Pal3.Instance.StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableObject,
+            Pal3.Instance.StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableEntity,
                 climbUp,
                 climbAnimationOnly,
                 climbableHeight,
@@ -85,7 +86,7 @@ namespace Pal3.Game.GamePlay
         }
 
         public IEnumerator PlayerActorMoveToClimbableObjectAndClimbAsync(
-            GameObject climbableObject,
+            IGameEntity climbableGameEntity,
             bool climbUp,
             bool climbOnly,
             float climbableHeight,
@@ -102,11 +103,11 @@ namespace Pal3.Game.GamePlay
 
             _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
-            Vector3 newPosition = new Vector3(lowerPosition.x, _playerActorGameObject.transform.position.y, lowerPosition.z);
-            var objectRotationY = climbableObject.transform.rotation.eulerAngles.y;
+            Vector3 newPosition = new Vector3(lowerPosition.x, _playerActorGameEntity.Transform.Position.y, lowerPosition.z);
+            var objectRotationY = climbableGameEntity.Transform.EulerAngles.y;
             Quaternion newRotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
 
-            _playerActorGameObject.transform.SetPositionAndRotation(newPosition, newRotation);
+            _playerActorGameEntity.Transform.SetPositionAndRotation(newPosition, newRotation);
 
             if (climbUp)
             {
@@ -115,15 +116,16 @@ namespace Pal3.Game.GamePlay
                 {
                     var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight += delta;
-                    _playerActorGameObject.transform.position += new Vector3(0f, delta, 0f);
+                    _playerActorGameEntity.Transform.Position += new Vector3(0f, delta, 0f);
                     yield return null;
                 }
 
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(upperLayer);
-                    yield return _playerActorMovementController.MoveDirectlyToAsync(upperStandingPosition, 0, true);
-                    _playerActorGameObject.transform.position = upperStandingPosition;
+                    yield return _playerActorMovementController
+                        .MoveDirectlyToAsync(upperStandingPosition, MovementMode.Walk, ignoreObstacle: true);
+                    _playerActorGameEntity.Transform.Position = upperStandingPosition;
                 }
             }
             else
@@ -133,15 +135,16 @@ namespace Pal3.Game.GamePlay
                 {
                     var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight -= delta;
-                    _playerActorGameObject.transform.position -= new Vector3(0f, delta, 0f);
+                    _playerActorGameEntity.Transform.Position -= new Vector3(0f, delta, 0f);
                     yield return null;
                 }
 
                 if (!climbOnly)
                 {
                     _playerActorMovementController.SetNavLayer(lowerLayer);
-                    yield return _playerActorMovementController.MoveDirectlyToAsync(lowerStandingPosition, 0, true);
-                    _playerActorGameObject.transform.position = lowerStandingPosition;
+                    yield return _playerActorMovementController
+                        .MoveDirectlyToAsync(lowerStandingPosition, MovementMode.Walk, ignoreObstacle: true);
+                    _playerActorGameEntity.Transform.Position = lowerStandingPosition;
                 }
             }
 

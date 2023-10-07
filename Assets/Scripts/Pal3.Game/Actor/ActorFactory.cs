@@ -11,13 +11,15 @@ namespace Pal3.Game.Actor
     using Core.Contract.Enums;
     using Data;
     using Dev.Presenters;
+    using Engine.Abstraction;
     using GameSystems.Combat;
     using Scene;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     public static class ActorFactory
     {
-        public static GameObject CreateActorGameObject(GameResourceProvider resourceProvider,
+        public static IGameEntity CreateActorGameEntity(GameResourceProvider resourceProvider,
             Actor actor,
             Tilemap tilemap,
             bool isDropShadowEnabled,
@@ -27,14 +29,14 @@ namespace Pal3.Game.Actor
             float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
-            var actorGameObject = new GameObject($"Actor_{actor.Id}_{actor.Name}")
-            {
-                layer = LayerMask.NameToLayer("Ignore Raycast")
-            };
+            var actorGameEntity = new GameEntity($"Actor_{actor.Id}_{actor.Name}");
 
-            // Attach ScnNpcInfo to the GameObject for better debuggability
+            int layerIndex = LayerMask.NameToLayer("Ignore Raycast");
+            actorGameEntity.SetLayer(layerIndex); // ignore raycast for all actors
+
+            // Attach ScnNpcInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var npcInfoPresent = actorGameObject.AddComponent<NpcInfoPresenter>();
+            var npcInfoPresent = actorGameEntity.AddComponent<NpcInfoPresenter>();
             npcInfoPresent.npcInfo = actor.Info;
             #endif
 
@@ -48,7 +50,7 @@ namespace Pal3.Game.Actor
                     var autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
                     var canPerformHoldAnimation = actor.Info is {InitBehaviour: ActorBehaviourType.Hold, LoopAction: 0};
                     VertexAnimationActorActionController vertexActionController =
-                        actorGameObject.AddComponent<VertexAnimationActorActionController>();
+                        actorGameEntity.AddComponent<VertexAnimationActorActionController>();
                     vertexActionController.Init(resourceProvider,
                         actor,
                         hasColliderAndRigidBody,
@@ -62,7 +64,7 @@ namespace Pal3.Game.Actor
                 case ActorAnimationType.Skeletal:
                 {
                     SkeletalAnimationActorActionController skeletalActionController =
-                        actorGameObject.AddComponent<SkeletalAnimationActorActionController>();
+                        actorGameEntity.AddComponent<SkeletalAnimationActorActionController>();
                     skeletalActionController.Init(resourceProvider,
                         actor,
                         hasColliderAndRigidBody,
@@ -75,7 +77,7 @@ namespace Pal3.Game.Actor
                     throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
             }
 
-            var movementController = actorGameObject.AddComponent<ActorMovementController>();
+            var movementController = actorGameEntity.AddComponent<ActorMovementController>();
             movementController.Init(actor,
                 tilemap,
                 actionController,
@@ -84,7 +86,7 @@ namespace Pal3.Game.Actor
                 movementMaxYDifferentialCrossPlatform,
                 getAllActiveActorBlockingTilePositions);
 
-            var actorController = actorGameObject.AddComponent<ActorController>();
+            var actorController = actorGameEntity.AddComponent<ActorController>();
             actorController.Init(actor, actionController, movementController);
 
             // Attach additional controller(s) to special actor
@@ -92,34 +94,34 @@ namespace Pal3.Game.Actor
             switch ((PlayerActorId)actor.Id)
             {
                 case PlayerActorId.HuaYing:
-                    actorGameObject.AddComponent<HuaYingController>().Init(actor, actorController, actionController);
+                    actorGameEntity.AddComponent<HuaYingController>().Init(actor, actorController, actionController);
                     break;
                 case PlayerActorId.LongKui:
-                    actorGameObject.AddComponent<LongKuiController>().Init(actor, actionController);
+                    actorGameEntity.AddComponent<LongKuiController>().Init(actor, actionController);
                     break;
             }
             #elif PAL3A
             switch ((PlayerActorId)actor.Id)
             {
                 case PlayerActorId.TaoZi:
-                    actorGameObject.AddComponent<FlyingActorController>().Init(actor, actorController, actionController);
+                    actorGameEntity.AddComponent<FlyingActorController>().Init(actor, actorController, actionController);
                     break;
             }
             #endif
 
-            return actorGameObject;
+            return actorGameEntity;
         }
 
-        public static GameObject CreateCombatActorGameObject(GameResourceProvider resourceProvider,
+        public static IGameEntity CreateCombatActorGameEntity(GameResourceProvider resourceProvider,
             CombatActor actor,
             ElementPosition elementPosition,
             bool isDropShadowEnabled)
         {
-            var actorGameObject = new GameObject($"CombatActor_{actor.Id}_{actor.Name}");
+            var actorGameEntity = new GameEntity($"CombatActor_{actor.Id}_{actor.Name}");
 
-            // Attach CombatActorInfo to the GameObject for better debuggability
+            // Attach CombatActorInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var combatActorInfoPresent = actorGameObject.AddComponent<CombatActorInfoPresenter>();
+            var combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
             combatActorInfoPresent.combatActorInfo = actor.Info;
             #endif
 
@@ -129,7 +131,7 @@ namespace Pal3.Game.Actor
                 case ActorAnimationType.Vertex:
                 {
                     VertexAnimationActorActionController vertexActionController =
-                        actorGameObject.AddComponent<VertexAnimationActorActionController>();
+                        actorGameEntity.AddComponent<VertexAnimationActorActionController>();
                     vertexActionController.Init(resourceProvider,
                         actor,
                         hasColliderAndRigidBody: false, // combat actor has no collider and rigidbody
@@ -142,7 +144,7 @@ namespace Pal3.Game.Actor
                 case ActorAnimationType.Skeletal:
                 {
                     SkeletalAnimationActorActionController skeletalActionController =
-                        actorGameObject.AddComponent<SkeletalAnimationActorActionController>();
+                        actorGameEntity.AddComponent<SkeletalAnimationActorActionController>();
                     skeletalActionController.Init(resourceProvider,
                         actor,
                         hasColliderAndRigidBody: false, // combat actor has no collider and rigidbody
@@ -154,11 +156,11 @@ namespace Pal3.Game.Actor
                     throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
             }
 
-            var actorController = actorGameObject.AddComponent<CombatActorController>();
+            var actorController = actorGameEntity.AddComponent<CombatActorController>();
             actorController.Init(actor, actionController, elementPosition);
             actorController.IsActive = true; // combat actor is always active
 
-            return actorGameObject;
+            return actorGameEntity;
         }
     }
 }

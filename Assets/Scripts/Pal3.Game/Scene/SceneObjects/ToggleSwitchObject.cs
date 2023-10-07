@@ -18,11 +18,13 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
-    using Color = UnityEngine.Color;
+
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
@@ -36,10 +38,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             if (ObjectInfo.SwitchState == 1 && ModelType == SceneObjectModelType.CvdModel)
             {
@@ -48,9 +50,9 @@ namespace Pal3.Game.Scene.SceneObjects
             }
 
             // Add collider to block player
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance)
@@ -94,8 +96,8 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else if (ObjectInfo.Parameters[1] == 180) // Special case for M12-2
             {
-                Transform objectTransform = GetGameObject().transform;
-                Quaternion rotation = objectTransform.rotation;
+                ITransform objectTransform = GetGameEntity().Transform;
+                Quaternion rotation = objectTransform.Rotation;
                 Quaternion targetRotation = rotation * Quaternion.Euler(0, 180, 0);
 
                 yield return objectTransform.RotateAsync(targetRotation, 3f, AnimationCurveType.Sine);
@@ -128,7 +130,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 {
                     yield return MoveCameraToLookAtPointAsync(
                         linkedObjectGameBoxPosition.ToUnityPosition(),
-                        ctx.PlayerActorGameObject);
+                        ctx.PlayerActorGameEntity.Transform);
                 }
 
                 if (ObjectInfo.Parameters[1] == 1)

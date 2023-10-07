@@ -17,11 +17,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
 
     [ScnSceneObject(SceneObjectType.ThreePhaseSwitch)]
     public sealed class ThreePhaseSwitchObject : SceneObject,
@@ -54,12 +57,12 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
 
             if (_sceneStateManager.TryGetSceneObjectStateOverride(SceneInfo.CityName, SceneInfo.SceneName,
                     ObjectInfo.Id, out SceneObjectStateOverride stateOverride))
@@ -80,12 +83,12 @@ namespace Pal3.Game.Scene.SceneObjects
             }
 
             var direction = ObjectInfo.Parameters[3] == -1 ? -1 : 1;
-            sceneGameObject.transform.rotation *=
+            sceneObjectGameEntity.Transform.Rotation *=
                 Quaternion.Euler(0, 0, SWITCH_ROTAION_ANGLE * -_currentState * direction);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
@@ -118,8 +121,8 @@ namespace Pal3.Game.Scene.SceneObjects
                 PlaySfxIfAny();
             }
 
-            Transform objectTransform = GetGameObject().transform;
-            Quaternion rotation = objectTransform.rotation;
+            ITransform objectTransform = GetGameEntity().Transform;
+            Quaternion rotation = objectTransform.Rotation;
             int direction = (_currentState - _previousState) * (ObjectInfo.Parameters[3] == -1 ? -1 : 1);
             Quaternion targetRotation = rotation * Quaternion.Euler(0, 0, SWITCH_ROTAION_ANGLE * -direction);
 

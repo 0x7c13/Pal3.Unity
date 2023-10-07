@@ -28,14 +28,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;
-    using Random = UnityEngine.Random;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.Impulsive)]
     public sealed class ImpulsiveObject : SceneObject
     {
         private const float HIT_ANIMATION_DURATION = 0.5f;
 
-        private GameObject _subObjectGameObject;
+        private IGameEntity _subObjectGameEntity;
         private ImpulsiveMechanismSubObjectController _subObjectController;
 
         private bool _isDuringInteraction;
@@ -45,9 +45,9 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
             Color subObjectTintColor = tintColor;
 
@@ -59,31 +59,31 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             #endif
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _subObjectGameObject = new GameObject($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
+            _subObjectGameEntity = new GameEntity($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
 
             var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
-            var subObjectModelRenderer = _subObjectGameObject.AddComponent<PolyModelRenderer>();
+            var subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(polFile,
                 textureProvider,
                 resourceProvider.GetMaterialFactory(),
                 isStaticObject: false,
                 subObjectTintColor);
 
-            _subObjectController = _subObjectGameObject.AddComponent<ImpulsiveMechanismSubObjectController>();
+            _subObjectController = _subObjectGameEntity.AddComponent<ImpulsiveMechanismSubObjectController>();
             _subObjectController.Init();
             _subObjectController.OnPlayerActorHit += OnPlayerActorHit;
 
-            _subObjectGameObject.transform.SetParent(sceneGameObject.transform, false);
+            _subObjectGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorHit(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorHit(object sender, IGameEntity playerActorGameEntity)
         {
             if (_isDuringInteraction) return; // Prevent multiple interactions during animation
             _isDuringInteraction = true;
@@ -103,16 +103,16 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             PlaySfx("wb002");
 
-            ctx.PlayerActorGameObject.GetComponent<ActorActionController>()
+            ctx.PlayerActorGameEntity.GetComponent<ActorActionController>()
                 .PerformAction(ActorActionType.BeAttack, true, 1);
 
-            Vector3 targetPosition = ctx.PlayerActorGameObject.transform.position +
-                                     (_subObjectGameObject.transform.forward * 6f) + Vector3.up * 2f;
+            Vector3 targetPosition = ctx.PlayerActorGameEntity.Transform.Position +
+                                     (_subObjectGameEntity.Transform.Forward * 6f) + Vector3.up * 2f;
 
-            yield return ctx.PlayerActorGameObject.transform.MoveAsync(targetPosition,
+            yield return ctx.PlayerActorGameEntity.Transform.MoveAsync(targetPosition,
                 HIT_ANIMATION_DURATION);
 
-            ctx.PlayerActorGameObject.GetComponent<ActorMovementController>().SetNavLayer(ObjectInfo.Parameters[2]);
+            ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>().SetNavLayer(ObjectInfo.Parameters[2]);
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
                     ObjectInfo.Parameters[0],
@@ -132,19 +132,19 @@ namespace Pal3.Game.Scene.SceneObjects
                 _subObjectController = null;
             }
 
-            if (_subObjectGameObject != null)
+            if (_subObjectGameEntity != null)
             {
-                _subObjectGameObject.Destroy();
-                _subObjectGameObject = null;
+                _subObjectGameEntity.Destroy();
+                _subObjectGameEntity = null;
             }
 
             base.Deactivate();
         }
     }
 
-    internal class ImpulsiveMechanismSubObjectController : GameEntityBase
+    internal class ImpulsiveMechanismSubObjectController : GameEntityScript
     {
-        public event EventHandler<GameObject> OnPlayerActorHit;
+        public event EventHandler<IGameEntity> OnPlayerActorHit;
 
         private const float MIN_Z_POSITION = -1.7f;
         private const float MAX_Z_POSITION = 4f;
@@ -152,18 +152,13 @@ namespace Pal3.Game.Scene.SceneObjects
         private const float MOVEMENT_ANIMATION_DURATION = 2.5f;
 
         private BoundsTriggerController _triggerController;
-        private Coroutine _movementCoroutine;
-
         private CancellationTokenSource _movementAnimationCts = new ();
 
         protected override void OnDisableGameEntity()
         {
-            _movementAnimationCts.Cancel();
-
-            if (_movementCoroutine != null)
+            if (_movementAnimationCts is {IsCancellationRequested: false})
             {
-                StopCoroutine(_movementCoroutine);
-                _movementCoroutine = null;
+                _movementAnimationCts.Cancel();
             }
 
             if (_triggerController != null)
@@ -183,31 +178,31 @@ namespace Pal3.Game.Scene.SceneObjects
                 size = new Vector3(3f, 2f, 7f),
             };
 
-            _triggerController = gameObject.AddComponent<BoundsTriggerController>();
+            _triggerController = GameEntity.AddComponent<BoundsTriggerController>();
             _triggerController.SetBounds(bounds, true);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
             // Set initial position
-            Vector3 subObjectInitPosition = transform.position;
+            Vector3 subObjectInitPosition = Transform.Position;
             subObjectInitPosition.z = MIN_Z_POSITION;
-            transform.position = subObjectInitPosition;
+            Transform.Position = subObjectInitPosition;
 
             // Start movement
             _movementAnimationCts = new CancellationTokenSource();
-            _movementCoroutine = StartCoroutine(StartMovementAsync(_movementAnimationCts.Token));
+            StartCoroutine(StartMovementAsync(_movementAnimationCts.Token));
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
-            OnPlayerActorHit?.Invoke(sender, playerActorGameObject);
+            OnPlayerActorHit?.Invoke(sender, playerActorGameEntity);
         }
 
         private IEnumerator StartMovementAsync(CancellationToken cancellationToken)
         {
-            var startDelay = Random.Range(0f, 3.5f);
+            var startDelay = RandomGenerator.Range(0f, 3.5f);
             yield return new WaitForSeconds(startDelay);
 
-            Vector3 initPosition = transform.localPosition;
+            Vector3 initPosition = Transform.LocalPosition;
             var holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
 
             while (!cancellationToken.IsCancellationRequested)
@@ -220,7 +215,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 {
                     Vector3 newPosition = initPosition;
                     newPosition.z = value;
-                    transform.localPosition = newPosition;
+                    Transform.LocalPosition = newPosition;
                 }, cancellationToken);
 
                 yield return holdTimeWaiter;
@@ -233,7 +228,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     {
                         Vector3 newPosition = initPosition;
                         newPosition.z = value;
-                        transform.localPosition = newPosition;
+                        Transform.LocalPosition = newPosition;
                     }, cancellationToken);
 
                 yield return holdTimeWaiter;

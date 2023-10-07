@@ -14,7 +14,7 @@ namespace Pal3.Game.Actor.Controllers
     using Engine.Abstraction;
     using UnityEngine;
 
-    public sealed class LongKuiController : GameEntityBase,
+    public sealed class LongKuiController : GameEntityScript,
         ICommandExecutor<LongKuiSwitchModeCommand>
     {
         private ActorBase _actor;

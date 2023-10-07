@@ -15,6 +15,7 @@ namespace Pal3.Game.GameSystems.Team
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.Utilities;
+    using Engine.Abstraction;
     using Engine.Logging;
     using GamePlay;
     using Scene;
@@ -78,7 +79,7 @@ namespace Pal3.Game.GameSystems.Team
         public void Execute(TeamOpenCommand command)
         {
             PlayerActorId playerActorId = _playerActorManager.GetPlayerActor();
-            GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
+            IGameEntity playerActor = _sceneManager.GetCurrentScene().GetActorGameEntity((int)playerActorId);
             var currentNavLayer = playerActor.GetComponent<ActorMovementController>().GetCurrentLayerIndex();
 
             Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
@@ -91,12 +92,12 @@ namespace Pal3.Game.GameSystems.Team
             foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
             #endif
             {
-                GameObject actorObject = _sceneManager.GetCurrentScene().GetActorGameObject((int)actor);
-                actorObject.GetComponent<ActorController>().IsActive = true;
-                Vector3 spawnPosition = CalculateSpawnPosition(playerActor.transform, index);
+                IGameEntity actorEntity = _sceneManager.GetCurrentScene().GetActorGameEntity((int)actor);
+                actorEntity.GetComponent<ActorController>().IsActive = true;
+                Vector3 spawnPosition = CalculateSpawnPosition(playerActor.Transform, index);
                 Vector2Int tilePosition = tilemap.GetTilePosition(spawnPosition, currentNavLayer);
-                actorObject.transform.position = tilemap.GetWorldPosition(tilePosition, currentNavLayer);
-                var actorMovementController = actorObject.GetComponent<ActorMovementController>();
+                actorEntity.Transform.Position = tilemap.GetWorldPosition(tilePosition, currentNavLayer);
+                var actorMovementController = actorEntity.GetComponent<ActorMovementController>();
                 actorMovementController.SetNavLayer(currentNavLayer);
                 index++;
             }
@@ -104,18 +105,18 @@ namespace Pal3.Game.GameSystems.Team
             #if PAL3
             if (IsActorInTeam(PlayerActorId.XueJian))
             {
-                GameObject huaYing = _sceneManager.GetCurrentScene().GetActorGameObject((int)PlayerActorId.HuaYing);
-                huaYing.GetComponent<ActorMovementController>().SetNavLayer(currentNavLayer);
+                IGameEntity huaYingEntity = _sceneManager.GetCurrentScene().GetActorGameEntity((int)PlayerActorId.HuaYing);
+                huaYingEntity.GetComponent<ActorMovementController>().SetNavLayer(currentNavLayer);
             }
             #endif
         }
 
-        private Vector3 CalculateSpawnPosition(Transform playerActorTransform, int indexInTeam)
+        private Vector3 CalculateSpawnPosition(ITransform playerActorTransform, int indexInTeam)
         {
             var directionInDegrees = ActorSpawnPositionDirectionInDegrees[indexInTeam];
-            return playerActorTransform.position +
+            return playerActorTransform.Position +
                    Quaternion.AngleAxis(directionInDegrees, Vector3.up) *
-                   -playerActorTransform.forward *
+                   -playerActorTransform.Forward *
                    TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET;
         }
 
@@ -126,19 +127,19 @@ namespace Pal3.Game.GameSystems.Team
             #if PAL3A
             // Need to add all active player actors into the team within certain radius
             {
-                GameObject playerActor = _sceneManager.GetCurrentScene().GetActorGameObject((int)playerActorId);
-                Vector3 playerActorPosition = playerActor.transform.position;
+                IGameEntity playerActor = _sceneManager.GetCurrentScene().GetActorGameEntity((int)playerActorId);
+                Vector3 playerActorPosition = playerActor.Transform.Position;
 
                 var playerActorIds = Enum.GetValues(typeof(PlayerActorId)).Cast<int>();
                 var activePlayerActors = _sceneManager.GetCurrentScene()
-                    .GetAllActorGameObjects()
+                    .GetAllActorGameEntities()
                     .Where(actor => playerActorIds.Contains(actor.Key) &&
                                     actor.Value.GetComponent<ActorController>().IsActive);
 
                 foreach (var activePlayerActor in activePlayerActors)
                 {
                     if (Vector3.Distance(playerActorPosition,
-                            activePlayerActor.Value.transform.position) < 13f) // 13f is about right
+                            activePlayerActor.Value.Transform.Position) < 13f) // 13f is about right
                     {
                         AddActor((PlayerActorId)activePlayerActor.Key);
                     }

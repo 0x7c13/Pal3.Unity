@@ -17,9 +17,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.FallableObstacle)]
     public sealed class FallableObstacleObject : SceneObject
@@ -34,24 +37,24 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider,
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
             Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // Add collider to block player
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
 
-            _triggerController = sceneGameObject.AddComponent<TilemapTriggerController>();
+            _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
             _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex);
             _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, Vector2Int actorTilePosition)
+        private void OnPlayerActorEntered(object sender, (int x, int y) tilePosition)
         {
             if (!IsInteractableBasedOnTimesCount()) return;
             RequestForInteraction();
@@ -68,11 +71,11 @@ namespace Pal3.Game.Scene.SceneObjects
 
             PlaySfx("wg009");
 
-            GameObject obstacleObject = GetGameObject();
+            IGameEntity obstacleEntity = GetGameEntity();
 
-            Vector3 currentPosition = obstacleObject.transform.position;
+            Vector3 currentPosition = obstacleEntity.Transform.Position;
 
-            var finalYPosition = ctx.PlayerActorGameObject.transform.position.y;
+            var finalYPosition = ctx.PlayerActorGameEntity.Transform.Position.y;
             if (ctx.CurrentScene.GetTilemap().TryGetTile(currentPosition,
                     ObjectInfo.LayerIndex,
                     out NavTile tile))
@@ -80,7 +83,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 finalYPosition = tile.GameBoxYPosition.ToUnityYPosition();
             }
 
-            yield return obstacleObject.transform.MoveAsync(
+            yield return obstacleEntity.Transform.MoveAsync(
                 new Vector3(currentPosition.x, finalYPosition, currentPosition.z),
                 FALLING_DURATION);
 

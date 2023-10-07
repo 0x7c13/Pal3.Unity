@@ -6,12 +6,12 @@
 namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
+    using Engine.Abstraction;
     using Newtonsoft.Json;
-    using UnityEngine;
 
-    public class AttachSfxToGameObjectRequest : ICommand
+    public class AttachSfxToGameEntityRequest : ICommand
     {
-        public AttachSfxToGameObjectRequest(GameObject parent,
+        public AttachSfxToGameEntityRequest(IGameEntity parent,
             string sfxName,
             string audioSourceName,
             int loopCount,
@@ -28,7 +28,7 @@ namespace Pal3.Game.Command.Extensions
             Interval = interval;
         }
 
-        [JsonIgnore] public GameObject Parent { get; }
+        [JsonIgnore] public IGameEntity Parent { get; }
         public string SfxName { get; }
         public string AudioSourceName { get; }
         public int LoopCount { get; }

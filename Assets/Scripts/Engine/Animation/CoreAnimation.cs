@@ -8,6 +8,8 @@ namespace Engine.Animation
     using System;
     using System.Collections;
     using System.Threading;
+    using Abstraction;
+    using Pal3.Core.Utilities;
     using UnityEngine;
 
     public enum AnimationCurveType
@@ -35,15 +37,23 @@ namespace Engine.Animation
             return curveType switch
             {
                 AnimationCurveType.Linear => progress,
-                AnimationCurveType.Sine => Mathf.Sin(progress * (Mathf.PI / 2)),
-                AnimationCurveType.Quadratic => Mathf.Pow(progress, 2),
-                AnimationCurveType.Cubic => Mathf.Pow(progress, 3),
-                AnimationCurveType.Exponential => Mathf.Exp(progress) - 1,
-                AnimationCurveType.EaseIn => Mathf.Pow(progress, 3),
-                AnimationCurveType.EaseOut => 1 - Mathf.Pow(1 - progress, 3),
+                AnimationCurveType.Sine => MathF.Sin(progress * (MathF.PI / 2)),
+                AnimationCurveType.Quadratic => MathF.Pow(progress, 2),
+                AnimationCurveType.Cubic => MathF.Pow(progress, 3),
+                AnimationCurveType.Exponential => MathF.Exp(progress) - 1,
+                AnimationCurveType.EaseIn => MathF.Pow(progress, 3),
+                AnimationCurveType.EaseOut => 1f - MathF.Pow(1 - progress, 3),
                 _ => progress
             };
         }
+
+        private static float Clamp01(float value)
+        {
+            if ((double) value < 0.0) return 0.0f;
+            return (double) value > 1.0 ? 1f : value;
+        }
+
+        private static float Lerp(float a, float b, float t) => a + (b - a) * Clamp01(t);
 
         public static IEnumerator EnumerateValueAsync(float from,
             float to,
@@ -52,7 +62,7 @@ namespace Engine.Animation
             Action<float> onValueChanged,
             CancellationToken cancellationToken = default)
         {
-            if (Mathf.Abs(duration) < Mathf.Epsilon)
+            if (MathF.Abs(duration) < float.Epsilon)
             {
                 onValueChanged?.Invoke(to);
                 yield break;
@@ -61,8 +71,7 @@ namespace Engine.Animation
             var timePast = 0f;
             while (timePast < duration && !cancellationToken.IsCancellationRequested)
             {
-                var newValue = Mathf.Lerp(from, to,
-                    GetInterpolationRatio(timePast / duration, curveType));
+                var newValue = Lerp(from, to, GetInterpolationRatio(timePast / duration, curveType));
                 onValueChanged?.Invoke(newValue);
                 timePast += Time.deltaTime;
                 yield return null;
@@ -75,52 +84,51 @@ namespace Engine.Animation
             yield return null;
         }
 
-        public static IEnumerator MoveAsync(this Transform target,
+        public static IEnumerator MoveAsync(this ITransform target,
             Vector3 toPosition,
             float duration,
             AnimationCurveType curveType = AnimationCurveType.Linear,
             CancellationToken cancellationToken = default)
         {
-            Vector3 oldPosition = target.position;
+            Vector3 oldPosition = target.Position;
 
             var timePast = 0f;
-            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
             {
-                target.position = oldPosition + (toPosition - oldPosition) *
+                target.Position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
                 timePast += Time.deltaTime;
                 yield return null;
             }
 
-            if (target != null && !cancellationToken.IsCancellationRequested) target.position = toPosition;
+            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested) target.Position = toPosition;
             yield return null;
         }
 
-        public static IEnumerator ShakeAsync(this Transform target,
+        public static IEnumerator ShakeAsync(this ITransform target,
             float duration,
-            float amplitude,
-            bool shakeOnXAxis,
-            bool shakeOnYAxis,
-            bool shakeOnZAxis)
+            float xAxisAmplitude,
+            float yAxisAmplitude,
+            float zAxisAmplitude)
         {
-            Vector3 originalPosition = target.localPosition;
+            Vector3 originalPosition = target.LocalPosition;
 
-            while (duration > 0 && target != null)
+            while (duration > 0 && !target.IsDisposed)
             {
-                Vector3 delta = UnityEngine.Random.insideUnitSphere * amplitude;
-                target.localPosition = originalPosition + new Vector3(
-                    shakeOnXAxis ? delta.x : 0f,
-                    shakeOnYAxis ? delta.y : 0f,
-                    shakeOnZAxis ? delta.z : 0f);
+                (float x, float y, float z) = RandomGenerator.RandomPointInsideUnitSphere();
+                target.LocalPosition = originalPosition + new Vector3(
+                    x * xAxisAmplitude / 2f,
+                    y * yAxisAmplitude / 2f,
+                    z * zAxisAmplitude / 2f);
                 duration -= Time.deltaTime;
                 yield return null;
             }
 
-            if (target != null) target.localPosition = originalPosition;
+            if (!target.IsDisposed) target.LocalPosition = originalPosition;
             yield return null;
         }
 
-        public static IEnumerator OrbitAroundCenterPointAsync(this Transform target,
+        public static IEnumerator OrbitAroundCenterPointAsync(this ITransform target,
             Quaternion toRotation,
             Vector3 centerPoint,
             float duration,
@@ -128,11 +136,11 @@ namespace Engine.Animation
             float distanceDelta,
             CancellationToken cancellationToken = default)
         {
-            var distance = Vector3.Distance(target.position, centerPoint);
-            Quaternion startRotation = target.rotation;
+            var distance = Vector3.Distance(target.Position, centerPoint);
+            Quaternion startRotation = target.Rotation;
 
             var timePast = 0f;
-            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion newRotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -146,7 +154,7 @@ namespace Engine.Animation
                 yield return null;
             }
 
-            if (target != null && !cancellationToken.IsCancellationRequested)
+            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Vector3 newPosition = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
                 target.SetPositionAndRotation(newPosition, toRotation);
@@ -155,27 +163,27 @@ namespace Engine.Animation
             yield return null;
         }
 
-        public static IEnumerator RotateAsync(this Transform target,
+        public static IEnumerator RotateAsync(this ITransform target,
             Quaternion toRotation,
             float duration,
             AnimationCurveType curveType,
             CancellationToken cancellationToken = default)
         {
-            Quaternion startRotation = target.rotation;
+            Quaternion startRotation = target.Rotation;
 
             var timePast = 0f;
-            while (timePast < duration && target != null && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
 
-                target.rotation = rotation;
+                target.Rotation = rotation;
 
                 timePast += Time.deltaTime;
                 yield return null;
             }
 
-            if (target != null && !cancellationToken.IsCancellationRequested) target.rotation = toRotation;
+            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested) target.Rotation = toRotation;
             yield return null;
         }
     }

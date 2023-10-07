@@ -12,7 +12,7 @@ namespace Pal3.Game.Dev.Presenters
     /// <summary>
     /// LightNode holder component to present LightNode in the Unity inspector.
     /// </summary>
-    public sealed class LightSourceInfoPresenter : GameEntityBase
+    public sealed class LightSourceInfoPresenter : GameEntityScript
     {
         [SerializeField] public LightNode lightNode;
     }

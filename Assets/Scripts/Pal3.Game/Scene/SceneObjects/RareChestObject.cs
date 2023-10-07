@@ -15,8 +15,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.RareChest)]
     public sealed class RareChestObject : SceneObject
@@ -37,12 +39,12 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override bool ShouldGoToCutsceneWhenInteractionStarted() => true;
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
-            _meshCollider = sceneGameObject.AddComponent<SceneObjectMeshCollider>();
-            return sceneGameObject;
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
+            _meshCollider = sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
+            return sceneObjectGameEntity;
         }
 
         public override IEnumerator InteractAsync(InteractionContext ctx)

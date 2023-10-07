@@ -12,7 +12,7 @@ namespace Pal3.Game.Rendering.Material
     using Engine.Logging;
     using UnityEngine;
     using UnityEngine.Rendering;
-    using Color = UnityEngine.Color;
+    using Color = Core.Primitives.Color;
 
     /// <summary>
     /// Unlit material factory for generating materials that have similar
@@ -273,7 +273,7 @@ namespace Pal3.Game.Rendering.Material
             }
 
             material.mainTexture = mainTexture.texture;
-            material.SetColor(TintColorPropertyId, tintColor);
+            material.SetColor(TintColorPropertyId, tintColor.ToUnityColor());
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
 
             if (shadowTexture.texture != null)
@@ -310,7 +310,7 @@ namespace Pal3.Game.Rendering.Material
             }
 
             material.mainTexture = mainTexture.texture;
-            material.SetColor(TintColorPropertyId, tintColor);
+            material.SetColor(TintColorPropertyId, tintColor.ToUnityColor());
             material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
 
             if (shadowTexture.texture != null)
@@ -346,7 +346,7 @@ namespace Pal3.Game.Rendering.Material
             }
 
             material.mainTexture = mainTexture.texture;
-            material.SetColor(TintColorPropertyId, tintColor);
+            material.SetColor(TintColorPropertyId, tintColor.ToUnityColor());
 
             if (shadowTexture.texture != null)
             {

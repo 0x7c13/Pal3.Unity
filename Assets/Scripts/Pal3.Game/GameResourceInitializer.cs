@@ -32,12 +32,13 @@ namespace Pal3.Game
     using TMPro;
     using UnityEngine;
     using UnityEngine.UI;
+    using Transform = UnityEngine.Transform;
 
     /// <summary>
     /// The Game Resource initializer
     /// Initialize file system and all required services.
     /// </summary>
-    public sealed class GameResourceInitializer : GameEntityBase
+    public sealed class GameResourceInitializer : GameEntityScript
     {
         [SerializeField] private GameObject startingComponent;
         [SerializeField] private Image backgroundImage;

@@ -14,7 +14,9 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.VirtualInvestigationTrigger)]
     [ScnSceneObject(SceneObjectType.InvestigationTrigger)]
@@ -27,15 +29,15 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            if (IsActivated) return GetGameEntity();
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
             if (ObjectInfo.IsNonBlocking == 0)
             {
-                sceneGameObject.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
+                sceneObjectGameEntity.AddComponent<SceneObjectMeshCollider>(); // Add collider to block player
             }
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
         public override bool IsDirectlyInteractable(float distance)

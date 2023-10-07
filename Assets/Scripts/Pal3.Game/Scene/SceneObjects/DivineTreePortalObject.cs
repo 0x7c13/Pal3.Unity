@@ -16,9 +16,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
+    using Engine.Abstraction;
     using Engine.Animation;
     using Engine.Extensions;
     using UnityEngine;
+    using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.DivineTreePortal)]
     public sealed class DivineTreePortalObject : SceneObject
@@ -34,11 +36,12 @@ namespace Pal3.Game.Scene.SceneObjects
         {
         }
 
-        public override GameObject Activate(GameResourceProvider resourceProvider, Color tintColor)
+        public override IGameEntity Activate(GameResourceProvider resourceProvider,
+            Color tintColor)
         {
-            if (IsActivated) return GetGameObject();
+            if (IsActivated) return GetGameEntity();
 
-            GameObject sceneGameObject = base.Activate(resourceProvider, tintColor);
+            IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             var bounds = new Bounds
             {
@@ -46,16 +49,16 @@ namespace Pal3.Game.Scene.SceneObjects
                 size = new Vector3(9f, 2f, 9f),
             };
 
-            _platformController = sceneGameObject.AddComponent<StandingPlatformController>();
+            _platformController = sceneObjectGameEntity.AddComponent<StandingPlatformController>();
             _platformController.Init(bounds, ObjectInfo.LayerIndex);
 
             _platformController.OnPlayerActorEntered += OnPlayerActorEntered;
             _platformController.OnPlayerActorExited += OnPlayerActorExited;
 
-            return sceneGameObject;
+            return sceneObjectGameEntity;
         }
 
-        private void OnPlayerActorEntered(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorEntered(object sender, IGameEntity playerActorGameEntity)
         {
             if (_isInteractionInProgress) return;
 
@@ -71,7 +74,7 @@ namespace Pal3.Game.Scene.SceneObjects
             Pal3.Instance.StartCoroutine(CountDownForInteractionAsync(_cancellationTokenSource.Token));
         }
 
-        private void OnPlayerActorExited(object sender, GameObject playerActorGameObject)
+        private void OnPlayerActorExited(object sender, IGameEntity playerActorGameEntity)
         {
             if (_isInteractionInProgress) return;
             _cancellationTokenSource.Cancel();
@@ -108,28 +111,28 @@ namespace Pal3.Game.Scene.SceneObjects
 
             if (!shouldGoUp.HasValue)
             {
-                shouldGoUp = (PlayerActorId) ctx.PlayerActorGameObject.GetComponent<ActorController>().GetActor().Id is
+                shouldGoUp = (PlayerActorId) ctx.PlayerActorGameEntity.GetComponent<ActorController>().GetActor().Id is
                     PlayerActorId.JingTian or PlayerActorId.XueJian;
             }
             #elif PAL3A
             bool? shouldGoUp = ObjectInfo.Parameters[0] == 1;
             #endif
 
-            GameObject portalObject = GetGameObject();
-            Vector3 platformPosition = _platformController.transform.position;
+            IGameEntity portalEntity = GetGameEntity();
+            Vector3 platformPosition = _platformController.Transform.Position;
             var actorStandingPosition = new Vector3(
                 platformPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameObject.GetComponent<ActorMovementController>();
+            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 
-            Vector3 finalPosition = portalObject.transform.position;
+            Vector3 finalPosition = portalEntity.Transform.Position;
             finalPosition.y += shouldGoUp.Value ? 10f : -10f;
 
-            yield return portalObject.transform.MoveAsync(finalPosition,
+            yield return portalEntity.Transform.MoveAsync(finalPosition,
                 MOVEMENT_ANIMATION_DURATION,
                 AnimationCurveType.Sine);
 

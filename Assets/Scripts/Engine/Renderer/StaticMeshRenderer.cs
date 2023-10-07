@@ -10,7 +10,7 @@ namespace Engine.Renderer
     using Extensions;
     using UnityEngine;
 
-    public sealed class StaticMeshRenderer : GameEntityBase, IDisposable
+    public sealed class StaticMeshRenderer : GameEntityScript, IDisposable
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
@@ -33,10 +33,10 @@ namespace Engine.Renderer
             Dispose();
 
             _materials = materials;
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer = GameEntity.AddComponent<MeshRenderer>();
             _meshRenderer.sharedMaterials = materials;
 
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
+            _meshFilter = GameEntity.AddComponent<MeshFilter>();
             var mesh = new Mesh();
             if (isDynamic)
             {
