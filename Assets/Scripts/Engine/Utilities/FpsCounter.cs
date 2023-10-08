@@ -5,10 +5,9 @@
 
 namespace Engine.Utilities
 {
-    using Abstraction;
     using UnityEngine;
 
-    public class FpsCounter : TickableGameEntityScript
+    public class FpsCounter : MonoBehaviour
     {
         private const float UPDATE_INTERVAL = 0.3f;
 
@@ -16,10 +15,10 @@ namespace Engine.Utilities
         private float _deltaTime = 0f;
         private float _fps = 0f;
 
-        protected override void OnUpdateGameEntity(float deltaTime)
+        private void Update()
         {
             _frameCount++;
-            _deltaTime += deltaTime / Time.timeScale;
+            _deltaTime += Time.unscaledDeltaTime;
 
             if (_deltaTime >= UPDATE_INTERVAL)
             {

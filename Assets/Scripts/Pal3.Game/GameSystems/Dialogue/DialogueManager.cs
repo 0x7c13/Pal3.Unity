@@ -21,6 +21,7 @@ namespace Pal3.Game.GameSystems.Dialogue
     using Engine.Animation;
     using Engine.Extensions;
     using Engine.Logging;
+    using Engine.Services;
     using Engine.UI;
     using Input;
     using Scene;
@@ -48,6 +49,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         private const string INFORMATION_TEXT_COLOR_HEX = "#ffff05";
 
+        private readonly IGameTimeProvider _gameTimeProvider;
         private readonly GameResourceProvider _resourceProvider;
         private readonly GameStateManager _gameStateManager;
         private readonly SceneManager _sceneManager;
@@ -81,7 +83,8 @@ namespace Pal3.Game.GameSystems.Dialogue
         private DialogueRenderActorAvatarCommand _lastAvatarCommand;
         private readonly Queue<IEnumerator> _dialogueRenderQueue = new();
 
-        public DialogueManager(GameResourceProvider resourceProvider,
+        public DialogueManager(IGameTimeProvider gameTimeProvider,
+            GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
             SceneManager sceneManager,
             InputManager inputManager,
@@ -96,6 +99,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             Canvas dialogueSelectionButtonsCanvas,
             GameObject dialogueSelectionButtonPrefab)
         {
+            _gameTimeProvider = Requires.IsNotNull(gameTimeProvider, nameof(gameTimeProvider));
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
@@ -304,7 +308,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         private IEnumerator PlayDialogueBackgroundFlashingAnimationAsync(float duration, CancellationToken cancellationToken)
         {
-            float startTime = Time.realtimeSinceStartup;
+            double startTime = _gameTimeProvider.TimeSinceStartup;
             float initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
             float initialTransparency = _backgroundFrostedGlassImage.transparency;
             const float minThresholdPercentage = 0.65f;
@@ -318,7 +322,7 @@ namespace Pal3.Game.GameSystems.Dialogue
                         _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
                     }, cancellationToken);
 
-                if (Time.realtimeSinceStartup - startTime >= duration) break;
+                if (_gameTimeProvider.TimeSinceStartup - startTime >= duration) break;
 
                 yield return CoreAnimation.EnumerateValueAsync(minThresholdPercentage, 1f, DIALOGUE_FLASHING_ANIMATION_DURATION / 2f,
                     AnimationCurveType.Linear, value =>
@@ -327,7 +331,7 @@ namespace Pal3.Game.GameSystems.Dialogue
                         _backgroundFrostedGlassImage.SetMaterialTransparency(initialTransparency * value);
                     }, cancellationToken);
 
-                if (Time.realtimeSinceStartup - startTime >= duration) break;
+                if (_gameTimeProvider.TimeSinceStartup - startTime >= duration) break;
             }
 
             _backgroundFrostedGlassImage.SetMaterialBlurAmount(initialBlurAmount);

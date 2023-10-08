@@ -15,6 +15,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
+    using Engine.Services;
     using Rendering.Renderer;
     using UnityEngine;
     using Color = Core.Primitives.Color;
@@ -57,12 +58,19 @@ namespace Pal3.Game.Scene.SceneObjects
         }
     }
 
-    internal class StaticOrAnimatedObjectController : TickableGameEntityScript
+    internal sealed class StaticOrAnimatedObjectController : TickableGameEntityScript
     {
+        private IGameTimeProvider _gameTimeProvider;
+
         private int[] _parameters;
         private Component _effectComponent;
         private float _initYPosition;
         private CancellationTokenSource _animationCts;
+
+        protected override void OnEnableGameEntity()
+        {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
+        }
 
         protected override void OnDisableGameEntity()
         {
@@ -116,7 +124,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 {
                     Vector3 currentPosition = Transform.LocalPosition;
                     Transform.LocalPosition = new Vector3(currentPosition.x,
-                        _initYPosition + MathF.Sin(Time.time) / 6f,
+                        _initYPosition + MathF.Sin((float)_gameTimeProvider.TimeSinceStartup) / 6f,
                         currentPosition.z);
                     break;
                 }

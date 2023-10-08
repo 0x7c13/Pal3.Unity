@@ -16,21 +16,25 @@ namespace Pal3.Game.Scene.SceneObjects
     using Engine.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.MushroomBridge)]
     public sealed class MushroomBridgeObject : SceneObject
     {
         private const float ROTATION_DEGREES_PER_SECOND = 45f;
 
+        private readonly IGameTimeProvider _gameTimeProvider;
         private StandingPlatformController _platformController;
-
         private readonly Tilemap _tilemap;
 
         public MushroomBridgeObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
         }
 
@@ -83,7 +87,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             while (currentDegrees < toDegrees)
             {
-                float deltaDegrees = ROTATION_DEGREES_PER_SECOND * Time.deltaTime;
+                float deltaDegrees = ROTATION_DEGREES_PER_SECOND * _gameTimeProvider.DeltaTime;
 
                 if (deltaDegrees + currentDegrees > toDegrees)
                 {

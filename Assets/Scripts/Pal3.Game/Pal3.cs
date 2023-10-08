@@ -139,6 +139,7 @@ namespace Pal3.Game
         private readonly TextureCache _textureCache = new ();
 
         // Core game systems and components
+        private GameTimeProvider _gameTimeProvider;
         private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
@@ -195,6 +196,10 @@ namespace Pal3.Game
         private void OnEnable()
         {
             EngineLogger.Log("Game setup and initialization started...");
+
+            ServiceLocator.Instance.Register<IGameTimeProvider>(_gameTimeProvider =
+                new GameTimeProvider()
+            );
 
             IGameEntity cameraEntity = new GameEntity(mainCamera.gameObject);
 
@@ -367,7 +372,8 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_playerGamePlayManager =
-                new PlayerGamePlayManager(_gameResourceProvider,
+                new PlayerGamePlayManager(_gameTimeProvider,
+                    _gameResourceProvider,
                     _gameStateManager,
                     _playerActorManager,
                     _teamManager,
@@ -388,7 +394,8 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_informationManager =
-                new InformationManager(_gameSettings,
+                new InformationManager(_gameTimeProvider,
+                    _gameSettings,
                     fpsCounter,
                     noteCanvasGroup,
                     noteText,
@@ -396,7 +403,8 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_dialogueManager =
-                new DialogueManager(_gameResourceProvider,
+                new DialogueManager(_gameTimeProvider,
+                    _gameResourceProvider,
                     _gameStateManager,
                     _sceneManager,
                     _inputManager,
@@ -430,7 +438,8 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_saveManager =
-                new SaveManager(_sceneManager,
+                new SaveManager(_gameTimeProvider,
+                    _sceneManager,
                     _playerActorManager,
                     _teamManager,
                     _inventoryManager,
@@ -578,6 +587,7 @@ namespace Pal3.Game
         private void Update()
         {
             var deltaTime = Time.deltaTime;
+            _gameTimeProvider.Tick(deltaTime);
 
             GameState currentState = _gameStateManager.GetCurrentState();
             if (currentState != GameState.VideoPlaying &&

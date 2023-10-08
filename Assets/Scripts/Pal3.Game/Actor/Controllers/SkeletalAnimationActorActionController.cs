@@ -38,6 +38,7 @@ namespace Pal3.Game.Actor.Controllers
 
         protected override void OnEnableGameEntity()
         {
+            base.OnEnableGameEntity();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -46,6 +47,7 @@ namespace Pal3.Game.Actor.Controllers
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
             DeActivate();
             base.DeActivate();
+            base.OnDisableGameEntity();
         }
 
         public void Init(GameResourceProvider resourceProvider,

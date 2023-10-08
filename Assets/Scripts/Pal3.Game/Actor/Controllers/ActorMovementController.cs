@@ -22,6 +22,7 @@ namespace Pal3.Game.Actor.Controllers
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Navigation;
+    using Engine.Services;
     using Engine.Utilities;
     using Scene;
     using Scene.SceneObjects.Common;
@@ -35,13 +36,13 @@ namespace Pal3.Game.Actor.Controllers
         Completed,
     }
 
-    internal class ActiveColliderInfo
+    internal sealed class ActiveColliderInfo
     {
         public Collider Collider;
         public Vector3 ActorPositionWhenCollisionEnter;
     }
 
-    internal class ActiveStandingPlatformInfo
+    internal sealed class ActiveStandingPlatformInfo
     {
         public StandingPlatformController Platform;
         public Vector3 PlatformLastKnownPosition;
@@ -62,6 +63,8 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
+        private IGameTimeProvider _gameTimeProvider;
+
         private Actor _actor;
         private Tilemap _tilemap;
         private ActorActionController _actionController;
@@ -80,6 +83,20 @@ namespace Pal3.Game.Actor.Controllers
         private float _movementMaxYDifferentialCrossPlatform;
 
         private Func<int, int[], HashSet<Vector2Int>> _getAllActiveActorBlockingTilePositions;
+
+        protected override void OnEnableGameEntity()
+        {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
+            CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            _currentPath.Clear();
+            _movementWaiter?.CancelWait();
+            _movementCts?.Cancel();
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+        }
 
         public void Init(Actor actor,
             Tilemap tilemap,
@@ -130,19 +147,6 @@ namespace Pal3.Game.Actor.Controllers
             {
                 Transform.Position = initPosition;
             }
-        }
-
-        protected override void OnEnableGameEntity()
-        {
-            CommandExecutorRegistry<ICommand>.Instance.Register(this);
-        }
-
-        protected override void OnDisableGameEntity()
-        {
-            _currentPath.Clear();
-            _movementWaiter?.CancelWait();
-            _movementCts?.Cancel();
-            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
         public void SetNavLayer(int layerIndex)
@@ -373,7 +377,7 @@ namespace Pal3.Game.Actor.Controllers
                     {
                         Platform = standingPlatformController,
                         PlatformLastKnownPosition = triggerCollider.gameObject.transform.position,
-                        TimeWhenEntered = Time.realtimeSinceStartupAsDouble,
+                        TimeWhenEntered = _gameTimeProvider.RealTimeSinceStartup,
                     });
 
                 // Move actor on to the platform if platform is higher than current position
@@ -733,7 +737,7 @@ namespace Pal3.Game.Actor.Controllers
             do
             {
                 Vector3 currentPosition = Transform.Position;
-                var deltaTime = Time.deltaTime;
+                var deltaTime = _gameTimeProvider.DeltaTime;
 
                 result = MoveTowards(position,
                     movementMode,

@@ -142,7 +142,7 @@ namespace Pal3.Game.Scene.SceneObjects
         }
     }
 
-    internal class ImpulsiveMechanismSubObjectController : GameEntityScript
+    internal sealed class ImpulsiveMechanismSubObjectController : GameEntityScript
     {
         public event EventHandler<IGameEntity> OnPlayerActorHit;
 

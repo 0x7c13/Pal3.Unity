@@ -114,9 +114,9 @@ namespace Pal3.Game.GamePlay
                 var currentHeight = 0f;
                 while (currentHeight < climbableHeight)
                 {
-                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
-                    currentHeight += delta;
-                    _playerActorGameEntity.Transform.Position += new Vector3(0f, delta, 0f);
+                    var deltaHeight = _gameTimeProvider.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    currentHeight += deltaHeight;
+                    _playerActorGameEntity.Transform.Position += new Vector3(0f, deltaHeight, 0f);
                     yield return null;
                 }
 
@@ -133,9 +133,9 @@ namespace Pal3.Game.GamePlay
                 var currentHeight = climbableHeight;
                 while (currentHeight > 0f)
                 {
-                    var delta = Time.deltaTime * ActorConstants.PlayerActorClimbSpeed;
-                    currentHeight -= delta;
-                    _playerActorGameEntity.Transform.Position -= new Vector3(0f, delta, 0f);
+                    var deltaHeight = _gameTimeProvider.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    currentHeight -= deltaHeight;
+                    _playerActorGameEntity.Transform.Position -= new Vector3(0f, deltaHeight, 0f);
                     yield return null;
                 }
 

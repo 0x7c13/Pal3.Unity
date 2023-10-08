@@ -16,18 +16,22 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+    using Engine.Services;
+
     using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
 
     [ScnSceneObject(SceneObjectType.AutoTrigger)]
     public sealed class AutoTriggerObject : SceneObject
     {
+        private readonly IGameTimeProvider _gameTimeProvider;
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
 
         public AutoTriggerObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
         }
 
         public override IGameEntity Activate(GameResourceProvider resourceProvider,
@@ -50,7 +54,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 // scene when holding the stick while transferring between scenes.
                 // We simply disable the auto trigger for a short time window after
                 // a fresh scene load.
-                var effectiveTime = Time.realtimeSinceStartupAsDouble + 0.4f;
+                var effectiveTime = _gameTimeProvider.RealTimeSinceStartup + 0.35f; // 0.35 seconds
                 _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;

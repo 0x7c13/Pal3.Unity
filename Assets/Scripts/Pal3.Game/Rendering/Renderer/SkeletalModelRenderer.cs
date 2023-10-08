@@ -19,12 +19,13 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
+    using Engine.Services;
     using Material;
     using Rendering;
     using UnityEngine;
     using Color = Core.Primitives.Color;
 
-    internal class Bone
+    internal sealed class Bone
     {
         public string Name { get; }
         public IGameEntity GameEntity { get; }
@@ -77,6 +78,8 @@ namespace Pal3.Game.Rendering.Renderer
     /// </summary>
     public class SkeletalModelRenderer : GameEntityScript, IDisposable
     {
+        private IGameTimeProvider _gameTimeProvider;
+
         private IMaterialFactory _materialFactory;
         private Material[][] _materials;
 
@@ -98,6 +101,16 @@ namespace Pal3.Game.Rendering.Renderer
 
         private int[][] _indexBuffer;
         private Vector3[][] _vertexBuffer;
+
+        protected override void OnEnableGameEntity()
+        {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public void Init(MshFile mshFile,
             MtlFile mtlFile,
@@ -185,11 +198,11 @@ namespace Pal3.Game.Rendering.Renderer
 
         private IEnumerator PlayOneTimeAnimationInternalAsync(CancellationToken cancellationToken)
         {
-            var startTime = Time.timeSinceLevelLoad;
+            var startTime = _gameTimeProvider.TimeSinceStartup;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                float seconds = Time.timeSinceLevelLoad - startTime;
+                float seconds = (float)(_gameTimeProvider.TimeSinceStartup - startTime);
 
                 if (seconds >= _movFile.Duration)
                 {
@@ -453,11 +466,6 @@ namespace Pal3.Game.Rendering.Renderer
         public bool IsVisible()
         {
             return _meshEntities != null;
-        }
-
-        protected override void OnDisableGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

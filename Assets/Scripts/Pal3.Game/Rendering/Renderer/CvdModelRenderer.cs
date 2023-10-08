@@ -17,6 +17,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
+    using Engine.Services;
     using Material;
     using UnityEngine;
     using Color = Core.Primitives.Color;
@@ -36,6 +37,18 @@ namespace Pal3.Game.Rendering.Renderer
         private CancellationTokenSource _animationCts = new ();
 
         private IMaterialFactory _materialFactory;
+
+        private IGameTimeProvider _gameTimeProvider;
+
+        protected override void OnEnableGameEntity()
+        {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public void Init(CvdFile cvdFile,
             ITextureResourceProvider textureProvider,
@@ -452,22 +465,22 @@ namespace Pal3.Game.Rendering.Renderer
             bool startFromBeginning,
             CancellationToken cancellationToken)
         {
-            float startTime;
+            double startTime;
 
             if (startFromBeginning)
             {
-                startTime = Time.timeSinceLevelLoad;
+                startTime = _gameTimeProvider.TimeSinceStartup;
             }
             else
             {
-                startTime = Time.timeSinceLevelLoad - _currentTime;
+                startTime = _gameTimeProvider.TimeSinceStartup - _currentTime;
             }
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 var currentTime = timeScale > 0 ?
-                        (Time.timeSinceLevelLoad - startTime) * timeScale :
-                        (duration - (Time.timeSinceLevelLoad - startTime)) * -timeScale;
+                        (float)(_gameTimeProvider.TimeSinceStartup - startTime) * timeScale :
+                        (duration - (float)(_gameTimeProvider.TimeSinceStartup - startTime)) * -timeScale;
 
                 if ((timeScale > 0f && currentTime >= duration) ||
                     (timeScale < 0f && currentTime <= 0f))
@@ -583,11 +596,6 @@ namespace Pal3.Game.Rendering.Renderer
         public void StopCurrentAnimation()
         {
             _animationCts.Cancel();
-        }
-
-        protected override void OnDisableGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

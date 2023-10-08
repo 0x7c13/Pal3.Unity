@@ -22,6 +22,7 @@ namespace Pal3.Game.GamePlay
     using Data;
     using Engine.Abstraction;
     using Engine.Logging;
+    using Engine.Services;
     using GameSystems.Team;
     using Input;
     using Scene;
@@ -42,6 +43,7 @@ namespace Pal3.Game.GamePlay
         ICommandExecutor<PlayerActorLookAtSceneObjectCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
+        private readonly IGameTimeProvider _gameTimeProvider;
         private readonly GameResourceProvider _resourceProvider;
         private readonly GameStateManager _gameStateManager;
         private readonly PlayerActorManager _playerActorManager;
@@ -73,7 +75,8 @@ namespace Pal3.Game.GamePlay
             Vector2Int actorTilePosition,
             Vector3 actorFacing)> _playerActorLastKnownSceneState = new ();
 
-        public PlayerGamePlayManager(GameResourceProvider resourceProvider,
+        public PlayerGamePlayManager(IGameTimeProvider gameTimeProvider,
+            GameResourceProvider resourceProvider,
             GameStateManager gameStateManager,
             PlayerActorManager playerActorManager,
             TeamManager teamManager,
@@ -81,6 +84,7 @@ namespace Pal3.Game.GamePlay
             SceneManager sceneManager,
             CameraManager cameraManager)
         {
+            _gameTimeProvider = Requires.IsNotNull(gameTimeProvider, nameof(gameTimeProvider));
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
             _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));

@@ -14,6 +14,7 @@ namespace Pal3.Game.UI
     using Core.Command.SceCommands;
     using Core.Utilities;
     using Engine.Animation;
+    using Engine.Services;
     using Engine.Utilities;
     using Settings;
     using State;
@@ -30,6 +31,7 @@ namespace Pal3.Game.UI
         private const float NOTE_LAST_TIME_IN_SECONDS = 2.5f;
         private const float NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS = 1f;
 
+        private readonly IGameTimeProvider _gameTimeProvider;
         private readonly GameSettings _gameSettings;
         private readonly CanvasGroup _noteCanvasGroup;
         private readonly TextMeshProUGUI _noteText;
@@ -49,12 +51,14 @@ namespace Pal3.Game.UI
 
         private readonly string _defaultText;
 
-        public InformationManager(GameSettings gameSettings,
+        public InformationManager(IGameTimeProvider gameTimeProvider,
+            GameSettings gameSettings,
             FpsCounter fpsCounter,
             CanvasGroup noteCanvasGroup,
             TextMeshProUGUI noteText,
             TextMeshProUGUI debugInfo)
         {
+            _gameTimeProvider = Requires.IsNotNull(gameTimeProvider, nameof(gameTimeProvider));
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _fpsCounter = Requires.IsNotNull(fpsCounter, nameof(fpsCounter));
             _noteCanvasGroup = Requires.IsNotNull(noteCanvasGroup, nameof(noteCanvasGroup));
@@ -63,7 +67,7 @@ namespace Pal3.Game.UI
 
             _noteCanvasGroup.alpha = 0f;
             _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
-            _heapSizeLastQueryTime = Time.realtimeSinceStartupAsDouble;
+            _heapSizeLastQueryTime = gameTimeProvider.RealTimeSinceStartup;
 
             #if ENABLE_IL2CPP
             const string scriptingBackend = "IL2CPP";
@@ -102,7 +106,7 @@ namespace Pal3.Game.UI
         {
             if (!_gameSettings.IsDebugInfoEnabled) return;
 
-            var currentTime = Time.realtimeSinceStartupAsDouble;
+            var currentTime = _gameTimeProvider.RealTimeSinceStartup;
             if (currentTime - _heapSizeLastQueryTime > 5f)
             {
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);

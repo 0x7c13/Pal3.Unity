@@ -18,6 +18,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
+    using Engine.Services;
     using Material;
     using Rendering;
     using UnityEngine;
@@ -59,6 +60,18 @@ namespace Pal3.Game.Rendering.Renderer
         private Mv3TagNode[] _tagNodesInfo;
         private uint[][] _tagNodeFrameTicks;
         private IGameEntity[] _tagNodes;
+
+        private IGameTimeProvider _gameTimeProvider;
+
+        protected override void OnEnableGameEntity()
+        {
+            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public void Init(Mv3File mv3File,
             IMaterialFactory materialFactory,
@@ -370,11 +383,11 @@ namespace Pal3.Game.Rendering.Renderer
             WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
-            var startTime = Time.timeSinceLevelLoad;
+            var startTime = _gameTimeProvider.TimeSinceStartup;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                uint tick = (Time.timeSinceLevelLoad - startTime).SecondsToGameBoxTick() + startTick;
+                uint tick = ((float)(_gameTimeProvider.TimeSinceStartup - startTime)).SecondsToGameBoxTick() + startTick;
 
                 if (tick >= endTick)
                 {
@@ -454,11 +467,6 @@ namespace Pal3.Game.Rendering.Renderer
             }
 
             return false;
-        }
-
-        protected override void OnDisableGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()
