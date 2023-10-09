@@ -8,13 +8,14 @@ namespace Engine.Renderer
     using System.Collections;
     using System.Threading;
     using Abstraction;
+    using Coroutine;
     using Extensions;
     using UnityEngine;
 
     public class AnimatedBillboardRenderer : GameEntityScript
     {
         private Sprite[] _sprites;
-        private WaitForSeconds _spriteAnimationFrameWaiter;
+        private object _spriteAnimationFrameWaiter;
         private bool _initialized;
 
         private StaticBillboardRenderer _billboardRenderer;
@@ -50,7 +51,7 @@ namespace Engine.Renderer
                 _spriteRenderer.material = material;
             }
 
-            _spriteAnimationFrameWaiter = new WaitForSeconds(1 / fps);
+            _spriteAnimationFrameWaiter = CoroutineYieldInstruction.WaitForSeconds(1 / fps);
 
             _initialized = true;
         }

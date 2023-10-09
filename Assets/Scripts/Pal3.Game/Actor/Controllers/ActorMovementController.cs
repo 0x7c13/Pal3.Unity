@@ -39,7 +39,7 @@ namespace Pal3.Game.Actor.Controllers
 
     internal sealed class ActiveColliderInfo
     {
-        public Collider Collider;
+        public IGameEntity ColliderGameEntity;
         public Vector3 ActorPositionWhenCollisionEnter;
     }
 
@@ -282,7 +282,7 @@ namespace Pal3.Game.Actor.Controllers
             // Sanity cleanup
             if (_activeColliders.Count > 0)
             {
-                _activeColliders.RemoveWhere(_ => _.Collider == null);
+                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null || _.ColliderGameEntity.IsDisposed);
             }
 
             // Sanity cleanup
@@ -326,7 +326,7 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
+        protected override void OnCollisionEnterGameEntity(IGameEntity otherGameEntity)
         {
             Vector3 currentActorPosition = Transform.Position;
             Vector2Int currentTilePosition = _tilemap.GetTilePosition(currentActorPosition, _currentLayerIndex);
@@ -352,14 +352,14 @@ namespace Pal3.Game.Actor.Controllers
 
             _activeColliders.Add(new ActiveColliderInfo()
             {
-                Collider = collision.collider,
+                ColliderGameEntity = otherGameEntity,
                 ActorPositionWhenCollisionEnter = actorPosition
             });
         }
 
-        private void OnCollisionExit(Collision collision)
+        protected override void OnCollisionExitGameEntity(IGameEntity otherGameEntity)
         {
-            _activeColliders.RemoveWhere(_ => _.Collider == collision.collider);
+            _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == otherGameEntity);
 
             if (_actionController.GetRigidBody() is { isKinematic: false } actorRigidbody)
             {
@@ -367,14 +367,14 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void OnTriggerEnter(Collider triggerCollider)
+        protected override void OnTriggerEnterGameEntity(IGameEntity otherGameEntity)
         {
-            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
+            if (otherGameEntity.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
                 _activeStandingPlatforms.Add(new ActiveStandingPlatformInfo()
                     {
                         Platform = standingPlatformController,
-                        PlatformLastKnownPosition = triggerCollider.gameObject.transform.position,
+                        PlatformLastKnownPosition = otherGameEntity.Transform.Position,
                         TimeWhenEntered = GameTimeProvider.Instance.RealTimeSinceStartup,
                     });
 
@@ -389,9 +389,9 @@ namespace Pal3.Game.Actor.Controllers
             }
         }
 
-        private void OnTriggerExit(Collider triggerCollider)
+        protected override void OnTriggerExitGameEntity(IGameEntity otherGameEntity)
         {
-            if (triggerCollider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
+            if (otherGameEntity.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
                 _activeStandingPlatforms.RemoveWhere(_ => _.Platform == standingPlatformController);
             }
@@ -570,7 +570,8 @@ namespace Pal3.Game.Actor.Controllers
             // Check if actor is running into any of the active collision colliders
             foreach (ActiveColliderInfo colliderInfo in _activeColliders)
             {
-                if (colliderInfo.Collider == null)
+                if (colliderInfo.ColliderGameEntity == null ||
+                    colliderInfo.ColliderGameEntity.IsDisposed)
                 {
                     continue; // In case the collider is destroyed
                 }
@@ -583,7 +584,8 @@ namespace Pal3.Game.Actor.Controllers
 
                 if (_actionController.GetCollider() is { } capsuleCollider)
                 {
-                    if (UnityEngineUtility.IsPointInsideCollider(colliderInfo.Collider,
+                    Collider otherCollider = colliderInfo.ColliderGameEntity.GetComponent<Collider>();
+                    if (otherCollider != null && UnityEngineUtility.IsPointInsideCollider(otherCollider,
                             toCenterPosition + movingDirection * capsuleCollider.radius))
                     {
                         return true;

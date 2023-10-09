@@ -68,21 +68,21 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             return _collider.bounds.max.y + _platformHeightOffset - 0.05f;
         }
 
-        private void OnTriggerEnter(Collider otherCollider)
+        protected override void OnTriggerEnterGameEntity(IGameEntity otherGameEntity)
         {
-            if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, new GameEntity(otherCollider.gameObject));
+                OnPlayerActorEntered?.Invoke(this, otherGameEntity);
             }
         }
 
-        private void OnTriggerExit(Collider otherCollider)
+        protected override void OnTriggerExitGameEntity(IGameEntity otherGameEntity)
         {
-            if (otherCollider.gameObject.GetComponent<ActorController>() is { } actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is { } actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, new GameEntity(otherCollider.gameObject));
+                OnPlayerActorExited?.Invoke(this, otherGameEntity);
             }
         }
     }

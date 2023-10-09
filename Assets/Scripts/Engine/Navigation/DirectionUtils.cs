@@ -8,7 +8,8 @@ namespace Engine.Navigation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using UnityEngine;
+
+    using Vector2Int = UnityEngine.Vector2Int;
 
     public static class DirectionUtils
     {

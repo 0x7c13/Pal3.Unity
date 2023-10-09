@@ -5,6 +5,7 @@
 
 namespace Engine.Abstraction
 {
+    using System;
     using System.Collections;
     using UnityEngine;
 
@@ -34,6 +35,14 @@ namespace Engine.Abstraction
 
         protected virtual void OnDestroyGameEntity() {}
 
+        protected virtual void OnCollisionEnterGameEntity(IGameEntity other) {}
+
+        protected virtual void OnCollisionExitGameEntity(IGameEntity other) {}
+
+        protected virtual void OnTriggerEnterGameEntity(IGameEntity other) {}
+
+        protected virtual void OnTriggerExitGameEntity(IGameEntity other) {}
+
         private void OnEnable()
         {
             OnEnableGameEntity();
@@ -47,6 +56,38 @@ namespace Engine.Abstraction
         private void OnDestroy()
         {
             OnDestroyGameEntity();
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject != null)
+            {
+                OnCollisionEnterGameEntity(new GameEntity(collision.gameObject));
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject != null)
+            {
+                OnCollisionExitGameEntity(new GameEntity(collision.gameObject));
+            }
+        }
+
+        private void OnTriggerEnter(Collider otherCollider)
+        {
+            if (otherCollider.gameObject != null)
+            {
+                OnTriggerEnterGameEntity(new GameEntity(otherCollider.gameObject));
+            }
+        }
+
+        private void OnTriggerExit(Collider otherCollider)
+        {
+            if (otherCollider.gameObject != null)
+            {
+                OnTriggerExitGameEntity(new GameEntity(otherCollider.gameObject));
+            }
         }
     }
 }

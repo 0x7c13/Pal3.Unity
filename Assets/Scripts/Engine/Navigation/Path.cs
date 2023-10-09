@@ -6,7 +6,8 @@
 namespace Engine.Navigation
 {
     using Pal3.Core.Contract.Enums;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public enum EndOfPathActionType
     {

@@ -157,11 +157,11 @@ namespace Pal3.Game.Actor.Controllers
             _actionController.DeActivate();
         }
 
-        private void OnCollisionEnter(Collision collision)
+        protected override void OnCollisionEnterGameEntity(IGameEntity otherGameEntity)
         {
             if (_actor.Info.Type == ActorType.CombatNpc &&
                 (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
-                collision.gameObject.GetComponent<ActorController>() is {} actorController &&
+                otherGameEntity.GetComponent<ActorController>() is {} actorController &&
                 (int) ServiceLocator.Instance.Get<PlayerActorManager>()
                     .GetPlayerActor() == actorController.GetActor().Id)
             {

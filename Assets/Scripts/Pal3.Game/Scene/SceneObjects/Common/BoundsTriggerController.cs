@@ -49,39 +49,39 @@ namespace Pal3.Game.Scene.SceneObjects.Common
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
+        protected override void OnCollisionEnterGameEntity(IGameEntity otherGameEntity)
         {
-            if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, new GameEntity(collision.gameObject));
+                OnPlayerActorEntered?.Invoke(this, otherGameEntity);
             }
         }
 
-        private void OnTriggerEnter(Collider otherCollider)
+        protected override void OnTriggerEnterGameEntity(IGameEntity otherGameEntity)
         {
-            if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorEntered?.Invoke(this, new GameEntity(otherCollider.gameObject));
+                OnPlayerActorEntered?.Invoke(this, otherGameEntity);
             }
         }
 
-        private void OnCollisionExit(Collision collision)
+        protected override void OnCollisionExitGameEntity(IGameEntity otherGameEntity)
         {
-            if (collision.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, new GameEntity(collision.gameObject));
+                OnPlayerActorExited?.Invoke(this, otherGameEntity);
             }
         }
 
-        private void OnTriggerExit(Collider otherCollider)
+        protected override void OnTriggerExitGameEntity(IGameEntity otherGameEntity)
         {
-            if (otherCollider.gameObject.GetComponent<ActorController>() is {} actorController &&
+            if (otherGameEntity.GetComponent<ActorController>() is {} actorController &&
                 actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
             {
-                OnPlayerActorExited?.Invoke(this, new GameEntity(otherCollider.gameObject));
+                OnPlayerActorExited?.Invoke(this, otherGameEntity);
             }
         }
     }

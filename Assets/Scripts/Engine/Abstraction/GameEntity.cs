@@ -7,11 +7,18 @@ namespace Engine.Abstraction
 {
     using System;
     using Extensions;
+    using Pal3.Core.Utilities;
     using UnityEngine;
 
     public sealed class GameEntity : IGameEntity
     {
         private GameObject _gameObject;
+
+        public GameEntity()
+        {
+            _gameObject = new GameObject();
+            Transform = new Transform(_gameObject.transform);
+        }
 
         public GameEntity(string name)
         {
@@ -21,7 +28,7 @@ namespace Engine.Abstraction
 
         public GameEntity(GameObject gameObject)
         {
-            _gameObject = gameObject;
+            _gameObject = Requires.IsNotNull(gameObject, nameof(gameObject));
             Transform = new Transform(_gameObject.transform);
         }
 
@@ -80,11 +87,6 @@ namespace Engine.Abstraction
         public void SetLayer(int layerIndex)
         {
             _gameObject.layer = layerIndex;
-        }
-
-        public void SetStatic(bool isStatic)
-        {
-            _gameObject.isStatic = isStatic;
         }
 
         public IGameEntity FindChild(string name)

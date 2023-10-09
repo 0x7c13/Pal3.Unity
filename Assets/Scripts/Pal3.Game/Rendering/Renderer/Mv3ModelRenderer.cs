@@ -509,6 +509,9 @@ namespace Pal3.Game.Rendering.Renderer
 
                 _tagNodes = null;
             }
+
+            _isActionInHoldState = false;
+            _actionHoldingTick = 0;
         }
     }
 }
