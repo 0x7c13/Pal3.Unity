@@ -24,11 +24,14 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.Impulsive)]
     public sealed class ImpulsiveObject : SceneObject
@@ -200,10 +203,10 @@ namespace Pal3.Game.Scene.SceneObjects
         private IEnumerator StartMovementAsync(CancellationToken cancellationToken)
         {
             var startDelay = RandomGenerator.Range(0f, 3.5f);
-            yield return new WaitForSeconds(startDelay);
+            yield return CoroutineYieldInstruction.WaitForSeconds(startDelay);
 
             Vector3 initPosition = Transform.LocalPosition;
-            var holdTimeWaiter = new WaitForSeconds(POSITION_HOLD_TIME);
+            var holdTimeWaiter = CoroutineYieldInstruction.WaitForSeconds(POSITION_HOLD_TIME);
 
             while (!cancellationToken.IsCancellationRequested)
             {

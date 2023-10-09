@@ -15,6 +15,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Engine.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
+
     using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.SectorBridge)]

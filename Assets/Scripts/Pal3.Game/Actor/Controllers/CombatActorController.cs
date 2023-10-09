@@ -9,6 +9,7 @@ namespace Pal3.Game.Actor.Controllers
     using System.Collections;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using GameSystems.Combat;
     using Scene;
     using Script.Waiter;
@@ -93,7 +94,7 @@ namespace Pal3.Game.Actor.Controllers
             WaitUntilCanceled waiter = new WaitUntilCanceled();
             _actionController.PerformAction(_actor.GetCombatAttackAction(), overwrite: true, loopCount: 1, waiter);
 
-            yield return new WaitUntil(() => !waiter.ShouldWait());
+            yield return CoroutineYieldInstruction.WaitUntil(() => !waiter.ShouldWait());
 
             _actionController.PerformAction(_actor.GetCombatMovementAction());
             _actionController.Transform.LookAt(myElementPosition);

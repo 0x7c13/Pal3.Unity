@@ -17,9 +17,9 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Engine.Coroutine;
     using Engine.Services;
     using GameSystems.Inventory;
-    using UnityEngine;
 
     [ScnSceneObject(SceneObjectType.PaperweightDesk)]
     public sealed class PaperweightDeskObject : SceneObject
@@ -66,7 +66,7 @@ namespace Pal3.Game.Scene.SceneObjects
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
 
-                yield return new WaitForSeconds(0.8f); // Wait for actor animation to finish
+                yield return CoroutineYieldInstruction.WaitForSeconds(0.8f); // Wait for actor animation to finish
 
                 yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
             }

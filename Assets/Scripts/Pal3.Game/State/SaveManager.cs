@@ -34,11 +34,13 @@ namespace Pal3.Game.State
     using GameSystems.Team;
     using Scene;
     using Script;
-    using UnityEngine;
 
     #if PAL3A
     using GameSystems.Task;
     #endif
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public enum SaveLevel
     {

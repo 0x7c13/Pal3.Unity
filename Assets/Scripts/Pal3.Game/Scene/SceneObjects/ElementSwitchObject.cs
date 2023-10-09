@@ -18,9 +18,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Data;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
+
     using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.ElementSwitch)]
@@ -135,7 +136,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
                 yield return ExecuteScriptAndWaitForFinishIfAnyAsync();
-                yield return new WaitForSeconds(1);
+                yield return CoroutineYieldInstruction.WaitForSeconds(1);
             }
 
             if (shouldResetCamera)

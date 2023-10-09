@@ -27,16 +27,21 @@ namespace Pal3.Game.Scene.SceneObjects
     using Effect;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
+    using Engine.Renderer;
     using Engine.Services;
     using Rendering.Material;
     using Rendering.Renderer;
     using Script;
     using Script.Waiter;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public struct InteractionContext
     {
@@ -384,7 +389,7 @@ namespace Pal3.Game.Scene.SceneObjects
             ushort nextLinkedObjectId = linkedObject.ObjectInfo.LinkedObjectId;
             if (nextLinkedObjectId != INVALID_SCENE_OBJECT_ID)
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return CoroutineYieldInstruction.WaitForSeconds(0.5f);
                 yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
             }
             #elif PAL3A
@@ -403,7 +408,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                     if (linkedObject.ObjectInfo.Type != nextLinkedObject.ObjectInfo.Type)
                     {
-                        yield return new WaitForSeconds(1);
+                        yield return CoroutineYieldInstruction.WaitForSeconds(1);
                         ResetCamera(); // Make sure camera is looking at the player before moving
                         yield return null; // Wait for one frame to make sure camera is reset
 
@@ -412,7 +417,7 @@ namespace Pal3.Game.Scene.SceneObjects
                             ctx.PlayerActorGameEntity.Transform);
 
                         yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, nextLinkedObjectId);
-                        yield return new WaitForSeconds(1);
+                        yield return CoroutineYieldInstruction.WaitForSeconds(1);
 
                         ResetCamera(); // Reset again
                         yield return null; // Wait for one frame to make sure camera is reset
@@ -480,10 +485,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (_sceneObjectGameEntity != null)
             {
-                foreach (MeshRenderer renderer in
-                         _sceneObjectGameEntity.GetComponentsInChildren<MeshRenderer>())
+                foreach (StaticMeshRenderer renderer in
+                         _sceneObjectGameEntity.GetComponentsInChildren<StaticMeshRenderer>())
                 {
-                    if (!renderer.isVisible) return false;
+                    if (!renderer.IsVisible) return false;
                 }
 
                 return true;

@@ -19,6 +19,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Primitives;
     using Core.Utilities;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Navigation;
@@ -721,8 +722,8 @@ namespace Pal3.Game.Actor.Controllers
             MovementMode movementMode,
             CancellationToken cancellationToken)
         {
-            yield return new WaitForSeconds(RandomGenerator.Range(3f, 8f));
-            yield return new WaitUntil(() => !_isMovementOnHold);
+            yield return CoroutineYieldInstruction.WaitForSeconds(RandomGenerator.Range(3f, 8f));
+            yield return CoroutineYieldInstruction.WaitUntil(() => !_isMovementOnHold);
             if (!cancellationToken.IsCancellationRequested)
             {
                 SetupPath(waypoints, movementMode, EndOfPathActionType.WaitAndReverse, ignoreObstacle: true);

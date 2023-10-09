@@ -35,6 +35,7 @@ namespace Engine.Renderer
             _materials = materials;
             _meshRenderer = GameEntity.AddComponent<MeshRenderer>();
             _meshRenderer.sharedMaterials = materials;
+            _meshRenderer.receiveShadows = _receiveShadows;
 
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
             var mesh = new Mesh();
@@ -63,15 +64,26 @@ namespace Engine.Renderer
             return mesh;
         }
 
+        private bool _receiveShadows = true; // Default to receive shadows
+        public bool ReceiveShadows
+        {
+            get => _receiveShadows;
+            set
+            {
+                _receiveShadows = value;
+                if (_meshRenderer != null)
+                {
+                    _meshRenderer.receiveShadows = value;
+                }
+            }
+        }
+
         public Mesh GetMesh()
         {
             return _meshFilter == null ? null : _meshFilter.sharedMesh;
         }
 
-        public bool IsVisible()
-        {
-            return _meshRenderer != null && _meshRenderer.isVisible;
-        }
+        public bool IsVisible => _meshRenderer != null && _meshRenderer.isVisible;
 
         public Bounds GetRendererBounds()
         {

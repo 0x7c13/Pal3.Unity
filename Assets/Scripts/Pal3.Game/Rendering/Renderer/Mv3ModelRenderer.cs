@@ -54,7 +54,6 @@ namespace Pal3.Game.Rendering.Renderer
         private uint[][] _frameTicks;
         private uint _totalGameBoxTicks;
         private RenderMeshComponent[] _renderMeshComponents;
-        private WaitForSeconds _animationDelay;
 
         // Tag node
         private Mv3TagNode[] _tagNodesInfo;
@@ -234,7 +233,7 @@ namespace Pal3.Game.Rendering.Renderer
             _meshEntities[index].SetParent(GameEntity, worldPositionStays: false);
         }
 
-        public void StartAnimation(int loopCount = -1, float fps = -1f)
+        public void StartAnimation(int loopCount = -1)
         {
             if (_renderMeshComponents == null)
             {
@@ -244,10 +243,7 @@ namespace Pal3.Game.Rendering.Renderer
             PauseAnimation();
 
             _animationCts = new CancellationTokenSource();
-            _animationDelay = fps <= 0 ? null : new WaitForSeconds(1 / fps);
-            StartCoroutine(PlayAnimationInternalAsync(loopCount,
-                _animationDelay,
-                _animationCts.Token));
+            StartCoroutine(PlayAnimationInternalAsync(loopCount, _animationCts.Token));
         }
 
         public void ChangeTexture(string textureName)
@@ -311,21 +307,22 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void ResumeAction()
         {
-            StartCoroutine(ResumeActionInternalAsync(_animationDelay));
+            StartCoroutine(ResumeActionInternalAsync());
         }
 
-        private IEnumerator ResumeActionInternalAsync(WaitForSeconds animationDelay)
+        private IEnumerator ResumeActionInternalAsync()
         {
             if (!_isActionInHoldState) yield break;
             _animationCts = new CancellationTokenSource();
-            yield return PlayOneTimeAnimationInternalAsync(_actionHoldingTick, _totalGameBoxTicks, animationDelay, _animationCts.Token);
+            yield return PlayOneTimeAnimationInternalAsync(_actionHoldingTick,
+                _totalGameBoxTicks,
+                _animationCts.Token);
             _isActionInHoldState = false;
             _actionHoldingTick = 0;
             AnimationLoopPointReached?.Invoke(this, -2);
         }
 
         private IEnumerator PlayAnimationInternalAsync(int loopCount,
-            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             uint startTick = 0;
@@ -334,7 +331,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -342,7 +339,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
                     AnimationLoopPointReached?.Invoke(this, loopCount);
                 }
             }
@@ -351,12 +348,12 @@ namespace Pal3.Game.Rendering.Renderer
                 if (TryGetLastHoldingTick(out uint holdingTick))
                 {
                     _actionHoldingTick = holdingTick;
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, cancellationToken);
                     _isActionInHoldState = true;
                 }
                 else
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, animationDelay, cancellationToken);
+                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
                 }
                 AnimationLoopPointReached?.Invoke(this, loopCount);
             }
@@ -380,7 +377,6 @@ namespace Pal3.Game.Rendering.Renderer
 
         private IEnumerator PlayOneTimeAnimationInternalAsync(uint startTick,
             uint endTick,
-            WaitForSeconds animationDelay,
             CancellationToken cancellationToken)
         {
             var startTime = _gameTimeProvider.TimeSinceStartup;
@@ -396,7 +392,7 @@ namespace Pal3.Game.Rendering.Renderer
 
                 if (!IsVisibleToCamera())
                 {
-                    yield return animationDelay;
+                    yield return null;
                     continue;
                 }
 
@@ -453,7 +449,7 @@ namespace Pal3.Game.Rendering.Renderer
                     }
                 }
 
-                yield return animationDelay;
+                yield return null;
             }
         }
 
@@ -463,7 +459,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
-                if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
+                if (renderMeshComponent.MeshRenderer.IsVisible) return true;
             }
 
             return false;

@@ -14,7 +14,9 @@ namespace Pal3.Game.Scene
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Navigation;
-    using UnityEngine;
+
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     public class Tilemap
     {

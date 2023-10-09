@@ -501,6 +501,8 @@ namespace Pal3.Game.Scene
                 ActorMovementMaxYDifferentialCrossPlatform,
                 GetAllActiveActorBlockingTilePositions);
             actorGameEntity.SetParent(_parent, worldPositionStays: false);
+            int layerIndex = LayerMask.NameToLayer("Ignore Raycast");
+            actorGameEntity.SetLayer(layerIndex); // Ignore raycast for all actors
             _actorEntities[actor.Id] = actorGameEntity;
         }
 

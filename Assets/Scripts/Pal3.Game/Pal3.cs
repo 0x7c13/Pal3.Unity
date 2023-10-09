@@ -25,6 +25,7 @@ namespace Pal3.Game
     using Dev;
     using Effect;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;
@@ -564,7 +565,7 @@ namespace Pal3.Game
 
         private IEnumerator CheckLatestVersionAndNotifyAsync()
         {
-            yield return new WaitForSeconds(1f);
+            yield return CoroutineYieldInstruction.WaitForSeconds(1f);
             yield return GithubReleaseVersionFetcher.GetLatestReleaseVersionAsync(GameConstants.GithubRepoOwner, GameConstants.GithubRepoName,
                 latestVersion =>
                 {

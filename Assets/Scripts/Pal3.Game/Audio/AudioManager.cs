@@ -19,6 +19,7 @@ namespace Pal3.Game.Audio
     using Core.Utilities;
     using Data;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Scene;
     using Settings;
@@ -152,7 +153,7 @@ namespace Pal3.Game.Audio
                 while (!cancellationToken.IsCancellationRequested && audioSource != null)
                 {
                     audioSource.PlayOneShot(audioClip, volume);
-                    yield return new WaitForSeconds(audioClip.length + interval);
+                    yield return CoroutineYieldInstruction.WaitForSeconds(audioClip.length + interval);
                 }
             }
             else
@@ -160,7 +161,7 @@ namespace Pal3.Game.Audio
                 while (--loopCount >= 0 && !cancellationToken.IsCancellationRequested && audioSource != null)
                 {
                     audioSource.PlayOneShot(audioClip, volume);
-                    yield return new WaitForSeconds(audioClip.length);
+                    yield return CoroutineYieldInstruction.WaitForSeconds(audioClip.length);
                 }
             }
         }
@@ -221,7 +222,7 @@ namespace Pal3.Game.Audio
         {
             if (delayInSeconds > 0)
             {
-                yield return new WaitForSeconds(delayInSeconds);
+                yield return CoroutineYieldInstruction.WaitForSeconds(delayInSeconds);
             }
 
             if (!cancellationToken.IsCancellationRequested)

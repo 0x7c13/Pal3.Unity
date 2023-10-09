@@ -13,6 +13,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.Primitives;
     using Dev.Presenters;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -253,7 +254,7 @@ namespace Pal3.Game.Rendering.Renderer
                 waterTextures.Add(texture);
             }
 
-            var waterAnimationDelay = new WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
+            var waterAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
 
             while (!cancellationToken.IsCancellationRequested)
             {

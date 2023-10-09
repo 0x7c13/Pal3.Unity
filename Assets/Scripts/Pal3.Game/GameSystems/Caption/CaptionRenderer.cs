@@ -14,6 +14,7 @@ namespace Pal3.Game.GameSystems.Caption
     using Core.Utilities;
     using Data;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Input;
     using Script.Waiter;
@@ -82,7 +83,7 @@ namespace Pal3.Game.GameSystems.Caption
                 });
 
             _skipCaptionRequested = false;
-            yield return new WaitUntil(() => _skipCaptionRequested);
+            yield return CoroutineYieldInstruction.WaitUntil(() => _skipCaptionRequested);
 
             _captionImage.color = Color.clear;
             texture.Destroy();

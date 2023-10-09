@@ -18,9 +18,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.DivineTreePortal)]
     public sealed class DivineTreePortalObject : SceneObject
@@ -82,7 +85,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private IEnumerator CountDownForInteractionAsync(CancellationToken cancellationToken)
         {
-            yield return new WaitForSeconds(3f);
+            yield return CoroutineYieldInstruction.WaitForSeconds(3f);
             if (cancellationToken.IsCancellationRequested) yield break;
             _isInteractionInProgress = true;
             RequestForInteraction();

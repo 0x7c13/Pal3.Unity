@@ -14,8 +14,9 @@ namespace Pal3.Game.Actor
     using Engine.Abstraction;
     using GameSystems.Combat;
     using Scene;
-    using UnityEngine;
+
     using Color = Core.Primitives.Color;
+    using Vector2Int = UnityEngine.Vector2Int;
 
     public static class ActorFactory
     {
@@ -30,9 +31,6 @@ namespace Pal3.Game.Actor
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
             var actorGameEntity = new GameEntity($"Actor_{actor.Id}_{actor.Name}");
-
-            int layerIndex = LayerMask.NameToLayer("Ignore Raycast");
-            actorGameEntity.SetLayer(layerIndex); // ignore raycast for all actors
 
             // Attach ScnNpcInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR

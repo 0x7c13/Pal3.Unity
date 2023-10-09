@@ -14,6 +14,7 @@ namespace Pal3.Game.UI
     using Core.Command.SceCommands;
     using Core.Utilities;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Services;
     using Engine.Utilities;
     using Settings;
@@ -126,7 +127,7 @@ namespace Pal3.Game.UI
         private IEnumerator AnimateNoteUIAsync()
         {
             _noteCanvasGroup.alpha = 1f;
-            yield return new WaitForSeconds(NOTE_LAST_TIME_IN_SECONDS);
+            yield return CoroutineYieldInstruction.WaitForSeconds(NOTE_LAST_TIME_IN_SECONDS);
             yield return CoreAnimation.EnumerateValueAsync(
                 1f, 0f, NOTE_DISAPPEAR_ANIMATION_TIME_IN_SECONDS, AnimationCurveType.Linear,
                 alpha =>

@@ -14,11 +14,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Utilities;
     using Data;
     using Engine.Abstraction;
-    using Engine.Extensions;
+    using Engine.Coroutine;
     using Engine.Services;
     using Rendering.Renderer;
-    using UnityEngine;
+
     using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.StaticOrAnimated)]
     public sealed class StaticOrAnimatedObject : SceneObject
@@ -63,7 +64,6 @@ namespace Pal3.Game.Scene.SceneObjects
         private IGameTimeProvider _gameTimeProvider;
 
         private int[] _parameters;
-        private Component _effectComponent;
         private float _initYPosition;
         private CancellationTokenSource _animationCts;
 
@@ -78,9 +78,6 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 _animationCts.Cancel();
             }
-
-            _effectComponent.Destroy();
-            _effectComponent = null;
         }
 
         public void Init(int[] parameters)
@@ -106,7 +103,7 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                yield return new WaitForSeconds(RandomGenerator.Range(0.5f, 3.5f));
+                yield return CoroutineYieldInstruction.WaitForSeconds(RandomGenerator.Range(0.5f, 3.5f));
                 if (cancellationToken.IsCancellationRequested) yield break;
                 yield return cvdModelRenderer.PlayOneTimeAnimationAsync(true);
             }

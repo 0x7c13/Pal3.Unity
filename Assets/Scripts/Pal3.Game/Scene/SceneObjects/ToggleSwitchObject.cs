@@ -20,11 +20,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Rendering.Renderer;
-    using UnityEngine;
 
     using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
 
     [ScnSceneObject(SceneObjectType.ToggleSwitch)]
     public sealed class ToggleSwitchObject : SceneObject
@@ -143,12 +144,12 @@ namespace Pal3.Game.Scene.SceneObjects
                     ExecuteScriptIfAny();
                     if (SceneInfo.Is("m06", "2"))
                     {
-                        yield return new WaitForSeconds(1);
+                        yield return CoroutineYieldInstruction.WaitForSeconds(1);
                     }
                     yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);
                 }
 
-                yield return new WaitForSeconds(1);
+                yield return CoroutineYieldInstruction.WaitForSeconds(1);
             }
             else
             {

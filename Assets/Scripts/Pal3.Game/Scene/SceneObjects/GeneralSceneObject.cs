@@ -13,8 +13,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+    using Engine.Renderer;
+
     using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.General)]
     public sealed class GeneralSceneObject : SceneObject
@@ -36,9 +38,10 @@ namespace Pal3.Game.Scene.SceneObjects
             // Those indicators are general objects which have Info.Parameters[0] set to 1
             if (ObjectInfo.Parameters[0] == 1)
             {
-                foreach (MeshRenderer meshRenderer in sceneObjectGameEntity.GetComponentsInChildren<MeshRenderer>())
+                foreach (StaticMeshRenderer meshRenderer in
+                         sceneObjectGameEntity.GetComponentsInChildren<StaticMeshRenderer>())
                 {
-                    meshRenderer.receiveShadows = false;
+                    meshRenderer.ReceiveShadows = false;
                 }
             }
 

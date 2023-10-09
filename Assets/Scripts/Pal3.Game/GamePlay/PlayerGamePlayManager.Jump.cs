@@ -14,6 +14,7 @@ namespace Pal3.Game.GamePlay
     using Core.DataReader.Nav;
     using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Renderer;
     using Scene;
@@ -198,7 +199,7 @@ namespace Pal3.Game.GamePlay
 
             _playerActorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Jump],
                  overwrite: true, loopCount: 1);
-            yield return new WaitForSeconds(0.7f);
+            yield return CoroutineYieldInstruction.WaitForSeconds(0.7f);
 
             var xzOffset = Vector2.Distance(
                 new Vector2(jumpTargetPosition.Value.x, jumpTargetPosition.Value.z),
@@ -213,7 +214,7 @@ namespace Pal3.Game.GamePlay
                     calculatedPosition.y = startingYPosition + (0.5f - MathF.Abs(value - 0.5f)) * JUMP_HEIGHT + yOffset * value;
                     _playerActorGameEntity.Transform.Position = calculatedPosition;
                 });
-            yield return new WaitForSeconds(0.7f);
+            yield return CoroutineYieldInstruction.WaitForSeconds(0.7f);
 
             _playerActorMovementController.SetNavLayer(jumpTargetLayer);
 

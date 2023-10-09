@@ -20,9 +20,11 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Data;
     using Engine.Abstraction;
+    using Engine.Coroutine;
     using Engine.Extensions;
-    using UnityEngine;
+
     using Color = Core.Primitives.Color;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.SpecialSwitch)]
     public sealed class SpecialSwitchObject : SceneObject
@@ -89,7 +91,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionToNameMap[ActorActionType.Skill], 1));
 
-            yield return new WaitForSeconds(1.2f); // Wait for actor animation to finish
+            yield return CoroutineYieldInstruction.WaitForSeconds(1.2f); // Wait for actor animation to finish
 
             var sfxName = actorId switch
             {

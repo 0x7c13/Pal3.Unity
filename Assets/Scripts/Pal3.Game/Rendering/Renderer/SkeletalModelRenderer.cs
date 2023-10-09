@@ -226,7 +226,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
-                if (renderMeshComponent.MeshRenderer.IsVisible()) return true;
+                if (renderMeshComponent.MeshRenderer.IsVisible) return true;
             }
 
             return false;

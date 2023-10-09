@@ -15,7 +15,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Data;
     using Engine.Abstraction;
-    using UnityEngine;
+    using Engine.Coroutine;
+
     using Color = Core.Primitives.Color;
 
     [ScnSceneObject(SceneObjectType.VirtualInvestigationTrigger)]
@@ -63,7 +64,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
-                yield return new WaitForSeconds(1);
+                yield return CoroutineYieldInstruction.WaitForSeconds(1);
             }
             #endif
 

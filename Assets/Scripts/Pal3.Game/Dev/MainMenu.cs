@@ -17,6 +17,7 @@ namespace Pal3.Game.Dev
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Utilities;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using GameSystems.Team;
     using IngameDebugConsole;
@@ -198,7 +199,7 @@ namespace Pal3.Game.Dev
                 new CameraSetFieldOfViewCommand(16f));
             #endif
 
-            yield return new WaitUntil(() => _deferredExecutionCommands.Count == 0);
+            yield return CoroutineYieldInstruction.WaitUntil(() => _deferredExecutionCommands.Count == 0);
 
             if (!_isInInitView || cancellationToken.IsCancellationRequested)
             {
@@ -206,7 +207,7 @@ namespace Pal3.Game.Dev
             }
 
             const float animationDuration = 20f;
-            WaitForSeconds waitDuration = new WaitForSeconds(animationDuration + 3f);
+            var waitDuration = CoroutineYieldInstruction.WaitForSeconds(animationDuration + 3f);
 
             while (_isInInitView && !cancellationToken.IsCancellationRequested)
             {

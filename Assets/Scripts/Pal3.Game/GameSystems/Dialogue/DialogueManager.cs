@@ -19,6 +19,7 @@ namespace Pal3.Game.GameSystems.Dialogue
     using Core.Utilities;
     using Data;
     using Engine.Animation;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;
@@ -150,7 +151,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         private IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
         {
-            var charTypingAnimationDelay = new WaitForSeconds(waitSecondsBeforeRenderingChar);
+            var charTypingAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(waitSecondsBeforeRenderingChar);
 
             textUI.text = string.Empty;
 
@@ -398,7 +399,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         private IEnumerator SkipDialogueRequestedAsync()
         {
-            yield return new WaitUntil(() => _isSkipDialogueRequested);
+            yield return CoroutineYieldInstruction.WaitUntil(() => _isSkipDialogueRequested);
             _isSkipDialogueRequested = false;
         }
 
