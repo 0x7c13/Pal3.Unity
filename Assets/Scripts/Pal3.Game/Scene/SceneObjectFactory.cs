@@ -48,7 +48,7 @@ namespace Pal3.Game.Scene
                 }
             }
 
-            EngineLogger.LogError($"Scene object type: {objectInfo.Type} is not supported");
+            EngineLogger.LogError($"Scene object type: {objectInfo.Type} is not supported or not implemented.");
             return null;
         }
     }

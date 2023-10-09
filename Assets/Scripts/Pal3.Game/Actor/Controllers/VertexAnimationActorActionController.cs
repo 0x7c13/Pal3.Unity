@@ -18,6 +18,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Utilities;
     using Data;
     using Engine.DataLoader;
+    using Engine.Extensions;
     using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
@@ -51,14 +52,24 @@ namespace Pal3.Game.Actor.Controllers
         protected override void OnEnableGameEntity()
         {
             base.OnEnableGameEntity();
+            _mv3ModelRenderer = GameEntity.AddComponent<Mv3ModelRenderer>();
+            _mv3ModelRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         protected override void OnDisableGameEntity()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+
             DeActivate();
-            base.DeActivate();
+
+            if (_mv3ModelRenderer != null)
+            {
+                _mv3ModelRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
+                _mv3ModelRenderer.Destroy();
+                _mv3ModelRenderer = null;
+            }
+
             base.OnDisableGameEntity();
         }
 
@@ -133,7 +144,6 @@ namespace Pal3.Game.Actor.Controllers
             DisposeCurrentAction();
 
             _animationLoopPointWaiter = waiter;
-            _mv3ModelRenderer = GameEntity.AddComponent<Mv3ModelRenderer>();
 
             ActorActionType? actionType = ActorConstants.NameToActionMap.ContainsKey(actionName.ToLower()) ?
                 ActorConstants.NameToActionMap[actionName.ToLower()] : null;
@@ -162,7 +172,6 @@ namespace Pal3.Game.Actor.Controllers
                     _tintColor);
             }
 
-            _mv3ModelRenderer.AnimationLoopPointReached += AnimationLoopPointReached;
             _mv3ModelRenderer.StartAnimation(loopCount);
 
             _rendererBounds = _mv3ModelRenderer.GetRendererBounds();
@@ -201,7 +210,7 @@ namespace Pal3.Game.Actor.Controllers
                 _mv3ModelRenderer.GetMeshBounds();
         }
 
-        private void AnimationLoopPointReached(object _, int loopCount)
+        private void AnimationLoopPointReached(object mv3ModelRenderer, int loopCount)
         {
             if (loopCount is 0 or -2)
             {
@@ -221,14 +230,10 @@ namespace Pal3.Game.Actor.Controllers
         internal override void DisposeCurrentAction()
         {
             _animationLoopPointWaiter?.CancelWait();
-
             if (_mv3ModelRenderer != null)
             {
-                _mv3ModelRenderer.AnimationLoopPointReached -= AnimationLoopPointReached;
                 _mv3ModelRenderer.Dispose();
-                _mv3ModelRenderer = null;
             }
-
             base.DisposeCurrentAction();
         }
 
@@ -270,7 +275,7 @@ namespace Pal3.Game.Actor.Controllers
 
         public void Execute(ActorChangeTextureCommand command)
         {
-            if (_actor.Id != command.ActorId) return;
+            if (_actor.Id != command.ActorId || _mv3ModelRenderer == null) return;
             _mv3ModelRenderer.ChangeTexture(command.TextureName);
         }
     }

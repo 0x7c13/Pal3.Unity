@@ -16,6 +16,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Utilities;
     using Data;
     using Engine.DataLoader;
+    using Engine.Extensions;
     using Engine.Logging;
     using Rendering.Material;
     using Rendering.Renderer;
@@ -40,14 +41,22 @@ namespace Pal3.Game.Actor.Controllers
         protected override void OnEnableGameEntity()
         {
             base.OnEnableGameEntity();
+            _skeletalModelRenderer = GameEntity.AddComponent<SkeletalModelRenderer>();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
         protected override void OnDisableGameEntity()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+
             DeActivate();
-            base.DeActivate();
+
+            if (_skeletalModelRenderer != null)
+            {
+                _skeletalModelRenderer.Destroy();
+                _skeletalModelRenderer = null;
+            }
+
             base.OnDisableGameEntity();
         }
 
@@ -109,8 +118,6 @@ namespace Pal3.Game.Actor.Controllers
 
             DisposeCurrentAction();
 
-            _skeletalModelRenderer = GameEntity.AddComponent<SkeletalModelRenderer>();
-
             _skeletalModelRenderer.Init(mshFile,
                 mtlFile,
                 _materialFactory,
@@ -160,9 +167,7 @@ namespace Pal3.Game.Actor.Controllers
             if (_skeletalModelRenderer != null)
             {
                 _skeletalModelRenderer.Dispose();
-                _skeletalModelRenderer = null;
             }
-
             base.DisposeCurrentAction();
         }
 
