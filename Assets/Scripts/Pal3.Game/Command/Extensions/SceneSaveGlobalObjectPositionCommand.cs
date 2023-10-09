@@ -6,7 +6,6 @@
 namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
-    using UnityEngine;
 
     [AvailableInConsole]
     public class SceneSaveGlobalObjectPositionCommand : ICommand
@@ -14,17 +13,23 @@ namespace Pal3.Game.Command.Extensions
         public SceneSaveGlobalObjectPositionCommand(string cityName,
             string sceneName,
             int objectId,
-            Vector3 gameBoxPosition)
+            float gameBoxXPosition,
+            float gameBoxYPosition,
+            float gameBoxZPosition)
         {
             CityName = cityName;
             SceneName = sceneName;
             ObjectId = objectId;
-            GameBoxPosition = gameBoxPosition;
+            GameBoxXPosition = gameBoxXPosition;
+            GameBoxYPosition = gameBoxYPosition;
+            GameBoxZPosition = gameBoxZPosition;
         }
 
         public string CityName { get; }
         public string SceneName { get; }
         public int ObjectId { get; }
-        public Vector3 GameBoxPosition { get; }
+        public float GameBoxXPosition { get; }
+        public float GameBoxYPosition { get; }
+        public float GameBoxZPosition { get; }
     }
 }

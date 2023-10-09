@@ -758,7 +758,8 @@ namespace Pal3.Game.Camera
 
         public void Execute(CameraSetInitialStateOnNextSceneLoadCommand command)
         {
-            _initRotationOnSceneLoad = Quaternion.Euler(command.InitRotationInEulerAngles);
+            _initRotationOnSceneLoad = Quaternion.Euler(
+                new Vector3(command.XEulerAngle, command.YEulerAngle, command.ZEulerAngle));
             _initTransformOptionOnSceneLoad = command.InitTransformOption;
         }
 

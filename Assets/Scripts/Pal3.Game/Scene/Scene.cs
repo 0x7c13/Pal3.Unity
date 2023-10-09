@@ -677,11 +677,14 @@ namespace Pal3.Game.Scene
                 StartCoroutine(sceneObjectEntity.Transform.MoveAsync(toPosition, command.Duration));
 
                 // Save the new position since it is moved by the script
+                GameBoxVector3 toGameBoxPosition = toPosition.ToGameBoxPosition();
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         command.ObjectId,
-                        toPosition.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
+                        toGameBoxPosition.X,
+                        toGameBoxPosition.Y,
+                        toGameBoxPosition.Z));
             }
             else
             {

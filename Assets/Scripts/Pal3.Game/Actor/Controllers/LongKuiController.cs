@@ -12,7 +12,6 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Engine.Abstraction;
-    using UnityEngine;
 
     public sealed class LongKuiController : GameEntityScript,
         ICommandExecutor<LongKuiSwitchModeCommand>
@@ -37,7 +36,7 @@ namespace Pal3.Game.Actor.Controllers
             _actor = actor;
             _actionController = actionController;
         }
-        
+
         public int GetCurrentMode()
         {
             return _currentMode;

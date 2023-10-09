@@ -69,7 +69,8 @@ namespace Pal3.Game.State
             if (GameBoxPosition.HasValue)
             {
                 yield return new SceneSaveGlobalObjectPositionCommand(
-                    info.cityName, info.sceneName, info.objectId, GameBoxPosition.Value.ToUnityPosition(scale: 1f));
+                    info.cityName, info.sceneName, info.objectId,
+                    GameBoxPosition.Value.X, GameBoxPosition.Value.Y, GameBoxPosition.Value.Z);
             }
             if (GameBoxYRotation.HasValue)
             {
@@ -180,7 +181,8 @@ namespace Pal3.Game.State
         {
             var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
-            _sceneObjectStateOverrides[key].GameBoxPosition = command.GameBoxPosition.ToGameBoxPosition(scale: 1f);
+            _sceneObjectStateOverrides[key].GameBoxPosition =
+                new GameBoxVector3(command.GameBoxXPosition, command.GameBoxYPosition, command.GameBoxZPosition);
         }
 
         public void Execute(SceneSaveGlobalObjectYRotationCommand command)

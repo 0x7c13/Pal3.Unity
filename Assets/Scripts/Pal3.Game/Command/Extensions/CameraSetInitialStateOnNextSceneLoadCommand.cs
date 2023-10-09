@@ -6,18 +6,24 @@
 namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
-    using UnityEngine;
 
     [AvailableInConsole]
     public class CameraSetInitialStateOnNextSceneLoadCommand : ICommand
     {
-        public CameraSetInitialStateOnNextSceneLoadCommand(Vector3 initRotationInEulerAngles, int initTransformOption)
+        public CameraSetInitialStateOnNextSceneLoadCommand(float xEulerAngle,
+            float yEulerAngle,
+            float zEulerAngle,
+            int initTransformOption)
         {
-            InitRotationInEulerAngles = initRotationInEulerAngles;
+            XEulerAngle = xEulerAngle;
+            YEulerAngle = yEulerAngle;
+            ZEulerAngle = zEulerAngle;
             InitTransformOption = initTransformOption;
         }
 
-        public Vector3 InitRotationInEulerAngles { get; }
+        public float XEulerAngle { get; }
+        public float YEulerAngle { get; }
+        public float ZEulerAngle { get; }
         public int InitTransformOption { get; }
     }
 }

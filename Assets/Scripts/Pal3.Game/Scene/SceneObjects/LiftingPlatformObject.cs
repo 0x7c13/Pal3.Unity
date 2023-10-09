@@ -12,6 +12,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Command;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
+    using Core.Primitives;
     using Data;
     using Engine.Abstraction;
     using Engine.Animation;
@@ -160,11 +161,14 @@ namespace Pal3.Game.Scene.SceneObjects
             // Save position of the object on the platform if any
             if (hasObjectOnPlatform)
             {
+                GameBoxVector3 objectGameBoxPosition = objectOnThePlatform.Transform.Position.ToGameBoxPosition();
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Parameters[2],
-                        objectOnThePlatform.Transform.Position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
+                        objectGameBoxPosition.X,
+                        objectGameBoxPosition.Y,
+                        objectGameBoxPosition.Z));
             }
 
             yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);

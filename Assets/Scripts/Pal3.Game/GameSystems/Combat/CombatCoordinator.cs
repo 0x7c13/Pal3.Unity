@@ -28,8 +28,9 @@ namespace Pal3.Game.GameSystems.Combat
     using Script.Waiter;
     using Settings;
     using State;
-    using UnityEngine;
-    using Random = System.Random;
+
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     /// <summary>
     /// Receive events and gather context to start a combat.

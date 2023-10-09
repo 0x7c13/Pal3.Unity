@@ -13,7 +13,8 @@ namespace Pal3.Game.Actor
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public static class NpcInfoFactory
     {

@@ -243,7 +243,10 @@ namespace Pal3.Game.State
             int currentCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
             Vector3 cameraCurrentRotationInEulerAngles = _cameraManager.GetCameraTransform().EulerAngles;
             commands.Add(new CameraSetInitialStateOnNextSceneLoadCommand(
-                cameraCurrentRotationInEulerAngles, currentCameraTransformOption));
+                cameraCurrentRotationInEulerAngles.x,
+                cameraCurrentRotationInEulerAngles.y,
+                cameraCurrentRotationInEulerAngles.z,
+                currentCameraTransformOption));
 
             // Save current scene info and player actor state
             commands.AddRange(new List<ICommand>()

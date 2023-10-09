@@ -22,7 +22,8 @@ namespace Pal3.Game.Actor.Controllers
     using Rendering.Material;
     using Rendering.Renderer;
     using Script.Waiter;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
 
     public sealed class VertexAnimationActorActionController : ActorActionController,

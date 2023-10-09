@@ -12,7 +12,9 @@ namespace Pal3.Game.GamePlay
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
-    using UnityEngine;
+
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class PlayerActorManager : IDisposable,
         ICommandExecutor<DialogueRenderActorAvatarCommand>,

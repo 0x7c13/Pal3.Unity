@@ -443,11 +443,14 @@ namespace Pal3.Game.Scene.SceneObjects
 
         internal void SaveCurrentPosition()
         {
+            GameBoxVector3 gameBoxPosition = _sceneObjectGameEntity.Transform.Position.ToGameBoxPosition();
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                     SceneInfo.SceneName,
                     ObjectInfo.Id,
-                    _sceneObjectGameEntity.Transform.Position.ToGameBoxPosition().ToUnityPosition(scale: 1f)));
+                    gameBoxPosition.X,
+                    gameBoxPosition.Y,
+                    gameBoxPosition.Z));
         }
 
         internal void SaveCurrentYRotation()

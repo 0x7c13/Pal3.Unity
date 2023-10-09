@@ -21,7 +21,6 @@ namespace Pal3.Game.Scene
     using Engine.DataLoader;
     using SceneObjects;
     using State;
-    using UnityEngine;
 
     /// <summary>
     /// Scene base class used to init and hold scene data models.

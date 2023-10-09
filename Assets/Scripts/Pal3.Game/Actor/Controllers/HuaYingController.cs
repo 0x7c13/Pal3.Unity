@@ -14,7 +14,9 @@ namespace Pal3.Game.Actor.Controllers
     using Engine.Abstraction;
     using Engine.Services;
     using Scene;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class HuaYingController : FlyingActorController,
         ICommandExecutor<HuaYingSwitchBehaviourModeCommand>

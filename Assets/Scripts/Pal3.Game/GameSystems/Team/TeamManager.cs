@@ -19,7 +19,10 @@ namespace Pal3.Game.GameSystems.Team
     using Engine.Logging;
     using GamePlay;
     using Scene;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class TeamManager : IDisposable,
         ICommandExecutor<TeamOpenCommand>,
