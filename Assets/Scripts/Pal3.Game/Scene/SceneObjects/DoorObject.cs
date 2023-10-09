@@ -20,7 +20,6 @@ namespace Pal3.Game.Scene.SceneObjects
     [ScnSceneObject(SceneObjectType.Door)]
     public sealed class DoorObject : SceneObject
     {
-        private readonly IGameTimeProvider _gameTimeProvider;
         private TilemapTriggerController _triggerController;
         private bool _isInteractionInProgress;
 
@@ -31,7 +30,6 @@ namespace Pal3.Game.Scene.SceneObjects
         public DoorObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
         }
 
         public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -46,7 +44,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 // scene when holding the stick while transferring between scenes.
                 // We simply disable the auto trigger for a short time window after
                 // a fresh scene load.
-                var effectiveTime = _gameTimeProvider.RealTimeSinceStartup + 1f; // 1 second
+                var effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup + 1f; // 1 second
                 _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;

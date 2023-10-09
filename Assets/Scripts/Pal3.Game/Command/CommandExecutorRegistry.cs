@@ -29,11 +29,10 @@ namespace Pal3.Game.Command
         {
             if (_executors.ContainsKey(typeof(ICommandExecutor<T>)))
             {
-                if (_executors[typeof(ICommandExecutor<T>)].Contains(executor))
+                if (!_executors[typeof(ICommandExecutor<T>)].Contains(executor))
                 {
-                    EngineLogger.LogError($"Executor already registered: {executor.GetType()}");
+                    _executors[typeof(ICommandExecutor<T>)].Add(executor);
                 }
-                else _executors[typeof(ICommandExecutor<T>)].Add(executor);
             }
             else
             {
@@ -57,11 +56,10 @@ namespace Pal3.Game.Command
             {
                 if (_executors.ContainsKey(executorType))
                 {
-                    if (_executors[executorType].Contains(executor))
+                    if (!_executors[executorType].Contains(executor))
                     {
-                        EngineLogger.LogError($"Executor already registered: {executor.GetType()}");
+                        _executors[executorType].Add(executor);
                     }
-                    else _executors[executorType].Add(executor);
                 }
                 else
                 {
@@ -75,7 +73,6 @@ namespace Pal3.Game.Command
         {
             if (!_executors.ContainsKey(typeof(ICommandExecutor<T>)))
             {
-                EngineLogger.LogError($"Executor has not been registered yet: {executor.GetType()}");
                 return;
             }
             _executors[typeof(ICommandExecutor<T>)].Remove(executor);
@@ -101,8 +98,7 @@ namespace Pal3.Game.Command
             {
                 if (!_executors.ContainsKey(executorType))
                 {
-                    EngineLogger.LogError($"Executor has not been registered yet: {executor.GetType()}");
-                    return;
+                    continue;
                 }
                 _executors[executorType].Remove(executor);
                 if (_executors[executorType].Count == 0)

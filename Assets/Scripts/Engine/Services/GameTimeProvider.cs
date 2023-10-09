@@ -12,6 +12,14 @@ namespace Engine.Services
     /// </summary>
     public sealed class GameTimeProvider : IGameTimeProvider
     {
+        private static GameTimeProvider _instance;
+        public static GameTimeProvider Instance
+        {
+            get { return _instance ??= new GameTimeProvider(); }
+        }
+
+        private GameTimeProvider() { } // Hide constructor, use Instance instead.
+
         public double TimeSinceStartup { get; private set; }
 
         public double RealTimeSinceStartup => DateTime.UtcNow.Subtract(_startTimeUtc).TotalSeconds;

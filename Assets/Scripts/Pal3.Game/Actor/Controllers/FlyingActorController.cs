@@ -29,15 +29,12 @@ namespace Pal3.Game.Actor.Controllers
         private const float FLYING_MOVEMENT_MODE_SWITCH_DISTANCE = 5f;
         private const float MAX_TARGET_DISTANCE = 20f;
 
-        private IGameTimeProvider _gameTimeProvider;
-
         private ActorBase _actor;
         private ActorController _actorController;
         private ActorActionController _actionController;
 
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -102,7 +99,7 @@ namespace Pal3.Game.Actor.Controllers
 
                 Transform.Position = newPosition;
 
-                timePast += _gameTimeProvider.DeltaTime;
+                timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 

@@ -59,7 +59,6 @@ namespace Pal3.Game.State
         private const string SAVE_FOLDER_NAME = "Saves";
         private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
 
-        private readonly IGameTimeProvider _gameTimeProvider;
         private readonly SceneManager _sceneManager;
         private readonly PlayerActorManager _playerActorManager;
         private readonly TeamManager _teamManager;
@@ -77,8 +76,7 @@ namespace Pal3.Game.State
 
         private double _lastAutoSaveTime = -AUTO_SAVE_MIN_DURATION;
 
-        public SaveManager(IGameTimeProvider gameTimeProvider,
-            SceneManager sceneManager,
+        public SaveManager(SceneManager sceneManager,
             PlayerActorManager playerActorManager,
             TeamManager teamManager,
             InventoryManager inventoryManager,
@@ -93,7 +91,6 @@ namespace Pal3.Game.State
             AudioManager audioManager,
             PostProcessManager postProcessManager)
         {
-            _gameTimeProvider = Requires.IsNotNull(gameTimeProvider, nameof(gameTimeProvider));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
@@ -401,14 +398,14 @@ namespace Pal3.Game.State
                 _scriptManager.GetNumberOfRunningScripts() == 0 &&
                 _playerActorManager.IsPlayerInputEnabled() &&
                 _playerActorManager.IsPlayerActorControlEnabled() &&
-                _gameTimeProvider.RealTimeSinceStartup - _lastAutoSaveTime > AUTO_SAVE_MIN_DURATION)
+                GameTimeProvider.Instance.RealTimeSinceStartup - _lastAutoSaveTime > AUTO_SAVE_MIN_DURATION)
             {
                 IList<ICommand> gameStateCommands = ConvertCurrentGameStateToCommands(SaveLevel.Full);
 
                 bool success = SaveGameStateToSlot(AutoSaveSlotIndex, gameStateCommands);
                 if (success)
                 {
-                    _lastAutoSaveTime = _gameTimeProvider.RealTimeSinceStartup;
+                    _lastAutoSaveTime = GameTimeProvider.Instance.RealTimeSinceStartup;
                 }
 
                 EngineLogger.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}");

@@ -25,7 +25,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// CVD(.cvd) model renderer
     /// </summary>
-    public class CvdModelRenderer : GameEntityScript, IDisposable
+    public sealed class CvdModelRenderer : GameEntityScript, IDisposable
     {
         private readonly Dictionary<string, Texture2D> _textureCache = new ();
         private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
@@ -38,11 +38,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private IMaterialFactory _materialFactory;
 
-        private IGameTimeProvider _gameTimeProvider;
-
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
         }
 
         protected override void OnDisableGameEntity()
@@ -469,18 +466,18 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (startFromBeginning)
             {
-                startTime = _gameTimeProvider.TimeSinceStartup;
+                startTime = GameTimeProvider.Instance.TimeSinceStartup;
             }
             else
             {
-                startTime = _gameTimeProvider.TimeSinceStartup - _currentTime;
+                startTime = GameTimeProvider.Instance.TimeSinceStartup - _currentTime;
             }
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 var currentTime = timeScale > 0 ?
-                        (float)(_gameTimeProvider.TimeSinceStartup - startTime) * timeScale :
-                        (duration - (float)(_gameTimeProvider.TimeSinceStartup - startTime)) * -timeScale;
+                        (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime) * timeScale :
+                        (duration - (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime)) * -timeScale;
 
                 if ((timeScale > 0f && currentTime >= duration) ||
                     (timeScale < 0f && currentTime <= 0f))

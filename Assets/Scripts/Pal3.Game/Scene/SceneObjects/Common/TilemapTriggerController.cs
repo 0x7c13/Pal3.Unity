@@ -13,13 +13,11 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Engine.Abstraction;
     using Engine.Services;
 
-    public class TilemapTriggerController : GameEntityScript,
+    public sealed class TilemapTriggerController : GameEntityScript,
         ICommandExecutor<PlayerActorTilePositionUpdatedNotification>
     {
         public event EventHandler<(int x, int y)> OnPlayerActorEntered;
         public event EventHandler<(int x, int y)> OnPlayerActorExited;
-
-        private IGameTimeProvider _gameTimeProvider;
 
         private GameBoxRect _tileMapTriggerRect;
         private int _layerIndex;
@@ -30,7 +28,6 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -41,7 +38,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex)
         {
-            Init(tileMapTriggerRect, layerIndex, _gameTimeProvider.RealTimeSinceStartup);
+            Init(tileMapTriggerRect, layerIndex, GameTimeProvider.Instance.RealTimeSinceStartup);
         }
 
         public void Init(GameBoxRect tileMapTriggerRect, int layerIndex, double effectiveTime)
@@ -68,7 +65,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
                 return;
             }
 
-            if (_gameTimeProvider.RealTimeSinceStartup < _effectiveTime) return;
+            if (GameTimeProvider.Instance.RealTimeSinceStartup < _effectiveTime) return;
 
             if (!_wasTriggered)
             {

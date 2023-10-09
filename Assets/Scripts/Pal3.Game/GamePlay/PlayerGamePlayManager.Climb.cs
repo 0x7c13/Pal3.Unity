@@ -18,6 +18,7 @@ namespace Pal3.Game.GamePlay
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
+    using Engine.Services;
     using Scene;
     using Scene.SceneObjects;
     using Script.Waiter;
@@ -114,7 +115,7 @@ namespace Pal3.Game.GamePlay
                 var currentHeight = 0f;
                 while (currentHeight < climbableHeight)
                 {
-                    var deltaHeight = _gameTimeProvider.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    var deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight += deltaHeight;
                     _playerActorGameEntity.Transform.Position += new Vector3(0f, deltaHeight, 0f);
                     yield return null;
@@ -133,7 +134,7 @@ namespace Pal3.Game.GamePlay
                 var currentHeight = climbableHeight;
                 while (currentHeight > 0f)
                 {
-                    var deltaHeight = _gameTimeProvider.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    var deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight -= deltaHeight;
                     _playerActorGameEntity.Transform.Position -= new Vector3(0f, deltaHeight, 0f);
                     yield return null;

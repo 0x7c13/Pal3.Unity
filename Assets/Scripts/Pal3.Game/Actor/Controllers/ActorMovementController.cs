@@ -50,7 +50,7 @@ namespace Pal3.Game.Actor.Controllers
         public double TimeWhenEntered;
     }
 
-    public class ActorMovementController : TickableGameEntityScript,
+    public sealed class ActorMovementController : TickableGameEntityScript,
         ICommandExecutor<ActorSetTilePositionCommand>,
         ICommandExecutor<ActorSetWorldPositionCommand>,
         ICommandExecutor<ActorPathToCommand>,
@@ -64,8 +64,6 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private IGameTimeProvider _gameTimeProvider;
-
         private Actor _actor;
         private Tilemap _tilemap;
         private ActorActionController _actionController;
@@ -87,7 +85,6 @@ namespace Pal3.Game.Actor.Controllers
 
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -378,7 +375,7 @@ namespace Pal3.Game.Actor.Controllers
                     {
                         Platform = standingPlatformController,
                         PlatformLastKnownPosition = triggerCollider.gameObject.transform.position,
-                        TimeWhenEntered = _gameTimeProvider.RealTimeSinceStartup,
+                        TimeWhenEntered = GameTimeProvider.Instance.RealTimeSinceStartup,
                     });
 
                 // Move actor on to the platform if platform is higher than current position
@@ -738,7 +735,7 @@ namespace Pal3.Game.Actor.Controllers
             do
             {
                 Vector3 currentPosition = Transform.Position;
-                var deltaTime = _gameTimeProvider.DeltaTime;
+                var deltaTime = GameTimeProvider.Instance.DeltaTime;
 
                 result = MoveTowards(position,
                     movementMode,

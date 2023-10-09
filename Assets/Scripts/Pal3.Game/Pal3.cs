@@ -199,7 +199,7 @@ namespace Pal3.Game
             EngineLogger.Log("Game setup and initialization started...");
 
             ServiceLocator.Instance.Register<IGameTimeProvider>(_gameTimeProvider =
-                new GameTimeProvider()
+                GameTimeProvider.Instance
             );
 
             IGameEntity cameraEntity = new GameEntity(mainCamera.gameObject);
@@ -373,8 +373,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_playerGamePlayManager =
-                new PlayerGamePlayManager(_gameTimeProvider,
-                    _gameResourceProvider,
+                new PlayerGamePlayManager(_gameResourceProvider,
                     _gameStateManager,
                     _playerActorManager,
                     _teamManager,
@@ -395,8 +394,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_informationManager =
-                new InformationManager(_gameTimeProvider,
-                    _gameSettings,
+                new InformationManager(_gameSettings,
                     fpsCounter,
                     noteCanvasGroup,
                     noteText,
@@ -404,8 +402,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_dialogueManager =
-                new DialogueManager(_gameTimeProvider,
-                    _gameResourceProvider,
+                new DialogueManager(_gameResourceProvider,
                     _gameStateManager,
                     _sceneManager,
                     _inputManager,
@@ -439,8 +436,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_saveManager =
-                new SaveManager(_gameTimeProvider,
-                    _sceneManager,
+                new SaveManager(_sceneManager,
                     _playerActorManager,
                     _teamManager,
                     _inventoryManager,

@@ -27,7 +27,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// MV3(.mv3) model renderer
     /// </summary>
-    public class Mv3ModelRenderer : GameEntityScript, IDisposable
+    public sealed class Mv3ModelRenderer : GameEntityScript, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
 
@@ -60,11 +60,8 @@ namespace Pal3.Game.Rendering.Renderer
         private uint[][] _tagNodeFrameTicks;
         private IGameEntity[] _tagNodes;
 
-        private IGameTimeProvider _gameTimeProvider;
-
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
         }
 
         protected override void OnDisableGameEntity()
@@ -379,11 +376,11 @@ namespace Pal3.Game.Rendering.Renderer
             uint endTick,
             CancellationToken cancellationToken)
         {
-            var startTime = _gameTimeProvider.TimeSinceStartup;
+            var startTime = GameTimeProvider.Instance.TimeSinceStartup;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                uint tick = ((float)(_gameTimeProvider.TimeSinceStartup - startTime)).SecondsToGameBoxTick() + startTick;
+                uint tick = ((float)(GameTimeProvider.Instance.TimeSinceStartup - startTime)).SecondsToGameBoxTick() + startTick;
 
                 if (tick >= endTick)
                 {

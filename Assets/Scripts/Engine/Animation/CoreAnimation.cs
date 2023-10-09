@@ -10,7 +10,10 @@ namespace Engine.Animation
     using System.Threading;
     using Abstraction;
     using Pal3.Core.Utilities;
-    using UnityEngine;
+    using Services;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public enum AnimationCurveType
     {
@@ -73,7 +76,7 @@ namespace Engine.Animation
             {
                 var newValue = Lerp(from, to, GetInterpolationRatio(timePast / duration, curveType));
                 onValueChanged?.Invoke(newValue);
-                timePast += Time.deltaTime;
+                timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 
@@ -97,7 +100,7 @@ namespace Engine.Animation
             {
                 target.Position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
-                timePast += Time.deltaTime;
+                timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 
@@ -120,7 +123,7 @@ namespace Engine.Animation
                     x * xAxisAmplitude / 2f,
                     y * yAxisAmplitude / 2f,
                     z * zAxisAmplitude / 2f);
-                duration -= Time.deltaTime;
+                duration -= GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 
@@ -150,7 +153,7 @@ namespace Engine.Animation
 
                 target.SetPositionAndRotation(newPosition, newRotation);
 
-                timePast += Time.deltaTime;
+                timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 
@@ -179,7 +182,7 @@ namespace Engine.Animation
 
                 target.Rotation = rotation;
 
-                timePast += Time.deltaTime;
+                timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
             }
 

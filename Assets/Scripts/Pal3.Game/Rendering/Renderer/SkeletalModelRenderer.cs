@@ -76,10 +76,8 @@ namespace Pal3.Game.Rendering.Renderer
     /// Skeletal animation model renderer
     /// MSH(.msh) + MOV(.mov)
     /// </summary>
-    public class SkeletalModelRenderer : GameEntityScript, IDisposable
+    public sealed class SkeletalModelRenderer : GameEntityScript, IDisposable
     {
-        private IGameTimeProvider _gameTimeProvider;
-
         private IMaterialFactory _materialFactory;
         private Material[][] _materials;
 
@@ -104,7 +102,6 @@ namespace Pal3.Game.Rendering.Renderer
 
         protected override void OnEnableGameEntity()
         {
-            _gameTimeProvider = ServiceLocator.Instance.Get<IGameTimeProvider>();
         }
 
         protected override void OnDisableGameEntity()
@@ -198,11 +195,11 @@ namespace Pal3.Game.Rendering.Renderer
 
         private IEnumerator PlayOneTimeAnimationInternalAsync(CancellationToken cancellationToken)
         {
-            var startTime = _gameTimeProvider.TimeSinceStartup;
+            var startTime = GameTimeProvider.Instance.TimeSinceStartup;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                float seconds = (float)(_gameTimeProvider.TimeSinceStartup - startTime);
+                float seconds = (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime);
 
                 if (seconds >= _movFile.Duration)
                 {
