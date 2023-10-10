@@ -142,7 +142,7 @@ namespace Pal3.Game.Actor.Controllers
 
         public override float GetActorHeight()
         {
-            if (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible())
+            if (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsInitialized)
             {
                 return _meshBounds.size.y;
             }
@@ -152,13 +152,13 @@ namespace Pal3.Game.Actor.Controllers
 
         public override Bounds GetRendererBounds()
         {
-            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible()) ? _rendererBounds :
+            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsInitialized) ? _rendererBounds :
                 _skeletalModelRenderer.GetRendererBounds();
         }
 
         public override Bounds GetMeshBounds()
         {
-            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsVisible()) ? _meshBounds :
+            return (_skeletalModelRenderer == null || !_skeletalModelRenderer.IsInitialized) ? _meshBounds :
                 _skeletalModelRenderer.GetMeshBounds();
         }
 
@@ -181,12 +181,9 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (command.ActorId != _actor.Id ||
                 _skeletalModelRenderer == null ||
-                !_skeletalModelRenderer.IsVisible()) return;
+                !_skeletalModelRenderer.IsInitialized) return;
 
-            if (_skeletalModelRenderer.IsVisible())
-            {
-                PerformAction(_actor.GetIdleAction());
-            }
+            PerformAction(_actor.GetIdleAction());
         }
     }
 }

@@ -22,11 +22,14 @@ namespace Pal3.Game.GameSystems.Combat
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
+    using Engine.Logging;
     using Scene;
     using State;
     using Team;
-    using UnityEngine;
     using UnityEngine.InputSystem;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class CombatManager
     {
@@ -191,9 +194,10 @@ namespace Pal3.Game.GameSystems.Combat
 
                 while (true)
                 {
-                    var toPosition = (ElementPosition)RandomGenerator.Range(
-                        (int) (fromPosition == 0 ? ElementPosition.EnemyWater : ElementPosition.AllyWater),
-                        (int) (fromPosition == 0 ? ElementPosition.EnemyCenter : ElementPosition.AllyCenter + 1));
+                    int min = (int) (fromPosition == 0 ? ElementPosition.EnemyWater : ElementPosition.AllyWater);
+                    int max = (int) (fromPosition == 0 ? ElementPosition.EnemyCenter : ElementPosition.AllyCenter);
+
+                    ElementPosition toPosition = (ElementPosition)RandomGenerator.Range(min, max + 1);
 
                     if (_combatScene.GetCombatActorController(toPosition) is {} controller)
                     {

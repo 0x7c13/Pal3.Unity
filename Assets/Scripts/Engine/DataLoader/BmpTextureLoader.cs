@@ -36,7 +36,7 @@ namespace Engine.DataLoader
                 FlipImage();
             }
 
-            texture.SetPixels32(_image.ImageData.ToUnityColor32s());
+            texture.SetPixels32(_image.ImageData.ToUnityColor32sUnsafe());
             texture.Apply(updateMipmaps: false);
             return texture;
         }

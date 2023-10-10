@@ -13,7 +13,9 @@ namespace Pal3.Game.Actor.Controllers
     using GameSystems.Combat;
     using Scene;
     using Script.Waiter;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class CombatActorController : GameEntityScript
     {

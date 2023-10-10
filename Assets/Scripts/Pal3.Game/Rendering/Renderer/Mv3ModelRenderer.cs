@@ -17,6 +17,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.Abstraction;
     using Engine.DataLoader;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Renderer;
     using Engine.Services;
     using Material;
@@ -36,29 +37,33 @@ namespace Pal3.Game.Rendering.Renderer
 
         private ITextureResourceProvider _textureProvider;
         private IMaterialFactory _materialFactory;
-        private Texture2D[] _textures;
-        private Material[][] _materials;
-        private GameBoxMaterial[] _gbMaterials;
-        private Mv3AnimationEvent[] _events;
-        private bool[] _textureHasAlphaChannel;
-        private IGameEntity[] _meshEntities;
         private Color _tintColor;
-        private string[] _animationName;
-        private CancellationTokenSource _animationCts;
 
-        private bool _isActionInHoldState;
-        private uint _actionHoldingTick;
-
+        private Mv3AnimationEvent[] _events;
+        private uint _totalGameBoxTicks;
         private Mv3Mesh[] _meshes;
         private int _meshCount;
-        private uint[][] _frameTicks;
-        private uint _totalGameBoxTicks;
+
+        // Mv3 mesh data
         private RenderMeshComponent[] _renderMeshComponents;
+        private GameBoxMaterial[] _gbMaterials;
+        private Texture2D[] _textures;
+        private bool[] _textureHasAlphaChannel;
+        private Material[][] _materials;
+        private string[] _animationName;
+        private uint[][] _frameTicks;
+        private IGameEntity[] _meshEntities;
 
         // Tag node
         private Mv3TagNode[] _tagNodesInfo;
         private uint[][] _tagNodeFrameTicks;
         private IGameEntity[] _tagNodes;
+
+        // State
+        public bool IsInitialized { get; private set; }
+        private bool _isActionInHoldState;
+        private uint _actionHoldingTick;
+        private CancellationTokenSource _animationCts;
 
         protected override void OnEnableGameEntity()
         {
@@ -87,30 +92,49 @@ namespace Pal3.Game.Rendering.Renderer
             _totalGameBoxTicks = mv3File.TotalGameBoxTicks;
             _meshes = mv3File.Meshes;
             _meshCount = mv3File.Meshes.Length;
-
-            _renderMeshComponents = new RenderMeshComponent[_meshCount];
-            _gbMaterials = new GameBoxMaterial[_meshCount];
-            _textures = new Texture2D[_meshCount];
-            _textureHasAlphaChannel = new bool[_meshCount];
-            _materials = new Material[_meshCount][];
-            _animationName = new string[_meshCount];
-            _frameTicks = new uint[_meshCount][];
-            _meshEntities = new IGameEntity[_meshCount];
             _tagNodesInfo = mv3File.TagNodes;
-            _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
+
+            // Only allocate memory when needed, reuse memory when possible
+            if (_renderMeshComponents == null || _renderMeshComponents.Length != _meshCount)
+            {
+                _renderMeshComponents = new RenderMeshComponent[_meshCount];
+                _gbMaterials = new GameBoxMaterial[_meshCount];
+                _textures = new Texture2D[_meshCount];
+                _textureHasAlphaChannel = new bool[_meshCount];
+                _materials = new Material[_meshCount][];
+                _animationName = new string[_meshCount];
+                _frameTicks = new uint[_meshCount][];
+                _meshEntities = new IGameEntity[_meshCount];
+            }
+
+            // Same for tag nodes
+            if (_tagNodesInfo.Length > 0)
+            {
+                if (_tagNodeFrameTicks == null || _tagNodeFrameTicks.Length != _tagNodesInfo.Length)
+                {
+                    _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
+                }
+
+                if (_tagNodes == null || _tagNodes.Length != _tagNodesInfo.Length)
+                {
+                    _tagNodes = new IGameEntity[_tagNodesInfo.Length];
+                }
+            }
 
             for (var i = 0; i < _tagNodesInfo.Length; i++)
             {
                 var tagFrames = _tagNodesInfo[i].TagFrames;
                 int tagFramesCount = tagFrames.Length;
-                var ticksArray = new uint[tagFramesCount];
+
+                if (_tagNodeFrameTicks[i] == null || _tagNodeFrameTicks[i].Length != tagFramesCount)
+                {
+                    _tagNodeFrameTicks[i] = new uint[tagFramesCount];
+                }
 
                 for (int j = 0; j < tagFramesCount; j++)
                 {
-                    ticksArray[j] = tagFrames[j].GameBoxTick;
+                    _tagNodeFrameTicks[i][j] = tagFrames[j].GameBoxTick;
                 }
-
-                _tagNodeFrameTicks[i] = ticksArray;
             }
 
             for (var i = 0; i < _meshCount; i++)
@@ -122,10 +146,8 @@ namespace Pal3.Game.Rendering.Renderer
                 InitSubMeshes(i, ref mesh, ref material);
             }
 
-            if (tagNodePolFile != null && _tagNodesInfo is {Length: > 0})
+            if (tagNodePolFile != null)
             {
-                _tagNodes = new IGameEntity[_tagNodesInfo.Length];
-
                 for (var i = 0; i < _tagNodesInfo.Length; i++)
                 {
                     if (_tagNodesInfo[i].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase))
@@ -148,6 +170,8 @@ namespace Pal3.Game.Rendering.Renderer
                         mv3File.TagNodes[i].TagFrames[0].GameBoxRotation.Mv3QuaternionToUnityQuaternion());
                 }
             }
+
+            IsInitialized = true;
         }
 
         private void InitSubMeshes(int index,
@@ -163,14 +187,16 @@ namespace Pal3.Game.Rendering.Renderer
 
             var keyFrames = mv3Mesh.KeyFrames;
             int keyFramesCount = keyFrames.Length;
-            var ticksArray = new uint[keyFramesCount];
+
+            if (_frameTicks[index] == null || _frameTicks[index].Length != keyFramesCount)
+            {
+                _frameTicks[index] = new uint[keyFramesCount];
+            }
 
             for (int i = 0; i < keyFramesCount; i++)
             {
-                ticksArray[i] = keyFrames[i].GameBoxTick;
+                _frameTicks[index][i] = keyFrames[i].GameBoxTick;
             }
-
-            _frameTicks[index] = ticksArray;
 
             _meshEntities[index] = new GameEntity(mv3Mesh.Name);
 
@@ -203,16 +229,20 @@ namespace Pal3.Game.Rendering.Renderer
             }
             #endif
 
-            var meshDataBuffer = new MeshDataBuffer
+            _renderMeshComponents[index] ??= new RenderMeshComponent();
+            _renderMeshComponents[index].MeshDataBuffer ??= new MeshDataBuffer();
+
+            if (_renderMeshComponents[index].MeshDataBuffer.VertexBuffer == null ||
+                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer.Length !=
+                mv3Mesh.KeyFrames[0].GameBoxVertices.Length)
             {
-                VertexBuffer = new Vector3[mv3Mesh.KeyFrames[0].GameBoxVertices.Length],
-                NormalBuffer = mv3Mesh.GameBoxNormals.ToUnityNormals(),
-            };
+                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer = new Vector3[mv3Mesh.KeyFrames[0].GameBoxVertices.Length];
+            }
 
             Mesh renderMesh = meshRenderer.Render(
                 mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositions(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
                 mv3Mesh.GameBoxTriangles.ToUnityTriangles(),
-                meshDataBuffer.NormalBuffer,
+                mv3Mesh.GameBoxNormals.ToUnityNormals(),
                 mv3Mesh.Uvs.ToUnityVector2s(),
                 mv3Mesh.Uvs.ToUnityVector2s(),
                 _materials[index],
@@ -220,19 +250,15 @@ namespace Pal3.Game.Rendering.Renderer
 
             renderMesh.RecalculateTangents();
 
-            _renderMeshComponents[index] = new RenderMeshComponent
-            {
-                Mesh = renderMesh,
-                MeshRenderer = meshRenderer,
-                MeshDataBuffer = meshDataBuffer
-            };
+            _renderMeshComponents[index].Mesh = renderMesh;
+            _renderMeshComponents[index].MeshRenderer = meshRenderer;
 
             _meshEntities[index].SetParent(GameEntity, worldPositionStays: false);
         }
 
         public void StartAnimation(int loopCount = -1)
         {
-            if (_renderMeshComponents == null)
+            if (!IsInitialized)
             {
                 throw new Exception("Animation model not initialized");
             }
@@ -262,11 +288,6 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 _animationCts.Cancel();
             }
-        }
-
-        public bool IsVisible()
-        {
-            return _meshEntities != null;
         }
 
         public Bounds GetRendererBounds()
@@ -393,6 +414,7 @@ namespace Pal3.Game.Rendering.Renderer
                     continue;
                 }
 
+                // Animates the mesh
                 for (var i = 0; i < _meshCount; i++)
                 {
                     RenderMeshComponent meshComponent = _renderMeshComponents[i];
@@ -420,30 +442,28 @@ namespace Pal3.Game.Rendering.Renderer
                     meshComponent.Mesh.RecalculateBounds();
                 }
 
-                if (_tagNodes != null)
+                // Animates the tag nodes
+                for (var i = 0; i < _tagNodesInfo.Length; i++)
                 {
-                    for (var i = 0; i < _tagNodes.Length; i++)
-                    {
-                        if (_tagNodes[i] == null) continue;
+                    if (_tagNodes[i] == null) continue;
 
-                        var frameTicks = _tagNodeFrameTicks[i];
+                    var frameTicks = _tagNodeFrameTicks[i];
 
-                        var currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
-                        var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
-                        var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                        var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
+                    var currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
+                    var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
+                    var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                    var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
 
-                        var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                    var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                        Vector3 position = Vector3.Lerp(
-                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
-                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
-                        Quaternion rotation = Quaternion.Slerp(
-                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
-                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
+                    Vector3 position = Vector3.Lerp(
+                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
+                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
+                    Quaternion rotation = Quaternion.Slerp(
+                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
+                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
 
-                        _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
-                    }
+                    _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
                 }
 
                 yield return null;
@@ -452,7 +472,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public bool IsVisibleToCamera()
         {
-            if (_renderMeshComponents == null) return false;
+            if (!IsInitialized) return false;
 
             foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
@@ -464,6 +484,10 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Dispose()
         {
+            if (!IsInitialized) return;
+
+            IsInitialized = false;
+
             PauseAnimation();
 
             if (_renderMeshComponents != null)
@@ -486,8 +510,6 @@ namespace Pal3.Game.Rendering.Renderer
                     renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
-
-                _renderMeshComponents = null;
             }
 
             if (_meshEntities != null)
@@ -496,8 +518,6 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     meshEntity?.Destroy();
                 }
-
-                _meshEntities = null;
             }
 
             if (_tagNodes != null)
@@ -506,8 +526,6 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     tagNode?.Destroy();
                 }
-
-                _tagNodes = null;
             }
 
             _isActionInHoldState = false;

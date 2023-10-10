@@ -94,11 +94,12 @@ namespace Pal3.Game.Rendering.Renderer
         private IGameEntity[] _meshEntities;
         private RenderMeshComponent[] _renderMeshComponents;
 
-        private Coroutine _animation;
         private CancellationTokenSource _animationCts;
 
         private int[][] _indexBuffer;
         private Vector3[][] _vertexBuffer;
+
+        public bool IsInitialized { get; private set; }
 
         protected override void OnEnableGameEntity()
         {
@@ -130,11 +131,13 @@ namespace Pal3.Game.Rendering.Renderer
 
             SetupBone(_mshFile.RootBoneNode, parentBone: null);
             RenderMesh();
+
+            IsInitialized = true;
         }
 
         public void StartAnimation(MovFile movFile, int loopCount = -1)
         {
-            if (_renderMeshComponents == null)
+            if (!IsInitialized)
             {
                 throw new Exception("Animation model not initialized");
             }
@@ -219,7 +222,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public bool IsVisibleToCamera()
         {
-            if (_renderMeshComponents == null) return false;
+            if (!IsInitialized) return false;
 
             foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
@@ -434,7 +437,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetRendererBounds()
         {
-            if (_renderMeshComponents.Length == 0)
+            if (!IsInitialized)
             {
                 return new Bounds(Transform.Position, Vector3.one);
             }
@@ -448,7 +451,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetMeshBounds()
         {
-            if (_renderMeshComponents.Length == 0)
+            if (!IsInitialized)
             {
                 return new Bounds(Vector3.zero, Vector3.one);
             }
@@ -460,13 +463,12 @@ namespace Pal3.Game.Rendering.Renderer
             return bounds;
         }
 
-        public bool IsVisible()
-        {
-            return _meshEntities != null;
-        }
-
         public void Dispose()
         {
+            if (!IsInitialized) return;
+
+            IsInitialized = false;
+
             PauseAnimation();
 
             if (_renderMeshComponents != null)

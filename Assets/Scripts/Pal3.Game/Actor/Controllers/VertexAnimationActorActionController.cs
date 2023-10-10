@@ -190,7 +190,7 @@ namespace Pal3.Game.Actor.Controllers
 
         public override float GetActorHeight()
         {
-            if (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible())
+            if (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsInitialized)
             {
                 return _meshBounds.size.y;
             }
@@ -200,13 +200,13 @@ namespace Pal3.Game.Actor.Controllers
 
         public override Bounds GetRendererBounds()
         {
-            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible()) ? _rendererBounds :
+            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsInitialized) ? _rendererBounds :
                 _mv3ModelRenderer.GetRendererBounds();
         }
 
         public override Bounds GetMeshBounds()
         {
-            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsVisible()) ? _meshBounds :
+            return (_mv3ModelRenderer == null || !_mv3ModelRenderer.IsInitialized) ? _meshBounds :
                 _mv3ModelRenderer.GetMeshBounds();
         }
 
@@ -217,7 +217,7 @@ namespace Pal3.Game.Actor.Controllers
                 _animationLoopPointWaiter?.CancelWait();
             }
 
-            if (_autoStand && _mv3ModelRenderer.IsVisible())
+            if (_autoStand && _mv3ModelRenderer.IsInitialized)
             {
                 if (loopCount is 0 ||
                     (loopCount is -2 && !_mv3ModelRenderer.IsActionInHoldState()))
@@ -252,7 +252,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (command.ActorId != _actor.Id ||
                 _mv3ModelRenderer == null ||
-                !_mv3ModelRenderer.IsVisible()) return;
+                !_mv3ModelRenderer.IsInitialized) return;
 
             if (_mv3ModelRenderer.IsActionInHoldState())
             {
@@ -265,11 +265,7 @@ namespace Pal3.Game.Actor.Controllers
             else
             {
                 _animationLoopPointWaiter?.CancelWait();
-
-                if (_mv3ModelRenderer.IsVisible())
-                {
-                    PerformAction(_actor.GetIdleAction());
-                }
+                PerformAction(_actor.GetIdleAction());
             }
         }
 

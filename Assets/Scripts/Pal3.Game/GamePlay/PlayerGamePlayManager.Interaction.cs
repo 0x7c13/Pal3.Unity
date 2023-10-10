@@ -22,8 +22,11 @@ namespace Pal3.Game.GamePlay
     using Script;
     using Script.Waiter;
     using State;
-    using UnityEngine;
     using UnityEngine.InputSystem;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector2 = UnityEngine.Vector2;
+    using Vector3 = UnityEngine.Vector3;
 
     public partial class PlayerGamePlayManager :
         ICommandExecutor<PlayerInteractionRequest>,

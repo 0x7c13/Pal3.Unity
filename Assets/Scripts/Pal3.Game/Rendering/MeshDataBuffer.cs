@@ -8,7 +8,7 @@ namespace Pal3.Game.Rendering
     using Vector2 = UnityEngine.Vector2;
     using Vector3 = UnityEngine.Vector3;
 
-    public struct MeshDataBuffer
+    public class MeshDataBuffer
     {
         public Vector3[] VertexBuffer;
         public Vector3[] NormalBuffer;

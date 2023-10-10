@@ -22,7 +22,9 @@ namespace Pal3.Game.GamePlay
     using Scene;
     using Scene.SceneObjects;
     using Script.Waiter;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public partial class PlayerGamePlayManager :
         ICommandExecutor<ActorPerformClimbActionCommand>

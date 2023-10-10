@@ -12,7 +12,6 @@ namespace Pal3.Game.State
     using Core.Command;
     using Core.DataReader.Scn;
     using Core.Primitives;
-    using Engine.Extensions;
 
     public class SceneObjectStateOverride
     {

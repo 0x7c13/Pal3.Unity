@@ -12,11 +12,12 @@ namespace Engine.Services
     /// </summary>
     public sealed class GameTimeProvider : IGameTimeProvider
     {
-        private static GameTimeProvider _instance;
         public static GameTimeProvider Instance
         {
             get { return _instance ??= new GameTimeProvider(); }
         }
+
+        private static GameTimeProvider _instance; // Singleton
 
         private GameTimeProvider() { } // Hide constructor, use Instance instead.
 

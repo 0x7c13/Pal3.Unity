@@ -6,8 +6,9 @@
 namespace Pal3.Game.Constants
 {
     using System.Collections.Generic;
-    using UnityEngine;
+
     using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
 
     public static class LightingConstants
     {

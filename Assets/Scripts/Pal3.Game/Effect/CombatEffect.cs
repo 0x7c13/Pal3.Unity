@@ -10,7 +10,7 @@ namespace Pal3.Game.Effect
     using Engine.Extensions;
     using UnityEngine;
 
-    public class CombatEffect : GameEntityScript, IEffect
+    public sealed class CombatEffect : GameEntityScript, IEffect
     {
         #if PAL3
         private const string SHUSHAN_BRIDGE_TEXTURE_NAME = "q08qiao.dds";

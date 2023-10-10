@@ -205,7 +205,6 @@ namespace Pal3.Game.GameSystems.Combat
             }
 
             uint[] monsterIds = new uint[6];
-            Random rand = new Random();
 
             // Use each available ID at least once.
             for (var i = 0; i < availableIds.Length; i++)
@@ -216,14 +215,14 @@ namespace Pal3.Game.GameSystems.Combat
             // Randomly select from available IDs to populate remaining monsterIds.
             for (var i = availableIds.Length; i < command.NumberOfMonster; i++)
             {
-                int randomIndex = rand.Next(0, availableIds.Length);
+                int randomIndex = RandomGenerator.Range(0, availableIds.Length);
                 monsterIds[i] = availableIds[randomIndex];
             }
 
             // Shuffle the array
             for (var i = 0; i < monsterIds.Length; i++)
             {
-                int randomIndex = rand.Next(i, monsterIds.Length);
+                int randomIndex = RandomGenerator.Range(i, monsterIds.Length);
                 (monsterIds[i], monsterIds[randomIndex]) = (monsterIds[randomIndex], monsterIds[i]);
             }
 
