@@ -80,6 +80,8 @@ namespace Pal3.ResourceViewer
 
         private void OnEnable()
         {
+            ServiceLocator.Instance.Register<IGameTimeProvider>(GameTimeProvider.Instance);
+
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
             _codePage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
 
@@ -186,6 +188,7 @@ namespace Pal3.ResourceViewer
 
         private void Update()
         {
+            GameTimeProvider.Instance.Tick(Time.deltaTime);
             fpsTextUI.text = $"{Mathf.Ceil(fpsCounter.GetFps())} fps";
         }
 
