@@ -182,7 +182,7 @@ namespace Pal3.Game.Audio
             yield return _resourceProvider.LoadAudioClipAsync(sfxFilePath, AudioType.WAV, streamAudio: false,
                 audioClip => { sfxAudioClip = audioClip; });
 
-            if (parent.IsDisposed ||
+            if (parent.IsNativeObjectDisposed ||
                 cancellationToken.IsCancellationRequested ||
                 sfxAudioClip == null) yield break;
 
@@ -373,7 +373,7 @@ namespace Pal3.Game.Audio
                 _playerMovementSfxInProgress = false;
             }
 
-            if (command.Parent == null || command.Parent.IsDisposed) return;
+            if (command.Parent == null || command.Parent.IsNativeObjectDisposed) return;
 
             IGameEntity audioSourceParent = command.Parent.FindChild(command.AudioSourceName);
             if (audioSourceParent == null) return;

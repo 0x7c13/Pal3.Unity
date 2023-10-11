@@ -5,44 +5,41 @@
 
 namespace Engine.Abstraction
 {
-    using UnityEngine;
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
-    public interface ITransform
+    public interface ITransform : IManagedObject
     {
-        Vector3 Position { get; set; }
+        public Vector3 Position { get; set; }
 
-        Vector3 LocalPosition { get; set; }
+        public Vector3 LocalPosition { get; set; }
 
-        Quaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
 
-        Quaternion LocalRotation { get; set; }
+        public Quaternion LocalRotation { get; set; }
 
-        Vector3 LocalScale { get; set; }
+        public Vector3 LocalScale { get; set; }
 
-        Vector3 Forward { get; set; }
+        public Vector3 Forward { get; set; }
 
-        Vector3 Right { get; set; }
+        public Vector3 Right { get; set; }
 
-        Vector3 Up { get; set; }
+        public Vector3 Up { get; set; }
 
-        Vector3 EulerAngles { get; set; }
+        public Vector3 EulerAngles { get; set; }
 
-        void Translate(Vector3 translation);
+        public void Translate(Vector3 translation);
 
-        bool IsDisposed { get; }
+        public void GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-        void GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
+        public void SetPositionAndRotation(Vector3 position, Quaternion rotation);
 
-        void SetPositionAndRotation(Vector3 position, Quaternion rotation);
+        public void GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-        void GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+        public void SetLocalPositionAndRotation(Vector3 position, Quaternion rotation);
 
-        void SetLocalPositionAndRotation(Vector3 position, Quaternion rotation);
+        public void LookAt(Vector3 target);
 
-        void LookAt(Vector3 target);
-
-        void RotateAround(Vector3 centerPoint, Vector3 axis, float angle);
-
-        UnityEngine.Transform GetUnityTransform();
+        public void RotateAround(Vector3 centerPoint, Vector3 axis, float angle);
     }
 }

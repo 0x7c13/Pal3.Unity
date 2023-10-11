@@ -282,7 +282,7 @@ namespace Pal3.Game.Actor.Controllers
             // Sanity cleanup
             if (_activeColliders.Count > 0)
             {
-                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null || _.ColliderGameEntity.IsDisposed);
+                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null || _.ColliderGameEntity.IsNativeObjectDisposed);
             }
 
             // Sanity cleanup
@@ -571,7 +571,7 @@ namespace Pal3.Game.Actor.Controllers
             foreach (ActiveColliderInfo colliderInfo in _activeColliders)
             {
                 if (colliderInfo.ColliderGameEntity == null ||
-                    colliderInfo.ColliderGameEntity.IsDisposed)
+                    colliderInfo.ColliderGameEntity.IsNativeObjectDisposed)
                 {
                     continue; // In case the collider is destroyed
                 }

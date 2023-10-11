@@ -6,36 +6,33 @@
 namespace Engine.Abstraction
 {
     using System;
-    using UnityEngine;
 
-    public interface IGameEntity
+    public interface IGameEntity : IManagedObject
     {
+        public string Name { get; set; }
+
         public bool IsStatic { get; set; }
 
         public ITransform Transform { get; }
 
         public void SetParent(IGameEntity parent, bool worldPositionStays);
 
-        public T AddComponent<T>() where T : Component;
+        public T AddComponent<T>() where T : class;
 
-        public Component AddComponent(Type type);
+        public object AddComponent(Type type);
 
-        public T GetComponent<T>() where T : Component;
+        public T GetComponent<T>() where T : class;
 
-        public T GetComponentInChildren<T>();
+        public T GetComponentInChildren<T>() where T : class;
 
-        public T[] GetComponentsInChildren<T>();
+        public T[] GetComponentsInChildren<T>() where T : class;
 
-        public T GetOrAddComponent<T>() where T : Component;
+        public T GetOrAddComponent<T>() where T : class;
 
-        void SetLayer(int layerIndex);
+        public void SetLayer(int layerIndex);
 
-        IGameEntity FindChild(string name);
-
-        public bool IsDisposed { get; }
+        public IGameEntity FindChild(string name);
 
         public void Destroy();
-
-        public GameObject GetUnityGameObject();
     }
 }

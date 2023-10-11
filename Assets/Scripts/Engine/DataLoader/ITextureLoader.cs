@@ -22,12 +22,12 @@ namespace Engine.DataLoader
         /// </summary>
         /// <param name="data">Raw texture data in byte array</param>
         /// <param name="hasAlphaChannel">True if texture has alpha channel</param>
-        void Load(byte[] data, out bool hasAlphaChannel);
+        public void Load(byte[] data, out bool hasAlphaChannel);
 
         /// <summary>
         /// Convert loaded texture into Texture2D instance.
         /// </summary>
         /// <returns>Texture2D instance</returns>
-        Texture2D ToTexture2D();
+        public Texture2D ToTexture2D();
     }
 }

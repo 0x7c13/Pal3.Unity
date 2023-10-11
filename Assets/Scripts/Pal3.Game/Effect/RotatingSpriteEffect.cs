@@ -19,6 +19,11 @@ namespace Pal3.Game.Effect
 
         private float _rotationSpeed;
 
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
+
         public void Init(GameResourceProvider resourceProvider,
             string textureName,
             Vector3 scale,
@@ -50,16 +55,11 @@ namespace Pal3.Game.Effect
 
         protected override void OnUpdateGameEntity(float deltaTime)
         {
-            if (_root is {IsDisposed: false})
+            if (_root is { IsNativeObjectDisposed: false })
             {
                 var rotationDelta = _rotationSpeed * deltaTime;
                 _root.Transform.LocalRotation *= Quaternion.Euler(0f, 0f, -rotationDelta);
             }
-        }
-
-        protected override void OnDestroyGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

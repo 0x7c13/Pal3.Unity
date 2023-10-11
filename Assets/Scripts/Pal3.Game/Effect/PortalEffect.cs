@@ -8,7 +8,8 @@ namespace Pal3.Game.Effect
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class PortalEffect : GameEntityScript, IEffect
     {
@@ -22,7 +23,12 @@ namespace Pal3.Game.Effect
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
 
         private RotatingSpriteEffect _baseEffect;
-        private GameObject _rayEffect;
+        private IGameEntity _rayEffect;
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
@@ -32,17 +38,12 @@ namespace Pal3.Game.Effect
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
 
-            UnityEngine.Object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
+            object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
             if (rayEffectPrefab != null)
             {
-                _rayEffect = (GameObject)Instantiate(rayEffectPrefab, transform, false);
-                _rayEffect.name = "VFX_0";
+                _rayEffect = PrefabFactory.Instantiate(rayEffectPrefab, Transform, worldPositionStays: false);
+                _rayEffect.Name = "VFX_0";
             }
-        }
-
-        protected override void OnDestroyGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

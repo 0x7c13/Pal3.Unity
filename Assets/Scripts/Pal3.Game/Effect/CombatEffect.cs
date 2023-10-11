@@ -8,7 +8,8 @@ namespace Pal3.Game.Effect
     using Data;
     using Engine.Abstraction;
     using Engine.Extensions;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class CombatEffect : GameEntityScript, IEffect
     {
@@ -30,21 +31,21 @@ namespace Pal3.Game.Effect
 
         private RotatingSpriteEffect _bridgeBaseEffect;
         private RotatingSpriteEffect _bridgeEffect;
-        private GameObject _effect;
+        private IGameEntity _effect;
 
-        protected override void OnDestroyGameEntity()
+        protected override void OnDisableGameEntity()
         {
             Dispose();
         }
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
-            // Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
+            // object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
             //
             // if (vfxPrefab != null)
             // {
-            //     _effect = (GameObject)Instantiate(vfxPrefab, transform, false);
-            //     _effect.name = "VFX_" + effectParameter;
+            //     _effect = PrefabFactory.Instantiate(vfxPrefab, Transform, worldPositionStays: false);
+            //     _effect.Name = "VFX_" + effectParameter;
             // }
 
             #if PAL3
@@ -76,11 +77,11 @@ namespace Pal3.Game.Effect
             if (effectParameter == 344) // 重盘古元灵特效
             #endif
             {
-                UnityEngine.Object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
+                object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
                 if (vfxPrefab != null)
                 {
-                    _effect = (GameObject)Instantiate(vfxPrefab, transform, false);
-                    _effect.name = "VFX_" + effectParameter;
+                    _effect = PrefabFactory.Instantiate(vfxPrefab, Transform, worldPositionStays: false);
+                    _effect.Name = "VFX_" + effectParameter;
                 }
             }
         }

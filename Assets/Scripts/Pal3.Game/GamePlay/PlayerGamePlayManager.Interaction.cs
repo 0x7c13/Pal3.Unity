@@ -230,7 +230,7 @@ namespace Pal3.Game.GamePlay
             }
 
             // Reset facing rotation of the interacting actor if needed
-            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsDisposed)
+            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsNativeObjectDisposed)
             {
                 actorGameEntity.Transform.Rotation = rotationBeforeInteraction;
             }

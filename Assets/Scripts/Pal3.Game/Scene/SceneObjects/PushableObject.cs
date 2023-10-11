@@ -372,7 +372,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                     // Ignore raycast only objects (NavMesh in this case) or self
                     if (colliderObject.layer == raycastOnlyLayer ||
-                        colliderObject.gameObject == pushableEntity.GetUnityGameObject())
+                        colliderObject.gameObject == (GameObject)pushableEntity.NativeObject)
                     {
                         continue;
                     }

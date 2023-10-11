@@ -20,7 +20,8 @@ namespace Pal3.Game.Effect
     using Engine.Abstraction;
     using Engine.Extensions;
     using Scene;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class EffectManager : IDisposable,
         ICommandExecutor<EffectPreLoadCommand>,
@@ -90,16 +91,16 @@ namespace Pal3.Game.Effect
             #endif
 
             // Play VFX
-            UnityEngine.Object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
+            object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
             if (vfxPrefab != null)
             {
-                ITransform parent = null;
+                ITransform parentTransform = null;
                 Vector3 localPosition = Vector3.zero;
 
                 if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
                     _sceneManager.GetSceneRootGameEntity() is {} sceneRootGameEntity)
                 {
-                    parent = sceneRootGameEntity.Transform;
+                    parentTransform = sceneRootGameEntity.Transform;
                     localPosition = new GameBoxVector3(
                             positionCommand.GameBoxXPosition,
                             positionCommand.GameBoxYPosition,
@@ -107,14 +108,14 @@ namespace Pal3.Game.Effect
                 }
                 else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
                 {
-                    parent = currentScene.GetActorGameEntity(actorCommand.ActorId).Transform;
+                    parentTransform = currentScene.GetActorGameEntity(actorCommand.ActorId).Transform;
                 }
 
-                if (parent != null)
+                if (parentTransform != null)
                 {
-                    var vfx = (GameObject)UnityEngine.Object.Instantiate(vfxPrefab, parent.GetUnityTransform(), false);
-                    vfx.name = "VFX_" + command.EffectGroupId;
-                    vfx.transform.localPosition += localPosition;
+                    IGameEntity vfx = PrefabFactory.Instantiate(vfxPrefab, parentTransform, false);
+                    vfx.Name = "VFX_" + command.EffectGroupId;
+                    vfx.Transform.LocalPosition += localPosition;
                 }
             }
 

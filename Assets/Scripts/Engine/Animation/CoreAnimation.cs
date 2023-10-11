@@ -96,7 +96,7 @@ namespace Engine.Animation
             Vector3 oldPosition = target.Position;
 
             var timePast = 0f;
-            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 target.Position = oldPosition + (toPosition - oldPosition) *
                     GetInterpolationRatio(timePast / duration, curveType);
@@ -104,7 +104,7 @@ namespace Engine.Animation
                 yield return null;
             }
 
-            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested) target.Position = toPosition;
+            if (!target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested) target.Position = toPosition;
             yield return null;
         }
 
@@ -116,7 +116,7 @@ namespace Engine.Animation
         {
             Vector3 originalPosition = target.LocalPosition;
 
-            while (duration > 0 && !target.IsDisposed)
+            while (duration > 0 && !target.IsNativeObjectDisposed)
             {
                 (float x, float y, float z) = RandomGenerator.RandomPointInsideUnitSphere();
                 target.LocalPosition = originalPosition + new Vector3(
@@ -127,7 +127,7 @@ namespace Engine.Animation
                 yield return null;
             }
 
-            if (!target.IsDisposed) target.LocalPosition = originalPosition;
+            if (!target.IsNativeObjectDisposed) target.LocalPosition = originalPosition;
             yield return null;
         }
 
@@ -143,7 +143,7 @@ namespace Engine.Animation
             Quaternion startRotation = target.Rotation;
 
             var timePast = 0f;
-            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion newRotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -157,7 +157,7 @@ namespace Engine.Animation
                 yield return null;
             }
 
-            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested)
+            if (!target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Vector3 newPosition = centerPoint + (toRotation * Vector3.forward).normalized * -(distance + distanceDelta);
                 target.SetPositionAndRotation(newPosition, toRotation);
@@ -175,7 +175,7 @@ namespace Engine.Animation
             Quaternion startRotation = target.Rotation;
 
             var timePast = 0f;
-            while (timePast < duration && !target.IsDisposed && !cancellationToken.IsCancellationRequested)
+            while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,
                     GetInterpolationRatio(timePast / duration, curveType));
@@ -186,7 +186,7 @@ namespace Engine.Animation
                 yield return null;
             }
 
-            if (!target.IsDisposed && !cancellationToken.IsCancellationRequested) target.Rotation = toRotation;
+            if (!target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested) target.Rotation = toRotation;
             yield return null;
         }
     }

@@ -413,7 +413,7 @@ namespace Pal3.ResourceViewer
                 var animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
-                var skeletalModelRenderer = animationNode.GetOrAddComponent<SkeletalModelRenderer>();
+                var skeletalModelRenderer = animationNode.AddComponent<SkeletalModelRenderer>();
 
                 skeletalModelRenderer.Init(mshFile,
                     mtlFile,

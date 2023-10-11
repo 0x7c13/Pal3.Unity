@@ -515,7 +515,7 @@ namespace Pal3.Game.Data
             return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
         }
 
-        public UnityEngine.Object GetVfxEffectPrefab(int effectGroupId)
+        public object GetVfxEffectPrefab(int effectGroupId)
         {
             if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out UnityEngine.Object vfxEffectPrefab))
             {

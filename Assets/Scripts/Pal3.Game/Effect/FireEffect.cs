@@ -30,6 +30,11 @@ namespace Pal3.Game.Effect
         private PolyModelRenderer _sceneObjectRenderer;
         private Material _spriteMaterial;
 
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
+
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
             FireEffectType = (FireEffectType)effectParameter;
@@ -81,11 +86,6 @@ namespace Pal3.Game.Effect
                 _billboardRenderer.Init(sprites, EffectConstants.AnimatedFireEffectFrameRate, _spriteMaterial);
                 _billboardRenderer.StartAnimation(-1);
             }
-        }
-
-        protected override void OnDestroyGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

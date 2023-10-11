@@ -12,7 +12,7 @@ namespace Pal3.Game.Script.Patcher
     {
         public Dictionary<string, ICommand> PatchedCommands { get; }
 
-        bool TryPatchCommandInScript(PalScriptType scriptType,
+        public bool TryPatchCommandInScript(PalScriptType scriptType,
             uint scriptId,
             string scriptDescription,
             long positionInScript,

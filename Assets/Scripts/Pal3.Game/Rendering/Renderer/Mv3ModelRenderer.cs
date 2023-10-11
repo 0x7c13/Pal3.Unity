@@ -332,12 +332,16 @@ namespace Pal3.Game.Rendering.Renderer
         {
             if (!_isActionInHoldState) yield break;
             _animationCts = new CancellationTokenSource();
+            CancellationToken cancellationToken = _animationCts.Token;
             yield return PlayOneTimeAnimationInternalAsync(_actionHoldingTick,
-                _totalGameBoxTicks,
-                _animationCts.Token);
+                _totalGameBoxTicks, cancellationToken);
             _isActionInHoldState = false;
             _actionHoldingTick = 0;
-            AnimationLoopPointReached?.Invoke(this, -2);
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                AnimationLoopPointReached?.Invoke(this, -2);
+            }
         }
 
         private IEnumerator PlayAnimationInternalAsync(int loopCount,
@@ -350,7 +354,10 @@ namespace Pal3.Game.Rendering.Renderer
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
-                    AnimationLoopPointReached?.Invoke(this, loopCount);
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        AnimationLoopPointReached?.Invoke(this, loopCount);
+                    }
                 }
             }
             else if (loopCount > 0)
@@ -358,7 +365,10 @@ namespace Pal3.Game.Rendering.Renderer
                 while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
                 {
                     yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
-                    AnimationLoopPointReached?.Invoke(this, loopCount);
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        AnimationLoopPointReached?.Invoke(this, loopCount);
+                    }
                 }
             }
             else if (loopCount == -2) // Play until action holding point
@@ -373,7 +383,11 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
                 }
-                AnimationLoopPointReached?.Invoke(this, loopCount);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    AnimationLoopPointReached?.Invoke(this, loopCount);
+                }
             }
         }
 

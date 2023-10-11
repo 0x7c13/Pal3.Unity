@@ -12,6 +12,10 @@ namespace Engine.Abstraction
 
     public sealed class GameEntity : IGameEntity
     {
+        public object NativeObject => _gameObject;
+
+        public bool IsNativeObjectDisposed => _gameObject == null;
+
         private GameObject _gameObject;
 
         public GameEntity()
@@ -34,6 +38,12 @@ namespace Engine.Abstraction
 
         public ITransform Transform { get; }
 
+        public string Name
+        {
+            get => _gameObject.name;
+            set => _gameObject.name = value;
+        }
+
         public bool IsStatic
         {
             get => _gameObject.isStatic;
@@ -42,41 +52,61 @@ namespace Engine.Abstraction
 
         public void SetParent(IGameEntity parent, bool worldPositionStays)
         {
-            _gameObject.transform.SetParent(parent?.Transform.GetUnityTransform(), worldPositionStays);
+            _gameObject.transform.SetParent((UnityEngine.Transform)parent?.Transform.NativeObject, worldPositionStays);
         }
 
-        public T AddComponent<T>() where T : Component
+        public T AddComponent<T>() where T : class
         {
-            return _gameObject.AddComponent<T>();
+            if (typeof(T) != typeof(Component) && !typeof(T).IsSubclassOf(typeof(Component)))
+            {
+                throw new ArgumentException("T must be a subclass of UnityEngine.Component");
+            }
+            return _gameObject.AddComponent(typeof(T)) as T;
         }
 
-        public Component AddComponent(Type type)
+        public object AddComponent(Type type)
         {
+            if (type != typeof(Component) && !type.IsSubclassOf(typeof(Component)))
+            {
+                throw new ArgumentException("Type must be a subclass of UnityEngine.Component");
+            }
             return _gameObject.AddComponent(type);
         }
 
-        public T GetComponent<T>() where T : Component
+        public T GetComponent<T>() where T : class
         {
+            if (typeof(T) != typeof(Component) && !typeof(T).IsSubclassOf(typeof(Component)))
+            {
+                throw new ArgumentException("T must be a subclass of UnityEngine.Component");
+            }
             return _gameObject.GetComponent<T>();
         }
 
-        public T GetComponentInChildren<T>()
+        public T GetComponentInChildren<T>() where T : class
         {
+            if (typeof(T) != typeof(Component) && !typeof(T).IsSubclassOf(typeof(Component)))
+            {
+                throw new ArgumentException("T must be a subclass of UnityEngine.Component");
+            }
             return _gameObject.GetComponentInChildren<T>();
         }
 
-        public T[] GetComponentsInChildren<T>()
+        public T[] GetComponentsInChildren<T>() where T : class
         {
+            if (typeof(T) != typeof(Component) && !typeof(T).IsSubclassOf(typeof(Component)))
+            {
+                throw new ArgumentException("T must be a subclass of UnityEngine.Component");
+            }
             return _gameObject.GetComponentsInChildren<T>();
         }
 
-        public T GetOrAddComponent<T>() where T : Component
+        public T GetOrAddComponent<T>() where T : class
         {
             var component = GetComponent<T>();
 
             // Since ?? operation does not work well with UnityObject
             // so I have to use the old fashion here checking if it is null.
-            if (component == null)
+            if (component as UnityEngine.Object == null)
             {
                 component = AddComponent<T>();
             }
@@ -95,8 +125,6 @@ namespace Engine.Abstraction
             return childTransform != null ? new GameEntity(childTransform.gameObject) : null;
         }
 
-        public bool IsDisposed => _gameObject == null;
-
         public void Destroy()
         {
             if (_gameObject != null)
@@ -104,11 +132,6 @@ namespace Engine.Abstraction
                 _gameObject.Destroy();
                 _gameObject = null;
             }
-        }
-
-        public GameObject GetUnityGameObject()
-        {
-            return _gameObject;
         }
     }
 }

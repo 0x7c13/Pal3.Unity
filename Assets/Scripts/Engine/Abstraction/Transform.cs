@@ -10,6 +10,10 @@ namespace Engine.Abstraction
 
     public sealed class Transform : ITransform
     {
+        public object NativeObject => _transform;
+
+        public bool IsNativeObjectDisposed => _transform == null;
+
         private readonly UnityEngine.Transform _transform;
 
         public Transform(UnityEngine.Transform transform)
@@ -77,8 +81,6 @@ namespace Engine.Abstraction
             _transform.Translate(translation);
         }
 
-        public bool IsDisposed => _transform == null;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetPositionAndRotation(out Vector3 position, out Quaternion rotation)
         {
@@ -113,11 +115,6 @@ namespace Engine.Abstraction
         public void RotateAround(Vector3 centerPoint, Vector3 axis, float angle)
         {
             _transform.RotateAround(centerPoint, axis, angle);
-        }
-
-        public UnityEngine.Transform GetUnityTransform()
-        {
-            return _transform;
         }
     }
 }

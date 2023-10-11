@@ -33,8 +33,6 @@ namespace Engine.Abstraction
 
         protected virtual void OnDisableGameEntity() {}
 
-        protected virtual void OnDestroyGameEntity() {}
-
         protected virtual void OnCollisionEnterGameEntity(IGameEntity other) {}
 
         protected virtual void OnCollisionExitGameEntity(IGameEntity other) {}
@@ -51,11 +49,6 @@ namespace Engine.Abstraction
         private void OnDisable()
         {
             OnDisableGameEntity();
-        }
-
-        private void OnDestroy()
-        {
-            OnDestroyGameEntity();
         }
 
         private void OnCollisionEnter(Collision collision)

@@ -187,10 +187,8 @@ namespace Pal3.Game.GamePlay
 
                 // Pick a position that is farthest from obstacles
                 int maxDistanceToObstacle = validJumpTargetPositions.Max(_ => _.distanceToObstacle);
-                var bestPosition = validJumpTargetPositions
+                (jumpTargetPosition, jumpTargetLayer, _) = validJumpTargetPositions
                     .First(_ => _.distanceToObstacle == maxDistanceToObstacle);
-                jumpTargetPosition = bestPosition.position;
-                jumpTargetLayer = bestPosition.layerIndex;
             }
             else
             {
