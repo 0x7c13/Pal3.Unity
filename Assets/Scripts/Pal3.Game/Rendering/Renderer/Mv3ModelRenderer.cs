@@ -14,7 +14,8 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.Utilities;
     using Dev;
     using Dev.Presenters;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -55,6 +56,7 @@ namespace Pal3.Game.Rendering.Renderer
         private IGameEntity[] _meshEntities;
 
         // Tag node
+        private PolFile _tagNodePolFile;
         private Mv3TagNode[] _tagNodesInfo;
         private uint[][] _tagNodeFrameTicks;
         private IGameEntity[] _tagNodes;
@@ -87,6 +89,7 @@ namespace Pal3.Game.Rendering.Renderer
             _materialFactory = materialFactory;
             _textureProvider = textureProvider;
             _tintColor = tintColor ?? Color.White;
+            _tagNodePolFile = tagNodePolFile;
 
             _events = mv3File.AnimationEvents;
             _totalGameBoxTicks = mv3File.TotalGameBoxTicks;
@@ -146,7 +149,7 @@ namespace Pal3.Game.Rendering.Renderer
                 InitSubMeshes(i, ref mesh, ref material);
             }
 
-            if (tagNodePolFile != null)
+            if (_tagNodePolFile != null)
             {
                 for (var i = 0; i < _tagNodesInfo.Length; i++)
                 {
@@ -156,15 +159,16 @@ namespace Pal3.Game.Rendering.Renderer
                         continue;
                     }
 
-                    _tagNodes[i] = new GameEntity(tagNodePolFile.NodeDescriptions[0].Name);
+                    _tagNodes[i] = GameEntityFactory.Create(_tagNodePolFile.NodeDescriptions[0].Name,
+                        GameEntity, worldPositionStays: true);
+
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
-                    tagNodeRenderer.Render(tagNodePolFile,
+                    tagNodeRenderer.Render(_tagNodePolFile,
                         tagNodeTextureProvider,
                         _materialFactory,
                         isStaticObject: false,
                         tagNodeTintColor);
 
-                    _tagNodes[i].SetParent(GameEntity, worldPositionStays: true);
                     _tagNodes[i].Transform.SetLocalPositionAndRotation(
                         mv3File.TagNodes[i].TagFrames[0].GameBoxPosition.ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
                         mv3File.TagNodes[i].TagFrames[0].GameBoxRotation.Mv3QuaternionToUnityQuaternion());
@@ -198,7 +202,8 @@ namespace Pal3.Game.Rendering.Renderer
                 _frameTicks[index][i] = keyFrames[i].GameBoxTick;
             }
 
-            _meshEntities[index] = new GameEntity(mv3Mesh.Name);
+            _meshEntities[index] = GameEntityFactory.Create(mv3Mesh.Name,
+                GameEntity, worldPositionStays: false);
 
             // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
             #if UNITY_EDITOR
@@ -252,8 +257,6 @@ namespace Pal3.Game.Rendering.Renderer
 
             _renderMeshComponents[index].Mesh = renderMesh;
             _renderMeshComponents[index].MeshRenderer = meshRenderer;
-
-            _meshEntities[index].SetParent(GameEntity, worldPositionStays: false);
         }
 
         public void StartAnimation(int loopCount = -1)
@@ -428,6 +431,8 @@ namespace Pal3.Game.Rendering.Renderer
                     continue;
                 }
 
+                if (cancellationToken.IsCancellationRequested) yield break;
+
                 // Animates the mesh
                 for (var i = 0; i < _meshCount; i++)
                 {
@@ -457,27 +462,30 @@ namespace Pal3.Game.Rendering.Renderer
                 }
 
                 // Animates the tag nodes
-                for (var i = 0; i < _tagNodesInfo.Length; i++)
+                if (_tagNodePolFile != null)
                 {
-                    if (_tagNodes[i] == null) continue;
+                    for (var i = 0; i < _tagNodesInfo.Length; i++)
+                    {
+                        if (_tagNodes[i] == null) continue;
 
-                    var frameTicks = _tagNodeFrameTicks[i];
+                        var frameTicks = _tagNodeFrameTicks[i];
 
-                    var currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
-                    var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
-                    var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                    var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
+                        var currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
+                        var currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
+                        var nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                        var nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
 
-                    var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
+                        var influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
 
-                    Vector3 position = Vector3.Lerp(
-                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
-                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
-                    Quaternion rotation = Quaternion.Slerp(
-                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
-                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
+                        Vector3 position = Vector3.Lerp(
+                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
+                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
+                        Quaternion rotation = Quaternion.Slerp(
+                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
+                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
 
-                    _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
+                        _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
+                    }
                 }
 
                 yield return null;

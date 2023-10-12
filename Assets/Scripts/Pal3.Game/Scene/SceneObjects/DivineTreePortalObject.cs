@@ -16,8 +16,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Coroutine;
     using Engine.Extensions;
 
@@ -153,7 +153,11 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override void Deactivate()
         {
-            _cancellationTokenSource.Cancel();
+            if (!_cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+            }
+
             _isInteractionInProgress = false;
 
             if (_platformController != null)

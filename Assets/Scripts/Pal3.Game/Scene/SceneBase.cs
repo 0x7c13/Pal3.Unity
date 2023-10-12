@@ -17,7 +17,7 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using SceneObjects;
     using State;

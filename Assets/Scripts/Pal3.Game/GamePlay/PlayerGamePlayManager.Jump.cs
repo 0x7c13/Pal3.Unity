@@ -12,14 +12,18 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Renderer;
     using Scene;
     using State;
-    using UnityEngine;
+
+    using Vector2 = UnityEngine.Vector2;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     public partial class PlayerGamePlayManager
     {
@@ -37,14 +41,12 @@ namespace Pal3.Game.GamePlay
         {
             if (!_lastInputTapPosition.HasValue) return;
 
-            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
+            if (!_physicsManager.TryCameraRaycastFromScreenPoint(_lastInputTapPosition.Value,
+                    out (Vector3 hitPoint, IGameEntity colliderGameEntity) hitResult)) return;
 
-            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
-
-            if (_sceneManager.GetCurrentScene()
-                .GetMeshColliders().Any(_ => _.Value == hit.collider))
+            if (hitResult.colliderGameEntity.GetComponent<NavMesh>() != null)
             {
-                Pal3.Instance.StartCoroutine(JumpAsync(hit.point));
+                Pal3.Instance.StartCoroutine(JumpAsync(hitResult.hitPoint));
             }
         }
 
@@ -54,8 +56,8 @@ namespace Pal3.Game.GamePlay
             {
                 var sprites = _resourceProvider.GetJumpIndicatorSprites();
 
-                _jumpIndicatorGameEntity = new GameEntity($"JumpIndicator");
-                _jumpIndicatorGameEntity.SetParent(_playerActorGameEntity, worldPositionStays: false);
+                _jumpIndicatorGameEntity = GameEntityFactory.Create($"JumpIndicator",
+                    _playerActorGameEntity, worldPositionStays: false);
                 _jumpIndicatorGameEntity.Transform.LocalScale = new Vector3(3f, 3f, 3f);
                 _jumpIndicatorGameEntity.Transform.LocalPosition = new Vector3(0f,
                     _playerActorActionController.GetActorHeight() + 1f, 0f);

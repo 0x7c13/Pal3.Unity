@@ -25,8 +25,9 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Dev.Presenters;
     using Effect;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
@@ -131,7 +132,7 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (IsActivated) return _sceneObjectGameEntity;
 
-            _sceneObjectGameEntity = new GameEntity($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
+            _sceneObjectGameEntity = GameEntityFactory.Create($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}");
 
             // Attach SceneObjectInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR

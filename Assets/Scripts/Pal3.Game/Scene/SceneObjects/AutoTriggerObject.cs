@@ -14,7 +14,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
 
@@ -48,11 +48,18 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else
             {
+                var effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup;
+
                 // This is to prevent player from entering back to previous
                 // scene when holding the stick while transferring between scenes.
                 // We simply disable the auto trigger for a short time window after
-                // a fresh scene load.
-                var effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup + 0.35f; // 0.35 seconds
+                // a fresh scene load if the auto trigger is used for scene transfer.
+                if (ObjectInfo.ScriptId != ScriptConstants.InvalidScriptId &&
+                    ObjectInfo.ScriptId < ScriptConstants.PortalScriptIdMax)
+                {
+                    effectiveTime += 1f; // 1 second
+                }
+
                 _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;

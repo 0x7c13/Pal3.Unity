@@ -5,7 +5,7 @@
 
 namespace Engine.Renderer
 {
-    using Abstraction;
+    using Core.Implementation;
     using UnityEngine;
 
     public class StaticBillboardRenderer : TickableGameEntityScript

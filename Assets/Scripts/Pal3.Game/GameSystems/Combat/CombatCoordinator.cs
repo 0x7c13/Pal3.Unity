@@ -21,7 +21,7 @@ namespace Pal3.Game.GameSystems.Combat
     using Core.DataReader.Txt;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Logging;
     using GamePlay;
     using Scene;

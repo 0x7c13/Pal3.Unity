@@ -110,7 +110,7 @@ namespace Pal3.Game.Script
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
                     PalScriptType.WorldMap, scriptId, _globalVariables, _cmdPreprocessor);
             }
-            else if (scriptId <= ScriptConstants.SystemScriptIdMax)
+            else if (scriptId < ScriptConstants.SystemScriptIdMax)
             {
                 EngineLogger.Log($"Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,

@@ -7,7 +7,7 @@ namespace Engine.Renderer
 {
     using System.Collections;
     using System.Threading;
-    using Abstraction;
+    using Core.Implementation;
     using Coroutine;
     using Extensions;
     using UnityEngine;

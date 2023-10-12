@@ -21,14 +21,15 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Rendering.Renderer;
 
     using Color = Core.Primitives.Color;
     using Vector3 = UnityEngine.Vector3;
-    
+
     [ScnSceneObject(SceneObjectType.Switch)]
     public sealed class SwitchObject : SceneObject
     {
@@ -75,8 +76,8 @@ namespace Pal3.Game.Scene.SceneObjects
                     INTERACTION_INDICATOR_MODEL_FILE_NAME);
 
                 Vector3 switchPosition = sceneObjectGameEntity.Transform.Position;
-                _interactionIndicatorGameEntity = new GameEntity("Switch_Interaction_Indicator");
-                _interactionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _interactionIndicatorGameEntity = GameEntityFactory.Create("Switch_Interaction_Indicator",
+                    sceneObjectGameEntity, worldPositionStays: false);
                 _interactionIndicatorGameEntity.Transform.Position =
                     new Vector3(switchPosition.x, GetRendererBounds().max.y + 1f, switchPosition.z);
 

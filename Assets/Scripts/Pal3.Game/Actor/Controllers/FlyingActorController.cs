@@ -13,7 +13,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
     using Core.Primitives;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Services;
     using Script.Waiter;

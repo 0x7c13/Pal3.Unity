@@ -13,8 +13,10 @@ namespace Engine.Services
     /// <summary>
     /// ServiceLocator singleton.
     /// </summary>
-    public class ServiceLocator : Singleton<ServiceLocator>
+    public sealed class ServiceLocator : Singleton<ServiceLocator>
     {
+        private ServiceLocator() { } // Hide constructor, use Instance instead.
+
         /// <summary>
         /// Currently registered services.
         /// </summary>

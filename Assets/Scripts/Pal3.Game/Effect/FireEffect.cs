@@ -12,7 +12,8 @@ namespace Pal3.Game.Effect
     using Core.DataReader.Pol;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
@@ -74,8 +75,8 @@ namespace Pal3.Game.Effect
                     yPosition = _sceneObjectRenderer.GetMeshBounds().max.y;
                 }
 
-                EffectGameEntity = new GameEntity($"Effect_{GraphicsEffectType.Fire.ToString()}_{FireEffectType.ToString()}");
-                EffectGameEntity.SetParent(GameEntity, worldPositionStays: false);
+                EffectGameEntity = GameEntityFactory.Create($"Effect_{GraphicsEffectType.Fire.ToString()}_{FireEffectType.ToString()}",
+                    GameEntity, worldPositionStays: false);
                 EffectGameEntity.Transform.LocalScale = new Vector3(info.Size, info.Size, info.Size);
                 EffectGameEntity.Transform.LocalPosition = new Vector3(0f, yPosition, 0f);
 

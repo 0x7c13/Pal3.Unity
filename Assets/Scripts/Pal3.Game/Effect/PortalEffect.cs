@@ -6,7 +6,8 @@
 namespace Pal3.Game.Effect
 {
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
 
     using Vector3 = UnityEngine.Vector3;
@@ -21,6 +22,7 @@ namespace Pal3.Game.Effect
 
         private const float PORTAL_DEFAULT_SIZE = 1.3f;
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
+        private const int PORTAL_RAY_EFFECT_ID = 0;
 
         private RotatingSpriteEffect _baseEffect;
         private IGameEntity _rayEffect;
@@ -38,11 +40,11 @@ namespace Pal3.Game.Effect
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
 
-            object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(0);
+            object rayEffectPrefab = resourceProvider.GetVfxEffectPrefab(PORTAL_RAY_EFFECT_ID);
             if (rayEffectPrefab != null)
             {
-                _rayEffect = PrefabFactory.Instantiate(rayEffectPrefab, Transform, worldPositionStays: false);
-                _rayEffect.Name = "VFX_0";
+                _rayEffect = GameEntityFactory.Create($"VFX_{PORTAL_RAY_EFFECT_ID}",
+                    rayEffectPrefab, GameEntity, worldPositionStays: false);
             }
         }
 

@@ -18,7 +18,8 @@ namespace Pal3.Game.Actor.Controllers
     using Core.DataReader.Nav;
     using Core.Primitives;
     using Core.Utilities;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;

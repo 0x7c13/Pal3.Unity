@@ -24,7 +24,8 @@ namespace Pal3.Game
     using Data;
     using Dev;
     using Effect;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;
@@ -144,6 +145,7 @@ namespace Pal3.Game
         private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
+        private IPhysicsManager _physicsManager;
         private FileSystemCacheManager _fileSystemCacheManager;
         private PlayerInputActions _inputActions;
         private InputManager _inputManager;
@@ -208,6 +210,9 @@ namespace Pal3.Game
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
+
+            ServiceLocator.Instance.Register<IPhysicsManager>(_physicsManager =
+                new PhysicsManager(mainCamera));
 
             ServiceLocator.Instance.Register(_fileSystemCacheManager =
                 new FileSystemCacheManager(_fileSystem)
@@ -379,7 +384,8 @@ namespace Pal3.Game
                     _teamManager,
                     _inputActions,
                     _sceneManager,
-                    _cameraManager)
+                    _cameraManager,
+                    _physicsManager)
             );
 
             ServiceLocator.Instance.Register(_minimapManager =

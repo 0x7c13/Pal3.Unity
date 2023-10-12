@@ -11,7 +11,8 @@ namespace Pal3.Game.Actor
     using Core.Contract.Enums;
     using Data;
     using Dev.Presenters;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using GameSystems.Combat;
     using Scene;
 
@@ -30,7 +31,7 @@ namespace Pal3.Game.Actor
             float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
-            var actorGameEntity = new GameEntity($"Actor_{actor.Id}_{actor.Name}");
+            var actorGameEntity = GameEntityFactory.Create($"Actor_{actor.Id}_{actor.Name}");
 
             // Attach ScnNpcInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
@@ -115,7 +116,7 @@ namespace Pal3.Game.Actor
             ElementPosition elementPosition,
             bool isDropShadowEnabled)
         {
-            var actorGameEntity = new GameEntity($"CombatActor_{actor.Id}_{actor.Name}");
+            IGameEntity actorGameEntity = GameEntityFactory.Create($"CombatActor_{actor.Id}_{actor.Name}");
 
             // Attach CombatActorInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR

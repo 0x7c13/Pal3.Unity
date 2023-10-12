@@ -12,7 +12,7 @@ namespace Pal3.Game.GameSystems.Minimap
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
     using Core.Utilities;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Scene;
     using State;

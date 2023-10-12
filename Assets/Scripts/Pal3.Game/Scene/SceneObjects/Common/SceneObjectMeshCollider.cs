@@ -5,7 +5,7 @@
 
 namespace Pal3.Game.Scene.SceneObjects.Common
 {
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Rendering.Renderer;
     using UnityEngine;

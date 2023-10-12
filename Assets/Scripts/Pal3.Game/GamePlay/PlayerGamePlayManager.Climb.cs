@@ -14,7 +14,7 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.Primitives;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;

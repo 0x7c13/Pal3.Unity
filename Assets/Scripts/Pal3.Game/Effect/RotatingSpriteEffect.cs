@@ -7,7 +7,8 @@ namespace Pal3.Game.Effect
 {
     using System;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using UnityEngine;
 
@@ -33,8 +34,8 @@ namespace Pal3.Game.Effect
 
             Texture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
 
-            _root = new GameEntity($"RotatingSpriteEffect_{textureName}");
-            _root.SetParent(GameEntity, worldPositionStays: false);
+            _root = GameEntityFactory.Create($"RotatingSpriteEffect_{textureName}",
+                GameEntity, worldPositionStays: false);
 
             _spriteRenderer = _root.AddComponent<SpriteRenderer>();
 

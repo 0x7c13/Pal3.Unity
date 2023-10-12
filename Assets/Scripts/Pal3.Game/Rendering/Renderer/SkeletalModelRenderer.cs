@@ -14,7 +14,8 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Mtl;
     using Core.Primitives;
     using Core.Utilities;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -294,9 +295,9 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void SetupBone(BoneNode boneNode, Bone parentBone)
         {
-            IGameEntity boneEntity = new GameEntity($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}");
+            IGameEntity boneEntity = GameEntityFactory.Create($"{boneNode.Id}_{boneNode.Name}_{boneNode.Type}",
+                parentBone == null ? GameEntity : parentBone.GameEntity, worldPositionStays: true);
 
-            boneEntity.SetParent(parentBone == null ? GameEntity : parentBone.GameEntity, worldPositionStays: true);
             boneEntity.Transform.SetLocalPositionAndRotation(boneNode.GameBoxTranslation.ToUnityPosition(),
                 boneNode.GameBoxRotation.MshQuaternionToUnityQuaternion());
 
@@ -341,8 +342,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void RenderSubMesh(MshMesh subMesh, int subMeshIndex)
         {
-            _meshEntities[subMeshIndex] = new GameEntity($"SubMesh_{subMeshIndex}");
-            _meshEntities[subMeshIndex].SetParent(GameEntity, worldPositionStays: false);
+            _meshEntities[subMeshIndex] = GameEntityFactory.Create($"SubMesh_{subMeshIndex}",
+                GameEntity, worldPositionStays: false);
 
             _vertexBuffer[subMeshIndex] = new Vector3[subMesh.Vertices.Length];
 

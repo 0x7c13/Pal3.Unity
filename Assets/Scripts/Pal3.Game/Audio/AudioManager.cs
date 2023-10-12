@@ -18,7 +18,8 @@ namespace Pal3.Game.Audio
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.Extensions;
     using Scene;
@@ -202,8 +203,7 @@ namespace Pal3.Game.Audio
             IGameEntity audioSourceParent = parent.FindChild(audioSourceName);
             if (audioSourceParent == null)
             {
-                audioSourceParent = new GameEntity(audioSourceName);
-                audioSourceParent.SetParent(parent, worldPositionStays: true);
+                audioSourceParent = GameEntityFactory.Create(audioSourceName, parent, worldPositionStays: true);
                 audioSourceParent.Transform.Position = parent.Transform.Position;
             }
 

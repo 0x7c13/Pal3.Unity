@@ -20,13 +20,18 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Services;
     using State;
-    using UnityEngine;
+
+    using Bounds = UnityEngine.Bounds;
     using Color = Core.Primitives.Color;
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector2 = UnityEngine.Vector2;
+    using Vector3 = UnityEngine.Vector3;
 
     [ScnSceneObject(SceneObjectType.Pushable)]
     public sealed class PushableObject : SceneObject
@@ -38,19 +43,19 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private readonly SceneStateManager _sceneStateManager;
         private readonly Tilemap _tilemap;
+        private readonly IPhysicsManager _physicsManager;
 
         private bool _isInteractionInProgress;
 
         private int _bidiPushableCurrentState;
         private int _bidiPushableGoalState;
 
-        private readonly RaycastHit[] _raycastHits = new RaycastHit[10];
-
         public PushableObject(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
             : base(objectInfo, sceneInfo)
         {
             _sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
             _tilemap = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetTilemap();
+            _physicsManager = ServiceLocator.Instance.Get<IPhysicsManager>();
         }
 
         public override IGameEntity Activate(GameResourceProvider resourceProvider, Color tintColor)
@@ -347,6 +352,7 @@ namespace Pal3.Game.Scene.SceneObjects
             return true;
         }
 
+        private readonly (Vector3 hitPoint, IGameEntity colliderGameEntity)[] _hitResults = new (Vector3, IGameEntity)[10];
         private bool IsDirectionBlockedByOtherObjects(Vector3 direction, float distanceCheckRange)
         {
             IGameEntity pushableEntity = GetGameEntity();
@@ -354,35 +360,31 @@ namespace Pal3.Game.Scene.SceneObjects
             Bounds meshBounds = GetMeshBounds();
             Bounds rendererBounds = GetRendererBounds();
 
-            var hitCount = Physics.BoxCastNonAlloc(rendererBounds.center,
-                new Vector3(meshBounds.size.x / 2f * 0.8f,
+            int hitCount = _physicsManager.BoxCast(rendererBounds.center,
+                halfExtents: new Vector3(meshBounds.size.x / 2f * 0.8f,
                     meshBounds.size.y / 2f * 0.8f,  // 0.8f is to make sure the boxcast is
                     meshBounds.size.z / 2f * 0.8f), // smaller than the mesh for tolerance
-                direction,
-                _raycastHits,
-                Quaternion.LookRotation(direction));
+                direction: direction,
+                orientation: Quaternion.LookRotation(direction),
+                _hitResults);
 
-            int raycastOnlyLayer = LayerMask.NameToLayer("RaycastOnly");
-
-            if (hitCount > 0)
+            for (var i = 0; i < hitCount; i++)
             {
-                for (var i = 0; i < hitCount; i++)
+                (Vector3 _, IGameEntity colliderGameEntity) = _hitResults[i];
+
+                // Ignore NavMesh, Actors and self
+                if (colliderGameEntity.GetComponent<NavMesh>() != null ||
+                    colliderGameEntity.GetComponent<ActorController>() != null ||
+                    colliderGameEntity.Name.Equals(pushableEntity.Name, StringComparison.Ordinal))
                 {
-                    GameObject colliderObject = _raycastHits[i].collider.gameObject;
+                    continue;
+                }
 
-                    // Ignore raycast only objects (NavMesh in this case) or self
-                    if (colliderObject.layer == raycastOnlyLayer ||
-                        colliderObject.gameObject == (GameObject)pushableEntity.NativeObject)
-                    {
-                        continue;
-                    }
-
-                    // Can't push if there is an object in front of it within the distance
-                    if (Vector3.Distance(pushableEntity.Transform.Position,
-                            colliderObject.transform.position) < distanceCheckRange)
-                    {
-                        return true;
-                    }
+                // Can't push if there is an object in front of it within the distance
+                if (Vector3.Distance(pushableEntity.Transform.Position,
+                        colliderGameEntity.Transform.Position) < distanceCheckRange)
+                {
+                    return true;
                 }
             }
 

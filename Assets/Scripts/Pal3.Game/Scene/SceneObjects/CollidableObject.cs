@@ -10,10 +10,10 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Rendering.Renderer;
-    
+
     using Color = Core.Primitives.Color;
 
     #if PAL3

@@ -14,12 +14,12 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Services;
     using State;
-    
+
     using Color = Core.Primitives.Color;
     using Vector2Int = UnityEngine.Vector2Int;
     using Vector3 = UnityEngine.Vector3;

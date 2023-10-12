@@ -6,7 +6,7 @@
 namespace Pal3.Game.Dev.Presenters
 {
     using Core.DataReader.Scn;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
 
     /// <summary>
     /// ScnObjectInfo holder component to present ScnObjectInfo in the Unity inspector.

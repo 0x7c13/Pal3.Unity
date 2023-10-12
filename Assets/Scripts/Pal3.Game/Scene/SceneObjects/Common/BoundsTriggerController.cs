@@ -7,7 +7,8 @@ namespace Pal3.Game.Scene.SceneObjects.Common
 {
     using System;
     using Actor.Controllers;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Services;
     using GamePlay;

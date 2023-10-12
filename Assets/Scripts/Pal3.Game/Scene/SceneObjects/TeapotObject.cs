@@ -12,8 +12,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
 
     using Color = Core.Primitives.Color;
     using Quaternion = UnityEngine.Quaternion;

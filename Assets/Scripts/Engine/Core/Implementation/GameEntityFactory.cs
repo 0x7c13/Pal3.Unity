@@ -3,13 +3,26 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Engine.Abstraction
+namespace Engine.Core.Implementation
 {
     using System;
+    using Abstraction;
 
-    public static class PrefabFactory
+    public static class GameEntityFactory
     {
-        public static IGameEntity Instantiate(object prefab, ITransform transform, bool worldPositionStays = false)
+        public static IGameEntity Create(string name)
+        {
+            return name != null ? new GameEntity(name) : new GameEntity();
+        }
+
+        public static IGameEntity Create(string name, IGameEntity parent, bool worldPositionStays = false)
+        {
+            IGameEntity gameEntity = Create(name);
+            gameEntity.SetParent(parent, worldPositionStays);
+            return gameEntity;
+        }
+
+        public static IGameEntity Create(string name, object prefab, IGameEntity parent, bool worldPositionStays = false)
         {
             if (prefab.GetType() != typeof(UnityEngine.Object) && !prefab.GetType().IsSubclassOf(typeof(UnityEngine.Object)))
             {
@@ -18,14 +31,15 @@ namespace Engine.Abstraction
 
             Object gameObject = UnityEngine.Object.Instantiate(
                 (UnityEngine.Object) prefab,
-                (UnityEngine.Transform) transform.NativeObject,
+                (UnityEngine.Transform) parent?.Transform?.NativeObject,
                 worldPositionStays);
 
             if (gameObject == null || gameObject.GetType() != typeof(UnityEngine.GameObject))
             {
-                throw new NullReferenceException("The instantiated object is not UnityEngine.GameObject or game object is null");
+                throw new NullReferenceException("The instantiated object is not UnityEngine.GameObject or prefab is not found");
             }
 
+            ((UnityEngine.GameObject)gameObject).name = name;
             return new GameEntity((UnityEngine.GameObject) gameObject);
         }
     }

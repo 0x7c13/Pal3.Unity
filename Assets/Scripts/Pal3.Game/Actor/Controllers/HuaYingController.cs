@@ -11,7 +11,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Services;
     using Scene;
 

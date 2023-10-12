@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Engine.Abstraction
+namespace Engine.Core.Implementation
 {
     using UnityEngine;
 

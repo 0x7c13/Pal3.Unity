@@ -14,7 +14,8 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
@@ -228,8 +229,8 @@ namespace Pal3.Game.Actor.Controllers
 
         private void RenderShadow()
         {
-            _shadow = new GameEntity("Shadow");
-            _shadow.SetParent(GameEntity, worldPositionStays: false);
+            _shadow = GameEntityFactory.Create("Shadow",
+                GameEntity, worldPositionStays: false);
             ITransform shadowTransform = _shadow.Transform;
             shadowTransform.LocalRotation = Quaternion.Euler(90f, 0f, 0f);
             shadowTransform.LocalScale = new Vector3(1.4f, 1.4f, 1f);
@@ -253,8 +254,8 @@ namespace Pal3.Game.Actor.Controllers
 
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
-            var emojiGameEntity = new GameEntity($"Emoji_{emojiType.ToString()}");
-            emojiGameEntity.SetParent(GameEntity, worldPositionStays: false);
+            IGameEntity emojiGameEntity = GameEntityFactory.Create($"Emoji_{emojiType.ToString()}",
+                GameEntity, worldPositionStays: false);
             emojiGameEntity.Transform.LocalScale = new Vector3(1.5f, 1.5f, 1.5f);
             emojiGameEntity.Transform.LocalPosition = new Vector3(0f, GetActorHeight(), 0f);
 

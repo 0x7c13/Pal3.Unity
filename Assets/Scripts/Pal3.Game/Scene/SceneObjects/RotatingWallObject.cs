@@ -15,8 +15,9 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Rendering.Renderer;
@@ -50,7 +51,8 @@ namespace Pal3.Game.Scene.SceneObjects
             // Add sub-component to the main object.
             if (ModelFileVirtualPath.EndsWith("1.pol"))
             {
-                _subObjectGameEntity = new GameEntity($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
+                _subObjectGameEntity = GameEntityFactory.Create($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject",
+                    sceneObjectGameEntity, worldPositionStays: false);
 
                 var subObjectModelPath = ModelFileVirtualPath.Replace("1.pol", "2.pol");
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
@@ -66,8 +68,6 @@ namespace Pal3.Game.Scene.SceneObjects
                 // Sub-object should block player as well, so let's add mesh collider to it
                 _subObjectMeshCollider = _subObjectGameEntity.AddComponent<SceneObjectMeshCollider>();
                 _subObjectMeshCollider.Init(new Vector3(0f, 0f, -1f));
-
-                _subObjectGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
             }
 
             return sceneObjectGameEntity;

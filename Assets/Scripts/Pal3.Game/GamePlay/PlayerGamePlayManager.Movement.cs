@@ -6,7 +6,6 @@
 namespace Pal3.Game.GamePlay
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Actor.Controllers;
     using Command;
     using Command.Extensions;
@@ -14,10 +13,13 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Nav;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Scene;
     using Scene.SceneObjects.Common;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector2 = UnityEngine.Vector2;
+    using Vector3 = UnityEngine.Vector3;
 
     public partial class PlayerGamePlayManager
     {
@@ -46,94 +48,96 @@ namespace Pal3.Game.GamePlay
         {
             if (!_lastInputTapPosition.HasValue) return;
 
-            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
-
-            if (!Physics.Raycast(ray, out RaycastHit hit)) return;
+            if (!_physicsManager.TryCameraRaycastFromScreenPoint(_lastInputTapPosition.Value,
+                    out (Vector3 hitPoint, IGameEntity colliderGameEntity) hitResult)) return;
 
             int layerIndex;
             bool isPositionOnStandingPlatform;
 
-            if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { } standingPlatformController)
+            if (hitResult.colliderGameEntity.GetComponent<StandingPlatformController>() is { } standingPlatformController)
             {
                 layerIndex = standingPlatformController.LayerIndex;
                 isPositionOnStandingPlatform = true;
             }
-            else
+            else if (hitResult.colliderGameEntity.GetComponent<NavMesh>() is { } navMesh)
             {
-                var meshColliders = _sceneManager.GetCurrentScene()
-                    .GetMeshColliders();
-
-                if (meshColliders.Any(_ => _.Value == hit.collider))
-                {
-                    layerIndex = meshColliders.First(_ => _.Value == hit.collider).Key;
-                    isPositionOnStandingPlatform = false;
-                }
-                else
-                {
-                    // Raycast hit a collider that is not a mesh collider or a standing platform
-                    return;
-                }
+                layerIndex = navMesh.NavLayerIndex;
+                isPositionOnStandingPlatform = false;
+            }
+            else // Raycast hit a collider that is neither a standing platform nor a navmesh
+            {
+                return; // Do nothing
             }
 
-            _playerActorMovementController.PortalToPosition(hit.point, layerIndex, isPositionOnStandingPlatform);
+            _playerActorMovementController.PortalToPosition(hitResult.hitPoint, layerIndex, isPositionOnStandingPlatform);
         }
 
         // Raycast caches to avoid GC
-        private readonly RaycastHit[] _raycastHits = new RaycastHit[4];
-        private readonly Dictionary<int, (Vector3 point, bool isPlatform)> _tapPoints = new ();
+        private readonly (Vector3 hitPoint, IGameEntity colliderGameEntity)[] _hitResults = new (Vector3, IGameEntity)[10];
+        private readonly Dictionary<int, (Vector3 point, bool isPlatform)> _validTapPoints = new ();
         private void MoveToTapPosition(bool isDoubleTap)
         {
             if (!_lastInputTapPosition.HasValue) return;
 
             Scene currentScene = _sceneManager.GetCurrentScene();
-            var meshColliders = currentScene.GetMeshColliders();
 
-            Ray ray = _cameraManager.ScreenPointToRay(_lastInputTapPosition.Value);
+            int hitCount = _physicsManager.CameraRaycastFromScreenPoint(
+                _lastInputTapPosition.Value,
+                _hitResults);
 
-            var hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 500f);
             if (hitCount == 0) return;
 
             Tilemap tilemap = currentScene.GetTilemap();
 
-            _tapPoints.Clear();
+            _validTapPoints.Clear();
             for (var i = 0; i < hitCount; i++)
             {
-                RaycastHit hit = _raycastHits[i];
+                (Vector3 hitPoint, IGameEntity colliderGameEntity) = _hitResults[i];
 
-                if (hit.collider.gameObject.GetComponent<StandingPlatformController>() is { }
+                if (colliderGameEntity.GetComponent<ActorController>() != null)
+                {
+                    continue; // Ignore actor
+                }
+
+                if (colliderGameEntity.GetComponent<StandingPlatformController>() is { }
                         standingPlatformController)
                 {
-                    _tapPoints[standingPlatformController.LayerIndex] = (hit.point, true);
+                    _validTapPoints[standingPlatformController.LayerIndex] = (hitPoint, true);
                     continue;
                 }
 
-                var layerIndex = meshColliders.FirstOrDefault(_ => _.Value == hit.collider).Key;
+                int layerIndex = _playerActorManager.LastKnownLayerIndex ?? 0;
 
-                if (!tilemap.TryGetTile(hit.point, layerIndex, out NavTile _))
+                if (colliderGameEntity.GetComponent<NavMesh>() is { } navMesh)
+                {
+                    layerIndex = navMesh.NavLayerIndex;
+                }
+
+                if (!tilemap.TryGetTile(hitPoint, layerIndex, out NavTile _))
                 {
                     continue;
                 }
 
                 Vector3 cameraPosition = _cameraManager.GetCameraTransform().Position;
-                var distanceToCamera = Vector3.Distance(cameraPosition, hit.point);
+                var distanceToCamera = Vector3.Distance(cameraPosition, hitPoint);
 
-                if (_tapPoints.ContainsKey(layerIndex))
+                if (_validTapPoints.ContainsKey(layerIndex))
                 {
-                    var existingDistance = Vector3.Distance(cameraPosition, _tapPoints[layerIndex].point);
+                    var existingDistance = Vector3.Distance(cameraPosition, _validTapPoints[layerIndex].point);
                     if (distanceToCamera < existingDistance)
                     {
-                        _tapPoints[layerIndex] = (hit.point, false);
+                        _validTapPoints[layerIndex] = (hitPoint, false);
                     }
                 }
                 else
                 {
-                    _tapPoints[layerIndex] = (hit.point, false);
+                    _validTapPoints[layerIndex] = (hitPoint, false);
                 }
             }
 
-            if (_tapPoints.Count > 0)
+            if (_validTapPoints.Count > 0)
             {
-                _playerActorMovementController.MoveToTapPoint(_tapPoints, isDoubleTap);
+                _playerActorMovementController.MoveToTapPoint(_validTapPoints, isDoubleTap);
             }
         }
 

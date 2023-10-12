@@ -12,7 +12,8 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Pol;
     using Core.Primitives;
     using Dev.Presenters;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
@@ -162,7 +163,7 @@ namespace Pal3.Game.Rendering.Renderer
                     return;
                 }
 
-                IGameEntity meshEntity = new GameEntity(meshNode.Name);
+                IGameEntity meshEntity = GameEntityFactory.Create(meshNode.Name, GameEntity, worldPositionStays: false);
                 meshEntity.IsStatic = _isStaticObject;
 
                 // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
@@ -234,8 +235,6 @@ namespace Pal3.Game.Rendering.Renderer
                         materials,
                         false);
                 }
-
-                meshEntity.SetParent(GameEntity, worldPositionStays: false);
             }
         }
 

@@ -13,15 +13,18 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Navigation;
     using Engine.Services;
     using Input;
     using GamePlay;
     using Script.Waiter;
-    using UnityEngine;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector3 = UnityEngine.Vector3;
 
     public class ActorController : GameEntityScript,
         ICommandExecutor<ActorSetFacingCommand>,

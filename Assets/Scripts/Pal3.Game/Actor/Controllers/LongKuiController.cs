@@ -11,7 +11,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
 
     public sealed class LongKuiController : GameEntityScript,
         ICommandExecutor<LongKuiSwitchModeCommand>

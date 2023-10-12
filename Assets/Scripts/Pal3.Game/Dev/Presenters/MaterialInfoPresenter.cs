@@ -6,7 +6,7 @@
 namespace Pal3.Game.Dev.Presenters
 {
     using Core.Primitives;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
 
     /// <summary>
     /// BlendFlag and GameBoxMaterial holder component to present MaterialInfo in the Unity inspector.

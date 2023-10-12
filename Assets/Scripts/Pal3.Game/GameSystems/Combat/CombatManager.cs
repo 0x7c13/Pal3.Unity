@@ -20,7 +20,7 @@ namespace Pal3.Game.GameSystems.Combat
     using Core.Primitives;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Scene;
@@ -118,6 +118,7 @@ namespace Pal3.Game.GameSystems.Combat
         {
             // Stop combat music
             CommandDispatcher<ICommand>.Instance.Dispatch(new StopScriptMusicCommand());
+            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
             _sceneManager.UnloadCombatScene();
             ResetCameraPosition();
         }

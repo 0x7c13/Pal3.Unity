@@ -22,7 +22,7 @@ namespace Pal3.Game.Command
 
         private readonly Dictionary<Type, HashSet<object>> _executors = new ();
 
-        private CommandExecutorRegistry() { }
+        private CommandExecutorRegistry() { } // Hide constructor, use Instance instead.
 
         /// <inheritdoc />
         public void Register<T>(ICommandExecutor<T> executor) where T : TCommand

@@ -18,7 +18,8 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Logging;
     using Newtonsoft.Json;
@@ -102,8 +103,8 @@ namespace Pal3.Game.Scene
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
             EngineLogger.Log("Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
 
-            _currentSceneRoot = new GameEntity($"Scene_{sceneCityName}_{sceneName}");
-            _currentSceneRoot.SetParent(null, worldPositionStays: false);
+            _currentSceneRoot = GameEntityFactory.Create($"Scene_{sceneCityName}_{sceneName}",
+                null, worldPositionStays: false);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
             _currentScene.Init(_resourceProvider,
                 _sceneStateManager,
@@ -140,8 +141,8 @@ namespace Pal3.Game.Scene
 
             HideCurrentScene();
 
-            _currentCombatSceneRoot = new GameEntity($"CombatScene_{combatSceneName}");
-            _currentCombatSceneRoot.SetParent(null, worldPositionStays: false);
+            _currentCombatSceneRoot = GameEntityFactory.Create($"CombatScene_{combatSceneName}",
+                null, worldPositionStays: false);
 
             _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
             _currentCombatScene.Init(_resourceProvider);

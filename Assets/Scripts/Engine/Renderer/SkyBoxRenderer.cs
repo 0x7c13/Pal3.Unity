@@ -5,7 +5,8 @@
 
 namespace Engine.Renderer
 {
-    using Abstraction;
+    using Core.Abstraction;
+    using Core.Implementation;
     using Extensions;
     using UnityEngine;
 

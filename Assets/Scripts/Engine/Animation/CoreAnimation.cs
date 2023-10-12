@@ -8,7 +8,7 @@ namespace Engine.Animation
     using System;
     using System.Collections;
     using System.Threading;
-    using Abstraction;
+    using Core.Abstraction;
     using Pal3.Core.Utilities;
     using Services;
 

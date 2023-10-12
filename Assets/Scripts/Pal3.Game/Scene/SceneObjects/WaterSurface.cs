@@ -12,8 +12,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Common;
     using Core.Contract.Enums;
     using Core.DataReader.Scn;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
 
     using Vector3 = UnityEngine.Vector3;
 

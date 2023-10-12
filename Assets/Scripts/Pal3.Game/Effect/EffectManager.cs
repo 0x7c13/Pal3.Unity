@@ -17,7 +17,8 @@ namespace Pal3.Game.Effect
     using Core.Primitives;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Scene;
 
@@ -94,13 +95,13 @@ namespace Pal3.Game.Effect
             object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
             if (vfxPrefab != null)
             {
-                ITransform parentTransform = null;
+                IGameEntity parent = null;
                 Vector3 localPosition = Vector3.zero;
 
                 if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
                     _sceneManager.GetSceneRootGameEntity() is {} sceneRootGameEntity)
                 {
-                    parentTransform = sceneRootGameEntity.Transform;
+                    parent = sceneRootGameEntity;
                     localPosition = new GameBoxVector3(
                             positionCommand.GameBoxXPosition,
                             positionCommand.GameBoxYPosition,
@@ -108,14 +109,14 @@ namespace Pal3.Game.Effect
                 }
                 else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
                 {
-                    parentTransform = currentScene.GetActorGameEntity(actorCommand.ActorId).Transform;
+                    parent = currentScene.GetActorGameEntity(actorCommand.ActorId);
                 }
 
-                if (parentTransform != null)
+                if (parent != null)
                 {
-                    IGameEntity vfx = PrefabFactory.Instantiate(vfxPrefab, parentTransform, false);
-                    vfx.Name = "VFX_" + command.EffectGroupId;
-                    vfx.Transform.LocalPosition += localPosition;
+                    IGameEntity effectEntity = GameEntityFactory.Create(name: $"VFX_{command.EffectGroupId}",
+                        vfxPrefab, parent, worldPositionStays: false);
+                    effectEntity.Transform.LocalPosition += localPosition;
                 }
             }
 

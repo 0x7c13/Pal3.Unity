@@ -6,7 +6,8 @@
 namespace Pal3.Game.Effect
 {
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
 
     using Vector3 = UnityEngine.Vector3;
@@ -80,8 +81,8 @@ namespace Pal3.Game.Effect
                 object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
                 if (vfxPrefab != null)
                 {
-                    _effect = PrefabFactory.Instantiate(vfxPrefab, Transform, worldPositionStays: false);
-                    _effect.Name = "VFX_" + effectParameter;
+                    _effect = GameEntityFactory.Create(name: $"VFX_{effectParameter}",
+                        vfxPrefab, GameEntity, worldPositionStays: false);
                 }
             }
         }

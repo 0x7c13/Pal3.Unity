@@ -17,8 +17,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Nav;
     using Core.DataReader.Scn;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
 
     using Color = Core.Primitives.Color;

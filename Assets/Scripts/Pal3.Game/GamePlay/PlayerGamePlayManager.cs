@@ -20,15 +20,20 @@ namespace Pal3.Game.GamePlay
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Logging;
+    using Engine.Services;
     using GameSystems.Team;
     using Input;
     using Scene;
     using Scene.SceneObjects;
     using State;
-    using UnityEngine;
     using UnityEngine.InputSystem;
+
+    using Quaternion = UnityEngine.Quaternion;
+    using Vector2 = UnityEngine.Vector2;
+    using Vector2Int = UnityEngine.Vector2Int;
+    using Vector3 = UnityEngine.Vector3;
 
     public partial class PlayerGamePlayManager : IDisposable,
         ICommandExecutor<ActorEnablePlayerControlCommand>,
@@ -49,6 +54,7 @@ namespace Pal3.Game.GamePlay
         private readonly PlayerInputActions _inputActions;
         private readonly SceneManager _sceneManager;
         private readonly CameraManager _cameraManager;
+        private readonly IPhysicsManager _physicsManager;
 
         private string _currentMovementSfxAudioName = string.Empty;
 
@@ -79,7 +85,8 @@ namespace Pal3.Game.GamePlay
             TeamManager teamManager,
             PlayerInputActions inputActions,
             SceneManager sceneManager,
-            CameraManager cameraManager)
+            CameraManager cameraManager,
+            IPhysicsManager physicsManager)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
@@ -88,6 +95,7 @@ namespace Pal3.Game.GamePlay
             _inputActions = Requires.IsNotNull(inputActions, nameof(inputActions));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
+            _physicsManager = Requires.IsNotNull(physicsManager, nameof(physicsManager));
 
             _inputActions.Gameplay.OnTap.performed += OnTapPerformed;
             _inputActions.Gameplay.OnMove.performed += OnMovePerformed;

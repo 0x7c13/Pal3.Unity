@@ -22,8 +22,9 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.DataReader.Scn;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Coroutine;
     using Engine.DataLoader;
     using Engine.Extensions;
@@ -64,7 +65,8 @@ namespace Pal3.Game.Scene.SceneObjects
 
             IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            _subObjectGameEntity = new GameEntity($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject");
+            _subObjectGameEntity = GameEntityFactory.Create($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject",
+                sceneObjectGameEntity, worldPositionStays: false);
 
             var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
@@ -80,9 +82,6 @@ namespace Pal3.Game.Scene.SceneObjects
             _subObjectController = _subObjectGameEntity.AddComponent<ImpulsiveMechanismSubObjectController>();
             _subObjectController.Init();
             _subObjectController.OnPlayerActorHit += OnPlayerActorHit;
-
-            _subObjectGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
-
             return sceneObjectGameEntity;
         }
 

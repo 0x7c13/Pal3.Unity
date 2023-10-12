@@ -5,15 +5,24 @@
 
 namespace Engine.Services
 {
-    /// <summary>
-    /// Tracks the time since the game started and the delta time between frames.
-    /// </summary>
-    public interface IGameTimeProvider
-    {
-        public double TimeSinceStartup { get; }
+        /// <summary>
+        /// Interface for providing game time information.
+        /// </summary>
+        public interface IGameTimeProvider
+        {
+            /// <summary>
+            /// The time since the game started, in seconds.
+            /// </summary>
+            public double TimeSinceStartup { get; }
 
-        public double RealTimeSinceStartup { get; }
+            /// <summary>
+            /// The real time since the game started, in seconds.
+            /// </summary>
+            public double RealTimeSinceStartup { get; }
 
-        public float DeltaTime { get; }
-    }
+            /// <summary>
+            /// The time in seconds it took to complete the last frame.
+            /// </summary>
+            public float DeltaTime { get; }
+        }
 }

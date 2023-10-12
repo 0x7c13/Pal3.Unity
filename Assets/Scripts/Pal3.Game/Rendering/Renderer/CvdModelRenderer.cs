@@ -12,7 +12,8 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Cvd;
     using Core.Utilities;
     using Dev.Presenters;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -32,7 +33,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         private Color _tintColor;
 
-        private float _currentTime;
+        private float _currentAnimationTime;
         private float _animationDuration;
         private CancellationTokenSource _animationCts = new ();
 
@@ -56,14 +57,15 @@ namespace Pal3.Game.Rendering.Renderer
             _materialFactory = materialFactory;
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor ?? Color.White;
-            _currentTime = initTime;
+            _currentAnimationTime = initTime;
 
             foreach (CvdGeometryNode node in cvdFile.RootNodes)
             {
                 BuildTextureCache(node, textureProvider, _textureCache);
             }
 
-            var root = new GameEntity("Cvd Mesh");
+            IGameEntity root = GameEntityFactory.Create("Cvd Mesh",
+                GameEntity, worldPositionStays: false);
 
             for (var i = 0; i < cvdFile.RootNodes.Length; i++)
             {
@@ -75,13 +77,11 @@ namespace Pal3.Game.Rendering.Renderer
                     _textureCache,
                     root);
             }
-
-            root.SetParent(GameEntity, worldPositionStays: false);
         }
 
-        public float GetCurrentTime()
+        public float GetCurrentAnimationTime()
         {
-            return _currentTime;
+            return _currentAnimationTime;
         }
 
         public void SetCurrentTime(float time)
@@ -212,8 +212,7 @@ namespace Pal3.Game.Rendering.Renderer
             Dictionary<string, Texture2D> textureCache,
             IGameEntity parent)
         {
-            var meshEntity = new GameEntity(meshName);
-            meshEntity.SetParent(parent, worldPositionStays: false);
+            IGameEntity meshEntity = GameEntityFactory.Create(meshName, parent, worldPositionStays: false);
 
             if (node.IsGeometryNode)
             {
@@ -253,7 +252,8 @@ namespace Pal3.Game.Rendering.Renderer
 
                     if (string.IsNullOrEmpty(textureName) || !textureCache.ContainsKey(textureName)) continue;
 
-                    var meshSectionEntity = new GameEntity($"{sectionHashKey}");
+                    IGameEntity meshSectionEntity = GameEntityFactory.Create($"{sectionHashKey}",
+                        meshEntity, worldPositionStays: false);
 
                     // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability.
                     #if UNITY_EDITOR
@@ -289,8 +289,6 @@ namespace Pal3.Game.Rendering.Renderer
                         MeshRenderer = meshRenderer,
                         MeshDataBuffer = meshDataBuffer
                     };
-
-                    meshSectionEntity.SetParent(meshEntity, worldPositionStays: false);
                 }
 
                 _renderers.Add(nodeMeshes);
@@ -343,7 +341,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void UpdateMesh(float time)
         {
-            _currentTime = time;
+            _currentAnimationTime = time;
 
             foreach ((CvdGeometryNode node, var renderMeshComponents) in _renderers)
             {
@@ -462,30 +460,22 @@ namespace Pal3.Game.Rendering.Renderer
             bool startFromBeginning,
             CancellationToken cancellationToken)
         {
-            double startTime;
-
-            if (startFromBeginning)
-            {
-                startTime = GameTimeProvider.Instance.TimeSinceStartup;
-            }
-            else
-            {
-                startTime = GameTimeProvider.Instance.TimeSinceStartup - _currentTime;
-            }
+            double startTime = GameTimeProvider.Instance.TimeSinceStartup - (startFromBeginning ? 0 : _currentAnimationTime);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var currentTime = timeScale > 0 ?
-                        (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime) * timeScale :
-                        (duration - (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime)) * -timeScale;
+                // Calculate the elapsed time and adjust it based on the time scale.
+                float elapsed = (float)(GameTimeProvider.Instance.TimeSinceStartup - startTime);
+                float adjustedTime = timeScale > 0 ? elapsed * timeScale : (duration - elapsed) * -timeScale;
 
-                if ((timeScale > 0f && currentTime >= duration) ||
-                    (timeScale < 0f && currentTime <= 0f))
+                // Check if the animation is complete based on the time scale and either the duration or the zero-bound.
+                bool isComplete = timeScale > 0 ? adjustedTime >= duration : adjustedTime <= 0;
+                if (isComplete)
                 {
                     yield break;
                 }
 
-                UpdateMesh(currentTime);
+                UpdateMesh(adjustedTime);
 
                 yield return null;
             }

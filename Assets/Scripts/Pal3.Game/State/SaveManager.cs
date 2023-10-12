@@ -23,7 +23,7 @@ namespace Pal3.Game.State
     using Core.Primitives;
     using Core.Utilities;
     using Effect.PostProcessing;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;

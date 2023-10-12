@@ -19,8 +19,8 @@ namespace Pal3.Game.Camera
     using Core.DataReader.Scn;
     using Core.Primitives;
     using Core.Utilities;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Utilities;
     using GamePlay;
@@ -495,11 +495,6 @@ namespace Pal3.Game.Camera
 
             _cameraTransform.SetPositionAndRotation(cameraPosition, cameraRotation);
             _cameraOffset = cameraPosition - _lastLookAtPoint;
-        }
-
-        public Ray ScreenPointToRay(Vector2 position)
-        {
-            return _camera.ScreenPointToRay(position);
         }
 
         public float GetFieldOfView()

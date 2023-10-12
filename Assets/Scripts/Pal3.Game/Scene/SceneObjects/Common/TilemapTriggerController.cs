@@ -10,7 +10,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Command.Extensions;
     using Core.Command;
     using Core.Primitives;
-    using Engine.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Services;
 
     public sealed class TilemapTriggerController : GameEntityScript,

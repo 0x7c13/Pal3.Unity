@@ -17,7 +17,8 @@ namespace Pal3.Game.Scene.SceneObjects
     using Core.Primitives;
     using Core.Utilities;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Services;
@@ -79,8 +80,8 @@ namespace Pal3.Game.Scene.SceneObjects
 
             // Upper indicator
             {
-                _upperInteractionIndicatorGameEntity = new GameEntity("Climbable_Interaction_Indicator_Upper");
-                _upperInteractionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _upperInteractionIndicatorGameEntity = GameEntityFactory.Create("Climbable_Interaction_Indicator_Upper",
+                    sceneObjectGameEntity, worldPositionStays: false);
                 _upperInteractionIndicatorGameEntity.Transform.LocalScale = new Vector3(1f, -1f, 1f);
                 _upperInteractionIndicatorGameEntity.Transform.Position = upperPosition;
                 _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
@@ -96,8 +97,8 @@ namespace Pal3.Game.Scene.SceneObjects
 
             // Lower indicator
             {
-                _lowerInteractionIndicatorGameEntity = new GameEntity("Climbable_Interaction_Indicator_Lower");
-                _lowerInteractionIndicatorGameEntity.SetParent(sceneObjectGameEntity, worldPositionStays: false);
+                _lowerInteractionIndicatorGameEntity = GameEntityFactory.Create("Climbable_Interaction_Indicator_Lower",
+                    sceneObjectGameEntity, worldPositionStays: false);
                 _lowerInteractionIndicatorGameEntity.Transform.LocalScale = new Vector3(1f, 1f, 1f);
                 _lowerInteractionIndicatorGameEntity.Transform.Position = lowerPosition;
                 _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();

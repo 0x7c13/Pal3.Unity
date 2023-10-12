@@ -3,9 +3,10 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Engine.Abstraction
+namespace Engine.Core.Implementation
 {
     using System;
+    using Abstraction;
     using Extensions;
     using Pal3.Core.Utilities;
     using UnityEngine;
@@ -48,6 +49,12 @@ namespace Engine.Abstraction
         {
             get => _gameObject.isStatic;
             set => _gameObject.isStatic = value;
+        }
+
+        public int Layer
+        {
+            get => _gameObject.layer;
+            set => _gameObject.layer = value;
         }
 
         public void SetParent(IGameEntity parent, bool worldPositionStays)
@@ -112,11 +119,6 @@ namespace Engine.Abstraction
             }
 
             return component;
-        }
-
-        public void SetLayer(int layerIndex)
-        {
-            _gameObject.layer = layerIndex;
         }
 
         public IGameEntity FindChild(string name)

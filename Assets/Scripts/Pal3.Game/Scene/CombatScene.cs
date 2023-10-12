@@ -15,13 +15,14 @@ namespace Pal3.Game.Scene
     using Core.DataReader.Ini;
     using Core.DataReader.Pol;
     using Data;
-    using Engine.Abstraction;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using GameSystems.Combat;
     using Rendering.Material;
     using Rendering.Renderer;
-    
+
     using Vector3 = UnityEngine.Vector3;
     using Quaternion = UnityEngine.Quaternion;
 
@@ -76,12 +77,11 @@ namespace Pal3.Game.Scene
         private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
         {
             // Render mesh
-            _mesh = new GameEntity($"Mesh_{_combatSceneName}");
+            _mesh = GameEntityFactory.Create($"Mesh_{_combatSceneName}",
+                _parent, worldPositionStays: false);
             _mesh.IsStatic = true; // Combat Scene mesh is static
 
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
-            _mesh.SetParent(_parent, worldPositionStays: false);
-
             polyMeshRenderer.Render(polFile,
                 textureProvider,
                 _materialFactory,

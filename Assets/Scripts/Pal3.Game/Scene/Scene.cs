@@ -22,8 +22,9 @@ namespace Pal3.Game.Scene
     using Core.Primitives;
     using Data;
     using Effect;
-    using Engine.Abstraction;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Navigation;
@@ -60,8 +61,7 @@ namespace Pal3.Game.Scene
         private Light _mainLight;
         private readonly List<Light> _pointLights = new();
 
-        private readonly List<IGameEntity> _navMeshLayers = new ();
-        private readonly Dictionary<int, MeshCollider> _meshColliders = new ();
+        private readonly List<IGameEntity> _navMeshEntities = new ();
 
         private readonly HashSet<int> _activatedSceneObjects = new ();
         private readonly Dictionary<int, IGameEntity> _actorEntities = new ();
@@ -89,15 +89,9 @@ namespace Pal3.Game.Scene
 
             _mesh.Destroy();
 
-            foreach (MeshCollider meshCollider in _meshColliders.Values)
+            foreach (IGameEntity navMeshEntity in _navMeshEntities)
             {
-                meshCollider.sharedMesh.Destroy();
-                meshCollider.Destroy();
-            }
-
-            foreach (IGameEntity navMeshLayer in _navMeshLayers)
-            {
-                navMeshLayer.Destroy();
+                navMeshEntity.Destroy();
             }
 
             foreach (int sceneObjectId in _activatedSceneObjects)
@@ -221,11 +215,6 @@ namespace Pal3.Game.Scene
             return _actorEntities;
         }
 
-        public Dictionary<int, MeshCollider> GetMeshColliders()
-        {
-            return _meshColliders;
-        }
-
         public bool IsPositionInsideJumpableArea(int layerIndex, Vector2Int tilePosition)
         {
             foreach (var objectId in _activatedSceneObjects)
@@ -245,12 +234,11 @@ namespace Pal3.Game.Scene
         private void RenderMesh()
         {
             // Render mesh
-            _mesh = new GameEntity($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}");
+            _mesh = GameEntityFactory.Create($"Mesh_{ScnFile.SceneInfo.CityName}_{ScnFile.SceneInfo.SceneName}",
+                _parent, worldPositionStays: false);
             _mesh.IsStatic = true; // Scene mesh is static
 
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
-            _mesh.SetParent(_parent, worldPositionStays: false);
-
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
                 _materialFactory,
@@ -291,25 +279,16 @@ namespace Pal3.Game.Scene
                 return;
             }
 
-            int raycastOnlyLayer = LayerMask.NameToLayer("RaycastOnly");
-
             for (var i = 0; i < NavFile.FaceLayers.Length; i++)
             {
-                var navMesh = new GameEntity($"NavMesh_Layer_{i}");
-                navMesh.IsStatic = true; // NavMesh is static
-                navMesh.SetLayer(raycastOnlyLayer);
-                navMesh.SetParent(_parent, worldPositionStays: false);
+                IGameEntity navMeshGameEntity = GameEntityFactory.Create($"NavMesh_Layer_{i}",
+                    _parent, worldPositionStays: false);
+                navMeshGameEntity.IsStatic = true; // NavMesh is static
 
-                var meshCollider = navMesh.AddComponent<MeshCollider>();
-                meshCollider.convex = false;
-                meshCollider.sharedMesh = new Mesh()
-                {
-                    vertices = NavFile.FaceLayers[i].GameBoxVertices.ToUnityPositions(),
-                    triangles = NavFile.FaceLayers[i].GameBoxTriangles.ToUnityTriangles(),
-                };
+                NavMesh navMesh = navMeshGameEntity.AddComponent<NavMesh>();
+                navMesh.Init(layerIndex: i, NavFile.FaceLayers[i]);
 
-                _meshColliders[i] = meshCollider;
-                _navMeshLayers.Add(navMesh);
+                _navMeshEntities.Add(navMeshGameEntity);
             }
         }
 
@@ -340,8 +319,8 @@ namespace Pal3.Game.Scene
             //     });
             // }
 
-            var mainLightEntity = new GameEntity($"LightSource_Main");
-            mainLightEntity.SetParent(_parent, worldPositionStays: false);
+            IGameEntity mainLightEntity = GameEntityFactory.Create($"LightSource_Main",
+                _parent, worldPositionStays: false);
             mainLightEntity.Transform.SetPositionAndRotation(mainLightPosition, mainLightRotation);
 
             _mainLight = mainLightEntity.AddComponent<Light>();
@@ -388,8 +367,8 @@ namespace Pal3.Game.Scene
         private void AddPointLight(IGameEntity parent, float yOffset)
         {
             // Add a point light to the fire fx
-            var lightSource = new GameEntity($"LightSource_Point");
-            lightSource.SetParent(parent, worldPositionStays: false);
+            IGameEntity lightSource = GameEntityFactory.Create($"LightSource_Point",
+                parent, worldPositionStays: false);
             lightSource.Transform.LocalPosition = new Vector3(0f, yOffset, 0f);
 
             var lightComponent = lightSource.AddComponent<Light>();
@@ -491,6 +470,7 @@ namespace Pal3.Game.Scene
         private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
         {
             if (_actorEntities.ContainsKey(actor.Id)) return;
+
             IGameEntity actorGameEntity = ActorFactory.CreateActorGameEntity(_resourceProvider,
                 actor,
                 tileMap,
@@ -500,9 +480,8 @@ namespace Pal3.Game.Scene
                 ActorMovementMaxYDifferentialCrossLayer,
                 ActorMovementMaxYDifferentialCrossPlatform,
                 GetAllActiveActorBlockingTilePositions);
+
             actorGameEntity.SetParent(_parent, worldPositionStays: false);
-            int layerIndex = LayerMask.NameToLayer("Ignore Raycast");
-            actorGameEntity.SetLayer(layerIndex); // Ignore raycast for all actors
             _actorEntities[actor.Id] = actorGameEntity;
         }
 

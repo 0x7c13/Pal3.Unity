@@ -29,7 +29,7 @@ namespace Pal3.Game.Command
 
         private readonly Dictionary<Type, MethodInfo> _commandExecutorExecuteMethodInfoCache = new();
 
-        private CommandDispatcher() { }
+        private CommandDispatcher() { } // Hide constructor, use Instance instead.
 
         private CommandDispatcher(ICommandExecutorRegistry<TCommand> commandExecutorRegistry)
         {
