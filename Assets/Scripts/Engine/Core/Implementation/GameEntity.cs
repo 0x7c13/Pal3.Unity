@@ -22,19 +22,19 @@ namespace Engine.Core.Implementation
         public GameEntity()
         {
             _gameObject = new GameObject();
-            Transform = new Transform(_gameObject.transform);
+            Transform = new UnityTransform(_gameObject.transform);
         }
 
         public GameEntity(string name)
         {
             _gameObject = new GameObject(name);
-            Transform = new Transform(_gameObject.transform);
+            Transform = new UnityTransform(_gameObject.transform);
         }
 
         public GameEntity(GameObject gameObject)
         {
             _gameObject = Requires.IsNotNull(gameObject, nameof(gameObject));
-            Transform = new Transform(_gameObject.transform);
+            Transform = new UnityTransform(_gameObject.transform);
         }
 
         public ITransform Transform { get; }
@@ -59,7 +59,7 @@ namespace Engine.Core.Implementation
 
         public void SetParent(IGameEntity parent, bool worldPositionStays)
         {
-            _gameObject.transform.SetParent((UnityEngine.Transform)parent?.Transform.NativeObject, worldPositionStays);
+            _gameObject.transform.SetParent((Transform)parent?.Transform.NativeObject, worldPositionStays);
         }
 
         public T AddComponent<T>() where T : class
@@ -123,17 +123,18 @@ namespace Engine.Core.Implementation
 
         public IGameEntity FindChild(string name)
         {
-            UnityEngine.Transform childTransform = _gameObject.transform.Find(name);
+            Transform childTransform = _gameObject.transform.Find(name);
             return childTransform != null ? new GameEntity(childTransform.gameObject) : null;
         }
 
         public void Destroy()
         {
-            if (_gameObject != null)
+            if (!IsNativeObjectDisposed)
             {
                 _gameObject.Destroy();
-                _gameObject = null;
             }
+
+            _gameObject = null;
         }
     }
 }

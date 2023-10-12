@@ -9,15 +9,15 @@ namespace Engine.Core.Implementation
     using Abstraction;
     using UnityEngine;
 
-    public sealed class Transform : ITransform
+    public sealed class UnityTransform : ITransform
     {
         public object NativeObject => _transform;
 
         public bool IsNativeObjectDisposed => _transform == null;
 
-        private readonly UnityEngine.Transform _transform;
+        private readonly Transform _transform;
 
-        public Transform(UnityEngine.Transform transform)
+        public UnityTransform(Transform transform)
         {
             _transform = transform;
         }
@@ -116,6 +116,11 @@ namespace Engine.Core.Implementation
         public void RotateAround(Vector3 centerPoint, Vector3 axis, float angle)
         {
             _transform.RotateAround(centerPoint, axis, angle);
+        }
+
+        public void Destroy()
+        {
+            // Do nothing, since transform is owned by game object.
         }
     }
 }

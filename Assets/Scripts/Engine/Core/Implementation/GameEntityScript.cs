@@ -17,7 +17,7 @@ namespace Engine.Core.Implementation
 
         public ITransform Transform
         {
-            get { return _transform ??= new Transform(base.transform); }
+            get { return _transform ??= new UnityTransform(base.transform); }
         }
 
         public IGameEntity GameEntity

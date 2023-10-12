@@ -87,10 +87,5 @@ namespace Engine.Core.Abstraction
         /// <param name="name">The name of the child game entity.</param>
         /// <returns>The child game entity with the specified name.</returns>
         public IGameEntity FindChild(string name);
-
-        /// <summary>
-        /// Destroys the game entity.
-        /// </summary>
-        public void Destroy();
     }
 }

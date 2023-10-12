@@ -87,18 +87,12 @@ namespace Pal3.Game.Rendering.Material
 
             for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
-                _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial));
             }
 
             for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
-                _transparentMaterialPool.Push(new Material(_toonTransparentMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _transparentMaterialPool.Push(new Material(_toonTransparentMaterial));
             }
 
             _isMaterialPoolAllocated = true;
@@ -261,10 +255,7 @@ namespace Pal3.Game.Rendering.Material
             else
             {
                 // In case we run out of transparent materials
-                material = new Material(_toonTransparentMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_toonTransparentMaterial);
             }
 
             material.mainTexture = mainTexture.texture;
@@ -289,10 +280,7 @@ namespace Pal3.Game.Rendering.Material
             else
             {
                 // In case we run out of opaque materials
-                material = new Material(_toonOpaqueMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_toonOpaqueMaterial);
             }
 
             material.mainTexture = mainTexture.texture;

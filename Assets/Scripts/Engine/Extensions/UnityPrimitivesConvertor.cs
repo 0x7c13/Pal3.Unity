@@ -6,7 +6,6 @@
 namespace Engine.Extensions
 {
     using System;
-    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using Pal3.Core.Primitives;
 
@@ -314,16 +313,6 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe UnityEngine.Color32[] ToUnityColor32sUnsafe(this Color32[] gameBoxColor32s)
-        {
-            if (gameBoxColor32s == null) return null;
-            fixed (Color32* srcPtr = gameBoxColor32s)
-            {
-                return new Span<UnityEngine.Color32>(srcPtr, gameBoxColor32s.Length).ToArray();
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Color ToUnityColor(this Color gameBoxColor)
         {
             return new UnityEngine.Color(
@@ -332,28 +321,5 @@ namespace Engine.Extensions
                 gameBoxColor.B,
                 gameBoxColor.A);
         }
-
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static UnityEngine.Color[] ToUnityColors(this Color[] gameBoxColors)
-        // {
-        //     if (gameBoxColors == null) return null;
-        //     var unityColors = new UnityEngine.Color[gameBoxColors.Length];
-        //     for (var i = 0; i < gameBoxColors.Length; i++)
-        //     {
-        //         unityColors[i] = gameBoxColors[i].ToUnityColor();
-        //     }
-        //
-        //     return unityColors;
-        // }
-        //
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public static unsafe UnityEngine.Color[] ToUnityColorsUnsafe(this Color[] gameBoxColors)
-        // {
-        //     if (gameBoxColors == null) return null;
-        //     fixed (Color* srcPtr = gameBoxColors)
-        //     {
-        //         return new Span<UnityEngine.Color>(srcPtr, gameBoxColors.Length).ToArray();
-        //     }
-        // }
     }
 }

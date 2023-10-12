@@ -200,16 +200,17 @@ namespace Pal3.Game
         {
             EngineLogger.Log("Game setup and initialization started...");
 
+            // These are services initialized and registered by the GameResourceInitializer. <see cref="Game"/>
+            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
+            _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
+            _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
+            _gameResourceProvider.UseTextureCache(_textureCache);
+
             ServiceLocator.Instance.Register<IGameTimeProvider>(_gameTimeProvider =
                 GameTimeProvider.Instance
             );
 
             IGameEntity cameraEntity = new GameEntity(mainCamera.gameObject);
-
-            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
-            _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
-            _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
-            _gameResourceProvider.UseTextureCache(_textureCache);
 
             ServiceLocator.Instance.Register<IPhysicsManager>(_physicsManager =
                 new PhysicsManager(mainCamera));

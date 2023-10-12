@@ -81,34 +81,22 @@ namespace Pal3.Game.Rendering.Material
 
             for (var i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
             {
-                _waterMaterialPool.Push(new Material(_waterMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _waterMaterialPool.Push(new Material(_waterMaterial));
             }
 
             for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
-                _transparentMaterialPool.Push(new Material(_transparentMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _transparentMaterialPool.Push(new Material(_transparentMaterial));
             }
 
             for (var i = 0; i < TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE; i++)
             {
-                _transparentOpaquePartMaterialPool.Push(new Material(_transparentOpaquePartMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _transparentOpaquePartMaterialPool.Push(new Material(_transparentOpaquePartMaterial));
             }
 
             for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
-                _opaqueMaterialPool.Push(new Material(_opaqueMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                });
+                _opaqueMaterialPool.Push(new Material(_opaqueMaterial));
             }
 
             timer.Stop();
@@ -231,10 +219,7 @@ namespace Pal3.Game.Rendering.Material
             }
             else
             {
-                material = new Material(_waterMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_waterMaterial);
             }
 
             material.mainTexture = mainTexture.texture;
@@ -266,10 +251,7 @@ namespace Pal3.Game.Rendering.Material
             }
             else
             {
-                material = new Material(_transparentMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_transparentMaterial);
             }
 
             material.mainTexture = mainTexture.texture;
@@ -303,10 +285,7 @@ namespace Pal3.Game.Rendering.Material
             }
             else
             {
-                material = new Material(_transparentOpaquePartMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_transparentOpaquePartMaterial);
             }
 
             material.mainTexture = mainTexture.texture;
@@ -339,10 +318,7 @@ namespace Pal3.Game.Rendering.Material
             }
             else
             {
-                material = new Material(_opaqueMaterial)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                material = new Material(_opaqueMaterial);
             }
 
             material.mainTexture = mainTexture.texture;

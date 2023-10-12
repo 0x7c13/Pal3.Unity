@@ -13,11 +13,16 @@ namespace Engine.Core.Abstraction
         /// <summary>
         /// Gets the underlying native object.
         /// </summary>
-        object NativeObject { get; }
+        public object NativeObject { get; }
 
         /// <summary>
         /// Gets a value indicating whether the underlying native object has been disposed.
         /// </summary>
-        bool IsNativeObjectDisposed { get; }
+        public bool IsNativeObjectDisposed { get; }
+
+        /// <summary>
+        /// Destroys the native object associated with this managed object.
+        /// </summary>
+        public void Destroy();
     }
 }

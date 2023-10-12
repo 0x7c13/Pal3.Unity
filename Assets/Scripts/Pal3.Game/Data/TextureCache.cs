@@ -29,7 +29,6 @@ namespace Pal3.Game.Data
             }
             else
             {
-                texture.hideFlags = HideFlags.HideAndDontSave;
                 _textureCache[key] = new (texture, hasAlphaChannel);
             }
         }

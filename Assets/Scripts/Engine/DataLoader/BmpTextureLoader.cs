@@ -5,7 +5,9 @@
 
 namespace Engine.DataLoader
 {
-    using Extensions;
+    using System;
+    using Core.Abstraction;
+    using Core.Implementation;
     using Pal3.Core.DataReader.Bmp;
     using UnityEngine;
 
@@ -22,23 +24,21 @@ namespace Engine.DataLoader
             _image = new BmpFileReader().Read(data);
         }
 
-        public Texture2D ToTexture2D()
+        public unsafe Texture2D ToTexture2D()
         {
             if (_image == null) return null;
-
-            var texture = new Texture2D(_image.Info.AbsWidth,
-                _image.Info.AbsHeight,
-                TextureFormat.RGBA32,
-                mipChain: false);
 
             if (_image.Info.Height < 0)
             {
                 FlipImage();
             }
 
-            texture.SetPixels32(_image.ImageData.ToUnityColor32sUnsafe());
-            texture.Apply(updateMipmaps: false);
-            return texture;
+            // Convert to RGBA32 raw data
+            fixed (Pal3.Core.Primitives.Color32* srcPtr = _image.ImageData)
+            {
+                return TextureFactory.CreateTexture2D(_image.Info.AbsWidth, _image.Info.AbsHeight,
+                     rawRgbaData: new Span<byte>(srcPtr, _image.ImageData.Length * 4).ToArray());
+            }
         }
 
         // flip image if height is negative

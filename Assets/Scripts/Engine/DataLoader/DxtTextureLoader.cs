@@ -7,7 +7,7 @@ namespace Engine.DataLoader
 {
 	using System;
 	using System.IO;
-	using Pal3.Core.DataReader;
+	using Core.Implementation;
 	using Pal3.Core.DataReader.Dxt;
 	using UnityEngine;
 
@@ -18,8 +18,7 @@ namespace Engine.DataLoader
 	{
 		private int _width;
 		private int _height;
-		private byte[] _rawData;
-		private TextureFormat _format;
+		private byte[] _rawRgbaData;
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
@@ -58,8 +57,7 @@ namespace Engine.DataLoader
 		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt1Texture(byte[] data)
 		{
-			_rawData = Dxt1Decoder.ToRgba32(data, _width, _height);
-			_format = TextureFormat.RGBA32;
+			_rawRgbaData = Dxt1Decoder.ToRgba32(data, _width, _height);
 		}
 
 		// Texture2D.LoadRawTextureData does not support DXT3 format
@@ -67,17 +65,12 @@ namespace Engine.DataLoader
 		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt3Texture(byte[] data)
 		{
-			_rawData = Dxt3Decoder.ToRgba32(data, _width, _height);
-			_format = TextureFormat.RGBA32;
+			_rawRgbaData = Dxt3Decoder.ToRgba32(data, _width, _height);
 		}
 
 		public Texture2D ToTexture2D()
 		{
-			if (_rawData == null) return null;
-			Texture2D texture = new Texture2D(_width, _height, _format, mipChain: false);
-			texture.LoadRawTextureData(_rawData);
-			texture.Apply(updateMipmaps: false);
-			return texture;
+			return _rawRgbaData == null ? null : TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
 		}
 	}
 }

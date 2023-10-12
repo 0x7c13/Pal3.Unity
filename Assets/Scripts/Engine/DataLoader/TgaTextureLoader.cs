@@ -6,6 +6,7 @@
 namespace Engine.DataLoader
 {
     using System;
+    using Core.Implementation;
     using UnityEngine;
 
     /// <summary>
@@ -13,9 +14,9 @@ namespace Engine.DataLoader
     /// </summary>
     public sealed class TgaTextureLoader : ITextureLoader
     {
-        private Color32[] _pixels;
         private short _width;
         private short _height;
+        private byte[] _rawRgbaData;
 
         public unsafe void Load(byte[] data, out bool hasAlphaChannel)
         {
@@ -29,26 +30,41 @@ namespace Engine.DataLoader
             }
 
             var dataStartIndex = 18;
-            _pixels = new Color32[_width * _height];
+            _rawRgbaData = new byte[_width * _height * 4];
 
             switch (bitDepth)
             {
-                case 32:
-                    hasAlphaChannel = Convert32BitData(data, dataStartIndex);
-                    break;
                 case 24:
                     hasAlphaChannel = false;
-                    Convert24BitData(data, dataStartIndex);
+                    Decode24BitDataToRgba32(data, dataStartIndex);
+                    break;
+                case 32:
+                    Decode32BitDataToRgba32(data, dataStartIndex, out hasAlphaChannel);
                     break;
                 default:
                     throw new Exception("TGA texture had non 32/24 bit depth");
             }
         }
 
-        private unsafe bool Convert32BitData(byte[] data, int startIndex)
+        private unsafe void Decode24BitDataToRgba32(byte[] data, int startIndex)
         {
-            bool hasAlphaChannel = false;
-            fixed (byte* srcStart = &data[startIndex], dstStart = &_pixels[0].r)
+            fixed (byte* srcStart = &data[startIndex], dstStart = _rawRgbaData)
+            {
+                byte* src = srcStart, dst = dstStart;
+                for (var i = 0; i < _width * _height; i++, src += 3, dst += 4)
+                {
+                    *dst = *(src + 2);
+                    *(dst + 1) = *(src + 1);
+                    *(dst + 2) = *src;
+                    *(dst + 3) = 0; // 24-bit don't have alpha
+                }
+            }
+        }
+
+        private unsafe void Decode32BitDataToRgba32(byte[] data, int startIndex, out bool hasAlphaChannel)
+        {
+            hasAlphaChannel = false;
+            fixed (byte* srcStart = &data[startIndex], dstStart = _rawRgbaData)
             {
                 var firstAlpha = *(srcStart + 3);
                 byte* src = srcStart, dst = dstStart;
@@ -58,37 +74,17 @@ namespace Engine.DataLoader
                     *(dst + 1) = *(src + 1);
                     *(dst + 2) = *src;
 
-                    var alpha = *(src + 3);
+                    byte alpha = *(src + 3);
                     *(dst + 3) = alpha;
 
                     if (alpha != firstAlpha) hasAlphaChannel = true;
-                }
-            }
-            return hasAlphaChannel;
-        }
-
-        private unsafe void Convert24BitData(byte[] data, int startIndex)
-        {
-            fixed (byte* srcStart = &data[startIndex], dstStart = &_pixels[0].r)
-            {
-                byte* src = srcStart, dst = dstStart;
-                for (var i = 0; i < _width * _height; i++, src += 3, dst += 4)
-                {
-                    *dst = *(src + 2);
-                    *(dst + 1) = *(src + 1);
-                    *(dst + 2) = *src;
-                    *(dst + 3) = 0;
                 }
             }
         }
 
         public Texture2D ToTexture2D()
         {
-            if (_pixels == null) return null;
-            var texture = new Texture2D(_width, _height, TextureFormat.RGBA32, mipChain: false);
-            texture.SetPixels32(_pixels);
-            texture.Apply(updateMipmaps: false);
-            return texture;
+            return _rawRgbaData == null ? null : TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
         }
     }
 }
