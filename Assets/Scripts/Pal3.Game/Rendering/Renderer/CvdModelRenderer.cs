@@ -216,7 +216,8 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (node.IsGeometryNode)
             {
-                var nodeMeshes = (node, new Dictionary<int, RenderMeshComponent>());
+                (CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) nodeMeshes =
+                    (node, new Dictionary<int, RenderMeshComponent>());
 
                 var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, initTime);
                 Matrix4x4 frameMatrix = GetFrameMatrix(initTime, node);
@@ -235,13 +236,13 @@ namespace Pal3.Game.Rendering.Renderer
 
                     string sectionHashKey = $"{meshName}_{i}";
 
-                    MeshDataBuffer meshDataBuffer = new()
-                    {
-                        VertexBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
-                        NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
-                        UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
-                        TriangleBuffer = meshSection.GameBoxTriangles.ToUnityTriangles()
-                    };
+                    MeshDataBuffer meshDataBuffer = new(meshSection.FrameVertices[frameIndex].Length,
+                        meshSection.FrameVertices[frameIndex].Length,
+                        meshSection.FrameVertices[frameIndex].Length,
+                        meshSection.GameBoxTriangles.Length);
+
+                    // Triangles are the same for all frames, so we can just copy them once.
+                    meshSection.GameBoxTriangles.ToUnityTrianglesNonAlloc(meshDataBuffer.TriangleBuffer);
 
                     UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,
@@ -284,7 +285,7 @@ namespace Pal3.Game.Rendering.Renderer
                     renderMesh.RecalculateTangents();
                     renderMesh.RecalculateBounds();
 
-                    nodeMeshes.Item2[i] = new RenderMeshComponent
+                    nodeMeshes.meshComponents[i] = new RenderMeshComponent
                     {
                         Mesh = renderMesh,
                         MeshRenderer = meshRenderer,

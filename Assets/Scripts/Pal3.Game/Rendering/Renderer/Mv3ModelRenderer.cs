@@ -12,13 +12,11 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.DataReader.Pol;
     using Core.Primitives;
     using Core.Utilities;
-    using Dev;
     using Dev.Presenters;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
-    using Engine.Logging;
     using Engine.Renderer;
     using Engine.Services;
     using Material;
@@ -126,7 +124,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             for (var i = 0; i < _tagNodesInfo.Length; i++)
             {
-                var tagFrames = _tagNodesInfo[i].TagFrames;
+                Mv3TagFrame[] tagFrames = _tagNodesInfo[i].TagFrames;
                 int tagFramesCount = tagFrames.Length;
 
                 if (_tagNodeFrameTicks[i] == null || _tagNodeFrameTicks[i].Length != tagFramesCount)
@@ -170,8 +168,10 @@ namespace Pal3.Game.Rendering.Renderer
                         tagNodeTintColor);
 
                     _tagNodes[i].Transform.SetLocalPositionAndRotation(
-                        mv3File.TagNodes[i].TagFrames[0].GameBoxPosition.ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
-                        mv3File.TagNodes[i].TagFrames[0].GameBoxRotation.Mv3QuaternionToUnityQuaternion());
+                        mv3File.TagNodes[i].TagFrames[0].GameBoxPosition
+                            .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
+                        mv3File.TagNodes[i].TagFrames[0].GameBoxRotation
+                            .Mv3QuaternionToUnityQuaternion());
                 }
             }
 
@@ -237,33 +237,11 @@ namespace Pal3.Game.Rendering.Renderer
             _renderMeshComponents[index] ??= new RenderMeshComponent();
             _renderMeshComponents[index].MeshDataBuffer ??= new MeshDataBuffer();
 
-            if (_renderMeshComponents[index].MeshDataBuffer.VertexBuffer == null ||
-                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer.Length !=
-                mv3Mesh.KeyFrames[0].GameBoxVertices.Length)
-            {
-                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer = new Vector3[mv3Mesh.KeyFrames[0].GameBoxVertices.Length];
-            }
-
-            if (_renderMeshComponents[index].MeshDataBuffer.TriangleBuffer == null ||
-                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer.Length !=
-                mv3Mesh.GameBoxTriangles.Length)
-            {
-                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer = new int[mv3Mesh.GameBoxTriangles.Length];
-            }
-
-            if (_renderMeshComponents[index].MeshDataBuffer.NormalBuffer == null ||
-                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer.Length !=
-                mv3Mesh.GameBoxNormals.Length)
-            {
-                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer = new Vector3[mv3Mesh.GameBoxNormals.Length];
-            }
-
-            if (_renderMeshComponents[index].MeshDataBuffer.UvBuffer == null ||
-                _renderMeshComponents[index].MeshDataBuffer.UvBuffer.Length !=
-                mv3Mesh.Uvs.Length)
-            {
-                _renderMeshComponents[index].MeshDataBuffer.UvBuffer = new Vector2[mv3Mesh.Uvs.Length];
-            }
+            _renderMeshComponents[index].MeshDataBuffer
+                .AllocateOrResizeBuffers(vertexBufferSize: mv3Mesh.KeyFrames[0].GameBoxVertices.Length,
+                    normalBufferSize: mv3Mesh.GameBoxNormals.Length,
+                    uvBufferSize: mv3Mesh.Uvs.Length,
+                    triangleBufferSize: mv3Mesh.GameBoxTriangles.Length);
 
             mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositionsNonAlloc(
                 _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
@@ -580,7 +558,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (IGameEntity tagNode in _tagNodes)
                 {
-                    tagNode?.Destroy();
+                    tagNode?.Destroy(); // tagNode can be null
                 }
             }
 

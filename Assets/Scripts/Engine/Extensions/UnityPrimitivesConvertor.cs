@@ -257,6 +257,13 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToUnityTrianglesInPlace(this int[] gameBoxTriangles)
+        {
+            if (gameBoxTriangles == null) return;
+            Array.Reverse(gameBoxTriangles);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ToUnityTrianglesNonAlloc(this int[] gameBoxTriangles, int[] unityTriangles)
         {
             if (gameBoxTriangles == null || unityTriangles == null || gameBoxTriangles.Length != unityTriangles.Length)

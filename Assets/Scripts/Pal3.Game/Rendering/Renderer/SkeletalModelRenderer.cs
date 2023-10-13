@@ -57,7 +57,10 @@ namespace Pal3.Game.Rendering.Renderer
         {
             AnimationTrack = track;
 
-            FrameTicks = new uint[track.KeyFrames.Length];
+            if (FrameTicks == null || FrameTicks.Length != track.KeyFrames.Length)
+            {
+                FrameTicks = new uint[track.KeyFrames.Length];
+            }
 
             for (var i = 0; i < track.KeyFrames.Length; i++)
             {
@@ -68,7 +71,6 @@ namespace Pal3.Game.Rendering.Renderer
         public void DisposeAnimationTrack()
         {
             AnimationTrack = null;
-            FrameTicks = null;
             CurrentPoseToModelMatrix = Matrix4x4.identity;
         }
     }
@@ -98,7 +100,7 @@ namespace Pal3.Game.Rendering.Renderer
         private CancellationTokenSource _animationCts;
 
         private int[][] _indexBuffer;
-        private Vector3[][] _vertexBuffer;
+        private Vector3[][] _allVerticesBuffer;
 
         public bool IsInitialized { get; private set; }
 
@@ -286,9 +288,9 @@ namespace Pal3.Game.Rendering.Renderer
         {
             for (int subMeshIndex = 0; subMeshIndex < _renderMeshComponents.Length; subMeshIndex++)
             {
-                MshMesh subMesh = _mshFile.SubMeshes[subMeshIndex];
+                UpdateVerticesWithCurrentSkeleton(subMeshIndex);
                 Mesh mesh = _renderMeshComponents[subMeshIndex].Mesh;
-                mesh.SetVertices(BuildVerticesWithCurrentSkeleton(subMesh, subMeshIndex));
+                mesh.SetVertices(_renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer);
                 mesh.RecalculateBounds();
             }
         }
@@ -328,10 +330,14 @@ namespace Pal3.Game.Rendering.Renderer
         {
             if (_mshFile.SubMeshes.Length == 0) return;
 
-            _renderMeshComponents = new RenderMeshComponent[_mshFile.SubMeshes.Length];
-            _meshEntities = new IGameEntity[_mshFile.SubMeshes.Length];
-            _indexBuffer = new int[_mshFile.SubMeshes.Length][];
-            _vertexBuffer = new Vector3[_mshFile.SubMeshes.Length][];
+            if (_renderMeshComponents == null ||
+                _renderMeshComponents.Length != _mshFile.SubMeshes.Length)
+            {
+                _renderMeshComponents = new RenderMeshComponent[_mshFile.SubMeshes.Length];
+                _meshEntities = new IGameEntity[_mshFile.SubMeshes.Length];
+                _indexBuffer = new int[_mshFile.SubMeshes.Length][];
+                _allVerticesBuffer = new Vector3[_mshFile.SubMeshes.Length][];
+            }
 
             for (var i = 0; i < _mshFile.SubMeshes.Length; i++)
             {
@@ -345,31 +351,48 @@ namespace Pal3.Game.Rendering.Renderer
             _meshEntities[subMeshIndex] = GameEntityFactory.Create($"SubMesh_{subMeshIndex}",
                 GameEntity, worldPositionStays: false);
 
-            _vertexBuffer[subMeshIndex] = new Vector3[subMesh.Vertices.Length];
-
             int numOfIndices = subMesh.Faces.Length * 3;
-            int[] triangles = new int[numOfIndices];
-            Vector2[] uvs = new Vector2[numOfIndices];
-            int[] indexBuffer = new int[numOfIndices];
+
+            RenderMeshComponent renderMeshComponent = _renderMeshComponents[subMeshIndex] ??= new RenderMeshComponent();
+
+            renderMeshComponent.MeshDataBuffer ??= new MeshDataBuffer();
+            renderMeshComponent.MeshDataBuffer.AllocateOrResizeBuffers(
+                vertexBufferSize: numOfIndices,
+                normalBufferSize: 0, // Skeletal model does not have normals, we will recalculate them later
+                uvBufferSize: numOfIndices,
+                triangleBufferSize: numOfIndices);
+
+            if (_indexBuffer[subMeshIndex] == null ||
+                _indexBuffer[subMeshIndex].Length != numOfIndices)
+            {
+                _indexBuffer[subMeshIndex] = new int[numOfIndices];
+            }
+
+            if (_allVerticesBuffer[subMeshIndex] == null ||
+                _allVerticesBuffer[subMeshIndex].Length != subMesh.Vertices.Length)
+            {
+                _allVerticesBuffer[subMeshIndex] = new Vector3[subMesh.Vertices.Length];
+            }
 
             var index = 0;
             foreach (PhyFace phyFace in subMesh.Faces)
             {
                 for (var i = 0; i < phyFace.Indices.Length; i++)
                 {
-                    indexBuffer[index] = phyFace.Indices[i];
-                    uvs[index] = new Vector2(phyFace.U[i, 0], phyFace.V[i, 0]);
-                    triangles[index] = index;
+                    _indexBuffer[subMeshIndex][index] = phyFace.Indices[i];
+                    renderMeshComponent.MeshDataBuffer.UvBuffer[index].x = phyFace.U[i, 0];
+                    renderMeshComponent.MeshDataBuffer.UvBuffer[index].y = phyFace.V[i, 0];
+                    renderMeshComponent.MeshDataBuffer.TriangleBuffer[index] = index;
                     index++;
                 }
             }
 
-            _indexBuffer[subMeshIndex] = indexBuffer;
+            renderMeshComponent.MeshDataBuffer.TriangleBuffer.ToUnityTrianglesInPlace();
 
-            Vector3[] vertices = new Vector3[numOfIndices];
             for (var i = 0; i < numOfIndices; i++)
             {
-                vertices[i] = subMesh.Vertices[indexBuffer[i]].GameBoxPosition.ToUnityPosition();
+                renderMeshComponent.MeshDataBuffer.VertexBuffer[i] =
+                    subMesh.Vertices[_indexBuffer[subMeshIndex][i]].GameBoxPosition.ToUnityPosition();
             }
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
@@ -381,10 +404,10 @@ namespace Pal3.Game.Rendering.Renderer
 
             var meshRenderer = _meshEntities[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
-                vertices: vertices,
-                triangles: triangles.ToUnityTriangles(),
+                vertices: renderMeshComponent.MeshDataBuffer.VertexBuffer,
+                triangles: renderMeshComponent.MeshDataBuffer.TriangleBuffer,
                 normals: default,
-                mainTextureUvs: (channel: 0, uvs: uvs),
+                mainTextureUvs: (channel: 0, uvs: renderMeshComponent.MeshDataBuffer.UvBuffer),
                 secondaryTextureUvs: default, // Skeletal model does not have secondary texture
                 materials: materials,
                 isDynamic: true);
@@ -393,20 +416,14 @@ namespace Pal3.Game.Rendering.Renderer
             renderMesh.RecalculateTangents();
             renderMesh.RecalculateBounds();
 
-            _renderMeshComponents[subMeshIndex] = new RenderMeshComponent
-            {
-                Mesh = renderMesh,
-                MeshRenderer = meshRenderer,
-                MeshDataBuffer = new MeshDataBuffer()
-                {
-                    VertexBuffer = vertices
-                }
-            };
+            renderMeshComponent.Mesh = renderMesh;
+            renderMeshComponent.MeshRenderer = meshRenderer;
         }
 
-        private Vector3[] BuildVerticesWithCurrentSkeleton(MshMesh subMesh, int subMeshIndex)
+        private void UpdateVerticesWithCurrentSkeleton(int subMeshIndex)
         {
-            var vertexBuffer = _vertexBuffer[subMeshIndex];
+            MshMesh subMesh = _mshFile.SubMeshes[subMeshIndex];
+            Vector3[] allVertices = _allVerticesBuffer[subMeshIndex];
 
             for (var i = 0; i < subMesh.Vertices.Length; i++)
             {
@@ -419,21 +436,16 @@ namespace Pal3.Game.Rendering.Renderer
                 Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace *
                                           new Vector4(originalPosition.x, originalPosition.y, originalPosition.z, 1.0f);
 
-                vertexBuffer[i] = new Vector3(
-                    currentPosition.x / currentPosition.w,
-                    currentPosition.y / currentPosition.w,
-                    currentPosition.z / currentPosition.w);
+                allVertices[i].x = currentPosition.x / currentPosition.w;
+                allVertices[i].y = currentPosition.y / currentPosition.w;
+                allVertices[i].z = currentPosition.z / currentPosition.w;
             }
 
-            Vector3[] vertices = _renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer;
-
-            var indexBuffer = _indexBuffer[subMeshIndex];
-            for (var i = 0; i < indexBuffer.Length; i++)
+            for (var i = 0; i < _indexBuffer[subMeshIndex].Length; i++)
             {
-                vertices[i] = vertexBuffer[indexBuffer[i]];
+                _renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer[i] =
+                    allVertices[_indexBuffer[subMeshIndex][i]];
             }
-
-            return vertices;
         }
 
         public Bounds GetRendererBounds()
@@ -481,8 +493,6 @@ namespace Pal3.Game.Rendering.Renderer
                     renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
-
-                _renderMeshComponents = null;
             }
 
             if (_meshEntities != null)
@@ -491,8 +501,6 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     meshEntity?.Destroy();
                 }
-
-                _meshEntities = null;
             }
 
             if (_bones != null)
@@ -510,9 +518,6 @@ namespace Pal3.Game.Rendering.Renderer
                 _rootBoneEntity.Destroy();
                 _rootBoneEntity = null;
             }
-
-            _indexBuffer = null;
-            _vertexBuffer = null;
         }
     }
 }
