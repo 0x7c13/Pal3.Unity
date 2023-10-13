@@ -228,7 +228,7 @@ namespace Pal3.Game.Rendering.Renderer
             #if PAL3A
             // Apply PAL3A texture scaling/tiling fix
             var texturePath = _textureProvider.GetTexturePath(textureName);
-            if (TexturePatcher.TextureFileHasWrongTiling(texturePath))
+            if (Dev.TexturePatcher.TextureFileHasWrongTiling(texturePath))
             {
                 _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
             }
