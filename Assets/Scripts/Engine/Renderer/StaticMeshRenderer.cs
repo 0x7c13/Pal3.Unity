@@ -14,7 +14,6 @@ namespace Engine.Renderer
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
-
         private Material[] _materials;
 
         protected override void OnDisableGameEntity()
@@ -25,8 +24,8 @@ namespace Engine.Renderer
         public Mesh Render(Vector3[] vertices,
             int[] triangles,
             Vector3[] normals,
-            Vector2[] mainTextureUvs,
-            Vector2[] secondaryTextureUvs,
+            (int channel, Vector2[] uvs) mainTextureUvs,
+            (int channel, Vector2[] uvs) secondaryTextureUvs,
             Material[] materials,
             bool isDynamic)
         {
@@ -38,19 +37,37 @@ namespace Engine.Renderer
             _meshRenderer.receiveShadows = _receiveShadows;
 
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
-            var mesh = new Mesh();
+
+            Mesh mesh = new();
+
             if (isDynamic)
             {
                 mesh.MarkDynamic();
             }
 
             mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
-            mesh.SetNormals(normals);
-            mesh.SetUVs(0, mainTextureUvs);
-            mesh.SetUVs(1, secondaryTextureUvs);
 
-            if (triangles.Length == 0)
+            if (triangles != null)
+            {
+                mesh.SetTriangles(triangles, 0);
+            }
+
+            if (normals != null) // normals can be null
+            {
+                mesh.SetNormals(normals);
+            }
+
+            if (mainTextureUvs != default)
+            {
+                mesh.SetUVs(mainTextureUvs.channel, mainTextureUvs.uvs);
+            }
+
+            if (secondaryTextureUvs != default)
+            {
+                mesh.SetUVs(secondaryTextureUvs.channel, secondaryTextureUvs.uvs);
+            }
+
+            if (triangles == null)
             {
                 // https://docs.unity3d.com/ScriptReference/Mesh.RecalculateBounds.html
                 // After modifying vertices you should call this function to ensure the

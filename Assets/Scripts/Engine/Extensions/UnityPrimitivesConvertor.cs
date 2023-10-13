@@ -41,6 +41,21 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToUnityPositionsNonAlloc(this GameBoxVector3[] gameBoxPositions,
+            UnityEngine.Vector3[] unityPositions, float scale = GameBoxUnitToUnityUnit)
+        {
+            if (gameBoxPositions == null || unityPositions == null || unityPositions.Length != gameBoxPositions.Length)
+            {
+                throw new ArgumentException("unityPositions and gameBoxPositions must be non-null and have the same length");
+            }
+
+            for (var i = 0; i < gameBoxPositions.Length; i++)
+            {
+                unityPositions[i] = ToUnityVector3(gameBoxPositions[i], scale);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToUnityDistance(this float gameBoxDistance)
         {
             return gameBoxDistance / GameBoxUnitToUnityUnit;
@@ -143,6 +158,21 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToUnityNormalsNonAlloc(this GameBoxVector3[] gameBoxNormals,
+            UnityEngine.Vector3[] unityNormals)
+        {
+            if (gameBoxNormals == null || unityNormals == null || gameBoxNormals.Length != unityNormals.Length)
+            {
+                throw new ArgumentException("gameBoxNormals and unityNormals must be non-null and have the same length");
+            }
+
+            for (var i = 0; i < gameBoxNormals.Length; i++)
+            {
+                unityNormals[i] = ToUnityNormal(gameBoxNormals[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Quaternion CvdQuaternionToUnityQuaternion(this GameBoxQuaternion cvdGameBoxQuaternion)
         {
             return new UnityEngine.Quaternion(
@@ -227,6 +257,20 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToUnityTrianglesNonAlloc(this int[] gameBoxTriangles, int[] unityTriangles)
+        {
+            if (gameBoxTriangles == null || unityTriangles == null || gameBoxTriangles.Length != unityTriangles.Length)
+            {
+                throw new ArgumentException("gameBoxTriangles and unityTriangles must be non-null and have the same length");
+            }
+
+            for (var i = 0; i < gameBoxTriangles.Length; i++)
+            {
+                unityTriangles[i] = gameBoxTriangles[gameBoxTriangles.Length - 1 - i];
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Matrix4x4 ToUnityMatrix4x4(this GameBoxMatrix4x4 gameBoxMatrix)
         {
             return new UnityEngine.Matrix4x4(
@@ -268,12 +312,16 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe UnityEngine.Vector2[] ToUnityVector2sUnsafe(this GameBoxVector2[] gameBoxVector2s)
+        public static void ToUnityVector2sNonAlloc(this GameBoxVector2[] gameBoxVector2s, UnityEngine.Vector2[] unityVector2s)
         {
-            if (gameBoxVector2s == null) return null;
-            fixed (GameBoxVector2* srcPtr = gameBoxVector2s)
+            if (gameBoxVector2s == null || unityVector2s == null || gameBoxVector2s.Length != unityVector2s.Length)
             {
-                return new Span<UnityEngine.Vector2>(srcPtr, gameBoxVector2s.Length).ToArray();
+                throw new ArgumentException("gameBoxVector2s and unityVector2s must be non-null and have the same length");
+            }
+
+            for (var i = 0; i < gameBoxVector2s.Length; i++)
+            {
+                unityVector2s[i] = gameBoxVector2s[i].ToUnityVector2();
             }
         }
 

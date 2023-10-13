@@ -13,5 +13,6 @@ namespace Pal3.Game.Rendering
         public Vector3[] VertexBuffer;
         public Vector3[] NormalBuffer;
         public Vector2[] UvBuffer;
+        public int[] TriangleBuffer;
     }
 }

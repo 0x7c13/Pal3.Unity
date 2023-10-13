@@ -218,10 +218,10 @@ namespace Pal3.Game.Rendering.Renderer
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Mv3,
-                (textureName, _textures[index]),
-                shadowTexture: (null, null), // MV3 models don't have shadow textures
-                _tintColor,
-                _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
+                mainTexture: (textureName, _textures[index]),
+                shadowTexture: default, // MV3 models don't have shadow textures
+                tintColor: _tintColor,
+                blendFlag: _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
 
             _materials[index] = materials;
 
@@ -244,14 +244,48 @@ namespace Pal3.Game.Rendering.Renderer
                 _renderMeshComponents[index].MeshDataBuffer.VertexBuffer = new Vector3[mv3Mesh.KeyFrames[0].GameBoxVertices.Length];
             }
 
+            if (_renderMeshComponents[index].MeshDataBuffer.TriangleBuffer == null ||
+                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer.Length !=
+                mv3Mesh.GameBoxTriangles.Length)
+            {
+                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer = new int[mv3Mesh.GameBoxTriangles.Length];
+            }
+
+            if (_renderMeshComponents[index].MeshDataBuffer.NormalBuffer == null ||
+                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer.Length !=
+                mv3Mesh.GameBoxNormals.Length)
+            {
+                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer = new Vector3[mv3Mesh.GameBoxNormals.Length];
+            }
+
+            if (_renderMeshComponents[index].MeshDataBuffer.UvBuffer == null ||
+                _renderMeshComponents[index].MeshDataBuffer.UvBuffer.Length !=
+                mv3Mesh.Uvs.Length)
+            {
+                _renderMeshComponents[index].MeshDataBuffer.UvBuffer = new Vector2[mv3Mesh.Uvs.Length];
+            }
+
+            mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositionsNonAlloc(
+                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
+                UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit);
+
+            mv3Mesh.GameBoxTriangles.ToUnityTrianglesNonAlloc(
+                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer);
+
+            mv3Mesh.GameBoxNormals.ToUnityNormalsNonAlloc(
+                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer);
+
+            mv3Mesh.Uvs.ToUnityVector2sNonAlloc(
+                _renderMeshComponents[index].MeshDataBuffer.UvBuffer);
+
             Mesh renderMesh = meshRenderer.Render(
-                mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositions(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
-                mv3Mesh.GameBoxTriangles.ToUnityTriangles(),
-                mv3Mesh.GameBoxNormals.ToUnityNormals(),
-                mv3Mesh.Uvs.ToUnityVector2s(),
-                mv3Mesh.Uvs.ToUnityVector2s(),
-                _materials[index],
-                true);
+                vertices: _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
+                triangles: _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer,
+                normals: _renderMeshComponents[index].MeshDataBuffer.NormalBuffer,
+                mainTextureUvs: (channel: 0, uvs: _renderMeshComponents[index].MeshDataBuffer.UvBuffer),
+                secondaryTextureUvs: default, // MV3 models don't have secondary texture
+                materials: _materials[index],
+                isDynamic: true);
 
             renderMesh.RecalculateTangents();
 

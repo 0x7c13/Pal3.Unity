@@ -233,13 +233,14 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 
-                    var sectionHashKey = $"{meshName}_{i}";
+                    string sectionHashKey = $"{meshName}_{i}";
 
-                    var meshDataBuffer = new MeshDataBuffer
+                    MeshDataBuffer meshDataBuffer = new()
                     {
                         VertexBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
                         NormalBuffer = new Vector3[meshSection.FrameVertices[frameIndex].Length],
                         UvBuffer = new Vector2[meshSection.FrameVertices[frameIndex].Length],
+                        TriangleBuffer = meshSection.GameBoxTriangles.ToUnityTriangles()
                     };
 
                     UpdateMeshDataBuffer(ref meshDataBuffer,
@@ -264,20 +265,20 @@ namespace Pal3.Game.Rendering.Renderer
 
                     Material[] materials = _materialFactory.CreateStandardMaterials(
                         RendererType.Cvd,
-                        (textureName, textureCache[textureName]),
-                        shadowTexture: (null, null), // CVD models don't have shadow textures
-                        _tintColor,
-                        meshSection.BlendFlag);
+                        mainTexture: (textureName, textureCache[textureName]),
+                        shadowTexture: default, // CVD models don't have shadow textures
+                        tintColor: _tintColor,
+                        blendFlag: meshSection.BlendFlag);
 
                     var meshRenderer = meshSectionEntity.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
-                        meshDataBuffer.VertexBuffer,
-                        meshSection.GameBoxTriangles.ToUnityTriangles(),
-                        meshDataBuffer.NormalBuffer,
-                        meshDataBuffer.UvBuffer,
-                        meshDataBuffer.UvBuffer,
-                        materials,
-                        true);
+                        vertices: meshDataBuffer.VertexBuffer,
+                        triangles: meshDataBuffer.TriangleBuffer,
+                        normals: meshDataBuffer.NormalBuffer,
+                        mainTextureUvs: (channel: 0, uvs: meshDataBuffer.UvBuffer),
+                        secondaryTextureUvs: default, // CVD models don't have secondary texture
+                        materials: materials,
+                        isDynamic: true);
 
                     renderMesh.RecalculateNormals();
                     renderMesh.RecalculateTangents();
@@ -582,7 +583,10 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void StopCurrentAnimation()
         {
-            _animationCts.Cancel();
+            if (!_animationCts.IsCancellationRequested)
+            {
+                _animationCts.Cancel();
+            }
         }
 
         public void Dispose()

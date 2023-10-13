@@ -349,7 +349,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             int numOfIndices = subMesh.Faces.Length * 3;
             int[] triangles = new int[numOfIndices];
-            Vector2[] uvs1 = new Vector2[numOfIndices];
+            Vector2[] uvs = new Vector2[numOfIndices];
             int[] indexBuffer = new int[numOfIndices];
 
             var index = 0;
@@ -358,7 +358,7 @@ namespace Pal3.Game.Rendering.Renderer
                 for (var i = 0; i < phyFace.Indices.Length; i++)
                 {
                     indexBuffer[index] = phyFace.Indices[i];
-                    uvs1[index] = new Vector2(phyFace.U[i, 0], phyFace.V[i, 0]);
+                    uvs[index] = new Vector2(phyFace.U[i, 0], phyFace.V[i, 0]);
                     triangles[index] = index;
                     index++;
                 }
@@ -374,20 +374,20 @@ namespace Pal3.Game.Rendering.Renderer
 
             Material[] materials = _materialFactory.CreateStandardMaterials(
                 RendererType.Msh,
-                _mainTexture,
-                default,
-                _tintColor,
-                GameBoxBlendFlag.Opaque);
+                mainTexture: _mainTexture,
+                shadowTexture: default,
+                tintColor: _tintColor,
+                blendFlag: GameBoxBlendFlag.Opaque);
 
             var meshRenderer = _meshEntities[subMeshIndex].AddComponent<StaticMeshRenderer>();
             Mesh renderMesh = meshRenderer.Render(
-                vertices,
-                triangles.ToUnityTriangles(),
-                normals: null,
-                uvs1,
-                secondaryTextureUvs: null,
-                materials,
-                true);
+                vertices: vertices,
+                triangles: triangles.ToUnityTriangles(),
+                normals: default,
+                mainTextureUvs: (channel: 0, uvs: uvs),
+                secondaryTextureUvs: default, // Skeletal model does not have secondary texture
+                materials: materials,
+                isDynamic: true);
 
             renderMesh.RecalculateNormals();
             renderMesh.RecalculateTangents();

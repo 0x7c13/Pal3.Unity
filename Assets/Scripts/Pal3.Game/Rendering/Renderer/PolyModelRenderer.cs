@@ -195,18 +195,18 @@ namespace Pal3.Game.Rendering.Renderer
                         }
 
                         materials[0] = _materialFactory.CreateWaterMaterial(
-                            textures[mainTextureIndex],
-                            shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : (null, null),
-                            waterSurfaceOpacity,
+                            mainTexture: textures[mainTextureIndex],
+                            shadowTexture: shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : default,
+                            opacity: waterSurfaceOpacity,
                             blendFlag);
                     }
                     else
                     {
                         materials = _materialFactory.CreateStandardMaterials(
                             RendererType.Pol,
-                            textures[mainTextureIndex],
-                            shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : (null, null),
-                            _tintColor,
+                            mainTexture: textures[mainTextureIndex],
+                            shadowTexture: shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : default,
+                            tintColor: _tintColor,
                             blendFlag);
                     }
                     return materials;
@@ -227,13 +227,14 @@ namespace Pal3.Game.Rendering.Renderer
                         StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture, cancellationToken);
                     }
 
-                    _ = meshRenderer.Render(mesh.VertexInfo.GameBoxPositions.ToUnityPositions(),
-                        mesh.Textures[i].GameBoxTriangles.ToUnityTriangles(),
-                        mesh.VertexInfo.GameBoxNormals.ToUnityNormals(),
-                        mesh.VertexInfo.Uvs[mainTextureIndex].ToUnityVector2s(),
-                        mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)].ToUnityVector2s(),
-                        materials,
-                        false);
+                    _ = meshRenderer.Render(
+                        vertices: mesh.VertexInfo.GameBoxPositions.ToUnityPositions(),
+                        triangles: mesh.Textures[i].GameBoxTriangles.ToUnityTriangles(),
+                        normals: mesh.VertexInfo.GameBoxNormals.ToUnityNormals(),
+                        mainTextureUvs: (channel: 0, uvs: mesh.VertexInfo.Uvs[mainTextureIndex].ToUnityVector2s()),
+                        secondaryTextureUvs: (channel: 1, uvs: mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)].ToUnityVector2s()),
+                        materials: materials,
+                        isDynamic: false);
                 }
             }
         }
