@@ -237,7 +237,7 @@ namespace Pal3.Game.Actor.Controllers
             shadowTransform.LocalPosition = new Vector3(0f, 0.07f, 0f);
 
             _shadowSpriteRenderer = _shadow.AddComponent<SpriteRenderer>();
-            _shadowSpriteRenderer.sprite = _resourceProvider.GetShadowSprite();
+            _shadowSpriteRenderer.sprite = _resourceProvider.GetShadowSprite().NativeObject as Sprite;
             _shadowSpriteRenderer.color = new Color(0f, 0f, 0f, 0.6f);
         }
 

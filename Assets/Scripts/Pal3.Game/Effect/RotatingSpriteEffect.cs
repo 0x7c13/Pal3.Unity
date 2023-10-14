@@ -32,16 +32,16 @@ namespace Pal3.Game.Effect
         {
             _rotationSpeed = rotationSpeed;
 
-            Texture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
+            ITexture2D texture = resourceProvider.GetEffectTexture(textureName, out var hasAlphaChannel);
 
             _root = GameEntityFactory.Create($"RotatingSpriteEffect_{textureName}",
                 GameEntity, worldPositionStays: false);
 
             _spriteRenderer = _root.AddComponent<SpriteRenderer>();
 
-            _spriteRenderer.sprite = Sprite.Create(texture,
-                new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f));
+            _spriteRenderer.sprite = texture.CreateSprite(0, 0,
+                texture.Width, texture.Height,
+                0.5f, 0.5f).NativeObject as Sprite;
 
             if (!hasAlphaChannel)
             {

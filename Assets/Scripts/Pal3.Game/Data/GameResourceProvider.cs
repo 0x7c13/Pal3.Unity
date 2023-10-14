@@ -25,6 +25,8 @@ namespace Pal3.Game.Data
     using Core.DataReader.Mv3;
     using Core.FileSystem;
     using Core.Utilities;
+    using Engine.Core.Abstraction;
+    using Engine.Core.Implementation;
     using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
@@ -33,6 +35,7 @@ namespace Pal3.Game.Data
     using Rendering.Material;
     using Settings;
     using UnityEngine;
+    using WrapMode = Engine.Core.Abstraction.WrapMode;
 
     /// <summary>
     /// Single resource provider for accessing game data.
@@ -49,6 +52,7 @@ namespace Pal3.Game.Data
 
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
+        private readonly ITextureFactory _textureFactory;
         private readonly IMaterialFactory _unlitMaterialFactory;
         private readonly IMaterialFactory _litMaterialFactory;
         private readonly GameSettings _gameSettings;
@@ -57,27 +61,24 @@ namespace Pal3.Game.Data
 
         private TextureCache _textureCache;
 
-        private readonly Dictionary<string, Sprite> _spriteCache = new ();
+        private readonly Dictionary<string, ISprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
         private readonly Dictionary<int, UnityEngine.Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
-        // No need to deallocate the shadow texture since it is been used almost every where.
-        private static readonly Texture2D ShadowTexture = Resources.Load<Texture2D>("Textures/shadow");
-        private static readonly Sprite ShadowSprite = Sprite.Create(ShadowTexture,
-            new Rect(0, 0, ShadowTexture.width, ShadowTexture.height), new Vector2(0.5f, 0.5f));
-
         private readonly int _codepage;
 
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
+            ITextureFactory textureFactory,
             IMaterialFactory unlitMaterialFactory,
             IMaterialFactory litMaterialFactory,
             GameSettings gameSettings)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
+            _textureFactory = Requires.IsNotNull(textureFactory, nameof(textureFactory));
             _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
             _litMaterialFactory = litMaterialFactory; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
@@ -100,7 +101,7 @@ namespace Pal3.Game.Data
 
             _textureCache?.DisposeAll();
 
-            foreach (Sprite sprite in _spriteCache.Values)
+            foreach (ISprite sprite in _spriteCache.Values)
             {
                 sprite.Destroy();
             }
@@ -130,9 +131,18 @@ namespace Pal3.Game.Data
             return _fileSystem.FileExists(path);
         }
 
-        public Sprite GetShadowSprite()
+        // No need to deallocate the shadow texture/sprite since it is been used almost every where.
+        private static ISprite _shadowSprite;
+        public ISprite GetShadowSprite()
         {
-            return ShadowSprite;
+            if (_shadowSprite != null) return _shadowSprite;
+
+            ITexture2D shadowTexture = new UnityTexture2D(Resources.Load<Texture2D>("Textures/shadow"));
+            _shadowSprite = shadowTexture.CreateSprite(0, 0,
+                shadowTexture.Width, shadowTexture.Height,
+                0.5f, 0.5f);
+
+            return _shadowSprite;
         }
 
         public IMaterialFactory GetMaterialFactory()
@@ -145,8 +155,8 @@ namespace Pal3.Game.Data
         public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
         {
             return (_textureCache != null && useCache) ?
-                new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath, _textureCache) :
-                new TextureProvider(_fileSystem, _textureLoaderFactory, relativeDirectoryPath);
+                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath, _textureCache) :
+                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath);
         }
 
         public T GetGameResourceFile<T>(string fileVirtualPath, bool useCache = true, byte[] data = null)
@@ -288,59 +298,62 @@ namespace Pal3.Game.Data
                 });
         }
 
-        public Sprite GetLogoSprite()
+        public ISprite GetLogoSprite()
         {
             #if PAL3
             const string mainLogoTextureFileName = "11.tga";
-            Rect mainLogoTextureRect = new Rect(0, 600, 375, 145);
+            Rect mainLogoSpriteRect = new Rect(0, 600, 375, 145);
             #elif PAL3A
             const string mainLogoTextureFileName = "12.tga";
-            Rect mainLogoTextureRect = new Rect(0, 770, 500, 253);
+            Rect mainLogoSpriteRect = new Rect(0, 770, 500, 253);
             #endif
 
             ITextureResourceProvider uiLibTextureProvider = CreateTextureResourceProvider(FileConstants.UILibFolderVirtualPath);
-            Texture2D logoTexture = uiLibTextureProvider.GetTexture(mainLogoTextureFileName);
-            return Sprite.Create(logoTexture, mainLogoTextureRect, new Vector2(0.5f, 0.5f));
+            ITexture2D logoTexture = uiLibTextureProvider.GetTexture(mainLogoTextureFileName);
+            return logoTexture.CreateSprite(mainLogoSpriteRect.x, mainLogoSpriteRect.y,
+                mainLogoSpriteRect.width, mainLogoSpriteRect.height,
+                0.5f, 0.5f);
         }
 
-        private Texture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
+        private ITexture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
             var roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
 
-        public Sprite GetActorAvatarSprite(string actorName, string avatarName)
+        public ISprite GetActorAvatarSprite(string actorName, string avatarName)
         {
             var cacheKey = $"ActorAvatar_{actorName}_{avatarName}";
 
-            if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
+            if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
             {
-                if (sprite != null && sprite.texture != null) return sprite;
+                if (sprite is { Texture: { IsNativeObjectDisposed: false } }) return sprite;
             }
 
-            Texture2D texture = GetActorAvatarTexture(
+            ITexture2D texture = GetActorAvatarTexture(
                 actorName, avatarName);
 
             if (texture == null) return null;
 
-            var avatarSprite = Sprite.Create(texture,
+            ISprite avatarSprite = texture.CreateSprite(
                 // Cut 2f to hide artifacts near edges for some of the avatar textures
-                new Rect(2f, 0f, texture.width - 2f, texture.height),
-                new Vector2(0.5f, 0f));
+                2f, 0f,
+                texture.Width - 2f, texture.Height,
+                0.5f, 0f);
 
             _spriteCache[cacheKey] = avatarSprite;
             return avatarSprite;
         }
 
-        private Texture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
+        private ITexture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
         {
             string emojiSpriteSheetRelativePath = FileConstants.EmojiSpriteSheetFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(emojiSpriteSheetRelativePath);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
         }
 
-        public Texture2D GetCaptionTexture(string name)
+        public ITexture2D GetCaptionTexture(string name)
         {
             var captionTextureRelativePath = FileConstants.CaptionFolderVirtualPath;
             // No need to cache caption texture since it is a one time thing
@@ -348,57 +361,59 @@ namespace Pal3.Game.Data
             return textureProvider.GetTexture($"{name}.tga");
         }
 
-        public Texture2D[] GetSkyBoxTextures(int skyBoxId)
+        public ITexture2D[] GetSkyBoxTextures(int skyBoxId)
         {
             var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
 
-            var textures = new Texture2D[FileConstants.SkyBoxTexturePathFormat.Length];
+            var textures = new ITexture2D[FileConstants.SkyBoxTexturePathFormat.Length];
             for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
                 var textureNameFormat = CoreUtility.GetFileName(
                     string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DIR_SEPARATOR);
-                Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
+                ITexture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
-                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.SetWrapMode(WrapMode.Clamp);
                 textures[i] = texture;
             }
 
             return textures;
         }
 
-        public Texture2D GetEffectTexture(string name, out bool hasAlphaChannel)
+        public ITexture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
             var effectFolderRelativePath = FileConstants.EffectFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
 
-        public Sprite[] GetEmojiSprites(ActorEmojiType emojiType)
+        public ISprite[] GetEmojiSprites(ActorEmojiType emojiType)
         {
             (int Width, int Height, int Frames) textureInfo = ActorEmojiConstants.TextureInfo[emojiType];
-            Texture2D spriteSheet = GetEmojiSpriteSheetTexture(emojiType);
+            ITexture2D spriteSheetTexture = GetEmojiSpriteSheetTexture(emojiType);
 
             var widthIndex = 0f;
-            var sprites = new Sprite[textureInfo.Frames];
+            var sprites = new ISprite[textureInfo.Frames];
 
             for (var i = 0; i < textureInfo.Frames; i++)
             {
                 var cacheKey = $"EmojiSprite_{emojiType}_{i}";
 
-                if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
+                if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
                 {
-                    if (sprite != null && sprite.texture != null)
+                    if (sprite is { Texture: { IsNativeObjectDisposed: false } })
                     {
                         sprites[i] = sprite;
                         continue;
                     }
                 }
 
-                var emojiSprite = Sprite.Create(spriteSheet, new Rect(widthIndex, 0f,
-                        textureInfo.Width, textureInfo.Height), new Vector2(0.5f, 0f));
+                ISprite emojiSprite = spriteSheetTexture.CreateSprite(widthIndex, 0f,
+                    textureInfo.Width, textureInfo.Height,
+                    0.5f, 0f);
+
                 _spriteCache[cacheKey] = emojiSprite;
                 sprites[i] = emojiSprite;
 
@@ -408,30 +423,30 @@ namespace Pal3.Game.Data
             return sprites;
         }
 
-        public Sprite[] GetJumpIndicatorSprites()
+        public ISprite[] GetJumpIndicatorSprites()
         {
             var relativePath = FileConstants.UISceneFolderVirtualPath;
             var textureProvider = CreateTextureResourceProvider(relativePath);
 
-            var sprites = new Sprite[4];
+            var sprites = new ISprite[4];
 
             for (var i = 0; i < 4; i++)
             {
                 var cacheKey = $"JumpIndicatorSprite_{i}";
 
-                if (_spriteCache.TryGetValue(cacheKey, out Sprite sprite))
+                if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
                 {
-                    if (sprite != null && sprite.texture != null)
+                    if (sprite is { Texture: { IsNativeObjectDisposed: false } })
                     {
                         sprites[i] = sprite;
                         continue;
                     }
                 }
 
-                var texture = textureProvider.GetTexture($"tiao{i}.tga");
-                var jumpIndicatorSprite = Sprite.Create(texture,
-                    new Rect(0f, 0f, 40f, 32f),
-                    new Vector2(0.5f, 0f));
+                ITexture2D texture = textureProvider.GetTexture($"tiao{i}.tga");
+                ISprite jumpIndicatorSprite = texture.CreateSprite(0f, 0f,
+                    40f, 32f,
+                    0.5f, 0f);
                 _spriteCache[cacheKey] = jumpIndicatorSprite;
                 sprites[i] = jumpIndicatorSprite;
             }
@@ -488,7 +503,7 @@ namespace Pal3.Game.Data
                                 $"Supported video formats are: {string.Join(" ", supportedVideoFormats)}");
         }
 
-        public (Texture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
+        public (ITexture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
@@ -496,18 +511,18 @@ namespace Pal3.Game.Data
             if (effect == GraphicsEffectType.Fire)
             {
                 var numberOfFrames = EffectConstants.AnimatedFireEffectFrameCount;
-                var textures = new (Texture2D texture, bool hasAlphaChannel)[numberOfFrames];
+                var textures = new (ITexture2D texture, bool hasAlphaChannel)[numberOfFrames];
                 for (var i = 0; i < numberOfFrames; i++)
                 {
                     var textureNameFormat = CoreUtility.GetFileName(texturePathFormat, DIR_SEPARATOR);
-                    Texture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
+                    ITexture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }
 
                 return textures;
             }
 
-            return Array.Empty<(Texture2D, bool)>();
+            return Array.Empty<(ITexture2D, bool)>();
         }
 
         private string GetVfxPrefabPath(int effectGroupId)
@@ -559,11 +574,11 @@ namespace Pal3.Game.Data
             _vfxEffectPrefabCache[effectGroupId] = request.asset;
         }
 
-        public Texture2D GetCursorTexture()
+        public ITexture2D GetCursorTexture()
         {
             var cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
-            Texture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
+            ITexture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
         }
 
@@ -597,7 +612,7 @@ namespace Pal3.Game.Data
             _textureCache?.DisposeAll();
 
             // Clean up sprite cache after exiting current scene block
-            foreach (Sprite sprite in _spriteCache.Values)
+            foreach (ISprite sprite in _spriteCache.Values)
             {
                 sprite.Destroy();
             }

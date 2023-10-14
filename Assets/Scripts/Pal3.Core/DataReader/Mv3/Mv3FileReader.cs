@@ -7,7 +7,6 @@ namespace Pal3.Core.DataReader.Mv3
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using Primitives;
     using Utilities;
 

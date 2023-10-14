@@ -16,9 +16,7 @@ namespace Pal3.Game.Rendering.Renderer
     using Core.Utilities;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
-    using Engine.Logging;
     using Engine.Renderer;
     using Engine.Services;
     using Material;
@@ -87,8 +85,8 @@ namespace Pal3.Game.Rendering.Renderer
         private MshFile _mshFile;
         private MovFile _movFile;
 
-        private (string textureName, Texture2D texture) _mainTexture;
-        private Texture2D _texture;
+        private (string textureName, ITexture2D texture) _mainTexture;
+        private ITexture2D _texture;
         private Color _tintColor;
 
         private readonly Dictionary<int, Bone> _bones = new ();

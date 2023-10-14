@@ -15,7 +15,7 @@ namespace Pal3.Game.Actor.Controllers
     using Core.DataReader.Mtl;
     using Core.Utilities;
     using Data;
-    using Engine.DataLoader;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Rendering.Material;

@@ -26,7 +26,7 @@ namespace Pal3.ResourceViewer
     using Core.DataReader.Sce;
     using Core.FileSystem;
     using Core.Utilities;
-    using Engine.DataLoader;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;

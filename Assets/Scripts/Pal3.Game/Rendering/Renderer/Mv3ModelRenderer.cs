@@ -15,7 +15,6 @@ namespace Pal3.Game.Rendering.Renderer
     using Dev.Presenters;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
     using Engine.Services;
@@ -46,7 +45,7 @@ namespace Pal3.Game.Rendering.Renderer
         // Mv3 mesh data
         private RenderMeshComponent[] _renderMeshComponents;
         private GameBoxMaterial[] _gbMaterials;
-        private Texture2D[] _textures;
+        private ITexture2D[] _textures;
         private bool[] _textureHasAlphaChannel;
         private Material[][] _materials;
         private string[] _animationName;
@@ -100,7 +99,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 _renderMeshComponents = new RenderMeshComponent[_meshCount];
                 _gbMaterials = new GameBoxMaterial[_meshCount];
-                _textures = new Texture2D[_meshCount];
+                _textures = new ITexture2D[_meshCount];
                 _textureHasAlphaChannel = new bool[_meshCount];
                 _materials = new Material[_meshCount][];
                 _animationName = new string[_meshCount];

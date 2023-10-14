@@ -6,6 +6,7 @@
 namespace Pal3.Game.Rendering.Material
 {
     using System.Collections.Generic;
+    using Engine.Core.Abstraction;
     using UnityEngine;
 
     public abstract class MaterialFactoryBase
@@ -22,10 +23,10 @@ namespace Pal3.Game.Rendering.Material
             return new Material(GetShader(SPRITE_SHADER_PATH));
         }
 
-        public Material CreateOpaqueSpriteMaterial(Texture2D texture)
+        public Material CreateOpaqueSpriteMaterial(ITexture2D texture)
         {
             var material = new Material(GetShader(SPRITE_SHADER_PATH));
-            material.SetTexture(SpriteMainTexPropertyId, texture);
+            material.SetTexture(SpriteMainTexPropertyId, texture.NativeObject as Texture2D);
             return material;
         }
 

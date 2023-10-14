@@ -8,14 +8,16 @@ namespace Engine.Core.Implementation
     using Abstraction;
     using UnityEngine;
 
-    public static class TextureFactory
+    public sealed class UnityTextureFactory : ITextureFactory
     {
-        public static Texture2D CreateTexture2D(int width, int height, byte[] rawRgbaData)
+        public ITexture2D CreateTexture(int width, int height, byte[] rgbaData)
         {
-            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
-            texture.LoadRawTextureData(rawRgbaData);
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
+            texture.LoadRawTextureData(rgbaData);
             texture.Apply(updateMipmaps: false);
-            return texture;
+            return new UnityTexture2D(texture);
         }
+
+        public ITexture2D CreateWhiteTexture() => new UnityTexture2D(Texture2D.whiteTexture);
     }
 }

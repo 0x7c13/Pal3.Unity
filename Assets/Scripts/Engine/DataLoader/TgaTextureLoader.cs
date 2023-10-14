@@ -7,17 +7,23 @@ namespace Engine.DataLoader
 {
     using System;
     using System.Buffers;
-    using Core.Implementation;
-    using UnityEngine;
+    using Core.Abstraction;
 
     /// <summary>
     /// .tga file loader and Texture2D converter.
     /// </summary>
     public sealed class TgaTextureLoader : ITextureLoader
     {
+        private readonly ITextureFactory _textureFactory;
+
         private short _width;
         private short _height;
         private byte[] _rawRgbaData;
+
+        public TgaTextureLoader(ITextureFactory textureFactory)
+        {
+            _textureFactory = textureFactory;
+        }
 
         public unsafe void Load(byte[] data, out bool hasAlphaChannel)
         {
@@ -86,13 +92,13 @@ namespace Engine.DataLoader
             }
         }
 
-        public Texture2D ToTexture2D()
+        public ITexture2D ToTexture()
         {
             if (_rawRgbaData == null) return null;
 
             try
             {
-                return TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+                return _textureFactory.CreateTexture(_width, _height, _rawRgbaData);
             }
             finally
             {

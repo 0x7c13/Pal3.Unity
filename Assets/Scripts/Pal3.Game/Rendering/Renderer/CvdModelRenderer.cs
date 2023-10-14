@@ -14,7 +14,6 @@ namespace Pal3.Game.Rendering.Renderer
     using Dev.Presenters;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
@@ -28,7 +27,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// </summary>
     public sealed class CvdModelRenderer : GameEntityScript, IDisposable
     {
-        private readonly Dictionary<string, Texture2D> _textureCache = new ();
+        private readonly Dictionary<string, ITexture2D> _textureCache = new ();
         private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
 
         private Color _tintColor;
@@ -151,7 +150,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void BuildTextureCache(CvdGeometryNode node,
             ITextureResourceProvider textureProvider,
-            Dictionary<string, Texture2D> textureCache)
+            Dictionary<string, ITexture2D> textureCache)
         {
             if (node.IsGeometryNode)
             {
@@ -160,7 +159,7 @@ namespace Pal3.Game.Rendering.Renderer
                     string textureName = meshSection.Material.TextureFileNames[0];
                     if (string.IsNullOrEmpty(textureName)) continue;
                     if (textureCache.ContainsKey(textureName)) continue;
-                    Texture2D texture2D = textureProvider.GetTexture(textureName);
+                    ITexture2D texture2D = textureProvider.GetTexture(textureName);
                     if (texture2D != null) textureCache[textureName] = texture2D;
                 }
             }
@@ -209,7 +208,7 @@ namespace Pal3.Game.Rendering.Renderer
             float initTime,
             string meshName,
             CvdGeometryNode node,
-            Dictionary<string, Texture2D> textureCache,
+            Dictionary<string, ITexture2D> textureCache,
             IGameEntity parent)
         {
             IGameEntity meshEntity = GameEntityFactory.Create(meshName, parent, worldPositionStays: false);

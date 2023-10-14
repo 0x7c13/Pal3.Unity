@@ -6,6 +6,7 @@
 namespace Pal3.Game.Rendering.Material
 {
     using Core.Primitives;
+    using Engine.Core.Abstraction;
     using UnityEngine;
     using Color = Core.Primitives.Color;
 
@@ -30,7 +31,7 @@ namespace Pal3.Game.Rendering.Material
         /// </summary>
         /// <param name="texture">Texture</param>
         /// <returns>Material</returns>
-        public Material CreateOpaqueSpriteMaterial(Texture2D texture);
+        public Material CreateOpaqueSpriteMaterial(ITexture2D texture);
 
         /// <summary>
         /// Create standard materials.
@@ -43,8 +44,8 @@ namespace Pal3.Game.Rendering.Material
         /// <returns>Materials</returns>
         public Material[] CreateStandardMaterials(
             RendererType rendererType,
-            (string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture,
+            (string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture,
             Color tintColor,
             GameBoxBlendFlag blendFlag);
 
@@ -57,8 +58,8 @@ namespace Pal3.Game.Rendering.Material
         /// <param name="blendFlag">Blend flag</param>
         /// <returns>Material</returns>
         public Material CreateWaterMaterial(
-            (string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture,
+            (string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture,
             float opacity,
             GameBoxBlendFlag blendFlag);
 
@@ -69,7 +70,7 @@ namespace Pal3.Game.Rendering.Material
         /// <param name="newMainTexture">New main texture</param>
         /// <param name="blendFlag">Blend flag</param>
         public void UpdateMaterial(Material material,
-            Texture2D newMainTexture,
+            ITexture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
 
         /// <summary>

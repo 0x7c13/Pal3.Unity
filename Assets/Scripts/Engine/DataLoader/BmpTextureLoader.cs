@@ -8,16 +8,20 @@ namespace Engine.DataLoader
     using System;
     using System.Buffers;
     using Core.Abstraction;
-    using Core.Implementation;
     using Pal3.Core.DataReader.Bmp;
-    using UnityEngine;
 
     /// <summary>
     /// .bmp file loader and Texture2D converter.
     /// </summary>
     public sealed class BmpTextureLoader : ITextureLoader
     {
+        private readonly ITextureFactory _textureFactory;
         private BmpFile _image;
+
+        public BmpTextureLoader(ITextureFactory textureFactory)
+        {
+            _textureFactory = textureFactory;
+        }
 
         public void Load(byte[] data, out bool hasAlphaChannel)
         {
@@ -27,7 +31,7 @@ namespace Engine.DataLoader
             _image = new BmpFileReader().Read(data);
         }
 
-        public Texture2D ToTexture2D()
+        public ITexture2D ToTexture()
         {
             if (_image == null) return null;
 
@@ -49,7 +53,7 @@ namespace Engine.DataLoader
                 }
 
                 // Use the buffer instead of a new array
-                return TextureFactory.CreateTexture2D(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaData);
+                return _textureFactory.CreateTexture(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaData);
             }
             finally
             {

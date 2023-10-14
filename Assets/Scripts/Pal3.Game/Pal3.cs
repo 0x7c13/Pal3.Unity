@@ -206,6 +206,8 @@ namespace Pal3.Game
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
 
+            ITextureFactory textureFactory = ServiceLocator.Instance.Get<ITextureFactory>();
+
             ServiceLocator.Instance.Register<IGameTimeProvider>(_gameTimeProvider =
                 GameTimeProvider.Instance
             );
@@ -395,6 +397,7 @@ namespace Pal3.Game
                     miniMapCanvasGroup,
                     miniMapImage,
                     new MinimapTextureCreator(
+                        textureFactory,
                         UITheme.MinimapObstacleColor,
                         UITheme.MinimapWallColor,
                         UITheme.MinimapFloorColor))
@@ -499,7 +502,7 @@ namespace Pal3.Game
             _mainMenu.ShowInitView();
 
             // Show logo image.
-            logoImage.sprite = _gameResourceProvider.GetLogoSprite();
+            logoImage.sprite = _gameResourceProvider.GetLogoSprite().NativeObject as Sprite;
             logoImage.preserveAspect = true;
             #if PAL3
             logoImage.transform.localScale = new Vector3(0.85f, 0.85f, 1f);

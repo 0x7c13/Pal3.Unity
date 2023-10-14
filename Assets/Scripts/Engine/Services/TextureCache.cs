@@ -3,21 +3,20 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Game.Data
+namespace Engine.Services
 {
     using System.Collections.Generic;
-    using Engine.Extensions;
-    using Engine.Logging;
-    using UnityEngine;
+    using Core.Abstraction;
+    using Logging;
 
     /// <summary>
     /// Texture2D in-memory cache.
     /// </summary>
     public sealed class TextureCache
     {
-        private readonly Dictionary<string, (Texture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
+        private readonly Dictionary<string, (ITexture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
 
-        public void Add(string key, Texture2D texture, bool hasAlphaChannel)
+        public void Add(string key, ITexture2D texture, bool hasAlphaChannel)
         {
             if (texture == null) return;
 
@@ -34,11 +33,11 @@ namespace Pal3.Game.Data
         }
 
         public bool TryGetTextureFromCache(string key,
-            out (Texture2D texture, bool hasAlphaChannel) texture)
+            out (ITexture2D texture, bool hasAlphaChannel) texture)
         {
             key = key.ToLowerInvariant();
 
-            if (_textureCache.TryGetValue(key, out (Texture2D texutre, bool hasAlphaChannel) textureInCache))
+            if (_textureCache.TryGetValue(key, out (ITexture2D texutre, bool hasAlphaChannel) textureInCache))
             {
                 texture = textureInCache;
                 return true;
@@ -51,7 +50,7 @@ namespace Pal3.Game.Data
         public void DisposeAll()
         {
             EngineLogger.Log($"Disposing {_textureCache.Count} cached textures");
-            foreach ((Texture2D texture, _) in _textureCache.Values)
+            foreach ((ITexture2D texture, _) in _textureCache.Values)
             {
                 texture.Destroy();
             }

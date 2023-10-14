@@ -14,7 +14,6 @@ namespace Pal3.Game.Effect
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Renderer;
     using Rendering.Material;
@@ -26,7 +25,7 @@ namespace Pal3.Game.Effect
         public IGameEntity EffectGameEntity { get; private set; }
         public FireEffectType FireEffectType { get; private set; }
 
-        private (Texture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(Texture2D texture, bool hasAlphaChannel)>();
+        private (ITexture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(ITexture2D texture, bool hasAlphaChannel)>();
         private AnimatedBillboardRenderer _billboardRenderer;
         private PolyModelRenderer _sceneObjectRenderer;
         private Material _spriteMaterial;
@@ -59,13 +58,13 @@ namespace Pal3.Game.Effect
                 _effectTextures = resourceProvider.GetEffectTextures(
                     GraphicsEffectType.Fire, info.TexturePathFormat);
 
-                var sprites = new Sprite[_effectTextures.Length];
+                var sprites = new ISprite[_effectTextures.Length];
                 for (var i = 0; i < _effectTextures.Length; i++)
                 {
-                    Texture2D texture = _effectTextures[i].texture;
-                    var sprite = Sprite.Create(texture,
-                        new Rect(0f, 0f, texture.width, texture.height),
-                        new Vector2(0.5f, 0f));
+                    ITexture2D texture = _effectTextures[i].texture;
+                    ISprite sprite = texture.CreateSprite(0f, 0f,
+                        texture.Width, texture.Height,
+                        0.5f, 0f);
                     sprites[i] = sprite;
                 }
 

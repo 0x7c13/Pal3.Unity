@@ -8,18 +8,24 @@ namespace Engine.DataLoader
 	using System;
 	using System.Buffers;
 	using System.IO;
-	using Core.Implementation;
+	using Core.Abstraction;
 	using Pal3.Core.DataReader.Dxt;
-	using UnityEngine;
 
 	/// <summary>
 	/// .dds file loader and Texture2D converter.
 	/// </summary>
 	public sealed class DxtTextureLoader : ITextureLoader
 	{
+		private readonly ITextureFactory _textureFactory;
+
 		private int _width;
 		private int _height;
 		private byte[] _rawRgbaData;
+
+		public DxtTextureLoader(ITextureFactory textureFactory)
+		{
+			_textureFactory = textureFactory;
+		}
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
@@ -73,13 +79,13 @@ namespace Engine.DataLoader
 			Dxt3Decoder.ToRgba32NonAlloc(data, _width, _height, _rawRgbaData);
 		}
 
-		public Texture2D ToTexture2D()
+		public ITexture2D ToTexture()
 		{
 			if (_rawRgbaData == null) return null;
 
 			try
 			{
-				return TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+				return _textureFactory.CreateTexture(_width, _height, _rawRgbaData);
 			}
 			finally
 			{

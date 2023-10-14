@@ -5,7 +5,7 @@
 
 namespace Pal3.Game.Data
 {
-    using Engine.DataLoader;
+    using Engine.Core.Abstraction;
 
     public interface ITextureLoaderFactory
     {

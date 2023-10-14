@@ -235,12 +235,12 @@ namespace Pal3.Game.GameSystems.Dialogue
                 if (isRightAligned)
                 {
                     _avatarImageRight.color = Color.white;
-                    _avatarImageRight.sprite = avatarSprite;
+                    _avatarImageRight.sprite = avatarSprite.NativeObject as Sprite;
                 }
                 else
                 {
                     _avatarImageLeft.color = Color.white;
-                    _avatarImageLeft.sprite = avatarSprite;
+                    _avatarImageLeft.sprite = avatarSprite.NativeObject as Sprite;
                 }
 
                 isAvatarPresented = true;

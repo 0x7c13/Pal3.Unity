@@ -9,6 +9,7 @@ namespace Pal3.Game.Rendering.Material
     using System.Collections.Generic;
     using System.Diagnostics;
     using Core.Primitives;
+    using Engine.Core.Abstraction;
     using Engine.Extensions;
     using Engine.Logging;
     using UnityEngine;
@@ -19,7 +20,7 @@ namespace Pal3.Game.Rendering.Material
     /// Lit material factory for generating materials
     /// to be used when lighting and shadow are enabled
     /// </summary>
-    public class LitMaterialFactory : MaterialFactoryBase, IMaterialFactory
+    public sealed class LitMaterialFactory : MaterialFactoryBase, IMaterialFactory
     {
         // Toon material uniforms
         private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
@@ -127,8 +128,8 @@ namespace Pal3.Game.Rendering.Material
         /// <inheritdoc/>
         public Material[] CreateStandardMaterials(
             RendererType rendererType,
-            (string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture,
+            (string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture,
             Color tintColor,
             GameBoxBlendFlag blendFlag)
         {
@@ -185,9 +186,12 @@ namespace Pal3.Game.Rendering.Material
             return materials;
         }
 
-        public void UpdateMaterial(Material material, Texture2D newMainTexture, GameBoxBlendFlag blendFlag)
+        public void UpdateMaterial(Material material, ITexture2D newMainTexture, GameBoxBlendFlag blendFlag)
         {
-            material.mainTexture = newMainTexture;
+            if (newMainTexture != null)
+            {
+                material.mainTexture = newMainTexture.NativeObject as Texture2D;
+            }
 
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
@@ -201,8 +205,8 @@ namespace Pal3.Game.Rendering.Material
 
         /// <inheritdoc/>
         public Material CreateWaterMaterial(
-            (string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture,
+            (string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture,
             float opacity,
             GameBoxBlendFlag blendFlag)
         {
@@ -233,8 +237,8 @@ namespace Pal3.Game.Rendering.Material
             }
         }
 
-        private Material CreateBaseTransparentMaterial((string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture)
+        private Material CreateBaseTransparentMaterial((string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture)
         {
             Material material;
             if (_transparentMaterialPool.Count > 0)
@@ -258,12 +262,16 @@ namespace Pal3.Game.Rendering.Material
                 material = new Material(_toonTransparentMaterial);
             }
 
-            material.mainTexture = mainTexture.texture;
+            if (mainTexture.texture != null)
+            {
+                material.mainTexture = mainTexture.texture.NativeObject as Texture2D;
+            }
+
             return material;
         }
 
-        private Material CreateBaseOpaqueMaterial((string name, Texture2D texture) mainTexture,
-            (string name, Texture2D texture) shadowTexture)
+        private Material CreateBaseOpaqueMaterial((string name, ITexture2D texture) mainTexture,
+            (string name, ITexture2D texture) shadowTexture)
         {
             Material material;
             if (_opaqueMaterialPool.Count > 0)
@@ -283,7 +291,11 @@ namespace Pal3.Game.Rendering.Material
                 material = new Material(_toonOpaqueMaterial);
             }
 
-            material.mainTexture = mainTexture.texture;
+            if (mainTexture.texture != null)
+            {
+                material.mainTexture = mainTexture.texture.NativeObject as Texture2D;
+            }
+
             return material;
         }
 

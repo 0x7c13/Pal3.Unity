@@ -3,14 +3,12 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Engine.DataLoader
+namespace Engine.Core.Abstraction
 {
-    using UnityEngine;
-
     /// <summary>
-    /// Texture loader and Texture2D converter interface.
+    /// Texture loader and ITexture2D creator interface.
     /// The reason we have a separate Load method interface is because
-    /// Texture2D.Apply() is single threaded (upload texture to VRAM),
+    /// uploading texture to GPU is single threaded (upload texture to VRAM),
     /// while the loading and decoding part can run in parallel and it should
     /// be thread-safe in general. This two-step approach gives caller
     /// more flexibility.
@@ -25,9 +23,9 @@ namespace Engine.DataLoader
         public void Load(byte[] data, out bool hasAlphaChannel);
 
         /// <summary>
-        /// Convert loaded texture into Texture2D instance.
+        /// Convert loaded data into ITexture2D instance.
         /// </summary>
-        /// <returns>Texture2D instance</returns>
-        public Texture2D ToTexture2D();
+        /// <returns>ITexture2D instance</returns>
+        public ITexture2D ToTexture();
     }
 }

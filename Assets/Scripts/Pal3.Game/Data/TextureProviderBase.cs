@@ -6,12 +6,11 @@
 namespace Pal3.Game.Data
 {
     using Core.FileSystem;
-    using Engine.DataLoader;
-    using UnityEngine;
+    using Engine.Core.Abstraction;
 
     public abstract class TextureProviderBase
     {
-        protected Texture2D GetTexture(ICpkFileSystem fileSystem,
+        protected ITexture2D GetTexture(ICpkFileSystem fileSystem,
             string texturePath,
             ITextureLoader textureLoader,
             out bool hasAlphaChannel)
@@ -25,7 +24,7 @@ namespace Pal3.Game.Data
 
             var data = fileSystem.ReadAllBytes(texturePath);
             textureLoader.Load(data, out hasAlphaChannel);
-            return textureLoader.ToTexture2D();
+            return textureLoader.ToTexture();
         }
     }
 }

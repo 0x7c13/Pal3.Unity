@@ -11,6 +11,7 @@ namespace Pal3.Game.UI
     using Core.Command;
     using Core.Utilities;
     using Data;
+    using Engine.Core.Abstraction;
     using UnityEngine;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
@@ -18,13 +19,13 @@ namespace Pal3.Game.UI
     public sealed class CursorManager : IDisposable,
         ICommandExecutor<ActiveInputDeviceChangedNotification>
     {
-        private readonly Texture2D _cursorTextureNormal;
+        private readonly ITexture2D _cursorTextureNormal;
 
         public CursorManager(GameResourceProvider gameResourceProvider)
         {
             Requires.IsNotNull(gameResourceProvider, nameof(gameResourceProvider));
             _cursorTextureNormal = gameResourceProvider.GetCursorTexture();
-            Cursor.SetCursor(_cursorTextureNormal, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(_cursorTextureNormal.NativeObject as Texture2D, Vector2.zero, CursorMode.Auto);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }

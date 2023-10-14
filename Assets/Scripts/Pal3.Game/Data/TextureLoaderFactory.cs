@@ -6,24 +6,32 @@
 namespace Pal3.Game.Data
 {
     using System;
+    using Engine.Core.Abstraction;
     using Engine.DataLoader;
 
-    public class TextureLoaderFactory : ITextureLoaderFactory
+    public sealed class TextureLoaderFactory : ITextureLoaderFactory
     {
-        private ITextureLoader _dxtTextureLoader;
-        private ITextureLoader _tgaTextureLoader;
-        private ITextureLoader _bmpTextureLoader;
+        private readonly ITextureLoader _dxtTextureLoader;
+        private readonly ITextureLoader _tgaTextureLoader;
+        private readonly ITextureLoader _bmpTextureLoader;
+
+        public TextureLoaderFactory(ITextureFactory textureFactory)
+        {
+            _dxtTextureLoader = new DxtTextureLoader(textureFactory);
+            _tgaTextureLoader = new TgaTextureLoader(textureFactory);
+            _bmpTextureLoader = new BmpTextureLoader(textureFactory);
+        }
 
         public ITextureLoader GetTextureLoader(string fileExtension)
         {
             if (!fileExtension.StartsWith(".")) fileExtension = "." + fileExtension;
             return fileExtension.ToLower() switch
             {
-                ".dds" => _dxtTextureLoader ??= new DxtTextureLoader(),
-                ".tga" => _tgaTextureLoader ??= new TgaTextureLoader(),
+                ".dds" => _dxtTextureLoader,
+                ".tga" => _tgaTextureLoader,
                 // NOTE: ".bm" is just a typo found in some of the texture file names
                 // used in PAL3 (traditional chinese version), it's actually .bmp.
-                ".bmp" or ".bm" => _bmpTextureLoader ??= new BmpTextureLoader(),
+                ".bmp" or ".bm" => _bmpTextureLoader,
                 _ => throw new ArgumentException($"Texture format not supported: {fileExtension}")
             };
         }

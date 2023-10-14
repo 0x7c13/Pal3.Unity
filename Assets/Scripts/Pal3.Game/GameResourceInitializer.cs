@@ -21,6 +21,7 @@ namespace Pal3.Game
     using Core.Utilities;
     using Data;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Logging;
@@ -174,8 +175,12 @@ namespace Pal3.Game
             loadingText.text = "正在初始化游戏资源...";
             yield return null; // Wait for next frame to make sure the text is updated
 
+            // Init TextureFactory
+            ITextureFactory textureFactory = new UnityTextureFactory();
+            ServiceLocator.Instance.Register<ITextureFactory>(textureFactory);
+
             // Init TextureLoaderFactory
-            TextureLoaderFactory textureLoaderFactory = new ();
+            TextureLoaderFactory textureLoaderFactory = new (textureFactory);
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init material factories
@@ -200,7 +205,8 @@ namespace Pal3.Game
 
             // Init Game resource provider
             var resourceProvider = new GameResourceProvider(cpkFileSystem,
-                new TextureLoaderFactory(),
+                textureLoaderFactory,
+                textureFactory,
                 unlitMaterialFactory,
                 litMaterialFactory,
                 gameSettings);

@@ -14,8 +14,8 @@ namespace Pal3.Game.GameSystems.Caption
     using Core.Utilities;
     using Data;
     using Engine.Animation;
+    using Engine.Core.Abstraction;
     using Engine.Coroutine;
-    using Engine.Extensions;
     using Input;
     using Script.Waiter;
     using UnityEngine;
@@ -68,12 +68,12 @@ namespace Pal3.Game.GameSystems.Caption
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
 
-            Texture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);
-            var sprite = Sprite.Create(texture,
-                new Rect(0f, 0f, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f));
+            ITexture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);
+            ISprite sprite = texture.CreateSprite(0f, 0f,
+                texture.Width, texture.Height,
+                0.5f, 0.5f);
 
-            _captionImage.sprite = sprite;
+            _captionImage.sprite = sprite.NativeObject as Sprite;
             _captionImage.color = Color.clear;
 
             yield return CoreAnimation.EnumerateValueAsync(0, 1, CAPTION_ANIMATION_DURATION,

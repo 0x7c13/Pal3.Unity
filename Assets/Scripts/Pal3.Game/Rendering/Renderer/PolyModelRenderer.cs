@@ -15,10 +15,10 @@ namespace Pal3.Game.Rendering.Renderer
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Coroutine;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
+    using Engine.Services;
     using Material;
     using UnityEngine;
     using Color = Core.Primitives.Color;
@@ -35,8 +35,9 @@ namespace Pal3.Game.Rendering.Renderer
         private const float ANIMATED_WATER_ANIMATION_FPS = 20f;
 
         private ITextureResourceProvider _textureProvider;
+        private ITextureFactory _textureFactory;
         private IMaterialFactory _materialFactory;
-        private Dictionary<string, Texture2D> _textureCache = new ();
+        private Dictionary<string, ITexture2D> _textureCache = new ();
 
         private bool _isStaticObject;
         private Color _tintColor;
@@ -44,6 +45,16 @@ namespace Pal3.Game.Rendering.Renderer
         private CancellationTokenSource _animationCts;
 
         private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+
+        protected override void OnEnableGameEntity()
+        {
+            _textureFactory = ServiceLocator.Instance.Get<ITextureFactory>();
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            Dispose();
+        }
 
         public void Render(PolFile polFile,
             ITextureResourceProvider textureProvider,
@@ -100,10 +111,10 @@ namespace Pal3.Game.Rendering.Renderer
             return bounds;
         }
 
-        private Dictionary<string, Texture2D> BuildTextureCache(PolFile polFile,
+        private Dictionary<string, ITexture2D> BuildTextureCache(PolFile polFile,
             ITextureResourceProvider textureProvider)
         {
-            Dictionary<string, Texture2D> textureCache = new();
+            Dictionary<string, ITexture2D> textureCache = new();
             foreach (PolMesh mesh in polFile.Meshes)
             {
                 foreach (PolTexture texture in mesh.Textures)
@@ -113,7 +124,7 @@ namespace Pal3.Game.Rendering.Renderer
                         if (string.IsNullOrEmpty(textureName)) continue;
                         if (textureCache.ContainsKey(textureName)) continue;
 
-                        Texture2D texture2D;
+                        ITexture2D texture2D;
 
                         if (_materialFactory.ShaderType == MaterialShaderType.Lit)
                         {
@@ -142,16 +153,16 @@ namespace Pal3.Game.Rendering.Renderer
         {
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
-                var textures = new List<(string name, Texture2D texture)>();
+                var textures = new List<(string name, ITexture2D texture)>();
                 foreach (var textureName in mesh.Textures[i].Material.TextureFileNames)
                 {
                     if (string.IsNullOrEmpty(textureName))
                     {
-                        textures.Add((textureName, Texture2D.whiteTexture));
+                        textures.Add((textureName, _textureFactory.CreateWhiteTexture()));
                         continue;
                     }
 
-                    if (_textureCache.TryGetValue(textureName, out Texture2D textureInCache))
+                    if (_textureCache.TryGetValue(textureName, out ITexture2D textureInCache))
                     {
                         textures.Add((textureName, textureInCache));
                     }
@@ -240,14 +251,14 @@ namespace Pal3.Game.Rendering.Renderer
         }
 
         private IEnumerator AnimateWaterTextureAsync(Material material,
-            Texture2D defaultTexture,
+            ITexture2D defaultTexture,
             CancellationToken cancellationToken)
         {
-            var waterTextures = new List<Texture2D> { defaultTexture };
+            var waterTextures = new List<ITexture2D> { defaultTexture };
 
             for (var i = 2; i <= ANIMATED_WATER_ANIMATION_FRAMES; i++)
             {
-                Texture2D texture = _textureProvider.GetTexture(
+                ITexture2D texture = _textureProvider.GetTexture(
                     ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX +
                     $"{i:00}" +
                     ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION);
@@ -261,22 +272,17 @@ namespace Pal3.Game.Rendering.Renderer
                 for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
                     if (cancellationToken.IsCancellationRequested) break;
-                    material.SetTexture(_mainTexturePropertyId, waterTextures[i]);
+                    material.SetTexture(_mainTexturePropertyId, waterTextures[i].NativeObject as Texture2D);
                     yield return waterAnimationDelay;
                 }
             }
         }
 
         private void StartWaterSurfaceAnimation(Material material,
-            Texture2D defaultTexture,
+            ITexture2D defaultTexture,
             CancellationToken cancellationToken)
         {
             StartCoroutine(AnimateWaterTextureAsync(material, defaultTexture, cancellationToken));
-        }
-
-        protected override void OnDisableGameEntity()
-        {
-            Dispose();
         }
 
         public void Dispose()

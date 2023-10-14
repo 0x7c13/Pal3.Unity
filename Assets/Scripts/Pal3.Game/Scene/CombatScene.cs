@@ -17,7 +17,6 @@ namespace Pal3.Game.Scene
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using GameSystems.Combat;
     using Rendering.Material;

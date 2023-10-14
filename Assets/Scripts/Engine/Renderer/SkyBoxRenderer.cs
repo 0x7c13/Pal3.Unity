@@ -32,32 +32,32 @@ namespace Engine.Renderer
         }
 
         public void Render(IGameEntity cameraEntity,
-            Texture2D rightTex,
-            Texture2D backTex,
-            Texture2D leftTex,
-            Texture2D frontTex,
-            Texture2D upTex,
-            Texture2D downTex)
+            ITexture2D rightTex,
+            ITexture2D backTex,
+            ITexture2D leftTex,
+            ITexture2D frontTex,
+            ITexture2D upTex,
+            ITexture2D downTex)
         {
             Material material = CreateSkyboxMaterial(rightTex, backTex, leftTex, frontTex, upTex, downTex);
             _skybox = cameraEntity.AddComponent<Skybox>();
             _skybox.material = material;
         }
 
-        private static Material CreateSkyboxMaterial(Texture2D rightTex,
-            Texture2D backTex,
-            Texture2D leftTex,
-            Texture2D frontTex,
-            Texture2D upTex,
-            Texture2D downTex)
+        private static Material CreateSkyboxMaterial(ITexture2D rightTex,
+            ITexture2D backTex,
+            ITexture2D leftTex,
+            ITexture2D frontTex,
+            ITexture2D upTex,
+            ITexture2D downTex)
         {
             var material = new Material(Shader.Find("Skybox/6 Sided"));
-            material.SetTexture(RightTexturePropertyID, rightTex);
-            material.SetTexture(BackTexturePropertyID, backTex);
-            material.SetTexture(LeftTexturePropertyID, leftTex);
-            material.SetTexture(FrontTexturePropertyID, frontTex);
-            material.SetTexture(UpTexturePropertyID, upTex);
-            material.SetTexture(DownTexturePropertyID, downTex);
+            material.SetTexture(RightTexturePropertyID, rightTex.NativeObject as Texture2D);
+            material.SetTexture(BackTexturePropertyID, backTex.NativeObject as Texture2D);
+            material.SetTexture(LeftTexturePropertyID, leftTex.NativeObject as Texture2D);
+            material.SetTexture(FrontTexturePropertyID, frontTex.NativeObject as Texture2D);
+            material.SetTexture(UpTexturePropertyID, upTex.NativeObject as Texture2D);
+            material.SetTexture(DownTexturePropertyID, downTex.NativeObject as Texture2D);
             return material;
         }
     }

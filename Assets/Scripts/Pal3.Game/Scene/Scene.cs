@@ -260,7 +260,7 @@ namespace Pal3.Game.Scene
         {
             if (ScnFile.SceneInfo.SkyBox == 0) return;
             _skyBoxRenderer = _cameraEntity.AddComponent<SkyBoxRenderer>();
-            Texture2D[] skyBoxTextures = _resourceProvider.GetSkyBoxTextures((int) ScnFile.SceneInfo.SkyBox);
+            ITexture2D[] skyBoxTextures = _resourceProvider.GetSkyBoxTextures((int) ScnFile.SceneInfo.SkyBox);
             _skyBoxRenderer.Render(_cameraEntity,
                 skyBoxTextures[0],
                 skyBoxTextures[1],

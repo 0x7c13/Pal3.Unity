@@ -5,19 +5,26 @@
 
 namespace Pal3.Game.GameSystems.Minimap
 {
+    using System.Buffers;
     using Core.DataReader.Nav;
-    using UnityEngine;
+    using Engine.Core.Abstraction;
+
+    using Color32 = UnityEngine.Color32;
 
     public sealed class MinimapTextureCreator
     {
-        private readonly Color _obstacleColor;
-        private readonly Color _wallColor;
-        private readonly Color _floorColor;
+        private readonly ITextureFactory _textureFactory;
 
-        public MinimapTextureCreator(Color obstacleColor,
-            Color wallColor,
-            Color floorColor)
+        private readonly Color32 _obstacleColor;
+        private readonly Color32 _wallColor;
+        private readonly Color32 _floorColor;
+
+        public MinimapTextureCreator(ITextureFactory textureFactory,
+            Color32 obstacleColor,
+            Color32 wallColor,
+            Color32 floorColor)
         {
+            _textureFactory = textureFactory;
             _obstacleColor = obstacleColor;
             _wallColor = wallColor;
             _floorColor = floorColor;
@@ -28,32 +35,40 @@ namespace Pal3.Game.GameSystems.Minimap
         /// </summary>
         /// <param name="layer">The NavTileLayer to create the minimap for.</param>
         /// <returns>A Texture2D representing the minimap of the NavTileLayer.</returns>
-        public Texture2D CreateMinimapTexture(NavTileLayer layer)
+        public ITexture2D CreateMinimapTexture(NavTileLayer layer)
         {
-            Color[] colors = new Color[layer.Width * layer.Height];
+            byte[] rgbaData = ArrayPool<byte>.Shared.Rent(layer.Width * layer.Height * 4);
 
             for (var i = 0; i < layer.Width; i++)
             {
                 for (int j = 0; j < layer.Height; j++)
                 {
-                    var index = i + j * layer.Width;
-                    NavTile tile = layer.Tiles[index];
+                    NavTile tile = layer.Tiles[i + j * layer.Width];
 
-                    // NOTE: the texture is flipped vertically compared to the tilemap space
-                    var colorIndex = i + (layer.Height - j - 1) * layer.Width;
-                    colors[colorIndex] = tile.DistanceToNearestObstacle switch
+                    Color32 color = tile.DistanceToNearestObstacle switch
                     {
                         0 => _obstacleColor,
                         1 => _wallColor,
                         _ => _floorColor
                     };
+
+                    // NOTE: the texture is flipped vertically compared to the tilemap space
+                    int colorIndex = (i + (layer.Height - j - 1) * layer.Width) * 4;
+                    rgbaData[colorIndex + 0] = color.r;
+                    rgbaData[colorIndex + 1] = color.g;
+                    rgbaData[colorIndex + 2] = color.b;
+                    rgbaData[colorIndex + 3] = color.a;
                 }
             }
 
-            Texture2D texture = new Texture2D(layer.Width, layer.Height, TextureFormat.RGBA32, mipChain: false);
-            texture.SetPixels(colors);
-            texture.Apply(updateMipmaps: false);
-            return texture;
+            try
+            {
+                return _textureFactory.CreateTexture(layer.Width, layer.Height, rgbaData);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rgbaData);
+            }
         }
     }
 }

@@ -37,8 +37,8 @@ namespace Pal3.Game.GameSystems.Minimap
         private readonly Image _miniMapImage;
         private readonly MinimapTextureCreator _miniMapTextureCreator;
 
-        private Texture2D[] _miniMapTextures;
-        private Sprite[] _miniMapSprites;
+        private ITexture2D[] _miniMapTextures;
+        private ISprite[] _miniMapSprites;
 
         private Tilemap _currentTilemap;
         private int _currentLayerIndex = -1;
@@ -86,7 +86,7 @@ namespace Pal3.Game.GameSystems.Minimap
             if (_currentLayerIndex != command.LayerIndex)
             {
                 _currentLayerIndex = command.LayerIndex;
-                _miniMapImage.sprite = _miniMapSprites[_currentLayerIndex];
+                _miniMapImage.sprite = _miniMapSprites[_currentLayerIndex].NativeObject as Sprite;
 
                 float scale = MathF.Max(layer.Width, layer.Height) / _miniMapWidth * MINIMAP_SCALE;
                 _miniMapImage.rectTransform.localScale = new Vector3(scale, scale, 1f);
@@ -116,17 +116,18 @@ namespace Pal3.Game.GameSystems.Minimap
             if (command.NewSceneInfo.SceneType == SceneType.InDoor) return;
 
             _currentTilemap = _sceneManager.GetCurrentScene().GetTilemap();
-            _miniMapTextures = new Texture2D[_currentTilemap.GetLayerCount()];
-            _miniMapSprites = new Sprite[_currentTilemap.GetLayerCount()];
+            _miniMapTextures = new ITexture2D[_currentTilemap.GetLayerCount()];
+            _miniMapSprites = new ISprite[_currentTilemap.GetLayerCount()];
 
             for (var i = 0; i < _currentTilemap.GetLayerCount(); i++)
             {
                 NavTileLayer tileLayer = _currentTilemap.GetLayer(i);
                 _miniMapTextures[i] = _miniMapTextureCreator.CreateMinimapTexture(tileLayer);
 
-                _miniMapSprites[i] = Sprite.Create(_miniMapTextures[i],
-                    new Rect(0, 0, tileLayer.Width, tileLayer.Height),
-                    new Vector2(0.5f, 0.5f));
+                _miniMapSprites[i] = _miniMapTextures[i].CreateSprite(
+                    0, 0,
+                    tileLayer.Width, tileLayer.Height,
+                    0.5f, 0.5f);
             }
 
             _currentLayerIndex = -1;
@@ -138,7 +139,7 @@ namespace Pal3.Game.GameSystems.Minimap
 
             if (_miniMapSprites != null)
             {
-                foreach (Sprite sprite in _miniMapSprites)
+                foreach (ISprite sprite in _miniMapSprites)
                 {
                     sprite.Destroy();
                 }
@@ -148,7 +149,7 @@ namespace Pal3.Game.GameSystems.Minimap
 
             if (_miniMapTextures != null)
             {
-                foreach (Texture2D texture in _miniMapTextures)
+                foreach (ITexture2D texture in _miniMapTextures)
                 {
                     texture.Destroy();
                 }

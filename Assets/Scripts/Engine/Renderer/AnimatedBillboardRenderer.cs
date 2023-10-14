@@ -7,6 +7,7 @@ namespace Engine.Renderer
 {
     using System.Collections;
     using System.Threading;
+    using Core.Abstraction;
     using Core.Implementation;
     using Coroutine;
     using Extensions;
@@ -14,7 +15,7 @@ namespace Engine.Renderer
 
     public class AnimatedBillboardRenderer : GameEntityScript
     {
-        private Sprite[] _sprites;
+        private ISprite[] _sprites;
         private object _spriteAnimationFrameWaiter;
         private bool _initialized;
 
@@ -40,7 +41,7 @@ namespace Engine.Renderer
             _billboardRenderer = null;
         }
 
-        public void Init(Sprite[] sprites,
+        public void Init(ISprite[] sprites,
             float fps,
             Material material = default)
         {
@@ -98,13 +99,13 @@ namespace Engine.Renderer
 
         private IEnumerator PlaySpriteAnimationInternalAsync(CancellationToken cancellationToken)
         {
-            foreach (Sprite sprite in _sprites)
+            foreach (ISprite sprite in _sprites)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     yield break;
                 }
-                _spriteRenderer.sprite = sprite;
+                _spriteRenderer.sprite = sprite.NativeObject as Sprite;
                 yield return _spriteAnimationFrameWaiter;
             }
         }

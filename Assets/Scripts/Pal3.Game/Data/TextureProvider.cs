@@ -9,19 +9,21 @@ namespace Pal3.Game.Data
     using System.IO;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
-    using Engine.DataLoader;
+    using Engine.Core.Abstraction;
     using Engine.Logging;
-    using UnityEngine;
+    using Engine.Services;
 
-    public class TextureProvider : TextureProviderBase, ITextureResourceProvider
+    public sealed class TextureProvider : TextureProviderBase, ITextureResourceProvider
     {
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
+        private readonly ITextureFactory _textureFactory;
         private readonly TextureCache _textureCache;
         private readonly string _relativeDirectoryPath;
 
         public TextureProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
+            ITextureFactory textureFactory,
             string relativeDirectoryPath,
             TextureCache textureCache = null)
         {
@@ -32,12 +34,13 @@ namespace Pal3.Game.Data
 
             _fileSystem = fileSystem;
             _textureLoaderFactory = textureLoaderFactory;
+            _textureFactory = textureFactory;
             _relativeDirectoryPath = relativeDirectoryPath.ToLower(); // Texture path is case insensitive
             _textureCache = textureCache;
         }
 
         private bool TryGetTextureFromCache(string textureFullPath,
-            out (Texture2D texture, bool hasAlphaChannel) texture)
+            out (ITexture2D texture, bool hasAlphaChannel) texture)
         {
             if (_textureCache != null)
             {
@@ -53,18 +56,18 @@ namespace Pal3.Game.Data
             return _relativeDirectoryPath + name;
         }
 
-        public Texture2D GetTexture(string name)
+        public ITexture2D GetTexture(string name)
         {
             return GetTexture(name, out _);
         }
 
-        public Texture2D GetTexture(string name, out bool hasAlphaChannel)
+        public ITexture2D GetTexture(string name, out bool hasAlphaChannel)
         {
             // Return if name is invalid
             if (string.IsNullOrEmpty(name) || !name.Contains('.'))
             {
                 hasAlphaChannel = false;
-                return Texture2D.whiteTexture;
+                return _textureFactory.CreateWhiteTexture();
             }
 
             var texturePath = _relativeDirectoryPath + name;
@@ -81,14 +84,14 @@ namespace Pal3.Game.Data
             {
                 EngineLogger.LogWarning($"Failed to change path extension for texture: {texturePath}, ex: {ex}");
                 hasAlphaChannel = false;
-                return Texture2D.whiteTexture;
+                return _textureFactory.CreateWhiteTexture();
             }
 
             if (_textureCache != null)
             {
                 // Check if dds texture exists in cache
                 if (TryGetTextureFromCache(ddsTexturePath,
-                        out (Texture2D texture, bool hasAlphaChannel) ddsTextureInCache))
+                        out (ITexture2D texture, bool hasAlphaChannel) ddsTextureInCache))
                 {
                     hasAlphaChannel = ddsTextureInCache.hasAlphaChannel;
                     return ddsTextureInCache.texture;
@@ -96,7 +99,7 @@ namespace Pal3.Game.Data
 
                 // Check if texture exists in cache
                 if (TryGetTextureFromCache(texturePath,
-                        out (Texture2D texture, bool hasAlphaChannel) textureInCache))
+                        out (ITexture2D texture, bool hasAlphaChannel) textureInCache))
                 {
                     hasAlphaChannel = textureInCache.hasAlphaChannel;
                     return textureInCache.texture;
@@ -105,7 +108,7 @@ namespace Pal3.Game.Data
 
             // Get dds texture
             ITextureLoader textureLoader = _textureLoaderFactory.GetTextureLoader(".dds");
-            Texture2D texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
+            ITexture2D texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
             if (texture != null)
             {
                 _textureCache?.Add(ddsTexturePath, texture, hasAlphaChannel);

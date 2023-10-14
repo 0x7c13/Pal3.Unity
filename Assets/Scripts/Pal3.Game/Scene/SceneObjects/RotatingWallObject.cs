@@ -18,7 +18,6 @@ namespace Pal3.Game.Scene.SceneObjects
     using Engine.Animation;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
-    using Engine.DataLoader;
     using Engine.Extensions;
     using Rendering.Renderer;
 
