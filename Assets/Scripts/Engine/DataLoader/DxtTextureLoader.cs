@@ -6,6 +6,7 @@
 namespace Engine.DataLoader
 {
 	using System;
+	using System.Buffers;
 	using System.IO;
 	using Core.Implementation;
 	using Pal3.Core.DataReader.Dxt;
@@ -22,6 +23,8 @@ namespace Engine.DataLoader
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
+			if (_rawRgbaData != null) throw new Exception("DXT texture already loaded");
+
 			using var stream = new MemoryStream(data);
 			using var headerReader = new BinaryReader(stream);
 
@@ -57,7 +60,8 @@ namespace Engine.DataLoader
 		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt1Texture(byte[] data)
 		{
-			_rawRgbaData = Dxt1Decoder.ToRgba32(data, _width, _height);
+			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
+			Dxt1Decoder.ToRgba32NonAlloc(data, _width, _height, _rawRgbaData);
 		}
 
 		// Texture2D.LoadRawTextureData does not support DXT3 format
@@ -65,12 +69,23 @@ namespace Engine.DataLoader
 		// invoke LoadRawTextureData method later to convert it to Texture2D.
 		private void LoadDxt3Texture(byte[] data)
 		{
-			_rawRgbaData = Dxt3Decoder.ToRgba32(data, _width, _height);
+			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
+			Dxt3Decoder.ToRgba32NonAlloc(data, _width, _height, _rawRgbaData);
 		}
 
 		public Texture2D ToTexture2D()
 		{
-			return _rawRgbaData == null ? null : TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+			if (_rawRgbaData == null) return null;
+
+			try
+			{
+				return TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+			}
+			finally
+			{
+				ArrayPool<byte>.Shared.Return(_rawRgbaData);
+				_rawRgbaData = null;
+			}
 		}
 	}
 }

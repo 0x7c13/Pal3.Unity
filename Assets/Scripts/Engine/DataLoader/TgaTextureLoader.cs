@@ -6,6 +6,7 @@
 namespace Engine.DataLoader
 {
     using System;
+    using System.Buffers;
     using Core.Implementation;
     using UnityEngine;
 
@@ -20,6 +21,8 @@ namespace Engine.DataLoader
 
         public unsafe void Load(byte[] data, out bool hasAlphaChannel)
         {
+            if (_rawRgbaData != null) throw new Exception("TGA texture already loaded");
+
             byte bitDepth;
 
             fixed (byte* p = &data[12])
@@ -30,7 +33,8 @@ namespace Engine.DataLoader
             }
 
             var dataStartIndex = 18;
-            _rawRgbaData = new byte[_width * _height * 4];
+
+            _rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
 
             switch (bitDepth)
             {
@@ -84,7 +88,17 @@ namespace Engine.DataLoader
 
         public Texture2D ToTexture2D()
         {
-            return _rawRgbaData == null ? null : TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+            if (_rawRgbaData == null) return null;
+
+            try
+            {
+                return TextureFactory.CreateTexture2D(_width, _height, _rawRgbaData);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(_rawRgbaData);
+                _rawRgbaData = null;
+            }
         }
     }
 }

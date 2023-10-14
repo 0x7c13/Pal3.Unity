@@ -5,6 +5,7 @@
 
 namespace Pal3.Core.DataReader.Dxt
 {
+	using System;
 	using Utilities;
 
 	/// <summary>
@@ -17,9 +18,19 @@ namespace Pal3.Core.DataReader.Dxt
 		// Total of: 4 + 30 x 4 + 4 = 128
 		private const int DDS_FILE_HEADER_SIZE = 128;
 
-		public static unsafe byte[] ToRgba32(byte[] data, int width, int height)
+		public static byte[] ToRgba32(byte[] data, int width, int height)
 		{
 			byte[] buffer = new byte[width * height * 4];
+			ToRgba32NonAlloc(data, width, height, buffer);
+			return buffer;
+		}
+
+		public static unsafe void ToRgba32NonAlloc(byte[] data, int width, int height, byte[] buffer)
+		{
+			if (buffer == null || buffer.Length < width * height * 4)
+			{
+				throw new ArgumentException("buffer is null or too small");
+			}
 
 			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = &buffer[0])
 			{
@@ -35,7 +46,6 @@ namespace Pal3.Core.DataReader.Dxt
 					}
 				}
 			}
-			return buffer;
 		}
 
 		private static unsafe void DecodeDxt1Block(int x, int y, int width, int height, byte* src, byte* dst)

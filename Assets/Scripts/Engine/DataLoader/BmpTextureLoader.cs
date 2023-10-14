@@ -6,6 +6,7 @@
 namespace Engine.DataLoader
 {
     using System;
+    using System.Buffers;
     using Core.Abstraction;
     using Core.Implementation;
     using Pal3.Core.DataReader.Bmp;
@@ -20,11 +21,13 @@ namespace Engine.DataLoader
 
         public void Load(byte[] data, out bool hasAlphaChannel)
         {
+            if (_image != null) throw new Exception("BMP texture already loaded");
+
             hasAlphaChannel = false;
             _image = new BmpFileReader().Read(data);
         }
 
-        public unsafe Texture2D ToTexture2D()
+        public Texture2D ToTexture2D()
         {
             if (_image == null) return null;
 
@@ -33,11 +36,25 @@ namespace Engine.DataLoader
                 FlipImage();
             }
 
-            // Convert to RGBA32 raw data
-            fixed (Pal3.Core.Primitives.Color32* srcPtr = _image.ImageData)
+            byte[] rawRgbaData = ArrayPool<byte>.Shared.Rent(_image.ImageData.Length * 4);
+
+            try
             {
-                return TextureFactory.CreateTexture2D(_image.Info.AbsWidth, _image.Info.AbsHeight,
-                     rawRgbaData: new Span<byte>(srcPtr, _image.ImageData.Length * 4).ToArray());
+                for (int i = 0; i < _image.ImageData.Length; i++)
+                {
+                    rawRgbaData[i * 4 + 0] = _image.ImageData[i].B;
+                    rawRgbaData[i * 4 + 1] = _image.ImageData[i].G;
+                    rawRgbaData[i * 4 + 2] = _image.ImageData[i].R;
+                    rawRgbaData[i * 4 + 3] = _image.ImageData[i].A;
+                }
+
+                // Use the buffer instead of a new array
+                return TextureFactory.CreateTexture2D(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaData);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rawRgbaData);
+                _image = null;
             }
         }
 
