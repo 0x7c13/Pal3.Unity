@@ -159,10 +159,16 @@ namespace Pal3.Core.DataReader.Mv3
             Mv3VertFrame[] vertFrames,
             GameBoxVector2[] texCoords)
         {
-            var triangles = new int[attributes[0].IndexBuffers.Length * 3];
-            var keyFrameVertices = new List<GameBoxVector3>[vertFrames.Length]
-                .Select(item=>new List<GameBoxVector3>()).ToArray();
-            var uvs = new GameBoxVector2[attributes[0].IndexBuffers.Length * 3];
+            int numberOfTriangles = attributes[0].IndexBuffers.Length * 3;
+            var triangles = new int[numberOfTriangles];
+            var uvs = new GameBoxVector2[numberOfTriangles];
+
+            int totalVerticesPerKeyFrame = attributes[0].IndexBuffers.Length * 3;
+            var keyFrameVertices = new GameBoxVector3[vertFrames.Length][];
+            for (int i = 0; i < vertFrames.Length; i++)
+            {
+                keyFrameVertices[i] = new GameBoxVector3[totalVerticesPerKeyFrame];
+            }
 
             var triangleIndex = 0;
 
@@ -176,7 +182,7 @@ namespace Pal3.Core.DataReader.Mv3
                         Mv3VertFrame frame = vertFrames[k];
                         Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
 
-                        keyFrameVertices[k].Add(new GameBoxVector3(vertex.X, vertex.Y, vertex.Z));
+                        keyFrameVertices[k][triangleIndex] = new GameBoxVector3(vertex.X, vertex.Y, vertex.Z);
                     }
 
                     uvs[triangleIndex] = texCoords[indexBuffer.TexCoordIndex[j]];
@@ -191,7 +197,7 @@ namespace Pal3.Core.DataReader.Mv3
                 animationKeyFrames[i] = new Mv3AnimationKeyFrame()
                 {
                     GameBoxTick = vertFrames[i].GameBoxTick,
-                    GameBoxVertices = keyFrameVertices[i].ToArray(),
+                    GameBoxVertices = keyFrameVertices[i],
                 };
             }
 

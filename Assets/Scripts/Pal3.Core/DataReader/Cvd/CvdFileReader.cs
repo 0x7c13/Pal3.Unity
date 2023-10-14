@@ -397,14 +397,14 @@ namespace Pal3.Core.DataReader.Cvd
 
             var frameVertices = new CvdVertex[allFrameVertices.Length][];
 
-            (List<int> triangles, List<int> indexBuffer) = CalculateTriangles(indices);
+            (int[] triangles, int[] indexBuffer) = CalculateTriangles(indices);
 
             for (var i = 0; i < allFrameVertices.Length; i++)
             {
-                var verts = new CvdVertex[indexBuffer.Count];
+                var verts = new CvdVertex[indexBuffer.Length];
                 var allVertices = allFrameVertices[i];
 
-                for (var j = 0; j < indexBuffer.Count; j++)
+                for (var j = 0; j < indexBuffer.Length; j++)
                 {
                     verts[j] = allVertices[indexBuffer[j]];
                 }
@@ -417,22 +417,22 @@ namespace Pal3.Core.DataReader.Cvd
                 BlendFlag = blendFlag,
                 Material = material,
                 FrameVertices = frameVertices,
-                GameBoxTriangles = triangles.ToArray(),
+                GameBoxTriangles = triangles,
                 AnimationTimeKeys = animationTimeKeys,
                 AnimationMaterials = animationMaterials
             };
         }
 
-        private static (List<int> triangles, List<int> indexBuffer) CalculateTriangles(
+        private static (int[] triangles, int[] indexBuffer) CalculateTriangles(
             (ushort x, ushort y, ushort z)[] allIndices)
         {
-            var indexBuffer = new List<int>();
-            var triangles = new List<int>();
-            var index = 0;
+            var indexBuffer = new int[allIndices.Length * 3];
+            var triangles = new int[allIndices.Length * 3];
+            int index = 0;
 
             for (var i = 0; i < allIndices.Length; i++)
             {
-                var indices = new[]
+                ushort[] indices =
                 {
                     allIndices[i].x,
                     allIndices[i].y,
@@ -441,8 +441,9 @@ namespace Pal3.Core.DataReader.Cvd
 
                 for (var j = 0; j < 3; j++)
                 {
-                    indexBuffer.Add(indices[j]);
-                    triangles.Add(index++);
+                    indexBuffer[index] = indices[j];
+                    triangles[index] = index;
+                    index++;
                 }
             }
 

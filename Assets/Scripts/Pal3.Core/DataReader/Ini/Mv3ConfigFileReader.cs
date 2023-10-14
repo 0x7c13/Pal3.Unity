@@ -26,13 +26,13 @@ namespace Pal3.Core.DataReader.Ini
 
         public Mv3ActionConfig Read(byte[] data, int codepage)
         {
-            var parser = new FileIniDataParser();
-            using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
+            FileIniDataParser parser = new ();
+            using MemoryStream stream = new (data);
+            using StreamReader reader = new (stream, Encoding.GetEncoding(codepage));
 
             IniData iniData = parser.ReadData(reader);
 
-            var actions = new List<ActorAction>();
+            List<ActorAction> actions = new();
             foreach (SectionData section in iniData.Sections)
             {
                 if (section.SectionName.StartsWith(ACTION_SECTION_HEADER_PREFIX))
