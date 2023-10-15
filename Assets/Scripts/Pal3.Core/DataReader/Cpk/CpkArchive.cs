@@ -143,22 +143,12 @@ namespace Pal3.Core.DataReader.Cpk
         {
             CpkTableEntity entity = ValidateAndGetTableEntity(fileVirtualPath);
 
-            byte[] data;
+            ReadOnlySpan<byte> dataInArchive = new ReadOnlySpan<byte>(_archiveData)
+                .Slice((int)entity.StartPos, (int)entity.PackedSize);
 
-            var start = (int) entity.StartPos;
-            var end = (int) (entity.StartPos + entity.PackedSize);
-
-            if (entity.IsCompressed())
-            {
-                data = new byte[entity.OriginSize];
-                MiniLzo.Decompress(_archiveData[start..end], data);
-            }
-            else
-            {
-                data = _archiveData[start..end];
-            }
-
-            return data;
+            return entity.IsCompressed() ?
+                DecompressDataInArchive(dataInArchive, entity.OriginSize) :
+                dataInArchive.ToArray();
         }
 
         private byte[] GetFileContent(string fileVirtualPath)
@@ -169,13 +159,13 @@ namespace Pal3.Core.DataReader.Cpk
 
         private byte[] GetFileContentInternal(CpkTableEntity entity)
         {
-            byte[] rawData;
-
             if (_archiveInMemory)
             {
-                var start = (int) entity.StartPos;
-                var end = (int) (entity.StartPos + entity.PackedSize);
-                rawData = _archiveData[start..end];
+                ReadOnlySpan<byte> rawData = new ReadOnlySpan<byte>(_archiveData)
+                    .Slice((int)entity.StartPos, (int)entity.PackedSize);
+                return entity.IsCompressed() ?
+                    DecompressDataInArchive(rawData, entity.OriginSize) :
+                    rawData.ToArray();
             }
             else
             {
@@ -183,13 +173,16 @@ namespace Pal3.Core.DataReader.Cpk
                 stream.Seek(entity.StartPos, SeekOrigin.Begin);
                 var buffer = new byte[entity.PackedSize];
                 _ = stream.Read(buffer, 0, (int)entity.PackedSize);
-                rawData = buffer;
+                return entity.IsCompressed() ?
+                    DecompressDataInArchive(buffer, entity.OriginSize) :
+                    buffer;
             }
+        }
 
-            if (!entity.IsCompressed()) return rawData;
-
-            var decompressedData = new byte[entity.OriginSize];
-            MiniLzo.Decompress(rawData, decompressedData);
+        private byte[] DecompressDataInArchive(ReadOnlySpan<byte> compressedData, uint originSize)
+        {
+            var decompressedData = new byte[originSize];
+            MiniLzo.Decompress(compressedData, decompressedData);
             return decompressedData;
         }
 
