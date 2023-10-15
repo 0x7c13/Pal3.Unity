@@ -360,9 +360,7 @@ namespace Pal3.Game.Actor.Controllers
 
         protected override void OnCollisionExitGameEntity(IGameEntity otherGameEntity)
         {
-            // We have to compare the native object pointer instead of the game entity
-            // to make sure we are removing the correct collider.
-            _activeColliders.RemoveWhere(_ => _.ColliderGameEntity.NativeObject == otherGameEntity.NativeObject);
+            _activeColliders.RemoveWhere(_ => _.ColliderGameEntity.Equals(otherGameEntity));
 
             if (_actionController.GetRigidBody() is { isKinematic: false } actorRigidbody)
             {

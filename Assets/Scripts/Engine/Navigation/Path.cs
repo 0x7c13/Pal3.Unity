@@ -5,6 +5,7 @@
 
 namespace Engine.Navigation
 {
+    using System.Collections.Generic;
     using Pal3.Core.Contract.Enums;
 
     using Vector3 = UnityEngine.Vector3;
@@ -24,7 +25,7 @@ namespace Engine.Navigation
 
         public bool IgnoreObstacle { get; private set; }
 
-        private Vector3[] _wayPoints = {};
+        private readonly List<Vector3> _wayPoints = new ();
 
         private int _currentWayPointIndex;
 
@@ -35,7 +36,7 @@ namespace Engine.Navigation
         {
             Clear();
 
-            _wayPoints = wayPoints;
+            _wayPoints.AddRange(wayPoints);
             _currentWayPointIndex = 0;
 
             MovementMode = movementMode;
@@ -47,23 +48,23 @@ namespace Engine.Navigation
         {
             MovementMode = 0;
             EndOfPathAction = EndOfPathActionType.Idle;
-            _wayPoints = new Vector3[] {};
+            _wayPoints.Clear();
             _currentWayPointIndex = 0;
         }
 
         public bool MoveToNextWayPoint()
         {
-            return ++_currentWayPointIndex < _wayPoints.Length;
+            return ++_currentWayPointIndex < _wayPoints.Count;
         }
 
         public bool IsEndOfPath()
         {
-            return !(_wayPoints.Length > 0 && _currentWayPointIndex < _wayPoints.Length);
+            return !(_wayPoints.Count > 0 && _currentWayPointIndex < _wayPoints.Count);
         }
 
         public Vector3[] GetAllWayPoints()
         {
-            return _wayPoints;
+            return _wayPoints.ToArray();
         }
 
         public Vector3 GetCurrentWayPoint()

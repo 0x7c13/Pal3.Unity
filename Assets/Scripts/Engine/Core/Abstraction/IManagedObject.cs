@@ -24,5 +24,14 @@ namespace Engine.Core.Abstraction
         /// Destroys the native object associated with this managed object.
         /// </summary>
         public void Destroy();
+
+        /// <summary>
+        /// Determines whether the specified managed object is equal to the current managed object.
+        /// </summary>
+        public bool Equals(IManagedObject other)
+        {
+            if (other == null) return false;
+            else return NativeObject == other.NativeObject;
+        }
     }
 }
