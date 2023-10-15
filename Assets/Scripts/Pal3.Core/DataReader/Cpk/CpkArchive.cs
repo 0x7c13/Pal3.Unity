@@ -38,11 +38,6 @@ namespace Pal3.Core.DataReader.Cpk
 
         public CpkArchive(string cpkFilePath, Crc32Hash crcHash, int codepage)
         {
-            if (!File.Exists(cpkFilePath))
-            {
-                throw new FileNotFoundException($"游戏数据加载失败，游戏原CPK数据文件不存在: {cpkFilePath}");
-            }
-
             _filePath = cpkFilePath;
             _crcHash = crcHash;
             _codepage = codepage;

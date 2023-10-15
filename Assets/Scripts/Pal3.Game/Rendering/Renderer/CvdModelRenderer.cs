@@ -241,7 +241,7 @@ namespace Pal3.Game.Rendering.Renderer
                         meshSection.GameBoxTriangles.Length);
 
                     // Triangles are the same for all frames, so we can just copy them once.
-                    meshSection.GameBoxTriangles.ToUnityTrianglesNonAlloc(meshDataBuffer.TriangleBuffer);
+                    meshSection.GameBoxTriangles.ToUnityTriangles(meshDataBuffer.TriangleBuffer);
 
                     UpdateMeshDataBuffer(ref meshDataBuffer,
                         meshSection,

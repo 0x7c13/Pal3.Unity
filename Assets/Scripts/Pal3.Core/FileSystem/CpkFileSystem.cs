@@ -32,7 +32,7 @@ namespace Pal3.Core.FileSystem
 
             if (!Directory.Exists(rootPath))
             {
-                throw new DirectoryNotFoundException($"游戏数据加载失败，原始游戏数据根目录不存在: {rootPath}");
+                throw new DirectoryNotFoundException(rootPath);
             }
 
             _rootPath = rootPath;
@@ -51,14 +51,21 @@ namespace Pal3.Core.FileSystem
         /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
         public void Mount(string cpkFileRelativePath, int codepage)
         {
-            var cpkFileName = CoreUtility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
+            string cpkFileName = CoreUtility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
 
             if (_cpkArchives.ContainsKey(cpkFileName))
             {
                 return;
             }
 
-            var cpkArchive = new CpkArchive(_rootPath + cpkFileRelativePath, _crcHash, codepage);
+            string cpkFilePath = _rootPath + cpkFileRelativePath;
+
+            if (!File.Exists(cpkFilePath))
+            {
+                throw new FileNotFoundException(cpkFilePath);
+            }
+
+            var cpkArchive = new CpkArchive(cpkFilePath, _crcHash, codepage);
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }

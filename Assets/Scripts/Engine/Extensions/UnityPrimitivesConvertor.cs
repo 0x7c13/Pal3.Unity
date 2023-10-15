@@ -41,17 +41,17 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityPositionsNonAlloc(this GameBoxVector3[] gameBoxPositions,
-            UnityEngine.Vector3[] unityPositions, float scale = GameBoxUnitToUnityUnit)
+        public static void ToUnityPositions(this GameBoxVector3[] gameBoxPositions,
+            UnityEngine.Vector3[] unityPositionsBuffer, float scale = GameBoxUnitToUnityUnit)
         {
-            if (gameBoxPositions == null || unityPositions == null || unityPositions.Length != gameBoxPositions.Length)
+            if (gameBoxPositions == null || unityPositionsBuffer == null || unityPositionsBuffer.Length != gameBoxPositions.Length)
             {
-                throw new ArgumentException("unityPositions and gameBoxPositions must be non-null and have the same length");
+                throw new ArgumentException("gameBoxPositions and unityPositionsBuffer must be non-null and have the same length");
             }
 
             for (var i = 0; i < gameBoxPositions.Length; i++)
             {
-                unityPositions[i] = ToUnityVector3(gameBoxPositions[i], scale);
+                unityPositionsBuffer[i] = ToUnityVector3(gameBoxPositions[i], scale);
             }
         }
 
@@ -158,17 +158,17 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityNormalsNonAlloc(this GameBoxVector3[] gameBoxNormals,
-            UnityEngine.Vector3[] unityNormals)
+        public static void ToUnityNormals(this GameBoxVector3[] gameBoxNormals,
+            UnityEngine.Vector3[] unityNormalsBuffer)
         {
-            if (gameBoxNormals == null || unityNormals == null || gameBoxNormals.Length != unityNormals.Length)
+            if (gameBoxNormals == null || unityNormalsBuffer == null || gameBoxNormals.Length != unityNormalsBuffer.Length)
             {
-                throw new ArgumentException("gameBoxNormals and unityNormals must be non-null and have the same length");
+                throw new ArgumentException("gameBoxNormals and unityNormalsBuffer must be non-null and have the same length");
             }
 
             for (var i = 0; i < gameBoxNormals.Length; i++)
             {
-                unityNormals[i] = ToUnityNormal(gameBoxNormals[i]);
+                unityNormalsBuffer[i] = ToUnityNormal(gameBoxNormals[i]);
             }
         }
 
@@ -264,16 +264,16 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityTrianglesNonAlloc(this int[] gameBoxTriangles, int[] unityTriangles)
+        public static void ToUnityTriangles(this int[] gameBoxTriangles, int[] unityTrianglesBuffer)
         {
-            if (gameBoxTriangles == null || unityTriangles == null || gameBoxTriangles.Length != unityTriangles.Length)
+            if (gameBoxTriangles == null || unityTrianglesBuffer == null || gameBoxTriangles.Length != unityTrianglesBuffer.Length)
             {
-                throw new ArgumentException("gameBoxTriangles and unityTriangles must be non-null and have the same length");
+                throw new ArgumentException("gameBoxTriangles and unityTrianglesBuffer must be non-null and have the same length");
             }
 
             for (var i = 0; i < gameBoxTriangles.Length; i++)
             {
-                unityTriangles[i] = gameBoxTriangles[gameBoxTriangles.Length - 1 - i];
+                unityTrianglesBuffer[i] = gameBoxTriangles[gameBoxTriangles.Length - 1 - i];
             }
         }
 
@@ -319,16 +319,16 @@ namespace Engine.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToUnityVector2sNonAlloc(this GameBoxVector2[] gameBoxVector2s, UnityEngine.Vector2[] unityVector2s)
+        public static void ToUnityVector2s(this GameBoxVector2[] gameBoxVector2s, UnityEngine.Vector2[] unityVector2sBuffer)
         {
-            if (gameBoxVector2s == null || unityVector2s == null || gameBoxVector2s.Length != unityVector2s.Length)
+            if (gameBoxVector2s == null || unityVector2sBuffer == null || gameBoxVector2s.Length != unityVector2sBuffer.Length)
             {
-                throw new ArgumentException("gameBoxVector2s and unityVector2s must be non-null and have the same length");
+                throw new ArgumentException("gameBoxVector2s and unityVector2sBuffer must be non-null and have the same length");
             }
 
             for (var i = 0; i < gameBoxVector2s.Length; i++)
             {
-                unityVector2s[i] = gameBoxVector2s[i].ToUnityVector2();
+                unityVector2sBuffer[i] = gameBoxVector2s[i].ToUnityVector2();
             }
         }
 

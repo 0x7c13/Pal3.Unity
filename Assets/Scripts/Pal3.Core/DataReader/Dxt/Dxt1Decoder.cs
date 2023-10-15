@@ -21,11 +21,11 @@ namespace Pal3.Core.DataReader.Dxt
 		public static byte[] ToRgba32(byte[] data, int width, int height)
 		{
 			byte[] buffer = new byte[width * height * 4];
-			ToRgba32NonAlloc(data, width, height, buffer);
+			ToRgba32(data, width, height, buffer);
 			return buffer;
 		}
 
-		public static unsafe void ToRgba32NonAlloc(byte[] data, int width, int height, byte[] buffer)
+		public static unsafe void ToRgba32(byte[] data, int width, int height, byte[] buffer)
 		{
 			if (buffer == null || buffer.Length < width * height * 4)
 			{

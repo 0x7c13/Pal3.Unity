@@ -19,7 +19,7 @@ namespace Pal3.Core.DataReader.Cpk
         IsDir             =   0x2,           // 是否是目录
         IsLargeFile       =   0x4,           // 大文件
         IsDeleted         =   0x10,          // 是否已删除
-        IsNotCompressed   =   0x10000,
+        IsNotCompressed   =   0x10000,       // 是否未压缩
     };
 
     // CPK 文件表结构

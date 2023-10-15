@@ -149,7 +149,15 @@ namespace Pal3.Game
                 }
                 else
                 {
-                    loadingText.text = exception == null ? "游戏数据加载失败，未能找到原游戏数据文件" : $"{exception.Message}";
+                    string errorMessage = exception switch
+                    {
+                        null => "游戏数据加载失败，未能找到原游戏数据文件",
+                        DirectoryNotFoundException => $"游戏数据加载失败，原始游戏数据根目录不存在: {exception.Message}",
+                        FileNotFoundException => $"游戏数据加载失败，游戏原CPK数据文件不存在: {exception.Message}",
+                        _ => $"游戏数据加载失败，错误信息：{exception}"
+                    };
+
+                    loadingText.text = errorMessage;
                     yield break; // Stop initialization if failed to init file system
                 }
             }

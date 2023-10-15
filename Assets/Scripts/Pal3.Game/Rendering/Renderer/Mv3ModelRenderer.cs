@@ -242,17 +242,17 @@ namespace Pal3.Game.Rendering.Renderer
                     uvBufferSize: mv3Mesh.Uvs.Length,
                     triangleBufferSize: mv3Mesh.GameBoxTriangles.Length);
 
-            mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositionsNonAlloc(
+            mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositions(
                 _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
                 UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit);
 
-            mv3Mesh.GameBoxTriangles.ToUnityTrianglesNonAlloc(
+            mv3Mesh.GameBoxTriangles.ToUnityTriangles(
                 _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer);
 
-            mv3Mesh.GameBoxNormals.ToUnityNormalsNonAlloc(
+            mv3Mesh.GameBoxNormals.ToUnityNormals(
                 _renderMeshComponents[index].MeshDataBuffer.NormalBuffer);
 
-            mv3Mesh.Uvs.ToUnityVector2sNonAlloc(
+            mv3Mesh.Uvs.ToUnityVector2s(
                 _renderMeshComponents[index].MeshDataBuffer.UvBuffer);
 
             Mesh renderMesh = meshRenderer.Render(

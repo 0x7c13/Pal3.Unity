@@ -67,7 +67,7 @@ namespace Engine.DataLoader
 		private void LoadDxt1Texture(byte[] data)
 		{
 			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
-			Dxt1Decoder.ToRgba32NonAlloc(data, _width, _height, _rawRgbaData);
+			Dxt1Decoder.ToRgba32(data, _width, _height, _rawRgbaData);
 		}
 
 		// Texture2D.LoadRawTextureData does not support DXT3 format
@@ -76,7 +76,7 @@ namespace Engine.DataLoader
 		private void LoadDxt3Texture(byte[] data)
 		{
 			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
-			Dxt3Decoder.ToRgba32NonAlloc(data, _width, _height, _rawRgbaData);
+			Dxt3Decoder.ToRgba32(data, _width, _height, _rawRgbaData);
 		}
 
 		public ITexture2D ToTexture()
