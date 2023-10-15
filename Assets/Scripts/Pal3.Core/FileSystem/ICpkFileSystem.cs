@@ -69,10 +69,18 @@ namespace Pal3.Core.FileSystem
         public void ExtractTo(string outputFolder);
 
         /// <summary>
-        /// Search files using keyword.
+        /// Searches for files in the file system that match the specified keyword.
         /// </summary>
-        /// <param name="keyword"></param>
-        /// <returns>File path enumerable</returns>
-        public IEnumerable<string> Search(string keyword = "");
+        /// <param name="keyword">The keyword to search for. If empty, all files will be returned.</param>
+        /// <returns>A list of file paths that match the specified keyword.</returns>
+        public IList<string> Search(string keyword = "");
+
+        /// <summary>
+        /// Searches for files in the CPK file system that match the specified keywords.
+        /// </summary>
+        /// <param name="keywords">The list of keywords to search for.</param>
+        /// <returns>A dictionary where the keys are the file paths of the matching files,
+        /// and the values are the lines in the files that contain the keywords.</returns>
+        public IDictionary<string, IList<string>> BatchSearch(IList<string> keywords);
     }
 }

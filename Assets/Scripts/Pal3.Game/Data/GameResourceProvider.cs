@@ -22,6 +22,7 @@ namespace Pal3.Game.Data
     using Core.DataReader.Cpk;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
+    using Core.DataReader.Mov;
     using Core.DataReader.Mv3;
     using Core.FileSystem;
     using Core.Utilities;
@@ -585,7 +586,7 @@ namespace Pal3.Game.Data
         private string _currentCityName;
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newCityName = notification.NewSceneInfo.CityName.ToLower();
+            string newCityName = notification.NewSceneInfo.CityName.ToLower();
 
             if (string.IsNullOrEmpty(_currentCityName))
             {
@@ -634,8 +635,8 @@ namespace Pal3.Game.Data
                         fileCache.Value.Remove(mv3File);
                     }
                 }
-                else if (fileCache.Key == typeof(Mv3ActionConfig) ||
-                         fileCache.Key == typeof(MovActionConfig))
+                else if (fileCache.Key == typeof(ActorActionConfig) ||
+                         fileCache.Key.IsSubclassOf(typeof(ActorActionConfig)))
                 {
                     // These files are used/cached across scenes
                     // Do not dispose them since they will be used in next scene block

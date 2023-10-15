@@ -214,11 +214,11 @@ namespace Pal3.Core.FileSystem
         }
 
         /// <summary>
-        /// Search files using keyword.
+        /// Searches for files in the file system that match the specified keyword.
         /// </summary>
-        /// <param name="keyword"></param>
-        /// <returns>File path enumerable</returns>
-        public IEnumerable<string> Search(string keyword = "")
+        /// <param name="keyword">The keyword to search for. If empty, all files will be returned.</param>
+        /// <returns>A list of file paths that match the specified keyword.</returns>
+        public IList<string> Search(string keyword = "")
         {
             var results = new ConcurrentBag<IEnumerable<string>>();
 
@@ -237,6 +237,100 @@ namespace Pal3.Core.FileSystem
             return resultList;
         }
 
+        private IEnumerable<string> SearchInternal(IEnumerable<CpkEntry> nodes, string keyword)
+        {
+            foreach (CpkEntry node in nodes)
+            {
+                if (node.IsDirectory)
+                {
+                    foreach (var result in SearchInternal(node.Children, keyword))
+                    {
+                        yield return result;
+                    }
+                }
+                else if (node.VirtualPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    yield return node.VirtualPath;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Searches for files in the CPK file system that match the specified keywords.
+        /// </summary>
+        /// <param name="keywords">The list of keywords to search for.</param>
+        /// <returns>A dictionary where the keys are the file paths of the matching files,
+        /// and the values are the lines in the files that contain the keywords.</returns>
+        public IDictionary<string, IList<string>> BatchSearch(IList<string> keywords)
+        {
+            var results = new ConcurrentDictionary<string, ConcurrentBag<string>>();
+            foreach (string keyword in keywords)
+            {
+                results[keyword] = new ConcurrentBag<string>();
+            }
+
+            Parallel.ForEach(_cpkArchives, archive =>
+            {
+                var rootNodes = archive.Value.GetRootEntries();
+
+                foreach (var match in SearchInternal(rootNodes, keywords))
+                {
+                    foreach (var keyword in keywords)
+                    {
+                        if (match.Value.Contains(keyword))
+                        {
+                            var resultPath = archive.Key + CpkConstants.DirectorySeparatorChar + match.Key;
+                            results[keyword].Add(resultPath);
+                        }
+                    }
+                }
+            });
+
+            return results.ToDictionary<KeyValuePair<string, ConcurrentBag<string>>,
+                string, IList<string>>(result => result.Key,
+                result => result.Value.ToList());
+        }
+
+        private IDictionary<string, HashSet<string>> SearchInternal(IEnumerable<CpkEntry> nodes, IList<string> keywords)
+        {
+            var results = new Dictionary<string, HashSet<string>>();
+
+            foreach (CpkEntry node in nodes)
+            {
+                if (node.IsDirectory)
+                {
+                    foreach (var result in SearchInternal(node.Children, keywords))
+                    {
+                        if (!results.ContainsKey(result.Key))
+                        {
+                            results[result.Key] = new HashSet<string>();
+                        }
+                        foreach (var path in result.Value)
+                        {
+                            results[result.Key].Add(path);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var keyword in keywords)
+                    {
+                        if (!string.IsNullOrEmpty(node.VirtualPath) &&
+                            node.VirtualPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            if (!results.ContainsKey(node.VirtualPath))
+                            {
+                                results[node.VirtualPath] = new HashSet<string>();
+                            }
+                            results[node.VirtualPath].Add(keyword);
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
         /// <summary>
         /// Parse file virtual path into cpk file name and relative virtual path.
         /// </summary>
@@ -252,24 +346,6 @@ namespace Pal3.Core.FileSystem
 
             cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLower();
             relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..];
-        }
-
-        private IEnumerable<string> SearchInternal(IEnumerable<CpkEntry> nodes, string keyword)
-        {
-            foreach (CpkEntry node in nodes)
-            {
-                if (node.IsDirectory)
-                {
-                    foreach (var result in SearchInternal(node.Children, keyword))
-                    {
-                        yield return result;
-                    }
-                }
-                else if (node.VirtualPath.ToLower().Contains(keyword.ToLower()))
-                {
-                    yield return node.VirtualPath;
-                }
-            }
         }
     }
 }

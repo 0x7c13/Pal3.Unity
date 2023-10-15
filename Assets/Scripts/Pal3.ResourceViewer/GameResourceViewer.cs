@@ -66,11 +66,12 @@ namespace Pal3.ResourceViewer
         private GameResourceProvider _resourceProvider;
         private GameSettings _gameSettings;
 
-        private IList<string> _polFiles = new List<string>();
-        private IList<string> _cvdFiles = new List<string>();
-        private IList<string> _mv3Files = new List<string>();
-        private IList<string> _movFiles = new List<string>();
-        private IList<string> _mp3Files = new List<string>();
+        private IList<string> _polFiles;
+        private IList<string> _cvdFiles;
+        private IList<string> _mv3Files;
+        private IList<string> _movFiles;
+        private IList<string> _mp3Files;
+
         private static readonly Random Random = new ();
 
         private GameObject _renderingRoot;
@@ -108,11 +109,14 @@ namespace Pal3.ResourceViewer
                 RenderSettings.ambientLight = Color.White.ToUnityColor();
             }
 
-            _polFiles = _fileSystem.Search(".pol").ToList();
-            _cvdFiles = _fileSystem.Search(".cvd").ToList();
-            _mv3Files = _fileSystem.Search(".mv3").ToList();
-            _movFiles = _fileSystem.Search(".mov").ToList();
-            _mp3Files = _fileSystem.Search(".mp3").ToList();
+            IDictionary<string, IList<string>> searchResults =
+                _fileSystem.BatchSearch(new[] {".pol", ".cvd", ".mv3", ".mov", ".mp3"});
+
+            _polFiles = searchResults[".pol"];
+            _cvdFiles = searchResults[".cvd"];
+            _mv3Files = searchResults[".mv3"];
+            _movFiles = searchResults[".mov"];
+            _mp3Files = searchResults[".mp3"];
 
             randomPolButton.onClick.AddListener(RandPol);
             randomCvdButton.onClick.AddListener(RandCvd);
