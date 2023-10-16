@@ -70,7 +70,7 @@ namespace Pal3.Game.Data
                 return _textureFactory.CreateWhiteTexture();
             }
 
-            var texturePath = _relativeDirectoryPath + name;
+            string texturePath = _relativeDirectoryPath + name;
 
             // Note: Most texture files used in (.pol, .cvd) files are stored inside Pal3's CPack
             // archives and they are pre-compressed to DXT format (DXT1 & DXT3). So we need to

@@ -35,10 +35,10 @@ namespace Pal3.Core.DataReader.Mtl
             {
                 materials[i] = new GameBoxMaterial
                 {
-                    Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
-                    Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
-                    Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
-                    Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
+                    Diffuse = reader.ReadColor(),
+                    Ambient = reader.ReadColor(),
+                    Specular = reader.ReadColor(),
+                    Emissive = reader.ReadColor(),
                     SpecularPower = reader.ReadSingle(),
                 };
 

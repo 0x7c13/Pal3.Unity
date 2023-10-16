@@ -48,7 +48,7 @@ namespace Pal3.Core.DataReader.Dat
                 IsCenteredAroundReceiver = reader.ReadBoolean(),
                 IsCasterActor = reader.ReadBoolean(),
                 IsReceiverActor = reader.ReadBoolean(),
-                EffectGameBoxPosition = reader.ReadVector3(),
+                EffectGameBoxPosition = reader.ReadGameBoxVector3(),
                 WaitDurationInSeconds = reader.ReadSingle(),
                 EffectDurationInSeconds = reader.ReadSingle(),
             };

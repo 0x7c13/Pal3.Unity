@@ -13,16 +13,6 @@ namespace Pal3.Core.Utilities
 
     public static class CoreUtility
     {
-        public static Color32 ToColor32(byte[] rgba)
-        {
-            return new Color32(rgba[0], rgba[1], rgba[2], rgba[3]);
-        }
-
-        public static Color ToColor(float[] rgba)
-        {
-            return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
-        }
-
         public static T ReadStruct<T>(Stream stream) where T : struct
         {
             var structSize = Marshal.SizeOf(typeof(T));
@@ -44,30 +34,6 @@ namespace Pal3.Core.Utilities
             }
         }
 
-        public static byte[] TrimEnd(byte[] buffer, ReadOnlySpan<byte> pattern)
-        {
-            var length = GetPatternIndex(buffer, pattern);
-            return length == -1 ? buffer : buffer[..length];
-        }
-
-        private static int GetPatternIndex(ReadOnlySpan<byte> src, ReadOnlySpan<byte> pattern, int startIndex = 0)
-        {
-            var maxFirstCharSlot = src.Length - pattern.Length + 1;
-            for (var i = startIndex; i < maxFirstCharSlot; i++)
-            {
-                if (src[i] != pattern[0])
-                    continue;
-
-                for (var j = pattern.Length - 1; j >= 1; j--)
-                {
-                    if (src[i + j] != pattern[j]) break;
-                    if (j == 1) return i;
-                }
-            }
-
-            return -1;
-        }
-
         public static int GetFloorIndex<T>(T[] valuesInIncreasingOrder, T lookUpValue)
         {
             /*
@@ -79,7 +45,7 @@ namespace Pal3.Core.Utilities
              * the negative number returned is the bitwise complement of
              * (the index of the last element plus 1).
              */
-            var index = Array.BinarySearch(valuesInIncreasingOrder, lookUpValue);
+            int index = Array.BinarySearch(valuesInIncreasingOrder, lookUpValue);
 
             if (index < 0)
             {

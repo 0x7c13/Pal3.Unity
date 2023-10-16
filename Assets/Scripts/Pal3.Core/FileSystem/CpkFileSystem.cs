@@ -62,7 +62,7 @@ namespace Pal3.Core.FileSystem
 
             if (!File.Exists(cpkFilePath))
             {
-                throw new FileNotFoundException(cpkFilePath);
+                throw new FileNotFoundException($"CPK file not found: {cpkFilePath}");
             }
 
             var cpkArchive = new CpkArchive(cpkFilePath, _crcHash, codepage);
@@ -71,64 +71,58 @@ namespace Pal3.Core.FileSystem
         }
 
         /// <summary>
-        /// Check if file exists in any of the segmented archives using virtual path.
-        /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}</param>
-        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
-        /// <returns>True if file exists in segmented archive</returns>
-        public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName)
-        {
-            ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
-
-            if (_cpkArchives.ContainsKey(cpkFileName))
-            {
-                segmentedArchiveName = null;
-                return false;
-            }
-
-            // Check if the file exists in any of the segmented cpk archives.
-            foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
-                             StringComparison.OrdinalIgnoreCase)))
-            {
-                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
-                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
-                {
-                    segmentedArchiveName = subCpkPath;
-                    return true;
-                }
-            }
-
-            segmentedArchiveName = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Check if file exists in the archive using virtual path.
+        /// Check if file exists in the archive or any of the segmented archives using virtual path.
         /// </summary>
         /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
         /// Example: music.cpk\music\PI01.mp3</param>
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath)
         {
+            return FileExists(fileVirtualPath, out _, out _);
+        }
+
+        /// <summary>
+        /// Check if file exists in the archive or any of the segmented archives using virtual path.
+        /// </summary>
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
+        /// Example: music.cpk\music\PI01.mp3</param>
+        /// <param name="isInSegmentedArchive">True if file exists in segmented archive</param>
+        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
+        /// <returns>True if file exists</returns>
+        public bool FileExists(string fileVirtualPath, out bool isInSegmentedArchive, out string segmentedArchiveName)
+        {
             ParseFileVirtualPath(fileVirtualPath, out var cpkFileName, out var relativeVirtualPath);
 
             if (_cpkArchives.TryGetValue(cpkFileName, out CpkArchive archive))
             {
-                return archive.FileExists(relativeVirtualPath);
+                isInSegmentedArchive = false;
+                segmentedArchiveName = null;
+                return archive.FileExists(relativeVirtualPath, out _);
             }
 
+            // Prepare the prefix to match
+            string prefixToMatch = cpkFileName[..^CpkConstants.FileExtension.Length] + '_';
+
             // Check if the file exists in any of the segmented cpk archives.
-            foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
-                             StringComparison.OrdinalIgnoreCase)))
+            // Ex: q02_01.cpk, q02_02.cpk, q02_03.cpk in PAL3A
+            foreach ((string subCpkPath, CpkArchive subArchive) in _cpkArchives)
             {
-                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
-                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
+                // Check if the key starts with the specified prefix
+                if (subCpkPath.StartsWith(prefixToMatch, StringComparison.OrdinalIgnoreCase))
                 {
-                    return true;
+                    string relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
+
+                    if (subArchive.FileExists(relativePathInSubCpk, out _))
+                    {
+                        isInSegmentedArchive = true;
+                        segmentedArchiveName = subCpkPath;
+                        return true;
+                    }
                 }
             }
+
+            isInSegmentedArchive = false;
+            segmentedArchiveName = null;
             return false;
         }
 
@@ -143,22 +137,32 @@ namespace Pal3.Core.FileSystem
 
             if (_cpkArchives.TryGetValue(cpkFileName, out CpkArchive archive))
             {
-                return archive.ReadAllBytes(relativeVirtualPath);
-            }
-
-            // Find and read the file content in segmented cpk archives.
-            foreach (var subCpkPath in _cpkArchives.Keys
-                         .Where(_ => _.StartsWith(cpkFileName[..^CpkConstants.FileExtension.Length] + '_',
-                             StringComparison.OrdinalIgnoreCase)))
-            {
-                var relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
-                if (_cpkArchives[subCpkPath].FileExists(relativePathInSubCpk))
+                if (archive.FileExists(relativeVirtualPath, out uint filePathCrcHash))
                 {
-                    return _cpkArchives[subCpkPath].ReadAllBytes(relativePathInSubCpk);
+                    return archive.ReadAllBytes(filePathCrcHash);
                 }
             }
 
-            throw new FileNotFoundException($"<{fileVirtualPath}> not found");
+            string prefixToMatch = cpkFileName[..^CpkConstants.FileExtension.Length] + '_';
+
+            // Find and read the file content in segmented cpk archives.
+            // Ex: q02_01.cpk, q02_02.cpk, q02_03.cpk in PAL3A
+            foreach ((string subCpkPath, CpkArchive subArchive) in _cpkArchives)
+            {
+                // Check if the key starts with the specified prefix
+                if (subCpkPath.StartsWith(prefixToMatch, StringComparison.OrdinalIgnoreCase))
+                {
+                    string relativePathInSubCpk = relativeVirtualPath.Replace(cpkFileName, subCpkPath);
+
+                    // Check if file exists in the current archive and capture the file path CRC hash
+                    if (subArchive.FileExists(relativePathInSubCpk, out uint filePathCrcHash))
+                    {
+                        return subArchive.ReadAllBytes(filePathCrcHash);
+                    }
+                }
+            }
+
+            throw new FileNotFoundException($"The file <{fileVirtualPath}> does not exist in any of the CPK archives");
         }
 
         /// <summary>
@@ -352,7 +356,7 @@ namespace Pal3.Core.FileSystem
             }
 
             cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLower();
-            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..];
+            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..].ToLower();
         }
     }
 }

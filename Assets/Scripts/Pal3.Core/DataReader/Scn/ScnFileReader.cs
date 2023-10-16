@@ -81,7 +81,7 @@ namespace Pal3.Core.DataReader.Scn
                 Path = new ScnPath()
                 {
                     NumberOfWaypoints = reader.ReadInt32(),
-                    GameBoxWaypoints = reader.ReadVector3s(16)
+                    GameBoxWaypoints = reader.ReadGameBoxVector3s(16)
                 },
                 NoTurn = reader.ReadUInt32(),
                 LoopAction = reader.ReadUInt32(),
@@ -103,7 +103,7 @@ namespace Pal3.Core.DataReader.Scn
             var isNonBlocking = reader.ReadByte();
             _ = reader.ReadBytes(2); // Empty padding bytes to complete 4-byte alignment
 
-            var gameBoxPosition = reader.ReadVector3();
+            var gameBoxPosition = reader.ReadGameBoxVector3();
             var yRotation = reader.ReadSingle();
 
             var tileMapTriggerRect = new GameBoxRect()
@@ -151,7 +151,7 @@ namespace Pal3.Core.DataReader.Scn
             var path = new ScnPath()
             {
                 NumberOfWaypoints = reader.ReadInt32(),
-                GameBoxWaypoints = reader.ReadVector3s(16)
+                GameBoxWaypoints = reader.ReadGameBoxVector3s(16)
             };
 
             var linkedObjectId = reader.ReadUInt16();
@@ -159,8 +159,8 @@ namespace Pal3.Core.DataReader.Scn
             var dependentObjectId = reader.ReadByte();
             _ = reader.ReadByte(); // Empty padding byte to complete 4-byte alignment
 
-            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
-            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
             var xRotation = reader.ReadSingle();
 

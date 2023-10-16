@@ -37,7 +37,7 @@ namespace Pal3.Game.Scene
             }
         }
 
-        public void Init(int layerIndex, NavFaceLayer navFaceLayer)
+        public void Init(int layerIndex, NavMeshData navMeshData)
         {
             NavLayerIndex = layerIndex;
 
@@ -45,8 +45,8 @@ namespace Pal3.Game.Scene
             _meshCollider.convex = false;
             _meshCollider.sharedMesh = new Mesh()
             {
-                vertices = navFaceLayer.GameBoxVertices.ToUnityPositions(),
-                triangles = navFaceLayer.GameBoxTriangles.ToUnityTriangles(),
+                vertices = navMeshData.GameBoxVertices.ToUnityPositions(),
+                triangles = navMeshData.GameBoxTriangles.ToUnityTriangles(),
             };
         }
     }

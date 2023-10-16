@@ -32,7 +32,7 @@ namespace Pal3.Core.DataReader.Nav
         }
     }
 
-    public struct NavTileLayer
+    public struct NavLayer
     {
         public GameBoxRect[] Portals; // Max of 8
         public GameBoxVector3 GameBoxMaxWorldPosition;
@@ -42,7 +42,7 @@ namespace Pal3.Core.DataReader.Nav
         public NavTile[] Tiles;
     }
 
-    public struct NavFaceLayer
+    public struct NavMeshData
     {
         public GameBoxVector3[] GameBoxVertices;
         public int[] GameBoxTriangles;
@@ -54,13 +54,13 @@ namespace Pal3.Core.DataReader.Nav
     /// </summary>
     public sealed class NavFile
     {
-        public NavTileLayer[] TileLayers { get; }
-        public NavFaceLayer[] FaceLayers { get; }
+        public NavLayer[] Layers { get; }
+        public NavMeshData[] MeshData { get; }
 
-        public NavFile(NavTileLayer[] tileLayers, NavFaceLayer[] faceLayers)
+        public NavFile(NavLayer[] layers, NavMeshData[] meshData)
         {
-            TileLayers = tileLayers;
-            FaceLayers = faceLayers;
+            Layers = layers;
+            MeshData = meshData;
         }
     }
 }

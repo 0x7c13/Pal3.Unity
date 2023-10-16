@@ -85,7 +85,7 @@ namespace Pal3.Core.DataReader.Mov
                 animationKeyFrames[i] = new MovAnimationKeyFrame()
                 {
                     KeySeconds = reader.ReadSingle(),
-                    GameBoxTranslation = reader.ReadVector3(),
+                    GameBoxTranslation = reader.ReadGameBoxVector3(),
                     GameBoxRotation = new GameBoxQuaternion()
                     {
                         X = reader.ReadSingle(),

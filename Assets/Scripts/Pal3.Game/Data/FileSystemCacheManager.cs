@@ -6,6 +6,7 @@
 namespace Pal3.Game.Data
 {
     using System;
+    using System.Diagnostics;
     using Command;
     using Command.Extensions;
     using Core.Command;
@@ -49,13 +50,18 @@ namespace Pal3.Game.Data
                     var currentSceneFolderPath = $"{_currentCityName}{CpkConstants.FileExtension}" +
                                                  $"{CpkConstants.DirectorySeparatorChar}{_currentSceneName}";
 
-                    if (_fileSystem.FileExistsInSegmentedArchive(currentSceneFolderPath, out string segmentedArchiveName))
+                    if (_fileSystem.FileExists(currentSceneFolderPath,
+                            out bool isInSegmentedArchive,
+                            out string segmentedArchiveName))
                     {
-                        _fileSystem.DisposeInMemoryArchive(segmentedArchiveName);
-                    }
-                    else
-                    {
-                        _fileSystem.DisposeInMemoryArchive(_currentCityName + CpkConstants.FileExtension);
+                        if (isInSegmentedArchive)
+                        {
+                            _fileSystem.DisposeInMemoryArchive(segmentedArchiveName);
+                        }
+                        else
+                        {
+                            _fileSystem.DisposeInMemoryArchive(_currentCityName + CpkConstants.FileExtension);
+                        }
                     }
 
                     EngineLogger.Log($"Disposed {_currentCityName} cpk in-memory archive");
@@ -66,16 +72,23 @@ namespace Pal3.Game.Data
                     var newSceneFolderPath = $"{newCityName}{CpkConstants.FileExtension}" +
                                              $"{CpkConstants.DirectorySeparatorChar}{newSceneName}";
 
-                    if (_fileSystem.FileExistsInSegmentedArchive(newSceneFolderPath, out string segmentedArchiveName))
+                    Stopwatch timer = Stopwatch.StartNew();
+
+                    if (_fileSystem.FileExists(newSceneFolderPath,
+                            out bool isInSegmentedArchive,
+                            out string segmentedArchiveName))
                     {
-                        _fileSystem.LoadArchiveIntoMemory(segmentedArchiveName);
-                    }
-                    else
-                    {
-                        _fileSystem.LoadArchiveIntoMemory(newCityName + CpkConstants.FileExtension);
+                        if (isInSegmentedArchive)
+                        {
+                            _fileSystem.LoadArchiveIntoMemory(segmentedArchiveName);
+                        }
+                        else
+                        {
+                            _fileSystem.LoadArchiveIntoMemory(newCityName + CpkConstants.FileExtension);
+                        }
                     }
 
-                    EngineLogger.Log($"Loaded {newCityName} cpk archive into memory");
+                    EngineLogger.Log($"Loaded {newCityName} cpk archive into memory in {timer.ElapsedMilliseconds} ms");
                 }
 
                 _currentCityName = newCityName;

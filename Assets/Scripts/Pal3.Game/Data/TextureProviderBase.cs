@@ -5,6 +5,7 @@
 
 namespace Pal3.Game.Data
 {
+    using System;
     using Core.FileSystem;
     using Engine.Core.Abstraction;
 
@@ -15,14 +16,18 @@ namespace Pal3.Game.Data
             ITextureLoader textureLoader,
             out bool hasAlphaChannel)
         {
-            // Just to make sure we have the texture
-            if (!fileSystem.FileExists(texturePath))
+            byte[] data;
+
+            try
+            {
+                data = fileSystem.ReadAllBytes(texturePath);
+            }
+            catch (Exception)
             {
                 hasAlphaChannel = false;
                 return null;
             }
 
-            var data = fileSystem.ReadAllBytes(texturePath);
             textureLoader.Load(data, out hasAlphaChannel);
             return textureLoader.ToTexture();
         }

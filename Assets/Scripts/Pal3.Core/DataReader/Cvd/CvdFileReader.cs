@@ -301,9 +301,9 @@ namespace Pal3.Core.DataReader.Cvd
                 var vertices = new CvdVertex[numberOfVertices];
                 for (var j = 0; j < numberOfVertices; j++)
                 {
-                    GameBoxVector2 uv = reader.ReadVector2();
-                    GameBoxVector3 normal = reader.ReadVector3();
-                    GameBoxVector3 position = reader.ReadVector3();
+                    GameBoxVector2 uv = reader.ReadGameBoxVector2();
+                    GameBoxVector3 normal = reader.ReadGameBoxVector3();
+                    GameBoxVector3 position = reader.ReadGameBoxVector3();
 
                     // Quick fix for the missing/wrong normals
                     if (normal == GameBoxVector3.Zero)
@@ -350,10 +350,10 @@ namespace Pal3.Core.DataReader.Cvd
 
             GameBoxMaterial material = new ()
             {
-                Diffuse = CoreUtility.ToColor32(reader.ReadBytes(4)),
-                Ambient = CoreUtility.ToColor32(reader.ReadBytes(4)),
-                Specular = CoreUtility.ToColor32(reader.ReadBytes(4)),
-                Emissive = CoreUtility.ToColor32(reader.ReadBytes(4)),
+                Diffuse = (Color)reader.ReadColor32(),
+                Ambient = (Color)reader.ReadColor32(),
+                Specular = (Color)reader.ReadColor32(),
+                Emissive = (Color)reader.ReadColor32(),
                 SpecularPower = reader.ReadSingle(),
                 TextureFileNames = new [] { reader.ReadString(64, codepage) }
             };
@@ -386,10 +386,10 @@ namespace Pal3.Core.DataReader.Cvd
                 {
                     animationMaterials[i] = new GameBoxMaterial()
                     {
-                        Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
-                        Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
-                        Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
-                        Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
+                        Diffuse = reader.ReadColor(),
+                        Ambient = reader.ReadColor(),
+                        Specular = reader.ReadColor(),
+                        Emissive = reader.ReadColor(),
                         SpecularPower = reader.ReadSingle()
                     };
                 }

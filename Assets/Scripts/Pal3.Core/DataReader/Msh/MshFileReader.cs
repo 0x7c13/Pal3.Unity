@@ -63,7 +63,7 @@ namespace Pal3.Core.DataReader.Msh
             var nameLength = reader.ReadInt32();
             var name = reader.ReadString(nameLength, codepage);
 
-            GameBoxVector3 gameBoxTranslation = reader.ReadVector3();
+            GameBoxVector3 gameBoxTranslation = reader.ReadGameBoxVector3();
             GameBoxQuaternion gameBoxRotation = new GameBoxQuaternion()
             {
                 X = reader.ReadSingle(),
@@ -127,17 +127,13 @@ namespace Pal3.Core.DataReader.Msh
             var numberOfLods = reader.ReadInt32();
             var layerFlag = (MshLayerFlag)reader.ReadInt32();
 
-            var gameBoxVertices = new GameBoxVector3[numberOfVertices];
-
+            GameBoxVector3[] gameBoxVertices = null;
             if (layerFlag.HasFlag(MshLayerFlag.Position))
             {
-                for (var i = 0; i < numberOfVertices; i++)
-                {
-                    gameBoxVertices[i] = reader.ReadVector3();
-                }
+                gameBoxVertices = reader.ReadGameBoxVector3s(numberOfVertices);
             }
 
-            var phyVertices = new PhyVertex[numberOfVertices];
+            PhyVertex[] phyVertices = new PhyVertex[numberOfVertices];
             if (layerFlag.HasFlag(MshLayerFlag.Bone))
             {
                 for (var i = 0; i < numberOfVertices; i++)
@@ -151,12 +147,9 @@ namespace Pal3.Core.DataReader.Msh
                         weights[j] = reader.ReadByte();
                     }
 
-                    phyVertices[i] = new PhyVertex
-                    {
-                        GameBoxPosition = gameBoxVertices[i],
-                        BoneIds = boneIds,
-                        Weights = weights,
-                    };
+                    phyVertices[i].GameBoxPosition = gameBoxVertices != null ? gameBoxVertices[i] : new GameBoxVector3();
+                    phyVertices[i].BoneIds = boneIds;
+                    phyVertices[i].Weights = weights;
                 }
             }
 

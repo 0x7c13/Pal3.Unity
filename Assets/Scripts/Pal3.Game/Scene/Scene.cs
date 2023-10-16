@@ -130,8 +130,7 @@ namespace Pal3.Game.Scene
         {
             _parent = parent;
 
-            var timer = new Stopwatch();
-            timer.Start();
+            Stopwatch timer = Stopwatch.StartNew();
 
             base.Init(_resourceProvider,
                 scnFile,
@@ -167,7 +166,6 @@ namespace Pal3.Game.Scene
 
             InitSceneObjects();
             EngineLogger.Log($"Objects initialized in {timer.ElapsedMilliseconds} ms");
-            timer.Stop();
         }
 
         public ScnSceneInfo GetSceneInfo()
@@ -279,14 +277,14 @@ namespace Pal3.Game.Scene
                 return;
             }
 
-            for (var i = 0; i < NavFile.FaceLayers.Length; i++)
+            for (var i = 0; i < NavFile.Layers.Length; i++)
             {
                 IGameEntity navMeshGameEntity = GameEntityFactory.Create($"NavMesh_Layer_{i}",
                     _parent, worldPositionStays: false);
                 navMeshGameEntity.IsStatic = true; // NavMesh is static
 
                 NavMesh navMesh = navMeshGameEntity.AddComponent<NavMesh>();
-                navMesh.Init(layerIndex: i, NavFile.FaceLayers[i]);
+                navMesh.Init(layerIndex: i, NavFile.MeshData[i]);
 
                 _navMeshEntities.Add(navMeshGameEntity);
             }

@@ -26,20 +26,22 @@ namespace Pal3.Core.FileSystem
         public void Mount(string cpkFileRelativePath, int codepage);
 
         /// <summary>
-        /// Check if file exists in any of the segmented archives using virtual path.
-        /// </summary>
-        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}</param>
-        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
-        /// <returns>True if file exists in segmented archive</returns>
-        public bool FileExistsInSegmentedArchive(string fileVirtualPath, out string segmentedArchiveName);
-
-        /// <summary>
-        /// Check if file exists in the archive using virtual path.
+        /// Check if file exists in the archive or any of the segmented archives using virtual path.
         /// </summary>
         /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
         /// Example: music.cpk\music\PI01.mp3</param>
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath);
+
+        /// <summary>
+        /// Check if file exists in the archive or any of the segmented archives using virtual path.
+        /// </summary>
+        /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
+        /// Example: music.cpk\music\PI01.mp3</param>
+        /// <param name="isInSegmentedArchive">True if file exists in segmented archive</param>
+        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
+        /// <returns>True if file exists</returns>
+        public bool FileExists(string fileVirtualPath, out bool isInSegmentedArchive, out string segmentedArchiveName);
 
         /// <summary>
         /// Read all bytes of the given file.

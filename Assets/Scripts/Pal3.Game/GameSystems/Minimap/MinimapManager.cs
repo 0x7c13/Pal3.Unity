@@ -80,7 +80,7 @@ namespace Pal3.Game.GameSystems.Minimap
         {
             if (_currentTilemap == null) return;
 
-            NavTileLayer layer = _currentTilemap.GetLayer(command.LayerIndex);
+            NavLayer layer = _currentTilemap.GetLayer(command.LayerIndex);
 
             // Swap the sprite if the player has moved to another layer
             if (_currentLayerIndex != command.LayerIndex)
@@ -121,12 +121,12 @@ namespace Pal3.Game.GameSystems.Minimap
 
             for (var i = 0; i < _currentTilemap.GetLayerCount(); i++)
             {
-                NavTileLayer tileLayer = _currentTilemap.GetLayer(i);
-                _miniMapTextures[i] = _miniMapTextureCreator.CreateMinimapTexture(tileLayer);
+                NavLayer layer = _currentTilemap.GetLayer(i);
+                _miniMapTextures[i] = _miniMapTextureCreator.CreateMinimapTexture(layer);
 
                 _miniMapSprites[i] = _miniMapTextures[i].CreateSprite(
                     0, 0,
-                    tileLayer.Width, tileLayer.Height,
+                    layer.Width, layer.Height,
                     0.5f, 0.5f);
             }
 

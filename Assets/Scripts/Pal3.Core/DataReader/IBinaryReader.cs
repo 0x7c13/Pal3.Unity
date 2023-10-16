@@ -17,24 +17,24 @@ namespace Pal3.Core.DataReader
     /// </summary>
     public interface IBinaryReader : IDisposable
     {
-        long Position { get; }
-        long Length { get; }
-        void Seek(long offset, SeekOrigin seekOrigin);
-        short ReadInt16();
-        int ReadInt32();
-        long ReadInt64();
-        ushort ReadUInt16();
-        uint ReadUInt32();
-        ulong ReadUInt64();
-        float ReadSingle();
-        double ReadDouble();
-        bool ReadBoolean();
-        byte ReadByte();
-        byte[] ReadBytes(int count);
+        public long Position { get; }
+        public long Length { get; }
+        public void Seek(long offset, SeekOrigin seekOrigin);
+        public short ReadInt16();
+        public int ReadInt32();
+        public long ReadInt64();
+        public ushort ReadUInt16();
+        public uint ReadUInt32();
+        public ulong ReadUInt64();
+        public float ReadSingle();
+        public double ReadDouble();
+        public bool ReadBoolean();
+        public byte ReadByte();
+        public byte[] ReadBytes(int count);
 
         #region Helper Extensions (Default Implementation)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float[] ReadSingles(int count)
+        public float[] ReadSingles(int count)
         {
             var array = new float[count];
             for (var i = 0; i < count; i++)
@@ -45,7 +45,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        double[] ReadDoubles(int count)
+        public double[] ReadDoubles(int count)
         {
             var array = new double[count];
             for (var i = 0; i < count; i++)
@@ -56,7 +56,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        short[] ReadInt16s(int count)
+        public short[] ReadInt16s(int count)
         {
             var array = new short[count];
             for (var i = 0; i < count; i++)
@@ -67,7 +67,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ushort[] ReadUInt16s(int count)
+        public ushort[] ReadUInt16s(int count)
         {
             var array = new ushort[count];
             for (var i = 0; i < count; i++)
@@ -78,7 +78,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        int[] ReadInt32s(int count)
+        public int[] ReadInt32s(int count)
         {
             var array = new int[count];
             for (var i = 0; i < count; i++)
@@ -89,7 +89,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        uint[] ReadUInt32s(int count)
+        public uint[] ReadUInt32s(int count)
         {
             var array = new uint[count];
             for (var i = 0; i < count; i++)
@@ -100,7 +100,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        long[] ReadInt64s(int count)
+        public long[] ReadInt64s(int count)
         {
             var array = new long[count];
             for (var i = 0; i < count; i++)
@@ -111,7 +111,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ulong[] ReadUInt64s(int count)
+        public ulong[] ReadUInt64s(int count)
         {
             var array = new ulong[count];
             for (var i = 0; i < count; i++)
@@ -122,7 +122,7 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        T[] ReadEnums<T>(int count) where T : Enum
+        public T[] ReadEnums<T>(int count) where T : Enum
         {
             var array = new T[count];
             for (var i = 0; i < count; i++)
@@ -139,10 +139,10 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        string ReadString(int count) => new (ReadChars(count));
+        public string ReadString(int count) => new (ReadChars(count));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        string ReadString(int count, int codepage)
+        public string ReadString(int count, int codepage)
         {
             var strBytes = ReadBytes(count);
             int length = Array.IndexOf(strBytes, (byte)0);
@@ -151,18 +151,57 @@ namespace Pal3.Core.DataReader
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        GameBoxVector2 ReadVector2() => new (ReadSingle(), ReadSingle());
+        public GameBoxVector2 ReadGameBoxVector2() => new (ReadSingle(), ReadSingle());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        GameBoxVector3 ReadVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
+        public GameBoxVector2[] ReadGameBoxVector2s(int count)
+        {
+            var array = new GameBoxVector2[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadGameBoxVector2();
+            }
+            return array;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        GameBoxVector3[] ReadVector3s(int count)
+        public GameBoxVector3 ReadGameBoxVector3() => new (ReadSingle(), ReadSingle(), ReadSingle());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public GameBoxVector3[] ReadGameBoxVector3s(int count)
         {
             var array = new GameBoxVector3[count];
             for (var i = 0; i < count; i++)
             {
-                array[i] = ReadVector3();
+                array[i] = ReadGameBoxVector3();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Color32 ReadColor32() => new (ReadByte(), ReadByte(), ReadByte(), ReadByte());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Color32[] ReadColor32s(int count)
+        {
+            var array = new Color32[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadColor32();
+            }
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Color ReadColor() => new (ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Color[] ReadColors(int count)
+        {
+            var array = new Color[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = ReadColor();
             }
             return array;
         }

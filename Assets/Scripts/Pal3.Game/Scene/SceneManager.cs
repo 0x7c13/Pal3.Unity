@@ -93,15 +93,16 @@ namespace Pal3.Game.Scene
 
         public Scene LoadScene(string sceneCityName, string sceneName)
         {
-            var timer = new Stopwatch();
-            timer.Start();
+            Stopwatch timer = Stopwatch.StartNew();
+
             DisposeCurrentScene();
 
             ScnFile scnFile = _resourceProvider.GetGameResourceFile<ScnFile>(
                     FileConstants.GetScnFileVirtualPath(sceneCityName, sceneName));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
-            EngineLogger.Log("Loading scene: " + JsonConvert.SerializeObject(scnFile.SceneInfo));
+
+            EngineLogger.Log($"Loading scene: {JsonConvert.SerializeObject(scnFile.SceneInfo)}");
 
             _currentSceneRoot = GameEntityFactory.Create($"Scene_{sceneCityName}_{sceneName}",
                 null, worldPositionStays: false);
@@ -125,8 +126,7 @@ namespace Pal3.Game.Scene
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
                     : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
 
-            timer.Stop();
-            EngineLogger.Log($"Scene loaded in {timer.Elapsed.TotalSeconds} seconds");
+            EngineLogger.Log($"Scene loaded in {timer.ElapsedMilliseconds} ms");
 
             // Also a good time to collect garbage
             System.GC.Collect();
@@ -136,8 +136,7 @@ namespace Pal3.Game.Scene
 
         public CombatScene LoadCombatScene(string combatSceneName)
         {
-            var timer = new Stopwatch();
-            timer.Start();
+            Stopwatch timer = Stopwatch.StartNew();
 
             HideCurrentScene();
 
@@ -150,8 +149,7 @@ namespace Pal3.Game.Scene
                 combatSceneName,
                 _gameSettings.IsRealtimeLightingAndShadowsEnabled);
 
-            timer.Stop();
-            EngineLogger.Log($"CombatScene loaded in {timer.Elapsed.TotalSeconds} seconds");
+            EngineLogger.Log($"CombatScene loaded in {timer.ElapsedMilliseconds} ms");
 
             // Also a good time to collect garbage
             System.GC.Collect();

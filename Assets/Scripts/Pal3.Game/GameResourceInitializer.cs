@@ -310,12 +310,9 @@ namespace Pal3.Game
             {
                 try
                 {
-                    var timer = new Stopwatch();
-                    timer.Start();
+                    Stopwatch timer = Stopwatch.StartNew();
                     cpkFileSystem = InitializeCpkFileSystem(path, crcHash, codepage);
-                    timer.Stop();
-                    EngineLogger.Log("All .cpk files mounted successfully. " +
-                              $"Total time: {timer.Elapsed.TotalSeconds:0.000}s");
+                    EngineLogger.Log($"All CPK files mounted successfully in {timer.ElapsedMilliseconds} ms");
                 }
                 catch (Exception ex)
                 {

@@ -77,8 +77,7 @@ namespace Pal3.Game.Rendering.Material
         {
             if (_isMaterialPoolAllocated) return;
 
-            var timer = new Stopwatch();
-            timer.Start();
+            Stopwatch timer = Stopwatch.StartNew();
 
             for (var i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
             {
@@ -100,14 +99,12 @@ namespace Pal3.Game.Rendering.Material
                 _opaqueMaterialPool.Push(new Material(_opaqueMaterial));
             }
 
-            timer.Stop();
             EngineLogger.Log($"Material pool allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         public void DeallocateMaterialPool()
         {
-            var timer = new Stopwatch();
-            timer.Start();
+            Stopwatch timer = Stopwatch.StartNew();
 
             while (_waterMaterialPool.Count > 0)
             {
@@ -131,7 +128,6 @@ namespace Pal3.Game.Rendering.Material
 
             _isMaterialPoolAllocated = false;
 
-            timer.Stop();
             EngineLogger.Log($"Material pool de-allocated in {timer.ElapsedMilliseconds} ms");
         }
 

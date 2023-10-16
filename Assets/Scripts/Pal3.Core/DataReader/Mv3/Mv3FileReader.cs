@@ -75,8 +75,8 @@ namespace Pal3.Core.DataReader.Mv3
             var name = reader.ReadString(64, codepage);
             var numberOfVertices = reader.ReadInt32();
 
-            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
-            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
             var numberOfFrames = reader.ReadInt32();
             var frames = new Mv3VertFrame[numberOfFrames];
@@ -102,19 +102,9 @@ namespace Pal3.Core.DataReader.Mv3
             }
 
             var numberOfTexCoords = reader.ReadInt32();
-            GameBoxVector2[] texCoords;
-            if (numberOfTexCoords == 0)
-            {
-                texCoords = new GameBoxVector2[] { new (0f, 0f) };
-            }
-            else
-            {
-                texCoords = new GameBoxVector2[numberOfTexCoords];
-                for (var i = 0; i < numberOfTexCoords; i++)
-                {
-                    texCoords[i] = reader.ReadVector2();
-                }
-            }
+            GameBoxVector2[] texCoords = numberOfTexCoords == 0 ?
+                new GameBoxVector2[] { new (0f, 0f) } :
+                reader.ReadGameBoxVector2s(numberOfTexCoords);
 
             var numberOfAttributes = reader.ReadInt32();
             var attributes = new Mv3Attribute[numberOfAttributes];
@@ -236,7 +226,7 @@ namespace Pal3.Core.DataReader.Mv3
         private static Mv3TagFrame ReadTagFrame(IBinaryReader reader)
         {
             var gameBoxTick = reader.ReadUInt32();
-            GameBoxVector3 gameBoxPosition = reader.ReadVector3();
+            GameBoxVector3 gameBoxPosition = reader.ReadGameBoxVector3();
 
             var gameBoxRotation = new GameBoxQuaternion()
             {
@@ -275,10 +265,10 @@ namespace Pal3.Core.DataReader.Mv3
         {
             GameBoxMaterial material = new ()
             {
-                Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Diffuse = reader.ReadColor(),
+                Ambient = reader.ReadColor(),
+                Specular = reader.ReadColor(),
+                Emissive = reader.ReadColor(),
                 SpecularPower = reader.ReadSingle()
             };
 

@@ -31,11 +31,11 @@ namespace Pal3.Game.GameSystems.Minimap
         }
 
         /// <summary>
-        /// Creates a Texture2D for the given NavTileLayer, representing a minimap of the layer.
+        /// Creates a Texture2D for the given NavLayer, representing a minimap of the layer.
         /// </summary>
-        /// <param name="layer">The NavTileLayer to create the minimap for.</param>
-        /// <returns>A Texture2D representing the minimap of the NavTileLayer.</returns>
-        public ITexture2D CreateMinimapTexture(NavTileLayer layer)
+        /// <param name="layer">The NavLayer to create the minimap for.</param>
+        /// <returns>A Texture2D representing the minimap of the NavLayer.</returns>
+        public ITexture2D CreateMinimapTexture(NavLayer layer)
         {
             byte[] rgbaData = ArrayPool<byte>.Shared.Rent(layer.Width * layer.Height * 4);
 

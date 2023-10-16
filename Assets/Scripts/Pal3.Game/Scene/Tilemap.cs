@@ -35,19 +35,19 @@ namespace Pal3.Game.Scene
 
         public int GetLayerCount()
         {
-            return _navFile.TileLayers.Length;
+            return _navFile.Layers.Length;
         }
 
         public bool IsTilePositionInsideTileMap(Vector2Int tilePosition, int layerIndex)
         {
-            return tilePosition.x >=0 && tilePosition.x < _navFile.TileLayers[layerIndex].Width &&
-                   tilePosition.y >=0 && tilePosition.y < _navFile.TileLayers[layerIndex].Height;
+            return tilePosition.x >=0 && tilePosition.x < _navFile.Layers[layerIndex].Width &&
+                   tilePosition.y >=0 && tilePosition.y < _navFile.Layers[layerIndex].Height;
         }
 
         public Vector3 GetWorldPosition(Vector2Int tilePosition, int layerIndex)
         {
             var isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            NavLayer currentLayer = _navFile.Layers[layerIndex];
             var position = new GameBoxVector3(
                 currentLayer.GameBoxMinWorldPosition.X + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
                 isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
@@ -58,7 +58,7 @@ namespace Pal3.Game.Scene
         public Vector2Int GetTilePosition(Vector3 position, int layerIndex)
         {
             GameBoxVector3 gameBoxPosition = position.ToGameBoxPosition();
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            NavLayer currentLayer = _navFile.Layers[layerIndex];
             return new Vector2Int(
                 (int) ((gameBoxPosition.X - currentLayer.GameBoxMinWorldPosition.X) / NAV_TILE_SIZE),
                 (int) ((gameBoxPosition.Z - currentLayer.GameBoxMinWorldPosition.Z) / NAV_TILE_SIZE));
@@ -81,20 +81,20 @@ namespace Pal3.Game.Scene
 
         private NavTile GetTile(Vector2Int position, int layerIndex)
         {
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            NavLayer currentLayer = _navFile.Layers[layerIndex];
             return currentLayer.Tiles[position.x + position.y * currentLayer.Width];
         }
 
-        public NavTileLayer GetLayer(int layerIndex)
+        public NavLayer GetLayer(int layerIndex)
         {
-            return _navFile.TileLayers[layerIndex];
+            return _navFile.Layers[layerIndex];
         }
 
         public bool IsPositionInsidePortalArea(Vector3 position, int layerIndex)
         {
             Vector2Int tilePosition = GetTilePosition(position, layerIndex);
 
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            NavLayer currentLayer = _navFile.Layers[layerIndex];
 
             foreach (GameBoxRect portalRect in currentLayer.Portals)
             {
@@ -153,7 +153,7 @@ namespace Pal3.Game.Scene
             }
 
             var path = new List<Vector2Int>();
-            NavTileLayer currentLayer = _navFile.TileLayers[layerIndex];
+            NavLayer currentLayer = _navFile.Layers[layerIndex];
 
             bool IsObstacle((int x, int y) position)
             {
@@ -215,13 +215,13 @@ namespace Pal3.Game.Scene
 
         public void MarkFloorTypeAsObstacle(FloorType floorType, bool isObstacle)
         {
-            for (var i = 0; i < _navFile.TileLayers.Length; i++)
+            for (var i = 0; i < _navFile.Layers.Length; i++)
             {
-                var newTiles = new NavTile[_navFile.TileLayers[i].Tiles.Length];
+                var newTiles = new NavTile[_navFile.Layers[i].Tiles.Length];
 
-                for (var j = 0; j < _navFile.TileLayers[i].Tiles.Length; j++)
+                for (var j = 0; j < _navFile.Layers[i].Tiles.Length; j++)
                 {
-                    NavTile navTile = _navFile.TileLayers[i].Tiles[j];
+                    NavTile navTile = _navFile.Layers[i].Tiles[j];
 
                     if (navTile.FloorType == floorType)
                     {
@@ -231,7 +231,7 @@ namespace Pal3.Game.Scene
                     newTiles[j] = navTile;
                 }
 
-                _navFile.TileLayers[i].Tiles = newTiles;
+                _navFile.Layers[i].Tiles = newTiles;
             }
         }
 

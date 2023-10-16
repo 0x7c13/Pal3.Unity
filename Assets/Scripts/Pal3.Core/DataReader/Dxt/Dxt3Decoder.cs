@@ -32,7 +32,7 @@ namespace Pal3.Core.DataReader.Dxt
 				throw new ArgumentException("buffer is null or too small");
 			}
 
-			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = &buffer[0])
+			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = buffer)
 			{
 				var src = srcStart;
 				var dst = dstStart;

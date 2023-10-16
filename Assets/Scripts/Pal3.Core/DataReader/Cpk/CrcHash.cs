@@ -6,7 +6,7 @@
 namespace Pal3.Core.DataReader.Cpk
 {
     using System;
-    using System.Collections.Generic;
+    using System.Buffers;
     using System.Text;
 
     /// <summary>
@@ -19,9 +19,6 @@ namespace Pal3.Core.DataReader.Cpk
 
         private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX + 1];
         private bool _initialized;
-
-        // Cache the crc32 hash result for string since it's expensive to compute.
-        private readonly Dictionary<string, uint> _crcResultCache = new();
 
         public void Init()
         {
@@ -41,31 +38,34 @@ namespace Pal3.Core.DataReader.Cpk
             _initialized = true;
         }
 
-        public uint Compute(string str, int codepage, bool useCache = true)
-        {
-            if (!useCache)
-            {
-                return ComputeInternal(Encoding.GetEncoding(codepage).GetBytes(str));
-            }
-
-            var cacheKey = $"{str}-{codepage}";
-
-            if (_crcResultCache.TryGetValue(cacheKey, out var hash))
-            {
-                return hash;
-            }
-
-            uint result = ComputeInternal(Encoding.GetEncoding(codepage).GetBytes(str));
-
-            _crcResultCache[cacheKey] = result;
-
-            return result;
-        }
-
-        private unsafe uint ComputeInternal(byte[] data)
+        public uint Compute(string str, int codepage)
         {
             if (!_initialized) throw new InvalidOperationException($"Crc32 hash table is not initialized yet");
 
+            Encoding encoding = Encoding.GetEncoding(codepage);
+            int byteCount = encoding.GetByteCount(str);
+
+            byte[] rentedArray = null;
+            Span<byte> buffer = byteCount <= 512  // To prevent stack overflow when string is too long
+                ? stackalloc byte[byteCount]
+                : (Span<byte>)(rentedArray = ArrayPool<byte>.Shared.Rent(byteCount));
+
+            try
+            {
+                encoding.GetBytes(str, buffer);
+                return ComputeInternal(buffer[..byteCount]);
+            }
+            finally
+            {
+                if (rentedArray != null)
+                {
+                    ArrayPool<byte>.Shared.Return(rentedArray);
+                }
+            }
+        }
+
+        private unsafe uint ComputeInternal(ReadOnlySpan<byte> data)
+        {
             if (data == null || data.Length == 0 || data[0] == 0)
             {
                 return 0;

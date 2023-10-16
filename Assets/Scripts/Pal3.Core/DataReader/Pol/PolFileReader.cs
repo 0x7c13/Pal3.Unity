@@ -31,7 +31,7 @@ namespace Pal3.Core.DataReader.Pol
                 nodeInfos[i] = new PolGeometryNode
                 {
                     Name     = reader.ReadString(32, codepage),
-                    GameBoxPosition = reader.ReadVector3(),
+                    GameBoxPosition = reader.ReadGameBoxVector3(),
                     Radius   = reader.ReadSingle(),
                     Offset   = reader.ReadInt32()
                 };
@@ -101,8 +101,8 @@ namespace Pal3.Core.DataReader.Pol
 
         private static PolMesh ReadMeshData(IBinaryReader reader, int version, int codepage)
         {
-            GameBoxVector3 gameBoxBoundsMin = reader.ReadVector3();
-            GameBoxVector3 gameBoxBoundsMax = reader.ReadVector3();
+            GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
+            GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
             var vertexTypeFlag = reader.ReadUInt32();
             var numberOfVertices = reader.ReadInt32();
@@ -127,24 +127,24 @@ namespace Pal3.Core.DataReader.Pol
             {
                 if ((vertexTypeFlag & GameBoxVertexType.XYZ) != 0)
                 {
-                    gameBoxPositions[i] = reader.ReadVector3();
+                    gameBoxPositions[i] = reader.ReadGameBoxVector3();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.XYZRHW) != 0)
                 {
-                    gameBoxPositions[i] = reader.ReadVector3();
+                    gameBoxPositions[i] = reader.ReadGameBoxVector3();
                     _ = reader.ReadSingle();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Normal) != 0)
                 {
-                    gameBoxNormals[i] = reader.ReadVector3();
+                    gameBoxNormals[i] = reader.ReadGameBoxVector3();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Diffuse) != 0)
                 {
-                    diffuseColors[i] = CoreUtility.ToColor32(reader.ReadBytes(4));
+                    diffuseColors[i] = reader.ReadColor32();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.Specular) != 0)
                 {
-                    specularColors[i] = CoreUtility.ToColor32(reader.ReadBytes(4));
+                    specularColors[i] = reader.ReadColor32();
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV0) != 0)
                 {
@@ -212,10 +212,10 @@ namespace Pal3.Core.DataReader.Pol
 
             GameBoxMaterial material = new ()
             {
-                Diffuse = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Ambient = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Specular = CoreUtility.ToColor(reader.ReadSingles(4)),
-                Emissive = CoreUtility.ToColor(reader.ReadSingles(4)),
+                Diffuse = reader.ReadColor(),
+                Ambient = reader.ReadColor(),
+                Specular = reader.ReadColor(),
+                Emissive = reader.ReadColor(),
                 SpecularPower = reader.ReadSingle()
             };
 

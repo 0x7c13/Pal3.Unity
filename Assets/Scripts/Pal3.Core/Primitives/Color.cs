@@ -34,5 +34,13 @@ namespace Pal3.Core.Primitives
         }
 
         public static Color White => new (1f, 1f, 1f, 1f);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Color32(Color c) =>
+            new Color32(
+                (byte) (c.R * byte.MaxValue),
+                (byte) (c.G * byte.MaxValue),
+                (byte) (c.B * byte.MaxValue),
+                (byte) (c.A * byte.MaxValue));
     }
 }

@@ -46,8 +46,8 @@ namespace Pal3.Core.DataReader.Lgt
             {
                 GameBoxWorldMatrix = transformMatrix,
                 LightType = (GameBoxLightType)reader.ReadInt32(),
-                LightColor = CoreUtility.ToColor(reader.ReadSingles(4)),
-                AmbientColor = CoreUtility.ToColor(reader.ReadSingles(4)),
+                LightColor = reader.ReadColor(),
+                AmbientColor = reader.ReadColor(),
                 UseDiffuse = reader.ReadBoolean(),
                 UseSpecular = reader.ReadBoolean(),
                 NearStart = reader.ReadSingle(),

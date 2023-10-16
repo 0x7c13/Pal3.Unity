@@ -29,23 +29,23 @@ namespace Pal3.Core.DataReader.Nav
             var faceOffset = reader.ReadUInt32();
 
             reader.Seek(tileOffset, SeekOrigin.Begin);
-            var tileLayers = new NavTileLayer[numberOfLayers];
+            var layers = new NavLayer[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
-                tileLayers[i] = ReadTileLayer(reader, version);
+                layers[i] = ReadLayerData(reader, version);
             }
 
             reader.Seek(faceOffset, SeekOrigin.Begin);
-            var faceLayers = new NavFaceLayer[numberOfLayers];
+            var meshData = new NavMeshData[numberOfLayers];
             for (var i = 0; i < numberOfLayers; i++)
             {
-                faceLayers[i] = ReadFaceLayer(reader);
+                meshData[i] = ReadMeshData(reader);
             }
 
-            return new NavFile(tileLayers, faceLayers);
+            return new NavFile(layers, meshData);
         }
 
-        private static NavTileLayer ReadTileLayer(IBinaryReader reader, byte version)
+        private static NavLayer ReadLayerData(IBinaryReader reader, byte version)
         {
             var portals = Array.Empty<GameBoxRect>();
 
@@ -64,8 +64,8 @@ namespace Pal3.Core.DataReader.Nav
                 }
             }
 
-            GameBoxVector3 gameBoxMaxWorldPosition = reader.ReadVector3();
-            GameBoxVector3 gameBoxMinWorldPosition = reader.ReadVector3();
+            GameBoxVector3 gameBoxMaxWorldPosition = reader.ReadGameBoxVector3();
+            GameBoxVector3 gameBoxMinWorldPosition = reader.ReadGameBoxVector3();
 
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();
@@ -83,12 +83,12 @@ namespace Pal3.Core.DataReader.Nav
                 {
                     GameBoxYPosition = reader.ReadSingle(),
                     DistanceToNearestObstacle = reader.ReadByte(), //---| 1
-                    FloorType = (FloorType) reader.ReadByte()  //----| 2
+                    FloorType = (FloorType) reader.ReadByte()     //----| 2
                 };
                 _ = reader.ReadBytes(2); //-----------------------------| ^ to complete 4-byte alignment
             }
 
-            return new NavTileLayer()
+            return new NavLayer()
             {
                 Portals = portals,
                 GameBoxMaxWorldPosition = gameBoxMaxWorldPosition,
@@ -99,15 +99,12 @@ namespace Pal3.Core.DataReader.Nav
             };
         }
 
-        private static NavFaceLayer ReadFaceLayer(IBinaryReader reader)
+        private static NavMeshData ReadMeshData(IBinaryReader reader)
         {
             var numberOfVertices = reader.ReadUInt16();
             var numberOfFaces = reader.ReadUInt16();
-            var gameBoxVertices = new GameBoxVector3[numberOfVertices];
-            for (var i = 0; i < numberOfVertices; i++)
-            {
-                gameBoxVertices[i] = reader.ReadVector3();
-            }
+
+            GameBoxVector3[] gameBoxVertices = reader.ReadGameBoxVector3s(numberOfVertices);
 
             var gameBoxTriangles = new int[numberOfFaces * 3];
             for (var i = 0; i < numberOfFaces; i++)
@@ -134,12 +131,13 @@ namespace Pal3.Core.DataReader.Nav
                         normals[gameBoxTriangles[index + 2]].Y < 0)
                     {
                         // Change the winding order of the face to make it point upwards.
-                        (gameBoxTriangles[index], gameBoxTriangles[index + 1]) = (gameBoxTriangles[index + 1], gameBoxTriangles[index]);
+                        (gameBoxTriangles[index], gameBoxTriangles[index + 1]) =
+                            (gameBoxTriangles[index + 1], gameBoxTriangles[index]);
                     }
                 }
             }
 
-            return new NavFaceLayer()
+            return new NavMeshData()
             {
                 GameBoxVertices = gameBoxVertices,
                 GameBoxTriangles = gameBoxTriangles,
