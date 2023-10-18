@@ -77,7 +77,7 @@ namespace Pal3.Core.DataReader.Cpk
             {
                 // Read the whole index table into memory before processing
                 // to avoid I/O overhead
-                _ = stream.Read(indexTableBuffer);
+                _ = stream.Read(indexTableBuffer, 0, indexTableSize);
 
                 uint numOfFiles = header.NumberOfFiles;
                 int filesFound = 0;
@@ -89,7 +89,7 @@ namespace Pal3.Core.DataReader.Cpk
                 for (uint i = 0; i < header.MaxFileCount; i++)
                 {
                     CpkTableEntity tableEntity = CoreUtility.ReadStruct<CpkTableEntity>(
-                        indexTableBuffer, indexTableOffset);
+                        indexTableBuffer.AsSpan(), indexTableOffset);
                     indexTableOffset += cpkTableEntitySize;
 
                     // Skip empty and deleted entries
@@ -137,13 +137,14 @@ namespace Pal3.Core.DataReader.Cpk
 
             foreach ((uint crc, CpkTableEntity entity) in _crcToTableEntityMap)
             {
-                byte[] extraInfo = ArrayPool<byte>.Shared.Rent((int)entity.ExtraInfoSize);
+                int extraInfoSize = (int)entity.ExtraInfoSize;
+                byte[] extraInfo = ArrayPool<byte>.Shared.Rent(extraInfoSize);
 
                 try
                 {
                     long extraInfoOffset = entity.StartPos + entity.PackedSize;
                     stream.Seek(extraInfoOffset, SeekOrigin.Begin);
-                    _ = stream.Read(extraInfo);
+                    _ = stream.Read(extraInfo, 0, extraInfoSize);
                     string fileName = Encoding.GetEncoding(_codepage)
                         .GetString(extraInfo, 0, Array.IndexOf(extraInfo, (byte)0));
                     crcToFileNameMap[crc] = fileName;
@@ -192,8 +193,8 @@ namespace Pal3.Core.DataReader.Cpk
 
             if (_isArchiveInMemory)
             {
-                ReadOnlySpan<byte> rawData = new ReadOnlySpan<byte>(_inMemoryArchiveData)
-                    .Slice((int)entity.StartPos, (int)entity.PackedSize);
+                Span<byte> rawData = _inMemoryArchiveData.AsSpan()
+                    .Slice((int)entity.StartPos, length: (int)entity.PackedSize);
                 return entity.IsCompressed() ?
                     DecompressDataInArchive(rawData, entity.OriginSize) :
                     rawData.ToArray();
@@ -202,15 +203,15 @@ namespace Pal3.Core.DataReader.Cpk
             {
                 using var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
                 stream.Seek(entity.StartPos, SeekOrigin.Begin);
-                var buffer = new byte[entity.PackedSize];
-                _ = stream.Read(buffer, 0, (int)entity.PackedSize);
+                byte[] buffer = new byte[entity.PackedSize];
+                _ = stream.Read(buffer.AsSpan());
                 return entity.IsCompressed() ?
-                    DecompressDataInArchive(buffer, entity.OriginSize) :
+                    DecompressDataInArchive(buffer.AsSpan(), entity.OriginSize) :
                     buffer;
             }
         }
 
-        private byte[] DecompressDataInArchive(ReadOnlySpan<byte> compressedData, uint originSize)
+        private byte[] DecompressDataInArchive(Span<byte> compressedData, uint originSize)
         {
             byte[] decompressedData = new byte[originSize];
             MiniLzo.Decompress(compressedData, decompressedData);

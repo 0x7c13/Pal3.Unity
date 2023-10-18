@@ -15,6 +15,8 @@ namespace Pal3.Core.DataReader
     {
         private readonly BinaryReader _reader;
 
+        private SafeBinaryReader() { }
+
         public SafeBinaryReader(byte[] data) : this (new MemoryStream(data)) { }
 
         public SafeBinaryReader(Stream stream)
@@ -52,7 +54,7 @@ namespace Pal3.Core.DataReader
                 {
                     GC.SuppressFinalize(this);
                 }
-                _reader.Dispose();
+                _reader?.Dispose();
                 _disposedValue = true;
             }
         }

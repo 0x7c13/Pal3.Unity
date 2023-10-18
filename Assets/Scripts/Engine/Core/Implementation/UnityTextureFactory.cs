@@ -5,6 +5,7 @@
 
 namespace Engine.Core.Implementation
 {
+    using System;
     using Abstraction;
     using UnityEngine;
 
@@ -12,6 +13,11 @@ namespace Engine.Core.Implementation
     {
         public ITexture2D CreateTexture(int width, int height, byte[] rgbaData)
         {
+            if (rgbaData.Length < width * height * 4)
+            {
+                throw new ArgumentException("rgbaData.Length < width * height * 4");
+            }
+
             var texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
             texture.LoadRawTextureData(rgbaData);
             texture.Apply(updateMipmaps: false);

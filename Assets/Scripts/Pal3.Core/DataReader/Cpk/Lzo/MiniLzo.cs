@@ -58,7 +58,7 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
     {
         private const uint M2_MAX_OFFSET = 0x0800;
 
-        public static unsafe void Decompress(ReadOnlySpan<byte> src, byte[] dst)
+        public static unsafe void Decompress(Span<byte> src, byte[] dst)
         {
             uint t = 0;
             fixed (byte* input = src, output = dst)

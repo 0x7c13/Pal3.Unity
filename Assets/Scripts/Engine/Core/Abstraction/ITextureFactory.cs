@@ -15,7 +15,8 @@ namespace Engine.Core.Abstraction
         /// </summary>
         /// <param name="width">The width of the texture.</param>
         /// <param name="height">The height of the texture.</param>
-        /// <param name="rgbaData">The RGBA data of the texture.</param>
+        /// <param name="rgbaData">The RGBA data of the texture.
+        /// Size should be greater than or equal to width * height * 4.</param>
         /// <returns>The created texture.</returns>
         public ITexture2D CreateTexture(int width, int height, byte[] rgbaData);
 

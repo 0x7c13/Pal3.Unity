@@ -22,6 +22,8 @@ namespace Pal3.Core.DataReader.Cpk
 
         public void Init()
         {
+            if (_initialized) return;
+
             // generate the table of CRC remainders for all possible bytes
             for (uint i = 0; i <= CRC_TABLE_MAX; i++)
             {
@@ -50,12 +52,13 @@ namespace Pal3.Core.DataReader.Cpk
             byte[] rentedArray = null;
             Span<byte> buffer = byteCount <= 512  // To prevent stack overflow when string is too long
                 ? stackalloc byte[byteCount]
-                : (Span<byte>)(rentedArray = ArrayPool<byte>.Shared.Rent(byteCount));
+                : (rentedArray = ArrayPool<byte>.Shared.Rent(byteCount)).AsSpan();
 
             try
             {
-                encoding.GetBytes(str, buffer);
-                return ComputeInternal(buffer[..byteCount]);
+                encoding.GetBytes(chars: str.AsSpan(), buffer);
+                return ComputeInternal(buffer[..byteCount]); // Use range operator here since rentedArray
+                                                             // may be greater than byteCount
             }
             finally
             {
@@ -66,7 +69,7 @@ namespace Pal3.Core.DataReader.Cpk
             }
         }
 
-        private unsafe uint ComputeInternal(ReadOnlySpan<byte> data)
+        private unsafe uint ComputeInternal(Span<byte> data)
         {
             if (data == null || data.Length == 0 || data[0] == 0)
             {

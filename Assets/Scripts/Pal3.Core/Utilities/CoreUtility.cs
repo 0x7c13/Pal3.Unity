@@ -21,12 +21,12 @@ namespace Pal3.Core.Utilities
             return ReadStructInternal<T>(buffer);
         }
 
-        public static T ReadStruct<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct
+        public static T ReadStruct<T>(Span<byte> bytes, int offset = 0) where T : struct
         {
             return ReadStructInternal<T>(bytes, offset);
         }
 
-        private static unsafe T ReadStructInternal<T>(ReadOnlySpan<byte> bytes, int offset = 0) where T : struct
+        private static unsafe T ReadStructInternal<T>(Span<byte> bytes, int offset = 0) where T : struct
         {
             fixed (byte* ptr = &bytes[offset])
             {
