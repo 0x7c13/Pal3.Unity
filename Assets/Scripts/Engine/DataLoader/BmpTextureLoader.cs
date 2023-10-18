@@ -31,6 +31,25 @@ namespace Engine.DataLoader
             _image = new BmpFileReader().Read(data);
         }
 
+        // Flip image if height is negative
+        private void FlipImage()
+        {
+            if (_image.Info.Height > 0) return;
+
+            int w = _image.Info.AbsWidth;
+            int h = _image.Info.AbsHeight;
+
+            for (int y = 0; y < h / 2; y++)
+            {
+                for(int x = 0, o1=y*w, o2=(h-y-1)*w; x < w; x++,o1++,o2++)
+                {
+                    (_image.ImageData[o1], _image.ImageData[o2]) = (_image.ImageData[o2], _image.ImageData[o1]);
+                }
+            }
+
+            _image.Info.Height = h;
+        }
+
         public ITexture2D ToTexture()
         {
             if (_image == null) return null;
@@ -60,25 +79,6 @@ namespace Engine.DataLoader
                 ArrayPool<byte>.Shared.Return(rawRgbaData);
                 _image = null;
             }
-        }
-
-        // flip image if height is negative
-        private void FlipImage()
-        {
-            if (_image.Info.Height > 0) return;
-
-            int w = _image.Info.AbsWidth;
-            int h = _image.Info.AbsHeight;
-
-            for (int y = 0; y < h / 2; y++)
-            {
-                for(int x = 0, o1=y*w, o2=(h-y-1)*w; x < w; x++,o1++,o2++)
-                {
-                    (_image.ImageData[o1], _image.ImageData[o2]) = (_image.ImageData[o2], _image.ImageData[o1]);
-                }
-            }
-
-            _image.Info.Height = h;
         }
     }
 }

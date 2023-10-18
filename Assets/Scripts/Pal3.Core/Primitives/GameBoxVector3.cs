@@ -15,7 +15,11 @@ namespace Pal3.Core.Primitives
         public float Y;
         public float Z;
 
-        public static GameBoxVector3 Zero => new ();
+        public static GameBoxVector3 Zero
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new ();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GameBoxVector3(float x, float y, float z)

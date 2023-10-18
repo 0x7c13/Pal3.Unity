@@ -29,11 +29,11 @@ namespace Pal3.Core.DataReader.Cpk
 
         // 最大文件存放个数
         [MarshalAs(UnmanagedType.U4)]
-        public uint MaxFileNum;
+        public uint MaxFileCount;
 
         // 当前文件个数
         [MarshalAs(UnmanagedType.U4)]
-        public uint FileNum;
+        public uint NumberOfFiles;
 
         // 文件是否被整理过
         [MarshalAs(UnmanagedType.U4)]

@@ -28,14 +28,16 @@ namespace Pal3.Core.DataReader.Cpk
         private readonly string _filePath;
         private readonly Crc32Hash _crcHash;
         private readonly int _codepage;
-        private Dictionary<uint, CpkTableEntity> _tableEntities;
 
-        private readonly Dictionary<uint, string> _crcToFileNameMap = new ();
-        private readonly Dictionary<uint, uint> _crcToTableIndexMap = new ();
-        private readonly Dictionary<uint, HashSet<uint>> _fatherCrcToChildCrcTableIndexMap = new ();
+        private bool _isInitialized;
+        private IDictionary<uint, CpkTableEntity> _crcToTableEntityMap;
+        private IDictionary<uint, HashSet<uint>> _fatherCrcToChildCrcTableIndexMap;
 
-        private bool _archiveInMemory;
-        private byte[] _archiveData;
+        // Lazy init since it's not needed for core functionality
+        private Lazy<IDictionary<uint, string>> _crcToFileNameMap;
+
+        private bool _isArchiveInMemory;
+        private byte[] _inMemoryArchiveData;
 
         public CpkArchive(string cpkFilePath, Crc32Hash crcHash, int codepage)
         {
@@ -49,12 +51,16 @@ namespace Pal3.Core.DataReader.Cpk
         /// </summary>
         public void Init()
         {
-            using var stream = new FileStream(_filePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.ReadWrite,
-                bufferSize: 8196,
-                FileOptions.SequentialScan); // Use SequentialScan option to increase reading speed
+            if (_isInitialized) return;
+
+            using Stream stream = _isArchiveInMemory ?
+                new MemoryStream(_inMemoryArchiveData) :
+                new FileStream(_filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite,
+                    bufferSize: 8196,
+                    FileOptions.SequentialScan); // Use SequentialScan option to increase reading speed
 
             CpkHeader header = CoreUtility.ReadStruct<CpkHeader>(stream);
 
@@ -63,59 +69,92 @@ namespace Pal3.Core.DataReader.Cpk
                 throw new InvalidDataException($"File: <{_filePath}> is not a valid CPK file");
             }
 
-            var cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
-            var indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
-            Span<byte> indexTableBuffer = new byte[indexTableSize];
-            // Read the whole index table into memory before processing
-            // to avoid I/O overhead
-            _ = stream.Read(indexTableBuffer);
+            int cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
+            int indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
+            byte[] indexTableBuffer = ArrayPool<byte>.Shared.Rent(indexTableSize);
 
-            _tableEntities = new Dictionary<uint, CpkTableEntity>((int)header.FileNum);
-
-            var numOfFiles = header.FileNum;
-            var maxFileCount = header.MaxFileNum;
-            var filesFound = 0;
-            var indexTableOffset = 0;
-            for (uint i = 0; i < maxFileCount; i++)
+            try
             {
-                var tableEntity = CoreUtility.ReadStruct<CpkTableEntity>(indexTableBuffer, indexTableOffset);
-                indexTableOffset += cpkTableEntitySize;
-                if (tableEntity.IsEmpty() || tableEntity.IsDeleted()) continue;
+                // Read the whole index table into memory before processing
+                // to avoid I/O overhead
+                _ = stream.Read(indexTableBuffer);
 
-                _tableEntities[i] = tableEntity;
-                filesFound++;
-                if (numOfFiles == filesFound) break;
+                uint numOfFiles = header.NumberOfFiles;
+                int filesFound = 0;
+                int indexTableOffset = 0;
+
+                _crcToTableEntityMap = new Dictionary<uint, CpkTableEntity>((int)numOfFiles);
+                _fatherCrcToChildCrcTableIndexMap = new Dictionary<uint, HashSet<uint>>((int)numOfFiles);
+
+                for (uint i = 0; i < header.MaxFileCount; i++)
+                {
+                    CpkTableEntity tableEntity = CoreUtility.ReadStruct<CpkTableEntity>(
+                        indexTableBuffer, indexTableOffset);
+                    indexTableOffset += cpkTableEntitySize;
+
+                    // Skip empty and deleted entries
+                    if (tableEntity.IsEmpty() || tableEntity.IsDeleted()) continue;
+
+                    _crcToTableEntityMap[tableEntity.CRC] = tableEntity;
+
+                    if (_fatherCrcToChildCrcTableIndexMap.TryGetValue(
+                            tableEntity.FatherCRC, out HashSet<uint> childCrcTable))
+                    {
+                        childCrcTable.Add(tableEntity.CRC);
+                    }
+                    else
+                    {
+                        _fatherCrcToChildCrcTableIndexMap[tableEntity.FatherCRC] =
+                            new HashSet<uint> {tableEntity.CRC};
+                    }
+
+                    if (++filesFound == numOfFiles) break; // break early if all files are found
+                }
+
+                // File names are not needed for core functionality, so we lazy init it.
+                // It will only be used for Search/Extract operations.
+                _crcToFileNameMap = new Lazy<IDictionary<uint, string>>(GenerateFileNameMap);
+                _isInitialized = true;
             }
-
-            BuildCrcIndexMap();
+            finally
+            {
+                 ArrayPool<byte>.Shared.Return(indexTableBuffer);
+            }
         }
 
-        /// <summary>
-        /// Extract the complete archive to the specified destination
-        /// </summary>
-        public void ExtractTo(string outputFolder)
+        private IDictionary<uint, string> GenerateFileNameMap()
         {
-            ExtractToInternal(outputFolder, GetRootEntries());
-        }
+            Dictionary<uint, string> crcToFileNameMap = new (_crcToTableEntityMap.Values.Count);
 
-        private void ExtractToInternal(string outputFolder, IEnumerable<CpkEntry> nodes)
-        {
-            foreach (CpkEntry node in nodes)
+            using Stream stream = _isArchiveInMemory ?
+                new MemoryStream(_inMemoryArchiveData) :
+                new FileStream(_filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite,
+                    bufferSize: 8196,
+                    FileOptions.RandomAccess);
+
+            foreach ((uint crc, CpkTableEntity entity) in _crcToTableEntityMap)
             {
-                var relativePath = node.VirtualPath.Replace(
-                    CpkConstants.DirectorySeparatorChar, Path.DirectorySeparatorChar);
+                byte[] extraInfo = ArrayPool<byte>.Shared.Rent((int)entity.ExtraInfoSize);
 
-                if (node.IsDirectory)
+                try
                 {
-                    new DirectoryInfo(outputFolder + relativePath).Create();
-                    ExtractToInternal(outputFolder, node.Children);
+                    long extraInfoOffset = entity.StartPos + entity.PackedSize;
+                    stream.Seek(extraInfoOffset, SeekOrigin.Begin);
+                    _ = stream.Read(extraInfo);
+                    string fileName = Encoding.GetEncoding(_codepage)
+                        .GetString(extraInfo, 0, Array.IndexOf(extraInfo, (byte)0));
+                    crcToFileNameMap[crc] = fileName;
                 }
-                else
+                finally
                 {
-                    uint crcHash = _crcHash.Compute(node.VirtualPath.ToLower(), _codepage);
-                    File.WriteAllBytes(outputFolder + relativePath, ReadAllBytes(crcHash));
+                    ArrayPool<byte>.Shared.Return(extraInfo);
                 }
             }
+
+            return crcToFileNameMap;
         }
 
         /// <summary>
@@ -127,7 +166,7 @@ namespace Pal3.Core.DataReader.Cpk
         public bool FileExists(string fileVirtualPath, out uint filePathCrcHash)
         {
             filePathCrcHash = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
-            return _crcToTableIndexMap.ContainsKey(filePathCrcHash);
+            return _crcToTableEntityMap.ContainsKey(filePathCrcHash);
         }
 
         /// <summary>
@@ -137,7 +176,13 @@ namespace Pal3.Core.DataReader.Cpk
         /// <returns>File content in byte array</returns>
         public byte[] ReadAllBytes(uint fileVirtualPathCrcHash)
         {
-            CpkTableEntity entity = GetTableEntity(fileVirtualPathCrcHash);
+            if (!_crcToTableEntityMap.ContainsKey(fileVirtualPathCrcHash))
+            {
+                throw new FileNotFoundException(
+                    $"File <{fileVirtualPathCrcHash}> does not exists in the archive");
+            }
+
+            CpkTableEntity entity = _crcToTableEntityMap[fileVirtualPathCrcHash];
 
             if (entity.IsDirectory())
             {
@@ -145,9 +190,9 @@ namespace Pal3.Core.DataReader.Cpk
                     $"Cannot read file <{fileVirtualPathCrcHash}> since it is a directory");
             }
 
-            if (_archiveInMemory)
+            if (_isArchiveInMemory)
             {
-                ReadOnlySpan<byte> rawData = new ReadOnlySpan<byte>(_archiveData)
+                ReadOnlySpan<byte> rawData = new ReadOnlySpan<byte>(_inMemoryArchiveData)
                     .Slice((int)entity.StartPos, (int)entity.PackedSize);
                 return entity.IsCompressed() ?
                     DecompressDataInArchive(rawData, entity.OriginSize) :
@@ -167,19 +212,9 @@ namespace Pal3.Core.DataReader.Cpk
 
         private byte[] DecompressDataInArchive(ReadOnlySpan<byte> compressedData, uint originSize)
         {
-            var decompressedData = new byte[originSize];
+            byte[] decompressedData = new byte[originSize];
             MiniLzo.Decompress(compressedData, decompressedData);
             return decompressedData;
-        }
-
-        private CpkTableEntity GetTableEntity(uint fileVirtualPathCrcHash)
-        {
-            if (!_crcToTableIndexMap.ContainsKey(fileVirtualPathCrcHash))
-            {
-                throw new ArgumentException($"File <{fileVirtualPathCrcHash}> does not exists in the archive");
-            }
-
-            return _tableEntities[_crcToTableIndexMap[fileVirtualPathCrcHash]];
         }
 
         /// <summary>
@@ -187,8 +222,9 @@ namespace Pal3.Core.DataReader.Cpk
         /// </summary>
         public void LoadArchiveIntoMemory()
         {
-            _archiveData = File.ReadAllBytes(_filePath);
-            _archiveInMemory = true;
+            if (_isArchiveInMemory) return;
+            _inMemoryArchiveData = File.ReadAllBytes(_filePath);
+            _isArchiveInMemory = true;
         }
 
         /// <summary>
@@ -196,37 +232,9 @@ namespace Pal3.Core.DataReader.Cpk
         /// </summary>
         public void DisposeInMemoryArchive()
         {
-            _archiveInMemory = false;
-            _archiveData = null;
-        }
-
-        private static bool IsValidCpkHeader(CpkHeader header)
-        {
-            if (header.Label != CPK_HEADER_MAGIC) return false;
-            if (header.Version != CPK_VERSION) return false;
-            if (header.TableStart == 0) return false;
-            if (header.FileNum > header.MaxFileNum) return false;
-            if (header.ValidTableNum > header.MaxTableNum) return false;
-            if (header.FileNum > header.ValidTableNum) return false;
-
-            return true;
-        }
-
-        private void BuildCrcIndexMap()
-        {
-            foreach ((var index, CpkTableEntity entity) in _tableEntities)
-            {
-                _crcToTableIndexMap[entity.CRC] = index;
-
-                if (_fatherCrcToChildCrcTableIndexMap.TryGetValue(entity.FatherCRC, out var childCrcTable))
-                {
-                    childCrcTable.Add(entity.CRC);
-                }
-                else
-                {
-                    _fatherCrcToChildCrcTableIndexMap[entity.FatherCRC] = new HashSet<uint> {entity.CRC};
-                }
-            }
+            if (!_isArchiveInMemory) return;
+            _isArchiveInMemory = false;
+            _inMemoryArchiveData = null;
         }
 
         /// <summary>
@@ -236,48 +244,13 @@ namespace Pal3.Core.DataReader.Cpk
         /// <returns>Root level CpkEntry nodes</returns>
         public IEnumerable<CpkEntry> GetRootEntries()
         {
-            if (_crcToFileNameMap.Count == 0) BuildFileNameMap();
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException(
+                    "Initialize the archive before accessing its content");
+            }
+
             return GetChildren(0); // 0 is the CRC of the root directory
-        }
-
-        private void BuildFileNameMap()
-        {
-            Stream stream;
-            if (_archiveInMemory)
-            {
-                stream = new MemoryStream(_archiveData);
-            }
-            else
-            {
-                stream = new FileStream(_filePath,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite,
-                    bufferSize: 8196,
-                    FileOptions.RandomAccess);
-            }
-
-            foreach (CpkTableEntity entity in _tableEntities.Values)
-            {
-                byte[] extraInfo = ArrayPool<byte>.Shared.Rent((int)entity.ExtraInfoSize);
-
-                try
-                {
-                    long extraInfoOffset = entity.StartPos + entity.PackedSize;
-                    stream.Seek(extraInfoOffset, SeekOrigin.Begin);
-                    _ = stream.Read(extraInfo);
-                    string fileName = Encoding.GetEncoding(_codepage)
-                        .GetString(extraInfo, 0, Array.IndexOf(extraInfo, (byte)0));
-                    _crcToFileNameMap[entity.CRC] = fileName;
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(extraInfo);
-                }
-            }
-
-            stream.Close();
-            stream.Dispose();
         }
 
         private IEnumerable<CpkEntry> GetChildren(uint fatherCrc, string rootPath = "")
@@ -294,9 +267,8 @@ namespace Pal3.Core.DataReader.Cpk
 
             foreach (uint childCrc in _fatherCrcToChildCrcTableIndexMap[fatherCrc])
             {
-                uint index = _crcToTableIndexMap[childCrc];
-                CpkTableEntity child = _tableEntities[index];
-                string fileName = _crcToFileNameMap[child.CRC];
+                CpkTableEntity child = _crcToTableEntityMap[childCrc];
+                string fileName = _crcToFileNameMap.Value[child.CRC];
 
                 string virtualPath = rootPath + fileName;
 
@@ -309,6 +281,18 @@ namespace Pal3.Core.DataReader.Cpk
                     yield return new CpkEntry(virtualPath, false);
                 }
             }
+        }
+
+        private static bool IsValidCpkHeader(CpkHeader header)
+        {
+            if (header.Label != CPK_HEADER_MAGIC) return false;
+            if (header.Version != CPK_VERSION) return false;
+            if (header.TableStart == 0) return false;
+            if (header.NumberOfFiles > header.MaxFileCount) return false;
+            if (header.ValidTableNum > header.MaxTableNum) return false;
+            if (header.NumberOfFiles > header.ValidTableNum) return false;
+
+            return true;
         }
     }
 }

@@ -24,10 +24,14 @@ namespace Pal3.Core.Primitives
             Bottom = bottom;
         }
 
-        public bool IsEmpty => Left == 0 &&
-                               Top == 0 &&
-                               Right == 0 &&
-                               Bottom == 0;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Left == 0 &&
+                   Top == 0 &&
+                   Right == 0 &&
+                   Bottom == 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsPointInsideRect(int x, int y)

@@ -11,12 +11,21 @@ namespace Engine.Core.Implementation
 
     public sealed class UnityTransform : ITransform
     {
-        public object NativeObject => _transform;
-
-        public bool IsNativeObjectDisposed => _transform == null;
-
         private readonly Transform _transform;
 
+        public object NativeObject
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _transform;
+        }
+
+        public bool IsNativeObjectDisposed
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _transform == null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UnityTransform(Transform transform)
         {
             _transform = transform;
@@ -24,55 +33,73 @@ namespace Engine.Core.Implementation
 
         public Vector3 Position
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.position;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.position = value;
         }
 
         public Vector3 LocalPosition
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.localPosition;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.localPosition = value;
         }
 
         public Quaternion Rotation
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.rotation;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.rotation = value;
         }
 
         public Quaternion LocalRotation
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.localRotation;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.localRotation = value;
         }
 
         public Vector3 LocalScale
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.localScale;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.localScale = value;
         }
 
         public Vector3 Forward
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.forward;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.forward = value;
         }
 
         public Vector3 Right
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.right;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.right = value;
         }
 
         public Vector3 Up
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.up;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.up = value;
         }
 
         public Vector3 EulerAngles
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _transform.eulerAngles;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => _transform.eulerAngles = value;
         }
 

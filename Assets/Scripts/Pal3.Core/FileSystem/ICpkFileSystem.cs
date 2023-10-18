@@ -38,10 +38,9 @@ namespace Pal3.Core.FileSystem
         /// </summary>
         /// <param name="fileVirtualPath">File virtual path {Cpk file name}\{File relative path inside archive}
         /// Example: music.cpk\music\PI01.mp3</param>
-        /// <param name="isInSegmentedArchive">True if file exists in segmented archive</param>
-        /// <param name="segmentedArchiveName">Name of the segmented archive if exists</param>
+        /// <param name="archiveName">Name of the archive or the segmented archive if exists</param>
         /// <returns>True if file exists</returns>
-        public bool FileExists(string fileVirtualPath, out bool isInSegmentedArchive, out string segmentedArchiveName);
+        public bool FileExists(string fileVirtualPath, out string archiveName);
 
         /// <summary>
         /// Read all bytes of the given file.

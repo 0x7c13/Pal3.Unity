@@ -28,21 +28,21 @@ namespace Pal3.Game.Actor
                 ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
         }
 
-        public string GetCombatMovementAction()
-        {
-            return Info.Type == CombatActorType.MainActor ?
-                ActorConstants.ActionToNameMap[ActorActionType.AttackMove] :
-                ActorConstants.ActionToNameMap[ActorActionType.NpcRun];
-        }
-
-        public string GetCombatAttackAction()
+        public string GetAttackAction()
         {
             return Info.Type == CombatActorType.MainActor ?
                 ActorConstants.ActionToNameMap[ActorActionType.Attack1] :
                 ActorConstants.ActionToNameMap[ActorActionType.NpcAttack];
         }
 
-        public float GetCombatMovementSpeed()
+        public string GetMovementAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.AttackMove] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcRun];
+        }
+
+        public float GetMovementSpeed()
         {
             return 12f;
         }

@@ -74,7 +74,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             Quaternion currentRotation = _actionController.Transform.Rotation;
 
-            _actionController.PerformAction(_actor.GetCombatMovementAction());
+            _actionController.PerformAction(_actor.GetMovementAction());
 
             var enemySize = combatActorController.GetActionController().GetMeshBounds().size;
             var enemyRadius = MathF.Max(enemySize.x, enemySize.z) / 2f;
@@ -88,17 +88,17 @@ namespace Pal3.Game.Actor.Controllers
             targetElementPosition += (myElementPosition - targetElementPosition).normalized * (enemyRadius + myRadius);
 
             var distance = Vector3.Distance(targetElementPosition, myElementPosition);
-            var duration = distance / _actor.GetCombatMovementSpeed();
+            var duration = distance / _actor.GetMovementSpeed();
 
             _actionController.Transform.LookAt(targetElementPosition);
             yield return Transform.MoveAsync(targetElementPosition, duration);
 
             WaitUntilCanceled waiter = new WaitUntilCanceled();
-            _actionController.PerformAction(_actor.GetCombatAttackAction(), overwrite: true, loopCount: 1, waiter);
+            _actionController.PerformAction(_actor.GetAttackAction(), overwrite: true, loopCount: 1, waiter);
 
             yield return CoroutineYieldInstruction.WaitUntil(() => !waiter.ShouldWait());
 
-            _actionController.PerformAction(_actor.GetCombatMovementAction());
+            _actionController.PerformAction(_actor.GetMovementAction());
             _actionController.Transform.LookAt(myElementPosition);
             yield return Transform.MoveAsync(myElementPosition, duration);
 

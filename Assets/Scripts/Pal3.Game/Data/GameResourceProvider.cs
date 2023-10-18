@@ -22,7 +22,6 @@ namespace Pal3.Game.Data
     using Core.DataReader.Cpk;
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
-    using Core.DataReader.Mov;
     using Core.DataReader.Mv3;
     using Core.FileSystem;
     using Core.Utilities;
@@ -92,7 +91,7 @@ namespace Pal3.Game.Data
 
         private GdbFile GetGameDatabaseFile()
         {
-            var gdbFilePath = FileConstants.CombatDataFolderVirtualPath + $"{GameConstants.AppName}_Softstar.gdb";
+            string gdbFilePath = FileConstants.CombatDataFolderVirtualPath + $"{GameConstants.AppName}_Softstar.gdb";
             return GetGameResourceFile<GdbFile>(gdbFilePath);
         }
 

@@ -33,7 +33,11 @@ namespace Pal3.Core.Primitives
             A = 1f;
         }
 
-        public static Color White => new (1f, 1f, 1f, 1f);
+        public static Color White
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new (1f, 1f, 1f, 1f);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Color32(Color c) =>

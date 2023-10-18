@@ -13,7 +13,6 @@ namespace Pal3.Game.GameSystems.Minimap
     using Core.DataReader.Nav;
     using Core.Utilities;
     using Engine.Core.Abstraction;
-    using Engine.Extensions;
     using Scene;
     using State;
     using UnityEngine;

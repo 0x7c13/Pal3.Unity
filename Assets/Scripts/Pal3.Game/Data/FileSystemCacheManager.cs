@@ -39,61 +39,43 @@ namespace Pal3.Game.Data
 
         public void Execute(ScenePreLoadingNotification notification)
         {
-            var newCityName = notification.NewSceneInfo.CityName.ToLower();
-            var newSceneName = notification.NewSceneInfo.SceneName.ToLower();
+            string newCityName = notification.NewSceneInfo.CityName.ToLower();
+            string newSceneName = notification.NewSceneInfo.SceneName.ToLower();
 
-            if (!newCityName.Equals(_currentCityName, StringComparison.OrdinalIgnoreCase))
+            // No need to do anything if the scene city is the same
+            if (newCityName.Equals(_currentCityName, StringComparison.OrdinalIgnoreCase)) return;
+
+            // Dispose current scene cpk from memory
+            if (!string.IsNullOrEmpty(_currentCityName))
             {
-                // Dispose current scene cpk
-                if (!string.IsNullOrEmpty(_currentCityName))
+                string currentSceneFolderPath = $"{_currentCityName}{CpkConstants.FileExtension}" +
+                                                $"{CpkConstants.DirectorySeparatorChar}{_currentSceneName}";
+
+                if (_fileSystem.FileExists(currentSceneFolderPath, out string archiveName))
                 {
-                    var currentSceneFolderPath = $"{_currentCityName}{CpkConstants.FileExtension}" +
-                                                 $"{CpkConstants.DirectorySeparatorChar}{_currentSceneName}";
-
-                    if (_fileSystem.FileExists(currentSceneFolderPath,
-                            out bool isInSegmentedArchive,
-                            out string segmentedArchiveName))
-                    {
-                        if (isInSegmentedArchive)
-                        {
-                            _fileSystem.DisposeInMemoryArchive(segmentedArchiveName);
-                        }
-                        else
-                        {
-                            _fileSystem.DisposeInMemoryArchive(_currentCityName + CpkConstants.FileExtension);
-                        }
-                    }
-
-                    EngineLogger.Log($"Disposed {_currentCityName} cpk in-memory archive");
+                    _fileSystem.DisposeInMemoryArchive(archiveName);
                 }
 
-                // Load new scene cpk into memory
-                {
-                    var newSceneFolderPath = $"{newCityName}{CpkConstants.FileExtension}" +
-                                             $"{CpkConstants.DirectorySeparatorChar}{newSceneName}";
-
-                    Stopwatch timer = Stopwatch.StartNew();
-
-                    if (_fileSystem.FileExists(newSceneFolderPath,
-                            out bool isInSegmentedArchive,
-                            out string segmentedArchiveName))
-                    {
-                        if (isInSegmentedArchive)
-                        {
-                            _fileSystem.LoadArchiveIntoMemory(segmentedArchiveName);
-                        }
-                        else
-                        {
-                            _fileSystem.LoadArchiveIntoMemory(newCityName + CpkConstants.FileExtension);
-                        }
-                    }
-
-                    EngineLogger.Log($"Loaded {newCityName} cpk archive into memory in {timer.ElapsedMilliseconds} ms");
-                }
-
-                _currentCityName = newCityName;
-                _currentSceneName = newSceneName;
+                EngineLogger.Log($"Disposed in-memory archive: <{archiveName}>");
             }
+
+            // Load new scene cpk into memory
+            {
+                string newSceneFolderPath = $"{newCityName}{CpkConstants.FileExtension}" +
+                                            $"{CpkConstants.DirectorySeparatorChar}{newSceneName}";
+
+                Stopwatch timer = Stopwatch.StartNew();
+
+                if (_fileSystem.FileExists(newSceneFolderPath, out string archiveName))
+                {
+                    _fileSystem.LoadArchiveIntoMemory(archiveName);
+                }
+
+                EngineLogger.Log($"Loaded archive <{archiveName}> into memory in {timer.ElapsedMilliseconds} ms");
+            }
+
+            _currentCityName = newCityName;
+            _currentSceneName = newSceneName;
         }
     }
 }

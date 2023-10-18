@@ -42,6 +42,8 @@ namespace Pal3.Core.DataReader.Cpk
         {
             if (!_initialized) throw new InvalidOperationException($"Crc32 hash table is not initialized yet");
 
+            if (string.IsNullOrEmpty(str)) return 0;
+
             Encoding encoding = Encoding.GetEncoding(codepage);
             int byteCount = encoding.GetByteCount(str);
 

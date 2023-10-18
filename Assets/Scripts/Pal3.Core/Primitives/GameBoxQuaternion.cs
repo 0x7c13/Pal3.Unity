@@ -25,7 +25,6 @@ namespace Pal3.Core.Primitives
             W = w;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static GameBoxQuaternion AngleAxis(float angle, GameBoxVector3 axis)
         {
             if (axis.SqrMagnitude() == 0.0f)

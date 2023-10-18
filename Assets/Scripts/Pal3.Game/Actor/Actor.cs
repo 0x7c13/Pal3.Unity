@@ -50,7 +50,7 @@ namespace Pal3.Game.Actor
 
             if (Info.GameBoxMoveSpeed > 0)
             {
-                return Info.GameBoxMoveSpeed / UnityPrimitivesConvertor.GameBoxUnitToUnityUnit;
+                return Info.GameBoxMoveSpeed / UnityPrimitivesConvertor.GameBoxUnitToUnityUnit / 2f;
             }
 
             if (Info.Type == ActorType.MainActor)

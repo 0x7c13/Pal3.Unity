@@ -23,7 +23,6 @@ namespace Pal3.Game.Scene.SceneObjects
     using Engine.Animation;
     using Engine.Core.Abstraction;
     using Engine.Extensions;
-    using Engine.Logging;
     using Engine.Services;
     using State;
 
