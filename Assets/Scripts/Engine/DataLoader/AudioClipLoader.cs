@@ -39,6 +39,7 @@ namespace Engine.DataLoader
                 yield break; // Skip loading
             }
 
+            try
             {
                 DownloadHandlerAudioClip audioClipHandler = (DownloadHandlerAudioClip)request.downloadHandler;
 
