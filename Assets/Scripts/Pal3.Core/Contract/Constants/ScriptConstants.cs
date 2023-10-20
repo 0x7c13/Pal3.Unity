@@ -13,10 +13,10 @@ namespace Pal3.Core.Contract.Constants
 
         public const int SystemScriptIdMax = 100;
 
-        public const int CommandIdMax = 512;
+        public const int CommandIdMax = 0x200; // 512
 
         public const int PortalScriptIdMax = 1000;
 
-        public const short MainStoryVariableName = -0x8000;
+        public const ushort MainStoryVariableId = 0x8000; // 32768
     }
 }

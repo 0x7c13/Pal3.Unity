@@ -6,12 +6,10 @@
 namespace Pal3.Core.Command
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using Contract.Constants;
     using DataReader;
-    using Utilities;
 
     /// <summary>
     /// Parser logic for parsing SceCommand in .sce script data block.
@@ -19,30 +17,44 @@ namespace Pal3.Core.Command
     public static class SceCommandParser
     {
         public static ICommand ParseSceCommand(IBinaryReader reader,
-            int codepage)
+            int codepage,
+            out ushort commandId,
+            out ushort userVariableMask)
         {
-            var commandId = reader.ReadUInt16();
-            var parameterFlag = reader.ReadUInt16();
+            commandId = reader.ReadUInt16();
+            userVariableMask = reader.ReadUInt16();
 
             if (commandId > ScriptConstants.CommandIdMax)
             {
                 throw new InvalidDataException($"Command Id is invalid: {commandId}");
             }
 
-            Type commandType = SceCommandTypeResolver.GetType(commandId, parameterFlag);
+            Type commandType = SceCommandTypeResolver.GetType(commandId, userVariableMask);
 
             if (commandType == null)
             {
-                throw new InvalidDataException($"Command Type not found for command id: {commandId} " +
-                                               $"(parameter flag: {parameterFlag})");
+                throw new InvalidDataException(
+                    $"Command Type not found for command id: {commandId} " +
+                    $"user variable mask: {Convert.ToString(userVariableMask, 2)})");
             }
 
-            var properties = commandType.GetProperties();
-            var args = new object[properties.Length];
-            for (var i = properties.Length - 1; i >= 0; i--)
+            PropertyInfo[] properties = commandType.GetProperties();
+            object[] args = new object[properties.Length];
+
+            for (int i = properties.Length - 1; i >= 0; i--)
             {
                 PropertyInfo property = properties[i];
-                args[i] = ReadPropertyValue(reader, property.PropertyType, i, parameterFlag, codepage);
+
+                // This is for reading user variable (Always 2 bytes UInt16).
+                // variableMask is used to determine if the property is 2 bytes UInt16 user variable type.
+                if ((userVariableMask & (ushort) (0b0001 << i)) != 0)
+                {
+                    args[i] = reader.ReadUInt16();
+                }
+                else // Otherwise, read property value by type.
+                {
+                    args[i] = ReadPropertyValue(reader, property.PropertyType, codepage);
+                }
             }
 
             return Activator.CreateInstance(commandType, args) as ICommand;
@@ -51,51 +63,44 @@ namespace Pal3.Core.Command
         // Read property value by type, property index and parameter flag using reflection.
         private static object ReadPropertyValue(IBinaryReader reader,
             Type propertyType,
-            int index,
-            ushort parameterFlag,
             int codepage)
         {
-            // This is for reading user var (2 bytes Int16).
-            if ((parameterFlag & (ushort) (0x0001 << index)) != 0)
+            // Special handling for Array type
+            if (propertyType.IsArray)
             {
-                return Convert.ChangeType(reader.ReadInt16(), propertyType);
-            }
-
-            // Special handling for String since we need to read the length first.
-            if (propertyType == typeof(string))
-            {
-                var length = reader.ReadUInt16();
-                return reader.ReadString(length, codepage);
-            }
-
-            // Special handling for List type.
-            if (propertyType == typeof(List<object>))
-            {
-                var length = reader.ReadUInt16();
-                var list = new List<object>();
+                ushort length = reader.ReadUInt16(); // First 2 bytes is array length
+                object[] propertyArray = new object[length];
                 for (var i = 0; i < length; i++)
                 {
                     Type varType = GetVariableType(reader.ReadByte());
-                    list.Insert(0, ReadPropertyValue(reader, varType, index, parameterFlag, codepage));
+                    // Read from the end of the array to the beginning by design.
+                    // This is because the script data is stored in reverse order (stack manner).
+                    propertyArray[^(i + 1)] = ReadPropertyValue(reader, varType, codepage);
                 }
-                return list;
+                return propertyArray;
             }
 
-            // Let's use the power of reflection to read and parse primitives.
-            return BinaryReaderMethodResolver.GetMethodInfoForReadPropertyType(reader.GetType(), propertyType)
-                .Invoke(reader, new object[]{});
+            // Special handling for String type
+            if (propertyType == typeof(string))
+            {
+                ushort length = reader.ReadUInt16(); // First 2 bytes is string length
+                return reader.ReadString(length, codepage);
+            }
+
+            // Read and parse primitives.
+            return reader.Read(propertyType);
         }
 
         private static Type GetVariableType(byte type)
         {
             return type switch
             {
-                0 => typeof(int),
-                1 => typeof(float),
-                2 => typeof(int),
-                3 => typeof(string),
-                4 => typeof(ushort),
-                _ => null
+                0 => typeof(int),    // Int
+                1 => typeof(float),  // Float
+                2 => typeof(int),    // Jump flag
+                3 => typeof(string), // String
+                4 => typeof(ushort), // User variable
+                _ => throw new NotSupportedException($"Variable type not supported: {type}")
             };
         }
     }

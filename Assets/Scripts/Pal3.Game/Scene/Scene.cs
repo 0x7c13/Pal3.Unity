@@ -42,7 +42,6 @@ namespace Pal3.Game.Scene
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
         #if PAL3A
-        ICommandExecutor<SceneActivateObject2Command>,
         ICommandExecutor<FengYaSongCommand>,
         ICommandExecutor<SceneCloseDoorCommand>,
         ICommandExecutor<SceneEnableFogCommand>,
@@ -670,20 +669,6 @@ namespace Pal3.Game.Scene
         }
 
         #if PAL3A
-        public void Execute(SceneActivateObject2Command command)
-        {
-            if (!_sceneStateManager.TryGetSceneObjectStateOverride(ScnFile.SceneInfo.CityName,
-                    command.SceneName, command.ObjectId, out SceneObjectStateOverride state) ||
-                !state.IsActivated.HasValue)
-            {
-                _sceneStateManager.Execute(new SceneSaveGlobalObjectActivationStateCommand(
-                    ScnFile.SceneInfo.CityName,
-                    command.SceneName,
-                    command.ObjectId,
-                    command.IsActive == 1));
-            }
-        }
-
         public void Execute(SceneCloseDoorCommand command)
         {
             if (_activatedSceneObjects.Contains(command.ObjectId))

@@ -8,7 +8,6 @@ namespace Pal3.Game.Script
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
     using Command;
     using Command.Extensions;
     using Core.Command;
@@ -16,53 +15,30 @@ namespace Pal3.Game.Script
     using Core.Contract.Enums;
     using Core.DataReader;
     using Core.DataReader.Sce;
-    using Core.Utilities;
     using Engine.Logging;
     using Engine.Services;
-    using GameSystems.Dialogue;
-    using GameSystems.Favor;
     using GameSystems.Inventory;
-    using GameSystems.MiniGames;
     using GameSystems.Team;
     using Newtonsoft.Json;
-    using Scene;
-    using State;
     using Waiter;
 
     public sealed class PalScriptRunner : IDisposable,
-        ICommandExecutor<ScriptChangeExecutionModeCommand>,
-        ICommandExecutor<ScriptSetOperatorCommand>,
-        ICommandExecutor<ScriptVarGreaterThanCommand>,
-        ICommandExecutor<ScriptVarGreaterThanOrEqualToCommand>,
-        ICommandExecutor<ScriptCompareUserVarGreaterThanOrEqualToCommand>,
-        ICommandExecutor<ScriptVarEqualToCommand>,
-        ICommandExecutor<ScriptVarNotEqualToCommand>,
-        ICommandExecutor<ScriptVarLessThanCommand>,
-        ICommandExecutor<ScriptVarLessThanOrEqualToCommand>,
-        ICommandExecutor<ScriptVarInBetweenCommand>,
-        ICommandExecutor<ScriptVarDistractValueCommand>,
-        ICommandExecutor<ScriptVarAddValueCommand>,
-        ICommandExecutor<ScriptGotoCommand>,
-        ICommandExecutor<ScriptGotoIfConditionFailedCommand>,
-        ICommandExecutor<ScriptWaitUntilTimeCommand>,
+        ICommandExecutor<ScriptRunnerChangeExecutionModeCommand>,
+        ICommandExecutor<ScriptRunnerSetOperatorCommand>,
+        ICommandExecutor<ScriptRunnerGotoCommand>,
+        ICommandExecutor<ScriptRunnerGotoIfNotCommand>,
+        ICommandExecutor<ScriptRunnerWaitUntilTimeCommand>,
         ICommandExecutor<ScriptRunnerAddWaiterRequest>,
-        ICommandExecutor<ScriptVarSetValueCommand>,
-        ICommandExecutor<ScriptVarSetRandomValueCommand>,
-        ICommandExecutor<ScriptCheckIfPlayerHaveItemCommand>,
-        ICommandExecutor<ScriptCheckIfActorInTeamCommand>,
-        ICommandExecutor<ScriptGetDialogueSelectionCommand>,
-        ICommandExecutor<ScriptGetLimitTimeDialogueSelectionCommand>,
-        ICommandExecutor<ScriptGetMazeSwitchStatusCommand>,
-        ICommandExecutor<ScriptGetMoneyCommand>,
-        ICommandExecutor<ScriptGetFavorCommand>,
-        ICommandExecutor<ScriptVarSetMostFavorableActorIdCommand>,
-        ICommandExecutor<ScriptVarSetLeastFavorableActorIdCommand>,
-        #if PAL3
-        ICommandExecutor<MiniGameGetAppraisalsResultCommand>,
-        #elif PAL3A
-        ICommandExecutor<ScriptGetWheelOfTheFiveElementsUsageCountCommand>,
-        #endif
-        ICommandExecutor<ScriptVarGetCombatResultCommand>
+        ICommandExecutor<ScriptEvaluateVarIsGreaterThanCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsGreaterThanOrEqualToCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsGreaterThanOrEqualToAnotherVarCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsEqualToCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsNotEqualToCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsLessThanCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsLessThanOrEqualToCommand>,
+        ICommandExecutor<ScriptEvaluateVarIsInRangeCommand>,
+        ICommandExecutor<ScriptEvaluateVarIfPlayerHaveItemCommand>,
+        ICommandExecutor<ScriptEvaluateVarIfActorInTeamCommand>
     {
         public event EventHandler<ICommand> OnCommandExecutionRequested;
 
@@ -70,15 +46,17 @@ namespace Pal3.Game.Script
         public PalScriptType ScriptType { get; }
         public string ScriptDescription { get; }
 
-        private const int MAX_REGISTER_COUNT = 8;
+        private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
+        private readonly UserVariableManager _userVariableManager;
 
         private readonly int _codepage;
         private readonly IBinaryReader _scriptDataReader;
         private ScriptExecutionMode _executionMode;
-        private readonly object[] _registers;
-        private readonly Dictionary<int, int> _globalVariables;
-        private readonly Dictionary<int, int> _localVariables = new ();
-        private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
+
+        // Stack operator and value are used to evaluate logical expressions
+        // over multiple commands and branches in the script in assembly fashion.
+        private PalScriptOperatorType _operatorType = PalScriptOperatorType.Assign;
+        private bool _tempVariable = false;
 
         private readonly Stack<IScriptRunnerWaiter> _waiters = new ();
         private bool _isExecuting;
@@ -87,7 +65,7 @@ namespace Pal3.Game.Script
         public static PalScriptRunner Create(SceFile sceFile,
             PalScriptType scriptType,
             uint scriptId,
-            Dictionary<int, int> globalVariables,
+            UserVariableManager userVariableManager,
             PalScriptCommandPreprocessor preprocessor)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
@@ -101,16 +79,16 @@ namespace Pal3.Game.Script
             return new PalScriptRunner(scriptType,
                 scriptId,
                 sceScriptBlock,
-                globalVariables,
                 sceFile.Codepage,
+                userVariableManager,
                 preprocessor);
         }
 
         private PalScriptRunner(PalScriptType scriptType,
             uint scriptId,
             SceScriptBlock scriptBlock,
-            Dictionary<int, int> globalVariables,
             int codepage,
+            UserVariableManager userVariableManager,
             PalScriptCommandPreprocessor preprocessor,
             ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
         {
@@ -118,13 +96,10 @@ namespace Pal3.Game.Script
             ScriptId = scriptId;
             ScriptDescription = scriptBlock.Description;
 
-            _globalVariables = globalVariables;
+            _userVariableManager = userVariableManager;
             _codepage = codepage;
             _cmdPreprocessor = preprocessor;
             _executionMode = executionMode;
-
-            _registers = new object[MAX_REGISTER_COUNT];
-            _registers[(int) RegisterOperationType.Operator] = 0; // Init operator
 
             _scriptDataReader = new SafeBinaryReader(scriptBlock.ScriptData);
 
@@ -185,7 +160,10 @@ namespace Pal3.Game.Script
         {
             long cmdPosition = _scriptDataReader.Position;
 
-            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader, _codepage);
+            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader,
+                _codepage,
+                out ushort commandId,
+                out _);
 
             _cmdPreprocessor.Process(ref command,
                 ScriptType,
@@ -194,47 +172,29 @@ namespace Pal3.Game.Script
                 cmdPosition,
                 _codepage);
 
-            Type commandType = command.GetType();
-            var sceCommandId = commandType.GetCustomAttribute<SceCommandAttribute>()?.Id;
-
             EngineLogger.Log($"{ScriptType} Script " +
                       $"[{ScriptId} {ScriptDescription}]: " +
-                      $"{commandType.Name.Replace("Command", "")} [{sceCommandId}] " +
+                      $"{command.GetType().Name.Replace("Command", "")} [{commandId}] " +
                       $"{JsonConvert.SerializeObject(command)}");
 
             OnCommandExecutionRequested?.Invoke(this, command);
         }
 
-        private void SetVarValueBasedOnOperationResult(bool boolValue)
+        private void EvaluateAndSetOperationResult(bool value)
         {
-            var operatorType = _registers[(int) RegisterOperationType.Operator];
-            _registers[(int) RegisterOperationType.Value] = operatorType switch
+            _tempVariable = _operatorType switch
             {
-                0 => boolValue,
-                1 => boolValue && (bool) _registers[(int) RegisterOperationType.Value],
-                2 => boolValue || (bool) _registers[(int) RegisterOperationType.Value],
-                _ => throw new Exception($"{ScriptId}: Invalid register operator type: {operatorType}")
+                PalScriptOperatorType.Assign => value,
+                PalScriptOperatorType.And    => value && _tempVariable,
+                PalScriptOperatorType.Or     => value || _tempVariable,
+                _ => throw new ArgumentOutOfRangeException(
+                    $"Invalid stack operator type: {_operatorType}")
             };
         }
 
-        private int GetVariableValue(int variableName)
+        private int GetVariableValue(ushort variable)
         {
-            var varDic = variableName < 0 ? _globalVariables : _localVariables;
-            return varDic.TryGetValue(variableName, out var value) ? value : 0;
-        }
-
-        private void SetVariableValue(int variableName, int value)
-        {
-            if (variableName < 0)
-            {
-                EngineLogger.LogWarning($"Set global var {variableName} with value: {value}");
-                _globalVariables[variableName] = value;
-            }
-            else
-            {
-                EngineLogger.LogWarning($"Setting value for user var: {variableName}, value: {value}");
-                _localVariables[variableName] = value;
-            }
+            return _userVariableManager.GetVariableValue(variable);
         }
 
         ~PalScriptRunner()
@@ -250,108 +210,24 @@ namespace Pal3.Game.Script
 
         private void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (_isDisposed) return;
+
+            if (disposing)
             {
-                if (disposing)
-                {
-                    CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-                    _scriptDataReader.Dispose();
-                }
-                _isDisposed = true;
-            }
-        }
-
-        public void Execute(ScriptVarSetValueCommand command)
-        {
-            if (!_isExecuting) return;
-            if (command.Variable < 0) return; // Global var
-            SetVariableValue(command.Variable, command.Value);
-        }
-
-        public void Execute(ScriptVarAddValueCommand command)
-        {
-            if (!_isExecuting) return;
-            if (command.Variable < 0) return; // Global var
-            SetVariableValue(command.Variable, GetVariableValue(command.Variable) + command.Value);
-        }
-
-        public void Execute(ScriptSetOperatorCommand command)
-        {
-            if (!_isExecuting) return;
-            _registers[(int) RegisterOperationType.Operator] = command.OperatorType;
-        }
-
-        public void Execute(ScriptVarGreaterThanCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) > command.Value);
-        }
-
-        public void Execute(ScriptVarGreaterThanOrEqualToCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) >= command.Value);
-        }
-
-        public void Execute(ScriptCompareUserVarGreaterThanOrEqualToCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.VariableA) >= GetVariableValue(command.VariableB));
-        }
-
-        public void Execute(ScriptVarEqualToCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) == command.Value);
-        }
-
-        public void Execute(ScriptVarNotEqualToCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) != command.Value);
-        }
-
-        public void Execute(ScriptVarLessThanCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) < command.Value);
-        }
-
-        public void Execute(ScriptVarLessThanOrEqualToCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVarValueBasedOnOperationResult(GetVariableValue(command.Variable) <= command.Value);
-        }
-
-        public void Execute(ScriptVarInBetweenCommand command)
-        {
-            if (!_isExecuting) return;
-            var value = GetVariableValue(command.Variable);
-            SetVarValueBasedOnOperationResult((value <= command.Max) &&
-                                              (value >= command.Min));
-        }
-
-        public void Execute(ScriptVarDistractValueCommand command)
-        {
-            if (!_isExecuting) return;
-            var result = GetVariableValue(command.VariableA) - GetVariableValue(command.VariableB);
-            if (result >= 0)
-            {
-                SetVariableValue(command.VariableA, result);
-            }
-            else
-            {
-                SetVariableValue(command.VariableA, -result);
+                CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+                _scriptDataReader.Dispose();
             }
 
-        }
-        public void Execute(ScriptVarSetRandomValueCommand command)
-        {
-            if (!_isExecuting) return;
-            SetVariableValue(command.Variable, RandomGenerator.Range(0, command.MaxValue));
+            _isDisposed = true;
         }
 
-        public void Execute(ScriptWaitUntilTimeCommand untilTimeCommand)
+        public void Execute(ScriptRunnerSetOperatorCommand command)
+        {
+            if (!_isExecuting) return;
+            _operatorType = (PalScriptOperatorType)command.OperatorType;
+        }
+
+        public void Execute(ScriptRunnerWaitUntilTimeCommand untilTimeCommand)
         {
             if (!_isExecuting) return;
             _waiters.Push(new WaitUntilTime(untilTimeCommand.Time));
@@ -363,139 +239,90 @@ namespace Pal3.Game.Script
             _waiters.Push(request.Waiter);
         }
 
-        public void Execute(ScriptGotoCommand command)
+        public void Execute(ScriptRunnerGotoCommand command)
         {
             if (!_isExecuting) return;
             _scriptDataReader.Seek(command.Offset, SeekOrigin.Begin);
         }
 
-        public void Execute(ScriptGotoIfConditionFailedCommand command)
+        public void Execute(ScriptRunnerGotoIfNotCommand command)
         {
             if (!_isExecuting) return;
-            if (_registers[(int) RegisterOperationType.Value] != null &&
-                !(bool)_registers[(int) RegisterOperationType.Value])
+            if (!_tempVariable)
             {
                 _scriptDataReader.Seek(command.Offset, SeekOrigin.Begin);
             }
         }
 
-        public void Execute(ScriptChangeExecutionModeCommand command)
+        public void Execute(ScriptRunnerChangeExecutionModeCommand command)
         {
             if (!_isExecuting) return;
             _executionMode = (ScriptExecutionMode)command.Mode;
         }
 
-        #if PAL3
-        // TODO: Impl
-        public void Execute(MiniGameGetAppraisalsResultCommand command)
+        public void Execute(ScriptEvaluateVarIsGreaterThanCommand command)
         {
             if (!_isExecuting) return;
-            var result = ServiceLocator.Instance.Get<AppraisalsMiniGame>().GetResult();
-            SetVariableValue(command.Variable, result ? 1: 0);
-        }
-        #endif
-
-        public void Execute(ScriptGetDialogueSelectionCommand command)
-        {
-            if (!_isExecuting) return;
-            var selection = ServiceLocator.Instance.Get<DialogueManager>().GetDialogueSelectionButtonIndex();
-            SetVariableValue(command.Variable, selection);
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) > command.Value);
         }
 
-        public void Execute(ScriptGetLimitTimeDialogueSelectionCommand command)
+        public void Execute(ScriptEvaluateVarIsGreaterThanOrEqualToCommand command)
         {
             if (!_isExecuting) return;
-            var dialogueManager = ServiceLocator.Instance.Get<DialogueManager>();
-            var playerReactedInTime = dialogueManager.PlayerReactedInTimeForLimitTimeDialogue() ? 1 : 0;
-            SetVariableValue(command.Variable, playerReactedInTime);
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) >= command.Value);
         }
 
-        public void Execute(ScriptCheckIfPlayerHaveItemCommand command)
+        public void Execute(ScriptEvaluateVarIsGreaterThanOrEqualToAnotherVarCommand command)
         {
             if (!_isExecuting) return;
-            var haveItem = ServiceLocator.Instance.Get<InventoryManager>().HaveItem(command.ItemId);
-            SetVarValueBasedOnOperationResult(haveItem);
+            EvaluateAndSetOperationResult(GetVariableValue(command.VariableA) >= GetVariableValue(command.VariableB));
         }
 
-        public void Execute(ScriptCheckIfActorInTeamCommand command)
+        public void Execute(ScriptEvaluateVarIsEqualToCommand command)
         {
             if (!_isExecuting) return;
-            var isActorInTeam = ServiceLocator.Instance.Get<TeamManager>().IsActorInTeam((PlayerActorId) command.ActorId);
-            SetVarValueBasedOnOperationResult(isActorInTeam);
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) == command.Value);
         }
 
-        public void Execute(ScriptGetMazeSwitchStatusCommand command)
+        public void Execute(ScriptEvaluateVarIsNotEqualToCommand command)
         {
             if (!_isExecuting) return;
-            var currentCity = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene().GetSceneInfo().CityName;
-            if (ServiceLocator.Instance.Get<SceneStateManager>()
-                .TryGetSceneObjectStateOverride(currentCity, command.SceneName, command.ObjectId, out SceneObjectStateOverride state) &&
-                state.SwitchState.HasValue)
-            {
-                SetVariableValue(command.Variable, state.SwitchState.Value == 1 ? 1 : 0);
-            }
-            else
-            {
-                SetVariableValue(command.Variable, 0); // Default to off
-            }
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) != command.Value);
         }
 
-        public void Execute(ScriptGetMoneyCommand command)
+        public void Execute(ScriptEvaluateVarIsLessThanCommand command)
         {
             if (!_isExecuting) return;
-            // TODO: Remove this and uncomment the following line
-            var totalMoney = 777777;
-            // var totalMoney = ServiceLocator.Instance.Get<InventoryManager>().GetTotalMoney();
-            SetVariableValue(command.Variable, totalMoney);
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) < command.Value);
         }
 
-        public void Execute(ScriptGetFavorCommand command)
+        public void Execute(ScriptEvaluateVarIsLessThanOrEqualToCommand command)
         {
             if (!_isExecuting) return;
-            var favor = ServiceLocator.Instance.Get<FavorManager>().GetFavorByActor(command.ActorId);
-            SetVariableValue(command.Variable, favor);
+            EvaluateAndSetOperationResult(GetVariableValue(command.Variable) <= command.Value);
         }
 
-        public void Execute(ScriptVarSetMostFavorableActorIdCommand command)
+        public void Execute(ScriptEvaluateVarIsInRangeCommand command)
         {
             if (!_isExecuting) return;
-            var mostFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetMostFavorableActorId();
-            SetVariableValue(command.Variable, mostFavorableActorId);
+            int value = GetVariableValue(command.Variable);
+            EvaluateAndSetOperationResult((value <= command.Max) && (value >= command.Min));
         }
 
-        public void Execute(ScriptVarSetLeastFavorableActorIdCommand command)
+        public void Execute(ScriptEvaluateVarIfPlayerHaveItemCommand command)
         {
             if (!_isExecuting) return;
-            var leastFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetLeastFavorableActorId();
-            SetVariableValue(command.Variable, leastFavorableActorId);
+            bool haveItem = ServiceLocator.Instance.Get<InventoryManager>()
+                .HaveItem(command.ItemId);
+            EvaluateAndSetOperationResult(haveItem);
         }
 
-        // TODO: Impl
-        #if PAL3A
-        public void Execute(ScriptGetWheelOfTheFiveElementsUsageCountCommand command)
+        public void Execute(ScriptEvaluateVarIfActorInTeamCommand command)
         {
             if (!_isExecuting) return;
-            var rand = RandomGenerator.Range(0f, 1f);
-            var usageCount = rand > 0.35f ? 360 : 0;
-            SetVariableValue(command.Variable, usageCount);
-        }
-        #endif
-
-        // TODO: Impl
-        public void Execute(ScriptVarGetCombatResultCommand command)
-        {
-            if (!_isExecuting) return;
-            var won = RandomGenerator.Range(0f, 1f);
-            #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.35f
-                ? new UIDisplayNoteCommand("你战胜了重楼")
-                : new UIDisplayNoteCommand("你输给了重楼"));
-            #elif PAL3A
-            CommandDispatcher<ICommand>.Instance.Dispatch(won > 0.35f
-                ? new UIDisplayNoteCommand("你战胜了景小楼")
-                : new UIDisplayNoteCommand("你输给了景小楼"));
-            #endif
-            SetVariableValue(command.Variable, won > 0.35f ? 1 : 0);
+            bool isActorInTeam = ServiceLocator.Instance.Get<TeamManager>()
+                .IsActorInTeam((PlayerActorId) command.ActorId);
+            EvaluateAndSetOperationResult(isActorInTeam);
         }
     }
 }

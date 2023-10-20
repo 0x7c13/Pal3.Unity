@@ -19,7 +19,7 @@ namespace Engine.DataLoader
 
         private short _width;
         private short _height;
-        private byte[] _rawRgbaData;
+        private byte[] _rawRgbaDataBuffer;
 
         public TgaTextureLoader(ITextureFactory textureFactory)
         {
@@ -28,7 +28,7 @@ namespace Engine.DataLoader
 
         public unsafe void Load(byte[] data, out bool hasAlphaChannel)
         {
-            if (_rawRgbaData != null) throw new Exception("TGA texture already loaded");
+            if (_rawRgbaDataBuffer != null) throw new Exception("TGA texture already loaded");
 
             byte bitDepth;
 
@@ -39,18 +39,18 @@ namespace Engine.DataLoader
                 bitDepth = *(p + 4);
             }
 
-            _rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
+            _rawRgbaDataBuffer = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
 
             switch (bitDepth)
             {
                 case 24:
                     hasAlphaChannel = false;
                     TgaDecoder.Decode24BitDataToRgba32(
-                        data, _width, _height, _rawRgbaData);
+                        data, _width, _height, _rawRgbaDataBuffer);
                     break;
                 case 32:
                     TgaDecoder.Decode32BitDataToRgba32(
-                        data, _width, _height, _rawRgbaData, out hasAlphaChannel);
+                        data, _width, _height, _rawRgbaDataBuffer, out hasAlphaChannel);
                     break;
                 default:
                     throw new Exception("TGA texture had non 32/24 bit depth");
@@ -59,16 +59,16 @@ namespace Engine.DataLoader
 
         public ITexture2D ToTexture()
         {
-            if (_rawRgbaData == null) return null;
+            if (_rawRgbaDataBuffer == null) return null;
 
             try
             {
-                return _textureFactory.CreateTexture(_width, _height, _rawRgbaData);
+                return _textureFactory.CreateTexture(_width, _height, _rawRgbaDataBuffer);
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(_rawRgbaData);
-                _rawRgbaData = null;
+                ArrayPool<byte>.Shared.Return(_rawRgbaDataBuffer);
+                _rawRgbaDataBuffer = null;
             }
         }
     }

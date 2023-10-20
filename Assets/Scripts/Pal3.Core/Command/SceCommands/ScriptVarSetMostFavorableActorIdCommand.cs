@@ -5,15 +5,15 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(52, "取得主角对谁的好感最高，" +
-                    "参数：变量名")]
+    [SceCommand(52, "取得主角对谁的好感最高并赋值给变量，" +
+                    "参数：变量名", 0b0001)]
     public class ScriptVarSetMostFavorableActorIdCommand : ICommand
     {
-        public ScriptVarSetMostFavorableActorIdCommand(int variable)
+        public ScriptVarSetMostFavorableActorIdCommand(ushort variable)
         {
             Variable = variable;
         }
 
-        public int Variable { get; }
+        public ushort Variable { get; }
     }
 }

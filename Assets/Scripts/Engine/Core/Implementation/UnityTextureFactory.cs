@@ -11,15 +11,15 @@ namespace Engine.Core.Implementation
 
     public sealed class UnityTextureFactory : ITextureFactory
     {
-        public ITexture2D CreateTexture(int width, int height, byte[] rgbaData)
+        public ITexture2D CreateTexture(int width, int height, byte[] rgba32DataBuffer)
         {
-            if (rgbaData.Length < width * height * 4)
+            if (rgba32DataBuffer.Length < width * height * 4)
             {
-                throw new ArgumentException("rgbaData.Length < width * height * 4");
+                throw new ArgumentException("rgba32DataBuffer.Length < width * height * 4");
             }
 
             var texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
-            texture.LoadRawTextureData(rgbaData);
+            texture.LoadRawTextureData(rgba32DataBuffer);
             texture.Apply(updateMipmaps: false);
             return new UnityTexture2D(texture);
         }

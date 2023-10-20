@@ -95,7 +95,7 @@ namespace Editor.SourceGenerator
 
         private static bool IsCommandAvailableInConsole(Type command)
         {
-            // List<Object> parameters is not supported.
+            // object[] is not supported by InGameDebugConsole.
             if (command == typeof(DialogueAddSelectionsCommand)) return false;
 
             // Make all SceCommands available in console + all commands with AvailableInConsoleAttribute.

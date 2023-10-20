@@ -205,6 +205,29 @@ namespace Pal3.Core.DataReader
             }
             return array;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object Read(Type type)
+        {
+            return type switch
+            {
+                not null when type == typeof(bool) => ReadBoolean(),
+                not null when type == typeof(byte) => ReadByte(),
+                not null when type == typeof(short) => ReadInt16(),
+                not null when type == typeof(ushort) => ReadUInt16(),
+                not null when type == typeof(int) => ReadInt32(),
+                not null when type == typeof(uint) => ReadUInt32(),
+                not null when type == typeof(long) => ReadInt64(),
+                not null when type == typeof(ulong) => ReadUInt64(),
+                not null when type == typeof(float) => ReadSingle(),
+                not null when type == typeof(double) => ReadDouble(),
+                not null when type == typeof(GameBoxVector2) => ReadGameBoxVector2(),
+                not null when type == typeof(GameBoxVector3) => ReadGameBoxVector3(),
+                not null when type == typeof(Color32) => ReadColor32(),
+                not null when type == typeof(Color) => ReadColor(),
+                _ => throw new NotSupportedException($"Type {type} is not supported.")
+            };
+        }
         #endregion
     }
 }

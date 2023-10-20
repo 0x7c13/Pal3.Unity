@@ -20,7 +20,7 @@ namespace Engine.DataLoader
 
 		private int _width;
 		private int _height;
-		private byte[] _rawRgbaData;
+		private byte[] _rawRgbaDataBuffer;
 
 		public DxtTextureLoader(ITextureFactory textureFactory)
 		{
@@ -29,7 +29,7 @@ namespace Engine.DataLoader
 
 		public void Load(byte[] data, out bool hasAlphaChannel)
 		{
-			if (_rawRgbaData != null) throw new Exception("DXT texture already loaded");
+			if (_rawRgbaDataBuffer != null) throw new Exception("DXT texture already loaded");
 
 			using var stream = new MemoryStream(data);
 			using var headerReader = new BinaryReader(stream);
@@ -44,53 +44,37 @@ namespace Engine.DataLoader
 			_width = header.Width;
 			_height = header.Height;
 
+			_rawRgbaDataBuffer = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
+
 			switch (header.DxtPixelFormat.Format)
 			{
 				case "DXT1":
 					hasAlphaChannel = false;
-					LoadDxt1Texture(data);
+					Dxt1Decoder.ToRgba32(data, _width, _height, _rawRgbaDataBuffer);
 					break;
 				case "DXT3":
 					hasAlphaChannel = true;
-					LoadDxt3Texture(data);
+					Dxt3Decoder.ToRgba32(data, _width, _height, _rawRgbaDataBuffer);
 					break;
 				case "DXT5":
-					throw new NotImplementedException("DXT5 decoder not implemented yet");
+					throw new NotImplementedException("DXT5 decoder not implemented");
 				default:
 					throw new Exception($"DXT Texture format: {header.DxtPixelFormat.Format} is not supported");
 			}
 		}
 
-		// Texture2D.LoadRawTextureData does not support DXT1 format on iOS/Android
-		// devices so we have to manually decode it to RGBA32(RGB888) format and then
-		// invoke LoadRawTextureData method later to convert it to Texture2D.
-		private void LoadDxt1Texture(byte[] data)
-		{
-			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
-			Dxt1Decoder.ToRgba32(data, _width, _height, _rawRgbaData);
-		}
-
-		// Texture2D.LoadRawTextureData does not support DXT3 format
-		// so we have to manually decode it to RGBA32(RGB888) format and then
-		// invoke LoadRawTextureData method later to convert it to Texture2D.
-		private void LoadDxt3Texture(byte[] data)
-		{
-			_rawRgbaData = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
-			Dxt3Decoder.ToRgba32(data, _width, _height, _rawRgbaData);
-		}
-
 		public ITexture2D ToTexture()
 		{
-			if (_rawRgbaData == null) return null;
+			if (_rawRgbaDataBuffer == null) return null;
 
 			try
 			{
-				return _textureFactory.CreateTexture(_width, _height, _rawRgbaData);
+				return _textureFactory.CreateTexture(_width, _height, _rawRgbaDataBuffer);
 			}
 			finally
 			{
-				ArrayPool<byte>.Shared.Return(_rawRgbaData);
-				_rawRgbaData = null;
+				ArrayPool<byte>.Shared.Return(_rawRgbaDataBuffer);
+				_rawRgbaDataBuffer = null;
 			}
 		}
 	}

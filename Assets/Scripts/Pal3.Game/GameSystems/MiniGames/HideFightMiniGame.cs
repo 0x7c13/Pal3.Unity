@@ -12,14 +12,17 @@ namespace Pal3.Game.GameSystems.MiniGames
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Constants;
-    using Engine.Services;
+    using Core.Utilities;
     using Script;
 
     public sealed class HideFightMiniGame : IDisposable,
         ICommandExecutor<MiniGameStartHideFightCommand>
     {
-        public HideFightMiniGame()
+        private readonly UserVariableManager _userVariableManager;
+
+        public HideFightMiniGame(UserVariableManager userVariableManager)
         {
+            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -30,13 +33,12 @@ namespace Pal3.Game.GameSystems.MiniGames
 
         public void Execute(MiniGameStartHideFightCommand command)
         {
-            if (ServiceLocator.Instance.Get<ScriptManager>().GetGlobalVariables()
-                    [ScriptConstants.MainStoryVariableName] == 71000)
+            if (_userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 71000)
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(
                     new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
             }
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(1701));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand(1701));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new UIDisplayNoteCommand("此处小游戏暂未实现，现已跳过"));

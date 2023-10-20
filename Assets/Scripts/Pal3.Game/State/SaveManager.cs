@@ -55,7 +55,7 @@ namespace Pal3.Game.State
         public const int AutoSaveSlotIndex = 0;
         public bool IsAutoSaveEnabled { get; set; } = false;
 
-        private const string SAVE_FILE_FORMAT = "slot_{0}.txt";
+        private const string SAVE_FILE_FORMAT = "slot_{0}_v1.txt";
         private const string SAVE_FOLDER_NAME = "Saves";
         private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
 
@@ -65,6 +65,7 @@ namespace Pal3.Game.State
         private readonly InventoryManager _inventoryManager;
         private readonly SceneStateManager _sceneStateManager;
         private readonly WorldMapManager _worldMapManager;
+        private readonly UserVariableManager _userVariableManager;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
         #if PAL3A
@@ -82,6 +83,7 @@ namespace Pal3.Game.State
             InventoryManager inventoryManager,
             SceneStateManager sceneStateManager,
             WorldMapManager worldMapManager,
+            UserVariableManager userVariableManager,
             ScriptManager scriptManager,
             FavorManager favorManager,
             #if PAL3A
@@ -97,6 +99,7 @@ namespace Pal3.Game.State
             _inventoryManager = Requires.IsNotNull(inventoryManager, nameof(inventoryManager));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
             _worldMapManager = Requires.IsNotNull(worldMapManager, nameof(worldMapManager));
+            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _favorManager = Requires.IsNotNull(favorManager, nameof(favorManager));
             #if PAL3A
@@ -158,17 +161,7 @@ namespace Pal3.Game.State
 
         public string LoadFromSaveSlot(int slotIndex)
         {
-            var content = SaveSlotExists(slotIndex) ? File.ReadAllText(GetSaveFilePath(slotIndex)) : null;
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                // TODO: Remove this after a few versions
-                return content.Replace("StopMusic", "StopScriptMusic")
-                    .Replace("PlayMusic", "PlayScriptMusic")
-                    .Replace("BigMapEnableRegion", "WorldMapEnableRegion");
-            }
-
-            return null;
+            return SaveSlotExists(slotIndex) ? File.ReadAllText(GetSaveFilePath(slotIndex)) : null;
         }
 
         public List<ICommand> ConvertCurrentGameStateToCommands(SaveLevel saveLevel)
@@ -180,24 +173,24 @@ namespace Pal3.Game.State
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
-            var varsToSave = _scriptManager.GetGlobalVariables();
+            Dictionary<ushort, int> variables = _userVariableManager.GetGlobalVariables();
             if (saveLevel == SaveLevel.Minimal)
             {
-                varsToSave = new Dictionary<int, int>()
+                variables = new Dictionary<ushort, int>()
                 {
-                    {ScriptConstants.MainStoryVariableName, varsToSave[ScriptConstants.MainStoryVariableName]}
+                    { ScriptConstants.MainStoryVariableId, variables[ScriptConstants.MainStoryVariableId] }
                 }; // Save main story var only
             }
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
-            var commands = new List<ICommand>
+            List<ICommand> commands = new ()
             {
                 new ResetGameStateCommand(), // Reset game state at first
             };
 
             // Save global variable(s)
-            commands.AddRange(varsToSave.Select(var =>
+            commands.AddRange(variables.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
 
             var currentPlayerActorId = (int)_playerActorManager.GetPlayerActor();
@@ -405,13 +398,11 @@ namespace Pal3.Game.State
             {
                 IList<ICommand> gameStateCommands = ConvertCurrentGameStateToCommands(SaveLevel.Full);
 
-                bool success = SaveGameStateToSlot(AutoSaveSlotIndex, gameStateCommands);
-                if (success)
+                if (SaveGameStateToSlot(AutoSaveSlotIndex, gameStateCommands))
                 {
                     _lastAutoSaveTime = GameTimeProvider.Instance.RealTimeSinceStartup;
+                    EngineLogger.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}");
                 }
-
-                EngineLogger.LogWarning($"Game state auto-saved to slot {AutoSaveSlotIndex}");
             }
         }
 

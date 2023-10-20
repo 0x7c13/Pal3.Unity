@@ -138,20 +138,20 @@ namespace Pal3.Core.DataReader.Cpk
             foreach ((uint crc, CpkTableEntity entity) in _crcToTableEntityMap)
             {
                 int extraInfoSize = (int)entity.ExtraInfoSize;
-                byte[] extraInfo = ArrayPool<byte>.Shared.Rent(extraInfoSize);
+                byte[] extraInfoBuffer = ArrayPool<byte>.Shared.Rent(extraInfoSize);
 
                 try
                 {
                     long extraInfoOffset = entity.StartPos + entity.PackedSize;
                     stream.Seek(extraInfoOffset, SeekOrigin.Begin);
-                    _ = stream.Read(extraInfo, 0, extraInfoSize);
+                    _ = stream.Read(extraInfoBuffer, 0, extraInfoSize);
                     string fileName = Encoding.GetEncoding(_codepage)
-                        .GetString(extraInfo, 0, Array.IndexOf(extraInfo, (byte)0));
+                        .GetString(extraInfoBuffer, 0, Array.IndexOf(extraInfoBuffer, (byte)0));
                     crcToFileNameMap[crc] = fileName;
                 }
                 finally
                 {
-                    ArrayPool<byte>.Shared.Return(extraInfo);
+                    ArrayPool<byte>.Shared.Return(extraInfoBuffer);
                 }
             }
 

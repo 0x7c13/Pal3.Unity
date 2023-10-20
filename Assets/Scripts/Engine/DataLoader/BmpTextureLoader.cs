@@ -36,18 +36,18 @@ namespace Engine.DataLoader
         {
             if (_image.Info.Height > 0) return;
 
-            int w = _image.Info.AbsWidth;
-            int h = _image.Info.AbsHeight;
+            int width = _image.Info.AbsWidth;
+            int height = _image.Info.AbsHeight;
 
-            for (int y = 0; y < h / 2; y++)
+            for (int y = 0; y < height / 2; y++)
             {
-                for(int x = 0, o1=y*w, o2=(h-y-1)*w; x < w; x++,o1++,o2++)
+                for(int x = 0, o1 = y * width, o2 = (height - y - 1) * width; x < width; x++, o1++, o2++)
                 {
                     (_image.ImageData[o1], _image.ImageData[o2]) = (_image.ImageData[o2], _image.ImageData[o1]);
                 }
             }
 
-            _image.Info.Height = h;
+            _image.Info.Height = height;
         }
 
         public ITexture2D ToTexture()
@@ -59,24 +59,24 @@ namespace Engine.DataLoader
                 FlipImage();
             }
 
-            byte[] rawRgbaData = ArrayPool<byte>.Shared.Rent(_image.ImageData.Length * 4);
+            byte[] rawRgbaDataBuffer = ArrayPool<byte>.Shared.Rent(_image.ImageData.Length * 4);
 
             try
             {
                 for (int i = 0; i < _image.ImageData.Length; i++)
                 {
-                    rawRgbaData[i * 4 + 0] = _image.ImageData[i].B;
-                    rawRgbaData[i * 4 + 1] = _image.ImageData[i].G;
-                    rawRgbaData[i * 4 + 2] = _image.ImageData[i].R;
-                    rawRgbaData[i * 4 + 3] = _image.ImageData[i].A;
+                    rawRgbaDataBuffer[i * 4 + 0] = _image.ImageData[i].B;
+                    rawRgbaDataBuffer[i * 4 + 1] = _image.ImageData[i].G;
+                    rawRgbaDataBuffer[i * 4 + 2] = _image.ImageData[i].R;
+                    rawRgbaDataBuffer[i * 4 + 3] = _image.ImageData[i].A;
                 }
 
                 // Use the buffer instead of a new array
-                return _textureFactory.CreateTexture(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaData);
+                return _textureFactory.CreateTexture(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaDataBuffer);
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(rawRgbaData);
+                ArrayPool<byte>.Shared.Return(rawRgbaDataBuffer);
                 _image = null;
             }
         }

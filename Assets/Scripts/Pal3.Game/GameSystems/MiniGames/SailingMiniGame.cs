@@ -38,7 +38,7 @@ namespace Pal3.Game.GameSystems.MiniGames
                 CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m05", "1"));
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand(command.EndScriptId));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand(command.EndScriptId));
 
             CommandDispatcher<ICommand>.Instance.Dispatch(
                 new UIDisplayNoteCommand("行船小游戏暂未实现，现已跳过"));

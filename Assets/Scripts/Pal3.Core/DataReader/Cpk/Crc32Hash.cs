@@ -49,10 +49,10 @@ namespace Pal3.Core.DataReader.Cpk
             Encoding encoding = Encoding.GetEncoding(codepage);
             int byteCount = encoding.GetByteCount(str);
 
-            byte[] rentedArray = null;
+            byte[] rentedBuffer = null;
             Span<byte> buffer = byteCount <= 512  // To prevent stack overflow when string is too long
                 ? stackalloc byte[byteCount]
-                : (rentedArray = ArrayPool<byte>.Shared.Rent(byteCount)).AsSpan();
+                : (rentedBuffer = ArrayPool<byte>.Shared.Rent(byteCount)).AsSpan();
 
             try
             {
@@ -62,9 +62,9 @@ namespace Pal3.Core.DataReader.Cpk
             }
             finally
             {
-                if (rentedArray != null)
+                if (rentedBuffer != null)
                 {
-                    ArrayPool<byte>.Shared.Return(rentedArray);
+                    ArrayPool<byte>.Shared.Return(rentedBuffer);
                 }
             }
         }

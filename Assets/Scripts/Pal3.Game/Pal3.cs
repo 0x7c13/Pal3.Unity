@@ -151,6 +151,7 @@ namespace Pal3.Game
         private InputManager _inputManager;
         private GameStateManager _gameStateManager;
         private SceneStateManager _sceneStateManager;
+        private UserVariableManager _userVariableManager;
         private ScriptManager _scriptManager;
         private VideoManager _videoManager;
         private SceneManager _sceneManager;
@@ -229,8 +230,13 @@ namespace Pal3.Game
                 new InputManager(_inputActions)
             );
 
+            ServiceLocator.Instance.Register(_userVariableManager =
+                new UserVariableManager()
+            );
+
             ServiceLocator.Instance.Register(_scriptManager =
                 new ScriptManager(_gameResourceProvider,
+                    _userVariableManager,
                     new PalScriptCommandPreprocessor(new PalScriptPatcher()))
             );
 
@@ -300,7 +306,9 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_hotelManager =
-                new HotelManager(_scriptManager, _sceneManager)
+                new HotelManager(_userVariableManager,
+                    _scriptManager,
+                    _sceneManager)
             );
 
             ServiceLocator.Instance.Register(_worldMapManager =
@@ -325,7 +333,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_mazeSkipper =
-                new MazeSkipper(_sceneManager)
+                new MazeSkipper(_userVariableManager, _sceneManager)
             );
 
             ServiceLocator.Instance.Register(_renderingSettingsManager =
@@ -346,7 +354,7 @@ namespace Pal3.Game
                 new SailingMiniGame()
             );
             ServiceLocator.Instance.Register(_hideFightMiniGame =
-                new HideFightMiniGame()
+                new HideFightMiniGame(_userVariableManager)
             );
             ServiceLocator.Instance.Register(_encampMiniGame =
                 new EncampMiniGame()
@@ -452,6 +460,7 @@ namespace Pal3.Game
                     _inventoryManager,
                     _sceneStateManager,
                     _worldMapManager,
+                    _userVariableManager,
                     _scriptManager,
                     _favorManager,
                     #if PAL3A
@@ -467,6 +476,7 @@ namespace Pal3.Game
                     _inputManager,
                     _sceneManager,
                     _gameStateManager,
+                    _userVariableManager,
                     _scriptManager,
                     _teamManager,
                     _saveManager,
@@ -619,7 +629,7 @@ namespace Pal3.Game
         /// </summary>
         private void LateUpdate()
         {
-            var deltaTime = Time.deltaTime;
+            float deltaTime = Time.deltaTime;
 
             GameState currentState = _gameStateManager.GetCurrentState();
             if (currentState != GameState.VideoPlaying &&
@@ -697,8 +707,9 @@ namespace Pal3.Game
             info.Append("----- Team info -----\n" +
                         $"Actors in team: {string.Join(", ", _teamManager.GetActorsInTeam().Select(_ => _.ToString()))}\n");
 
-            info.Append(_scriptManager.GetGlobalVariables()
-                .Aggregate("----- Variables info -----\n", (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
+            info.Append(_userVariableManager.GetGlobalVariables()
+                .Aggregate("----- Global Variables info -----\n",
+                    (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
 
             info.Append(_inventoryManager);
 

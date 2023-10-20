@@ -143,7 +143,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             #if PAL3
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunCommand(shouldGoUp.Value ? upperLevelScriptId : lowerLevelScriptId));
+                new ScriptExecuteCommand(shouldGoUp.Value ? upperLevelScriptId : lowerLevelScriptId));
             #elif PAL3A
             ExecuteScriptIfAny();
             #endif

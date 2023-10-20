@@ -11,20 +11,35 @@ namespace Pal3.Core.Command
     /// Attribute for SceCommands
     /// Id: SceCommand ID
     /// Description: Command description
-    /// ParameterFlag: SceCommand parameter flag
+    /// UserVariableMask: SceCommand property user variable mask
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class SceCommandAttribute : Attribute
     {
-        public SceCommandAttribute(int id, string description, int parameterFlag = 0)
+        public SceCommandAttribute(ushort commandId, string description, ushort userVariableMask = 0b0000)
         {
-            Id = id;
+            CommandId = commandId;
             Description = description;
-            ParameterFlag = parameterFlag;
+            UserVariableMask = userVariableMask;
         }
 
-        public int Id { get; }
-        public int ParameterFlag { get; }
+        /// <summary>
+        /// SceCommand Id
+        /// </summary>
+        public ushort CommandId { get; }
+
+        /// <summary>
+        /// SceCommand property user variable mask
+        /// 0b0001 means the first property is user variable (2 bytes UInt16)
+        /// 0b0010 means the second property is user variable (2 bytes UInt16)
+        /// 0b0100 means the third property is user variable (2 bytes UInt16)
+        /// etc.
+        /// </summary>
+        public ushort UserVariableMask { get; }
+
+        /// <summary>
+        /// Description of the command
+        /// </summary>
         public string Description { get; }
     }
 }

@@ -15,7 +15,7 @@ namespace Pal3.Core.Contract.Constants
 
         public const float PlayerActorClimbSpeed = 2f;
         public const float PlayerActorWalkSpeed = 4f;
-        public const float PlayerActorRunSpeed = 9f;
+        public const float PlayerActorRunSpeed = 10f;
         public const float NpcActorWalkSpeed = PlayerActorWalkSpeed / 2f;
         public const float NpcActorRunSpeed = PlayerActorRunSpeed / 2f - 1f;
 

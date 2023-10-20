@@ -12,41 +12,46 @@ namespace Pal3.Core.Command
 
     public static class SceCommandTypeResolver
     {
-        private static readonly Dictionary<string, Type> SceCommandTypeCache = new ();
+        private static bool _isInitialized;
+        private static readonly Dictionary<uint, Type> SceCommandTypeCache = new ();
 
-        private static readonly IEnumerable<Type> CommandTypes = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
+        private static void Init()
+        {
+            if (_isInitialized) return;
+
+            IEnumerable<Type> commandTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
+
+            foreach (Type commandType in commandTypes)
+            {
+                if (commandType.GetCustomAttribute(typeof(SceCommandAttribute)) is SceCommandAttribute attribute)
+                {
+                    SceCommandTypeCache[GetHashCode(attribute.CommandId, attribute.UserVariableMask)] = commandType;
+                }
+            }
+
+            _isInitialized = true;
+        }
+
+        private static uint GetHashCode(ushort commandId, ushort userVariableMask)
+        {
+            // 16 bits for command id, 16 bits for user variable mask
+            return ((uint)commandId << 16) | (uint)userVariableMask;
+        }
 
         /// <summary>
         /// Get SceCommand Type for the given command id.
         /// </summary>
         /// <param name="commandId">SceCommand Id</param>
-        /// <param name="parameterFlag">Parameter flag</param>
+        /// <param name="userVariableMask">User variable mask</param>
         /// <returns>Type of the command, null if not found</returns>
-        public static Type GetType(int commandId, ushort parameterFlag)
+        public static Type GetType(ushort commandId, ushort userVariableMask)
         {
-            var hashKey = $"{commandId}_{parameterFlag}";
+            if (!_isInitialized) Init();
 
-            if (SceCommandTypeCache.TryGetValue(hashKey, out Type type))
-            {
-                return type;
-            }
+            uint hashCode = GetHashCode(commandId, userVariableMask);
 
-            foreach (Type commandType in CommandTypes)
-            {
-                if (commandType.GetCustomAttribute(typeof(SceCommandAttribute))
-                        is SceCommandAttribute attribute && attribute.Id == commandId)
-                {
-                    if (attribute.ParameterFlag == 0 ||
-                        attribute.ParameterFlag == parameterFlag)
-                    {
-                        SceCommandTypeCache[hashKey] = commandType;
-                        return commandType;
-                    }
-                }
-            }
-
-            return null; // not found
+            return SceCommandTypeCache.TryGetValue(hashCode, out Type type) ? type : null; // not found
         }
     }
 }

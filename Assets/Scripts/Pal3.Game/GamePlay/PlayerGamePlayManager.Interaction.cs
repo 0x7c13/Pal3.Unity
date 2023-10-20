@@ -216,7 +216,7 @@ namespace Pal3.Game.GamePlay
 
             // Run dialogue script
             CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunCommand((int)targetActor.GetScriptId()));
+                new ScriptExecuteCommand((int)targetActor.GetScriptId()));
 
             // Wait until the dialogue script is finished
             yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.GetScriptId());

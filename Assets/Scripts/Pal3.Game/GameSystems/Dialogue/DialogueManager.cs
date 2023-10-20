@@ -446,7 +446,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
 
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
-            for (var i = 0; i < command.Selections.Count; i++)
+            for (var i = 0; i < command.Selections.Length; i++)
             {
                 GameObject selectionButton = UnityEngine.Object.Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
                 var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -479,10 +479,10 @@ namespace Pal3.Game.GameSystems.Dialogue
                 button.navigation = buttonNavigation;
             }
 
-            for (var i = 0; i < command.Selections.Count; i++)
+            for (var i = 0; i < command.Selections.Length; i++)
             {
                 var button = _selectionButtons[i].GetComponentInChildren<Button>();
-                ConfigureButtonNavigation(button, i, command.Selections.Count);
+                ConfigureButtonNavigation(button, i, command.Selections.Length);
             }
 
             var firstButton = _selectionButtons.First().GetComponentInChildren<Button>();

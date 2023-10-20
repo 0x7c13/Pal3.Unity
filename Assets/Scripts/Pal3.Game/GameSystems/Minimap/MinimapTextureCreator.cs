@@ -37,7 +37,7 @@ namespace Pal3.Game.GameSystems.Minimap
         /// <returns>A Texture2D representing the minimap of the NavLayer.</returns>
         public ITexture2D CreateMinimapTexture(NavLayer layer)
         {
-            byte[] rgbaData = ArrayPool<byte>.Shared.Rent(layer.Width * layer.Height * 4);
+            byte[] rgbaDataBuffer = ArrayPool<byte>.Shared.Rent(layer.Width * layer.Height * 4);
 
             for (var i = 0; i < layer.Width; i++)
             {
@@ -54,20 +54,20 @@ namespace Pal3.Game.GameSystems.Minimap
 
                     // NOTE: the texture is flipped vertically compared to the tilemap space
                     int colorIndex = (i + (layer.Height - j - 1) * layer.Width) * 4;
-                    rgbaData[colorIndex + 0] = color.r;
-                    rgbaData[colorIndex + 1] = color.g;
-                    rgbaData[colorIndex + 2] = color.b;
-                    rgbaData[colorIndex + 3] = color.a;
+                    rgbaDataBuffer[colorIndex + 0] = color.r;
+                    rgbaDataBuffer[colorIndex + 1] = color.g;
+                    rgbaDataBuffer[colorIndex + 2] = color.b;
+                    rgbaDataBuffer[colorIndex + 3] = color.a;
                 }
             }
 
             try
             {
-                return _textureFactory.CreateTexture(layer.Width, layer.Height, rgbaData);
+                return _textureFactory.CreateTexture(layer.Width, layer.Height, rgbaDataBuffer);
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(rgbaData);
+                ArrayPool<byte>.Shared.Return(rgbaDataBuffer);
             }
         }
     }

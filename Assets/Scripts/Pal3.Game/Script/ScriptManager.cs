@@ -19,14 +19,11 @@ namespace Pal3.Game.Script
     using Engine.Logging;
 
     public sealed class ScriptManager : IDisposable,
-        ICommandExecutor<ScriptRunCommand>,
-        ICommandExecutor<ScriptVarSetValueCommand>,
-        ICommandExecutor<ScriptVarAddValueCommand>,
+        ICommandExecutor<ScriptExecuteCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly Dictionary<int, int> _globalVariables = new ();
-
         private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
+        private readonly UserVariableManager _userVariableManager;
 
         private readonly SceFile _systemSceFile;
         private readonly SceFile _worldMapSceFile;
@@ -39,13 +36,16 @@ namespace Pal3.Game.Script
         private bool _pendingSceneScriptExecution = false;
 
         public ScriptManager(GameResourceProvider resourceProvider,
+            UserVariableManager userVariableManager,
             PalScriptCommandPreprocessor commandPreprocessor)
         {
             resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
             _cmdPreprocessor = Requires.IsNotNull(commandPreprocessor, nameof(commandPreprocessor));
 
             _systemSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath);
             _worldMapSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.WorldMapSceFileVirtualPath);
+
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -72,21 +72,6 @@ namespace Pal3.Game.Script
             _finishedScripts.Clear();
         }
 
-        public void SetGlobalVariable(int variable, int value)
-        {
-            _globalVariables[variable] = value;
-        }
-
-        public Dictionary<int, int> GetGlobalVariables()
-        {
-            return _globalVariables;
-        }
-
-        public int GetGlobalVariable(int variable)
-        {
-            return _globalVariables.TryGetValue(variable, out int value) ? value : 0;
-        }
-
         public int GetNumberOfRunningScripts()
         {
             return _pendingScripts.Count + _runningScripts.Count;
@@ -108,19 +93,19 @@ namespace Pal3.Game.Script
             {
                 EngineLogger.Log($"Add WorldMap script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
-                    PalScriptType.WorldMap, scriptId, _globalVariables, _cmdPreprocessor);
+                    PalScriptType.WorldMap, scriptId, _userVariableManager, _cmdPreprocessor);
             }
             else if (scriptId < ScriptConstants.SystemScriptIdMax)
             {
                 EngineLogger.Log($"Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
-                    PalScriptType.System, scriptId, _globalVariables, _cmdPreprocessor);
+                    PalScriptType.System, scriptId, _userVariableManager, _cmdPreprocessor);
             }
             else
             {
                 EngineLogger.Log($"Add Scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
-                    PalScriptType.Scene, scriptId, _globalVariables, _cmdPreprocessor);
+                    PalScriptType.Scene, scriptId, _userVariableManager, _cmdPreprocessor);
             }
 
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;
@@ -189,36 +174,18 @@ namespace Pal3.Game.Script
                 AddScript(sceneScriptId);
                 _pendingSceneScriptExecution = true;
                 // This is to break the current running script from executing and let scene script to execute first
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptWaitUntilTimeCommand(0f));
+                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitUntilTimeCommand(0f));
                 return true;
             }
 
             return false;
         }
 
-        public void Execute(ScriptRunCommand command)
+        public void Execute(ScriptExecuteCommand command)
         {
             if (!AddScript((uint) command.ScriptId))
             {
                 CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptFailedToRunNotification((uint) command.ScriptId));
-            }
-        }
-
-        public void Execute(ScriptVarSetValueCommand command)
-        {
-            if (command.Variable < 0)
-            {
-                EngineLogger.LogWarning($"Set global var {command.Variable} with value: {command.Value}");
-                SetGlobalVariable(command.Variable, command.Value);
-            }
-        }
-
-        public void Execute(ScriptVarAddValueCommand command)
-        {
-            if (command.Variable < 0)
-            {
-                var currentValue = _globalVariables.TryGetValue(command.Variable, out var globalVariable) ? globalVariable : 0;
-                SetGlobalVariable(command.Variable, currentValue + command.Value);
             }
         }
 
@@ -238,7 +205,7 @@ namespace Pal3.Game.Script
                 script.Dispose();
             }
 
-            _globalVariables.Clear();
+            _finishedScripts.Clear();
         }
     }
 }

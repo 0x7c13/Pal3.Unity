@@ -34,8 +34,8 @@ namespace Pal3.Core.DataReader.Dxt
 
 			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = buffer)
 			{
-				var src = srcStart;
-				var dst = dstStart;
+				byte* src = srcStart;
+				byte* dst = dstStart;
 
 				for (var j = 0; j < (height + 3) / 4; j++)
 				{
@@ -53,8 +53,8 @@ namespace Pal3.Core.DataReader.Dxt
 			ushort color0 = *(ushort*)(src + 8);
 			ushort color1 = *(ushort*)(src + 10);
 
-			CoreUtility.Rgb565ToRgb888(color0, out var r0, out var g0, out var b0);
-			CoreUtility.Rgb565ToRgb888(color1, out var r1, out var g1, out var b1);
+			CoreUtility.Rgb565ToRgb888(color0, out byte r0, out byte g0, out byte b0);
+			CoreUtility.Rgb565ToRgb888(color1, out byte r1, out byte g1, out byte b1);
 
 			uint lookupTable = *(uint*)(src + 12);
 

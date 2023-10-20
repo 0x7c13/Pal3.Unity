@@ -327,13 +327,13 @@ namespace Pal3.Game.Scene.SceneObjects
         internal void ExecuteScriptIfAny()
         {
             if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) return;
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand((int)ObjectInfo.ScriptId));
         }
 
         internal IEnumerator ExecuteScriptAndWaitForFinishIfAnyAsync()
         {
             if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) yield break;
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunCommand((int)ObjectInfo.ScriptId));
+            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand((int)ObjectInfo.ScriptId));
             yield return new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId);
         }
 

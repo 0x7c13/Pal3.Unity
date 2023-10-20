@@ -48,7 +48,7 @@ namespace Pal3.ResourceViewer
     /// <summary>
     /// The PAL3/PAL3A Game Resource Viewer app model
     /// </summary>
-    public class GameResourceViewer : MonoBehaviour
+    public sealed class GameResourceViewer : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI consoleTextUI;
         [SerializeField] private TextMeshProUGUI nowPlayingTextUI;
@@ -458,10 +458,10 @@ namespace Pal3.ResourceViewer
                 Directory.CreateDirectory(outputFolderPath);
             }
 
+            foreach (string sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
+
             // _charSet = new HashSet<char>();
-            //
-            // foreach (var sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
-            //
+
             // foreach (var itemInfo in _resourceProvider.GetGameItemInfos().Values)
             // {
             //     foreach (var ch in itemInfo.Name) _charSet.Add(ch);
@@ -628,7 +628,10 @@ namespace Pal3.ResourceViewer
                 {
                     var currentPosition = scriptDataReader.BaseStream.Position;
 
-                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader, _codePage);
+                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader,
+                        _codePage,
+                        out ushort commandId,
+                        out ushort userVariableMask);
 
                     // if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
                     // if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);
