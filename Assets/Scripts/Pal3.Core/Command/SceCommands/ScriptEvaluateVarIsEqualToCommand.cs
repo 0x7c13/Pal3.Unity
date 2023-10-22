@@ -5,7 +5,7 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(8, "判断变量是否等于给定值并与临时变量计算结果", 0b0001)]
+    [SceCommand(8, "判断变量是否等于给定值并与临时变量计算结果")]
     public sealed class ScriptEvaluateVarIsEqualToCommand : ICommand
     {
         public ScriptEvaluateVarIsEqualToCommand(ushort variable, int value)

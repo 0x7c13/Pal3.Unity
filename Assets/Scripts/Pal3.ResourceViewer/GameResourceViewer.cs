@@ -630,8 +630,7 @@ namespace Pal3.ResourceViewer
 
                     ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader,
                         _codePage,
-                        out ushort commandId,
-                        out ushort userVariableMask);
+                        out _);
 
                     // if (command is DialogueRenderTextCommand dtc) foreach (var ch in dtc.DialogueText) _charSet.Add(ch);
                     // if (command is DialogueRenderTextWithTimeLimitCommand dttlc) foreach (var ch in dttlc.DialogueText) _charSet.Add(ch);

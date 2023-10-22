@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(50, "取出好感值并赋值给变量，" +
-                    "参数：用户变量，角色ID", 0b0001)]
+                    "参数：用户变量，角色ID")]
     public sealed class ScriptVarSetActorFavorCommand : ICommand
     {
         public ScriptVarSetActorFavorCommand(ushort variable, int actorId)

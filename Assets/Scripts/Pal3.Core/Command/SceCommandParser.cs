@@ -18,11 +18,10 @@ namespace Pal3.Core.Command
     {
         public static ICommand ParseSceCommand(IBinaryReader reader,
             int codepage,
-            out ushort commandId,
-            out ushort userVariableMask)
+            out ushort commandId)
         {
             commandId = reader.ReadUInt16();
-            userVariableMask = reader.ReadUInt16();
+            ushort userVariableMask = reader.ReadUInt16();
 
             if (commandId > ScriptConstants.CommandIdMax)
             {
@@ -45,13 +44,21 @@ namespace Pal3.Core.Command
             {
                 PropertyInfo property = properties[i];
 
-                // This is for reading user variable (Always 2 bytes UInt16).
-                // variableMask is used to determine if the property is 2 bytes UInt16 user variable type.
-                if ((userVariableMask & (ushort) (0b0001 << i)) != 0)
+                // This is for reading user variable (Always 2 bytes UInt16)
+                // variableMask is used to determine if the property is 2-byte UInt16 user variable type
+                if ((userVariableMask & (ushort) (1 << i)) != 0)
                 {
+                    // Make sure the property type is also UInt16
+                    if (property.PropertyType != typeof(ushort))
+                    {
+                        throw new InvalidDataException(
+                            $"Property type mismatch for user variable: {property.Name} " +
+                            $"in command: {commandType.Name}, it should be ushort(UInt16)");
+                    }
+
                     args[i] = reader.ReadUInt16();
                 }
-                else // Otherwise, read property value by type.
+                else // Otherwise, read property value by type
                 {
                     args[i] = ReadPropertyValue(reader, property.PropertyType, codepage);
                 }
@@ -60,7 +67,7 @@ namespace Pal3.Core.Command
             return Activator.CreateInstance(commandType, args) as ICommand;
         }
 
-        // Read property value by type, property index and parameter flag using reflection.
+        // Read property value by type, property index and parameter flag using reflection
         private static object ReadPropertyValue(IBinaryReader reader,
             Type propertyType,
             int codepage)
@@ -73,8 +80,8 @@ namespace Pal3.Core.Command
                 for (var i = 0; i < length; i++)
                 {
                     Type varType = GetVariableType(reader.ReadByte());
-                    // Read from the end of the array to the beginning by design.
-                    // This is because the script data is stored in reverse order (stack manner).
+                    // Read from the end of the array to the beginning by design
+                    // This is because the script data is stored in reverse order (stack manner)
                     propertyArray[^(i + 1)] = ReadPropertyValue(reader, varType, codepage);
                 }
                 return propertyArray;
@@ -87,7 +94,7 @@ namespace Pal3.Core.Command
                 return reader.ReadString(length, codepage);
             }
 
-            // Read and parse primitives.
+            // Read and parse primitives
             return reader.Read(propertyType);
         }
 

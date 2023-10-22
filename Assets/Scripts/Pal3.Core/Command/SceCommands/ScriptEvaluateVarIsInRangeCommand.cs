@@ -5,7 +5,7 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(19, "判断变量值是否在给定区间范围内并与临时变量计算结果", 0b0001)]
+    [SceCommand(19, "判断变量值是否在给定区间范围内并与临时变量计算结果")]
     public sealed class ScriptEvaluateVarIsInRangeCommand : ICommand
     {
         public ScriptEvaluateVarIsInRangeCommand(ushort variable,

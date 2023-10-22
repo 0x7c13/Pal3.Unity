@@ -5,7 +5,7 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(6, "判断变量是否大于给定值并与临时变量计算结果", 0b0001)]
+    [SceCommand(6, "判断变量是否大于给定值并与临时变量计算结果")]
     public sealed class ScriptEvaluateVarIsGreaterThanCommand : ICommand
     {
         public ScriptEvaluateVarIsGreaterThanCommand(ushort variable, int value)

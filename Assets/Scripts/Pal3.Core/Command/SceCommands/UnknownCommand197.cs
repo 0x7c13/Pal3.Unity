@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             Enable = enable;
         }
 
-        [SceUserVariable] public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int Enable { get; }
     }
     #endif

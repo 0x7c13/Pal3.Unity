@@ -163,8 +163,7 @@ namespace Pal3.Game.Script
 
             ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader,
                 _codepage,
-                out ushort commandId,
-                out _);
+                out ushort commandId);
 
             if (_scriptPatcher.TryPatchCommandInScript(ScriptType,
                     ScriptId,
@@ -177,9 +176,8 @@ namespace Pal3.Game.Script
                 command = fixedCommand;
             }
 
-
             EngineLogger.Log($"{ScriptType} Script " +
-                      $"[{ScriptId} {ScriptDescription}]: " +
+                      $"[{ScriptId} {ScriptDescription} [{cmdPosition}]: " +
                       $"{command.GetType().Name.Replace("Command", "")} [{commandId}] " +
                       $"{JsonConvert.SerializeObject(command)}");
 

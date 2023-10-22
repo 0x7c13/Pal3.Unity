@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(66, "取得选择结果并赋值给变量，" +
-                    "参数：变量名", 0b0001)]
+                    "参数：变量名")]
     public sealed class ScriptVarSetDialogueSelectionResultCommand : ICommand
     {
         public ScriptVarSetDialogueSelectionResultCommand(ushort variable)

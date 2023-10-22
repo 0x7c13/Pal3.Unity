@@ -16,26 +16,16 @@ namespace Pal3.Core.Command
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class SceCommandAttribute : Attribute
     {
-        public SceCommandAttribute(ushort commandId, string description, ushort userVariableMask = 0b0000)
+        public SceCommandAttribute(ushort commandId, string description)
         {
             CommandId = commandId;
             Description = description;
-            UserVariableMask = userVariableMask;
         }
 
         /// <summary>
         /// SceCommand Id
         /// </summary>
         public ushort CommandId { get; }
-
-        /// <summary>
-        /// SceCommand property user variable mask
-        /// 0b0001 means the first property is user variable (2 bytes UInt16)
-        /// 0b0010 means the second property is user variable (2 bytes UInt16)
-        /// 0b0100 means the third property is user variable (2 bytes UInt16)
-        /// etc.
-        /// </summary>
-        public ushort UserVariableMask { get; }
 
         /// <summary>
         /// Description of the command

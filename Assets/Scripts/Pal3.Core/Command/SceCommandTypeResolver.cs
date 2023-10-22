@@ -9,6 +9,7 @@ namespace Pal3.Core.Command
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.Serialization;
 
     public static class SceCommandTypeResolver
     {
@@ -28,11 +29,41 @@ namespace Pal3.Core.Command
             {
                 if (commandType.GetCustomAttribute(typeof(SceCommandAttribute)) is SceCommandAttribute attribute)
                 {
-                    SceCommandTypeCache[GetHashCode(attribute.CommandId, attribute.UserVariableMask)] = commandType;
+                    ushort userVariableMask = CalculateUserVariableMask(commandType);
+                    uint hashCode = GetHashCode(attribute.CommandId, userVariableMask);
+                    SceCommandTypeCache[hashCode] = commandType;
                 }
             }
 
             _isInitialized = true;
+        }
+
+        private static ushort CalculateUserVariableMask(Type commandType)
+        {
+            PropertyInfo[] propertyInfos = commandType.GetProperties();
+
+            ushort userVariableMask = 0;
+            for (int i = 0; i < propertyInfos.Length; i++)
+            {
+                PropertyInfo propertyInfo = propertyInfos[i];
+
+                // Skip if property is not marked with SceUserVariableAttribute
+                if (propertyInfo.GetCustomAttribute(typeof(SceUserVariableAttribute)) == null) continue;
+
+                // Sanity check: throw if property is not ushort since
+                // user variable is always ushort (2-byte UInt16)
+                if (propertyInfo.PropertyType != typeof(ushort))
+                {
+                    throw new InvalidDataContractException(
+                        $"Property [{propertyInfo.Name}] of command [{commandType.Name}] " +
+                        $"should be ushort when marked with [{nameof(SceUserVariableAttribute)}]");
+                }
+
+                // Bitwise OR to set the corresponding bit to 1 according to property index
+                // to indicate that the property is user variable
+                userVariableMask |= (ushort)(1 << i);
+            }
+            return userVariableMask;
         }
 
         private static uint GetHashCode(ushort commandId, ushort userVariableMask)

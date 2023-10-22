@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(163, "检测场景中物品（宝箱）是否被完全使用过并赋值给变量，" +
-                    "参数：场景名，物件ID，变量名", 0b0100)]
+                    "参数：场景名，物件ID，变量名")]
     public sealed class ScriptVarSetObjectUsageStatusCommand : ICommand
     {
         public ScriptVarSetObjectUsageStatusCommand(

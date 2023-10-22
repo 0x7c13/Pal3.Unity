@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(126, "脚本检查迷宫开关状态并赋值给变量，" +
-                     "参数：场景名，场景开关ID，变量名", 0b0100)]
+                     "参数：场景名，场景开关ID，变量名")]
     public sealed class ScriptVarSetMazeSwitchStatusCommand : ICommand
     {
         public ScriptVarSetMazeSwitchStatusCommand(string sceneName,

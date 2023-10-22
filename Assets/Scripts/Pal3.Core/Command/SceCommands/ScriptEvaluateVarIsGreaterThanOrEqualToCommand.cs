@@ -5,7 +5,7 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(10, "判断变量是否大于等于给定值并与临时变量计算结果", 0b0001)]
+    [SceCommand(10, "判断变量是否大于等于给定值并与临时变量计算结果")]
     public sealed class ScriptEvaluateVarIsGreaterThanOrEqualToCommand : ICommand
     {
         public ScriptEvaluateVarIsGreaterThanOrEqualToCommand(
@@ -20,7 +20,7 @@ namespace Pal3.Core.Command.SceCommands
         public int Value { get; }
     }
 
-    [SceCommand(10, "判断变量A的值是否大于等于变量B的值并与临时变量计算结果", 0b0011)]
+    [SceCommand(10, "判断变量A的值是否大于等于变量B的值并与临时变量计算结果")]
     public sealed class ScriptEvaluateVarIsGreaterThanOrEqualToAnotherVarCommand : ICommand
     {
         public ScriptEvaluateVarIsGreaterThanOrEqualToAnotherVarCommand(

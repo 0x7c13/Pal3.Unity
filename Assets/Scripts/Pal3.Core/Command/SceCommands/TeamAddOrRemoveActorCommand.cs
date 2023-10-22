@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             IsIn = isIn;
         }
 
-        [SceUserVariable] public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int IsIn { get; }
     }
 }
