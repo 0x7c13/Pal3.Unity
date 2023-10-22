@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class CameraSetInitialStateOnNextSceneLoadCommand : ICommand
+    public sealed class CameraSetInitialStateOnNextSceneLoadCommand : ICommand
     {
         public CameraSetInitialStateOnNextSceneLoadCommand(float xEulerAngle,
             float yEulerAngle,

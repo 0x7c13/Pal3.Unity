@@ -5,18 +5,20 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(41, "设置角色属性值" +
-                    "参数：属性值ID，属性值类型，数值")]
-    public class ActorSetAttributeValueCommand : ICommand
+    [SceCommand(41, "设置角色某项属性值的数值" +
+                    "参数：角色ID，属性值类型，数值")]
+    public sealed class ActorSetAttributeValueCommand : ICommand
     {
-        public ActorSetAttributeValueCommand(int attributeId, int attributeType, int value)
+        public ActorSetAttributeValueCommand(int actorId,
+            int attributeType,
+            int value)
         {
-            AttributeId = attributeId;
+            ActorId = actorId;
             AttributeType = attributeType;
             Value = value;
         }
 
-        public int AttributeId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int AttributeType { get; }
         public int Value { get; }
     }

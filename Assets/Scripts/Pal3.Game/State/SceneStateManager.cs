@@ -13,7 +13,7 @@ namespace Pal3.Game.State
     using Core.DataReader.Scn;
     using Core.Primitives;
 
-    public class SceneObjectStateOverride
+    public sealed class SceneObjectStateOverride
     {
         // In-game state overrides
         public bool? IsActivated { get; set; }

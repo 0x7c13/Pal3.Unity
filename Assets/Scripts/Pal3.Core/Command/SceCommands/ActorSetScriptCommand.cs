@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(29, "设置角色的对话脚本，" +
                     "参数：角色ID，脚本ID")]
-    public class ActorSetScriptCommand : ICommand
+    public sealed class ActorSetScriptCommand : ICommand
     {
         public ActorSetScriptCommand(int actorId, int scriptId)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             ScriptId = scriptId;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int ScriptId { get; }
     }
 }

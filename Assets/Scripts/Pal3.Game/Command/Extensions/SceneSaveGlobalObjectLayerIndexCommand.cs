@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class SceneSaveGlobalObjectLayerIndexCommand : ICommand
+    public sealed class SceneSaveGlobalObjectLayerIndexCommand : ICommand
     {
         public SceneSaveGlobalObjectLayerIndexCommand(string cityName,
             string sceneName,

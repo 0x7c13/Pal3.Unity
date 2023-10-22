@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(32, "镜头推动作，" +
                     "参数：最后from与lookAt之间的距离（原GameBox引擎下的距离单位），动作时间，插值类型（0：Linear，1：Sine）")]
-    public class CameraPushCommand : ICommand
+    public sealed class CameraPushCommand : ICommand
     {
         public CameraPushCommand(
             float gameBoxDistance,
@@ -27,7 +27,7 @@ namespace Pal3.Core.Command.SceCommands
     #elif PAL3A
     [SceCommand(32, "镜头推动作，" +
                     "参数：最后from与lookAt之间的距离（原GameBox引擎下的距离单位），动作时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
-    public class CameraPushCommand : ICommand
+    public sealed class CameraPushCommand : ICommand
     {
         public CameraPushCommand(
             float gameBoxDistance,

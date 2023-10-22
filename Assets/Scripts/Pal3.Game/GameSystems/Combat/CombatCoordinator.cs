@@ -127,8 +127,7 @@ namespace Pal3.Game.GameSystems.Combat
             if (_gameStateManager.GetCurrentState() == GameState.Cutscene)
             {
                 var combatWaiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunnerAddWaiterRequest(combatWaiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(combatWaiter));
                 _currentCombatContext.SetScriptWaiter(combatWaiter);
             }
 
@@ -150,7 +149,7 @@ namespace Pal3.Game.GameSystems.Combat
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new GameSwitchToMainMenuCommand());
+                Pal3.Instance.Execute(new GameSwitchToMainMenuCommand());
             }
         }
 
@@ -307,13 +306,11 @@ namespace Pal3.Game.GameSystems.Combat
         // Player actor collides with combat NPC in maze
         public void Execute(CombatActorCollideWithPlayerActorNotification command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorActivateCommand(command.CombatActorId, 0));
+            Pal3.Instance.Execute(new ActorActivateCommand(command.CombatActorId, 0));
 
             if (_gameSettings.IsTurnBasedCombatEnabled)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
                 var currentScene = _sceneManager.GetCurrentScene();
                 var combatActor = currentScene.GetActor(command.CombatActorId);
@@ -330,8 +327,7 @@ namespace Pal3.Game.GameSystems.Combat
             }
             else // TODO: Remove once combat system is fully implemented
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlaySfxCommand("wd130", 1));
+                Pal3.Instance.Execute(new PlaySfxCommand("wd130", 1));
             }
         }
 

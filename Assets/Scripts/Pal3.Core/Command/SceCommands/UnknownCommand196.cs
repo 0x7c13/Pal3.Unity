@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(196, "???")]
-    public class UnknownCommand196 : ICommand
+    public sealed class UnknownCommand196 : ICommand
     {
         public UnknownCommand196() { }
     }

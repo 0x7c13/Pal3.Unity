@@ -27,8 +27,7 @@ namespace Pal3.Game.GameSystems.MiniGames
 
         public void Execute(MiniGameStartGhostHuntingCommand command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("龙葵捉鬼小游戏暂未实现，现已跳过"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("龙葵捉鬼小游戏暂未实现，现已跳过"));
         }
     }
 }

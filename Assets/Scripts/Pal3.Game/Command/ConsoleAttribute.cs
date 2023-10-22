@@ -11,7 +11,7 @@ namespace Pal3.Game.Command
     /// Attribute for enabling the command in console.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class AvailableInConsoleAttribute : Attribute
+    public sealed class AvailableInConsoleAttribute : Attribute
     {
         public AvailableInConsoleAttribute() { }
     }

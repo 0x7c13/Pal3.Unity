@@ -220,7 +220,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             DialogueRenderActorAvatarCommand avatarCommand = null,
             Action onFinished = null)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new DialogueRenderingStartedNotification());
+            Pal3.Instance.Execute(new DialogueRenderingStartedNotification());
             _totalTimeUsedBeforeSkippingTheLastDialogue = 0f;
 
             bool isRightAligned = true;
@@ -409,7 +409,7 @@ namespace Pal3.Game.GameSystems.Dialogue
         public void Execute(DialogueRenderTextCommand command)
         {
             var skipDialogueWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
                 DialogueTextProcessor.GetDisplayText(command.DialogueText, INFORMATION_TEXT_COLOR_HEX),
@@ -422,7 +422,7 @@ namespace Pal3.Game.GameSystems.Dialogue
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
         {
             var skipDialogueWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
                 DialogueTextProcessor.GetDisplayText(command.DialogueText, INFORMATION_TEXT_COLOR_HEX),
@@ -434,8 +434,9 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         public void Execute(DialogueRenderActorAvatarCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-            _lastAvatarCommand = command;
+            _lastAvatarCommand = command; // Save for later use, since avatar command is always
+                                          // followed by text command and we will render avatar
+                                          // when rendering text if avatar command is present
         }
 
         public void Execute(DialogueAddSelectionsCommand command)
@@ -443,7 +444,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             _gameStateManager.TryGoToState(GameState.UI);
 
             WaitUntilCanceled waiter = new ();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
             for (var i = 0; i < command.Selections.Length; i++)

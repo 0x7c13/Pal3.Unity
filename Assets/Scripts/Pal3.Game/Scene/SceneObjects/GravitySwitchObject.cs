@@ -84,7 +84,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else if (ObjectInfo.Times > 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("重量不足，无法激活"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("重量不足，无法激活"));
             }
         }
 

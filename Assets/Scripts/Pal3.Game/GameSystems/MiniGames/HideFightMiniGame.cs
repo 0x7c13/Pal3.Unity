@@ -35,13 +35,11 @@ namespace Pal3.Game.GameSystems.MiniGames
         {
             if (_userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 71000)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
+                Pal3.Instance.Execute(new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
             }
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand(1701));
+            Pal3.Instance.Execute(new ScriptExecuteCommand(1701));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("此处小游戏暂未实现，现已跳过"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("此处小游戏暂未实现，现已跳过"));
         }
     }
 }

@@ -7,14 +7,13 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(221, "ActorPerformActionCommand的循环次数为-1或-2时需要用此命令结束，" +
                     "参数：角色ID")]
-    public class ActorStopActionCommand : ICommand
+    public sealed class ActorStopActionCommand : ICommand
     {
         public ActorStopActionCommand(int actorId)
         {
             ActorId = actorId;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
     }
 }

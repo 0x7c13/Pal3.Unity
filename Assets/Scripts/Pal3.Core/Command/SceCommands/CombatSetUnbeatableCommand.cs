@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(83, "设置战斗为必败")]
-    public class CombatSetUnbeatableCommand : ICommand
+    public sealed class CombatSetUnbeatableCommand : ICommand
     {
         public CombatSetUnbeatableCommand() {}
     }

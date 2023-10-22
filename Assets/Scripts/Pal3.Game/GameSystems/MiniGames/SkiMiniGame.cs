@@ -34,8 +34,7 @@ namespace Pal3.Game.GameSystems.MiniGames
         {
             _scriptManager.AddScript((uint)command.EndGameScriptId);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("滑雪小游戏暂未实现，现已跳过"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("滑雪小游戏暂未实现，现已跳过"));
         }
     }
 }

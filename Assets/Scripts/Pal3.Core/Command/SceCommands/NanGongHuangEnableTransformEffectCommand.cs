@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(199, "开启南宫煌身体异常时（快要变身）的特效")]
-    public class NanGongHuangEnableTransformEffectCommand : ICommand
+    public sealed class NanGongHuangEnableTransformEffectCommand : ICommand
     {
         public NanGongHuangEnableTransformEffectCommand() { }
     }

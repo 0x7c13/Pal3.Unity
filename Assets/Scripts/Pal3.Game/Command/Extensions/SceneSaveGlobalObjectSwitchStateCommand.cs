@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class SceneSaveGlobalObjectSwitchStateCommand : ICommand
+    public sealed class SceneSaveGlobalObjectSwitchStateCommand : ICommand
     {
         public SceneSaveGlobalObjectSwitchStateCommand(string cityName,
             string sceneName,

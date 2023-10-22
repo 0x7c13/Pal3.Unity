@@ -7,9 +7,12 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(142, "设置VFX特效位置，" +
                      "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
-    public class EffectSetPositionCommand : ICommand
+    public sealed class EffectSetPositionCommand : ICommand
     {
-        public EffectSetPositionCommand(float gameBoxXPosition, float gameBoxYPosition, float gameBoxZPosition)
+        public EffectSetPositionCommand(
+            float gameBoxXPosition,
+            float gameBoxYPosition,
+            float gameBoxZPosition)
         {
             GameBoxXPosition = gameBoxXPosition;
             GameBoxYPosition = gameBoxYPosition;

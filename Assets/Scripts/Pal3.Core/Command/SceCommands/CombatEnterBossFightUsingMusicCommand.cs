@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(195, "进入Boss战斗并使用指定音乐")]
-    public class CombatEnterBossFightUsingMusicCommand : ICommand
+    public sealed class CombatEnterBossFightUsingMusicCommand : ICommand
     {
         public CombatEnterBossFightUsingMusicCommand(
             uint monster1Id,

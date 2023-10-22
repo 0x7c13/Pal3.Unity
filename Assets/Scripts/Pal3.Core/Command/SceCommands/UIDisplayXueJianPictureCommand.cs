@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(156, "UI展示雪见图片")]
-    public class UIDisplayXueJianPictureCommand : ICommand
+    public sealed class UIDisplayXueJianPictureCommand : ICommand
     {
         public UIDisplayXueJianPictureCommand() {}
     }

@@ -10,7 +10,7 @@ namespace Pal3.Game.Script.Waiter
     using Core.Command;
     using UnityEngine;
 
-    public class WaitUntilScriptFinished : CustomYieldInstruction,
+    public sealed class WaitUntilScriptFinished : CustomYieldInstruction,
         ICommandExecutor<ScriptFinishedRunningNotification>
     {
         public override bool keepWaiting => !_isFinished;

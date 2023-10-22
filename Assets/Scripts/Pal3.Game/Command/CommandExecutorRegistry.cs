@@ -11,7 +11,7 @@ namespace Pal3.Game.Command
     using Core.Command;
     using Engine.Logging;
 
-    public class CommandExecutorRegistry<TCommand> : ICommandExecutorRegistry<TCommand>
+    public sealed class CommandExecutorRegistry<TCommand> : ICommandExecutorRegistry<TCommand>
     {
         public static ICommandExecutorRegistry<TCommand> Instance
         {

@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(78, "检查玩家是否拥有某个物品并与临时变量计算结果，" +
                     "参数：该物品的数据库ID")]
-    public class ScriptEvaluateVarIfPlayerHaveItemCommand : ICommand
+    public sealed class ScriptEvaluateVarIfPlayerHaveItemCommand : ICommand
     {
         public ScriptEvaluateVarIfPlayerHaveItemCommand(int itemId)
         {

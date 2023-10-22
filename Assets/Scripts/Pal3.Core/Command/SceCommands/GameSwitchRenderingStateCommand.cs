@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(102, "选择当前渲染状态")]
-    public class GameSwitchRenderingStateCommand : ICommand
+    public sealed class GameSwitchRenderingStateCommand : ICommand
     {
         public GameSwitchRenderingStateCommand(int state)
         {

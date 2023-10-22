@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(197, "设置风雅颂宿主角色ID？")]
-    public class UnknownCommand197 : ICommand
+    public sealed class UnknownCommand197 : ICommand
     {
         public UnknownCommand197(int actorId, int enable)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             Enable = enable;
         }
 
-        public int ActorId { get; }
+        [SceUserVariable] public int ActorId { get; }
         public int Enable { get; }
     }
     #endif

@@ -163,18 +163,18 @@ namespace Pal3.Core.DataReader.Cvd
         public float Time { get; set; }
     }
 
-    public class CvdAnimationPositionKeyFrame : CvdAnimationKeyFrame
+    public sealed class CvdAnimationPositionKeyFrame : CvdAnimationKeyFrame
     {
         public GameBoxVector3 GameBoxPosition { get; set; }
     }
 
-    public class CvdAnimationScaleKeyFrame : CvdAnimationKeyFrame
+    public sealed class CvdAnimationScaleKeyFrame : CvdAnimationKeyFrame
     {
         public GameBoxVector3 GameBoxScale { get; set; }
         public GameBoxQuaternion GameBoxRotation { get; set; }
     }
 
-    public class CvdAnimationRotationKeyFrame : CvdAnimationKeyFrame
+    public sealed class CvdAnimationRotationKeyFrame : CvdAnimationKeyFrame
     {
         public GameBoxQuaternion GameBoxRotation { get; set; }
     }

@@ -49,12 +49,9 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+            Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
 
             PlaySfx("wg011");
@@ -70,7 +67,7 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 if (ObjectInfo.Parameters[i] != 0)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
+                    Pal3.Instance.Execute(new InventoryAddItemCommand(ObjectInfo.Parameters[i], 1));
                 }
             }
 

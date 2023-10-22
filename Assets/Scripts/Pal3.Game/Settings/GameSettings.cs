@@ -7,14 +7,10 @@ namespace Pal3.Game.Settings
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.IO;
     using System.Reflection;
     using System.Text;
-    using Command;
-    using Command.Extensions;
     using Constants;
-    using Core.Command;
     using Core.Utilities;
     using Engine.Logging;
     using Engine.Utilities;
@@ -22,7 +18,7 @@ namespace Pal3.Game.Settings
     using UnityEngine;
     using UnityEngine.Rendering;
 
-    public sealed class GameSettings : SettingsBase, IDisposable
+    public sealed class GameSettings : SettingsBase
     {
         public bool IsOpenSourceVersion { get; }
 
@@ -31,8 +27,6 @@ namespace Pal3.Game.Settings
             IsOpenSourceVersion = isOpenSourceVersion;
 
             InitDefaultSettings();
-
-            PropertyChanged += OnPropertyChanged;
 
             DebugLogConsole.AddCommand<int>("Settings.VSyncCount",
                 "设置垂直同步设定（0：关闭，1：开启，2: 开启（每2帧刷新）)", _ => VSyncCount = _);
@@ -69,12 +63,6 @@ namespace Pal3.Game.Settings
                 "重置所有设置", ResetSettings);
             DebugLogConsole.AddCommand("Settings.Print",
                 "打印所有设置", PrintCurrentSettings);
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
-        {
-            // Broadcast the setting change notification.
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SettingChangedNotification(args.PropertyName));
         }
 
         private void InitDefaultSettings()
@@ -346,11 +334,6 @@ namespace Pal3.Game.Settings
                 sb.Append($", {property.Name}: {property.GetValue(this)}");
             }
             return sb.Length == 0 ? string.Empty : sb.ToString()[2..];
-        }
-
-        public void Dispose()
-        {
-            PropertyChanged -= OnPropertyChanged;
         }
     }
 }

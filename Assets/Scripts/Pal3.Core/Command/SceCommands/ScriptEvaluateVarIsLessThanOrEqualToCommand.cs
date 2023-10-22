@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(11, "判断变量是否小于等于给定值并与临时变量计算结果", 0b0001)]
-    public class ScriptEvaluateVarIsLessThanOrEqualToCommand : ICommand
+    public sealed class ScriptEvaluateVarIsLessThanOrEqualToCommand : ICommand
     {
         public ScriptEvaluateVarIsLessThanOrEqualToCommand(ushort variable, int value)
         {
@@ -14,7 +14,7 @@ namespace Pal3.Core.Command.SceCommands
             Value = value;
         }
 
-        public ushort Variable { get; }
+        [SceUserVariable] public ushort Variable { get; }
         public int Value { get; }
     }
 }

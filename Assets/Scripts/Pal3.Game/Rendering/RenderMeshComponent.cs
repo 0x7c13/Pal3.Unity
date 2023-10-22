@@ -8,7 +8,7 @@ namespace Pal3.Game.Rendering
     using Engine.Renderer;
     using UnityEngine;
 
-    public class RenderMeshComponent
+    public sealed class RenderMeshComponent
     {
         public Mesh Mesh { get; set; }
         public StaticMeshRenderer MeshRenderer { get; set; }

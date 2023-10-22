@@ -309,8 +309,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _bidiPushableGoalState = _bidiPushableCurrentState +
                                          (pushableEntity.Transform.Forward == direction ? 1 : -1);
 
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
+                Pal3.Instance.Execute(new SceneSaveGlobalBidirectionalPushableObjectStateCommand(
                         SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Id,

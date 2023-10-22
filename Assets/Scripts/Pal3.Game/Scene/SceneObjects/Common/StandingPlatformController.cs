@@ -14,7 +14,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using GamePlay;
     using UnityEngine;
 
-    public class StandingPlatformController : GameEntityScript
+    public sealed class StandingPlatformController : GameEntityScript
     {
         public event EventHandler<IGameEntity> OnPlayerActorEntered;
         public event EventHandler<IGameEntity> OnPlayerActorExited;

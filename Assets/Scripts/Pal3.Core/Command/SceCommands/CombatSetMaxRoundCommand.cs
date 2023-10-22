@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(82, "设置战斗的最大回合数")]
-    public class CombatSetMaxRoundCommand : ICommand
+    public sealed class CombatSetMaxRoundCommand : ICommand
     {
         public CombatSetMaxRoundCommand(int maxRound)
         {

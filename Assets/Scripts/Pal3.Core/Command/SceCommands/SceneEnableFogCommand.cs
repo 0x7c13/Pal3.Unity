@@ -9,7 +9,7 @@ namespace Pal3.Core.Command.SceCommands
     [SceCommand(162, "设置并开启场景内的雾气显示，" +
                     "参数：起始距离（原GameBox引擎下的距离单位），结束距离（原GameBox引擎下的距离单位），强度值，" +
                     "蓝色(0f-255f)，绿色(0f-255f)，红色(0f-255f)，透明度(0f-1f)")]
-    public class SceneEnableFogCommand : ICommand
+    public sealed class SceneEnableFogCommand : ICommand
     {
         public SceneEnableFogCommand(
             float startDistance,

@@ -258,8 +258,7 @@ namespace Pal3.Game.Actor.Controllers
             {
                 _animationLoopPointWaiter?.CancelWait();
                 _animationLoopPointWaiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_animationLoopPointWaiter));
                 _mv3ModelRenderer.ResumeAction();
             }
             else

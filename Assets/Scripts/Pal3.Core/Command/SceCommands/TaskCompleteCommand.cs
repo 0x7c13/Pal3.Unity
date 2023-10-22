@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3A
     [SceCommand(170, "完成主线或支线任务，" +
                      "参数：任务ID")]
-    public class TaskCompleteCommand : ICommand
+    public sealed class TaskCompleteCommand : ICommand
     {
         public TaskCompleteCommand(string taskId)
         {

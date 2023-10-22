@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(31, "设置摄像机视角锁定一个定点，" +
                     "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
-    public class CameraFocusOnPositionCommand : ICommand
+    public sealed class CameraFocusOnPositionCommand : ICommand
     {
         public CameraFocusOnPositionCommand(
             float gameBoxXPosition,

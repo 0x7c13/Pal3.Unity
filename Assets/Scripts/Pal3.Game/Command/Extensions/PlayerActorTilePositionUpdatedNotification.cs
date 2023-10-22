@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class PlayerActorTilePositionUpdatedNotification : ICommand
+    public sealed class PlayerActorTilePositionUpdatedNotification : ICommand
     {
         public PlayerActorTilePositionUpdatedNotification(
             int tileXPosition,

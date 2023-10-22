@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class ResetGameStateCommand : ICommand
+    public sealed class ResetGameStateCommand : ICommand
     {
         public ResetGameStateCommand() {}
     }

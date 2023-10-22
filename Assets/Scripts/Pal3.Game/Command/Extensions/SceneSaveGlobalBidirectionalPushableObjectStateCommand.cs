@@ -9,7 +9,7 @@ namespace Pal3.Game.Command.Extensions
 
     #if PAL3
     [AvailableInConsole]
-    public class SceneSaveGlobalBidirectionalPushableObjectStateCommand : ICommand
+    public sealed class SceneSaveGlobalBidirectionalPushableObjectStateCommand : ICommand
     {
         public SceneSaveGlobalBidirectionalPushableObjectStateCommand(string cityName,
             string sceneName,

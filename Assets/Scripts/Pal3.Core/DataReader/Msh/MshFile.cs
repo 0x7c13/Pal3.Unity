@@ -56,7 +56,7 @@ namespace Pal3.Core.DataReader.Msh
         public PhyFace[] Faces;
     }
 
-    public class BoneNode
+    public sealed class BoneNode
     {
         public BoneNodeType Type;
         public int Id;

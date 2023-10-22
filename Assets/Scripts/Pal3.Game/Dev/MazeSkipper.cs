@@ -909,10 +909,10 @@ namespace Pal3.Game.Dev
 
             foreach (ICommand command in _skipperCommands[GetCommandHashKeyPrefix(currentScene.GetSceneInfo()) + "0"])
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(command);
+                Pal3.Instance.Execute(command);
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
         public void PortalToExitOrNextStoryPoint()
@@ -937,18 +937,18 @@ namespace Pal3.Game.Dev
                 {
                     foreach (ICommand command in _skipperCommands[commandKey])
                     {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(command);
+                        Pal3.Instance.Execute(command);
                     }
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                    Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
                     return;
                 }
             }
 
             foreach (ICommand command in _skipperCommands[cmdHashKeyPrefix + "1"])
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(command);
+                Pal3.Instance.Execute(command);
             }
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
         }
 
         private string GetCommandHashKeyPrefix(ScnSceneInfo sceneInfo)

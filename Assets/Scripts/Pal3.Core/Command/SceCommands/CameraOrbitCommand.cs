@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(33, "镜头环绕LookAt位置旋转（LookAt点固定），" +
                     "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine）")]
-    public class CameraOrbitCommand : ICommand
+    public sealed class CameraOrbitCommand : ICommand
     {
         public CameraOrbitCommand(
             float yaw,

@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(115, "播放动画")]
-    public class PlayVideoCommand : ICommand
+    public sealed class PlayVideoCommand : ICommand
     {
         public PlayVideoCommand(string name)
         {

@@ -17,12 +17,13 @@ namespace Pal3.Game.Script
     using Core.Utilities;
     using Data;
     using Engine.Logging;
+    using Patcher;
 
     public sealed class ScriptManager : IDisposable,
         ICommandExecutor<ScriptExecuteCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
+        private readonly IPalScriptPatcher _scriptPatcher;
         private readonly UserVariableManager _userVariableManager;
 
         private readonly SceFile _systemSceFile;
@@ -37,11 +38,11 @@ namespace Pal3.Game.Script
 
         public ScriptManager(GameResourceProvider resourceProvider,
             UserVariableManager userVariableManager,
-            PalScriptCommandPreprocessor commandPreprocessor)
+            IPalScriptPatcher scriptPatcher)
         {
             resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
-            _cmdPreprocessor = Requires.IsNotNull(commandPreprocessor, nameof(commandPreprocessor));
+            _scriptPatcher = Requires.IsNotNull(scriptPatcher, nameof(scriptPatcher));
 
             _systemSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath);
             _worldMapSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.WorldMapSceFileVirtualPath);
@@ -93,19 +94,19 @@ namespace Pal3.Game.Script
             {
                 EngineLogger.Log($"Add WorldMap script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
-                    PalScriptType.WorldMap, scriptId, _userVariableManager, _cmdPreprocessor);
+                    PalScriptType.WorldMap, scriptId, _userVariableManager, _scriptPatcher);
             }
             else if (scriptId < ScriptConstants.SystemScriptIdMax)
             {
                 EngineLogger.Log($"Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
-                    PalScriptType.System, scriptId, _userVariableManager, _cmdPreprocessor);
+                    PalScriptType.System, scriptId, _userVariableManager, _scriptPatcher);
             }
             else
             {
                 EngineLogger.Log($"Add Scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
-                    PalScriptType.Scene, scriptId, _userVariableManager, _cmdPreprocessor);
+                    PalScriptType.Scene, scriptId, _userVariableManager, _scriptPatcher);
             }
 
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;
@@ -115,7 +116,7 @@ namespace Pal3.Game.Script
 
         private void OnCommandExecutionRequested(object sender, ICommand command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(command);
+            Pal3.Instance.Execute(command);
         }
 
         public void Update(float deltaTime)
@@ -143,8 +144,9 @@ namespace Pal3.Game.Script
 
                 EngineLogger.Log($"Script [{finishedScript.ScriptId} " +
                           $"{finishedScript.ScriptDescription}] finished running");
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ScriptFinishedRunningNotification(finishedScript.ScriptId, finishedScript.ScriptType));
+                Pal3.Instance.Execute(new ScriptFinishedRunningNotification(
+                    finishedScript.ScriptId,
+                    finishedScript.ScriptType));
             }
 
             _finishedScripts.Clear();
@@ -174,7 +176,7 @@ namespace Pal3.Game.Script
                 AddScript(sceneScriptId);
                 _pendingSceneScriptExecution = true;
                 // This is to break the current running script from executing and let scene script to execute first
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerWaitUntilTimeCommand(0f));
+                Pal3.Instance.Execute(new ScriptRunnerWaitUntilTimeCommand(0f));
                 return true;
             }
 
@@ -185,7 +187,7 @@ namespace Pal3.Game.Script
         {
             if (!AddScript((uint) command.ScriptId))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptFailedToRunNotification((uint) command.ScriptId));
+                Pal3.Instance.Execute(new ScriptFailedToRunNotification((uint) command.ScriptId));
             }
         }
 

@@ -9,7 +9,7 @@ namespace Pal3.Game.Command.Extensions
     using Engine.Core.Abstraction;
     using Newtonsoft.Json;
 
-    public class StopSfxPlayingAtGameEntityRequest : ICommand
+    public sealed class StopSfxPlayingAtGameEntityRequest : ICommand
     {
         public StopSfxPlayingAtGameEntityRequest(IGameEntity parent, string audioSourceName, bool disposeSource)
         {

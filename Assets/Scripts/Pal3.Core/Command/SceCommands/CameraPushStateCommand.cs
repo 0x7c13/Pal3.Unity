@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(38, "保存镜头状态")]
-    public class CameraPushStateCommand : ICommand
+    public sealed class CameraPushStateCommand : ICommand
     {
         public CameraPushStateCommand() {}
     }

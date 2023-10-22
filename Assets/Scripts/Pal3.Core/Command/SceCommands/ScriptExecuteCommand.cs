@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(16, "调用另一段脚本，" +
                     "参数：脚本ID")]
-    public class ScriptExecuteCommand : ICommand
+    public sealed class ScriptExecuteCommand : ICommand
     {
         public ScriptExecuteCommand(int scriptId)
         {

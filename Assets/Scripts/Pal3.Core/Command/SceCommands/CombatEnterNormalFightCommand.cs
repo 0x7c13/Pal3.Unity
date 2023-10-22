@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(73, "进入普通战斗")]
-    public class CombatEnterNormalFightCommand : ICommand
+    public sealed class CombatEnterNormalFightCommand : ICommand
     {
         public CombatEnterNormalFightCommand(
             uint numberOfMonster,

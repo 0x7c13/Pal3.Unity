@@ -54,15 +54,13 @@ namespace Pal3.Game.Scene.SceneObjects
 
             if (ctx.StartedByPlayer && ctx.InitObjectId == ObjectInfo.Id)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             }
 
             #if PAL3A
             if (ObjectInfo.Parameters[0] == 1)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
                 yield return CoroutineYieldInstruction.WaitForSeconds(1);
             }

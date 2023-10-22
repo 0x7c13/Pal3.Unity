@@ -58,12 +58,9 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 if (!IsInteractableBasedOnTimesCount()) yield break;
 
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute(new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+                Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
 
                 yield return CoroutineYieldInstruction.WaitForSeconds(0.8f); // Wait for actor animation to finish
@@ -72,7 +69,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("还没有找到合适的东西"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("还没有找到合适的东西"));
             }
         }
     }

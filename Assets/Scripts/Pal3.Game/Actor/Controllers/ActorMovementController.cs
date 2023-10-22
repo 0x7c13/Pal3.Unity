@@ -692,7 +692,7 @@ namespace Pal3.Game.Actor.Controllers
             switch (_currentPath.EndOfPathAction)
             {
                 case EndOfPathActionType.DisposeSelf:
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(_actor.Id, 0));
+                    Pal3.Instance.Execute(new ActorActivateCommand(_actor.Id, 0));
                     break;
                 case EndOfPathActionType.Idle:
                     _actionController.PerformAction(_actor.GetIdleAction());
@@ -836,7 +836,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             var wayPoints = new [] { position };
             SetupPath(wayPoints, movementMode, EndOfPathActionType.Idle, ignoreObstacle: false);
@@ -911,7 +911,7 @@ namespace Pal3.Game.Actor.Controllers
             if (_actor.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePositionAsync(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 (MovementMode)command.Mode, EndOfPathActionType.Idle, _movementCts.Token));
         }
@@ -922,7 +922,7 @@ namespace Pal3.Game.Actor.Controllers
             if (_actor.Id != command.ActorId) return;
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_movementWaiter));
             StartCoroutine(FindPathAndMoveToTilePositionAsync(new Vector2Int(command.TileXPosition, command.TileYPosition),
                 movementMode: 0, EndOfPathActionType.Idle, _movementCts.Token, specialAction: command.Action));
         }
@@ -948,7 +948,7 @@ namespace Pal3.Game.Actor.Controllers
 
             _movementWaiter?.CancelWait();
             _movementWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_movementWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
             StartCoroutine(FindPathAndMoveToTilePositionAsync(
                 new Vector2Int(command.TileXPosition, command.TileYPosition),

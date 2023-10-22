@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(117, "旋转整个场景，" +
                     "参数：原GameBox坐标系下的X轴旋转角度, Y轴旋转角度, Z轴旋转角度")]
-    public class SceneRotateWorldCommand : ICommand
+    public sealed class SceneRotateWorldCommand : ICommand
     {
         public SceneRotateWorldCommand(int xDegrees, int yDegrees, int zDegrees)
         {
@@ -24,7 +24,7 @@ namespace Pal3.Core.Command.SceCommands
     #elif PAL3A
     [SceCommand(117, "旋转整个场景，" +
                      "参数：原GameBox坐标系下的X轴旋转角度, Y轴旋转角度, Z轴旋转角度，动画时间，旋转正反向")]
-    public class SceneRotateWorldCommand : ICommand
+    public sealed class SceneRotateWorldCommand : ICommand
     {
         public SceneRotateWorldCommand(int xDegrees, int yDegrees, int zDegrees, int duration, int inverse)
         {

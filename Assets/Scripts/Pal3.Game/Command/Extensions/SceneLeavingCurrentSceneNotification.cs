@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class SceneLeavingCurrentSceneNotification : ICommand
+    public sealed class SceneLeavingCurrentSceneNotification : ICommand
     {
         public SceneLeavingCurrentSceneNotification() { }
     }

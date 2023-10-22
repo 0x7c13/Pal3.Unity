@@ -78,17 +78,13 @@ namespace Pal3.Game.Scene.SceneObjects
             // Only specified actor can interact with this object
             if ((int) actorId != ObjectInfo.Parameters[0])
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new UIDisplayNoteCommand("我不能打开这个机关..."));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("我不能打开这个机关..."));
                 yield break;
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+            Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                     ActorConstants.ActionToNameMap[ActorActionType.Skill], 1));
 
             yield return CoroutineYieldInstruction.WaitForSeconds(1.2f); // Wait for actor animation to finish

@@ -30,18 +30,17 @@ namespace Pal3.Game.GameSystems.MiniGames
         {
             if (command.StartSegment == 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m04", "1"));
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 0));
+                Pal3.Instance.Execute(new SceneLoadCommand("m04", "1"));
+                Pal3.Instance.Execute(new ActorActivateCommand(ActorConstants.PlayerActorVirtualID, 0));
             }
             else if (command.StartSegment == 1)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLoadCommand("m05", "1"));
+                Pal3.Instance.Execute(new SceneLoadCommand("m05", "1"));
             }
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptExecuteCommand(command.EndScriptId));
+            Pal3.Instance.Execute(new ScriptExecuteCommand(command.EndScriptId));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("行船小游戏暂未实现，现已跳过"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("行船小游戏暂未实现，现已跳过"));
         }
     }
 }

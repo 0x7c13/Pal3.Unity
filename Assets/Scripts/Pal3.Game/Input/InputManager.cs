@@ -52,8 +52,7 @@ namespace Pal3.Game.Input
                 if (_lastActiveInputDevice != lastControl.device)
                 {
                     _lastActiveInputDevice = lastControl.device;
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new ActiveInputDeviceChangedNotification(lastControl.device));
+                    Pal3.Instance.Execute(new ActiveInputDeviceChangedNotification(lastControl.device));
                 }
             }
         }

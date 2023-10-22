@@ -13,7 +13,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     /// Type: ScnSceneObjectType
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ScnSceneObjectAttribute : Attribute
+    public sealed class ScnSceneObjectAttribute : Attribute
     {
         public ScnSceneObjectAttribute(SceneObjectType type)
         {

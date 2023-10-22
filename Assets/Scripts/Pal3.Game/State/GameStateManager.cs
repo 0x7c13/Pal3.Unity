@@ -86,8 +86,7 @@ namespace Pal3.Game.State
 
             UpdateInputManagerState();
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangedNotification(_previousState, _currentState));
+            Pal3.Instance.Execute(new GameStateChangedNotification(_previousState, _currentState));
 
             return true;
         }
@@ -151,7 +150,7 @@ namespace Pal3.Game.State
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ResetGameStateCommand());
+            Pal3.Instance.Execute(new ResetGameStateCommand());
         }
 
         public void Execute(ResetGameStateCommand command)

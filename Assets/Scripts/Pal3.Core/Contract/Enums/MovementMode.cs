@@ -7,8 +7,8 @@ namespace Pal3.Core.Contract.Enums
 {
     public enum MovementMode
     {
-        Walk = 0,
-        Run = 1,
+        Walk     = 0,
+        Run      = 1,
         StepBack = 2,
     }
 }

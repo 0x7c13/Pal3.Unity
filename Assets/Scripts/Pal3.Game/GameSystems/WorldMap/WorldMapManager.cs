@@ -148,7 +148,7 @@ namespace Pal3.Game.GameSystems.WorldMap
         {
             if (_regionEnablementInfo.Count == 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("大地图尚未开启"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("大地图尚未开启"));
                 return;
             }
 
@@ -158,8 +158,7 @@ namespace Pal3.Game.GameSystems.WorldMap
             // block the state change.
             _gameStateManager.AddGamePlayStateLocker(_stateLockerGuid);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
             GameObject exitButtonObj = UnityEngine.Object.Instantiate(_worldMapRegionButtonPrefab,
                 _worldMapCanvas.transform);
@@ -240,7 +239,7 @@ namespace Pal3.Game.GameSystems.WorldMap
         private void WorldMapButtonClicked(int buttonIndex)
         {
             // Stop existing script music if any when changing scene from world map
-            CommandDispatcher<ICommand>.Instance.Dispatch(new StopScriptMusicCommand());
+            Pal3.Instance.Execute(new StopScriptMusicCommand());
 
             if (buttonIndex != -1)
             {

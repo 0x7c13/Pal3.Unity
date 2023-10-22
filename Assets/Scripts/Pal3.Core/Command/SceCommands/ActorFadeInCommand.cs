@@ -6,14 +6,13 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(136, "角色淡入")]
-    public class ActorFadeInCommand : ICommand
+    public sealed class ActorFadeInCommand : ICommand
     {
         public ActorFadeInCommand(int actorId)
         {
             ActorId = actorId;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
     }
 }

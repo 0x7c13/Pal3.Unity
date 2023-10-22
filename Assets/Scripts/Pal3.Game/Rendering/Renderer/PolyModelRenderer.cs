@@ -26,7 +26,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// Poly(.pol) model renderer
     /// </summary>
-    public class PolyModelRenderer : GameEntityScript, IDisposable
+    public sealed class PolyModelRenderer : GameEntityScript, IDisposable
     {
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX = "w00";
         private const string ANIMATED_WATER_TEXTURE_DEFAULT_NAME = "w0001";

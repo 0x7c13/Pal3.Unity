@@ -14,7 +14,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using GamePlay;
     using UnityEngine;
 
-    public class BoundsTriggerController : GameEntityScript
+    public sealed class BoundsTriggerController : GameEntityScript
     {
         public event EventHandler<IGameEntity> OnPlayerActorEntered;
         public event EventHandler<IGameEntity> OnPlayerActorExited;

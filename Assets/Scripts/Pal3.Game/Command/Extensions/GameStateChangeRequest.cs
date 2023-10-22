@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using State;
 
-    public class GameStateChangeRequest : ICommand
+    public sealed class GameStateChangeRequest : ICommand
     {
         public GameStateChangeRequest(GameState newState)
         {

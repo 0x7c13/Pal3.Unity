@@ -41,8 +41,8 @@ namespace Pal3.Game.GameSystems.Rest
         private void Rest(string sceneCityName, string sceneName, uint afterRestTalkScript)
         {
             _sceneManager.LoadScene(sceneCityName, sceneName);
-            CommandDispatcher<ICommand>.Instance.Dispatch(new GameStateChangeRequest(GameState.Cutscene));
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
+            Pal3.Instance.Execute(new GameStateChangeRequest(GameState.Cutscene));
+            Pal3.Instance.Execute(new CameraFadeInCommand());
             _scriptManager.AddScript(afterRestTalkScript);
         }
 
@@ -60,12 +60,12 @@ namespace Pal3.Game.GameSystems.Rest
             {
                 _userVariableManager.SetVariableValue(ScriptConstants.MainStoryVariableId, 120302);
                 Rest("Q13", "n06", (uint)command.AfterRestScriptId);
-                CommandDispatcher<ICommand>.Instance.Dispatch(new CameraSetDefaultTransformCommand(2));
+                Pal3.Instance.Execute(new CameraSetDefaultTransformCommand(2));
             }
             else
             {
                 // TODO: Remove this
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("住店功能暂未实现，仅剧情需要的情况下才可交互。"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("住店功能暂未实现，仅剧情需要的情况下才可交互。"));
             }
             #elif PAL3A
             if (command.HotelScriptName.Equals("DealScript\\rest\\q10rest.txt", StringComparison.OrdinalIgnoreCase) &&
@@ -76,7 +76,7 @@ namespace Pal3.Game.GameSystems.Rest
             else
             {
                 // TODO: Remove this
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("住店功能暂未实现，仅剧情需要的情况下才可交互。"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("住店功能暂未实现，仅剧情需要的情况下才可交互。"));
             }
             #endif
         }

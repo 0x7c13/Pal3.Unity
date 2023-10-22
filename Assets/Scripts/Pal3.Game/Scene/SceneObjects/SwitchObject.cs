@@ -144,12 +144,9 @@ namespace Pal3.Game.Scene.SceneObjects
                 ctx.InitObjectId == ObjectInfo.Id &&
                 ObjectInfo.Parameters[1] == 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute(new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+                Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
             }
 
@@ -176,8 +173,7 @@ namespace Pal3.Game.Scene.SceneObjects
             if (IsDivineTreeMasterFlower())
             {
                 // Save master flower switch state
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneSaveGlobalObjectSwitchStateCommand(SceneInfo.CityName,
+                Pal3.Instance.Execute(new SceneSaveGlobalObjectSwitchStateCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Id,
                         ObjectInfo.SwitchState));

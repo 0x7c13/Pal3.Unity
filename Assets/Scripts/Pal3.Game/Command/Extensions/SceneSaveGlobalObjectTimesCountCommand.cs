@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class SceneSaveGlobalObjectTimesCountCommand : ICommand
+    public sealed class SceneSaveGlobalObjectTimesCountCommand : ICommand
     {
         public SceneSaveGlobalObjectTimesCountCommand(string cityName,
             string sceneName,

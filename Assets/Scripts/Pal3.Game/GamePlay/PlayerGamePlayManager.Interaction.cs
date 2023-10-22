@@ -171,10 +171,8 @@ namespace Pal3.Game.GamePlay
 
         private IEnumerator InteractWithActorAsync(int actorId, IGameEntity actorGameEntity)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new GameStateChangeRequest(GameState.Cutscene));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new GameStateChangeRequest(GameState.Cutscene));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
             Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
             Quaternion rotationBeforeInteraction = actorGameEntity.Transform.Rotation;
@@ -191,8 +189,7 @@ namespace Pal3.Game.GamePlay
             }
 
             // Look at the target actor
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorLookAtActorCommand(_playerActor.Id, targetActor.Id));
+            Pal3.Instance.Execute(new ActorLookAtActorCommand(_playerActor.Id, targetActor.Id));
 
             bool shouldResetFacingAfterInteraction = false;
 
@@ -200,8 +197,7 @@ namespace Pal3.Game.GamePlay
             // and InitBehaviour is not set to Hold
             if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ActorBehaviourType.Hold)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorLookAtActorCommand(targetActor.Id, _playerActor.Id));
+                Pal3.Instance.Execute(new ActorLookAtActorCommand(targetActor.Id, _playerActor.Id));
                 shouldResetFacingAfterInteraction = true;
             }
 
@@ -215,8 +211,7 @@ namespace Pal3.Game.GamePlay
             }
 
             // Run dialogue script
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptExecuteCommand((int)targetActor.GetScriptId()));
+            Pal3.Instance.Execute(new ScriptExecuteCommand((int)targetActor.GetScriptId()));
 
             // Wait until the dialogue script is finished
             yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.GetScriptId());

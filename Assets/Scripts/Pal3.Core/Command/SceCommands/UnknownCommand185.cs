@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(185, "PAL3A打开算命小游戏UI")]
-    public class UnknownCommand185 : ICommand
+    public sealed class UnknownCommand185 : ICommand
     {
         public UnknownCommand185(int unknown1,
             int unknown2,

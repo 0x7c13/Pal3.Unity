@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     #if PAL3A
     using Core.Command;
 
-    public class ThreePhaseSwitchStateChangedNotification : ICommand
+    public sealed class ThreePhaseSwitchStateChangedNotification : ICommand
     {
         public ThreePhaseSwitchStateChangedNotification(
             int objectId,

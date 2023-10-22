@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(42, "设置龙葵形象，" +
                     "参数：0蓝，1红")]
-    public class LongKuiSwitchModeCommand : ICommand
+    public sealed class LongKuiSwitchModeCommand : ICommand
     {
         public LongKuiSwitchModeCommand(int mode)
         {

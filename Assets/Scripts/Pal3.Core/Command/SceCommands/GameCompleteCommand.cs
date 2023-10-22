@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(194, "PAL3A游戏结束的最后一个指令，标示游戏通关")]
-    public class GameCompleteCommand : ICommand
+    public sealed class GameCompleteCommand : ICommand
     {
         public GameCompleteCommand() { }
     }

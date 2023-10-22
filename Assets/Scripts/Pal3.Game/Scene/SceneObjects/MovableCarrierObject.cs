@@ -102,7 +102,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 ObjectInfo.Name.Equals("_d.pol", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO: Remove this and implement the correct logic
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("中途不停车哦~"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("中途不停车哦~"));
             }
             #endif
 

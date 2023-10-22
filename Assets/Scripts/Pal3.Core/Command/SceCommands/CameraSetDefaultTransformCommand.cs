@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(37, "调用默认镜头参数，" +
                     "参数：镜头参数ID")]
-    public class CameraSetDefaultTransformCommand : ICommand
+    public sealed class CameraSetDefaultTransformCommand : ICommand
     {
         public CameraSetDefaultTransformCommand(int option)
         {

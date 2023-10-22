@@ -97,7 +97,7 @@ namespace Pal3.Game.GameSystems.Inventory
 
             var itemName = _gameItemInfos[command.ItemId].Name;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{itemName}"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand($"得到{itemName}"));
 
             EngineLogger.LogWarning($"Add item: {itemName}({command.ItemId}) count: {command.Count}");
         }
@@ -116,7 +116,7 @@ namespace Pal3.Game.GameSystems.Inventory
 
             var itemName = _gameItemInfos[command.ItemId].Name;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{itemName}"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand($"失去{itemName}"));
 
             EngineLogger.LogWarning($"Remove item: {itemName}({command.ItemId})");
         }
@@ -129,15 +129,15 @@ namespace Pal3.Game.GameSystems.Inventory
 
             if (_items[MONEY_ITEM_ID] == 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去全部文钱"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand($"失去全部文钱"));
             }
             else if (command.ChangeAmount > 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"得到{command.ChangeAmount}文钱"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand($"得到{command.ChangeAmount}文钱"));
             }
             else if (command.ChangeAmount < 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
+                Pal3.Instance.Execute(new UIDisplayNoteCommand($"失去{-command.ChangeAmount}文钱"));
             }
 
             EngineLogger.LogWarning($"Add money: {command.ChangeAmount} current total: {_items[MONEY_ITEM_ID]}");

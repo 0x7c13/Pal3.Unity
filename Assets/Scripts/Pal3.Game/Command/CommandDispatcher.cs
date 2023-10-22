@@ -10,77 +10,63 @@ namespace Pal3.Game.Command
     using System.Linq;
     using System.Reflection;
     using Core.Command;
-    using Engine.Logging;
 
     /// <summary>
     /// A generic class that dispatches commands to their registered executors.
     /// </summary>
     /// <typeparam name="TCommand">The type of command to dispatch.</typeparam>
-    public class CommandDispatcher<TCommand>
+    public sealed class CommandDispatcher<TCommand>
     {
-        public static CommandDispatcher<TCommand> Instance
-        {
-            get { return _instance ??= new CommandDispatcher<TCommand>(CommandExecutorRegistry<TCommand>.Instance); }
-        }
-
-        private static CommandDispatcher<TCommand> _instance;
-
         private readonly ICommandExecutorRegistry<TCommand> _commandExecutorRegistry;
 
         private readonly Dictionary<Type, MethodInfo> _commandExecutorExecuteMethodInfoCache = new();
 
-        private CommandDispatcher() { } // Hide constructor, use Instance instead.
+        private CommandDispatcher() { }
 
-        private CommandDispatcher(ICommandExecutorRegistry<TCommand> commandExecutorRegistry)
+        public CommandDispatcher(ICommandExecutorRegistry<TCommand> commandExecutorRegistry)
         {
             _commandExecutorRegistry = commandExecutorRegistry;
         }
 
         /// <summary>
-        /// Dispatch a command to the registered executor(s) in the registry.
+        /// Route a command to the registered executor(s) in the registry and execute the command.
         /// </summary>
-        public void Dispatch<T>(T command) where T : TCommand
+        public bool TryDispatchAndExecute<T>(T command) where T : TCommand
         {
             // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
-            var executors = _commandExecutorRegistry.GetRegisteredExecutors<T>().ToList();
+            IList<ICommandExecutor<T>> executors = _commandExecutorRegistry.GetRegisteredExecutors<T>().ToList();
 
-            if (executors.Any())
+            if (!executors.Any()) return false;
+
+            foreach (var executor in executors)
             {
-                foreach (var executor in executors)
-                {
-                    executor.Execute(command);
-                }
+                executor.Execute(command);
             }
-            else if (Attribute.GetCustomAttribute(typeof(T), typeof(SceCommandAttribute)) != null)
-            {
-                EngineLogger.LogWarning($"No command executor found for sce command: {typeof(T).Name}");
-            }
+
+            return true;
         }
 
         /// <summary>
-        /// Dispatch a command to the registered executor(s) in the registry using reflection.
+        /// Route a command to the registered executor(s) in the registry and execute the command.
         /// </summary>
-        public void Dispatch(TCommand command)
+        public bool TryDispatchAndExecute(TCommand command)
         {
             Type commandExecutorType = typeof(ICommandExecutor<>).MakeGenericType(command.GetType());
 
             // Call ToList to prevent modified collection exception since a new executor may be registered during the iteration.
-            var executors = _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType).ToList();
+            IList<object> executors = _commandExecutorRegistry.GetRegisteredExecutors(commandExecutorType).ToList();
 
-            if (executors.Any())
+            if (!executors.Any()) return false;
+
+            foreach (object executor in executors)
             {
-                foreach (var executor in executors)
+                if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)
                 {
-                    if (GetCommandExecutorExecuteMethod(commandExecutorType) is { } method)
-                    {
-                        method.Invoke(executor, new object[] {command});
-                    }
+                    method.Invoke(executor, new object[] {command});
                 }
             }
-            else if (Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
-            {
-                EngineLogger.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
-            }
+
+            return true;
         }
 
         private MethodInfo GetCommandExecutorExecuteMethod(Type commandExecutorType)
@@ -90,7 +76,7 @@ namespace Pal3.Game.Command
                 return executeMethod;
             }
 
-            if (commandExecutorType.GetMethod("Execute") is { } method)
+            if (commandExecutorType.GetMethod(nameof(ICommandExecutor<ICommand>.Execute)) is { } method)
             {
                 _commandExecutorExecuteMethodInfoCache[commandExecutorType] = method;
                 return method;

@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(202, "设置某个主角是否在队伍中出现，" +
                      "参数：主角ID，是否出现（1出现0不出现）")]
-    public class TeamAddOrRemoveActorCommand : ICommand
+    public sealed class TeamAddOrRemoveActorCommand : ICommand
     {
         public TeamAddOrRemoveActorCommand(int actorId, int isIn)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             IsIn = isIn;
         }
 
-        public int ActorId { get; }
+        [SceUserVariable] public int ActorId { get; }
         public int IsIn { get; }
     }
 }

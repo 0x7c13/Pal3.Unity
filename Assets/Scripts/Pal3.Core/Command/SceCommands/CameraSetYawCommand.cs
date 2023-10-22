@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(155, "相机设置Yaw角度")]
-    public class CameraSetYawCommand : ICommand
+    public sealed class CameraSetYawCommand : ICommand
     {
         public CameraSetYawCommand(float yaw)
         {

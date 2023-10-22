@@ -9,7 +9,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class SceneSaveGlobalThreePhaseSwitchStateCommand : ICommand
+    public sealed class SceneSaveGlobalThreePhaseSwitchStateCommand : ICommand
     {
         public SceneSaveGlobalThreePhaseSwitchStateCommand(string cityName,
             string sceneName,

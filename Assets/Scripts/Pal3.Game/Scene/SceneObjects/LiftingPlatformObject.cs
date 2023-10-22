@@ -162,8 +162,7 @@ namespace Pal3.Game.Scene.SceneObjects
             if (hasObjectOnPlatform)
             {
                 GameBoxVector3 objectGameBoxPosition = objectOnThePlatform.Transform.Position.ToGameBoxPosition();
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
+                Pal3.Instance.Execute(new SceneSaveGlobalObjectPositionCommand(SceneInfo.CityName,
                         SceneInfo.SceneName,
                         ObjectInfo.Parameters[2],
                         objectGameBoxPosition.X,

@@ -95,12 +95,9 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (ctx.StartedByPlayer && ctx.InitObjectId == ObjectInfo.Id)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+                Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
 
                 int nextState = _currentState switch
@@ -115,7 +112,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _currentState = nextState;
 
                 // Notify other three phase switches as well as three phase bridges
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ThreePhaseSwitchStateChangedNotification(
+                Pal3.Instance.Execute(new ThreePhaseSwitchStateChangedNotification(
                     ObjectInfo.Id, _previousState, _currentState, ObjectInfo.Parameters[1] == 1));
 
                 PlaySfxIfAny();
@@ -129,7 +126,7 @@ namespace Pal3.Game.Scene.SceneObjects
             yield return objectTransform.RotateAsync(targetRotation, SWITCH_ANIMATION_DURATION, AnimationCurveType.Sine);
 
             // Save my state
-            CommandDispatcher<ICommand>.Instance.Dispatch(new SceneSaveGlobalThreePhaseSwitchStateCommand(
+            Pal3.Instance.Execute(new SceneSaveGlobalThreePhaseSwitchStateCommand(
                 SceneInfo.CityName, SceneInfo.SceneName, ObjectInfo.Id, _previousState, _currentState));
         }
 

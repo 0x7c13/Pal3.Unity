@@ -20,6 +20,7 @@ namespace Pal3.Game.Script
     using GameSystems.Inventory;
     using GameSystems.Team;
     using Newtonsoft.Json;
+    using Patcher;
     using Waiter;
 
     public sealed class PalScriptRunner : IDisposable,
@@ -46,7 +47,7 @@ namespace Pal3.Game.Script
         public PalScriptType ScriptType { get; }
         public string ScriptDescription { get; }
 
-        private readonly PalScriptCommandPreprocessor _cmdPreprocessor;
+        private readonly IPalScriptPatcher _scriptPatcher;
         private readonly UserVariableManager _userVariableManager;
 
         private readonly int _codepage;
@@ -55,7 +56,7 @@ namespace Pal3.Game.Script
 
         // Stack operator and value are used to evaluate logical expressions
         // over multiple commands and branches in the script in assembly fashion.
-        private PalScriptOperatorType _operatorType = PalScriptOperatorType.Assign;
+        private ScriptOperatorType _operatorType = ScriptOperatorType.Assign;
         private bool _tempVariable = false;
 
         private readonly Stack<IScriptRunnerWaiter> _waiters = new ();
@@ -66,7 +67,7 @@ namespace Pal3.Game.Script
             PalScriptType scriptType,
             uint scriptId,
             UserVariableManager userVariableManager,
-            PalScriptCommandPreprocessor preprocessor)
+            IPalScriptPatcher scriptPatcher)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
             {
@@ -81,7 +82,7 @@ namespace Pal3.Game.Script
                 sceScriptBlock,
                 sceFile.Codepage,
                 userVariableManager,
-                preprocessor);
+                scriptPatcher);
         }
 
         private PalScriptRunner(PalScriptType scriptType,
@@ -89,7 +90,7 @@ namespace Pal3.Game.Script
             SceScriptBlock scriptBlock,
             int codepage,
             UserVariableManager userVariableManager,
-            PalScriptCommandPreprocessor preprocessor,
+            IPalScriptPatcher scriptPatcher,
             ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
         {
             ScriptType = scriptType;
@@ -98,7 +99,7 @@ namespace Pal3.Game.Script
 
             _userVariableManager = userVariableManager;
             _codepage = codepage;
-            _cmdPreprocessor = preprocessor;
+            _scriptPatcher = scriptPatcher;
             _executionMode = executionMode;
 
             _scriptDataReader = new SafeBinaryReader(scriptBlock.ScriptData);
@@ -165,12 +166,17 @@ namespace Pal3.Game.Script
                 out ushort commandId,
                 out _);
 
-            _cmdPreprocessor.Process(ref command,
-                ScriptType,
-                ScriptId,
-                ScriptDescription,
-                cmdPosition,
-                _codepage);
+            if (_scriptPatcher.TryPatchCommandInScript(ScriptType,
+                    ScriptId,
+                    ScriptDescription,
+                    cmdPosition,
+                    _codepage,
+                    command,
+                    out ICommand fixedCommand))
+            {
+                command = fixedCommand;
+            }
+
 
             EngineLogger.Log($"{ScriptType} Script " +
                       $"[{ScriptId} {ScriptDescription}]: " +
@@ -184,9 +190,9 @@ namespace Pal3.Game.Script
         {
             _tempVariable = _operatorType switch
             {
-                PalScriptOperatorType.Assign => value,
-                PalScriptOperatorType.And    => value && _tempVariable,
-                PalScriptOperatorType.Or     => value || _tempVariable,
+                ScriptOperatorType.Assign => value,
+                ScriptOperatorType.And    => value && _tempVariable,
+                ScriptOperatorType.Or     => value || _tempVariable,
                 _ => throw new ArgumentOutOfRangeException(
                     $"Invalid stack operator type: {_operatorType}")
             };
@@ -224,7 +230,7 @@ namespace Pal3.Game.Script
         public void Execute(ScriptRunnerSetOperatorCommand command)
         {
             if (!_isExecuting) return;
-            _operatorType = (PalScriptOperatorType)command.OperatorType;
+            _operatorType = (ScriptOperatorType)command.OperatorType;
         }
 
         public void Execute(ScriptRunnerWaitUntilTimeCommand untilTimeCommand)

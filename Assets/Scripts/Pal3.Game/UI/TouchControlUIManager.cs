@@ -69,22 +69,22 @@ namespace Pal3.Game.UI
             if (_sceneManager.GetCurrentScene() is { } currentScene &&
                 currentScene.GetSceneInfo().SceneType == SceneType.Maze)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SwitchPlayerActorRequest());
+                Pal3.Instance.Execute(new SwitchPlayerActorRequest());
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleWorldMapRequest());
+                Pal3.Instance.Execute(new ToggleWorldMapRequest());
             }
         }
 
         private void InteractionButtonClicked()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new PlayerInteractionRequest());
+            Pal3.Instance.Execute(new PlayerInteractionRequest());
         }
 
         private void MainMenuButtonClicked()
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ToggleMainMenuRequest());
+            Pal3.Instance.Execute(new ToggleMainMenuRequest());
         }
 
         public void Dispose()

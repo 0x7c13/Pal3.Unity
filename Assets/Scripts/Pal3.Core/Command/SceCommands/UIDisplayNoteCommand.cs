@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(68, "显示提示框信息")]
-    public class UIDisplayNoteCommand : ICommand
+    public sealed class UIDisplayNoteCommand : ICommand
     {
         public UIDisplayNoteCommand(string note)
         {

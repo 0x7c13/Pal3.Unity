@@ -86,12 +86,9 @@ namespace Pal3.Game.Scene.SceneObjects
             if (ctx.StartedByPlayer &&
                 ctx.InitObjectId == ObjectInfo.Id)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
+                Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+                Pal3.Instance.Execute(new PlayerActorLookAtSceneObjectCommand(ObjectInfo.Id));
+                Pal3.Instance.Execute(new ActorPerformActionCommand(ActorConstants.PlayerActorVirtualID,
                         ActorConstants.ActionToNameMap[ActorActionType.Check], 1));
             }
 
@@ -112,8 +109,7 @@ namespace Pal3.Game.Scene.SceneObjects
             // Disable associated effect object if any
             if (ObjectInfo.EffectModelType != 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
+                Pal3.Instance.Execute(new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
             }
 
             var shouldResetCamera = false;
@@ -131,7 +127,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 if (!string.IsNullOrEmpty(linkedObject.ObjectInfo.SfxName))
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
+                    Pal3.Instance.Execute(new PlaySfxCommand(linkedObject.ObjectInfo.SfxName, 1));
                 }
 
                 yield return ActivateOrInteractWithObjectIfAnyAsync(ctx, ObjectInfo.LinkedObjectId);

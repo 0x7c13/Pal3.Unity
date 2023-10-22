@@ -20,7 +20,6 @@ namespace Pal3.Game
     using Core.FileSystem;
     using Core.Utilities;
     using Data;
-    using Engine.Animation;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
@@ -32,7 +31,6 @@ namespace Pal3.Game
     using SimpleFileBrowser;
     using TMPro;
     using UnityEngine;
-    using UnityEngine.UI;
     using Transform = UnityEngine.Transform;
 
     /// <summary>
@@ -42,7 +40,6 @@ namespace Pal3.Game
     public sealed class GameResourceInitializer : GameEntityScript
     {
         [SerializeField] private GameObject startingComponent;
-        [SerializeField] private Image backgroundImage;
         [SerializeField] private TextMeshProUGUI loadingText;
 
         // Optional materials that are used in the game but not open sourced
@@ -212,7 +209,7 @@ namespace Pal3.Game
             }
 
             // Init Game resource provider
-            var resourceProvider = new GameResourceProvider(cpkFileSystem,
+            GameResourceProvider resourceProvider = new GameResourceProvider(cpkFileSystem,
                 textureLoaderFactory,
                 textureFactory,
                 unlitMaterialFactory,
@@ -222,14 +219,12 @@ namespace Pal3.Game
 
             EngineLogger.Log($"Game resources initialized");
 
-            loadingText.text = "正在启动游戏...";
+            loadingText.text = $"正在启动 {startingComponent.name}...";
             yield return null; // Wait for next frame to make sure the text is updated
 
             // Instantiate starting component
             GameObject startingGameObject = Instantiate(startingComponent, null);
             startingGameObject.name = startingComponent.name;
-
-            yield return FadeTextAndBackgroundImageAsync();
 
             FinalizeInit();
         }
@@ -337,22 +332,6 @@ namespace Pal3.Game
             callback?.Invoke(cpkFileSystem, exception);
         }
 
-        private IEnumerator FadeTextAndBackgroundImageAsync()
-        {
-            loadingText.text = string.Empty;
-            loadingText.alpha = 0f;
-            loadingText.enabled = false;
-
-            yield return CoreAnimation.EnumerateValueAsync(1f, 0f, duration: 1f, AnimationCurveType.Linear,
-                value =>
-            {
-                backgroundImage.color = new Color(0, 0, 0, value);
-            });
-
-            backgroundImage.color = new Color(0, 0, 0, 0);
-            backgroundImage.enabled = false;
-        }
-
         private ICpkFileSystem InitializeCpkFileSystem(string gameRootPath, Crc32Hash crcHash, int codepage)
         {
             ICpkFileSystem cpkFileSystem = new CpkFileSystem(gameRootPath, crcHash, codepage);
@@ -363,7 +342,7 @@ namespace Pal3.Game
                 FileConstants.MusicCpkFileRelativePath
             };
 
-            foreach (var sceneCpkFileName in FileConstants.SceneCpkFileNames)
+            foreach (string sceneCpkFileName in FileConstants.SceneCpkFileNames)
             {
                 filesToMount.Add(FileConstants.GetSceneCpkFileRelativePath(sceneCpkFileName));
             }
@@ -373,7 +352,7 @@ namespace Pal3.Game
             filesToMount.Add(FileConstants.SceCpkFileRelativePath);
             #endif
 
-            foreach (var cpkFileRelativePath in filesToMount)
+            foreach (string cpkFileRelativePath in filesToMount)
             {
                 EngineLogger.Log($"Mounting CPK file: <{cpkFileRelativePath}>");
                 cpkFileSystem.Mount(cpkFileRelativePath, codepage);

@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(133, "播放剧情音乐")]
-    public class PlayScriptMusicCommand : ICommand
+    public sealed class PlayScriptMusicCommand : ICommand
     {
         public PlayScriptMusicCommand(string musicName, int loop)
         {

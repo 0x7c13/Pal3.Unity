@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(167, "在场景固定位置处播放特效（蜀山雷电特效）")]
-    public class UnknownCommand167 : ICommand
+    public sealed class UnknownCommand167 : ICommand
     {
         public UnknownCommand167(
             string unknown1,

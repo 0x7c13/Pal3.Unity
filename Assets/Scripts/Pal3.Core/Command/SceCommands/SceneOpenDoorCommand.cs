@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(87, "播放门打开的动画")]
-    public class SceneOpenDoorCommand : ICommand
+    public sealed class SceneOpenDoorCommand : ICommand
     {
         public SceneOpenDoorCommand(int objectId)
         {

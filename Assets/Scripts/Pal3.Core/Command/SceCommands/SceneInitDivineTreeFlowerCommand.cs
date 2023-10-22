@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(159, "初始化神树之花")]
-    public class SceneInitDivineTreeFlowerCommand : ICommand
+    public sealed class SceneInitDivineTreeFlowerCommand : ICommand
     {
         public SceneInitDivineTreeFlowerCommand() {}
     }

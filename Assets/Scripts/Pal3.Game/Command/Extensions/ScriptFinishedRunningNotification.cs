@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using Script;
 
-    public class ScriptFinishedRunningNotification : ICommand
+    public sealed class ScriptFinishedRunningNotification : ICommand
     {
         public ScriptFinishedRunningNotification(uint scriptId, PalScriptType scriptType)
         {

@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class CombatActorCollideWithPlayerActorNotification : ICommand
+    public sealed class CombatActorCollideWithPlayerActorNotification : ICommand
     {
         public CombatActorCollideWithPlayerActorNotification(
             int combatActorId,

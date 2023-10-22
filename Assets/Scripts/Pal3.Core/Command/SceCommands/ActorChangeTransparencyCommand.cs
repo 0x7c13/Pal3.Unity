@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3A
     [SceCommand(184, "更改角色透明度，" +
                      "参数：角色ID，透明度(0-1f)")]
-    public class ActorChangeTransparencyCommand : ICommand
+    public sealed class ActorChangeTransparencyCommand : ICommand
     {
         public ActorChangeTransparencyCommand(int actorId, float alpha)
         {
@@ -16,7 +16,7 @@ namespace Pal3.Core.Command.SceCommands
             Alpha = alpha;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public float Alpha { get; }
     }
     #endif

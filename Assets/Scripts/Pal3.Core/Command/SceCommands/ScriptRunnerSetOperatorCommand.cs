@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(5, "指定逻辑指令与标志变量的操作，" +
                    "参数：0：赋值/替换，1：与，2：或")]
-    public class ScriptRunnerSetOperatorCommand : ICommand
+    public sealed class ScriptRunnerSetOperatorCommand : ICommand
     {
         public ScriptRunnerSetOperatorCommand(int operatorType)
         {

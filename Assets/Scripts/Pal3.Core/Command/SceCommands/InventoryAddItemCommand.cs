@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(46, "增加物品，" +
                     "参数：物品ID，个数")]
-    public class InventoryAddItemCommand : ICommand
+    public sealed class InventoryAddItemCommand : ICommand
     {
         public InventoryAddItemCommand(int itemId, int count)
         {

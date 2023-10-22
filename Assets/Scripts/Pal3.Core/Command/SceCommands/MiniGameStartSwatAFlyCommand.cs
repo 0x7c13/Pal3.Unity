@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(105, "进入打苍蝇游戏")]
-    public class MiniGameStartSwatAFlyCommand : ICommand
+    public sealed class MiniGameStartSwatAFlyCommand : ICommand
     {
         public MiniGameStartSwatAFlyCommand() {}
     }

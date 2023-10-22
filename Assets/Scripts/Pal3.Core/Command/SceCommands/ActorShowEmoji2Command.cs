@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3A
     [SceCommand(173, "在角色头顶出现表情符号，" +
                     "参数：角色ID，表情编号ID")]
-    public class ActorShowEmoji2Command : ICommand
+    public sealed class ActorShowEmoji2Command : ICommand
     {
         public ActorShowEmoji2Command(int actorId, int emojiId)
         {
@@ -16,8 +16,7 @@ namespace Pal3.Core.Command.SceCommands
             EmojiId = emojiId;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int EmojiId { get; }
     }
     #endif

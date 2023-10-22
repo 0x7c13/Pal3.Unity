@@ -8,6 +8,7 @@ namespace Pal3.Game
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Text;
     using Actor.Controllers;
@@ -141,6 +142,7 @@ namespace Pal3.Game
         private readonly TextureCache _textureCache = new ();
 
         // Core game systems and components
+        private CommandDispatcher<ICommand> _commandDispatcher;
         private GameTimeProvider _gameTimeProvider;
         private GameSettings _gameSettings;
         private ICpkFileSystem _fileSystem;
@@ -152,6 +154,8 @@ namespace Pal3.Game
         private GameStateManager _gameStateManager;
         private SceneStateManager _sceneStateManager;
         private UserVariableManager _userVariableManager;
+        private CommandPreprocessor _commandPreprocessor;
+        private IPalScriptPatcher _scriptPatcher;
         private ScriptManager _scriptManager;
         private VideoManager _videoManager;
         private SceneManager _sceneManager;
@@ -203,11 +207,20 @@ namespace Pal3.Game
 
             // These are services initialized and registered by the GameResourceInitializer. <see cref="Game"/>
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
+            _gameSettings.PropertyChanged += OnGameSettingsChanged;
+
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
             _gameResourceProvider.UseTextureCache(_textureCache);
-
             ITextureFactory textureFactory = ServiceLocator.Instance.Get<ITextureFactory>();
+
+            ICommandExecutorRegistry<ICommand> commandExecutorRegistry = CommandExecutorRegistry<ICommand>.Instance;
+
+            ServiceLocator.Instance.Register<ICommandExecutorRegistry<ICommand>>(commandExecutorRegistry);
+
+            ServiceLocator.Instance.Register(_commandDispatcher =
+                new CommandDispatcher<ICommand>(commandExecutorRegistry)
+            );
 
             ServiceLocator.Instance.Register<IGameTimeProvider>(_gameTimeProvider =
                 GameTimeProvider.Instance
@@ -230,14 +243,26 @@ namespace Pal3.Game
                 new InputManager(_inputActions)
             );
 
+            ServiceLocator.Instance.Register(_playerActorManager =
+                new PlayerActorManager()
+            );
+
             ServiceLocator.Instance.Register(_userVariableManager =
                 new UserVariableManager()
+            );
+
+            ServiceLocator.Instance.Register(_commandPreprocessor =
+                new CommandPreprocessor(_playerActorManager)
+            );
+
+            ServiceLocator.Instance.Register(_scriptPatcher =
+                new PalScriptPatcher()
             );
 
             ServiceLocator.Instance.Register(_scriptManager =
                 new ScriptManager(_gameResourceProvider,
                     _userVariableManager,
-                    new PalScriptCommandPreprocessor(new PalScriptPatcher()))
+                    _scriptPatcher)
             );
 
             ServiceLocator.Instance.Register(_gameStateManager =
@@ -253,10 +278,6 @@ namespace Pal3.Game
                     _scriptManager,
                     _gameSettings,
                     cameraEntity)
-            );
-
-            ServiceLocator.Instance.Register(_playerActorManager =
-                new PlayerActorManager()
             );
 
             ServiceLocator.Instance.Register(_inventoryManager =
@@ -588,12 +609,13 @@ namespace Pal3.Game
                     if (!string.IsNullOrEmpty(latestVersion) &&
                         CoreUtility.IsVersionGreater(latestVersion.Replace("v", "", StringComparison.OrdinalIgnoreCase), Application.version))
                     {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(
+                        Execute(
                             #if UNITY_IOS
-                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请用TestFlight应用更新。"));
+                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请用TestFlight应用更新。")
                             #else
-                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请在讨论群内或者Github下载。"));
+                            new UIDisplayNoteCommand($"检测到新版本：{latestVersion}，请在讨论群内或者Github下载。")
                             #endif
+                        );
                     }
                 });
         }
@@ -640,8 +662,34 @@ namespace Pal3.Game
             }
         }
 
+        private void OnGameSettingsChanged(object sender, PropertyChangedEventArgs args)
+        {
+            // Broadcast the setting change notification.
+            Execute(new SettingChangedNotification(args.PropertyName));
+        }
+
+        /// <summary>
+        /// Execute a command synchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        public void Execute(ICommand command)
+        {
+            // Preprocess the command
+            _commandPreprocessor.Process(ref command);
+
+            // Dispatch and execute the command
+            bool success = _commandDispatcher.TryDispatchAndExecute(command);
+
+            if (!success && Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
+            {
+                EngineLogger.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
+            }
+        }
+
         private void OnDisable()
         {
+            _gameSettings.PropertyChanged -= OnGameSettingsChanged;
+
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
 
@@ -723,8 +771,7 @@ namespace Pal3.Game
 
         private void SetCameraFov(float fieldOfView)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraSetFieldOfViewCommand(fieldOfView));
+            Execute(new CameraSetFieldOfViewCommand(fieldOfView));
         }
     }
 }

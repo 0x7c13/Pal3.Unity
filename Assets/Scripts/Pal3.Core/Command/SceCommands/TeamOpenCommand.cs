@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(25, "玩家队伍散开")]
-    public class TeamOpenCommand : ICommand
+    public sealed class TeamOpenCommand : ICommand
     {
         public TeamOpenCommand() { }
     }

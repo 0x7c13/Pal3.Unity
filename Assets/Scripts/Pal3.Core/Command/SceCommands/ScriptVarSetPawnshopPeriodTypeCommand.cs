@@ -8,14 +8,14 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(121, "取出当前当铺经营游戏的当前Period类型并赋值给变量，" +
                     "参数：变量名", 0b0001)]
-    public class ScriptVarSetPawnshopPeriodTypeCommand : ICommand
+    public sealed class ScriptVarSetPawnshopPeriodTypeCommand : ICommand
     {
         public ScriptVarSetPawnshopPeriodTypeCommand(ushort variable)
         {
             Variable = variable;
         }
 
-        public ushort Variable { get; }
+        [SceUserVariable] public ushort Variable { get; }
     }
     #endif
 }

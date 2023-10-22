@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(88, "设置花盈的行为模式," +
                     "参数：0：隐藏，1：跟随雪见，2：单飞")]
-    public class HuaYingSwitchBehaviourModeCommand : ICommand
+    public sealed class HuaYingSwitchBehaviourModeCommand : ICommand
     {
         public HuaYingSwitchBehaviourModeCommand(int mode)
         {

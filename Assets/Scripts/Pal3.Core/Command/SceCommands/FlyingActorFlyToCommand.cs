@@ -12,7 +12,7 @@ namespace Pal3.Core.Command.SceCommands
     [SceCommand(89, "让桃子飞到某空间点" +
                     "参数：原GameBox引擎下的一个三维坐标（X，Y，Z）")]
     #endif
-    public class FlyingActorFlyToCommand : ICommand
+    public sealed class FlyingActorFlyToCommand : ICommand
     {
         public FlyingActorFlyToCommand(float gameBoxXPosition, float gameBoxYPosition, float gameBoxZPosition)
         {

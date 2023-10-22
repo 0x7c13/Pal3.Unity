@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(192, "南宫煌以变身状态下进入Boss战斗")]
-    public class CombatEnterBossFightUsingMusicWithSpecialActorCommand : ICommand
+    public sealed class CombatEnterBossFightUsingMusicWithSpecialActorCommand : ICommand
     {
         public CombatEnterBossFightUsingMusicWithSpecialActorCommand(
             uint monster1Id,

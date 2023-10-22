@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class DialogueRenderingStartedNotification : ICommand
+    public sealed class DialogueRenderingStartedNotification : ICommand
     {
         public DialogueRenderingStartedNotification() {}
     }

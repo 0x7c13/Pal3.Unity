@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(112, "进入山洞初体验游戏")]
-    public class MiniGameStartCaveExperienceCommand : ICommand
+    public sealed class MiniGameStartCaveExperienceCommand : ICommand
     {
         public MiniGameStartCaveExperienceCommand() {}
     }

@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(65, "对话选择框，" +
                     "参数：候选项（字符串列表）")]
-    public class DialogueAddSelectionsCommand : ICommand
+    public sealed class DialogueAddSelectionsCommand : ICommand
     {
         public DialogueAddSelectionsCommand(object[] selections)
         {

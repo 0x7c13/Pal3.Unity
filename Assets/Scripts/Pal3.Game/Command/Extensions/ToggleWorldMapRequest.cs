@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class ToggleWorldMapRequest : ICommand
+    public sealed class ToggleWorldMapRequest : ICommand
     {
         public ToggleWorldMapRequest() {}
     }

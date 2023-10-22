@@ -37,7 +37,7 @@ namespace Pal3.Game.Scene
     using UnityEngine;
     using Color = Core.Primitives.Color;
 
-    public class Scene : SceneBase,
+    public sealed class Scene : SceneBase,
         ICommandExecutor<SceneActivateObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
@@ -482,15 +482,6 @@ namespace Pal3.Game.Scene
             _actorEntities[actor.Id] = actorGameEntity;
         }
 
-        private void ActivateActorObject(int id, bool isActive)
-        {
-            if (!_actorEntities.ContainsKey(id)) return;
-
-            IGameEntity actorGameEntity = _actorEntities[id];
-            var actorController = actorGameEntity.GetComponent<ActorController>();
-            actorController.IsActive = isActive;
-        }
-
         /// <summary>
         /// Get all tile positions blocked by the active actors in current scene.
         /// </summary>
@@ -583,15 +574,21 @@ namespace Pal3.Game.Scene
 
         public void Execute(ActorActivateCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             if (!_actorEntities.ContainsKey(command.ActorId)) return;
-            ActivateActorObject(command.ActorId, command.IsActive == 1);
+            IGameEntity actorGameEntity = _actorEntities[command.ActorId];
+            actorGameEntity.GetComponent<ActorController>().IsActive = command.IsActive == 1;
         }
 
         public void Execute(ActorLookAtActorCommand command)
         {
             if (!_actorEntities.ContainsKey(command.ActorId) ||
                 !_actorEntities.ContainsKey(command.LookAtActorId)) return;
+
+            if (command.ActorId == command.LookAtActorId)
+            {
+                EngineLogger.LogWarning($"Actor {command.ActorId} cannot look at itself");
+                return;
+            }
 
             ITransform actorTransform = _actorEntities[command.ActorId].Transform;
             ITransform lookAtActorTransform = _actorEntities[command.LookAtActorId].Transform;
@@ -654,7 +651,7 @@ namespace Pal3.Game.Scene
 
                 // Save the new position since it is moved by the script
                 GameBoxVector3 toGameBoxPosition = toPosition.ToGameBoxPosition();
-                CommandDispatcher<ICommand>.Instance.Dispatch(
+                Pal3.Instance.Execute(
                     new SceneSaveGlobalObjectPositionCommand(ScnFile.SceneInfo.CityName,
                         ScnFile.SceneInfo.SceneName,
                         command.ObjectId,
@@ -708,7 +705,7 @@ namespace Pal3.Game.Scene
                     // Hide all existing birds
                     foreach (FengYaSongActorId actorId in Enum.GetValues(typeof(FengYaSongActorId)))
                     {
-                        CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));
+                        Pal3.Instance.Execute(new ActorActivateCommand((int)actorId, 0));
                     }
                     break;
                 }
@@ -727,7 +724,7 @@ namespace Pal3.Game.Scene
                     {
                         if (actorId != activeBirdActorId)
                         {
-                            CommandDispatcher<ICommand>.Instance.Dispatch(new ActorActivateCommand((int)actorId, 0));
+                            Pal3.Instance.Execute(new ActorActivateCommand((int)actorId, 0));
                         }
                     }
 

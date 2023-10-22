@@ -26,7 +26,7 @@ namespace Pal3.Game.GameSystems.Trading
         // TODO: Remove this
         public void Execute(UIShowDealerMenuCommand command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(new UIDisplayNoteCommand("交易功能暂未开启"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("交易功能暂未开启"));
         }
     }
 }

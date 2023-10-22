@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(203, "设置角色所在的地层，" +
                      "参数：ID，层数（0或1）")]
-    public class ActorSetNavLayerCommand : ICommand
+    public sealed class ActorSetNavLayerCommand : ICommand
     {
         public ActorSetNavLayerCommand(int actorId, int layerIndex)
         {
@@ -15,8 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             LayerIndex = layerIndex;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int LayerIndex { get; }
     }
 }

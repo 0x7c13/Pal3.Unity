@@ -7,13 +7,13 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(30, "设置摄像机锁定角色，" +
                     "参数：角色ID")]
-    public class CameraFocusOnActorCommand : ICommand
+    public sealed class CameraFocusOnActorCommand : ICommand
     {
         public CameraFocusOnActorCommand(int actorId)
         {
             ActorId = actorId;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
     }
 }

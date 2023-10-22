@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(206, "指定角色的缩放系数，" +
                     "参数：角色ID，缩放系数")]
-    public class ActorChangeScaleCommand : ICommand
+    public sealed class ActorChangeScaleCommand : ICommand
     {
         public ActorChangeScaleCommand(int actorId, float scale)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             Scale = scale;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public float Scale { get; }
     }
 }

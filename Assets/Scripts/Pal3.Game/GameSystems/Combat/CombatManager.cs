@@ -75,8 +75,7 @@ namespace Pal3.Game.GameSystems.Combat
 
             if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
+                Pal3.Instance.Execute(new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
             }
 
             _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
@@ -102,12 +101,12 @@ namespace Pal3.Game.GameSystems.Combat
 
             SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
+            Pal3.Instance.Execute(new CameraFadeInCommand());
 
             if (combatContext.MeetType != MeetType.RunningIntoEachOther)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new UIDisplayNoteCommand(combatContext.MeetType == MeetType.PlayerChasingEnemy
+                Pal3.Instance.Execute(new UIDisplayNoteCommand(
+                    combatContext.MeetType == MeetType.PlayerChasingEnemy
                         ? "偷袭敌方成功！"
                         : "被敌人偷袭！"));
             }
@@ -116,8 +115,8 @@ namespace Pal3.Game.GameSystems.Combat
         public void ExitCombat()
         {
             // Stop combat music
-            CommandDispatcher<ICommand>.Instance.Dispatch(new StopScriptMusicCommand());
-            CommandDispatcher<ICommand>.Instance.Dispatch(new CameraFadeInCommand());
+            Pal3.Instance.Execute(new StopScriptMusicCommand());
+            Pal3.Instance.Execute(new CameraFadeInCommand());
             _sceneManager.UnloadCombatScene();
             ResetCameraPosition();
         }
@@ -135,8 +134,7 @@ namespace Pal3.Game.GameSystems.Combat
             //     config.Pitch, config.Yaw, config.Roll);
             cameraTransform.LookAt(Vector3.zero);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraSetFieldOfViewCommand(COMBAT_CAMERA_DEFAULT_FOV));
+            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(COMBAT_CAMERA_DEFAULT_FOV));
         }
 
         private void ResetCameraPosition()
@@ -144,8 +142,7 @@ namespace Pal3.Game.GameSystems.Combat
             _cameraManager.GetCameraTransform().SetPositionAndRotation(_cameraPositionBeforeCombat,
                 _cameraRotationBeforeCombat);
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraSetFieldOfViewCommand(_cameraFovBeforeCombat));
+            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(_cameraFovBeforeCombat));
         }
 
         public void Update(float deltaTime)

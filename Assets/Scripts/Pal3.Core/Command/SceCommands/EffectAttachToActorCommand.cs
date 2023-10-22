@@ -7,13 +7,13 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(144, "在角色位置播放特效，" +
                      "参数：角色ID")]
-    public class EffectAttachToActorCommand : ICommand
+    public sealed class EffectAttachToActorCommand : ICommand
     {
         public EffectAttachToActorCommand(int actorId)
         {
             ActorId = actorId;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
     }
 }

@@ -262,15 +262,13 @@ namespace Pal3.Game.GamePlay
 
             if (string.IsNullOrEmpty(_currentMovementSfxAudioName))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new StopSfxPlayingAtGameEntityRequest(_playerActorGameEntity,
+                Pal3.Instance.Execute(new StopSfxPlayingAtGameEntityRequest(_playerActorGameEntity,
                         AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         disposeSource: false));
             }
             else
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new AttachSfxToGameEntityRequest(_playerActorGameEntity,
+                Pal3.Instance.Execute(new AttachSfxToGameEntityRequest(_playerActorGameEntity,
                         newMovementSfxAudioFileName,
                         AudioConstants.PlayerActorMovementSfxAudioSourceName,
                         loopCount: -1,

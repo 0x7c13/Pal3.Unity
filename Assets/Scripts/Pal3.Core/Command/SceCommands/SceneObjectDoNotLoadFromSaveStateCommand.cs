@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(158, "设置某个物件出场时候的不从存档里拿状态，" +
                     "参数：物件ID")]
-    public class SceneObjectDoNotLoadFromSaveStateCommand : ICommand
+    public sealed class SceneObjectDoNotLoadFromSaveStateCommand : ICommand
     {
         public SceneObjectDoNotLoadFromSaveStateCommand(int objectId)
         {

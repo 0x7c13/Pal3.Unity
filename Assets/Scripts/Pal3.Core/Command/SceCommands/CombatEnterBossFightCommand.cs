@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(80, "进入Boss战")]
-    public class CombatEnterBossFightCommand : ICommand
+    public sealed class CombatEnterBossFightCommand : ICommand
     {
         public CombatEnterBossFightCommand(
             uint monster1Id,

@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using State;
 
-    public class GameStateChangedNotification : ICommand
+    public sealed class GameStateChangedNotification : ICommand
     {
         public GameStateChangedNotification(GameState previousState, GameState newState)
         {

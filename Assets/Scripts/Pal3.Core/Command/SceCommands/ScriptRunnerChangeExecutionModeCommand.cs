@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(2, "设置脚本运行模式，" +
                    "参数：1为异步执行，2为同步（顺序）执行")]
-    public class ScriptRunnerChangeExecutionModeCommand : ICommand
+    public sealed class ScriptRunnerChangeExecutionModeCommand : ICommand
     {
         public ScriptRunnerChangeExecutionModeCommand(int mode)
         {

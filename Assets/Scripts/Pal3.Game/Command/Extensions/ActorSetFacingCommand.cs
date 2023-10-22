@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class ActorSetFacingCommand : ICommand
+    public sealed class ActorSetFacingCommand : ICommand
     {
         public ActorSetFacingCommand(int actorId, int degrees)
         {
@@ -16,8 +16,7 @@ namespace Pal3.Game.Command.Extensions
             Degrees = degrees;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int Degrees { get; }
     }
 }

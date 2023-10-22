@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(69, "屏幕淡出")]
-    public class CameraFadeOutCommand : ICommand
+    public sealed class CameraFadeOutCommand : ICommand
     {
         public CameraFadeOutCommand() { }
     }

@@ -128,10 +128,7 @@ namespace Pal3.Game.Script
             {
                 SetVariableValue(command.Variable, state.SwitchState.Value == 1 ? 1 : 0);
             }
-            else
-            {
-                SetVariableValue(command.Variable, 0); // Default to off
-            }
+            else SetVariableValue(command.Variable, 0); // Default to off
         }
 
         public void Execute(ScriptVarSetMoneyCommand command)
@@ -192,11 +189,11 @@ namespace Pal3.Game.Script
         {
             bool won = RandomGenerator.Range(0f, 1f) > 0.35f;
             #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(won
+            Pal3.Instance.Execute(won
                 ? new UIDisplayNoteCommand("你战胜了重楼")
                 : new UIDisplayNoteCommand("你输给了重楼"));
             #elif PAL3A
-            CommandDispatcher<ICommand>.Instance.Dispatch(won
+            Pal3.Instance.Execute(won
                 ? new UIDisplayNoteCommand("你战胜了景小楼")
                 : new UIDisplayNoteCommand("你输给了景小楼"));
             #endif

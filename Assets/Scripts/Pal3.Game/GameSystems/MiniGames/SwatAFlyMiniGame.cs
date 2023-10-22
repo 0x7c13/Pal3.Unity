@@ -27,8 +27,7 @@ namespace Pal3.Game.GameSystems.MiniGames
 
         public void Execute(MiniGameStartSwatAFlyCommand command)
         {
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("打苍蝇小游戏暂未实现，现已跳过"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("打苍蝇小游戏暂未实现，现已跳过"));
         }
     }
 }

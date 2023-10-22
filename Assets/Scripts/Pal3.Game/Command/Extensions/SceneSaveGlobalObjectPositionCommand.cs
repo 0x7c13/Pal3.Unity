@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class SceneSaveGlobalObjectPositionCommand : ICommand
+    public sealed class SceneSaveGlobalObjectPositionCommand : ICommand
     {
         public SceneSaveGlobalObjectPositionCommand(string cityName,
             string sceneName,

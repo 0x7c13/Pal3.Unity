@@ -22,7 +22,7 @@ namespace Pal3.Game.Video
     using UnityEngine.InputSystem;
     using UnityEngine.Video;
 
-    public class VideoManager : IDisposable,
+    public sealed class VideoManager : IDisposable,
         ICommandExecutor<PlayVideoCommand>
     {
         private readonly GameResourceProvider _resourceProvider;
@@ -106,7 +106,7 @@ namespace Pal3.Game.Video
 
             _videoPlayingWaiter?.CancelWait();
             _videoPlayingWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(_videoPlayingWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_videoPlayingWaiter));
 
             try
             {
@@ -117,8 +117,7 @@ namespace Pal3.Game.Video
             {
                 if (ex is FileNotFoundException or DirectoryNotFoundException)
                 {
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
+                    Pal3.Instance.Execute(new UIDisplayNoteCommand("未找到过场动画文件，动画已跳过"));
                 }
                 EngineLogger.LogException(ex);
                 _videoPlayingWaiter.CancelWait();

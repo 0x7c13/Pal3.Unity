@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(143, "播放VFX特效，" +
                      "参数：VFX特效GroupID")]
-    public class EffectPlayCommand : ICommand
+    public sealed class EffectPlayCommand : ICommand
     {
         public EffectPlayCommand(int effectGroupId)
         {

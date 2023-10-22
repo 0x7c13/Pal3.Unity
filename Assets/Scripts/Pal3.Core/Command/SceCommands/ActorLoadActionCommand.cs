@@ -5,9 +5,9 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(150, "使角色加载一个动作，" +
+    [SceCommand(150, "使角色预加载一个动作，" +
                     "参数：角色ID，动作编号")]
-    public class ActorLoadActionCommand : ICommand
+    public sealed class ActorLoadActionCommand : ICommand
     {
         public ActorLoadActionCommand(int actorId, string actionName)
         {
@@ -15,8 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             ActionName = actionName;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public string ActionName { get; }
     }
 }

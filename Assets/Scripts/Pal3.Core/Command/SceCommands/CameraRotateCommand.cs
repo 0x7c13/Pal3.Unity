@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(35, "镜头摇动（from点固定），" +
                     "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine）")]
-    public class CameraRotateCommand : ICommand
+    public sealed class CameraRotateCommand : ICommand
     {
         public CameraRotateCommand(
             float yaw,
@@ -29,8 +29,9 @@ namespace Pal3.Core.Command.SceCommands
     }
     #elif PAL3A
     [SceCommand(35, "镜头摇动（from点固定），" +
-                    "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine），同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
-    public class CameraRotateCommand : ICommand
+                    "参数：目标Yaw，Pitch，运动时间，插值类型（0：Linear，1：Sine），" +
+"                         同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
+    public sealed class CameraRotateCommand : ICommand
     {
         public CameraRotateCommand(
             float yaw,

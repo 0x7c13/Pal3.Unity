@@ -26,7 +26,7 @@ namespace Pal3.Game.Actor.Controllers
     using Quaternion = UnityEngine.Quaternion;
     using Vector3 = UnityEngine.Vector3;
 
-    public class ActorController : GameEntityScript,
+    public sealed class ActorController : GameEntityScript,
         ICommandExecutor<ActorSetFacingCommand>,
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
@@ -168,8 +168,7 @@ namespace Pal3.Game.Actor.Controllers
                 (int) ServiceLocator.Instance.Get<PlayerActorManager>()
                     .GetPlayerActor() == actorController.GetActor().Id)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
-                    new CombatActorCollideWithPlayerActorNotification(
+                Pal3.Instance.Execute(new CombatActorCollideWithPlayerActorNotification(
                         _actor.Id, actorController.GetActor().Id));
             }
         }
@@ -252,7 +251,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (command.ActorId != _actor.Id) return;
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             StartCoroutine(AnimateScaleAsync(command.Scale, 2f, () => waiter.CancelWait()));
         }
 

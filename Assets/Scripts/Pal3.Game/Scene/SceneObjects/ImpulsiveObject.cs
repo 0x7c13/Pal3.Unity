@@ -89,10 +89,8 @@ namespace Pal3.Game.Scene.SceneObjects
             if (_isDuringInteraction) return; // Prevent multiple interactions during animation
             _isDuringInteraction = true;
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFollowPlayerCommand(0));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new CameraFollowPlayerCommand(0));
             RequestForInteraction();
         }
 
@@ -114,12 +112,10 @@ namespace Pal3.Game.Scene.SceneObjects
                 HIT_ANIMATION_DURATION);
 
             ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>().SetNavLayer(ObjectInfo.Parameters[2]);
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
+            Pal3.Instance.Execute(new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID,
                     ObjectInfo.Parameters[0],
                     ObjectInfo.Parameters[1]));
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new CameraFollowPlayerCommand(1));
+            Pal3.Instance.Execute(new CameraFollowPlayerCommand(1));
 
             _isDuringInteraction = false;
         }

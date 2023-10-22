@@ -10,7 +10,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
     using Rendering.Renderer;
     using UnityEngine;
 
-    public class SceneObjectMeshCollider : GameEntityScript
+    public sealed class SceneObjectMeshCollider : GameEntityScript
     {
         private BoxCollider _collider;
         private Vector3 _meshBoundsSize;

@@ -19,6 +19,8 @@ namespace Pal3.Core.Command
         {
             if (_isInitialized) return;
 
+            // All SceCommand types are in Pal3.Core.Command.SceCommands namespace
+            // So we can just search for all types in current assembly.
             IEnumerable<Type> commandTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
 

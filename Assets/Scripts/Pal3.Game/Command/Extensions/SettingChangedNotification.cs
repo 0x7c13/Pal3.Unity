@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class SettingChangedNotification : ICommand
+    public sealed class SettingChangedNotification : ICommand
     {
         public SettingChangedNotification(string settingName)
         {

@@ -65,8 +65,7 @@ namespace Pal3.Game.GameSystems.Caption
         private IEnumerator AnimateCaptionAsync(string textureName)
         {
             _skipCaptionWaiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_skipCaptionWaiter));
 
             ITexture2D texture = _gameResourceProvider.GetCaptionTexture(textureName);
             ISprite sprite = texture.CreateSprite(0f, 0f,

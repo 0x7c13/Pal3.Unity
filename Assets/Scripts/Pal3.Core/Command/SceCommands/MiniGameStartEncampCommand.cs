@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(106, "进入宿营游戏")]
-    public class MiniGameStartEncampCommand : ICommand
+    public sealed class MiniGameStartEncampCommand : ICommand
     {
         public MiniGameStartEncampCommand(int flag)
         {

@@ -32,7 +32,7 @@ namespace Engine.Services
         {
             if (!_services.ContainsKey(typeof(T)))
             {
-                string error = $"{typeof(T)} is not registered with name: {GetType().Name}";
+                string error = $"{typeof(T)} is not registered with {GetType().Name}";
                 EngineLogger.LogError(error);
                 throw new InvalidOperationException(error);
             }

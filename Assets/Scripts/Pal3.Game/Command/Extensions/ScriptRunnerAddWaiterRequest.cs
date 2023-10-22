@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using Script.Waiter;
 
-    public class ScriptRunnerAddWaiterRequest : ICommand
+    public sealed class ScriptRunnerAddWaiterRequest : ICommand
     {
         public ScriptRunnerAddWaiterRequest(IScriptRunnerWaiter waiter)
         {

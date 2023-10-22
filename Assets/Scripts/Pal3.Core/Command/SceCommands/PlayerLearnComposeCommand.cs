@@ -5,17 +5,15 @@
 
 namespace Pal3.Core.Command.SceCommands
 {
-    [SceCommand(54, "设置主角的某项属性为满值，例如精加满，" +
-                    "参数：角色ID，属性编号")]
-    public class StatusSetFullCommand : ICommand
+    [SceCommand(111, "学会合成术，" +
+                     "参数：合成物品的ID")]
+    public sealed class PlayerLearnComposeCommand : ICommand
     {
-        public StatusSetFullCommand(int actorId, int statusId)
+        public PlayerLearnComposeCommand(int objectId)
         {
-            ActorId = actorId;
-            StatusId = statusId;
+            ObjectId = objectId;
         }
 
-        public int ActorId { get; }
-        public int StatusId { get; }
+        public int ObjectId { get; }
     }
 }

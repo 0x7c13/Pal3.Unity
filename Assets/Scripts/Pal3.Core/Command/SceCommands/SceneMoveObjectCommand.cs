@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(90, "移动场景物体到某处，" +
                     "参数：物件ID，原GameBox引擎下的一个三维坐标插值（X，Y，Z），动画时间")]
-    public class SceneMoveObjectCommand : ICommand
+    public sealed class SceneMoveObjectCommand : ICommand
     {
         public SceneMoveObjectCommand(int objectId,
             float gameBoxXOffset,

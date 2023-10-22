@@ -9,7 +9,7 @@ namespace Pal3.Game.Command.Extensions
     using Engine.Core.Abstraction;
     using Newtonsoft.Json;
 
-    public class AttachSfxToGameEntityRequest : ICommand
+    public sealed class AttachSfxToGameEntityRequest : ICommand
     {
         public AttachSfxToGameEntityRequest(IGameEntity parent,
             string sfxName,

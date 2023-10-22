@@ -48,7 +48,7 @@ namespace Pal3.Game.State
         Full
     }
 
-    public class SaveManager : IDisposable,
+    public sealed class SaveManager : IDisposable,
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<GameSwitchToMainMenuCommand>
     {

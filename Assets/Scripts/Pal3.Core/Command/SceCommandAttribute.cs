@@ -14,7 +14,7 @@ namespace Pal3.Core.Command
     /// UserVariableMask: SceCommand property user variable mask
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class SceCommandAttribute : Attribute
+    public sealed class SceCommandAttribute : Attribute
     {
         public SceCommandAttribute(ushort commandId, string description, ushort userVariableMask = 0b0000)
         {

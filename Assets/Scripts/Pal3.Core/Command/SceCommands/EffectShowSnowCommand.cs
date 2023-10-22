@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(140, "开启下雪特效，" +
                      "参数：0关闭，1开启")]
-    public class EffectShowSnowCommand : ICommand
+    public sealed class EffectShowSnowCommand : ICommand
     {
         public EffectShowSnowCommand(int active)
         {

@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(43, "增减好感增，" +
                     "参数：角色ID，增减值")]
-    public class FavorAddCommand : ICommand
+    public sealed class FavorAddCommand : ICommand
     {
         public FavorAddCommand(int actorId, int changeAmount)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             ChangeAmount = changeAmount;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int ChangeAmount { get; }
     }
 }

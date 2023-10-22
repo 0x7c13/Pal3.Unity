@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(34, "镜头当前位置移动（保持当前角度），" +
                     "参数：原GameBox引擎下的一个三维坐标（X，Y，Z），动作时间，插值类型")]
-    public class CameraMoveCommand : ICommand
+    public sealed class CameraMoveCommand : ICommand
     {
         public CameraMoveCommand(
             float gameBoxXPosition,
@@ -33,7 +33,7 @@ namespace Pal3.Core.Command.SceCommands
     #elif PAL3A
     [SceCommand(34, "镜头当前位置移动（保持当前角度），" +
                     "参数：原GameBox引擎下的一个三维坐标（X，Y，Z），动作时间，插值类型，同步（1暂停当前脚本运行，0异步进行动画且继续执行脚本）")]
-    public class CameraMoveCommand : ICommand
+    public sealed class CameraMoveCommand : ICommand
     {
         public CameraMoveCommand(
             float gameBoxXPosition,

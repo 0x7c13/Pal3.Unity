@@ -22,6 +22,7 @@ namespace Pal3.Game.Camera
     using Engine.Animation;
     using Engine.Core.Abstraction;
     using Engine.Extensions;
+    using Engine.Logging;
     using Engine.Utilities;
     using GamePlay;
     using Input;
@@ -552,7 +553,7 @@ namespace Pal3.Game.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(ShakeAsync(command.Duration,
                 command.Amplitude.ToUnityDistance(),
                 () => waiter.CancelWait()));
@@ -563,7 +564,7 @@ namespace Pal3.Game.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
             Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                 command.Duration,
@@ -583,7 +584,7 @@ namespace Pal3.Game.Camera
             #endif
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(RotateAsync(rotation,
                     command.Duration,
@@ -609,7 +610,7 @@ namespace Pal3.Game.Camera
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(true,
                 FADE_ANIMATION_DURATION,
                 Color.black,
@@ -622,7 +623,7 @@ namespace Pal3.Game.Camera
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(true,
                 FADE_ANIMATION_DURATION,
                 Color.white,
@@ -635,7 +636,7 @@ namespace Pal3.Game.Camera
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(false,
                 FADE_ANIMATION_DURATION,
                 Color.black,
@@ -648,7 +649,7 @@ namespace Pal3.Game.Camera
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(false,
                 FADE_ANIMATION_DURATION,
                 Color.white,
@@ -667,8 +668,8 @@ namespace Pal3.Game.Camera
             #endif
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
-                var distance = command.GameBoxDistance.ToUnityDistance();
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
+                float distance = command.GameBoxDistance.ToUnityDistance();
                 Pal3.Instance.StartCoroutine(PushAsync(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -699,7 +700,7 @@ namespace Pal3.Game.Camera
             #endif
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Vector3 position = new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
@@ -786,17 +787,22 @@ namespace Pal3.Game.Camera
 
         public void Execute(CameraFocusOnActorCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-            _lookAtGameEntity = _sceneManager.GetCurrentScene().GetActorGameEntity(command.ActorId);
+            IGameEntity lookAtEntity = _sceneManager.GetCurrentScene().GetActorGameEntity(command.ActorId);
+            if (lookAtEntity != null)
+            {
+                _lookAtGameEntity = lookAtEntity;
+            }
         }
 
         public void Execute(CameraFocusOnSceneObjectCommand command)
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-
-            _lookAtGameEntity = _sceneManager.GetCurrentScene()
-                .GetSceneObject(command.SceneObjectId).GetGameEntity();
+            IGameEntity lookAtEntity = _sceneManager.GetCurrentScene().GetSceneObject(command.SceneObjectId).GetGameEntity();
+            if (lookAtEntity != null)
+            {
+                _lookAtGameEntity = lookAtEntity;
+            }
         }
 
         public void Execute(GameStateChangedNotification command)
@@ -835,7 +841,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
@@ -867,7 +873,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
                     command.Duration,
@@ -899,7 +905,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             {
                 var waiter = new WaitUntilCanceled();
-                CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Vector3 position = _cameraOffset + new GameBoxVector3(
                     command.GameBoxXPosition,
                     command.GameBoxYPosition,
@@ -929,7 +935,7 @@ namespace Pal3.Game.Camera
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
             if (_playerActorManager.LastKnownPosition.HasValue)
             {

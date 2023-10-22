@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class PlayerActorLookAtSceneObjectCommand : ICommand
+    public sealed class PlayerActorLookAtSceneObjectCommand : ICommand
     {
         public PlayerActorLookAtSceneObjectCommand(int sceneObjectId)
         {

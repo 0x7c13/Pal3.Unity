@@ -5,7 +5,7 @@
 
 namespace Pal3.Game.Script.Waiter
 {
-    public class WaitUntilTime : IScriptRunnerWaiter
+    public sealed class WaitUntilTime : IScriptRunnerWaiter
     {
         private float _totalTimeInSec;
 

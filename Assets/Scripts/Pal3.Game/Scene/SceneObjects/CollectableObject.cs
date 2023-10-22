@@ -36,15 +36,15 @@ namespace Pal3.Game.Scene.SceneObjects
 
             if (ObjectInfo.Parameters[0] != 0) // Game item
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddItemCommand(ObjectInfo.Parameters[0], 1));
+                Pal3.Instance.Execute(new InventoryAddItemCommand(ObjectInfo.Parameters[0], 1));
             }
             else if (ObjectInfo.Parameters[1] != 0 && ObjectInfo.Parameters[1] != 1)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[1]));
+                Pal3.Instance.Execute(new InventoryAddMoneyCommand(ObjectInfo.Parameters[1]));
             }
             else if (ObjectInfo.Parameters[2] != 0)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new InventoryAddMoneyCommand(ObjectInfo.Parameters[2]));
+                Pal3.Instance.Execute(new InventoryAddMoneyCommand(ObjectInfo.Parameters[2]));
             }
 
             PlaySfx("wa006");

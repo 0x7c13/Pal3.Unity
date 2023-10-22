@@ -66,11 +66,9 @@ namespace Pal3.Game.Scene.SceneObjects
             if (_isInteractionInProgress) return;
 
             #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("等待三秒后，根据当前人物，会向上或向下传送哦。"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("等待三秒后，根据当前人物，会向上或向下传送哦。"));
             #elif PAL3A
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new UIDisplayNoteCommand("等待三秒后，会开始传送哦。"));
+            Pal3.Instance.Execute(new UIDisplayNoteCommand("等待三秒后，会开始传送哦。"));
             #endif
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
@@ -142,8 +140,7 @@ namespace Pal3.Game.Scene.SceneObjects
             yield return null;
 
             #if PAL3
-            CommandDispatcher<ICommand>.Instance.Dispatch(
-                new ScriptExecuteCommand(shouldGoUp.Value ? upperLevelScriptId : lowerLevelScriptId));
+            Pal3.Instance.Execute(new ScriptExecuteCommand(shouldGoUp.Value ? upperLevelScriptId : lowerLevelScriptId));
             #elif PAL3A
             ExecuteScriptIfAny();
             #endif

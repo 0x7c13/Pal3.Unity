@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using Core.DataReader.Scn;
 
-    public class ScenePreLoadingNotification : ICommand
+    public sealed class ScenePreLoadingNotification : ICommand
     {
         public ScenePreLoadingNotification(ScnSceneInfo sceneInfo)
         {

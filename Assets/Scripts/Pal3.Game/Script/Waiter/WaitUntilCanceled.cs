@@ -5,7 +5,7 @@
 
 namespace Pal3.Game.Script.Waiter
 {
-    public class WaitUntilCanceled : IScriptRunnerWaiter
+    public sealed class WaitUntilCanceled : IScriptRunnerWaiter
     {
         private bool _shouldWait = true;
 

@@ -7,13 +7,13 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(132, "取得战斗结果（0输1赢）并赋值给变量，" +
                      "参数：变量名", 0b0001)]
-    public class ScriptVarSetCombatResultCommand : ICommand
+    public sealed class ScriptVarSetCombatResultCommand : ICommand
     {
         public ScriptVarSetCombatResultCommand(ushort variable)
         {
             Variable = variable;
         }
 
-        public ushort Variable { get; }
+        [SceUserVariable] public ushort Variable { get; }
     }
 }

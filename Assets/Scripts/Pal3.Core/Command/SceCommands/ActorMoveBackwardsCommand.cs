@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(208, "角色向后平移，" +
                      "参数：角色ID，距离（原GameBox引擎下的距离单位）")]
-    public class ActorMoveBackwardsCommand : ICommand
+    public sealed class ActorMoveBackwardsCommand : ICommand
     {
         public ActorMoveBackwardsCommand(int actorId, float gameBoxDistance)
         {
@@ -15,8 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             GameBoxDistance = gameBoxDistance;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public float GameBoxDistance { get; }
     }
 }

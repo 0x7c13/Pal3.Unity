@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3
     [SceCommand(127, "进入行船游戏")]
-    public class MiniGameStartSailingCommand : ICommand
+    public sealed class MiniGameStartSailingCommand : ICommand
     {
         public MiniGameStartSailingCommand(int startSegment, int endScriptId)
         {

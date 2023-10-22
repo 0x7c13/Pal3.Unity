@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
     using UnityEngine.InputSystem;
 
-    public class ActiveInputDeviceChangedNotification : ICommand
+    public sealed class ActiveInputDeviceChangedNotification : ICommand
     {
         public ActiveInputDeviceChangedNotification(InputDevice device)
         {

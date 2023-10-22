@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(47, "拿走一个物品，" +
                     "参数：物品ID")]
-    public class InventoryRemoveItemCommand : ICommand
+    public sealed class InventoryRemoveItemCommand : ICommand
     {
         public InventoryRemoveItemCommand(int itemId)
         {

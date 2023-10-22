@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class CameraSetFieldOfViewCommand : ICommand
+    public sealed class CameraSetFieldOfViewCommand : ICommand
     {
         public CameraSetFieldOfViewCommand(float fieldOfView)
         {

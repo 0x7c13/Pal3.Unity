@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(138, "打开或关闭魔剑技功能，" +
                      "参数：0关闭，1打开")]
-    public class FeatureEnableSwordSkillCommand : ICommand
+    public sealed class FeatureEnableSwordSkillCommand : ICommand
     {
         public FeatureEnableSwordSkillCommand(int enable)
         {

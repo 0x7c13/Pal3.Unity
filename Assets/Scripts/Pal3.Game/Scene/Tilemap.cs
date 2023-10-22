@@ -18,7 +18,7 @@ namespace Pal3.Game.Scene
     using Vector2Int = UnityEngine.Vector2Int;
     using Vector3 = UnityEngine.Vector3;
 
-    public class Tilemap
+    public sealed class Tilemap
     {
         // GameBox Tile size to Unity unit size ratio
         private const float NAV_TILE_SIZE = 12f;

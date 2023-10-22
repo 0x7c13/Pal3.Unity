@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(211, "进入情节关时队伍散开")]
-    public class TeamOpenOnSceneChangeCommand : ICommand
+    public sealed class TeamOpenOnSceneChangeCommand : ICommand
     {
         public TeamOpenOnSceneChangeCommand() { }
     }

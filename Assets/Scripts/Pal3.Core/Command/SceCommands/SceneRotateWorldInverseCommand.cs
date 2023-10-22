@@ -8,7 +8,7 @@ namespace Pal3.Core.Command.SceCommands
     #if PAL3
     [SceCommand(128, "反方向旋转整个场景，" +
                     "参数：原GameBox坐标系下的X轴旋转角度, Y轴旋转角度, Z轴旋转角度")]
-    public class SceneRotateWorldInverseCommand : ICommand
+    public sealed class SceneRotateWorldInverseCommand : ICommand
     {
         public SceneRotateWorldInverseCommand(int xDegrees, int yDegrees, int zDegrees)
         {

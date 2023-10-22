@@ -6,7 +6,7 @@
 namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(131, "设置战斗失败不显示结束游戏")]
-    public class CombatSetNoGameOverWhenLoseCommand : ICommand
+    public sealed class CombatSetNoGameOverWhenLoseCommand : ICommand
     {
         public CombatSetNoGameOverWhenLoseCommand() {}
     }

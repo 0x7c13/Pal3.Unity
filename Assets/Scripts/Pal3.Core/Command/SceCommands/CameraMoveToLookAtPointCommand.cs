@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     #if PAL3A
     [SceCommand(188, "移动相机并看向固定点")]
-    public class CameraMoveToLookAtPointCommand : ICommand
+    public sealed class CameraMoveToLookAtPointCommand : ICommand
     {
         public CameraMoveToLookAtPointCommand(
             float gameBoxXPosition,

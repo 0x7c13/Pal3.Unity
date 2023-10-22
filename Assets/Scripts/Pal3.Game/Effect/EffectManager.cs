@@ -75,7 +75,6 @@ namespace Pal3.Game.Effect
 
         public void Execute(EffectAttachToActorCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
             _effectPositionCommand = command;
         }
 
@@ -123,7 +122,7 @@ namespace Pal3.Game.Effect
             // Play SFX if any
             if (EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(
+                Pal3.Instance.Execute(
                     new PlaySfxCommand(sfxName, 1));
             }
         }

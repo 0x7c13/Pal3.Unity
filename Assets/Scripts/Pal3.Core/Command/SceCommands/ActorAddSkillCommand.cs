@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(51, "某个主角学会新特技，" +
                     "参数：主角ID，特技ID")]
-    public class ActorAddSkillCommand : ICommand
+    public sealed class ActorAddSkillCommand : ICommand
     {
         public ActorAddSkillCommand(int actorId, int skillId)
         {
@@ -15,7 +15,7 @@ namespace Pal3.Core.Command.SceCommands
             SkillId = skillId;
         }
 
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public int SkillId { get; }
     }
 }

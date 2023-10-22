@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(48, "增减金钱，" +
                     "参数：增减量")]
-    public class InventoryAddMoneyCommand : ICommand
+    public sealed class InventoryAddMoneyCommand : ICommand
     {
         public InventoryAddMoneyCommand(int changeAmount)
         {

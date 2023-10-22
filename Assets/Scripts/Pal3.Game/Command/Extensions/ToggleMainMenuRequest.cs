@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class ToggleMainMenuRequest: ICommand
+    public sealed class ToggleMainMenuRequest: ICommand
     {
         public ToggleMainMenuRequest() {}
     }

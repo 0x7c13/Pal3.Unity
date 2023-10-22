@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class ActorSetWorldPositionCommand : ICommand
+    public sealed class ActorSetWorldPositionCommand : ICommand
     {
         public ActorSetWorldPositionCommand(int actorId, float xPosition, float zPosition)
         {
@@ -17,8 +17,7 @@ namespace Pal3.Game.Command.Extensions
             ZPosition = zPosition;
         }
 
-        // 角色ID为-1时 (byte值就是255) 表示当前受玩家操作的主角
-        public int ActorId { get; }
+        [SceActorId] public int ActorId { get; set; }
         public float XPosition { get; }
         public float ZPosition { get; }
     }

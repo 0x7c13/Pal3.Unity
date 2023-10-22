@@ -250,7 +250,7 @@ namespace Pal3.Game.Actor.Controllers
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
 
             var waiter = new WaitUntilCanceled();
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScriptRunnerAddWaiterRequest(waiter));
+            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
             var sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
@@ -266,7 +266,7 @@ namespace Pal3.Game.Actor.Controllers
             var emojiSfx = ActorEmojiConstants.EmojiSfxInfo[emojiType];
             if (!string.IsNullOrEmpty(emojiSfx))
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new PlaySfxCommand(emojiSfx, 1));
+                Pal3.Instance.Execute(new PlaySfxCommand(emojiSfx, 1));
             }
             #endif
 
@@ -296,8 +296,7 @@ namespace Pal3.Game.Actor.Controllers
                 if (command.LoopCount is > 0 or -2)
                 {
                     waiter = new WaitUntilCanceled();
-                    CommandDispatcher<ICommand>.Instance.Dispatch(
-                        new ScriptRunnerAddWaiterRequest(waiter));
+                    Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 }
                 PerformAction(command.ActionName, true, command.LoopCount, waiter);
             }
@@ -311,8 +310,6 @@ namespace Pal3.Game.Actor.Controllers
 
         public void Execute(ActorEnablePlayerControlCommand command)
         {
-            if (command.ActorId == ActorConstants.PlayerActorVirtualID) return;
-
             _isKinematic = _actor.Id != command.ActorId;
 
             if (_rigidbody != null)

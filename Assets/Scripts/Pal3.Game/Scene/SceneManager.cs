@@ -100,7 +100,7 @@ namespace Pal3.Game.Scene
             ScnFile scnFile = _resourceProvider.GetGameResourceFile<ScnFile>(
                     FileConstants.GetScnFileVirtualPath(sceneCityName, sceneName));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(new ScenePreLoadingNotification(scnFile.SceneInfo));
+            Pal3.Instance.Execute(new ScenePreLoadingNotification(scnFile.SceneInfo));
 
             EngineLogger.Log($"Loading scene: {JsonConvert.SerializeObject(scnFile.SceneInfo)}");
 
@@ -121,7 +121,7 @@ namespace Pal3.Game.Scene
             SceFile sceFile = _resourceProvider.GetGameResourceFile<SceFile>(
                 FileConstants.GetSceneSceFileVirtualPath(sceneCityName));
 
-            CommandDispatcher<ICommand>.Instance.Dispatch(
+            Pal3.Instance.Execute(
                 _scriptManager.TryAddSceneScript(sceFile, $"_{sceneCityName}_{sceneName}", out var sceneScriptId)
                     ? new ScenePostLoadingNotification(scnFile.SceneInfo, sceneScriptId)
                     : new ScenePostLoadingNotification(scnFile.SceneInfo, ScriptConstants.InvalidScriptId));
@@ -242,7 +242,7 @@ namespace Pal3.Game.Scene
 
             if (_currentScene != null)
             {
-                CommandDispatcher<ICommand>.Instance.Dispatch(new SceneLeavingCurrentSceneNotification());
+                Pal3.Instance.Execute(new SceneLeavingCurrentSceneNotification());
                 _currentScene.Destroy();
                 _currentScene = null;
             }

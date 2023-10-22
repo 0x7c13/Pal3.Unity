@@ -7,7 +7,7 @@ namespace Pal3.Core.Command.SceCommands
 {
     [SceCommand(250, "镜头是否锁定并跟随在主角身上，" +
                      "参数：1锁定并跟随，0解锁")]
-    public class CameraFollowPlayerCommand : ICommand
+    public sealed class CameraFollowPlayerCommand : ICommand
     {
         public CameraFollowPlayerCommand(int follow)
         {

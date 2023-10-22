@@ -8,7 +8,7 @@ namespace Pal3.Game.Command.Extensions
     using Core.Command;
 
     [AvailableInConsole]
-    public class PlayerInteractionRequest : ICommand
+    public sealed class PlayerInteractionRequest : ICommand
     {
         public PlayerInteractionRequest() {}
     }

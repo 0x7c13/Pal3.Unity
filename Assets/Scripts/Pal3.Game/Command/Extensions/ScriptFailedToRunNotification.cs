@@ -7,7 +7,7 @@ namespace Pal3.Game.Command.Extensions
 {
     using Core.Command;
 
-    public class ScriptFailedToRunNotification : ICommand
+    public sealed class ScriptFailedToRunNotification : ICommand
     {
         public ScriptFailedToRunNotification(uint scriptId)
         {
