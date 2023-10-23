@@ -199,7 +199,7 @@ namespace Pal3.Core.FileSystem
         {
             foreach ((string cpkFileName, CpkArchive cpkArchive) in _cpkArchives)
             {
-                var outputDir = outputFolder + cpkFileName + Path.DirectorySeparatorChar;
+                string outputDir = outputFolder + cpkFileName + Path.DirectorySeparatorChar;
 
                 if (!Directory.Exists(outputDir))
                 {

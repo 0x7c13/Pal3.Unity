@@ -413,7 +413,7 @@ namespace Pal3.Game.GamePlay
 
         public void Execute(ScenePostLoadingNotification notification)
         {
-            var playerActorId = (int)_playerActorManager.GetPlayerActor();
+            int playerActorId = _playerActorManager.GetPlayerActorId();
 
             Pal3.Instance.Execute(new ActorActivateCommand(playerActorId, 1));
 

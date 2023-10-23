@@ -192,7 +192,7 @@ namespace Pal3.Core.Algorithm.PathFinding
             }
 
             path.Reverse();
-            return path.ToArray();
+            return path;
         }
 
         private static bool IsPositionInsideGrid(int x, int y, SearchNode[,] nodes)

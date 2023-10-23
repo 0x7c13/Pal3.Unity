@@ -17,10 +17,10 @@ namespace Pal3.Core.Utilities
         public static T IsNotNull<T>([NotNull] T instance, string paramName)
             where T : class
         {
-            if (typeof(T) == typeof(System.Object) ||
-                typeof(T).IsSubclassOf(typeof(System.Object)))
+            if (typeof(T) == typeof(Object) ||
+                typeof(T).IsSubclassOf(typeof(Object)))
             {
-                if (System.Object.ReferenceEquals(null, instance))
+                if (ReferenceEquals(null, instance))
                 {
                     throw new ArgumentNullException(paramName);
                 }

@@ -47,6 +47,7 @@ namespace Pal3.Game.Script
         public PalScriptType ScriptType { get; }
         public string ScriptDescription { get; }
 
+        private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
         private readonly UserVariableManager _userVariableManager;
 
@@ -67,6 +68,7 @@ namespace Pal3.Game.Script
             PalScriptType scriptType,
             uint scriptId,
             UserVariableManager userVariableManager,
+            ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
         {
             if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
@@ -82,6 +84,7 @@ namespace Pal3.Game.Script
                 sceScriptBlock,
                 sceFile.Codepage,
                 userVariableManager,
+                sceCommandParser,
                 scriptPatcher);
         }
 
@@ -90,6 +93,7 @@ namespace Pal3.Game.Script
             SceScriptBlock scriptBlock,
             int codepage,
             UserVariableManager userVariableManager,
+            ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher,
             ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
         {
@@ -99,6 +103,7 @@ namespace Pal3.Game.Script
 
             _userVariableManager = userVariableManager;
             _codepage = codepage;
+            _sceCommandParser = sceCommandParser;
             _scriptPatcher = scriptPatcher;
             _executionMode = executionMode;
 
@@ -161,7 +166,7 @@ namespace Pal3.Game.Script
         {
             long cmdPosition = _scriptDataReader.Position;
 
-            ICommand command = SceCommandParser.ParseSceCommand(_scriptDataReader,
+            ICommand command = _sceCommandParser.ParseNextCommand(_scriptDataReader,
                 _codepage,
                 out ushort commandId);
 

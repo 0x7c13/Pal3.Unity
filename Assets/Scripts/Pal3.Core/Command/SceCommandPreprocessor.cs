@@ -3,32 +3,24 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Game.Command
+namespace Pal3.Core.Command
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using Core.Command;
-    using Core.Contract.Constants;
-    using Core.Utilities;
-    using GamePlay;
+    using Contract.Constants;
 
-    public sealed class CommandPreprocessor
+    public sealed class SceCommandPreprocessor : ISceCommandPreprocessor
     {
-        private readonly PlayerActorManager _playerActorManager;
-
+        private bool _isInitialized = false;
         private readonly Dictionary<Type, PropertyInfo[]> _sceCommandToActorIdPropertiesCache = new();
 
-        public CommandPreprocessor(PlayerActorManager playerActorManager)
+        public void Init()
         {
-            _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
-            BuildTypeCache();
-        }
+            if (_isInitialized) return;
 
-        private void BuildTypeCache()
-        {
             IEnumerable<Type> commandTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
@@ -65,19 +57,29 @@ namespace Pal3.Game.Command
 
                 _sceCommandToActorIdPropertiesCache[commandType] = actorIdProperties;
             }
+
+            _isInitialized = true;
         }
 
-        public void Process(ref ICommand command)
+        public void Process(ICommand command, int currentPlayerActorId)
         {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException(
+                    $"[{nameof(SceCommandPreprocessor)}] is not initialized. " +
+                    $"Please call [{nameof(Init)}] before using it.");
+            }
+
             Type commandType = command.GetType();
 
             if (_sceCommandToActorIdPropertiesCache.TryGetValue(commandType, out PropertyInfo[] actorIdProperties))
             {
                 foreach (PropertyInfo actorIdProperty in actorIdProperties)
                 {
+                    // Set actorIdProperty to current player actor id if it is PlayerActorVirtualID (-1)
                     if (actorIdProperty.GetValue(command) is ActorConstants.PlayerActorVirtualID)
                     {
-                        actorIdProperty.SetValue(command, (int)_playerActorManager.GetPlayerActor());
+                        actorIdProperty.SetValue(command, currentPlayerActorId);
                     }
                 }
             }

@@ -14,6 +14,7 @@ namespace Pal3.Game
     using System.Reflection;
     using System.Threading;
     using Constants;
+    using Core.Command;
     using Core.Contract.Constants;
     using Core.DataReader;
     using Core.DataReader.Cpk;
@@ -27,6 +28,7 @@ namespace Pal3.Game
     using Engine.Services;
     using Engine.Utilities;
     using Rendering.Material;
+    using Scene;
     using Settings;
     using SimpleFileBrowser;
     using TMPro;
@@ -207,6 +209,23 @@ namespace Pal3.Game
             {
                 unlitMaterialFactory.AllocateMaterialPool();
             }
+
+            // Init command related services
+            SceCommandTypeResolver sceCommandTypeResolver = new SceCommandTypeResolver();
+            sceCommandTypeResolver.Init();
+            ServiceLocator.Instance.Register<ISceCommandTypeResolver>(sceCommandTypeResolver);
+
+            SceCommandParser sceCommandParser = new SceCommandParser(sceCommandTypeResolver);
+            ServiceLocator.Instance.Register<ISceCommandParser>(sceCommandParser);
+
+            SceCommandPreprocessor sceCommandPreprocessor = new SceCommandPreprocessor();
+            sceCommandPreprocessor.Init();
+            ServiceLocator.Instance.Register<ISceCommandPreprocessor>(sceCommandPreprocessor);
+
+            // Init scene object factory
+            SceneObjectFactory sceneObjectFactory = new SceneObjectFactory();
+            sceneObjectFactory.Init();
+            ServiceLocator.Instance.Register<ISceneObjectFactory>(sceneObjectFactory);
 
             // Init Game resource provider
             GameResourceProvider resourceProvider = new GameResourceProvider(cpkFileSystem,

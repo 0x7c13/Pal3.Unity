@@ -11,12 +11,12 @@ namespace Pal3.Core.Command
     using System.Reflection;
     using System.Runtime.Serialization;
 
-    public static class SceCommandTypeResolver
+    public sealed class SceCommandTypeResolver : ISceCommandTypeResolver
     {
         private static bool _isInitialized;
         private static readonly Dictionary<uint, Type> SceCommandTypeCache = new ();
 
-        private static void Init()
+        public void Init()
         {
             if (_isInitialized) return;
 
@@ -78,12 +78,16 @@ namespace Pal3.Core.Command
         /// <param name="commandId">SceCommand Id</param>
         /// <param name="userVariableMask">User variable mask</param>
         /// <returns>Type of the command, null if not found</returns>
-        public static Type GetType(ushort commandId, ushort userVariableMask)
+        public Type GetType(ushort commandId, ushort userVariableMask)
         {
-            if (!_isInitialized) Init();
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException(
+                    $"[{nameof(SceCommandTypeResolver)}] is not initialized, " +
+                    $"call [{nameof(Init)}] first");
+            }
 
             uint hashCode = GetHashCode(commandId, userVariableMask);
-
             return SceCommandTypeCache.TryGetValue(hashCode, out Type type) ? type : null; // not found
         }
     }

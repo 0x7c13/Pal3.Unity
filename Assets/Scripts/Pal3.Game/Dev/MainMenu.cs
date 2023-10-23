@@ -195,11 +195,9 @@ namespace Pal3.Game.Dev
         private IEnumerator StartCameraOrbitAnimationAsync(CancellationToken cancellationToken)
         {
             #if PAL3
-            Pal3.Instance.Execute(
-                new CameraSetFieldOfViewCommand(14f));
+            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(14f));
             #elif PAL3A
-            Pal3.Instance.Execute(
-                new CameraSetFieldOfViewCommand(16f));
+            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(16f));
             #endif
 
             yield return CoroutineYieldInstruction.WaitUntil(() => _deferredExecutionCommands.Count == 0);
@@ -215,20 +213,20 @@ namespace Pal3.Game.Dev
             while (_isInInitView && !cancellationToken.IsCancellationRequested)
             {
                 #if PAL3
-                Pal3.Instance.Execute(
-                    new CameraOrbitHorizontalCommand(-46.67f, -30.73f, 688.0f, animationDuration, 1, 0));
+                Pal3.Instance.Execute(new CameraOrbitHorizontalCommand(
+                    -46.67f, -30.73f, 688.0f, animationDuration, 1, 0));
                 #elif PAL3A
-                Pal3.Instance.Execute(
-                    new CameraOrbitHorizontalCommand(-39.99f, -27.73f, 688.0f, animationDuration, 1, 0));
+                Pal3.Instance.Execute(new CameraOrbitHorizontalCommand(
+                    -39.99f, -27.73f, 688.0f, animationDuration, 1, 0));
                 #endif
                 yield return waitDuration;
                 if (!_isInInitView || cancellationToken.IsCancellationRequested) { yield break; }
                 #if PAL3
-                Pal3.Instance.Execute(
-                    new CameraOrbitHorizontalCommand(-33.24f, -19.48f, 688.0f, animationDuration, 1, 0));
+                Pal3.Instance.Execute(new CameraOrbitHorizontalCommand(
+                    -33.24f, -19.48f, 688.0f, animationDuration, 1, 0));
                 #elif PAL3A
-                Pal3.Instance.Execute(
-                    new CameraOrbitHorizontalCommand(-21.69f, -22.48f, 688.0f, animationDuration, 1, 0));
+                Pal3.Instance.Execute(new CameraOrbitHorizontalCommand(
+                    -21.69f, -22.48f, 688.0f, animationDuration, 1, 0));
                 #endif
                 yield return waitDuration;
             }
@@ -237,8 +235,7 @@ namespace Pal3.Game.Dev
         public void ShowMenu()
         {
             _gameStateManager.TryGoToState(GameState.UI);
-            Pal3.Instance.Execute(
-                new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
+            Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
             SetupMainMenuButtons();
 
             _mainMenuCanvasGroup.alpha = 1f;

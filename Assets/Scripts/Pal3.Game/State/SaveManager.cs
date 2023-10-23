@@ -169,7 +169,7 @@ namespace Pal3.Game.State
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
 
             var playerActorMovementController = currentScene
-                .GetActorGameEntity((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameEntity(_playerActorManager.GetPlayerActorId()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
@@ -193,7 +193,7 @@ namespace Pal3.Game.State
             commands.AddRange(variables.Select(var =>
                 new ScriptVarSetValueCommand(var.Key, var.Value)));
 
-            var currentPlayerActorId = (int)_playerActorManager.GetPlayerActor();
+            int currentPlayerActorId = _playerActorManager.GetPlayerActorId();
 
             // Save current playing script music (if any)
             var currentScriptMusic = _audioManager.GetCurrentScriptMusic();

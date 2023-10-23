@@ -19,6 +19,7 @@ namespace Pal3.Game.Scene
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
+    using Engine.Logging;
     using SceneObjects;
     using State;
 
@@ -49,14 +50,17 @@ namespace Pal3.Game.Scene
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
 
         private GameResourceProvider _resourceProvider;
+        private ISceneObjectFactory _sceneObjectFactory;
         private SceneStateManager _sceneStateManager;
 
         protected void Init(GameResourceProvider resourceProvider,
             ScnFile scnFile,
+            ISceneObjectFactory sceneObjectFactory,
             SceneStateManager sceneStateManager,
             HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
+            _sceneObjectFactory = sceneObjectFactory;
             _sceneStateManager = sceneStateManager;
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
 
@@ -158,9 +162,14 @@ namespace Pal3.Game.Scene
                     objectInfo = state.ApplyOverrides(objectInfo);
                 }
 
-                if (SceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)
+                if (_sceneObjectFactory.Create(objectInfo, ScnFile.SceneInfo) is { } sceneObject)
                 {
                     SceneObjects[objectInfo.Id] = sceneObject;
+                }
+                else
+                {
+                    EngineLogger.LogError($"Scene object type: {objectInfo.Type} is not " +
+                                          $"supported or implemented.");
                 }
             }
         }

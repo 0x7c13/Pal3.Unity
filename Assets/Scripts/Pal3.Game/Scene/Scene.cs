@@ -68,6 +68,7 @@ namespace Pal3.Game.Scene
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
 
         private GameResourceProvider _resourceProvider;
+        private ISceneObjectFactory _sceneObjectFactory;
         private SceneStateManager _sceneStateManager;
         private bool _isLightingEnabled;
         private IGameEntity _cameraEntity;
@@ -110,12 +111,14 @@ namespace Pal3.Game.Scene
         }
 
         public void Init(GameResourceProvider resourceProvider,
+            ISceneObjectFactory sceneObjectFactory,
             SceneStateManager sceneStateManager,
             bool isLightingEnabled,
             IGameEntity cameraEntity,
             HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
+            _sceneObjectFactory = sceneObjectFactory;
             _sceneStateManager = sceneStateManager;
             _isLightingEnabled = isLightingEnabled;
             _cameraEntity = cameraEntity;
@@ -133,6 +136,7 @@ namespace Pal3.Game.Scene
 
             base.Init(_resourceProvider,
                 scnFile,
+                _sceneObjectFactory,
                 _sceneStateManager,
                 _sceneObjectIdsToNotLoadFromSaveState);
 

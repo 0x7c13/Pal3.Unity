@@ -11,7 +11,7 @@ namespace Pal3.Game.GamePlay
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
-
+    using Engine.Logging;
     using Vector2Int = UnityEngine.Vector2Int;
     using Vector3 = UnityEngine.Vector3;
 
@@ -22,9 +22,12 @@ namespace Pal3.Game.GamePlay
         ICommandExecutor<ResetGameStateCommand>
     {
         private PlayerActorId _playerActor = 0;
+
+        // Control state
         private bool _playerActorControlEnabled = true;
         private bool _playerInputEnabled;
 
+        // Position state
         public Vector3? LastKnownPosition { get; set; }
         public Vector2Int? LastKnownTilePosition { get; set; }
         public int? LastKnownLayerIndex { get; set; }
@@ -39,9 +42,9 @@ namespace Pal3.Game.GamePlay
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public PlayerActorId GetPlayerActor()
+        public int GetPlayerActorId()
         {
-            return _playerActor;
+            return (int)_playerActor;
         }
 
         public bool IsPlayerActorControlEnabled()
@@ -71,6 +74,7 @@ namespace Pal3.Game.GamePlay
         public void Execute(ResetGameStateCommand command)
         {
             _playerActor = 0;
+
             _playerActorControlEnabled = true;
             _playerInputEnabled = false;
 
@@ -85,6 +89,10 @@ namespace Pal3.Game.GamePlay
             {
                 _playerActor = (PlayerActorId)command.ActorId;
                 _playerActorControlEnabled = true;
+            }
+            else
+            {
+                EngineLogger.LogWarning($"Cannot set actor [{command.ActorId}] as player actor");
             }
         }
     }

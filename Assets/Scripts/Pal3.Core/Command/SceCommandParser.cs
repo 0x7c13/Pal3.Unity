@@ -10,13 +10,21 @@ namespace Pal3.Core.Command
     using System.Reflection;
     using Contract.Constants;
     using DataReader;
+    using Utilities;
 
     /// <summary>
     /// Parser logic for parsing SceCommand in .sce script data block.
     /// </summary>
-    public static class SceCommandParser
+    public sealed class SceCommandParser : ISceCommandParser
     {
-        public static ICommand ParseSceCommand(IBinaryReader reader,
+        private readonly ISceCommandTypeResolver _sceCommandTypeResolver;
+
+        public SceCommandParser(ISceCommandTypeResolver sceCommandTypeResolver)
+        {
+            _sceCommandTypeResolver = Requires.IsNotNull(sceCommandTypeResolver, nameof(sceCommandTypeResolver));
+        }
+
+        public ICommand ParseNextCommand(IBinaryReader reader,
             int codepage,
             out ushort commandId)
         {
@@ -28,7 +36,7 @@ namespace Pal3.Core.Command
                 throw new InvalidDataException($"Command Id is invalid: {commandId}");
             }
 
-            Type commandType = SceCommandTypeResolver.GetType(commandId, userVariableMask);
+            Type commandType = _sceCommandTypeResolver.GetType(commandId, userVariableMask);
 
             if (commandType == null)
             {

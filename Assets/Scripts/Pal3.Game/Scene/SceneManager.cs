@@ -34,6 +34,7 @@ namespace Pal3.Game.Scene
         ICommandExecutor<ResetGameStateCommand>
     {
         private readonly GameResourceProvider _resourceProvider;
+        private readonly ISceneObjectFactory _sceneObjectFactory;
         private readonly SceneStateManager _sceneStateManager;
         private readonly ScriptManager _scriptManager;
         private readonly GameSettings _gameSettings;
@@ -48,12 +49,14 @@ namespace Pal3.Game.Scene
         private readonly HashSet<int> _sceneObjectIdsToNotLoadFromSaveState = new ();
 
         public SceneManager(GameResourceProvider resourceProvider,
+            ISceneObjectFactory sceneObjectFactory,
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
             GameSettings gameSettings,
             IGameEntity cameraEntity)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _sceneObjectFactory = Requires.IsNotNull(sceneObjectFactory, nameof(sceneObjectFactory));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
@@ -108,6 +111,7 @@ namespace Pal3.Game.Scene
                 null, worldPositionStays: false);
             _currentScene = _currentSceneRoot.AddComponent<Scene>();
             _currentScene.Init(_resourceProvider,
+                _sceneObjectFactory,
                 _sceneStateManager,
                 _gameSettings.IsRealtimeLightingAndShadowsEnabled,
                 _cameraEntity,

@@ -65,6 +65,7 @@ namespace Pal3.ResourceViewer
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _resourceProvider;
         private GameSettings _gameSettings;
+        private ISceCommandParser _sceCommandParser;
 
         private IList<string> _polFiles;
         private IList<string> _cvdFiles;
@@ -88,6 +89,7 @@ namespace Pal3.ResourceViewer
 
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
             _resourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
+            _sceCommandParser = ServiceLocator.Instance.Get<ISceCommandParser>();
 
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
@@ -628,7 +630,7 @@ namespace Pal3.ResourceViewer
                 {
                     var currentPosition = scriptDataReader.BaseStream.Position;
 
-                    ICommand command = SceCommandParser.ParseSceCommand(scriptDataReader,
+                    ICommand command = _sceCommandParser.ParseNextCommand(scriptDataReader,
                         _codePage,
                         out _);
 

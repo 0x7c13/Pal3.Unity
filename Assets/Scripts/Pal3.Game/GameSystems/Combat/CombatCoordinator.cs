@@ -165,8 +165,8 @@ namespace Pal3.Game.GameSystems.Combat
 
             var floorType = FloorType.Default;
 
-            PlayerActorId actorId = _playerActorManager.GetPlayerActor();
-            IGameEntity playerActorEntity = currentScene.GetActorGameEntity((int) actorId);
+            int actorId = _playerActorManager.GetPlayerActorId();
+            IGameEntity playerActorEntity = currentScene.GetActorGameEntity(actorId);
             var playerActorMovementController = playerActorEntity.GetComponent<ActorMovementController>();
             Vector2Int playerActorTilePosition = playerActorMovementController.GetTilePosition();
             int playerActorLayerIndex = playerActorMovementController.GetCurrentLayerIndex();

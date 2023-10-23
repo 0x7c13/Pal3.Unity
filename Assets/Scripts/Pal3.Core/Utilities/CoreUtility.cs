@@ -15,7 +15,7 @@ namespace Pal3.Core.Utilities
     {
         public static T ReadStruct<T>(Stream stream) where T : struct
         {
-            var structSize = Marshal.SizeOf(typeof(T));
+            int structSize = Marshal.SizeOf(typeof(T));
             byte[] buffer = new byte[structSize];
             _ = stream.Read(buffer);
             return ReadStructInternal<T>(buffer);

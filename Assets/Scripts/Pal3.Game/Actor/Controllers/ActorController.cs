@@ -165,8 +165,8 @@ namespace Pal3.Game.Actor.Controllers
             if (_actor.Info.Type == ActorType.CombatNpc &&
                 (_actor.Info.MonsterIds[0] != 0 || _actor.Info.MonsterIds[1] != 0 || _actor.Info.MonsterIds[2] != 0) &&
                 otherGameEntity.GetComponent<ActorController>() is {} actorController &&
-                (int) ServiceLocator.Instance.Get<PlayerActorManager>()
-                    .GetPlayerActor() == actorController.GetActor().Id)
+                ServiceLocator.Instance.Get<PlayerActorManager>()
+                    .GetPlayerActorId() == actorController.GetActor().Id)
             {
                 Pal3.Instance.Execute(new CombatActorCollideWithPlayerActorNotification(
                         _actor.Id, actorController.GetActor().Id));

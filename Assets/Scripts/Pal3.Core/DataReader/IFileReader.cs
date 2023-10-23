@@ -14,9 +14,9 @@ namespace Pal3.Core.DataReader
     /// <typeparam name="T">File type</typeparam>
     public interface IFileReader<out T>
     {
-        T Read(IBinaryReader reader, int codepage);
+        public T Read(IBinaryReader reader, int codepage);
 
-        T Read(byte[] data, int codepage)
+        public T Read(byte[] data, int codepage)
         {
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
@@ -29,7 +29,7 @@ namespace Pal3.Core.DataReader
             return Read(reader, codepage);
         }
 
-        T Read(Stream stream, int codepage)
+        public T Read(Stream stream, int codepage)
         {
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader

@@ -24,15 +24,15 @@ namespace Pal3.Core.DataReader.Cpk
         {
             if (_initialized) return;
 
-            // generate the table of CRC remainders for all possible bytes
+            // Generate the table of CRC remainders for all possible bytes
             for (uint i = 0; i <= CRC_TABLE_MAX; i++)
             {
-                var crcAccum = i << 24;
+                uint crcAccum = i << 24;
                 for (var j = 0; j < 8; j++)
                 {
                     crcAccum = (crcAccum & 0x80000000L) != 0 ?
                         (crcAccum << 1) ^ POLYNOMIAL :
-                        crcAccum << 1;
+                        (crcAccum << 1);
                 }
                 CrcTable[i] = crcAccum;
             }

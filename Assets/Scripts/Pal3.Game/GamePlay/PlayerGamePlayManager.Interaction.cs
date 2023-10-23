@@ -117,7 +117,7 @@ namespace Pal3.Game.GamePlay
                 var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
 
                 if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
-                    actorInfo.Key == (int)_playerActorManager.GetPlayerActor() ||
+                    actorInfo.Key == _playerActorManager.GetPlayerActorId() ||
                     !actorController.IsActive) continue;
 
                 Vector3 targetActorCenterPosition = actorActionController.GetRendererBounds().center;

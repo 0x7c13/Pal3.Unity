@@ -166,6 +166,10 @@ namespace Pal3.Core.DataReader.Cpk
         /// <returns>True if file exists</returns>
         public bool FileExists(string fileVirtualPath, out uint filePathCrcHash)
         {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Initialize the archive before accessing its content");
+            }
             filePathCrcHash = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
             return _crcToTableEntityMap.ContainsKey(filePathCrcHash);
         }
@@ -177,6 +181,11 @@ namespace Pal3.Core.DataReader.Cpk
         /// <returns>File content in byte array</returns>
         public byte[] ReadAllBytes(uint fileVirtualPathCrcHash)
         {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Initialize the archive before accessing its content");
+            }
+
             if (!_crcToTableEntityMap.ContainsKey(fileVirtualPathCrcHash))
             {
                 throw new FileNotFoundException(
@@ -247,8 +256,7 @@ namespace Pal3.Core.DataReader.Cpk
         {
             if (!_isInitialized)
             {
-                throw new InvalidOperationException(
-                    "Initialize the archive before accessing its content");
+                throw new InvalidOperationException("Initialize the archive before accessing its content");
             }
 
             return GetChildren(0); // 0 is the CRC of the root directory

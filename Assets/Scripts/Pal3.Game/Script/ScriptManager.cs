@@ -23,6 +23,7 @@ namespace Pal3.Game.Script
         ICommandExecutor<ScriptExecuteCommand>,
         ICommandExecutor<ResetGameStateCommand>
     {
+        private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
         private readonly UserVariableManager _userVariableManager;
 
@@ -38,10 +39,12 @@ namespace Pal3.Game.Script
 
         public ScriptManager(GameResourceProvider resourceProvider,
             UserVariableManager userVariableManager,
+            ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
         {
             resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _sceCommandParser = Requires.IsNotNull(sceCommandParser, nameof(sceCommandParser));
             _scriptPatcher = Requires.IsNotNull(scriptPatcher, nameof(scriptPatcher));
 
             _systemSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath);
@@ -94,19 +97,31 @@ namespace Pal3.Game.Script
             {
                 EngineLogger.Log($"Add WorldMap script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
-                    PalScriptType.WorldMap, scriptId, _userVariableManager, _scriptPatcher);
+                    PalScriptType.WorldMap,
+                    scriptId,
+                    _userVariableManager,
+                    _sceCommandParser,
+                    _scriptPatcher);
             }
             else if (scriptId < ScriptConstants.SystemScriptIdMax)
             {
                 EngineLogger.Log($"Add System script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
-                    PalScriptType.System, scriptId, _userVariableManager, _scriptPatcher);
+                    PalScriptType.System,
+                    scriptId,
+                    _userVariableManager,
+                    _sceCommandParser,
+                    _scriptPatcher);
             }
             else
             {
                 EngineLogger.Log($"Add Scene script id: {scriptId}");
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
-                    PalScriptType.Scene, scriptId, _userVariableManager, _scriptPatcher);
+                    PalScriptType.Scene,
+                    scriptId,
+                    _userVariableManager,
+                    _sceCommandParser,
+                    _scriptPatcher);
             }
 
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;

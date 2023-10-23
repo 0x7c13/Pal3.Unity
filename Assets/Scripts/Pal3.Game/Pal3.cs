@@ -154,8 +154,8 @@ namespace Pal3.Game
         private GameStateManager _gameStateManager;
         private SceneStateManager _sceneStateManager;
         private UserVariableManager _userVariableManager;
-        private CommandPreprocessor _commandPreprocessor;
         private IPalScriptPatcher _scriptPatcher;
+        private ISceCommandPreprocessor _commandPreprocessor;
         private ScriptManager _scriptManager;
         private VideoManager _videoManager;
         private SceneManager _sceneManager;
@@ -206,13 +206,18 @@ namespace Pal3.Game
             EngineLogger.Log("Game setup and initialization started...");
 
             // These are services initialized and registered by the GameResourceInitializer. <see cref="Game"/>
-            _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
+            _gameSettings = Requires.IsNotNull(ServiceLocator.Instance.Get<GameSettings>(), nameof(GameSettings));
             _gameSettings.PropertyChanged += OnGameSettingsChanged;
 
-            _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
-            _gameResourceProvider = ServiceLocator.Instance.Get<GameResourceProvider>();
+            _fileSystem = Requires.IsNotNull(ServiceLocator.Instance.Get<ICpkFileSystem>(), nameof(ICpkFileSystem));
+            _gameResourceProvider = Requires.IsNotNull(ServiceLocator.Instance.Get<GameResourceProvider>(), nameof(GameResourceProvider));
             _gameResourceProvider.UseTextureCache(_textureCache);
-            ITextureFactory textureFactory = ServiceLocator.Instance.Get<ITextureFactory>();
+
+            _commandPreprocessor = Requires.IsNotNull(ServiceLocator.Instance.Get<ISceCommandPreprocessor>(), nameof(ISceCommandPreprocessor));
+
+            ITextureFactory textureFactory = Requires.IsNotNull(ServiceLocator.Instance.Get<ITextureFactory>(), nameof(ITextureFactory));
+            ISceCommandParser sceCommandParser = Requires.IsNotNull(ServiceLocator.Instance.Get<ISceCommandParser>(), nameof(ISceCommandParser));
+            ISceneObjectFactory sceneObjectFactory = Requires.IsNotNull(ServiceLocator.Instance.Get<ISceneObjectFactory>(), nameof(ISceneObjectFactory));
 
             ICommandExecutorRegistry<ICommand> commandExecutorRegistry = CommandExecutorRegistry<ICommand>.Instance;
 
@@ -251,10 +256,6 @@ namespace Pal3.Game
                 new UserVariableManager()
             );
 
-            ServiceLocator.Instance.Register(_commandPreprocessor =
-                new CommandPreprocessor(_playerActorManager)
-            );
-
             ServiceLocator.Instance.Register(_scriptPatcher =
                 new PalScriptPatcher()
             );
@@ -262,6 +263,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register(_scriptManager =
                 new ScriptManager(_gameResourceProvider,
                     _userVariableManager,
+                    sceCommandParser,
                     _scriptPatcher)
             );
 
@@ -274,6 +276,7 @@ namespace Pal3.Game
 
             ServiceLocator.Instance.Register(_sceneManager =
                 new SceneManager(_gameResourceProvider,
+                    sceneObjectFactory,
                     _sceneStateManager,
                     _scriptManager,
                     _gameSettings,
@@ -675,7 +678,7 @@ namespace Pal3.Game
         public void Execute(ICommand command)
         {
             // Preprocess the command
-            _commandPreprocessor.Process(ref command);
+            _commandPreprocessor.Process(command, _playerActorManager.GetPlayerActorId());
 
             // Dispatch and execute the command
             bool success = _commandDispatcher.TryDispatchAndExecute(command);
@@ -746,7 +749,7 @@ namespace Pal3.Game
                         $"{currentSceneInfo.ToString()}\n");
 
             var playerActorMovementController = currentScene
-                .GetActorGameEntity((int) _playerActorManager.GetPlayerActor()).GetComponent<ActorMovementController>();
+                .GetActorGameEntity(_playerActorManager.GetPlayerActorId()).GetComponent<ActorMovementController>();
 
             info.Append($"----- Player info -----\n" +
                         $"Nav layer: {playerActorMovementController.GetCurrentLayerIndex()}\n" +

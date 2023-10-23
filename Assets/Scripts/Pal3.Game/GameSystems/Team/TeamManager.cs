@@ -81,19 +81,15 @@ namespace Pal3.Game.GameSystems.Team
 
         public void Execute(TeamOpenCommand command)
         {
-            PlayerActorId playerActorId = _playerActorManager.GetPlayerActor();
-            IGameEntity playerActor = _sceneManager.GetCurrentScene().GetActorGameEntity((int)playerActorId);
+            int playerActorId = _playerActorManager.GetPlayerActorId();
+            IGameEntity playerActor = _sceneManager.GetCurrentScene().GetActorGameEntity(playerActorId);
             var currentNavLayer = playerActor.GetComponent<ActorMovementController>().GetCurrentLayerIndex();
 
             Tilemap tilemap = _sceneManager.GetCurrentScene().GetTilemap();
 
             var index = 0;
 
-            #if PAL3
-            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.HuaYing))
-            #elif  PAL3A
-            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId && a != PlayerActorId.TaoZi))
-            #endif
+            foreach (PlayerActorId actor in _actorsInTeam.Where(actor => (int)actor != playerActorId))
             {
                 IGameEntity actorEntity = _sceneManager.GetCurrentScene().GetActorGameEntity((int)actor);
                 actorEntity.GetComponent<ActorController>().IsActive = true;
@@ -125,7 +121,7 @@ namespace Pal3.Game.GameSystems.Team
 
         public void Execute(TeamCloseCommand command)
         {
-            PlayerActorId playerActorId = _playerActorManager.GetPlayerActor();
+            int playerActorId = _playerActorManager.GetPlayerActorId();
 
             #if PAL3A
             // Need to add all active player actors into the team within certain radius
@@ -150,7 +146,7 @@ namespace Pal3.Game.GameSystems.Team
             }
             #endif
 
-            foreach (PlayerActorId actor in _actorsInTeam.Where(a => a != playerActorId))
+            foreach (PlayerActorId actor in _actorsInTeam.Where(actor => (int)actor != playerActorId))
             {
                 Pal3.Instance.Execute(new ActorActivateCommand((int)actor, 0));
             }

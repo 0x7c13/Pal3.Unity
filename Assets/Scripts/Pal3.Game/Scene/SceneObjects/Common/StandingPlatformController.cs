@@ -72,7 +72,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         protected override void OnTriggerEnterGameEntity(IGameEntity otherGameEntity)
         {
             if (otherGameEntity.GetComponent<ActorController>() is { } actorController &&
-                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == _playerActorManager.GetPlayerActorId())
             {
                 OnPlayerActorEntered?.Invoke(this, otherGameEntity);
             }
@@ -81,7 +81,7 @@ namespace Pal3.Game.Scene.SceneObjects.Common
         protected override void OnTriggerExitGameEntity(IGameEntity otherGameEntity)
         {
             if (otherGameEntity.GetComponent<ActorController>() is { } actorController &&
-                actorController.GetActor().Id == (int) _playerActorManager.GetPlayerActor())
+                actorController.GetActor().Id == _playerActorManager.GetPlayerActorId())
             {
                 OnPlayerActorExited?.Invoke(this, otherGameEntity);
             }
