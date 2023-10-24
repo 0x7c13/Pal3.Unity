@@ -46,7 +46,7 @@ namespace Pal3.Game.Scene
 
         public Vector3 GetWorldPosition(Vector2Int tilePosition, int layerIndex)
         {
-            var isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
+            bool isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
             NavLayer currentLayer = _navFile.Layers[layerIndex];
             var position = new GameBoxVector3(
                 currentLayer.GameBoxMinWorldPosition.X + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
@@ -152,7 +152,7 @@ namespace Pal3.Game.Scene
                 }
             }
 
-            var path = new List<Vector2Int>();
+            List<Vector2Int> path = new ();
             NavLayer currentLayer = _navFile.Layers[layerIndex];
 
             bool IsObstacle((int x, int y) position)

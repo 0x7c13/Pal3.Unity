@@ -264,15 +264,9 @@ namespace Pal3.Game.Scene
             }
         }
 
-        public void Execute(SceneLoadCommand command)
-        {
-            LoadScene(command.SceneCityName, command.SceneName);
-        }
+        public void Execute(SceneLoadCommand command) => LoadScene(command.SceneCityName, command.SceneName);
 
-        public void Execute(ResetGameStateCommand command)
-        {
-            DisposeCurrentScene();
-        }
+        public void Execute(ResetGameStateCommand command) => DisposeCurrentScene();
 
         public void Execute(SceneObjectDoNotLoadFromSaveStateCommand command)
         {

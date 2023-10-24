@@ -32,6 +32,7 @@ namespace Pal3.Game.Scene
             // Populate SceneObjectTypeCache with all SceneObject types
             foreach (Type objectType in sceneObjectTypes)
             {
+                // One implementation of SceneObject can implement multiple SceneObjectTypes
                 foreach (Attribute attribute in objectType.GetCustomAttributes(typeof(ScnSceneObjectAttribute)))
                 {
                     if (attribute is not ScnSceneObjectAttribute sceneObjectAttribute) continue;

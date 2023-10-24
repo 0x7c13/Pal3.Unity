@@ -214,7 +214,7 @@ namespace Pal3.Core.FileSystem
         {
             foreach (CpkEntry node in nodes)
             {
-                var relativePath = node.VirtualPath.Replace(
+                string relativePath = node.VirtualPath.Replace(
                     CpkConstants.DirectorySeparatorChar, Path.DirectorySeparatorChar);
 
                 if (node.IsDirectory)

@@ -874,10 +874,7 @@ namespace Pal3.Game.Dev
             _informationManager.EnableNoteDisplay(true);
         }
 
-        public void Execute(ToggleMainMenuRequest command)
-        {
-            ToggleMainMenu();
-        }
+        public void Execute(ToggleMainMenuRequest command) => ToggleMainMenu();
 
         public void Execute(GameSwitchToMainMenuCommand command)
         {

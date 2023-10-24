@@ -7,6 +7,7 @@ namespace Pal3.Core.DataReader.Cpk
 {
     using System;
     using System.Buffers;
+    using System.Collections.Generic;
     using System.Text;
 
     /// <summary>
@@ -17,8 +18,10 @@ namespace Pal3.Core.DataReader.Cpk
         private const uint CRC_TABLE_MAX = 0xFF;
         private const uint POLYNOMIAL = 0x04C11DB7; // CRC seed
 
-        private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX + 1];
         private bool _initialized;
+        private static readonly uint[] CrcTable = new uint[CRC_TABLE_MAX + 1];
+
+        private readonly Dictionary<int, Encoding> _encodings = new ();
 
         public void Init()
         {
@@ -46,7 +49,12 @@ namespace Pal3.Core.DataReader.Cpk
 
             if (string.IsNullOrEmpty(str)) return 0;
 
-            Encoding encoding = Encoding.GetEncoding(codepage);
+            if (!_encodings.TryGetValue(codepage, out Encoding encoding))
+            {
+                encoding = Encoding.GetEncoding(codepage);
+                _encodings.Add(codepage, encoding);
+            }
+
             int byteCount = encoding.GetByteCount(str);
 
             byte[] rentedBuffer = null;

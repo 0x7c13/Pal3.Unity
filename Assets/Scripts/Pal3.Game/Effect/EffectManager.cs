@@ -68,16 +68,6 @@ namespace Pal3.Game.Effect
             #endif
         }
 
-        public void Execute(EffectSetPositionCommand command)
-        {
-            _effectPositionCommand = command;
-        }
-
-        public void Execute(EffectAttachToActorCommand command)
-        {
-            _effectPositionCommand = command;
-        }
-
         public void Execute(EffectPlayCommand command)
         {
             if (_effectPositionCommand == null ||
@@ -165,14 +155,12 @@ namespace Pal3.Game.Effect
         }
         #endif
 
-        public void Execute(SceneLeavingCurrentSceneNotification command)
-        {
-            _effectPositionCommand = null;
-        }
+        public void Execute(EffectSetPositionCommand command) => _effectPositionCommand = command;
 
-        public void Execute(ResetGameStateCommand command)
-        {
-            _effectPositionCommand = null;
-        }
+        public void Execute(EffectAttachToActorCommand command) => _effectPositionCommand = command;
+
+        public void Execute(SceneLeavingCurrentSceneNotification command) => _effectPositionCommand = null;
+
+        public void Execute(ResetGameStateCommand command) => _effectPositionCommand = null;
     }
 }

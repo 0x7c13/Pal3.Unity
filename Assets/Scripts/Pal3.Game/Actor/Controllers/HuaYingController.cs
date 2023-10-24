@@ -113,7 +113,7 @@ namespace Pal3.Game.Actor.Controllers
             }
 
             Vector3 myNewPosition = GetTargetStayPosition();
-            var distanceToNewPosition = Vector3.Distance(myNewPosition, Transform.Position);
+            float distanceToNewPosition = Vector3.Distance(myNewPosition, Transform.Position);
 
             if (distanceToNewPosition < float.Epsilon)
             {
@@ -122,7 +122,7 @@ namespace Pal3.Game.Actor.Controllers
             else
             {
                 // Set max distance to follow target if it's too far away
-                var distanceToTarget = Vector3.Distance(myNewPosition, Transform.Position);
+                float distanceToTarget = Vector3.Distance(myNewPosition, Transform.Position);
                 if (distanceToTarget > FOLLOW_TARGET_MAX_DISTANCE)
                 {
                     Transform.Position = (Transform.Position - myNewPosition).normalized * FOLLOW_TARGET_MAX_DISTANCE +
@@ -130,7 +130,7 @@ namespace Pal3.Game.Actor.Controllers
                 }
 
                 // Increase fly speed if the distance is greater than a threshold
-                var flySpeed = distanceToTarget > FOLLOW_TARGET_FLY_SPEED_CHANGE_DISTANCE ? MaxFlySpeed : DefaultFlySpeed;
+                float flySpeed = distanceToTarget > FOLLOW_TARGET_FLY_SPEED_CHANGE_DISTANCE ? MaxFlySpeed : DefaultFlySpeed;
 
                 _actorActionController.PerformAction(
                     Vector3.Distance(myNewPosition, Transform.Position) < FOLLOW_TARGET_FLY_SPEED_CHANGE_DISTANCE - 1f

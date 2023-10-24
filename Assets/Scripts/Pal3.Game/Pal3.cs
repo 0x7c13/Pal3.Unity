@@ -8,7 +8,6 @@ namespace Pal3.Game
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Text;
     using Actor.Controllers;
@@ -207,7 +206,7 @@ namespace Pal3.Game
 
             // These are services initialized and registered by the GameResourceInitializer. <see cref="Game"/>
             _gameSettings = Requires.IsNotNull(ServiceLocator.Instance.Get<GameSettings>(), nameof(GameSettings));
-            _gameSettings.PropertyChanged += OnGameSettingsChanged;
+            _gameSettings.OnGameSettingsChanged += OnGameSettingsChanged;
 
             _fileSystem = Requires.IsNotNull(ServiceLocator.Instance.Get<ICpkFileSystem>(), nameof(ICpkFileSystem));
             _gameResourceProvider = Requires.IsNotNull(ServiceLocator.Instance.Get<GameResourceProvider>(), nameof(GameResourceProvider));
@@ -665,10 +664,10 @@ namespace Pal3.Game
             }
         }
 
-        private void OnGameSettingsChanged(object sender, PropertyChangedEventArgs args)
+        private void OnGameSettingsChanged(string settingName)
         {
             // Broadcast the setting change notification.
-            Execute(new SettingChangedNotification(args.PropertyName));
+            Execute(new SettingChangedNotification(settingName));
         }
 
         /// <summary>
@@ -691,7 +690,7 @@ namespace Pal3.Game
 
         private void OnDisable()
         {
-            _gameSettings.PropertyChanged -= OnGameSettingsChanged;
+            _gameSettings.OnGameSettingsChanged -= OnGameSettingsChanged;
 
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;

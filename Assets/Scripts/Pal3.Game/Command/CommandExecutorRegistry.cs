@@ -43,7 +43,7 @@ namespace Pal3.Game.Command
         /// <inheritdoc />
         public void Register(object executor)
         {
-            var executorTypes = executor.GetType().GetInterfaces()
+            IList<Type> executorTypes = executor.GetType().GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandExecutor<>)).ToList();
 
             if (executorTypes.Count == 0)
@@ -85,7 +85,7 @@ namespace Pal3.Game.Command
         /// <inheritdoc />
         public void UnRegister(object executor)
         {
-            var executorTypes = executor.GetType().GetInterfaces()
+            IList<Type> executorTypes = executor.GetType().GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandExecutor<>)).ToList();
 
             if (executorTypes.Count == 0)
@@ -115,9 +115,9 @@ namespace Pal3.Game.Command
 
             if (!_executors.ContainsKey(handlerType)) yield break;
 
-            foreach (var executor in _executors[handlerType])
+            foreach (ICommandExecutor<T> executor in _executors[handlerType])
             {
-                yield return executor as ICommandExecutor<T>;
+                yield return executor;
             }
         }
 
@@ -126,7 +126,7 @@ namespace Pal3.Game.Command
         {
             if (!_executors.ContainsKey(type)) yield break;
 
-            foreach (var executor in _executors[type])
+            foreach (object executor in _executors[type])
             {
                 yield return executor;
             }

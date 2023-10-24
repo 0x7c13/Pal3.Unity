@@ -7,6 +7,7 @@ namespace Pal3.Game.Settings
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Reflection;
     using System.Text;
@@ -18,8 +19,10 @@ namespace Pal3.Game.Settings
     using UnityEngine;
     using UnityEngine.Rendering;
 
-    public sealed class GameSettings : SettingsBase
+    public sealed class GameSettings : SettingsBase, IDisposable
     {
+        public event Action<string> OnGameSettingsChanged;
+
         public bool IsOpenSourceVersion { get; }
 
         public GameSettings(ITransactionalKeyValueStore settingsStore, bool isOpenSourceVersion) : base(settingsStore)
@@ -63,6 +66,18 @@ namespace Pal3.Game.Settings
                 "重置所有设置", ResetSettings);
             DebugLogConsole.AddCommand("Settings.Print",
                 "打印所有设置", PrintCurrentSettings);
+
+            PropertyChanged += OnPropertyChanged;
+        }
+
+        public void Dispose()
+        {
+            PropertyChanged -= OnPropertyChanged;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            OnGameSettingsChanged?.Invoke(args.PropertyName);
         }
 
         private void InitDefaultSettings()
