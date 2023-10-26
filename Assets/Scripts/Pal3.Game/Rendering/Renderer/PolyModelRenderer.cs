@@ -119,7 +119,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (PolTexture texture in mesh.Textures)
                 {
-                    foreach (var textureName in texture.Material.TextureFileNames)
+                    foreach (string textureName in texture.Material.TextureFileNames)
                     {
                         if (string.IsNullOrEmpty(textureName)) continue;
                         if (textureCache.ContainsKey(textureName)) continue;
@@ -154,7 +154,7 @@ namespace Pal3.Game.Rendering.Renderer
             for (var i = 0; i < mesh.Textures.Length; i++)
             {
                 var textures = new List<(string name, ITexture2D texture)>();
-                foreach (var textureName in mesh.Textures[i].Material.TextureFileNames)
+                foreach (string textureName in mesh.Textures[i].Material.TextureFileNames)
                 {
                     if (string.IsNullOrEmpty(textureName))
                     {

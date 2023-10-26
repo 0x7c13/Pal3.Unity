@@ -19,15 +19,15 @@ namespace Pal3.Game.GameSystems.Rest
     public sealed class HotelManager : IDisposable,
         ICommandExecutor<UIShowHotelMenuCommand>
     {
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
         private readonly ScriptManager _scriptManager;
         private readonly SceneManager _sceneManager;
 
-        public HotelManager(UserVariableManager userVariableManager,
+        public HotelManager(IUserVariableStore<ushort, int> userVariableStore,
             ScriptManager scriptManager,
             SceneManager sceneManager)
         {
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -50,15 +50,15 @@ namespace Pal3.Game.GameSystems.Rest
         {
             #if PAL3
             if (command.HotelScriptName.Equals("DealScript\\rest\\q01rest.txt", StringComparison.OrdinalIgnoreCase) &&
-                _userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 11101)
+                _userVariableStore.Get(ScriptConstants.MainStoryVariableId) == 11101)
             {
-                _userVariableManager.SetVariableValue(ScriptConstants.MainStoryVariableId, 11200);
+                _userVariableStore.Set(ScriptConstants.MainStoryVariableId, 11200);
                 Rest("Q01", "xn01", (uint)command.AfterRestScriptId);
             }
             else if (command.HotelScriptName.Equals("DealScript\\rest\\q13rest.txt", StringComparison.OrdinalIgnoreCase) &&
-                     _userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 120301)
+                     _userVariableStore.Get(ScriptConstants.MainStoryVariableId) == 120301)
             {
-                _userVariableManager.SetVariableValue(ScriptConstants.MainStoryVariableId, 120302);
+                _userVariableStore.Set(ScriptConstants.MainStoryVariableId, 120302);
                 Rest("Q13", "n06", (uint)command.AfterRestScriptId);
                 Pal3.Instance.Execute(new CameraSetDefaultTransformCommand(2));
             }
@@ -69,7 +69,7 @@ namespace Pal3.Game.GameSystems.Rest
             }
             #elif PAL3A
             if (command.HotelScriptName.Equals("DealScript\\rest\\q10rest.txt", StringComparison.OrdinalIgnoreCase) &&
-                _userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 140300)
+                _userVariableStore.Get(ScriptConstants.MainStoryVariableId) == 140300)
             {
                 Rest("q10", "n02y", 2007);
             }

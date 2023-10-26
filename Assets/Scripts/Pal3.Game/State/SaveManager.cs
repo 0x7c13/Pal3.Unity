@@ -65,7 +65,7 @@ namespace Pal3.Game.State
         private readonly InventoryManager _inventoryManager;
         private readonly SceneStateManager _sceneStateManager;
         private readonly WorldMapManager _worldMapManager;
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
         private readonly ScriptManager _scriptManager;
         private readonly FavorManager _favorManager;
         #if PAL3A
@@ -83,7 +83,7 @@ namespace Pal3.Game.State
             InventoryManager inventoryManager,
             SceneStateManager sceneStateManager,
             WorldMapManager worldMapManager,
-            UserVariableManager userVariableManager,
+            IUserVariableStore<ushort, int> userVariableStore,
             ScriptManager scriptManager,
             FavorManager favorManager,
             #if PAL3A
@@ -99,7 +99,7 @@ namespace Pal3.Game.State
             _inventoryManager = Requires.IsNotNull(inventoryManager, nameof(inventoryManager));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
             _worldMapManager = Requires.IsNotNull(worldMapManager, nameof(worldMapManager));
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _favorManager = Requires.IsNotNull(favorManager, nameof(favorManager));
             #if PAL3A
@@ -173,13 +173,17 @@ namespace Pal3.Game.State
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
 
-            Dictionary<ushort, int> variables = _userVariableManager.GetGlobalVariables();
+            IDictionary<ushort, int> variables;
             if (saveLevel == SaveLevel.Minimal)
             {
-                variables = new Dictionary<ushort, int>()
-                {
-                    { ScriptConstants.MainStoryVariableId, variables[ScriptConstants.MainStoryVariableId] }
-                }; // Save main story var only
+                variables = new Dictionary<ushort, int>();
+                // Save main story var only
+                variables[ScriptConstants.MainStoryVariableId] =
+                    _userVariableStore.Get(ScriptConstants.MainStoryVariableId);
+            }
+            else
+            {
+                variables = new Dictionary<ushort, int>(_userVariableStore);
             }
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();

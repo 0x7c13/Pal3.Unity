@@ -18,14 +18,14 @@ namespace Pal3.Game.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly ITextureFactory _textureFactory;
-        private readonly TextureCache _textureCache;
+        private readonly ITextureCache _textureCache;
         private readonly string _relativeDirectoryPath;
 
         public TextureProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
             string relativeDirectoryPath,
-            TextureCache textureCache = null)
+            ITextureCache textureCache = null)
         {
             if (!relativeDirectoryPath.EndsWith(CpkConstants.DirectorySeparatorChar))
             {
@@ -44,7 +44,7 @@ namespace Pal3.Game.Data
         {
             if (_textureCache != null)
             {
-                return _textureCache.TryGetTextureFromCache(textureFullPath, out texture);
+                return _textureCache.TryGet(textureFullPath, out texture);
             }
 
             texture = default;

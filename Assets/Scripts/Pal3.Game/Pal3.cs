@@ -138,7 +138,7 @@ namespace Pal3.Game
         [SerializeField] private Image logoImage;
 
         // Global texture cache store
-        private readonly TextureCache _textureCache = new ();
+        private readonly ITextureCache _textureCache = new TextureCache();
 
         // Core game systems and components
         private CommandDispatcher<ICommand> _commandDispatcher;
@@ -251,7 +251,7 @@ namespace Pal3.Game
                 new PlayerActorManager()
             );
 
-            ServiceLocator.Instance.Register(_userVariableManager =
+            ServiceLocator.Instance.Register<IUserVariableStore<ushort, int>>(_userVariableManager =
                 new UserVariableManager()
             );
 
@@ -520,8 +520,6 @@ namespace Pal3.Game
 
             DebugLogConsole.AddCommand("state", "Get current game state in commands form.", PrintCurrentGameStateInCommandsForm);
             DebugLogConsole.AddCommand("info", "Get current game info.", PrintCurrentGameInfo);
-            DebugLogConsole.AddCommand<int>("fps", "Set target FPS.", SetTargetFps);
-            DebugLogConsole.AddCommand<float>("fov", "Set camera FOV.", SetCameraFov);
 
             DisableInGameDebugConsoleButtonNavigation();
 
@@ -682,6 +680,8 @@ namespace Pal3.Game
             // Dispatch and execute the command
             bool success = _commandDispatcher.TryDispatchAndExecute(command);
 
+            // Just a reminder for not implemented sce commands
+            // TODO: remove this after all sce commands are implemented
             if (!success && Attribute.GetCustomAttribute(command.GetType(), typeof(SceCommandAttribute)) != null)
             {
                 EngineLogger.LogWarning($"No command executor found for sce command: {command.GetType().Name}");
@@ -731,8 +731,8 @@ namespace Pal3.Game
 
         private void PrintCurrentGameStateInCommandsForm()
         {
-            var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Minimal);
-            var state = commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+            IList<ICommand> commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Minimal);
+            string state = commands == null ? null : string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
             EngineLogger.Log(state + '\n');
         }
 
@@ -757,23 +757,12 @@ namespace Pal3.Game
             info.Append("----- Team info -----\n" +
                         $"Actors in team: {string.Join(", ", _teamManager.GetActorsInTeam().Select(_ => _.ToString()))}\n");
 
-            info.Append(_userVariableManager.GetGlobalVariables()
-                .Aggregate("----- Global Variables info -----\n",
+            info.Append(_userVariableManager.Aggregate("----- Variables info -----\n",
                     (current, variable) => current + $"{variable.Key}: {variable.Value}\n"));
 
             info.Append(_inventoryManager);
 
             EngineLogger.Log(info.ToString() + '\n');
-        }
-
-        private void SetTargetFps(int targetFps)
-        {
-            Application.targetFrameRate = targetFps;
-        }
-
-        private void SetCameraFov(float fieldOfView)
-        {
-            Execute(new CameraSetFieldOfViewCommand(fieldOfView));
         }
     }
 }

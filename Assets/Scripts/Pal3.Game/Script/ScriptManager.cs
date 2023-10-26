@@ -25,7 +25,7 @@ namespace Pal3.Game.Script
     {
         private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
 
         private readonly SceFile _systemSceFile;
         private readonly SceFile _worldMapSceFile;
@@ -38,12 +38,12 @@ namespace Pal3.Game.Script
         private bool _pendingSceneScriptExecution = false;
 
         public ScriptManager(GameResourceProvider resourceProvider,
-            UserVariableManager userVariableManager,
+            IUserVariableStore<ushort, int> userVariableStore,
             ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
         {
             resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _sceCommandParser = Requires.IsNotNull(sceCommandParser, nameof(sceCommandParser));
             _scriptPatcher = Requires.IsNotNull(scriptPatcher, nameof(scriptPatcher));
 
@@ -99,7 +99,7 @@ namespace Pal3.Game.Script
                 scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
                     PalScriptType.WorldMap,
                     scriptId,
-                    _userVariableManager,
+                    _userVariableStore,
                     _sceCommandParser,
                     _scriptPatcher);
             }
@@ -109,7 +109,7 @@ namespace Pal3.Game.Script
                 scriptRunner = PalScriptRunner.Create(_systemSceFile,
                     PalScriptType.System,
                     scriptId,
-                    _userVariableManager,
+                    _userVariableStore,
                     _sceCommandParser,
                     _scriptPatcher);
             }
@@ -119,7 +119,7 @@ namespace Pal3.Game.Script
                 scriptRunner = PalScriptRunner.Create(_currentSceFile,
                     PalScriptType.Scene,
                     scriptId,
-                    _userVariableManager,
+                    _userVariableStore,
                     _sceCommandParser,
                     _scriptPatcher);
             }

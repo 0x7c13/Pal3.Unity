@@ -59,7 +59,7 @@ namespace Pal3.Game.Data
 
         private readonly GdbFile _gameDatabase;
 
-        private TextureCache _textureCache;
+        private ITextureCache _textureCache;
 
         private readonly Dictionary<string, ISprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
@@ -121,7 +121,7 @@ namespace Pal3.Game.Data
             _gameResourceFileCache.Clear();
         }
 
-        public void UseTextureCache(TextureCache textureCache)
+        public void UseTextureCache(ITextureCache textureCache)
         {
             _textureCache = textureCache;
         }

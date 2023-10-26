@@ -49,7 +49,7 @@ namespace Pal3.Game.Dev
         private readonly InputManager _inputManager;
         private readonly EventSystem _eventSystem;
         private readonly PlayerInputActions _playerInputActions;
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
         private readonly ScriptManager _scriptManager;
         private readonly TeamManager _teamManager;
         private readonly GameStateManager _gameStateManager;
@@ -76,7 +76,7 @@ namespace Pal3.Game.Dev
             InputManager inputManager,
             SceneManager sceneManager,
             GameStateManager gameStateManager,
-            UserVariableManager userVariableManager,
+            IUserVariableStore<ushort, int> userVariableStore,
             ScriptManager scriptManager,
             TeamManager teamManager,
             SaveManager saveManager,
@@ -93,7 +93,7 @@ namespace Pal3.Game.Dev
             _inputManager = Requires.IsNotNull(inputManager, nameof(inputManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _gameStateManager = Requires.IsNotNull(gameStateManager, nameof(gameStateManager));
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
             _teamManager = Requires.IsNotNull(teamManager, nameof(teamManager));
             _saveManager = Requires.IsNotNull(saveManager, nameof(saveManager));
@@ -805,7 +805,7 @@ namespace Pal3.Game.Dev
         private void StartNewGame()
         {
             // Init main story progress
-            _userVariableManager.SetVariableValue(ScriptConstants.MainStoryVariableId, 0);
+            _userVariableStore.Set(ScriptConstants.MainStoryVariableId, 0);
 
             // Add init script
             _scriptManager.AddScript(ScriptConstants.InitScriptId);

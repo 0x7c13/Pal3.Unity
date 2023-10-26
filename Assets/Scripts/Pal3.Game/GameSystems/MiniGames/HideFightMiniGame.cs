@@ -18,11 +18,11 @@ namespace Pal3.Game.GameSystems.MiniGames
     public sealed class HideFightMiniGame : IDisposable,
         ICommandExecutor<MiniGameStartHideFightCommand>
     {
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
 
-        public HideFightMiniGame(UserVariableManager userVariableManager)
+        public HideFightMiniGame(IUserVariableStore<ushort, int> userVariableStore)
         {
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -33,7 +33,7 @@ namespace Pal3.Game.GameSystems.MiniGames
 
         public void Execute(MiniGameStartHideFightCommand command)
         {
-            if (_userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId) == 71000)
+            if (_userVariableStore.Get(ScriptConstants.MainStoryVariableId) == 71000)
             {
                 Pal3.Instance.Execute(new ActorSetTilePositionCommand(ActorConstants.PlayerActorVirtualID, 27, 113));
             }

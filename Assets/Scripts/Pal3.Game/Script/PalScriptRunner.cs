@@ -49,7 +49,7 @@ namespace Pal3.Game.Script
 
         private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
 
         private readonly int _codepage;
         private readonly IBinaryReader _scriptDataReader;
@@ -67,7 +67,7 @@ namespace Pal3.Game.Script
         public static PalScriptRunner Create(SceFile sceFile,
             PalScriptType scriptType,
             uint scriptId,
-            UserVariableManager userVariableManager,
+            IUserVariableStore<ushort, int> userVariableStore,
             ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
         {
@@ -83,7 +83,7 @@ namespace Pal3.Game.Script
                 scriptId,
                 sceScriptBlock,
                 sceFile.Codepage,
-                userVariableManager,
+                userVariableStore,
                 sceCommandParser,
                 scriptPatcher);
         }
@@ -92,7 +92,7 @@ namespace Pal3.Game.Script
             uint scriptId,
             SceScriptBlock scriptBlock,
             int codepage,
-            UserVariableManager userVariableManager,
+            IUserVariableStore<ushort, int> userVariableStore,
             ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher,
             ScriptExecutionMode executionMode = ScriptExecutionMode.Asynchronous)
@@ -101,7 +101,7 @@ namespace Pal3.Game.Script
             ScriptId = scriptId;
             ScriptDescription = scriptBlock.Description;
 
-            _userVariableManager = userVariableManager;
+            _userVariableStore = userVariableStore;
             _codepage = codepage;
             _sceCommandParser = sceCommandParser;
             _scriptPatcher = scriptPatcher;
@@ -203,7 +203,7 @@ namespace Pal3.Game.Script
 
         private int GetVariableValue(ushort variable)
         {
-            return _userVariableManager.GetVariableValue(variable);
+            return _userVariableStore.Get(variable);
         }
 
         ~PalScriptRunner()

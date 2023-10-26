@@ -119,11 +119,11 @@ namespace Pal3.Game.GamePlay
                 }
 
                 Vector3 cameraPosition = _cameraManager.GetCameraTransform().Position;
-                var distanceToCamera = Vector3.Distance(cameraPosition, hitPoint);
+                float distanceToCamera = Vector3.Distance(cameraPosition, hitPoint);
 
                 if (_validTapPoints.ContainsKey(layerIndex))
                 {
-                    var existingDistance = Vector3.Distance(cameraPosition, _validTapPoints[layerIndex].point);
+                    float existingDistance = Vector3.Distance(cameraPosition, _validTapPoints[layerIndex].point);
                     if (distanceToCamera < existingDistance)
                     {
                         _validTapPoints[layerIndex] = (hitPoint, false);

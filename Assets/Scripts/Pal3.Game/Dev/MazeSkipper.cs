@@ -21,7 +21,7 @@ namespace Pal3.Game.Dev
 
     public sealed class MazeSkipper
     {
-        private readonly UserVariableManager _userVariableManager;
+        private readonly IUserVariableStore<ushort, int> _userVariableStore;
         private readonly SceneManager _sceneManager;
 
         #region Maze skipper commands
@@ -890,10 +890,10 @@ namespace Pal3.Game.Dev
         #endif
         #endregion
 
-        public MazeSkipper(UserVariableManager userVariableManager,
+        public MazeSkipper(IUserVariableStore<ushort, int> userVariableStore,
             SceneManager sceneManager)
         {
-            _userVariableManager = Requires.IsNotNull(userVariableManager, nameof(userVariableManager));
+            _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
         }
 
@@ -924,7 +924,7 @@ namespace Pal3.Game.Dev
             // It will check if current main story var is equal to <mainStoryVarValue>, if it does, it will run the commands
             // if no matching pattern found, it will execute the default exit commands (<CityName>_<sceneName>_1)
 
-            int mainStoryVarCurrentValue = _userVariableManager.GetVariableValue(ScriptConstants.MainStoryVariableId);
+            int mainStoryVarCurrentValue = _userVariableStore.Get(ScriptConstants.MainStoryVariableId);
 
             var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentScene.GetSceneInfo());
             foreach (var commandKey in _skipperCommands.Keys.Where(_ =>

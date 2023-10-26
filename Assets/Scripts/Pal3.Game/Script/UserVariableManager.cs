@@ -6,6 +6,7 @@
 namespace Pal3.Game.Script
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Command;
@@ -23,7 +24,7 @@ namespace Pal3.Game.Script
     using Scene;
     using State;
 
-    public sealed class UserVariableManager : IDisposable,
+    public sealed class UserVariableManager : IDisposable, IUserVariableStore<ushort, int>,
         ICommandExecutor<ScriptVarSetValueCommand>,
         ICommandExecutor<ScriptVarSetRandomValueCommand>,
         ICommandExecutor<ScriptVarAddValueCommand>,
@@ -44,6 +45,7 @@ namespace Pal3.Game.Script
         #endif
         ICommandExecutor<ResetGameStateCommand>
     {
+        private const int DEFAULT_VARIABLE_VALUE = 0;
         private readonly Dictionary<ushort, int> _variables = new ();
 
         public UserVariableManager()
@@ -56,42 +58,46 @@ namespace Pal3.Game.Script
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void SetVariableValue(ushort variable, int value)
+        public void Set(ushort variable, int value)
         {
             _variables[variable] = value;
         }
 
-        public int GetVariableValue(ushort variable)
+        public int Get(ushort variable)
         {
-            return _variables.TryGetValue(variable, out int value) ? value : 0;
+            return _variables.TryGetValue(variable, out int value) ? value : DEFAULT_VARIABLE_VALUE;
         }
 
-        public Dictionary<ushort, int> GetGlobalVariables()
+        public IEnumerator<KeyValuePair<ushort, int>> GetEnumerator()
         {
-            return _variables.Where(_ => (_.Key >= ScriptConstants.MainStoryVariableId))
-                .ToDictionary(_ => _.Key, _ => _.Value);
+            return _variables.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _variables.GetEnumerator();
         }
 
         public void Execute(ScriptVarSetValueCommand command)
         {
             EngineLogger.LogWarning($"Set var {command.Variable} with value: {command.Value}");
-            SetVariableValue(command.Variable, command.Value);
+            Set(command.Variable, command.Value);
         }
 
         public void Execute(ScriptVarSetRandomValueCommand command)
         {
-            SetVariableValue(command.Variable, RandomGenerator.Range(0, command.MaxExclusiveValue));
+            Set(command.Variable, RandomGenerator.Range(0, command.MaxExclusiveValue));
         }
 
         public void Execute(ScriptVarAddValueCommand command)
         {
-            SetVariableValue(command.Variable, GetVariableValue(command.Variable) + command.Value);
+            Set(command.Variable, Get(command.Variable) + command.Value);
         }
 
         public void Execute(ScriptVarDistractAnotherVarCommand command)
         {
-            int result = GetVariableValue(command.VariableA) - GetVariableValue(command.VariableB);
-            SetVariableValue(command.VariableA, result >= 0 ? result : -result);
+            int result = Get(command.VariableA) - Get(command.VariableB);
+            Set(command.VariableA, result >= 0 ? result : -result);
         }
 
         #if PAL3
@@ -99,21 +105,21 @@ namespace Pal3.Game.Script
         public void Execute(ScriptVarSetAppraisalsResultCommand command)
         {
             bool result = ServiceLocator.Instance.Get<AppraisalsMiniGame>().GetResult();
-            SetVariableValue(command.Variable, result ? 1: 0);
+            Set(command.Variable, result ? 1: 0);
         }
         #endif
 
         public void Execute(ScriptVarSetDialogueSelectionResultCommand command)
         {
             int selection = ServiceLocator.Instance.Get<DialogueManager>().GetDialogueSelectionButtonIndex();
-            SetVariableValue(command.Variable, selection);
+            Set(command.Variable, selection);
         }
 
         public void Execute(ScriptVarSetLimitTimeDialogueSelectionResultCommand command)
         {
             DialogueManager dialogueManager = ServiceLocator.Instance.Get<DialogueManager>();
             bool playerReactedInTime = dialogueManager.PlayerReactedInTimeForLimitTimeDialogue();
-            SetVariableValue(command.Variable, playerReactedInTime ? 1 : 0);
+            Set(command.Variable, playerReactedInTime ? 1 : 0);
         }
 
         public void Execute(ScriptVarSetMazeSwitchStatusCommand command)
@@ -126,9 +132,9 @@ namespace Pal3.Game.Script
                         command.ObjectId,
                         out SceneObjectStateOverride state) && state.SwitchState.HasValue)
             {
-                SetVariableValue(command.Variable, state.SwitchState.Value == 1 ? 1 : 0);
+                Set(command.Variable, state.SwitchState.Value == 1 ? 1 : 0);
             }
-            else SetVariableValue(command.Variable, 0); // Default to off
+            else Set(command.Variable, 0); // Default to off
         }
 
         public void Execute(ScriptVarSetMoneyCommand command)
@@ -136,25 +142,25 @@ namespace Pal3.Game.Script
             // TODO: Remove this and uncomment the following line
             int totalMoney = 777777;
             // var totalMoney = ServiceLocator.Instance.Get<InventoryManager>().GetTotalMoney();
-            SetVariableValue(command.Variable, totalMoney);
+            Set(command.Variable, totalMoney);
         }
 
         public void Execute(ScriptVarSetActorFavorCommand command)
         {
             int favor = ServiceLocator.Instance.Get<FavorManager>().GetFavorByActor(command.ActorId);
-            SetVariableValue(command.Variable, favor);
+            Set(command.Variable, favor);
         }
 
         public void Execute(ScriptVarSetMostFavorableActorIdCommand command)
         {
             int mostFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetMostFavorableActorId();
-            SetVariableValue(command.Variable, mostFavorableActorId);
+            Set(command.Variable, mostFavorableActorId);
         }
 
         public void Execute(ScriptVarSetLeastFavorableActorIdCommand command)
         {
             int leastFavorableActorId = ServiceLocator.Instance.Get<FavorManager>().GetLeastFavorableActorId();
-            SetVariableValue(command.Variable, leastFavorableActorId);
+            Set(command.Variable, leastFavorableActorId);
         }
 
         #if PAL3A
@@ -163,7 +169,7 @@ namespace Pal3.Game.Script
         {
             float rand = RandomGenerator.Range(0f, 1f);
             int usageCount = rand > 0.35f ? 360 : 0;
-            SetVariableValue(command.Variable, usageCount);
+            Set(command.Variable, usageCount);
         }
 
         public void Execute(ScriptVarSetObjectUsageStatusCommand command)
@@ -178,9 +184,9 @@ namespace Pal3.Game.Script
                     out SceneObjectStateOverride state) && state.TimesCount.HasValue)
             {
                 // Set variable to 1 if it's fully used, otherwise 0
-                SetVariableValue(command.Variable, state.TimesCount.Value == 0 ? 1 : 0);
+                Set(command.Variable, state.TimesCount.Value == 0 ? 1 : 0);
             }
-            else SetVariableValue(command.Variable, 0); // Default to not used
+            else Set(command.Variable, 0); // Default to not used
         }
         #endif
 
@@ -197,7 +203,7 @@ namespace Pal3.Game.Script
                 ? new UIDisplayNoteCommand("你战胜了景小楼")
                 : new UIDisplayNoteCommand("你输给了景小楼"));
             #endif
-            SetVariableValue(command.Variable, won ? 1 : 0);
+            Set(command.Variable, won ? 1 : 0);
         }
 
         public void Execute(ResetGameStateCommand command)

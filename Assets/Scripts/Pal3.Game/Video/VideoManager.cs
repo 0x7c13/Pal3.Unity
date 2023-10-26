@@ -110,7 +110,7 @@ namespace Pal3.Game.Video
 
             try
             {
-                var videoFilePath = _resourceProvider.GetVideoFilePath(command.Name);
+                string videoFilePath = _resourceProvider.GetVideoFilePath(command.Name);
                 Pal3.Instance.StartCoroutine(PlayAsync(videoFilePath));
             }
             catch (Exception ex)

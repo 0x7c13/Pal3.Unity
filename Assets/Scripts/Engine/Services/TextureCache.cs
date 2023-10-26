@@ -12,7 +12,7 @@ namespace Engine.Services
     /// <summary>
     /// Texture2D in-memory cache.
     /// </summary>
-    public sealed class TextureCache
+    public sealed class TextureCache : ITextureCache
     {
         private readonly Dictionary<string, (ITexture2D texutre, bool hasAlphaChannel)> _textureCache = new ();
 
@@ -32,8 +32,7 @@ namespace Engine.Services
             }
         }
 
-        public bool TryGetTextureFromCache(string key,
-            out (ITexture2D texture, bool hasAlphaChannel) texture)
+        public bool TryGet(string key, out (ITexture2D texture, bool hasAlphaChannel) texture)
         {
             key = key.ToLowerInvariant();
 
