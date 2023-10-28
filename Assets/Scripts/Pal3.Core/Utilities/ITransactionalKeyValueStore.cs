@@ -5,14 +5,37 @@
 
 namespace Pal3.Core.Utilities
 {
+    /// <summary>
+    /// Interface for a transactional key-value store.
+    /// </summary>
     public interface ITransactionalKeyValueStore
     {
-        void Set<T>(string key, T value);
+        /// <summary>
+        /// Sets the value of a key in the store.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to set.</typeparam>
+        /// <param name="key">The key to set.</param>
+        /// <param name="value">The value to set.</param>
+        public void Set<T>(string key, T value);
 
-        bool TryGet<T>(string key, out T value);
+        /// <summary>
+        /// Tries to get the value of a key in the store.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to get.</typeparam>
+        /// <param name="key">The key to get.</param>
+        /// <param name="value">The value of the key, if found.</param>
+        /// <returns>True if the key was found, false otherwise.</returns>
+        public bool TryGet<T>(string key, out T value);
 
+        /// <summary>
+        /// Deletes a key from the store.
+        /// </summary>
+        /// <param name="key">The key to delete.</param>
         public void DeleteKey(string key);
 
-        void Save();
+        /// <summary>
+        /// Commits all changes made to the store.
+        /// </summary>
+        public void Commit();
     }
 }

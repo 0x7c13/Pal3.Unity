@@ -7,6 +7,9 @@ namespace Pal3.Core.Utilities
 {
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Represents an in-memory key-value store that implements the <see cref="ITransactionalKeyValueStore"/> interface.
+    /// </summary>
     public sealed class InMemoryKeyValueStore : ITransactionalKeyValueStore
     {
         private readonly Dictionary<string, object> _store = new ();
@@ -36,7 +39,7 @@ namespace Pal3.Core.Utilities
             }
         }
 
-        public void Save()
+        public void Commit()
         {
             // Do nothing
         }

@@ -10,6 +10,9 @@ namespace Engine.Utilities
     using Pal3.Core.Utilities;
     using UnityEngine;
 
+    /// <summary>
+    /// A key-value store implementation that uses Unity's PlayerPrefs to store data.
+    /// </summary>
     public sealed class PlayerPrefsStore : ITransactionalKeyValueStore
     {
         public void Set<T>(string key, T value)
@@ -85,7 +88,7 @@ namespace Engine.Utilities
             PlayerPrefs.DeleteKey(key);
         }
 
-        public void Save()
+        public void Commit()
         {
             PlayerPrefs.Save();
         }

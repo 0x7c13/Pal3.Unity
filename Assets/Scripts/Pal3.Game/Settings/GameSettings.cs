@@ -318,7 +318,7 @@ namespace Pal3.Game.Settings
 
         public void SaveSettings()
         {
-            SettingsStore.Save();
+            SettingsStore.Commit();
         }
 
         public void ResetSettings()
