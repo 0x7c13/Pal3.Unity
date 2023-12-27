@@ -63,6 +63,24 @@ namespace Pal3.Game.Rendering.Material
             GameBoxBlendFlag blendFlag);
 
         /// <summary>
+        /// Create material for sky box
+        /// </summary>
+        /// <param name="rightTex">Right side texture</param>
+        /// <param name="backTex">Back side texture</param>
+        /// <param name="leftTex">Left side texture</param>
+        /// <param name="frontTex">Front side texture</param>
+        /// <param name="upTex">Up side texture</param>
+        /// <param name="downTex">Down side texture</param>
+        /// <returns></returns>
+        public IMaterial CreateSkyboxMaterial(
+            ITexture2D rightTex,
+            ITexture2D backTex,
+            ITexture2D leftTex,
+            ITexture2D frontTex,
+            ITexture2D upTex,
+            ITexture2D downTex);
+
+        /// <summary>
         /// Update existing material with new texture.
         /// </summary>
         /// <param name="material">Material</param>

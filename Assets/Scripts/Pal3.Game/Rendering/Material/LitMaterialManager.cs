@@ -11,7 +11,7 @@ namespace Pal3.Game.Rendering.Material
     using Core.Primitives;
     using Engine.Core.Abstraction;
     using Engine.Logging;
-    using UnityEngine;
+    using Engine.Services;
     using UnityEngine.Rendering;
     using Color = Core.Primitives.Color;
 
@@ -22,12 +22,12 @@ namespace Pal3.Game.Rendering.Material
     public sealed class LitMaterialManager : MaterialManagerBase, IMaterialManager
     {
         // Toon material uniforms
-        private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
-        private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
-        private static readonly int CutoutPropertyId = Shader.PropertyToID("_Cutout");
-        private static readonly int LightIntensityPropertyId = Shader.PropertyToID("_LightIntensity");
-        private static readonly int OpacityPropertyId = Shader.PropertyToID("_Opacity");
-        private static readonly int EnvironmentalLightingIntensityPropertyId = Shader.PropertyToID("_EnvironmentalLightingIntensity");
+        private static readonly int BlendSrcFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendSrcFactor");
+        private static readonly int BlendDstFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendDstFactor");
+        private static readonly int CutoutPropertyId = ShaderUtility.GetPropertyIdByName("_Cutout");
+        private static readonly int LightIntensityPropertyId = ShaderUtility.GetPropertyIdByName("_LightIntensity");
+        private static readonly int OpacityPropertyId = ShaderUtility.GetPropertyIdByName("_Opacity");
+        private static readonly int EnvironmentalLightingIntensityPropertyId = ShaderUtility.GetPropertyIdByName("_EnvironmentalLightingIntensity");
 
         private readonly IMaterial _toonOpaqueMaterial;
         private readonly IMaterial _toonTransparentMaterial;

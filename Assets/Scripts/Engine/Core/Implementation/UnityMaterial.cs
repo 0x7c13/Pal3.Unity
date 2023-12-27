@@ -65,6 +65,8 @@ namespace Engine.Core.Implementation
 
         public void SetMainTextureScale(float x, float y) => _material.mainTextureScale = new Vector2(x, y);
 
+        public static implicit operator Material(UnityMaterial m) => m.NativeObject as Material;
+
         public void Destroy()
         {
             if (!IsNativeObjectDisposed)

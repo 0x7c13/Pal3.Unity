@@ -16,7 +16,7 @@ namespace Pal3.Game.Effect
     {
         private IGameEntity _root;
         private SpriteRenderer _spriteRenderer;
-        private Material _material;
+        private IMaterial _material;
 
         private float _rotationSpeed;
 
@@ -46,8 +46,8 @@ namespace Pal3.Game.Effect
             if (!hasAlphaChannel)
             {
                 _material = resourceProvider.GetMaterialManager()
-                    .CreateOpaqueSpriteMaterial(texture).NativeObject as Material;
-                _spriteRenderer.sharedMaterial = _material;
+                    .CreateOpaqueSpriteMaterial(texture);
+                _spriteRenderer.sharedMaterial = _material.NativeObject as Material;
             }
 
             Quaternion parentRotation = GameEntity.Transform.Rotation;

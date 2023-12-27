@@ -145,6 +145,9 @@ namespace Engine.Core.Implementation
             _transform.RotateAround(centerPoint, axis, angle);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Transform(UnityTransform t) => t.NativeObject as Transform;
+
         public void Destroy()
         {
             // Do nothing, since transform is owned by game object.

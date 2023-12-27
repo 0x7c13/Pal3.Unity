@@ -43,13 +43,13 @@ namespace Engine.Renderer
 
         public void Init(ISprite[] sprites,
             float fps,
-            Material material = default)
+            IMaterial material = default)
         {
             _sprites = sprites;
 
             if (material != default)
             {
-                _spriteRenderer.material = material;
+                _spriteRenderer.material = material.NativeObject as Material;
             }
 
             _spriteAnimationFrameWaiter = CoroutineYieldInstruction.WaitForSeconds(1 / fps);

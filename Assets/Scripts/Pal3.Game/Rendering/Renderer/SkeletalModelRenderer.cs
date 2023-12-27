@@ -80,7 +80,6 @@ namespace Pal3.Game.Rendering.Renderer
     public sealed class SkeletalModelRenderer : GameEntityScript, IDisposable
     {
         private IMaterialManager _materialManager;
-        private Material[][] _materials;
 
         private MshFile _mshFile;
         private MovFile _movFile;

@@ -54,6 +54,8 @@ namespace Engine.Core.Implementation
             return new UnitySprite(sprite);
         }
 
+        public static implicit operator Texture2D(UnityTexture2D t) => t.NativeObject as Texture2D;
+
         public void Destroy()
         {
             if (!IsNativeObjectDisposed)

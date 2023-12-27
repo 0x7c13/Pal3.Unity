@@ -10,7 +10,7 @@ namespace Pal3.Game.Rendering.Material
     using Core.Primitives;
     using Engine.Core.Abstraction;
     using Engine.Logging;
-    using UnityEngine;
+    using Engine.Services;
     using UnityEngine.Rendering;
     using Color = Core.Primitives.Color;
 
@@ -32,16 +32,16 @@ namespace Pal3.Game.Rendering.Material
         private const string WATER_SHADER_NAME = "Pal3/Water";
 
         // Water material uniforms
-        private static readonly int WaterAlphaPropId = Shader.PropertyToID("_Alpha");
-        private static readonly int WaterHasShadowTexPropId = Shader.PropertyToID("_HasShadowTex");
+        private static readonly int WaterAlphaPropId = ShaderUtility.GetPropertyIdByName("_Alpha");
+        private static readonly int WaterHasShadowTexPropId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
 
         // Standard material uniforms for Pal3 unlit shaders
-        private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
-        private static readonly int BlendDstFactorPropertyId = Shader.PropertyToID("_BlendDstFactor");
-        private static readonly int TintColorPropertyId = Shader.PropertyToID("_TintColor");
-        private static readonly int TransparentThresholdPropertyId = Shader.PropertyToID("_Threshold");
-        private static readonly int HasShadowTexturePropertyId = Shader.PropertyToID("_HasShadowTex");
-        private static readonly int ShadowTexturePropertyId = Shader.PropertyToID("_ShadowTex");
+        private static readonly int BlendSrcFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendSrcFactor");
+        private static readonly int BlendDstFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendDstFactor");
+        private static readonly int TintColorPropertyId = ShaderUtility.GetPropertyIdByName("_TintColor");
+        private static readonly int TransparentThresholdPropertyId = ShaderUtility.GetPropertyIdByName("_Threshold");
+        private static readonly int HasShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
+        private static readonly int ShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_ShadowTex");
 
         private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
 

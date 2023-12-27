@@ -262,13 +262,14 @@ namespace Pal3.Game.Scene
             if (ScnFile.SceneInfo.SkyBox == 0) return;
             _skyBoxRenderer = _cameraEntity.AddComponent<SkyBoxRenderer>();
             ITexture2D[] skyBoxTextures = _resourceProvider.GetSkyBoxTextures((int) ScnFile.SceneInfo.SkyBox);
-            _skyBoxRenderer.Render(_cameraEntity,
+            IMaterial skyboxMaterial = _materialManager.CreateSkyboxMaterial(
                 skyBoxTextures[0],
                 skyBoxTextures[1],
                 skyBoxTextures[2],
                 skyBoxTextures[3],
                 skyBoxTextures[4],
                 skyBoxTextures[5]);
+            _skyBoxRenderer.Render(_cameraEntity, skyboxMaterial);
         }
 
         private void SetupNavMesh()

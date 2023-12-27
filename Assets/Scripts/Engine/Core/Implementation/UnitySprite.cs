@@ -24,6 +24,8 @@ namespace Engine.Core.Implementation
             _sprite = sprite;
             Texture = new UnityTexture2D(sprite.texture);
         }
+        
+        public static implicit operator Sprite(UnitySprite s) => s.NativeObject as Sprite;
 
         public void Destroy()
         {

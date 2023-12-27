@@ -6,6 +6,7 @@
 namespace Pal3.Game.Effect.PostProcessing
 {
     using System;
+    using Engine.Services;
     using UnityEngine;
     using UnityEngine.Rendering.PostProcessing;
 
@@ -25,9 +26,9 @@ namespace Pal3.Game.Effect.PostProcessing
 
     public sealed class DistortionRenderer : PostProcessEffectRenderer<Distortion>
     {
-        private static readonly int TimeScalePropertyId = Shader.PropertyToID("_TimeScale");
-        private static readonly int XFactorPropertyId = Shader.PropertyToID("_XFactor");
-        private static readonly int YFactorPropertyId = Shader.PropertyToID("_YFactor");
+        private static readonly int TimeScalePropertyId = ShaderUtility.GetPropertyIdByName("_TimeScale");
+        private static readonly int XFactorPropertyId = ShaderUtility.GetPropertyIdByName("_XFactor");
+        private static readonly int YFactorPropertyId = ShaderUtility.GetPropertyIdByName("_YFactor");
 
         private Shader _distortionShader;
 

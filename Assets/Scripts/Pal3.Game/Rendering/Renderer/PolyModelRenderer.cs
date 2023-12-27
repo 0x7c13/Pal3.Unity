@@ -44,7 +44,7 @@ namespace Pal3.Game.Rendering.Renderer
         private bool _isWaterSurfaceOpaque;
         private CancellationTokenSource _animationCts;
 
-        private readonly int _mainTexturePropertyId = Shader.PropertyToID("_MainTex");
+        private readonly int _mainTexturePropertyId = ShaderUtility.GetPropertyIdByName("_MainTex");
 
         protected override void OnEnableGameEntity()
         {

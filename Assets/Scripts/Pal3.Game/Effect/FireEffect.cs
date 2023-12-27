@@ -18,7 +18,8 @@ namespace Pal3.Game.Effect
     using Engine.Renderer;
     using Rendering.Material;
     using Rendering.Renderer;
-    using UnityEngine;
+
+    using Vector3 = UnityEngine.Vector3;
 
     public sealed class FireEffect : GameEntityScript, IEffect
     {
@@ -28,7 +29,7 @@ namespace Pal3.Game.Effect
         private (ITexture2D texture, bool hasAlphaChannel)[] _effectTextures = Array.Empty<(ITexture2D texture, bool hasAlphaChannel)>();
         private AnimatedBillboardRenderer _billboardRenderer;
         private PolyModelRenderer _sceneObjectRenderer;
-        private Material _spriteMaterial;
+        private IMaterial _spriteMaterial;
 
         protected override void OnDisableGameEntity()
         {
@@ -82,7 +83,7 @@ namespace Pal3.Game.Effect
                 _billboardRenderer = EffectGameEntity.AddComponent<AnimatedBillboardRenderer>();
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
-                    : materialManager.CreateOpaqueSpriteMaterial().NativeObject as Material;
+                    : materialManager.CreateOpaqueSpriteMaterial();
                 _billboardRenderer.Init(sprites, EffectConstants.AnimatedFireEffectFrameRate, _spriteMaterial);
                 _billboardRenderer.StartAnimation(-1);
             }
