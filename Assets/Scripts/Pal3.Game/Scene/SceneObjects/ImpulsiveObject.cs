@@ -74,7 +74,7 @@ namespace Pal3.Game.Scene.SceneObjects
             var subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(polFile,
                 textureProvider,
-                resourceProvider.GetMaterialFactory(),
+                resourceProvider.GetMaterialManager(),
                 isStaticObject: false,
                 subObjectTintColor);
 

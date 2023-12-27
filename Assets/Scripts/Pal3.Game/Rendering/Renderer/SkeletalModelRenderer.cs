@@ -79,7 +79,7 @@ namespace Pal3.Game.Rendering.Renderer
     /// </summary>
     public sealed class SkeletalModelRenderer : GameEntityScript, IDisposable
     {
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
         private Material[][] _materials;
 
         private MshFile _mshFile;
@@ -113,14 +113,14 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Init(MshFile mshFile,
             MtlFile mtlFile,
-            IMaterialFactory materialFactory,
+            IMaterialManager materialManager,
             ITextureResourceProvider textureProvider,
             Color? tintColor = default)
         {
             Dispose();
 
             _mshFile = mshFile;
-            _materialFactory = materialFactory;
+            _materialManager = materialManager;
             _tintColor = tintColor ?? Color.White;
 
             // All .mtl files in PAL3 contain only one material,
@@ -393,7 +393,7 @@ namespace Pal3.Game.Rendering.Renderer
                     subMesh.Vertices[_indexBuffer[subMeshIndex][i]].GameBoxPosition.ToUnityPosition();
             }
 
-            Material[] materials = _materialFactory.CreateStandardMaterials(
+            IMaterial[] materials = _materialManager.CreateStandardMaterials(
                 RendererType.Msh,
                 mainTexture: _mainTexture,
                 shadowTexture: default,
@@ -486,7 +486,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    _materialFactory.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
+                    _materialManager.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
                     renderMeshComponent.Mesh.Destroy();
                     renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();

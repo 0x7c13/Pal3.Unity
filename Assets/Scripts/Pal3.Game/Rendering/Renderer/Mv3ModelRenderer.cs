@@ -34,7 +34,7 @@ namespace Pal3.Game.Rendering.Renderer
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
 
         private ITextureResourceProvider _textureProvider;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
         private Color _tintColor;
 
         private Mv3AnimationEvent[] _events;
@@ -47,7 +47,7 @@ namespace Pal3.Game.Rendering.Renderer
         private GameBoxMaterial[] _gbMaterials;
         private ITexture2D[] _textures;
         private bool[] _textureHasAlphaChannel;
-        private Material[][] _materials;
+        private IMaterial[][] _materials;
         private string[] _animationName;
         private uint[][] _frameTicks;
         private IGameEntity[] _meshEntities;
@@ -74,7 +74,7 @@ namespace Pal3.Game.Rendering.Renderer
         }
 
         public void Init(Mv3File mv3File,
-            IMaterialFactory materialFactory,
+            IMaterialManager materialManager,
             ITextureResourceProvider textureProvider,
             Color? tintColor = default,
             PolFile tagNodePolFile = default,
@@ -83,7 +83,7 @@ namespace Pal3.Game.Rendering.Renderer
         {
             Dispose();
 
-            _materialFactory = materialFactory;
+            _materialManager = materialManager;
             _textureProvider = textureProvider;
             _tintColor = tintColor ?? Color.White;
             _tagNodePolFile = tagNodePolFile;
@@ -101,7 +101,7 @@ namespace Pal3.Game.Rendering.Renderer
                 _gbMaterials = new GameBoxMaterial[_meshCount];
                 _textures = new ITexture2D[_meshCount];
                 _textureHasAlphaChannel = new bool[_meshCount];
-                _materials = new Material[_meshCount][];
+                _materials = new IMaterial[_meshCount][];
                 _animationName = new string[_meshCount];
                 _frameTicks = new uint[_meshCount][];
                 _meshEntities = new IGameEntity[_meshCount];
@@ -162,7 +162,7 @@ namespace Pal3.Game.Rendering.Renderer
                     var tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
                     tagNodeRenderer.Render(_tagNodePolFile,
                         tagNodeTextureProvider,
-                        _materialFactory,
+                        _materialManager,
                         isStaticObject: false,
                         tagNodeTintColor);
 
@@ -215,7 +215,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             var meshRenderer = _meshEntities[index].AddComponent<StaticMeshRenderer>();
 
-            Material[] materials = _materialFactory.CreateStandardMaterials(
+            IMaterial[] materials = _materialManager.CreateStandardMaterials(
                 RendererType.Mv3,
                 mainTexture: (textureName, _textures[index]),
                 shadowTexture: default, // MV3 models don't have shadow textures
@@ -229,7 +229,7 @@ namespace Pal3.Game.Rendering.Renderer
             var texturePath = _textureProvider.GetTexturePath(textureName);
             if (Dev.TexturePatcher.TextureFileHasWrongTiling(texturePath))
             {
-                _materials[index][0].mainTextureScale = new Vector2(1.0f, -1.0f);
+                _materials[index][0].SetMainTextureScale(1f, -1f);
             }
             #endif
 
@@ -291,7 +291,7 @@ namespace Pal3.Game.Rendering.Renderer
             _textureHasAlphaChannel[0] = hasAlphaChannel;
 
             // Change the texture for the first sub-mesh only
-            _materialFactory.UpdateMaterial(_materials[0][0], _textures[0], _textureHasAlphaChannel[0] ?
+            _materialManager.UpdateMaterial(_materials[0][0], _textures[0], _textureHasAlphaChannel[0] ?
                 GameBoxBlendFlag.AlphaBlend :
                 GameBoxBlendFlag.Opaque);
         }
@@ -532,12 +532,12 @@ namespace Pal3.Game.Rendering.Renderer
                     {
                         #if PAL3A
                         // Revert tiling fix before returning to pool
-                        foreach (Material material in materials)
+                        foreach (IMaterial material in materials)
                         {
-                            material.mainTextureScale = Vector2.one;
+                            material.SetMainTextureScale(1f, 1f);
                         }
                         #endif
-                        _materialFactory.ReturnToPool(materials);
+                        _materialManager.ReturnToPool(materials);
                     }
                     renderMeshComponent.Mesh.Destroy();
                     renderMeshComponent.MeshRenderer.Dispose();

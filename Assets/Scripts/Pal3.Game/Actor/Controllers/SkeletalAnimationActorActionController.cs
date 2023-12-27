@@ -29,7 +29,7 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorStopActionCommand>
     {
         private GameResourceProvider _resourceProvider;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
         private ActorBase _actor;
         private Color _tintColor;
 
@@ -71,7 +71,7 @@ namespace Pal3.Game.Actor.Controllers
             _resourceProvider = resourceProvider;
             _actor = actor;
             _tintColor = tintColor;
-            _materialFactory = resourceProvider.GetMaterialFactory();
+            _materialManager = resourceProvider.GetMaterialManager();
         }
 
         public override void PerformAction(string actionName,
@@ -120,7 +120,7 @@ namespace Pal3.Game.Actor.Controllers
 
             _skeletalModelRenderer.Init(mshFile,
                 mtlFile,
-                _materialFactory,
+                _materialManager,
                 textureProvider,
                 _tintColor);
 

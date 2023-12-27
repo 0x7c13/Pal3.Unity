@@ -6,6 +6,8 @@
 namespace Engine.Renderer
 {
     using System;
+    using System.Linq;
+    using Core.Abstraction;
     using Core.Implementation;
     using Extensions;
     using UnityEngine;
@@ -14,7 +16,7 @@ namespace Engine.Renderer
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
-        private Material[] _materials;
+        private IMaterial[] _materials;
 
         protected override void OnDisableGameEntity()
         {
@@ -26,14 +28,14 @@ namespace Engine.Renderer
             Vector3[] normals,
             (int channel, Vector2[] uvs) mainTextureUvs,
             (int channel, Vector2[] uvs) secondaryTextureUvs,
-            Material[] materials,
+            IMaterial[] materials,
             bool isDynamic)
         {
             Dispose();
 
             _materials = materials;
             _meshRenderer = GameEntity.AddComponent<MeshRenderer>();
-            _meshRenderer.sharedMaterials = materials;
+            _meshRenderer.sharedMaterials = materials.Select(material => material.NativeObject as Material).ToArray();
             _meshRenderer.receiveShadows = _receiveShadows;
 
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
@@ -112,7 +114,7 @@ namespace Engine.Renderer
             return _meshFilter.sharedMesh.bounds;
         }
 
-        public Material[] GetMaterials()
+        public IMaterial[] GetMaterials()
         {
             return _materials;
         }

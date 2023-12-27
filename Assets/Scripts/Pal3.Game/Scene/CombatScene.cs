@@ -30,7 +30,7 @@ namespace Pal3.Game.Scene
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 
         private GameResourceProvider _resourceProvider;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
 
         private string _combatSceneName;
         private bool _isLightingEnabled;
@@ -48,7 +48,7 @@ namespace Pal3.Game.Scene
         public void Init(GameResourceProvider resourceProvider)
         {
             _resourceProvider = resourceProvider;
-            _materialFactory = resourceProvider.GetMaterialFactory();
+            _materialManager = resourceProvider.GetMaterialManager();
 
             _combatConfigFile = _resourceProvider.GetGameResourceFile<CombatConfigFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CONFIG_FILE_NAME);
@@ -83,7 +83,7 @@ namespace Pal3.Game.Scene
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             polyMeshRenderer.Render(polFile,
                 textureProvider,
-                _materialFactory,
+                _materialManager,
                 isStaticObject: true); // Combat Scene mesh is static
         }
 

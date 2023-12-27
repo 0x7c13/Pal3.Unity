@@ -139,7 +139,7 @@ namespace Pal3.Game.Scene.SceneObjects
             infoPresenter.sceneObjectInfo = ObjectInfo;
             #endif
 
-            IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
+            IMaterialManager materialManager = resourceProvider.GetMaterialManager();
 
             if (ModelType == SceneObjectModelType.PolModel)
             {
@@ -149,7 +149,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _polyModelRenderer = _sceneObjectGameEntity.AddComponent<PolyModelRenderer>();
                 _polyModelRenderer.Render(polFile,
                     textureProvider,
-                    materialFactory,
+                    materialManager,
                     isStaticObject: false,
                     tintColor);
             }
@@ -161,7 +161,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _cvdModelRenderer = _sceneObjectGameEntity.AddComponent<CvdModelRenderer>();
                 _cvdModelRenderer.Init(cvdFile,
                     textureProvider,
-                    materialFactory,
+                    materialManager,
                     tintColor);
 
                 if (ObjectInfo.Type == SceneObjectType.General)

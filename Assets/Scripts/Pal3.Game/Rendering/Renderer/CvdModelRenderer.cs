@@ -36,7 +36,7 @@ namespace Pal3.Game.Rendering.Renderer
         private float _animationDuration;
         private CancellationTokenSource _animationCts = new ();
 
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
 
         protected override void OnEnableGameEntity()
         {
@@ -49,11 +49,11 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Init(CvdFile cvdFile,
             ITextureResourceProvider textureProvider,
-            IMaterialFactory materialFactory,
+            IMaterialManager materialManager,
             Color? tintColor = default,
             float initTime = 0f)
         {
-            _materialFactory = materialFactory;
+            _materialManager = materialManager;
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor ?? Color.White;
             _currentAnimationTime = initTime;
@@ -263,7 +263,7 @@ namespace Pal3.Game.Rendering.Renderer
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
 
-                    Material[] materials = _materialFactory.CreateStandardMaterials(
+                    IMaterial[] materials = _materialManager.CreateStandardMaterials(
                         RendererType.Cvd,
                         mainTexture: (textureName, textureCache[textureName]),
                         shadowTexture: default, // CVD models don't have shadow textures
@@ -595,7 +595,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
             {
-                _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
+                _materialManager.ReturnToPool(meshRenderer.GetMaterials());
                 meshRenderer.Dispose();
                 meshRenderer.Destroy();
             }

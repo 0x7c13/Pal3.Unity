@@ -33,7 +33,7 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorChangeTextureCommand>
     {
         private GameResourceProvider _resourceProvider;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
         private ActorBase _actor;
         private Color? _tintColor;
 
@@ -89,7 +89,7 @@ namespace Pal3.Game.Actor.Controllers
             _canPerformHoldAnimation = canPerformHoldAnimation;
             _tintColor = tintColor;
 
-            _materialFactory = resourceProvider.GetMaterialFactory();
+            _materialManager = resourceProvider.GetMaterialManager();
         }
 
         public override void PerformAction(string actionName,
@@ -158,7 +158,7 @@ namespace Pal3.Game.Actor.Controllers
                 ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(weaponPath, CpkConstants.DirectorySeparatorChar));
                 _mv3ModelRenderer.Init(mv3File,
-                    _materialFactory,
+                    _materialManager,
                     textureProvider,
                     _tintColor,
                     polFile,
@@ -167,7 +167,7 @@ namespace Pal3.Game.Actor.Controllers
             else
             {
                 _mv3ModelRenderer.Init(mv3File,
-                    _materialFactory,
+                    _materialManager,
                     textureProvider,
                     _tintColor);
             }

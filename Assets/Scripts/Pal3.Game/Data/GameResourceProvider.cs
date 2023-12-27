@@ -53,8 +53,8 @@ namespace Pal3.Game.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly ITextureFactory _textureFactory;
-        private readonly IMaterialFactory _unlitMaterialFactory;
-        private readonly IMaterialFactory _litMaterialFactory;
+        private readonly IMaterialManager _unlitMaterialManager;
+        private readonly IMaterialManager _litMaterialManager;
         private readonly GameSettings _gameSettings;
 
         private readonly GdbFile _gameDatabase;
@@ -72,15 +72,15 @@ namespace Pal3.Game.Data
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
-            IMaterialFactory unlitMaterialFactory,
-            IMaterialFactory litMaterialFactory,
+            IMaterialManager unlitMaterialManager,
+            IMaterialManager litMaterialManager,
             GameSettings gameSettings)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
             _textureFactory = Requires.IsNotNull(textureFactory, nameof(textureFactory));
-            _unlitMaterialFactory = Requires.IsNotNull(unlitMaterialFactory, nameof(unlitMaterialFactory));
-            _litMaterialFactory = litMaterialFactory; // Lit materials are not required
+            _unlitMaterialManager = Requires.IsNotNull(unlitMaterialManager, nameof(unlitMaterialManager));
+            _litMaterialManager = litMaterialManager; // Lit materials are not required
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
@@ -115,8 +115,8 @@ namespace Pal3.Game.Data
 
             _vfxEffectPrefabCache.Clear();
 
-            _unlitMaterialFactory?.DeallocateMaterialPool();
-            _litMaterialFactory?.DeallocateMaterialPool();
+            _unlitMaterialManager?.DeallocateMaterialPool();
+            _litMaterialManager?.DeallocateMaterialPool();
 
             _gameResourceFileCache.Clear();
         }
@@ -145,11 +145,11 @@ namespace Pal3.Game.Data
             return _shadowSprite;
         }
 
-        public IMaterialFactory GetMaterialFactory()
+        public IMaterialManager GetMaterialManager()
         {
             return !_gameSettings.IsOpenSourceVersion && _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
-                _litMaterialFactory :
-                _unlitMaterialFactory;
+                _litMaterialManager :
+                _unlitMaterialManager;
         }
 
         public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
@@ -657,13 +657,13 @@ namespace Pal3.Game.Data
             {
                 if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
                 {
-                    _unlitMaterialFactory?.DeallocateMaterialPool();
-                    _litMaterialFactory?.AllocateMaterialPool();
+                    _unlitMaterialManager?.DeallocateMaterialPool();
+                    _litMaterialManager?.AllocateMaterialPool();
                 }
                 else
                 {
-                    _litMaterialFactory?.DeallocateMaterialPool();
-                    _unlitMaterialFactory?.AllocateMaterialPool();
+                    _litMaterialManager?.DeallocateMaterialPool();
+                    _unlitMaterialManager?.AllocateMaterialPool();
                 }
             }
         }

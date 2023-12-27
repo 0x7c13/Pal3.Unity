@@ -86,7 +86,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _interactionIndicatorRenderer = _interactionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _interactionIndicatorRenderer.Init(cvdFile,
                     textureProvider,
-                    resourceProvider.GetMaterialFactory(),
+                    resourceProvider.GetMaterialManager(),
                     tintColor);
                 _interactionIndicatorRenderer.LoopAnimation();
             }

@@ -70,7 +70,7 @@ namespace Pal3.Game.Scene.SceneObjects
             Vector3 upperPosition = new Vector3(climbablePosition.x, bounds.max.y, climbablePosition.z) +
                                     sceneObjectGameEntity.Transform.Forward * 0.7f;
 
-            IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
+            IMaterialManager materialManager = resourceProvider.GetMaterialManager();
 
             string indicatorModelPath = FileConstants.GetGameObjectModelFileVirtualPath(INTERACTION_INDICATOR_MODEL_FILE_NAME);
             CvdFile indicatorCvdFile = resourceProvider.GetGameResourceFile<CvdFile>(indicatorModelPath);
@@ -86,7 +86,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _upperInteractionIndicatorRenderer = _upperInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _upperInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
-                    materialFactory,
+                    materialManager,
                     tintColor);
                 _upperInteractionIndicatorRenderer.LoopAnimation();
             }
@@ -103,7 +103,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 _lowerInteractionIndicatorRenderer = _lowerInteractionIndicatorGameEntity.AddComponent<CvdModelRenderer>();
                 _lowerInteractionIndicatorRenderer.Init(indicatorCvdFile,
                     textureProvider,
-                    materialFactory,
+                    materialManager,
                     tintColor);
                 _lowerInteractionIndicatorRenderer.LoopAnimation();
             }

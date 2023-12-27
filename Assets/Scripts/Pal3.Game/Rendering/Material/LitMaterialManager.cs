@@ -10,7 +10,6 @@ namespace Pal3.Game.Rendering.Material
     using System.Diagnostics;
     using Core.Primitives;
     using Engine.Core.Abstraction;
-    using Engine.Extensions;
     using Engine.Logging;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -20,7 +19,7 @@ namespace Pal3.Game.Rendering.Material
     /// Lit material factory for generating materials
     /// to be used when lighting and shadow are enabled
     /// </summary>
-    public sealed class LitMaterialFactory : MaterialFactoryBase, IMaterialFactory
+    public sealed class LitMaterialManager : MaterialManagerBase, IMaterialManager
     {
         // Toon material uniforms
         private static readonly int BlendSrcFactorPropertyId = Shader.PropertyToID("_BlendSrcFactor");
@@ -30,8 +29,8 @@ namespace Pal3.Game.Rendering.Material
         private static readonly int OpacityPropertyId = Shader.PropertyToID("_Opacity");
         private static readonly int EnvironmentalLightingIntensityPropertyId = Shader.PropertyToID("_EnvironmentalLightingIntensity");
 
-        private readonly Material _toonOpaqueMaterial;
-        private readonly Material _toonTransparentMaterial;
+        private readonly IMaterial _toonOpaqueMaterial;
+        private readonly IMaterial _toonTransparentMaterial;
 
         private const string OPAQUE_MATERIAL_SHADER_NAME = "RealToon/Version 5/Default/Default";
         private const string TRANSPARENT_MATERIAL_SHADER_NAME = "RealToon/Version 5/Default/Fade Transparency";
@@ -39,8 +38,8 @@ namespace Pal3.Game.Rendering.Material
         private const int OPAQUE_MATERIAL_POOL_SIZE = 3500;
         private const int TRANSPARENT_MATERIAL_POOL_SIZE = 500;
 
-        private readonly Stack<Material> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
-        private readonly Stack<Material> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
+        private readonly Stack<IMaterial> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
+        private readonly Stack<IMaterial> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
 
         private readonly float _opaqueMaterialCutoutPropertyDefaultValue;
         private readonly float _opaqueMaterialLightIntensityPropertyDefaultValue;
@@ -54,9 +53,10 @@ namespace Pal3.Game.Rendering.Material
 
         private bool _isMaterialPoolAllocated = false;
 
-        public LitMaterialFactory(
-            Material toonOpaqueMaterial,
-            Material toonTransparentMaterial)
+        public LitMaterialManager(
+            IMaterialFactory materialFactory,
+            IMaterial toonOpaqueMaterial,
+            IMaterial toonTransparentMaterial) : base (materialFactory)
         {
             _toonOpaqueMaterial = toonOpaqueMaterial;
             _toonTransparentMaterial = toonTransparentMaterial;
@@ -87,12 +87,12 @@ namespace Pal3.Game.Rendering.Material
 
             for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
-                _opaqueMaterialPool.Push(new Material(_toonOpaqueMaterial));
+                _opaqueMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_toonOpaqueMaterial));
             }
 
             for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
-                _transparentMaterialPool.Push(new Material(_toonTransparentMaterial));
+                _transparentMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_toonTransparentMaterial));
             }
 
             _isMaterialPoolAllocated = true;
@@ -122,14 +122,14 @@ namespace Pal3.Game.Rendering.Material
         public MaterialShaderType ShaderType => MaterialShaderType.Lit;
 
         /// <inheritdoc/>
-        public Material[] CreateStandardMaterials(
+        public IMaterial[] CreateStandardMaterials(
             RendererType rendererType,
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture,
             Color tintColor,
             GameBoxBlendFlag blendFlag)
         {
-            Material[] materials = null;
+            IMaterial[] materials = null;
 
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
             {
@@ -151,7 +151,7 @@ namespace Pal3.Game.Rendering.Material
                 // InvertColorBlend or AlphaBlend
                 if (rendererType == RendererType.Cvd) useTransparentMaterial = true;
 
-                materials = new Material[1];
+                materials = new IMaterial[1];
                 materials[0] = useTransparentMaterial
                     ? CreateBaseTransparentMaterial(mainTexture, shadowTexture)
                     : CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
@@ -169,7 +169,7 @@ namespace Pal3.Game.Rendering.Material
             }
             else if (blendFlag == GameBoxBlendFlag.Opaque)
             {
-                materials = new Material[1];
+                materials = new IMaterial[1];
                 materials[0] = CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
             }
 
@@ -182,11 +182,11 @@ namespace Pal3.Game.Rendering.Material
             return materials;
         }
 
-        public void UpdateMaterial(Material material, ITexture2D newMainTexture, GameBoxBlendFlag blendFlag)
+        public void UpdateMaterial(IMaterial material, ITexture2D newMainTexture, GameBoxBlendFlag blendFlag)
         {
             if (newMainTexture != null)
             {
-                material.mainTexture = newMainTexture.NativeObject as Texture2D;
+                material.SetMainTexture(newMainTexture);
             }
 
             if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
@@ -200,7 +200,7 @@ namespace Pal3.Game.Rendering.Material
         }
 
         /// <inheritdoc/>
-        public Material CreateWaterMaterial(
+        public IMaterial CreateWaterMaterial(
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture,
             float opacity,
@@ -220,23 +220,23 @@ namespace Pal3.Game.Rendering.Material
 
             if (useTransparentMaterial)
             {
-                Material material = CreateBaseTransparentMaterial(mainTexture, shadowTexture);
+                IMaterial material = CreateBaseTransparentMaterial(mainTexture, shadowTexture);
                 material.SetFloat(OpacityPropertyId, opacity);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId, 0.3f);
                 return material;
             }
             else
             {
-                Material material = CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
+                IMaterial material = CreateBaseOpaqueMaterial(mainTexture, shadowTexture);
                 material.SetFloat(EnvironmentalLightingIntensityPropertyId, 0.5f);
                 return material;
             }
         }
 
-        private Material CreateBaseTransparentMaterial((string name, ITexture2D texture) mainTexture,
+        private IMaterial CreateBaseTransparentMaterial((string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture)
         {
-            Material material;
+            IMaterial material;
             if (_transparentMaterialPool.Count > 0)
             {
                 material = _transparentMaterialPool.Pop();
@@ -255,21 +255,21 @@ namespace Pal3.Game.Rendering.Material
             else
             {
                 // In case we run out of transparent materials
-                material = new Material(_toonTransparentMaterial);
+                material = MaterialFactory.CreateMaterialFrom(_toonTransparentMaterial);
             }
 
             if (mainTexture.texture != null)
             {
-                material.mainTexture = mainTexture.texture.NativeObject as Texture2D;
+                material.SetMainTexture(mainTexture.texture);
             }
 
             return material;
         }
 
-        private Material CreateBaseOpaqueMaterial((string name, ITexture2D texture) mainTexture,
+        private IMaterial CreateBaseOpaqueMaterial((string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture)
         {
-            Material material;
+            IMaterial material;
             if (_opaqueMaterialPool.Count > 0)
             {
                 material = _opaqueMaterialPool.Pop();
@@ -284,27 +284,27 @@ namespace Pal3.Game.Rendering.Material
             else
             {
                 // In case we run out of opaque materials
-                material = new Material(_toonOpaqueMaterial);
+                material = MaterialFactory.CreateMaterialFrom(_toonOpaqueMaterial);
             }
 
             if (mainTexture.texture != null)
             {
-                material.mainTexture = mainTexture.texture.NativeObject as Texture2D;
+                material.SetMainTexture(mainTexture.texture);
             }
 
             return material;
         }
 
-        protected override void ReturnToPool(Material material)
+        protected override void ReturnToPool(IMaterial material)
         {
-            switch (material.shader.name)
+            switch (material.ShaderName)
             {
                 case TRANSPARENT_MATERIAL_SHADER_NAME:
-                    material.mainTexture = null;
+                    material.SetMainTexture(null);
                     _transparentMaterialPool.Push(material);
                     break;
                 case OPAQUE_MATERIAL_SHADER_NAME:
-                    material.mainTexture = null;
+                    material.SetMainTexture(null);
                     _opaqueMaterialPool.Push(material);
                     break;
                 default:

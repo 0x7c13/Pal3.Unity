@@ -36,7 +36,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         private ITextureResourceProvider _textureProvider;
         private ITextureFactory _textureFactory;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
         private Dictionary<string, ITexture2D> _textureCache = new ();
 
         private bool _isStaticObject;
@@ -58,13 +58,13 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Render(PolFile polFile,
             ITextureResourceProvider textureProvider,
-            IMaterialFactory materialFactory,
+            IMaterialManager materialManager,
             bool isStaticObject,
             Color? tintColor = default,
             bool isWaterSurfaceOpaque = default)
         {
             _textureProvider = textureProvider;
-            _materialFactory = materialFactory;
+            _materialManager = materialManager;
             _isStaticObject = isStaticObject;
             _tintColor = tintColor ?? Color.White;
             _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
@@ -126,7 +126,7 @@ namespace Pal3.Game.Rendering.Renderer
 
                         ITexture2D texture2D;
 
-                        if (_materialFactory.ShaderType == MaterialShaderType.Lit)
+                        if (_materialManager.ShaderType == MaterialShaderType.Lit)
                         {
                             // No need to load pre-baked shadow texture if
                             // material is lit material, since shadow texture
@@ -187,14 +187,14 @@ namespace Pal3.Game.Rendering.Renderer
                 var meshRenderer = meshEntity.AddComponent<StaticMeshRenderer>();
                 var blendFlag = mesh.Textures[i].BlendFlag;
 
-                Material[] CreateMaterials(bool isWaterSurface, int mainTextureIndex, int shadowTextureIndex = -1)
+                IMaterial[] CreateMaterials(bool isWaterSurface, int mainTextureIndex, int shadowTextureIndex = -1)
                 {
-                    Material[] materials;
+                    IMaterial[] materials;
                     float waterSurfaceOpacity = 1.0f;
 
                     if (isWaterSurface)
                     {
-                        materials = new Material[1];
+                        materials = new IMaterial[1];
 
                         if (!_isWaterSurfaceOpaque)
                         {
@@ -205,7 +205,7 @@ namespace Pal3.Game.Rendering.Renderer
                             blendFlag = GameBoxBlendFlag.Opaque;
                         }
 
-                        materials[0] = _materialFactory.CreateWaterMaterial(
+                        materials[0] = _materialManager.CreateWaterMaterial(
                             mainTexture: textures[mainTextureIndex],
                             shadowTexture: shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : default,
                             opacity: waterSurfaceOpacity,
@@ -213,7 +213,7 @@ namespace Pal3.Game.Rendering.Renderer
                     }
                     else
                     {
-                        materials = _materialFactory.CreateStandardMaterials(
+                        materials = _materialManager.CreateStandardMaterials(
                             RendererType.Pol,
                             mainTexture: textures[mainTextureIndex],
                             shadowTexture: shadowTextureIndex >= 0 ? textures[shadowTextureIndex] : default,
@@ -231,7 +231,7 @@ namespace Pal3.Game.Rendering.Renderer
                     bool isWaterSurface = textures[mainTextureIndex].name
                         .StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
 
-                    Material[] materials = CreateMaterials(isWaterSurface, mainTextureIndex, shadowTextureIndex);
+                    IMaterial[] materials = CreateMaterials(isWaterSurface, mainTextureIndex, shadowTextureIndex);
 
                     if (isWaterSurface)
                     {
@@ -250,7 +250,7 @@ namespace Pal3.Game.Rendering.Renderer
             }
         }
 
-        private IEnumerator AnimateWaterTextureAsync(Material material,
+        private IEnumerator AnimateWaterTextureAsync(IMaterial material,
             ITexture2D defaultTexture,
             CancellationToken cancellationToken)
         {
@@ -272,13 +272,13 @@ namespace Pal3.Game.Rendering.Renderer
                 for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
                     if (cancellationToken.IsCancellationRequested) break;
-                    material.SetTexture(_mainTexturePropertyId, waterTextures[i].NativeObject as Texture2D);
+                    material.SetTexture(_mainTexturePropertyId, waterTextures[i]);
                     yield return waterAnimationDelay;
                 }
             }
         }
 
-        private void StartWaterSurfaceAnimation(Material material,
+        private void StartWaterSurfaceAnimation(IMaterial material,
             ITexture2D defaultTexture,
             CancellationToken cancellationToken)
         {
@@ -294,7 +294,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             foreach (StaticMeshRenderer meshRenderer in GameEntity.GetComponentsInChildren<StaticMeshRenderer>())
             {
-                _materialFactory.ReturnToPool(meshRenderer.GetMaterials());
+                _materialManager.ReturnToPool(meshRenderer.GetMaterials());
                 meshRenderer.Dispose();
                 meshRenderer.Destroy();
             }

@@ -73,7 +73,7 @@ namespace Pal3.Game.Scene
         private bool _isLightingEnabled;
         private IGameEntity _cameraEntity;
         private SkyBoxRenderer _skyBoxRenderer;
-        private IMaterialFactory _materialFactory;
+        private IMaterialManager _materialManager;
 
         protected override void OnEnableGameEntity()
         {
@@ -125,7 +125,7 @@ namespace Pal3.Game.Scene
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
             _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
                                 (1 << LayerMask.NameToLayer("VFX"));
-            _materialFactory = resourceProvider.GetMaterialFactory();
+            _materialManager = resourceProvider.GetMaterialManager();
         }
 
         public void Load(ScnFile scnFile, IGameEntity parent)
@@ -242,7 +242,7 @@ namespace Pal3.Game.Scene
             var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
-                _materialFactory,
+                _materialManager,
                 isStaticObject: true, // Scene mesh is static
                 Color.White,
                 IsWaterSurfaceOpaque());
@@ -252,7 +252,7 @@ namespace Pal3.Game.Scene
                 var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
                     SceneCvdMesh.Value.TextureProvider,
-                    _materialFactory);
+                    _materialManager);
                 cvdMeshRenderer.LoopAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
         }
@@ -535,7 +535,7 @@ namespace Pal3.Game.Scene
         /// <returns></returns>
         private bool IsWaterSurfaceOpaque()
         {
-            if (_materialFactory.ShaderType == MaterialShaderType.Lit)
+            if (_materialManager.ShaderType == MaterialShaderType.Lit)
             {
                 #if PAL3
                 if (ScnFile.SceneInfo.Is("q17", "q17"))

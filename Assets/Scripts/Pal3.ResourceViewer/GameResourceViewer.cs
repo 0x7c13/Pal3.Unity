@@ -269,7 +269,7 @@ namespace Pal3.ResourceViewer
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile,
                     textureProvider,
-                    _resourceProvider.GetMaterialFactory(),
+                    _resourceProvider.GetMaterialManager(),
                     isStaticObject: true,
                     Color.White);
 
@@ -306,7 +306,7 @@ namespace Pal3.ResourceViewer
 
                 meshRenderer.Init(cvdFile,
                     textureProvider,
-                    _resourceProvider.GetMaterialFactory());
+                    _resourceProvider.GetMaterialManager());
 
                 meshRenderer.LoopAnimation();
 
@@ -359,7 +359,7 @@ namespace Pal3.ResourceViewer
                 //     ITextureResourceProvider weaponTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                 //         CoreUtility.GetRelativeDirectoryPath(weaponPath));
                 //     mv3AnimationRenderer.Init(mv3File,
-                //         _resourceProvider.GetMaterialFactory(),
+                //         _resourceProvider.GetMaterialManager(),
                 //         textureProvider,
                 //         Color.white,
                 //         polFile,
@@ -368,7 +368,7 @@ namespace Pal3.ResourceViewer
                 // else
                 {
                     mv3AnimationRenderer.Init(mv3File,
-                        _resourceProvider.GetMaterialFactory(),
+                        _resourceProvider.GetMaterialManager(),
                         textureProvider);
                 }
 
@@ -423,7 +423,7 @@ namespace Pal3.ResourceViewer
 
                 skeletalModelRenderer.Init(mshFile,
                     mtlFile,
-                    _resourceProvider.GetMaterialFactory(),
+                    _resourceProvider.GetMaterialManager(),
                     textureProvider);
 
                 skeletalModelRenderer.StartAnimation(movFile);

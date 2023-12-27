@@ -45,7 +45,8 @@ namespace Pal3.Game.Effect
 
             if (!hasAlphaChannel)
             {
-                _material = resourceProvider.GetMaterialFactory().CreateOpaqueSpriteMaterial(texture);
+                _material = resourceProvider.GetMaterialManager()
+                    .CreateOpaqueSpriteMaterial(texture).NativeObject as Material;
                 _spriteRenderer.sharedMaterial = _material;
             }
 

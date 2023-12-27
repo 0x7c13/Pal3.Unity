@@ -39,7 +39,7 @@ namespace Pal3.Game.Effect
         {
             FireEffectType = (FireEffectType)effectParameter;
             (string TexturePathFormat, string ModelPath, float Size, float _) info = EffectConstants.FireEffectInfo[FireEffectType];
-            IMaterialFactory materialFactory = resourceProvider.GetMaterialFactory();
+            IMaterialManager materialManager = resourceProvider.GetMaterialManager();
 
             if (!string.IsNullOrEmpty(info.ModelPath))
             {
@@ -49,7 +49,7 @@ namespace Pal3.Game.Effect
                 _sceneObjectRenderer = GameEntity.AddComponent<PolyModelRenderer>();
                 _sceneObjectRenderer.Render(polFile,
                     textureProvider,
-                    materialFactory,
+                    materialManager,
                     isStaticObject: false);
             }
 
@@ -82,7 +82,7 @@ namespace Pal3.Game.Effect
                 _billboardRenderer = EffectGameEntity.AddComponent<AnimatedBillboardRenderer>();
                 _spriteMaterial = _effectTextures[0].hasAlphaChannel
                     ? null
-                    : materialFactory.CreateOpaqueSpriteMaterial();
+                    : materialManager.CreateOpaqueSpriteMaterial().NativeObject as Material;
                 _billboardRenderer.Init(sprites, EffectConstants.AnimatedFireEffectFrameRate, _spriteMaterial);
                 _billboardRenderer.StartAnimation(-1);
             }

@@ -190,24 +190,30 @@ namespace Pal3.Game
             TextureLoaderFactory textureLoaderFactory = new (textureFactory);
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
-            // Init material factories
-            IMaterialFactory unlitMaterialFactory = new UnlitMaterialFactory();
+            // Init MaterialFactory
+            IMaterialFactory materialFactory = new UnityMaterialFactory();
+            ServiceLocator.Instance.Register<IMaterialFactory>(materialFactory);
 
-            IMaterialFactory litMaterialFactory = null;
+            // Init material factories
+            IMaterialManager unlitMaterialManager = new UnlitMaterialManager(materialFactory);
+
+            IMaterialManager litMaterialManager = null;
             // Only create litMaterialFactory when toon materials are present
             if (_toonOpaqueMaterial != null && _toonTransparentMaterial != null)
             {
-                litMaterialFactory = new LitMaterialFactory(_toonOpaqueMaterial, _toonTransparentMaterial);
+                litMaterialManager = new LitMaterialManager(materialFactory,
+                    new UnityMaterial(_toonOpaqueMaterial, isClone: false),
+                    new UnityMaterial(_toonTransparentMaterial, isClone: false));
             }
 
             // Pre-allocate material pool, since it is very costly to create new materials at runtime
-            if (!isOpenSourceVersion && gameSettings.IsRealtimeLightingAndShadowsEnabled && litMaterialFactory != null)
+            if (!isOpenSourceVersion && gameSettings.IsRealtimeLightingAndShadowsEnabled && litMaterialManager != null)
             {
-                litMaterialFactory.AllocateMaterialPool();
+                litMaterialManager.AllocateMaterialPool();
             }
             else
             {
-                unlitMaterialFactory.AllocateMaterialPool();
+                unlitMaterialManager.AllocateMaterialPool();
             }
 
             // Init command related services
@@ -231,8 +237,8 @@ namespace Pal3.Game
             GameResourceProvider resourceProvider = new GameResourceProvider(cpkFileSystem,
                 textureLoaderFactory,
                 textureFactory,
-                unlitMaterialFactory,
-                litMaterialFactory,
+                unlitMaterialManager,
+                litMaterialManager,
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 

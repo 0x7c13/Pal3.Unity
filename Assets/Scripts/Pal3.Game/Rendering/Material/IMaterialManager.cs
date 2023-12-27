@@ -7,7 +7,6 @@ namespace Pal3.Game.Rendering.Material
 {
     using Core.Primitives;
     using Engine.Core.Abstraction;
-    using UnityEngine;
     using Color = Core.Primitives.Color;
 
     public enum MaterialShaderType
@@ -16,7 +15,7 @@ namespace Pal3.Game.Rendering.Material
         Lit,
     }
 
-    public interface IMaterialFactory
+    public interface IMaterialManager
     {
         public MaterialShaderType ShaderType { get; }
 
@@ -24,14 +23,14 @@ namespace Pal3.Game.Rendering.Material
         /// Create a material for effect sprite without alpha channel.
         /// </summary>
         /// <returns>Material</returns>
-        public Material CreateOpaqueSpriteMaterial();
+        public IMaterial CreateOpaqueSpriteMaterial();
 
         /// <summary>
         /// Create a material for effect sprite without alpha channel.
         /// </summary>
         /// <param name="texture">Texture</param>
         /// <returns>Material</returns>
-        public Material CreateOpaqueSpriteMaterial(ITexture2D texture);
+        public IMaterial CreateOpaqueSpriteMaterial(ITexture2D texture);
 
         /// <summary>
         /// Create standard materials.
@@ -42,7 +41,7 @@ namespace Pal3.Game.Rendering.Material
         /// <param name="tintColor">Tint color</param>
         /// <param name="blendFlag">Blend flag</param>
         /// <returns>Materials</returns>
-        public Material[] CreateStandardMaterials(
+        public IMaterial[] CreateStandardMaterials(
             RendererType rendererType,
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture,
@@ -57,7 +56,7 @@ namespace Pal3.Game.Rendering.Material
         /// <param name="opacity">Opacity</param>
         /// <param name="blendFlag">Blend flag</param>
         /// <returns>Material</returns>
-        public Material CreateWaterMaterial(
+        public IMaterial CreateWaterMaterial(
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) shadowTexture,
             float opacity,
@@ -69,7 +68,7 @@ namespace Pal3.Game.Rendering.Material
         /// <param name="material">Material</param>
         /// <param name="newMainTexture">New main texture</param>
         /// <param name="blendFlag">Blend flag</param>
-        public void UpdateMaterial(Material material,
+        public void UpdateMaterial(IMaterial material,
             ITexture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
 
@@ -87,6 +86,6 @@ namespace Pal3.Game.Rendering.Material
         /// Return materials to the pool.
         /// </summary>
         /// <param name="materials">Materials to return</param>
-        public void ReturnToPool(Material[] materials);
+        public void ReturnToPool(IMaterial[] materials);
     }
 }
