@@ -11,4 +11,4 @@ ScriptedImporter:
   generateWrapperCode: 1
   wrapperCodePath: 
   wrapperClassName: 
-  wrapperCodeNamespace: Pal3.Input
+  wrapperCodeNamespace: Pal3.Game.Input
