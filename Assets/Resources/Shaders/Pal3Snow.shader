@@ -1,3 +1,7 @@
+// ---------------------------------------------------------------------------------------------
+//  Copyright (c) 2021-2024, Jiaqi Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ---------------------------------------------------------------------------------------------
 // Based on https://www.shadertoy.com/view/4dl3R4
 
 Shader "Pal3/Snow"

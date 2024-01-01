@@ -403,7 +403,9 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles:
-  - assemblyQualifiedName: Pal3.Effect.PostProcessing.Distortion, Pal3, Version=0.0.0.0,
+  - assemblyQualifiedName: Pal3.Game.Effect.PostProcessing.Distortion, Pal3.Game,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - assemblyQualifiedName: Pal3.Game.Effect.PostProcessing.Snow, Pal3.Game, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &547426358569454562
 GameObject:
@@ -4062,7 +4064,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "https://github.com/0x7c13/Pal3.Unity B\u7AD9@\u67D2\u624D\nCopyright (c)
-    2021-2023, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2003, SOFTSTAR
+    2021-2024, \u67D2\u624D(0x7c13). All rights reserved.\nCopyright (c) 2003, SOFTSTAR
     ENTERTAINMENT. All rights reserved."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e1d886e63529bb4ca3c95ece3e3189c, type: 2}
