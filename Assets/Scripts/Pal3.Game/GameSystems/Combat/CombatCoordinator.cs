@@ -58,7 +58,7 @@ namespace Pal3.Game.GameSystems.Combat
         private readonly GameStateManager _gameStateManager;
 
         private readonly CombatScnFile _combatScnFile;
-        private readonly CombatContext _currentCombatContext = new();
+        private readonly CombatContextBuilder _combatContextBuilder = new();
 
         public CombatCoordinator(GameResourceProvider resourceProvider,
             GameSettings gameSettings,
@@ -97,17 +97,17 @@ namespace Pal3.Game.GameSystems.Combat
 
             // Figure out which combat scene to use
             string combatSceneName = GetCombatSceneName(currentScene);
-            _currentCombatContext.SetCombatSceneName(combatSceneName);
+            _combatContextBuilder.WithCombatSceneName(combatSceneName);
 
             // Figure out element property of the combat scene
             if (_combatScnFile.CombatSceneElementTypeInfo.TryGetValue(combatSceneName,
                     out ElementType combatSceneElementType))
             {
-                _currentCombatContext.SetCombatSceneElementType(combatSceneElementType);
+                _combatContextBuilder.WithCombatSceneElementType(combatSceneElementType);
             }
 
             // Figure out which combat music to play
-            if (string.IsNullOrEmpty(_currentCombatContext.CombatMusicName))
+            if (string.IsNullOrEmpty(_combatContextBuilder.CurrentContext.CombatMusicName))
             {
                 if (MusicConstants.CombatMusicInfo.TryGetValue(
                         currentScene.GetSceneInfo().CityName.ToLower(),
@@ -115,9 +115,9 @@ namespace Pal3.Game.GameSystems.Combat
                 {
                     // Set music only if it's not set yet or it's not a script triggered combat
                     if (string.IsNullOrEmpty(_audioManager.GetCurrentScriptMusic()) ||
-                        !_currentCombatContext.IsScriptTriggeredCombat)
+                        !_combatContextBuilder.CurrentContext.IsScriptTriggeredCombat)
                     {
-                        _currentCombatContext.SetCombatMusicName(combatMusic);
+                        _combatContextBuilder.WithCombatMusicName(combatMusic);
                     }
                 }
             }
@@ -128,22 +128,24 @@ namespace Pal3.Game.GameSystems.Combat
             {
                 var combatWaiter = new WaitUntilCanceled();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(combatWaiter));
-                _currentCombatContext.SetScriptWaiter(combatWaiter);
+                _combatContextBuilder.WithScriptWaiter(combatWaiter);
             }
 
+            CombatContext combatContext = _combatContextBuilder.Build();
+
             // Start combat
-            EngineLogger.LogWarning($"Starting combat with context: {_currentCombatContext}");
+            EngineLogger.LogWarning($"Starting combat with context: {combatContext}");
             _gameStateManager.TryGoToState(GameState.Combat);
-            _combatManager.EnterCombat(_currentCombatContext);
+            _combatManager.EnterCombat(combatContext);
         }
 
-        private void OnCombatFinished(object sender, bool isPlayerWin)
+        private void OnCombatFinished(object sender, CombatResult combatResult)
         {
             _combatManager.ExitCombat();
-            _currentCombatContext.ScriptWaiter?.CancelWait();
-            _currentCombatContext.ResetContext();
+            combatResult.CombatContext.ScriptWaiter?.CancelWait();
+            _combatContextBuilder.ResetContext();
 
-            if (isPlayerWin)
+            if (combatResult.IsPlayerWin)
             {
                 _gameStateManager.GoToPreviousState();
             }
@@ -225,59 +227,62 @@ namespace Pal3.Game.GameSystems.Combat
                 (monsterIds[i], monsterIds[randomIndex]) = (monsterIds[randomIndex], monsterIds[i]);
             }
 
-            _currentCombatContext.SetEnemyIds(
-                monsterIds[0],
-                monsterIds[1],
-                monsterIds[2],
-                monsterIds[3],
-                monsterIds[4],
-                monsterIds[5]);
-
-            // CombatEnterNormalFightCommand is used for normal combat only (player collide with monster)
-            _currentCombatContext.SetIsScriptTriggeredCombat(false);
+            _combatContextBuilder
+                .WithEnemyIds(
+                    monsterIds[0],
+                    monsterIds[1],
+                    monsterIds[2],
+                    monsterIds[3],
+                    monsterIds[4],
+                    monsterIds[5])
+                .WithIsScriptTriggeredCombat(false); // CombatEnterNormalFightCommand is used for
+                                                     // normal combat only (player collide with monster)
 
             StartCombat();
         }
 
         public void Execute(CombatEnterBossFightCommand command)
         {
-            _currentCombatContext.SetEnemyIds(
-                command.Monster1Id,
-                command.Monster2Id,
-                command.Monster3Id,
-                command.Monster4Id,
-                command.Monster5Id,
-                command.Monster6Id);
-            _currentCombatContext.SetIsScriptTriggeredCombat(true);
+            _combatContextBuilder
+                .WithEnemyIds(
+                    command.Monster1Id,
+                    command.Monster2Id,
+                    command.Monster3Id,
+                    command.Monster4Id,
+                    command.Monster5Id,
+                    command.Monster6Id)
+                .WithIsScriptTriggeredCombat(true);
             StartCombat();
         }
 
         #if PAL3A
         public void Execute(CombatEnterBossFightUsingMusicCommand command)
         {
-            _currentCombatContext.SetEnemyIds(
-                command.Monster1Id,
-                command.Monster2Id,
-                command.Monster3Id,
-                command.Monster4Id,
-                command.Monster5Id,
-                command.Monster6Id);
-            _currentCombatContext.SetIsScriptTriggeredCombat(true);
-            _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
+            _combatContextBuilder
+                .WithEnemyIds(
+                    command.Monster1Id,
+                    command.Monster2Id,
+                    command.Monster3Id,
+                    command.Monster4Id,
+                    command.Monster5Id,
+                    command.Monster6Id)
+                .WithIsScriptTriggeredCombat(true)
+                .WithCombatMusicName(command.CombatMusicName);
             StartCombat();
         }
 
         public void Execute(CombatEnterBossFightUsingMusicWithSpecialActorCommand command)
         {
-            _currentCombatContext.SetEnemyIds(
-                command.Monster1Id,
-                command.Monster2Id,
-                command.Monster3Id,
-                command.Monster4Id,
-                command.Monster5Id,
-                command.Monster6Id);
-            _currentCombatContext.SetIsScriptTriggeredCombat(true);
-            _currentCombatContext.SetCombatMusicName(command.CombatMusicName);
+            _combatContextBuilder
+                .WithEnemyIds(
+                    command.Monster1Id,
+                    command.Monster2Id,
+                    command.Monster3Id,
+                    command.Monster4Id,
+                    command.Monster5Id,
+                    command.Monster6Id)
+                .WithIsScriptTriggeredCombat(true)
+                .WithCombatMusicName(command.CombatMusicName);
             // TODO: NanGoongHuang enter fight using wolf state
             StartCombat();
         }
@@ -285,22 +290,22 @@ namespace Pal3.Game.GameSystems.Combat
 
         public void Execute(CombatSetUnbeatableCommand command)
         {
-            _currentCombatContext.SetUnbeatable(true);
+            _combatContextBuilder.WithUnbeatable(true);
         }
 
         public void Execute(CombatSetMaxRoundCommand command)
         {
-            _currentCombatContext.SetMaxRound(command.MaxRound);
+            _combatContextBuilder.WithMaxRound(command.MaxRound);
         }
 
         public void Execute(CombatSetNoGameOverWhenLoseCommand command)
         {
-            _currentCombatContext.SetNoGameOverWhenLose(true);
+            _combatContextBuilder.WithNoGameOverWhenLose(true);
         }
 
         public void Execute(ResetGameStateCommand command)
         {
-            _currentCombatContext.ResetContext();
+            _combatContextBuilder.ResetContext();
         }
 
         // Player actor collides with combat NPC in maze
@@ -317,7 +322,7 @@ namespace Pal3.Game.GameSystems.Combat
                 var playerTransform = currentScene.GetActorGameEntity(command.PlayerActorId).Transform;
                 var enemyTransform = currentScene.GetActorGameEntity(command.CombatActorId).Transform;
 
-                _currentCombatContext.SetMeetType(CalculateMeetType(playerTransform, enemyTransform));
+                _combatContextBuilder.WithMeetType(CalculateMeetType(playerTransform, enemyTransform));
 
                 Execute(new CombatEnterNormalFightCommand(
                     combatActor.Info.NumberOfMonsters,

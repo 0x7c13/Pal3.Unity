@@ -30,9 +30,15 @@ namespace Pal3.Game.GameSystems.Combat
     using Quaternion = UnityEngine.Quaternion;
     using Vector3 = UnityEngine.Vector3;
 
+    public sealed class CombatResult
+    {
+        public bool IsPlayerWin { get; set; }
+        public CombatContext CombatContext { get; set; }
+    }
+
     public sealed class CombatManager
     {
-        public event EventHandler<bool> OnCombatFinished;
+        public event EventHandler<CombatResult> OnCombatFinished;
 
         private const string COMBAT_CAMERA_CONFIG_FILE_NAME = "cbCam.ini";
         private const float COMBAT_CAMERA_DEFAULT_FOV = 39f;
@@ -50,6 +56,7 @@ namespace Pal3.Game.GameSystems.Combat
         private float _cameraFovBeforeCombat;
 
         private CombatScene _combatScene;
+        private CombatContext _currentCombatContext;
 
         public CombatManager(GameResourceProvider resourceProvider,
             TeamManager teamManager,
@@ -68,6 +75,8 @@ namespace Pal3.Game.GameSystems.Combat
 
         public void EnterCombat(CombatContext combatContext)
         {
+            _currentCombatContext = combatContext;
+
             _cameraManager.GetCameraTransform().GetPositionAndRotation(out _cameraPositionBeforeCombat,
                 out _cameraRotationBeforeCombat);
 
@@ -149,7 +158,11 @@ namespace Pal3.Game.GameSystems.Combat
         {
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
-                OnCombatFinished?.Invoke(this, true);
+                OnCombatFinished?.Invoke(this, new CombatResult
+                {
+                    IsPlayerWin = true,
+                    CombatContext = _currentCombatContext,
+                });
             }
 
             CombatActorController fromController = null;

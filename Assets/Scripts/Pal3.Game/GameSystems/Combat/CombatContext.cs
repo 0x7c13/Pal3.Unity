@@ -20,62 +20,16 @@ namespace Pal3.Game.GameSystems.Combat
     /// </summary>
     public sealed class CombatContext
     {
-        public WaitUntilCanceled ScriptWaiter { get; private set; }
-        public string CombatSceneName { get; private set; }
-        public ElementType CombatSceneElementType { get; private set; }
-        public bool IsScriptTriggeredCombat { get; private set; }
-        public MeetType MeetType { get; private set; }
-        public string CombatMusicName { get; private set; }
-        public int MaxRound { get; private set; }
-        public bool IsUnbeatable { get; private set; }
-        public bool IsNoGameOverWhenLose { get; private set; }
-        public uint[] EnemyIds { get; private set; }
-
-        public CombatContext()
-        {
-            ResetContext();
-        }
-
-        public void SetScriptWaiter(WaitUntilCanceled scriptWaiter) => ScriptWaiter = scriptWaiter;
-
-        public void SetCombatSceneName(string combatSceneName) => CombatSceneName = combatSceneName;
-
-        public void SetCombatSceneElementType(ElementType combatSceneElementType) => CombatSceneElementType = combatSceneElementType;
-
-        public void SetIsScriptTriggeredCombat(bool isScriptTriggeredCombat) => IsScriptTriggeredCombat = isScriptTriggeredCombat;
-
-        public void SetMeetType(MeetType meetType) => MeetType = meetType;
-
-        public void SetCombatMusicName(string combatMusicName) => CombatMusicName = combatMusicName;
-
-        public void SetMaxRound(int maxRound) => MaxRound = maxRound;
-
-        public void SetUnbeatable(bool isUnbeatable) => IsUnbeatable = isUnbeatable;
-
-        public void SetNoGameOverWhenLose(bool isNoGameOverWhenLose) => IsNoGameOverWhenLose = isNoGameOverWhenLose;
-
-        public void SetEnemyIds(
-            uint enemy1Id, uint enemy2Id, uint enemy3Id, uint enemy4Id, uint enemy5Id, uint enemy6Id)
-            =>
-                EnemyIds = new []
-                {
-                    enemy1Id, enemy2Id, enemy3Id, enemy4Id, enemy5Id, enemy6Id
-                };
-
-
-        public void ResetContext()
-        {
-            ScriptWaiter = null;
-            CombatSceneName = string.Empty;
-            CombatSceneElementType = ElementType.None;
-            CombatMusicName = string.Empty;
-            IsScriptTriggeredCombat = false;
-            MeetType = MeetType.RunningIntoEachOther;
-            MaxRound = -1; // -1 means no limit
-            IsUnbeatable = false;
-            IsNoGameOverWhenLose = false;
-            EnemyIds = new uint[6];
-        }
+        public WaitUntilCanceled ScriptWaiter { get; set; } = null; // null means no script waiter
+        public string CombatSceneName { get; set; } = string.Empty;
+        public ElementType CombatSceneElementType { get; set; } = ElementType.None;
+        public bool IsScriptTriggeredCombat { get; set; } = false;
+        public MeetType MeetType { get; set; } = MeetType.RunningIntoEachOther;
+        public string CombatMusicName { get; set; } = string.Empty;
+        public int MaxRound { get; set; } = -1; // -1 means no limit
+        public bool IsUnbeatable { get; set; } = false;
+        public bool IsNoGameOverWhenLose { get; set; } = false;
+        public uint[] EnemyIds { get; set; } = new uint[6];
 
         public override string ToString()
         {
