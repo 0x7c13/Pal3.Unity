@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/cache@v3.3.3
+      - uses: actions/cache@v4.0.0
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
