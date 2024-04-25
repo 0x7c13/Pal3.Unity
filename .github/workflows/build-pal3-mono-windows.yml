@@ -13,7 +13,7 @@ jobs:
           - StandaloneWindows # Build a Windows standalone.
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
     steps:
-      - uses: actions/checkout@v4.1.2
+      - uses: actions/checkout@v4.1.3
         with:
           fetch-depth: 0
           lfs: true
@@ -31,7 +31,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3
           versioning: Semantic
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.3.2
         with:
           name: PAL3-Mono-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
