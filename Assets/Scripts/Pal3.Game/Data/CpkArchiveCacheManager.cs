@@ -18,14 +18,14 @@ namespace Pal3.Game.Data
     /// <summary>
     /// Cache/dispose Cpk archive into memory based on scenarios.
     /// </summary>
-    public sealed class FileSystemCacheManager : IDisposable,
+    public sealed class CpkArchiveCacheManager : IDisposable,
         ICommandExecutor<ScenePreLoadingNotification>
     {
         private readonly ICpkFileSystem _fileSystem;
         private string _currentCityName;
         private string _currentSceneName;
 
-        public FileSystemCacheManager(ICpkFileSystem fileSystem)
+        public CpkArchiveCacheManager(ICpkFileSystem fileSystem)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);

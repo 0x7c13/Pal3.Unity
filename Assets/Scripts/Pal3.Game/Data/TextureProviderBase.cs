@@ -11,7 +11,7 @@ namespace Pal3.Game.Data
 
     public abstract class TextureProviderBase
     {
-        protected ITexture2D GetTexture(ICpkFileSystem fileSystem,
+        protected ITexture2D GetTexture(IFileSystem fileSystem,
             string texturePath,
             ITextureLoader textureLoader,
             out bool hasAlphaChannel)

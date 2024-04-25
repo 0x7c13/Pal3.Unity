@@ -147,7 +147,7 @@ namespace Pal3.Game
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _gameResourceProvider;
         private IPhysicsManager _physicsManager;
-        private FileSystemCacheManager _fileSystemCacheManager;
+        private CpkArchiveCacheManager _cpkArchiveCacheManager;
         private PlayerInputActions _inputActions;
         private InputManager _inputManager;
         private GameStateManager _gameStateManager;
@@ -235,8 +235,8 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register<IPhysicsManager>(_physicsManager =
                 new PhysicsManager(mainCamera));
 
-            ServiceLocator.Instance.Register(_fileSystemCacheManager =
-                new FileSystemCacheManager(_fileSystem)
+            ServiceLocator.Instance.Register(_cpkArchiveCacheManager =
+                new CpkArchiveCacheManager(_fileSystem)
             );
 
             ServiceLocator.Instance.Register(_inputActions =

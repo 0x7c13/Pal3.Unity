@@ -50,7 +50,7 @@ namespace Pal3.Game.Data
 
         private const char DIR_SEPARATOR = CpkConstants.DirectorySeparatorChar;
 
-        private readonly ICpkFileSystem _fileSystem;
+        private readonly IFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly ITextureFactory _textureFactory;
         private readonly IMaterialManager _unlitMaterialManager;
@@ -69,7 +69,7 @@ namespace Pal3.Game.Data
 
         private readonly int _codepage;
 
-        public GameResourceProvider(ICpkFileSystem fileSystem,
+        public GameResourceProvider(IFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
             IMaterialManager unlitMaterialManager,

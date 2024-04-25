@@ -15,13 +15,13 @@ namespace Pal3.Game.Data
 
     public sealed class TextureProvider : TextureProviderBase, ITextureResourceProvider
     {
-        private readonly ICpkFileSystem _fileSystem;
+        private readonly IFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly ITextureFactory _textureFactory;
         private readonly ITextureCache _textureCache;
         private readonly string _relativeDirectoryPath;
 
-        public TextureProvider(ICpkFileSystem fileSystem,
+        public TextureProvider(IFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
             string relativeDirectoryPath,

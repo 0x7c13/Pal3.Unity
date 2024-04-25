@@ -24,7 +24,9 @@ namespace Pal3.Core.FileSystem
         private readonly Crc32Hash _crcHash;
         private readonly int _codepage;
 
-        public CpkFileSystem(string rootPath, Crc32Hash crcHash, int codepage)
+        public CpkFileSystem(string rootPath,
+            Crc32Hash crcHash,
+            int codepage)
         {
             if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             {
@@ -260,7 +262,7 @@ namespace Pal3.Core.FileSystem
             {
                 if (node.IsDirectory)
                 {
-                    foreach (var result in SearchInternal(node.Children, keyword))
+                    foreach (string result in SearchInternal(node.Children, keyword))
                     {
                         yield return result;
                     }
