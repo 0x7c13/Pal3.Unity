@@ -981,19 +981,9 @@ namespace Pal3.Game.Actor.Controllers
             // Manually remove the active actor collider when it is being deactivated by script if any
             if (_activeColliders.Count > 0 && command.IsActive == 0)
             {
-                ActiveColliderInfo colliderToBeRemoved = null;
-
-                foreach (ActiveColliderInfo colliderInfo in _activeColliders)
-                {
-                    if (colliderInfo.ColliderGameEntity.GetComponent<ActorController>() is {} actorController &&
-                        actorController.GetActor().Id == command.ActorId)
-                    {
-                        colliderToBeRemoved = colliderInfo;
-                        break;
-                    }
-                }
-
-                if (colliderToBeRemoved != null) _activeColliders.Remove(colliderToBeRemoved);
+                _activeColliders.RemoveWhere(
+                    _ => _.ColliderGameEntity.GetComponent<ActorController>() is {} actorController &&
+                                                  actorController.GetActor().Id == command.ActorId);
             }
 
             // When self is being deactivated, cancel the movement
