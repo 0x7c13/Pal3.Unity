@@ -283,7 +283,10 @@ namespace Pal3.Game.Actor.Controllers
             // Sanity cleanup
             if (_activeColliders.Count > 0)
             {
-                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null || _.ColliderGameEntity.IsNativeObjectDisposed);
+                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null ||
+                                                  _.ColliderGameEntity.IsNativeObjectDisposed ||
+                                                  // Just in case the collider is destroyed during the collision
+                                                  _.ColliderGameEntity.GetComponent<Collider>() == null);
             }
 
             // Sanity cleanup
@@ -975,8 +978,26 @@ namespace Pal3.Game.Actor.Controllers
 
         public void Execute(ActorActivateCommand command)
         {
-            if (_actor.Id != command.ActorId) return;
-            if (command.IsActive == 0)
+            // Manually remove the active actor collider when it is being deactivated by script if any
+            if (_activeColliders.Count > 0 && command.IsActive == 0)
+            {
+                ActiveColliderInfo colliderToBeRemoved = null;
+
+                foreach (ActiveColliderInfo colliderInfo in _activeColliders)
+                {
+                    if (colliderInfo.ColliderGameEntity.GetComponent<ActorController>() is {} actorController &&
+                        actorController.GetActor().Id == command.ActorId)
+                    {
+                        colliderToBeRemoved = colliderInfo;
+                        break;
+                    }
+                }
+
+                if (colliderToBeRemoved != null) _activeColliders.Remove(colliderToBeRemoved);
+            }
+
+            // When self is being deactivated, cancel the movement
+            if (_actor.Id == command.ActorId && command.IsActive == 0)
             {
                 _movementWaiter?.CancelWait();
                 _movementCts?.Cancel();
