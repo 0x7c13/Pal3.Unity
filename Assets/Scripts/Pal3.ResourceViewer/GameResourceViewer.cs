@@ -59,6 +59,7 @@ namespace Pal3.ResourceViewer
         [SerializeField] private Button randomMp3Button;
         [SerializeField] private Button randomMovButton;
         [SerializeField] private Button extractAllCpkFilesButton;
+        [SerializeField] private Button exportFbxButton;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
@@ -79,6 +80,9 @@ namespace Pal3.ResourceViewer
 
         private int _codePage;
         //private HashSet<char> _charSet;
+        
+        private bool _enableExportFbx = true;
+        private Pal3.ResourceViewer.FBXExporter _fbxExporter = new FBXExporter();
 
         private void OnEnable()
         {
@@ -128,6 +132,7 @@ namespace Pal3.ResourceViewer
 
             #if UNITY_EDITOR
             extractAllCpkFilesButton.onClick.AddListener(ExtractAllCpkArchives);
+            exportFbxButton.onClick.AddListener(ExportFbx);
             #else
             extractAllCpkFilesButton.interactable = false;
             #endif
@@ -378,6 +383,11 @@ namespace Pal3.ResourceViewer
 
                 Camera.main!.transform.LookAt(new Vector3(0, 2, 0));
 
+                if (_enableExportFbx)
+                {
+                    _fbxExporter.ExportMv3File(mv3File);
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -556,6 +566,11 @@ namespace Pal3.ResourceViewer
             extractAllCpkFilesButton.interactable = false;
             consoleTextUI.text = "正在解包全部CPK文件，请稍等...";
             StartCoroutine(ExtractAllCpkArchivesInternalAsync(outputFolderPath));
+        }
+        
+        private void ExportFbx()
+        {
+            _enableExportFbx = !_enableExportFbx;
         }
 
         private bool _isMovieCpkMounted = false;
