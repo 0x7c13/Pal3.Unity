@@ -1,13 +1,14 @@
 ﻿using Autodesk.Fbx;
+using Engine.Extensions;
 using Pal3.Core.DataReader.Mv3;
 using Pal3.Core.Primitives;
-using UnityEngine.SceneManagement;
+using UnityEngine;
 
 namespace Pal3.ResourceViewer
 {
     public class FBXExporter
     {
-        public void ExportMv3File(Mv3File mv3File)
+        public void ExportMv3File(Mv3File mv3File,string exportFilePath)
         {
 
             FbxManager fbxManager = FbxManager.Create();
@@ -15,37 +16,53 @@ namespace Pal3.ResourceViewer
             
             for (int meshIdx = 0;meshIdx < mv3File.Meshes.Length;meshIdx++)
             {
-                FbxNode meshNode = FbxNode.Create(fbxScene,"MyMesh");
-                FbxMesh mesh = FbxMesh.Create(fbxScene,"MyMeshGeometry");
-                
                 Mv3Mesh mv3Mesh = mv3File.Meshes[meshIdx];
-                ExportMv3Mesh(mesh,mv3Mesh);
-                //ExportMv3Anim(fbxManager,fbxScene, mesh, mv3Mesh);
-                ExportMv3AnimV2(fbxManager,fbxScene, mesh, mv3Mesh);
+                int frameCnt = mv3Mesh.KeyFrames.Length;
+                
+                // for (int frameIdx = 0;frameIdx < frameCnt;frameIdx++)
+                // {
 
-                meshNode.SetNodeAttribute(mesh);
+                int frameIdx = 0;
+                FbxNode meshNode = FbxNode.Create(fbxScene,"mesh_at_frame_" + frameIdx);
+                FbxMesh fbxMesh = FbxMesh.Create(fbxScene,"MyMeshGeometry");
+                
+                ExportMv3Mesh(fbxManager,fbxMesh,mv3Mesh,frameIdx);
+                
+                meshNode.SetNodeAttribute(fbxMesh);
                 fbxScene.GetRootNode().AddChild(meshNode);
+
+
+                // Set BlendShape & Shape keys 
+                int vertexCount = mv3Mesh.KeyFrames[0].GameBoxVertices.Length; 
+                FbxBlendShape blendShape = FbxBlendShape.Create(fbxManager,"bs1");
+                for (frameIdx = 1;frameIdx < frameCnt;frameIdx++)
+                {
+                    FbxBlendShapeChannel shapeKeyChannel1 = FbxBlendShapeChannel.Create(fbxManager, "shapeKeyChannel_" + frameIdx);
+                    FbxShape shape1 = FbxShape.Create(fbxManager,"shape_" + frameIdx);
+                    shape1.InitControlPoints(vertexCount);
+                    for (int vertIdx = 0; vertIdx < vertexCount; vertIdx++)
+                    {
+                        // var pt = new FbxVector4(0, 0, 0, 1);
+                        // shape1.SetControlPointAt(pt, vertIdx);
+                        
+                        GameBoxVector3 pt = mv3Mesh.KeyFrames[frameIdx].GameBoxVertices[vertIdx];
+                        Vector3 unityAttPos = pt.ToUnityPosition();
+                        shape1.SetControlPointAt(new FbxVector4(unityAttPos.x,unityAttPos.y,unityAttPos.z,1),vertIdx);
+                    }
+
+                    shapeKeyChannel1.AddTargetShape(shape1);
+                    blendShape.AddBlendShapeChannel(shapeKeyChannel1);
+                }
+                fbxMesh.AddDeformer(blendShape);
             }
-
-
-            // @miao @todo
-            var exporter = Autodesk.Fbx.FbxExporter.Create(fbxManager,"");
-            var settings = FbxIOSettings.Create(fbxManager, "test");
-            settings.SetBoolProp("Shape",true);
-            settings.SetBoolProp("ShapeAttributes",true);
-            settings.SetBoolProp("ShapeAttributesValues",true);
-            settings.SetBoolProp("ShapeAnimation",true);
             
-            
-            
-            
-            //exporter.Initialize("ayy_test.fbx", -1, fbxManager.GetIOSettings());
-            exporter.Initialize("ayy_test.fbx", -1, settings);
-
+            var exporter = Autodesk.Fbx.FbxExporter.Create(fbxManager,"test111");
+            //exporter.Initialize("../export_fbx/ayy_test.fbx", -1, fbxManager.GetIOSettings());
+            exporter.Initialize(exportFilePath, -1, fbxManager.GetIOSettings());
             exporter.Export(fbxScene);
         }
 
-        private void ExportMv3Mesh(FbxMesh destMesh, Mv3Mesh mv3Mesh)
+        private void ExportMv3Mesh(FbxManager manager,FbxMesh destMesh, Mv3Mesh mv3Mesh,int frameIndex)
         {
             // vertices
             int vertexCount = mv3Mesh.KeyFrames[0].GameBoxVertices.Length;
@@ -57,8 +74,9 @@ namespace Pal3.ResourceViewer
             for (int vertIdx = 0;vertIdx < vertexCount;vertIdx++)
             {
                 // vert position
-                GameBoxVector3 attPos = mv3Mesh.KeyFrames[0].GameBoxVertices[vertIdx];
-                destMesh.SetControlPointAt(new FbxVector4(attPos.X,attPos.Y,attPos.Z,1),vertIdx);    
+                GameBoxVector3 attPos = mv3Mesh.KeyFrames[frameIndex].GameBoxVertices[vertIdx];
+                Vector3 unityAttPos = attPos.ToUnityPosition();
+                destMesh.SetControlPointAt(new FbxVector4(unityAttPos.x,unityAttPos.y,unityAttPos.z,1),vertIdx);    
                 
                 // vert UV
                 GameBoxVector2 attUV = mv3Mesh.Uvs[vertIdx];
@@ -82,51 +100,7 @@ namespace Pal3.ResourceViewer
             }
         }
         
-        private void ExportMv3Anim(FbxManager fbxManager,FbxScene fbxScene,FbxMesh fbxMesh,Mv3Mesh mv3Mesh)
-        {
-            FbxBlendShapeChannel blendShapeChannel = FbxBlendShapeChannel.Create(fbxScene,"MyBlendShapeChannel");
-            FbxBlendShape blendShape = FbxBlendShape.Create(fbxScene,"MyBlendShape");
-            blendShape.AddBlendShapeChannel(blendShapeChannel);
-            fbxMesh.AddDeformer(blendShape);
-
-            int frameCount = mv3Mesh.KeyFrames.Length;
-            int vertexCount = mv3Mesh.KeyFrames[0].GameBoxVertices.Length;
-            for (int frameIndex = 0;frameIndex < frameCount;frameIndex++)
-            {
-                FbxShape shape = FbxShape.Create(fbxScene,"MyShape_" + frameIndex);
-                for (int vertIdx = 0;vertIdx < vertexCount;vertIdx++) 
-                {
-                    GameBoxVector3 pos = mv3Mesh.KeyFrames[frameIndex].GameBoxVertices[vertIdx];
-                    shape.SetControlPointAt(new FbxVector4(pos.X,pos.Y,pos.Z,1.0),vertIdx);
-                }
-                blendShapeChannel.AddTargetShape(shape);
-            }
-
-
-        }
-
-
-        private void ExportMv3AnimV2(FbxManager fbxManager, FbxScene fbxScene, FbxMesh fbxMesh, Mv3Mesh mv3Mesh)
-        {
-            //FbxBlendShape blendShape = FbxBlendShape.Create(fbxScene, "MyBlendShape");
-            //fbxMesh.AddDeformer(blendShape);
-
-            // var deformer = FbxDeformer.Create(fbxManager, "test11");
-            // fbxMesh.AddDeformer(deformer);
-
-            
-            FbxBlendShape deformer = fbxMesh.GetBlendShapeDeformer(0);
-            if (deformer == null)
-            {
-                deformer = FbxBlendShape.Create(fbxMesh, "MyDefoner");
-            }
-
-            FbxBlendShapeChannel channel = FbxBlendShapeChannel.Create(deformer,"MyChannel");
-            // channel.AddTargetShape()
-
-
-            deformer.AddBlendShapeChannel(channel);
-        }
+     
 
     }
 }

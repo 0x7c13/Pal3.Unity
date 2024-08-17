@@ -7,7 +7,8 @@
         "GUID:077e41948865f464a8105d046a0fdfe0",
         "GUID:3de88c88fbbb8f944b9210d496af9762",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:2b82e46c4ca0a4eb697ab8ccdfb39af1"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -17,5 +18,6 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": false,
+    "allowUnsafeCode": true
 }
