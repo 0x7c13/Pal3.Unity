@@ -19,9 +19,7 @@ namespace Pal3.ResourceViewer
                 Mv3Mesh mv3Mesh = mv3File.Meshes[meshIdx];
                 int frameCnt = mv3Mesh.KeyFrames.Length;
                 
-                // for (int frameIdx = 0;frameIdx < frameCnt;frameIdx++)
-                // {
-
+                
                 int frameIdx = 0;
                 FbxNode meshNode = FbxNode.Create(fbxScene,"mesh_at_frame_" + frameIdx);
                 FbxMesh fbxMesh = FbxMesh.Create(fbxScene,"MyMeshGeometry");
@@ -37,21 +35,17 @@ namespace Pal3.ResourceViewer
                 FbxBlendShape blendShape = FbxBlendShape.Create(fbxManager,"bs1");
                 for (frameIdx = 1;frameIdx < frameCnt;frameIdx++)
                 {
-                    FbxBlendShapeChannel shapeKeyChannel1 = FbxBlendShapeChannel.Create(fbxManager, "shapeKeyChannel_" + frameIdx);
-                    FbxShape shape1 = FbxShape.Create(fbxManager,"shape_" + frameIdx);
-                    shape1.InitControlPoints(vertexCount);
+                    FbxBlendShapeChannel channel = FbxBlendShapeChannel.Create(fbxManager, "shapeKeyChannel_" + frameIdx);
+                    FbxShape shape = FbxShape.Create(fbxManager,"frame_" + frameIdx);
+                    shape.InitControlPoints(vertexCount);
                     for (int vertIdx = 0; vertIdx < vertexCount; vertIdx++)
                     {
-                        // var pt = new FbxVector4(0, 0, 0, 1);
-                        // shape1.SetControlPointAt(pt, vertIdx);
-                        
                         GameBoxVector3 pt = mv3Mesh.KeyFrames[frameIdx].GameBoxVertices[vertIdx];
                         Vector3 unityAttPos = pt.ToUnityPosition();
-                        shape1.SetControlPointAt(new FbxVector4(unityAttPos.x,unityAttPos.y,unityAttPos.z,1),vertIdx);
+                        shape.SetControlPointAt(new FbxVector4(unityAttPos.x,unityAttPos.y,unityAttPos.z,1),vertIdx);
                     }
-
-                    shapeKeyChannel1.AddTargetShape(shape1);
-                    blendShape.AddBlendShapeChannel(shapeKeyChannel1);
+                    channel.AddTargetShape(shape);
+                    blendShape.AddBlendShapeChannel(channel);
                 }
                 fbxMesh.AddDeformer(blendShape);
             }
