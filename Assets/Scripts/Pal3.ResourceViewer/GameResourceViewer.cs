@@ -81,7 +81,6 @@ namespace Pal3.ResourceViewer
         private int _codePage;
         //private HashSet<char> _charSet;
         
-        private bool _enableExportFbx = true;
         private Pal3.ResourceViewer.FBXExporter _fbxExporter = new FBXExporter();
 
         private void OnEnable()
@@ -382,11 +381,6 @@ namespace Pal3.ResourceViewer
                 consoleTextUI.text = $"{filePath}";
 
                 Camera.main!.transform.LookAt(new Vector3(0, 2, 0));
-
-                if (_enableExportFbx)
-                {
-                    _fbxExporter.ExportMv3File(mv3File);
-                }
 
                 return true;
             }
