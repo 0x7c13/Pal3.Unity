@@ -59,6 +59,7 @@ namespace Pal3.ResourceViewer
         [SerializeField] private Button randomMp3Button;
         [SerializeField] private Button randomMovButton;
         [SerializeField] private Button extractAllCpkFilesButton;
+        [SerializeField] private Button exportFbxButton;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
@@ -79,6 +80,8 @@ namespace Pal3.ResourceViewer
 
         private int _codePage;
         //private HashSet<char> _charSet;
+        
+        private Pal3.ResourceViewer.FBXExporter _fbxExporter = new FBXExporter();
 
         private void OnEnable()
         {
@@ -128,6 +131,7 @@ namespace Pal3.ResourceViewer
 
             #if UNITY_EDITOR
             extractAllCpkFilesButton.onClick.AddListener(ExtractAllCpkArchives);
+            exportFbxButton.onClick.AddListener(ExportFbx);
             #else
             extractAllCpkFilesButton.interactable = false;
             #endif
@@ -557,6 +561,51 @@ namespace Pal3.ResourceViewer
             consoleTextUI.text = "正在解包全部CPK文件，请稍等...";
             StartCoroutine(ExtractAllCpkArchivesInternalAsync(outputFolderPath));
         }
+        
+        private void ExportFbx()
+        {
+            string directoryPath = EditorUtility.SaveFolderPanel("选择Fbx目标目录", "", "");
+            for (int i = 0;i < _mv3Files.Count;i++)
+            {
+                string filePath = _mv3Files[i];
+                Mv3File mv3File = _resourceProvider.GetGameResourceFile<Mv3File>(filePath);
+                string targetPath = Path.Combine(directoryPath,filePath);
+                string targetDir = Path.GetDirectoryName(targetPath);
+                if (!Directory.Exists(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                _fbxExporter.ExportMv3File(mv3File,targetPath);
+            }
+            // List<string> mv3FilePaths = FindMv3FilesRecursively(directoryPath);
+
+            
+            Debug.Log("test");
+        }
+
+        // private List<string> FindMv3FilesRecursively(string directoryPath)
+        // {
+        //     List<string> mv3FilePaths = new List<string>();
+        //
+        //     try
+        //     {
+        //         string[] files = Directory.GetFiles(directoryPath, "*.mv3", SearchOption.AllDirectories);
+        //         mv3FilePaths.AddRange(files);
+        //
+        //         string[] subdirectories = Directory.GetDirectories(directoryPath);
+        //         foreach (string subdirectory in subdirectories)
+        //         {
+        //             mv3FilePaths.AddRange(FindMv3FilesRecursively(subdirectory));
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"Error: {ex.Message}");
+        //     }
+        //     
+        //     return mv3FilePaths;
+        // }
 
         private bool _isMovieCpkMounted = false;
         private IEnumerator ExtractAllCpkArchivesInternalAsync(string outputFolderPath)
