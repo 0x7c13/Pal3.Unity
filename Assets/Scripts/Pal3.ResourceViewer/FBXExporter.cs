@@ -63,8 +63,12 @@ namespace Pal3.ResourceViewer
             
             destMesh.InitControlPoints(vertexCount);    // position
             FbxLayerElementUV uvElement = destMesh.CreateElementUV("MyUVs");  // uv
-            FbxLayerElementNormal normalElement = destMesh.CreateElementNormal(); // normal
+            uvElement.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint);
+            uvElement.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect);
+            uvElement.GetDirectArray().SetCount(vertexCount);
             
+            FbxLayerElementNormal normalElement = destMesh.CreateElementNormal(); // normal
+            normalElement.GetDirectArray().SetCount(vertexCount);
             for (int vertIdx = 0;vertIdx < vertexCount;vertIdx++)
             {
                 // vert position
@@ -75,11 +79,16 @@ namespace Pal3.ResourceViewer
                 // vert UV
                 GameBoxVector2 attUV = mv3Mesh.Uvs[vertIdx];
                 uvElement.GetDirectArray().SetAt(vertIdx,new FbxVector2(attUV.X,attUV.Y));
-                
+
                 // normal
                 GameBoxVector3 attNormal = mv3Mesh.GameBoxNormals[vertIdx];
                 normalElement.GetDirectArray().SetAt(vertIdx,new FbxVector4(attNormal.X,attNormal.Y,attNormal.Z,0.0));
             }
+            
+            int cnt = uvElement.GetDirectArray().GetCount();
+            Debug.Log("uv element cnt:" + cnt);
+            
+            
             
             // Faces
             int faceCount = mv3Mesh.GameBoxTriangles.Length / 3;
