@@ -96,9 +96,12 @@ namespace Pal3.ResourceViewer
             {
                 int vertIdx = mv3Mesh.GameBoxTriangles[faceIdx * 3];
                 destMesh.BeginPolygon();
+                // destMesh.AddPolygon(vertIdx);
+                // destMesh.AddPolygon(vertIdx + 1);
+                // destMesh.AddPolygon(vertIdx + 2);
                 destMesh.AddPolygon(vertIdx);
-                destMesh.AddPolygon(vertIdx + 1);
                 destMesh.AddPolygon(vertIdx + 2);
+                destMesh.AddPolygon(vertIdx + 1);
                 destMesh.EndPolygon();
             }
         }
