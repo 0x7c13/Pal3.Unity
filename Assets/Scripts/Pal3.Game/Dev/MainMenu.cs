@@ -208,7 +208,7 @@ namespace Pal3.Game.Dev
             }
 
             const float animationDuration = 20f;
-            var waitDuration = CoroutineYieldInstruction.WaitForSeconds(animationDuration + 3f);
+            object waitDuration = CoroutineYieldInstruction.WaitForSeconds(animationDuration + 3f);
 
             while (_isInInitView && !cancellationToken.IsCancellationRequested)
             {
@@ -383,8 +383,8 @@ namespace Pal3.Game.Dev
                     }
                     else // reload scene to apply changes
                     {
-                        var commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
-                        var saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
+                        List<ICommand> commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
+                        string saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
                         ExecuteCommandsFromSaveFile(saveFileContent);
                     }
 
@@ -564,7 +564,7 @@ namespace Pal3.Game.Dev
                 string GetSlotButtonText() => _saveManager.SaveSlotExists(i) ? string.Format(saveSlotButtonFormat, i,
                     _saveManager.GetSaveSlotLastWriteTime(i)) : string.Format(saveSlotButtonFormat, i, "空");
 
-                var slotIndex = i;
+                int slotIndex = i;
                 CreateMenuButton(GetSlotButtonText(), buttonTextUGUI => delegate
                 {
                     IList<ICommand> gameStateCommands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
@@ -607,7 +607,7 @@ namespace Pal3.Game.Dev
             CreateMenuButton(GetAutoSaveSlotButtonText(), _ => delegate
             {
                 if (!autoSaveSlotExists) return;
-                var saveFileContent = _saveManager.LoadFromSaveSlot(SaveManager.AutoSaveSlotIndex);
+                string saveFileContent = _saveManager.LoadFromSaveSlot(SaveManager.AutoSaveSlotIndex);
                 if (saveFileContent != null)
                 {
                     HideMenu();
@@ -627,12 +627,12 @@ namespace Pal3.Game.Dev
                 string slotButtonText = slotExists ? string.Format(saveSlotButtonFormat, i,
                     _saveManager.GetSaveSlotLastWriteTime(i)) : string.Format(saveSlotButtonFormat, i, "空");
 
-                var slotIndex = i;
+                int slotIndex = i;
                 if (slotExists)
                 {
                     CreateMenuButton(slotButtonText, _ => delegate
                     {
-                        var saveFileContent = _saveManager.LoadFromSaveSlot(slotIndex);
+                        string saveFileContent = _saveManager.LoadFromSaveSlot(slotIndex);
                         if (saveFileContent != null)
                         {
                             HideMenu();
@@ -677,7 +677,7 @@ namespace Pal3.Game.Dev
                 SetupMainMenuButtons();
             });
 
-            foreach (var story in DevCommands.StoryJumpPoints)
+            foreach (KeyValuePair<string, string> story in DevCommands.StoryJumpPoints)
             {
                 CreateMenuButton(story.Key, _ => delegate
                 {
@@ -727,9 +727,9 @@ namespace Pal3.Game.Dev
         private void CreateMenuButton(string text, Func<TextMeshProUGUI, UnityAction> onSelection)
         {
             GameObject menuButtonGo = UnityEngine.Object.Instantiate(_menuButtonPrefab, _contentTransform);
-            var buttonTextUI = menuButtonGo.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI buttonTextUI = menuButtonGo.GetComponentInChildren<TextMeshProUGUI>();
             buttonTextUI.text = text;
-            var button = menuButtonGo.GetComponent<Button>();
+            Button button = menuButtonGo.GetComponent<Button>();
             button.colors = UITheme.GetButtonColors();
             if (onSelection != null)
             {
@@ -785,9 +785,9 @@ namespace Pal3.Game.Dev
                 button.navigation = buttonNavigation;
             }
 
-            for (var i = 0; i < _menuItems.Count; i++)
+            for (int i = 0; i < _menuItems.Count; i++)
             {
-                var button = _menuItems[i].GetComponentInChildren<Button>();
+                Button button = _menuItems[i].GetComponentInChildren<Button>();
                 ConfigureButtonNavigation(button, i, _menuItems.Count);
             }
         }
@@ -822,7 +822,7 @@ namespace Pal3.Game.Dev
 
         private void ExecuteCommands(string commands)
         {
-            foreach (var command in commands.Split('\n'))
+            foreach (string command in commands.Split('\n'))
             {
                 if (!string.IsNullOrEmpty(command))
                 {
@@ -838,13 +838,13 @@ namespace Pal3.Game.Dev
 
             _deferredExecutionCommands.Clear();
 
-            var commandsToExecute = new List<string>();
+            List<string> commandsToExecute = new();
 
-            foreach (var command in saveFileContent.Split('\n'))
+            foreach (string command in saveFileContent.Split('\n'))
             {
                 if (string.IsNullOrEmpty(command)) continue;
 
-                var arguments = new List<string>();
+                List<string> arguments = new();
 
                 DebugLogConsole.FetchArgumentsFromCommand(command, arguments);
 
@@ -866,7 +866,7 @@ namespace Pal3.Game.Dev
                 }
             }
 
-            foreach (var command in commandsToExecute)
+            foreach (string command in commandsToExecute)
             {
                 DebugLogConsole.ExecuteCommand(command);
             }

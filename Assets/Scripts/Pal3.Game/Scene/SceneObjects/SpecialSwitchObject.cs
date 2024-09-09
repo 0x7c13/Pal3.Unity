@@ -89,7 +89,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             yield return CoroutineYieldInstruction.WaitForSeconds(1.2f); // Wait for actor animation to finish
 
-            var sfxName = actorId switch
+            string sfxName = actorId switch
             {
                 PlayerActorId.JingTian => "we026",
                 PlayerActorId.XueJian => "we027",

@@ -24,13 +24,13 @@ namespace Pal3.Core.DataReader.Ini
 
         public CombatCameraConfigFile Read(byte[] data, int _)
         {
-            var parser = new FileIniDataParser();
-            using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.GetEncoding(DEFAULT_CODEPAGE));
+            FileIniDataParser parser = new();
+            using MemoryStream stream = new(data);
+            using StreamReader reader = new(stream, Encoding.GetEncoding(DEFAULT_CODEPAGE));
 
             IniData iniData = parser.ReadData(reader);
 
-            var defaultCamConfigs = new List<CombatCameraConfig>();
+            List<CombatCameraConfig> defaultCamConfigs = new();
             foreach (SectionData section in iniData.Sections)
             {
                 if (section.SectionName.StartsWith(DEFAULT_CAM_SECTION_HEADER_PREFIX))

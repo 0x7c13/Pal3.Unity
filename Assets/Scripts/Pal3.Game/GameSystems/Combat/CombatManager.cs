@@ -94,13 +94,13 @@ namespace Pal3.Game.GameSystems.Combat
             int positionIndex = 0;
             foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
             {
-                var combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
+                int combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
                 combatActors[(ElementPosition)positionIndex++] = _combatActorInfos[combatActorId];
             }
 
             for (int i = 0; i < combatContext.EnemyIds.Length; i++)
             {
-                var enemyActorId = combatContext.EnemyIds[i];
+                uint enemyActorId = combatContext.EnemyIds[i];
                 if (enemyActorId == 0) continue;
                 combatActors[(ElementPosition)((int)ElementPosition.EnemyWater + i)] =
                     _combatActorInfos[(int)enemyActorId];

@@ -45,7 +45,7 @@ namespace Pal3.Game.Scene.SceneObjects
             #if PAL3A
             if (!string.IsNullOrEmpty(ObjectInfo.DependentSceneName))
             {
-                var sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
+                SceneStateManager sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
                 if (sceneStateManager.TryGetSceneObjectStateOverride(
                         SceneInfo.CityName,
                         ObjectInfo.DependentSceneName,
@@ -65,7 +65,7 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 Vector3 position = sceneObjectGameEntity.Transform.Position;
                 float gameBoxYPosition = ObjectInfo.Parameters[0];
-                var finalYPosition = gameBoxYPosition.ToUnityYPosition();
+                float finalYPosition = gameBoxYPosition.ToUnityYPosition();
                 position.y = finalYPosition;
                 sceneObjectGameEntity.Transform.Position = position;
             }
@@ -120,15 +120,15 @@ namespace Pal3.Game.Scene.SceneObjects
 
             float gameBoxYPosition = ObjectInfo.Parameters[0];
 
-            var finalYPosition = (ObjectInfo.SwitchState == 0 ?
+            float finalYPosition = (ObjectInfo.SwitchState == 0 ?
                 gameBoxYPosition : ObjectInfo.GameBoxPosition.Y).ToUnityYPosition();
-            var yOffset = finalYPosition - position.y;
+            float yOffset = finalYPosition - position.y;
 
             FlipAndSaveSwitchState();
 
             PlaySfxIfAny();
 
-            var hasObjectOnPlatform = false;
+            bool hasObjectOnPlatform = false;
             IGameEntity objectOnThePlatform = null;
             Vector3 objectOnThePlatformOriginalPosition = Vector3.zero;
 

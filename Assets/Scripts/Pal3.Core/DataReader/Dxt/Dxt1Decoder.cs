@@ -34,12 +34,12 @@ namespace Pal3.Core.DataReader.Dxt
 
 			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = buffer)
 			{
-				var src = srcStart;
-				var dst = dstStart;
+				byte* src = srcStart;
+				byte* dst = dstStart;
 
-				for (var j = 0; j < (height + 3) / 4; j++)
+				for (int j = 0; j < (height + 3) / 4; j++)
 				{
-					for (var i = 0; i < (width + 3) / 4; i++)
+					for (int i = 0; i < (width + 3) / 4; i++)
 					{
 						DecodeDxt1Block(i, j, width, height, src, dst);
 						src += 8; // 2 + 2 + 4
@@ -58,9 +58,9 @@ namespace Pal3.Core.DataReader.Dxt
 
 			uint lookupTable = *(uint*)(src + 4);
 
-			for (var blockY = 0; blockY < 4; blockY++)
+			for (int blockY = 0; blockY < 4; blockY++)
 			{
-				for (var blockX = 0; blockX < 4; blockX++)
+				for (int blockX = 0; blockX < 4; blockX++)
 				{
 					byte r = 0, g = 0, b = 0, a = 255;
 					uint index = (lookupTable >> 2 * (4 * blockY + blockX)) & 0x03;

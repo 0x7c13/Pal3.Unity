@@ -165,7 +165,7 @@ namespace Pal3.Game
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 // Get all types that implement any version of IFileReader<>
-                var fileReaderTypes = assembly.GetTypes().Where(type =>
+                IEnumerable<Type> fileReaderTypes = assembly.GetTypes().Where(type =>
                     type.GetInterfaces().Any(_ =>_.IsGenericType &&_.GetGenericTypeDefinition() == typeof(IFileReader<>)));
 
                 foreach (Type readerType in fileReaderTypes)
@@ -323,10 +323,10 @@ namespace Pal3.Game
             Action<ICpkFileSystem, Exception> callback)
         {
             ICpkFileSystem cpkFileSystem = null;
-            var path = gameDataFolderPath;
+            string path = gameDataFolderPath;
             Exception exception = null;
 
-            var fileSystemInitThread = new Thread(() =>
+            Thread fileSystemInitThread = new(() =>
             {
                 try
                 {

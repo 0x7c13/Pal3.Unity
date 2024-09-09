@@ -48,7 +48,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else
             {
-                var effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup;
+                double effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup;
 
                 // This is to prevent player from entering back to previous
                 // scene when holding the stick while transferring between scenes.

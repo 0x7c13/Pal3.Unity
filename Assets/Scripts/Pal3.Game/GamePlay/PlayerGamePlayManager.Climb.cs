@@ -49,10 +49,10 @@ namespace Pal3.Game.GamePlay
             Vector3 upperPosition = -climbableObjectFacing.normalized * 0.5f + climbableObjectPosition;
             Vector3 upperStandingPosition = -climbableObjectFacing.normalized * 1.5f + climbableObjectPosition;
 
-            var currentPlayerLayer = _playerActorMovementController.GetCurrentLayerIndex();
+            int currentPlayerLayer = _playerActorMovementController.GetCurrentLayerIndex();
 
-            var climbUp = (command.ClimbUp == 1);
-            var climbableHeight = climbableEntity.GetComponentInChildren<StaticMeshRenderer>()
+            bool climbUp = (command.ClimbUp == 1);
+            float climbableHeight = climbableEntity.GetComponentInChildren<StaticMeshRenderer>()
                                       .GetRendererBounds().max.y / 2f; // Half is enough for the animation
 
             Vector3 playerCurrentPosition = _playerActorGameEntity.Transform.Position;
@@ -71,10 +71,10 @@ namespace Pal3.Game.GamePlay
                 upperStandingPosition.y = playerCurrentPosition.y;
             }
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
-            var climbAnimationOnly = command.ClimbUp != -1;
+            bool climbAnimationOnly = command.ClimbUp != -1;
             Pal3.Instance.StartCoroutine(PlayerActorMoveToClimbableObjectAndClimbAsync(climbableEntity,
                 climbUp,
                 climbAnimationOnly,
@@ -107,17 +107,17 @@ namespace Pal3.Game.GamePlay
             _playerActorActionController.PerformAction(climbUp ? ActorActionType.Climb : ActorActionType.ClimbDown);
 
             Vector3 newPosition = new Vector3(lowerPosition.x, _playerActorGameEntity.Transform.Position.y, lowerPosition.z);
-            var objectRotationY = climbableGameEntity.Transform.EulerAngles.y;
+            float objectRotationY = climbableGameEntity.Transform.EulerAngles.y;
             Quaternion newRotation = Quaternion.Euler(0f, objectRotationY + 180f, 0f);
 
             _playerActorGameEntity.Transform.SetPositionAndRotation(newPosition, newRotation);
 
             if (climbUp)
             {
-                var currentHeight = 0f;
+                float currentHeight = 0f;
                 while (currentHeight < climbableHeight)
                 {
-                    var deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    float deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight += deltaHeight;
                     _playerActorGameEntity.Transform.Position += new Vector3(0f, deltaHeight, 0f);
                     yield return null;
@@ -133,10 +133,10 @@ namespace Pal3.Game.GamePlay
             }
             else
             {
-                var currentHeight = climbableHeight;
+                float currentHeight = climbableHeight;
                 while (currentHeight > 0f)
                 {
-                    var deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
+                    float deltaHeight = GameTimeProvider.Instance.DeltaTime * ActorConstants.PlayerActorClimbSpeed;
                     currentHeight -= deltaHeight;
                     _playerActorGameEntity.Transform.Position -= new Vector3(0f, deltaHeight, 0f);
                     yield return null;

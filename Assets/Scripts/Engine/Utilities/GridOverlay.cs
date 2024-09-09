@@ -24,7 +24,7 @@
         public Color mainColor = new Color(0f, 1f, 0f, 1f);
         public Color subColor = new Color(0f, 0.5f, 0f, 1f);
 
-        void CreateLineMaterial()
+        private void CreateLineMaterial()
         {
             if (!_lineMaterial)
             {
@@ -43,7 +43,7 @@
             }
         }
 
-        void OnPostRender()
+        private void OnPostRender()
         {
             CreateLineMaterial();
 

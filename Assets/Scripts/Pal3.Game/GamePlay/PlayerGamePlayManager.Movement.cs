@@ -28,7 +28,7 @@ namespace Pal3.Game.GamePlay
 
         private void ReadInputAndMovePlayerIfNeeded(float deltaTime)
         {
-            var movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
+            Vector2 movement = _inputActions.Gameplay.Movement.ReadValue<Vector2>();
             if (movement.magnitude <= 0.01f) return;
 
             MovementMode movementMode = movement.magnitude < 0.7f ? MovementMode.Walk : MovementMode.Run;
@@ -90,7 +90,7 @@ namespace Pal3.Game.GamePlay
             Tilemap tilemap = currentScene.GetTilemap();
 
             _validTapPoints.Clear();
-            for (var i = 0; i < hitCount; i++)
+            for (int i = 0; i < hitCount; i++)
             {
                 (Vector3 hitPoint, IGameEntity colliderGameEntity) = _hitResults[i];
 
@@ -172,7 +172,7 @@ namespace Pal3.Game.GamePlay
             if (IsPlayerActorInsideJumpableArea()) return result;
 
             // Try change direction a little bit to see if it works
-            for (var degrees = 2; degrees <= 80; degrees+= 2)
+            for (int degrees = 2; degrees <= 80; degrees+= 2)
             {
                 // + degrees
                 {
@@ -206,7 +206,7 @@ namespace Pal3.Game.GamePlay
             if (movementAction is not (ActorActionType.Walk or ActorActionType.Run)) return string.Empty;
 
             #if PAL3
-            var sfxPrefix = movementAction == ActorActionType.Walk ?
+            string sfxPrefix = movementAction == ActorActionType.Walk ?
                 AudioConstants.MainActorWalkSfxNamePrefix : AudioConstants.MainActorRunSfxNamePrefix;
 
             Tilemap tileMap = _sceneManager.GetCurrentScene().GetTilemap();
@@ -242,7 +242,7 @@ namespace Pal3.Game.GamePlay
 
         private void UpdatePlayerActorMovementSfx(string playerActorAction)
         {
-            var newMovementSfxAudioFileName = string.Empty;
+            string newMovementSfxAudioFileName = string.Empty;
             ActorActionType actionType = ActorActionType.Walk;
 
             if (string.Equals(playerActorAction, ActorConstants.ActionToNameMap[ActorActionType.Walk]))

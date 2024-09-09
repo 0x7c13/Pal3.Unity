@@ -71,7 +71,7 @@ namespace Pal3.ResourceViewer
             _enable = true;
         }
 
-        void Update()
+        private void Update()
         {
             if (!_enable) return;
 

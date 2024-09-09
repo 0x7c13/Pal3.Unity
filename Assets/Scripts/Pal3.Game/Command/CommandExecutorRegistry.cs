@@ -96,11 +96,13 @@ namespace Pal3.Game.Command
 
             foreach (Type executorType in executorTypes)
             {
-                if (!_executors.ContainsKey(executorType))
+                if (!_executors.TryGetValue(executorType, out HashSet<object> executors))
                 {
                     continue;
                 }
-                _executors[executorType].Remove(executor);
+                
+                executors.Remove(executor);
+                
                 if (_executors[executorType].Count == 0)
                 {
                     _executors.Remove(executorType);
@@ -113,9 +115,9 @@ namespace Pal3.Game.Command
         {
             Type handlerType = typeof(ICommandExecutor<T>);
 
-            if (!_executors.ContainsKey(handlerType)) yield break;
+            if (!_executors.TryGetValue(handlerType, out HashSet<object> executors)) yield break;
 
-            foreach (ICommandExecutor<T> executor in _executors[handlerType])
+            foreach (ICommandExecutor<T> executor in executors)
             {
                 yield return executor;
             }
@@ -124,9 +126,9 @@ namespace Pal3.Game.Command
         /// <inheritdoc />
         public IEnumerable<object> GetRegisteredExecutors(Type type)
         {
-            if (!_executors.ContainsKey(type)) yield break;
+            if (!_executors.TryGetValue(type, out HashSet<object> executors)) yield break;
 
-            foreach (object executor in _executors[type])
+            foreach (object executor in executors)
             {
                 yield return executor;
             }

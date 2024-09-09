@@ -14,19 +14,19 @@ namespace Pal3.Core.DataReader.Pol
     {
         public PolFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header);
 
             if (headerStr != "POLY")
             {
                 throw new InvalidDataException($"Invalid POLY(.pol) file: header != POLY");
             }
 
-            var version = reader.ReadInt32();
-            var numberOfNodes = reader.ReadInt32();
+            int version = reader.ReadInt32();
+            int numberOfNodes = reader.ReadInt32();
 
-            var nodeInfos = new PolGeometryNode[numberOfNodes];
-            for (var i = 0; i < numberOfNodes; i++)
+            PolGeometryNode[] nodeInfos = new PolGeometryNode[numberOfNodes];
+            for (int i = 0; i < numberOfNodes; i++)
             {
                 nodeInfos[i] = new PolGeometryNode
                 {
@@ -37,22 +37,22 @@ namespace Pal3.Core.DataReader.Pol
                 };
             }
 
-            var tagNodes = Array.Empty<TagNode>();
+            TagNode[] tagNodes = Array.Empty<TagNode>();
             if (version > 100)
             {
-                var numberOfTagNodes = reader.ReadInt32();
+                int numberOfTagNodes = reader.ReadInt32();
                 if (numberOfTagNodes > 0)
                 {
                     tagNodes = new TagNode[numberOfTagNodes];
-                    for (var i = 0; i < numberOfTagNodes; i++)
+                    for (int i = 0; i < numberOfTagNodes; i++)
                     {
                         tagNodes[i] = ReadTagNodeInfo(reader, codepage);
                     }
                 }
             }
 
-            var meshInfos = new PolMesh[numberOfNodes];
-            for (var i = 0; i < numberOfNodes; i++)
+            PolMesh[] meshInfos = new PolMesh[numberOfNodes];
+            for (int i = 0; i < numberOfNodes; i++)
             {
                 meshInfos[i] = ReadMeshData(reader, version, codepage);
             }
@@ -62,7 +62,7 @@ namespace Pal3.Core.DataReader.Pol
 
         private static TagNode ReadTagNodeInfo(IBinaryReader reader, int codepage)
         {
-            var name = reader.ReadString(32, codepage);
+            string name = reader.ReadString(32, codepage);
             GameBoxMatrix4x4 gameBoxTransformMatrix = new GameBoxMatrix4x4()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
@@ -71,13 +71,13 @@ namespace Pal3.Core.DataReader.Pol
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             };
 
-            var type = reader.ReadInt32();
-            var customColorStringLength = reader.ReadInt32();
+            int type = reader.ReadInt32();
+            int customColorStringLength = reader.ReadInt32();
 
             uint tintColor = 0xffffffff;
             if (customColorStringLength > 0)
             {
-                var parts = new string(reader.ReadChars(customColorStringLength)).Split(' ');
+                string[] parts = new string(reader.ReadChars(customColorStringLength)).Split(' ');
                 if (parts.Length == 3)
                 {
                     tintColor = 0xff000000 |
@@ -104,26 +104,26 @@ namespace Pal3.Core.DataReader.Pol
             GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
             GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
-            var vertexTypeFlag = reader.ReadUInt32();
-            var numberOfVertices = reader.ReadInt32();
+            uint vertexTypeFlag = reader.ReadUInt32();
+            int numberOfVertices = reader.ReadInt32();
 
             if (numberOfVertices <= 0)
             {
                 throw new InvalidDataException($"Invalid POLY(.pol) file: vertices == 0");
             }
 
-            var gameBoxPositions = new GameBoxVector3[numberOfVertices];
-            var gameBoxNormals = new GameBoxVector3[numberOfVertices];
-            var diffuseColors = new Color32[numberOfVertices];
-            var specularColors = new Color32[numberOfVertices];
-            var uvs = new GameBoxVector2[4][];
+            GameBoxVector3[] gameBoxPositions = new GameBoxVector3[numberOfVertices];
+            GameBoxVector3[] gameBoxNormals = new GameBoxVector3[numberOfVertices];
+            Color32[] diffuseColors = new Color32[numberOfVertices];
+            Color32[] specularColors = new Color32[numberOfVertices];
+            GameBoxVector2[][] uvs = new GameBoxVector2[4][];
 
             uvs[0] = new GameBoxVector2[numberOfVertices];
             uvs[1] = new GameBoxVector2[numberOfVertices];
             uvs[2] = new GameBoxVector2[numberOfVertices];
             uvs[3] = new GameBoxVector2[numberOfVertices];
 
-            for (var i = 0; i < numberOfVertices; i++)
+            for (int i = 0; i < numberOfVertices; i++)
             {
                 if ((vertexTypeFlag & GameBoxVertexType.XYZ) != 0)
                 {
@@ -148,26 +148,26 @@ namespace Pal3.Core.DataReader.Pol
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV0) != 0)
                 {
-                    var x = reader.ReadSingle();
-                    var y = reader.ReadSingle();
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
                     uvs[0][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV1) != 0)
                 {
-                    var x = reader.ReadSingle();
-                    var y = reader.ReadSingle();
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
                     uvs[1][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV2) != 0)
                 {
-                    var x = reader.ReadSingle();
-                    var y = reader.ReadSingle();
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
                     uvs[2][i] = new GameBoxVector2(x, y);
                 }
                 if ((vertexTypeFlag & GameBoxVertexType.UV3) != 0)
                 {
-                    var x = reader.ReadSingle();
-                    var y = reader.ReadSingle();
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
                     uvs[3][i] = new GameBoxVector2(x, y);
                 }
 
@@ -178,7 +178,7 @@ namespace Pal3.Core.DataReader.Pol
                 }
             }
 
-            var vertexInfo = new PolVertexInfo()
+            PolVertexInfo vertexInfo = new()
             {
                 GameBoxPositions = gameBoxPositions,
                 GameBoxNormals = gameBoxNormals,
@@ -187,11 +187,11 @@ namespace Pal3.Core.DataReader.Pol
                 Uvs = uvs,
             };
 
-            var numberOfTextures = reader.ReadInt32();
+            int numberOfTextures = reader.ReadInt32();
 
-            var textureInfos = new PolTexture[numberOfTextures];
+            PolTexture[] textureInfos = new PolTexture[numberOfTextures];
 
-            for (var i = 0; i < numberOfTextures; i++)
+            for (int i = 0; i < numberOfTextures; i++)
             {
                 textureInfos[i] = ReadTextureInfo(reader, version, codepage);
             }
@@ -223,26 +223,26 @@ namespace Pal3.Core.DataReader.Pol
             if (material.SpecularPower < 0) material.SpecularPower = 0;
             else if (material.SpecularPower > 128) material.SpecularPower = 128;
 
-            var numberOfTextures = reader.ReadInt32();
-            var textureNames = new string[numberOfTextures];
+            int numberOfTextures = reader.ReadInt32();
+            string[] textureNames = new string[numberOfTextures];
 
-            for (var i = 0; i < numberOfTextures; i++)
+            for (int i = 0; i < numberOfTextures; i++)
             {
-                var textureName = reader.ReadString(64, codepage);
+                string textureName = reader.ReadString(64, codepage);
                 textureNames[i] = textureName;
             }
 
             material.TextureFileNames = textureNames;
 
             _ = reader.ReadInt32();
-            var vertStart = reader.ReadUInt32();
-            var vertEnd = reader.ReadUInt32();
-            var numberOfFaces = reader.ReadInt32();
+            uint vertStart = reader.ReadUInt32();
+            uint vertEnd = reader.ReadUInt32();
+            int numberOfFaces = reader.ReadInt32();
 
-            var gameBoxTriangles = new int[numberOfFaces * 3];
-            for (var i = 0; i < numberOfFaces; i++)
+            int[] gameBoxTriangles = new int[numberOfFaces * 3];
+            for (int i = 0; i < numberOfFaces; i++)
             {
-                var index = i * 3;
+                int index = i * 3;
                 gameBoxTriangles[index] = reader.ReadUInt16();
                 gameBoxTriangles[index + 1] = reader.ReadUInt16();
                 gameBoxTriangles[index + 2] = reader.ReadUInt16();

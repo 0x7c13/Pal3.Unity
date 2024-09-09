@@ -109,7 +109,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 Pal3.Instance.Execute(new SceneActivateObjectCommand((int)ObjectInfo.EffectModelType, 0));
             }
 
-            var shouldResetCamera = false;
+            bool shouldResetCamera = false;
 
             // Interact with linked object if any
             if (ObjectInfo.LinkedObjectId != INVALID_SCENE_OBJECT_ID)

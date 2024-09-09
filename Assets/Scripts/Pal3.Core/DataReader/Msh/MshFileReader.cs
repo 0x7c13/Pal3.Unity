@@ -12,15 +12,15 @@ namespace Pal3.Core.DataReader.Msh
     {
         public MshFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new (header[..^1]);
 
             if (headerStr != "msh")
             {
                 throw new InvalidDataException("Invalid MSH(.msh) file: header != msh");
             }
 
-            var version = reader.ReadInt32();
+            int version = reader.ReadInt32();
             if (version != 100)
             {
                 throw new InvalidDataException("Invalid MSH(.msh) file: version != 100");
@@ -38,18 +38,18 @@ namespace Pal3.Core.DataReader.Msh
                 ParentId = 0,
             };
 
-            var numberOfChildBones = reader.ReadInt32();
-            var childBoneNodes = new BoneNode[numberOfChildBones];
-            for (var i = 0; i < numberOfChildBones; i++)
+            int numberOfChildBones = reader.ReadInt32();
+            BoneNode[] childBoneNodes = new BoneNode[numberOfChildBones];
+            for (int i = 0; i < numberOfChildBones; i++)
             {
                 childBoneNodes[i] = ReadBoneNode(reader, rootBoneNode, codepage);
             }
 
             rootBoneNode.Children = childBoneNodes;
 
-            var numberOfSubMeshes = reader.ReadInt32();
-            var subMeshes = new MshMesh[numberOfSubMeshes];
-            for (var i = 0; i < numberOfSubMeshes; i++)
+            int numberOfSubMeshes = reader.ReadInt32();
+            MshMesh[] subMeshes = new MshMesh[numberOfSubMeshes];
+            for (int i = 0; i < numberOfSubMeshes; i++)
             {
                 subMeshes[i] = ReadSubMesh(reader);
             }
@@ -59,9 +59,9 @@ namespace Pal3.Core.DataReader.Msh
 
         private static BoneNode ReadBoneNode(IBinaryReader reader, BoneNode parent, int codepage)
         {
-            var nodeType = (BoneNodeType)reader.ReadInt32();
-            var nameLength = reader.ReadInt32();
-            var name = reader.ReadString(nameLength, codepage);
+            BoneNodeType nodeType = (BoneNodeType)reader.ReadInt32();
+            int nameLength = reader.ReadInt32();
+            string name = reader.ReadString(nameLength, codepage);
 
             GameBoxVector3 gameBoxTranslation = reader.ReadGameBoxVector3();
             GameBoxQuaternion gameBoxRotation = new GameBoxQuaternion()
@@ -89,9 +89,9 @@ namespace Pal3.Core.DataReader.Msh
                 Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
             };
 
-            var boneID = reader.ReadInt32();
-            var parentBoneID = reader.ReadInt32();
-            var numberOfChildBones = reader.ReadInt32();
+            int boneID = reader.ReadInt32();
+            int parentBoneID = reader.ReadInt32();
+            int numberOfChildBones = reader.ReadInt32();
 
             BoneNode boneNode = new()
             {
@@ -107,8 +107,8 @@ namespace Pal3.Core.DataReader.Msh
                 GameBoxLocalTransform = gameBoxLocalTransformMatrix,
             };
 
-            var childBoneNodes = new BoneNode[numberOfChildBones];
-            for (var i = 0; i < numberOfChildBones; i++)
+            BoneNode[] childBoneNodes = new BoneNode[numberOfChildBones];
+            for (int i = 0; i < numberOfChildBones; i++)
             {
                 childBoneNodes[i] = ReadBoneNode(reader, boneNode, codepage);
             }
@@ -120,12 +120,12 @@ namespace Pal3.Core.DataReader.Msh
 
         private static MshMesh ReadSubMesh(IBinaryReader reader)
         {
-            var materialId = reader.ReadInt32();
-            var numberOfVertices = reader.ReadInt32();
-            var numberOfFaces = reader.ReadInt32();
-            var numberOfSprings = reader.ReadInt32();
-            var numberOfLods = reader.ReadInt32();
-            var layerFlag = (MshLayerFlag)reader.ReadInt32();
+            int materialId = reader.ReadInt32();
+            int numberOfVertices = reader.ReadInt32();
+            int numberOfFaces = reader.ReadInt32();
+            int numberOfSprings = reader.ReadInt32();
+            int numberOfLods = reader.ReadInt32();
+            MshLayerFlag layerFlag = (MshLayerFlag)reader.ReadInt32();
 
             GameBoxVector3[] gameBoxVertices = null;
             if (layerFlag.HasFlag(MshLayerFlag.Position))
@@ -136,12 +136,12 @@ namespace Pal3.Core.DataReader.Msh
             PhyVertex[] phyVertices = new PhyVertex[numberOfVertices];
             if (layerFlag.HasFlag(MshLayerFlag.Bone))
             {
-                for (var i = 0; i < numberOfVertices; i++)
+                for (int i = 0; i < numberOfVertices; i++)
                 {
-                    var numberOfBones = reader.ReadByte();
-                    var boneIds = new byte[numberOfBones];
-                    var weights = new byte[numberOfBones];
-                    for (var j = 0; j < numberOfBones; j++)
+                    byte numberOfBones = reader.ReadByte();
+                    byte[] boneIds = new byte[numberOfBones];
+                    byte[] weights = new byte[numberOfBones];
+                    for (int j = 0; j < numberOfBones; j++)
                     {
                         boneIds[j] = reader.ReadByte();
                         weights[j] = reader.ReadByte();
@@ -153,8 +153,8 @@ namespace Pal3.Core.DataReader.Msh
                 }
             }
 
-            var phyFaces = new PhyFace[numberOfFaces];
-            for (var i = 0; i < numberOfFaces; i++)
+            PhyFace[] phyFaces = new PhyFace[numberOfFaces];
+            for (int i = 0; i < numberOfFaces; i++)
             {
                 phyFaces[i] = new PhyFace
                 {
@@ -185,7 +185,7 @@ namespace Pal3.Core.DataReader.Msh
                     }
                 };
 
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     phyFaces[i].U[j, 0] = ((int)(phyFaces[i].U[j, 0] * 255)) / 255f;
                     phyFaces[i].V[j, 0] = ((int)(phyFaces[i].V[j, 0] * 255)) / 255f;

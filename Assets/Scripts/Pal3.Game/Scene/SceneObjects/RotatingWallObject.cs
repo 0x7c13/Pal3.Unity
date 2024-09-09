@@ -53,11 +53,11 @@ namespace Pal3.Game.Scene.SceneObjects
                 _subObjectGameEntity = GameEntityFactory.Create($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject",
                     sceneObjectGameEntity, worldPositionStays: false);
 
-                var subObjectModelPath = ModelFileVirtualPath.Replace("1.pol", "2.pol");
+                string subObjectModelPath = ModelFileVirtualPath.Replace("1.pol", "2.pol");
                 PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
                 ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
-                var subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
+                PolyModelRenderer subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
                 subObjectModelRenderer.Render(polFile,
                     textureProvider,
                     resourceProvider.GetMaterialManager(),

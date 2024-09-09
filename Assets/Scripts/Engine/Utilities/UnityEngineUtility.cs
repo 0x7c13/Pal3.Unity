@@ -34,20 +34,20 @@ namespace Engine.Utilities
 
         public static void DrawBounds(Bounds b, float duration = 1000)
         {
-            var p1 = new Vector3(b.min.x, b.min.y, b.min.z);
-            var p2 = new Vector3(b.max.x, b.min.y, b.min.z);
-            var p3 = new Vector3(b.max.x, b.min.y, b.max.z);
-            var p4 = new Vector3(b.min.x, b.min.y, b.max.z);
+            Vector3 p1 = new(b.min.x, b.min.y, b.min.z);
+            Vector3 p2 = new(b.max.x, b.min.y, b.min.z);
+            Vector3 p3 = new(b.max.x, b.min.y, b.max.z);
+            Vector3 p4 = new (b.min.x, b.min.y, b.max.z);
 
             Debug.DrawLine(p1, p2, Color.blue, duration);
             Debug.DrawLine(p2, p3, Color.red, duration);
             Debug.DrawLine(p3, p4, Color.yellow, duration);
             Debug.DrawLine(p4, p1, Color.magenta, duration);
 
-            var p5 = new Vector3(b.min.x, b.max.y, b.min.z);
-            var p6 = new Vector3(b.max.x, b.max.y, b.min.z);
-            var p7 = new Vector3(b.max.x, b.max.y, b.max.z);
-            var p8 = new Vector3(b.min.x, b.max.y, b.max.z);
+            Vector3 p5 = new(b.min.x, b.max.y, b.min.z);
+            Vector3 p6 = new(b.max.x, b.max.y, b.min.z);
+            Vector3 p7 = new(b.max.x, b.max.y, b.max.z);
+            Vector3 p8 = new(b.min.x, b.max.y, b.max.z);
 
             Debug.DrawLine(p5, p6, Color.blue, duration);
             Debug.DrawLine(p6, p7, Color.red, duration);
@@ -77,7 +77,7 @@ namespace Engine.Utilities
                 {
                     IntPtr versionClass = AndroidJNI.FindClass("android.os.Build$VERSION");
                     IntPtr sdkFieldID = AndroidJNI.GetStaticFieldID(versionClass, "SDK_INT", "I");
-                    var sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
+                    int sdkLevel = AndroidJNI.GetStaticIntField(versionClass, sdkFieldID);
                     return sdkLevel;
                 }
 

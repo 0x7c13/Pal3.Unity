@@ -68,7 +68,7 @@ namespace Engine.Renderer
 
             _animationCts.Cancel();
             _animationCts = new CancellationTokenSource();
-            var cancellationToken = _animationCts.Token;
+            CancellationToken cancellationToken = _animationCts.Token;
 
             _spriteRenderer.enabled = true;
 

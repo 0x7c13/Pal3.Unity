@@ -107,9 +107,9 @@ namespace Pal3.Game.Scene
 
         private void InitMeshData()
         {
-            var separator = CpkConstants.DirectorySeparatorChar;
+            char separator = CpkConstants.DirectorySeparatorChar;
 
-            var meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
+            string meshFileRelativePath = $"{ScnFile.SceneInfo.CityName}{CpkConstants.FileExtension}{separator}" +
                                    $"{ScnFile.SceneInfo.Model}{separator}";
 
             // Switch to night version of the mesh model when LightMap flag is set to 1
@@ -118,7 +118,7 @@ namespace Pal3.Game.Scene
                 meshFileRelativePath += $"1{separator}";
             }
 
-            var sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
+            string sceneMetadataFilePrefix = meshFileRelativePath + ScnFile.SceneInfo.Model;
 
             ITextureResourceProvider sceneTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(sceneMetadataFilePrefix, separator));

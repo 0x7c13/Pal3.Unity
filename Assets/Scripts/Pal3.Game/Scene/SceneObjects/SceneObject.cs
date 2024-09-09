@@ -104,7 +104,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private string GetModelFilePath(ScnObjectInfo objectInfo, ScnSceneInfo sceneInfo)
         {
-            var modelFilePath = string.Empty;
+            string modelFilePath = string.Empty;
 
             if (objectInfo.Name.StartsWith('_')) // is object model in current scene folder
             {
@@ -135,7 +135,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             // Attach SceneObjectInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var infoPresenter = _sceneObjectGameEntity.AddComponent<SceneObjectInfoPresenter>();
+            SceneObjectInfoPresenter infoPresenter = _sceneObjectGameEntity.AddComponent<SceneObjectInfoPresenter>();
             infoPresenter.sceneObjectInfo = ObjectInfo;
             #endif
 
@@ -190,9 +190,9 @@ namespace Pal3.Game.Scene.SceneObjects
             {
                 _effectComponent = _sceneObjectGameEntity.AddComponent(effectComponentType) as IEffect;
                 #if PAL3
-                var effectParameter = ObjectInfo.EffectModelType;
+                uint effectParameter = ObjectInfo.EffectModelType;
                 #elif PAL3A
-                var effectParameter = (uint)ObjectInfo.Parameters[5];
+                uint effectParameter = (uint)ObjectInfo.Parameters[5];
                 #endif
                 EngineLogger.Log($"Adding {GraphicsEffectType} [{effectParameter}] effect for scene object {ObjectInfo.Id}");
                 _effectComponent!.Init(resourceProvider, effectParameter);
@@ -369,7 +369,7 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (objectId == INVALID_SCENE_OBJECT_ID) yield break;
 
-            var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
+            HashSet<int> allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
 
             if (!allActivatedSceneObjects.Contains(objectId))
             {

@@ -67,11 +67,11 @@ namespace Pal3.Game.Scene.SceneObjects
             _subObjectGameEntity = GameEntityFactory.Create($"Object_{ObjectInfo.Id}_{ObjectInfo.Type}_SubObject",
                 sceneObjectGameEntity, worldPositionStays: false);
 
-            var subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
+            string subObjectModelPath = ModelFileVirtualPath.Insert(ModelFileVirtualPath.LastIndexOf('.'), "a");
             PolFile polFile = resourceProvider.GetGameResourceFile<PolFile>(subObjectModelPath);
             ITextureResourceProvider textureProvider = resourceProvider.CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(subObjectModelPath, CpkConstants.DirectorySeparatorChar));
-            var subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
+            PolyModelRenderer subObjectModelRenderer = _subObjectGameEntity.AddComponent<PolyModelRenderer>();
             subObjectModelRenderer.Render(polFile,
                 textureProvider,
                 resourceProvider.GetMaterialManager(),
@@ -169,7 +169,7 @@ namespace Pal3.Game.Scene.SceneObjects
         public void Init()
         {
             // Add collider
-            var bounds = new Bounds
+            Bounds bounds = new()
             {
                 center = new Vector3(0f, 1f, -1f),
                 size = new Vector3(3f, 2f, 7f),
@@ -196,11 +196,11 @@ namespace Pal3.Game.Scene.SceneObjects
 
         private IEnumerator StartMovementAsync(CancellationToken cancellationToken)
         {
-            var startDelay = RandomGenerator.Range(0f, 3.5f);
+            float startDelay = RandomGenerator.Range(0f, 3.5f);
             yield return CoroutineYieldInstruction.WaitForSeconds(startDelay);
 
             Vector3 initPosition = Transform.LocalPosition;
-            var holdTimeWaiter = CoroutineYieldInstruction.WaitForSeconds(POSITION_HOLD_TIME);
+            object holdTimeWaiter = CoroutineYieldInstruction.WaitForSeconds(POSITION_HOLD_TIME);
 
             while (!cancellationToken.IsCancellationRequested)
             {

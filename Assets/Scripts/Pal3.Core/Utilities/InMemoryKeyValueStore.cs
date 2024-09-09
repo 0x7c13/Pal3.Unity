@@ -21,7 +21,7 @@ namespace Pal3.Core.Utilities
 
         public bool TryGet<T>(string key, out T value)
         {
-            if (_store.TryGetValue(key, out var obj))
+            if (_store.TryGetValue(key, out object obj))
             {
                 value = (T)obj;
                 return true;

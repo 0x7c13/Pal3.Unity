@@ -24,7 +24,7 @@ namespace Engine.UI
 
         private void Update()
         {
-            var currentRatio = (float) Screen.width / Screen.height;
+            float currentRatio = (float) Screen.width / Screen.height;
             _transform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, currentRatio > thresholdRatio
                 ? _transform.rect.height * thresholdRatio - padding
                 : _transform.rect.height * currentRatio - padding);

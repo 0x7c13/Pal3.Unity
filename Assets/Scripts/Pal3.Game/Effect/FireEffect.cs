@@ -59,8 +59,8 @@ namespace Pal3.Game.Effect
                 _effectTextures = resourceProvider.GetEffectTextures(
                     GraphicsEffectType.Fire, info.TexturePathFormat);
 
-                var sprites = new ISprite[_effectTextures.Length];
-                for (var i = 0; i < _effectTextures.Length; i++)
+                ISprite[] sprites = new ISprite[_effectTextures.Length];
+                for (int i = 0; i < _effectTextures.Length; i++)
                 {
                     ITexture2D texture = _effectTextures[i].texture;
                     ISprite sprite = texture.CreateSprite(0f, 0f,
@@ -69,7 +69,7 @@ namespace Pal3.Game.Effect
                     sprites[i] = sprite;
                 }
 
-                var yPosition = 0f;
+                float yPosition = 0f;
                 if (_sceneObjectRenderer != null)
                 {
                     yPosition = _sceneObjectRenderer.GetMeshBounds().max.y;

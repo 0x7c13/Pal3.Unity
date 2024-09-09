@@ -18,7 +18,7 @@ namespace Engine.Core.Implementation
                 throw new ArgumentException("rgba32DataBuffer.Length < width * height * 4");
             }
 
-            var texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
+            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, mipChain: false);
             texture.LoadRawTextureData(rgba32DataBuffer);
             texture.Apply(updateMipmaps: false);
             return new UnityTexture2D(texture);

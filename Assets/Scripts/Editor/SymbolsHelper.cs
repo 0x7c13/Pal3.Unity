@@ -6,6 +6,7 @@
 namespace Editor
 {
     using System.Linq;
+    using System.Collections.Generic;
     using UnityEditor;
     using UnityEditor.Build;
 
@@ -58,8 +59,8 @@ namespace Editor
         {
             foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
             {
-                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-                var allDefines = defines.Split(';').ToList();
+                string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+                List<string> allDefines = defines.Split(';').ToList();
                 if (!allDefines.Any(_ => string.Equals(_, symbolToAdd)))
                 {
                     allDefines.Add(symbolToAdd);
@@ -74,9 +75,9 @@ namespace Editor
         {
             foreach (BuildTargetGroup targetGroup in GetAllSupportedTargetGroups())
             {
-                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-                var allDefines = defines.Split(';').ToList();
-                var newDefines = allDefines
+                string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+                List<string> allDefines = defines.Split(';').ToList();
+                List<string> newDefines = allDefines
                     .Where(_ => !string.Equals(_, symbolToDelete)).ToList();
                 newDefines.Sort();
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup,

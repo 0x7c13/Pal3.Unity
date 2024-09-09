@@ -78,22 +78,22 @@ namespace Pal3.Game.Rendering.Material
 
             Stopwatch timer = Stopwatch.StartNew();
 
-            for (var i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
             {
                 _waterMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_waterMaterial));
             }
 
-            for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
                 _transparentMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_transparentMaterial));
             }
 
-            for (var i = 0; i < TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE; i++)
             {
                 _transparentOpaquePartMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_transparentOpaquePartMaterial));
             }
 
-            for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
                 _opaqueMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_opaqueMaterial));
             }

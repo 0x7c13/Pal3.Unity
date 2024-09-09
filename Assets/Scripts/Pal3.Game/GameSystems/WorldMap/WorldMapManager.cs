@@ -162,28 +162,28 @@ namespace Pal3.Game.GameSystems.WorldMap
 
             GameObject exitButtonObj = UnityEngine.Object.Instantiate(_worldMapRegionButtonPrefab,
                 _worldMapCanvas.transform);
-            var exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI exitButtonTextUI = exitButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             exitButtonTextUI.text =  "关闭";
-            var exitButton = exitButtonObj.GetComponent<Button>();
+            Button exitButton = exitButtonObj.GetComponent<Button>();
             exitButton.colors = UITheme.GetButtonColors();
             exitButton.onClick.AddListener(delegate { WorldMapButtonClicked(-1);});
             _selectionButtons.Add(exitButtonObj);
 
-            for (var i = 0; i < WorldMapConstants.WorldMapRegions.Length; i++)
+            for (int i = 0; i < WorldMapConstants.WorldMapRegions.Length; i++)
             {
                 if (!_regionEnablementInfo.ContainsKey(i) || _regionEnablementInfo[i] != 2) continue;
                 GameObject selectionButton = UnityEngine.Object.Instantiate(_worldMapRegionButtonPrefab,
                     _worldMapCanvas.transform);
-                var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
+                TextMeshProUGUI buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = WorldMapConstants.WorldMapRegions[i];
-                var buttonIndex = i;
-                var button = selectionButton.GetComponent<Button>();
+                int buttonIndex = i;
+                Button button = selectionButton.GetComponent<Button>();
                 button.colors = UITheme.GetButtonColors();
                 button.onClick.AddListener(delegate { WorldMapButtonClicked(buttonIndex);});
                 _selectionButtons.Add(selectionButton);
             }
 
-            var firstButton = _selectionButtons.First().GetComponent<Button>();
+            Button firstButton = _selectionButtons.First().GetComponent<Button>();
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||
@@ -215,9 +215,9 @@ namespace Pal3.Game.GameSystems.WorldMap
                     button.navigation = buttonNavigation;
                 }
 
-                for (var i = 0; i < _selectionButtons.Count; i++)
+                for (int i = 0; i < _selectionButtons.Count; i++)
                 {
-                    var button = _selectionButtons[i].GetComponentInChildren<Button>();
+                    Button button = _selectionButtons[i].GetComponentInChildren<Button>();
                     ConfigureButtonNavigation(button, i, _selectionButtons.Count);
                 }
 

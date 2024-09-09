@@ -12,19 +12,19 @@ namespace Pal3.Core.Contract.Constants
     {
         public static readonly Dictionary<ActorEmojiType, (int Width, int Height, int Frames)> TextureInfo = new()
         {
-            { ActorEmojiType.Sleepy,      new(38,  54,  6) },
-            { ActorEmojiType.Shock,       new(25,  57, 10) },
-            { ActorEmojiType.Doubt,       new(31,  43, 10) },
-            { ActorEmojiType.Anger,       new(82,  51,  3) },
-            { ActorEmojiType.Happy,       new(54,  32,  2) },
-            { ActorEmojiType.Heart,       new(31,  41,  4) },
-            { ActorEmojiType.Sweat,       new(16, 111,  7) },
-            { ActorEmojiType.Bother,      new(64,  46,  3) },
-            { ActorEmojiType.Anxious,     new(54,  32,  2) },
-            { ActorEmojiType.Cry,         new(49,  40,  8) },
-            { ActorEmojiType.Dizzy,       new(70,  42,  6) },
+            { ActorEmojiType.Sleepy,      (38,  54,  6) },
+            { ActorEmojiType.Shock,       (25,  57, 10) },
+            { ActorEmojiType.Doubt,       (31,  43, 10) },
+            { ActorEmojiType.Anger,       (82,  51,  3) },
+            { ActorEmojiType.Happy,       (54,  32,  2) },
+            { ActorEmojiType.Heart,       (31,  41,  4) },
+            { ActorEmojiType.Sweat,       (16, 111,  7) },
+            { ActorEmojiType.Bother,      (64,  46,  3) },
+            { ActorEmojiType.Anxious,     (54,  32,  2) },
+            { ActorEmojiType.Cry,         (49,  40,  8) },
+            { ActorEmojiType.Dizzy,       (70,  42,  6) },
             #if PAL3A
-            { ActorEmojiType.Speechless,  new(64,  46,  4) },
+            { ActorEmojiType.Speechless,  (64,  46,  4) },
             #endif
         };
 

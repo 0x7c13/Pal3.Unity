@@ -33,7 +33,7 @@ namespace Pal3.Core.DataReader.Tga
             fixed (byte* srcStart = &data[TGA_FILE_HEADER_SIZE], dstStart = buffer)
             {
                 byte* src = srcStart, dst = dstStart;
-                for (var i = 0; i < width * height; i++, src += 3, dst += 4)
+                for (int i = 0; i < width * height; i++, src += 3, dst += 4)
                 {
                     *dst = *(src + 2);
                     *(dst + 1) = *(src + 1);
@@ -67,7 +67,7 @@ namespace Pal3.Core.DataReader.Tga
             hasAlphaChannel = false;
             fixed (byte* srcStart = &data[TGA_FILE_HEADER_SIZE], dstStart = buffer)
             {
-                var firstAlpha = *(srcStart + 3);
+                byte firstAlpha = *(srcStart + 3);
                 byte* src = srcStart, dst = dstStart;
                 for (var i = 0; i < width * height; i++, src += 4, dst += 4)
                 {

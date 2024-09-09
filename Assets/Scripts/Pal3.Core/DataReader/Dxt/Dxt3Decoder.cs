@@ -37,9 +37,9 @@ namespace Pal3.Core.DataReader.Dxt
 				byte* src = srcStart;
 				byte* dst = dstStart;
 
-				for (var j = 0; j < (height + 3) / 4; j++)
+				for (int j = 0; j < (height + 3) / 4; j++)
 				{
-					for (var i = 0; i < (width + 3) / 4; i++)
+					for (int i = 0; i < (width + 3) / 4; i++)
 					{
 						DecodeDxt3Block(i, j, width, height, src, dst);
 						src += 16; // 8 + 2 + 2 + 4
@@ -59,9 +59,9 @@ namespace Pal3.Core.DataReader.Dxt
 			uint lookupTable = *(uint*)(src + 12);
 
 			int alphaIndex = 0;
-			for (var blockY = 0; blockY < 4; blockY++)
+			for (int blockY = 0; blockY < 4; blockY++)
 			{
-				for (var blockX = 0; blockX < 4; blockX++)
+				for (int blockX = 0; blockX < 4; blockX++)
 				{
 					byte r = 0, g = 0, b = 0, a = 0;
 
@@ -98,12 +98,12 @@ namespace Pal3.Core.DataReader.Dxt
 							break;
 					}
 
-					var px = (x << 2) + blockX;
-					var py = (y << 2) + blockY;
+					int px = (x << 2) + blockX;
+					int py = (y << 2) + blockY;
 
 					if (px < width && py < height)
 					{
-						var offset = ((py * width) + px) << 2;
+						int offset = ((py * width) + px) << 2;
 						*(dst + offset) = r;
 						*(dst + offset + 1) = g;
 						*(dst + offset + 2) = b;

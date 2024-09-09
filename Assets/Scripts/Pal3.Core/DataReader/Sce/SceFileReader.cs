@@ -11,31 +11,31 @@ namespace Pal3.Core.DataReader.Sce
     {
         public SceFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header[..^1]);
 
             if (headerStr != "SCE")
             {
                 throw new InvalidDataException("Invalid SCE(.sce) file: header != SCE");
             }
 
-            var version = reader.ReadByte();
+            byte version = reader.ReadByte();
 
             if (version != 1)
             {
                 throw new InvalidDataException($"Invalid SCE(.sce) file: version ({version}) != 1");
             }
 
-            var numberOfBlocks = reader.ReadUInt16();
+            ushort numberOfBlocks = reader.ReadUInt16();
 
-            var indexes = new SceIndex[numberOfBlocks];
-            for (var i = 0; i < numberOfBlocks; i++)
+            SceIndex[] indexes = new SceIndex[numberOfBlocks];
+            for (int i = 0; i < numberOfBlocks; i++)
             {
                 indexes[i] = ReadSceIndex(reader, codepage);
             }
 
-            var scriptBlocks = new SceScriptBlock[numberOfBlocks];
-            for (var i = 0; i < numberOfBlocks; i++)
+            SceScriptBlock[] scriptBlocks = new SceScriptBlock[numberOfBlocks];
+            for (int i = 0; i < numberOfBlocks; i++)
             {
                 scriptBlocks[i] = ReadScriptBlock(reader, indexes[i], codepage);
             }
@@ -47,19 +47,19 @@ namespace Pal3.Core.DataReader.Sce
         {
             reader.Seek(sceIndex.Offset, SeekOrigin.Begin);
 
-            var id = reader.ReadUInt32();
-            var descriptionLength = reader.ReadUInt16();
-            var description = reader.ReadString(descriptionLength, codepage);
-            var numberOfUserVars = reader.ReadUInt16();
+            uint id = reader.ReadUInt32();
+            ushort descriptionLength = reader.ReadUInt16();
+            string description = reader.ReadString(descriptionLength, codepage);
+            ushort numberOfUserVars = reader.ReadUInt16();
 
-            var userVarInfos = new SceUserVarInfo[numberOfUserVars];
-            for (var i = 0; i < numberOfUserVars; i++)
+            SceUserVarInfo[] userVarInfos = new SceUserVarInfo[numberOfUserVars];
+            for (int i = 0; i < numberOfUserVars; i++)
             {
                 userVarInfos[i] = ReadUserVarInfo(reader);
             }
 
-            var scriptSize = reader.ReadUInt32();
-            var scriptData = reader.ReadBytes((int)scriptSize);
+            uint scriptSize = reader.ReadUInt32();
+            byte[] scriptData = reader.ReadBytes((int)scriptSize);
 
             return new SceScriptBlock()
             {
@@ -72,9 +72,9 @@ namespace Pal3.Core.DataReader.Sce
 
         private static SceUserVarInfo ReadUserVarInfo(IBinaryReader reader)
         {
-            var type = reader.ReadByte();
-            var length = reader.ReadUInt16();
-            var data = reader.ReadBytes(length);
+            byte type = reader.ReadByte();
+            ushort length = reader.ReadUInt16();
+            byte[] data = reader.ReadBytes(length);
 
             return new SceUserVarInfo()
             {

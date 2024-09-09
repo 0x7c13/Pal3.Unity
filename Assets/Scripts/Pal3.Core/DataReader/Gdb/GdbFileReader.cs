@@ -30,32 +30,32 @@ namespace Pal3.Core.DataReader.Gdb
             int numOfComboSkills = reader.ReadInt32();
 
             reader.Seek(combatActorDataOffset, SeekOrigin.Begin);
-            var combatActorInfos = new Dictionary<int, CombatActorInfo>();
-            for (var i = 0; i < numOfActors; i++)
+            Dictionary<int, CombatActorInfo> combatActorInfos = new();
+            for (int i = 0; i < numOfActors; i++)
             {
                 CombatActorInfo actor = ReadCombatActorInfo(reader, codepage);
                 combatActorInfos[(int) actor.Id] = actor;
             }
 
             reader.Seek(skillDataOffset, SeekOrigin.Begin);
-            var skillInfos = new Dictionary<int, SkillInfo>();
-            for (var i = 0; i < numOfSkills; i++)
+            Dictionary<int, SkillInfo> skillInfos = new();
+            for (int i = 0; i < numOfSkills; i++)
             {
                 SkillInfo skill = ReadSkillInfo(reader, codepage);
                 skillInfos[(int) skill.Id] = skill;
             }
 
             reader.Seek(itemDataOffset, SeekOrigin.Begin);
-            var gameItems = new Dictionary<int, GameItemInfo>();
-            for (var i = 0; i < numOfItems; i++)
+            Dictionary<int, GameItemInfo> gameItems = new();
+            for (int i = 0; i < numOfItems; i++)
             {
                 GameItemInfo item = ReadGameItemInfo(reader, codepage);
                 gameItems[(int) item.Id] = item;
             }
 
             reader.Seek(comboSkillDataOffset, SeekOrigin.Begin);
-            var comboSkillInfos = new Dictionary<int, ComboSkillInfo>();
-            for (var i = 0; i < numOfComboSkills; i++)
+            Dictionary<int, ComboSkillInfo> comboSkillInfos = new();
+            for (int i = 0; i < numOfComboSkills; i++)
             {
                 ComboSkillInfo comboSkill = ReadComboSkillInfo(reader, codepage);
                 comboSkillInfos[(int) comboSkill.Id] = comboSkill;
@@ -69,45 +69,45 @@ namespace Pal3.Core.DataReader.Gdb
 
         private static CombatActorInfo ReadCombatActorInfo(IBinaryReader reader, int codepage)
         {
-            var id = reader.ReadUInt32();
-            var type = (CombatActorType) reader.ReadUInt16();
-            var description = reader.ReadString(512, codepage);
-            var modelId = reader.ReadString(30, codepage);
-            var iconId = reader.ReadString(32, codepage);
-            var elementAttributeValues = reader.ReadInt32s(5);
-            var name = reader.ReadString(32, codepage);
-            var level = reader.ReadInt32();
-            var attributeValues = reader.ReadInt32s(12);
-            var combatStateImpactTypes = reader.ReadBytes(31);
+            uint id = reader.ReadUInt32();
+            CombatActorType type = (CombatActorType) reader.ReadUInt16();
+            string description = reader.ReadString(512, codepage);
+            string modelId = reader.ReadString(30, codepage);
+            string iconId = reader.ReadString(32, codepage);
+            int[] elementAttributeValues = reader.ReadInt32s(5);
+            string name = reader.ReadString(32, codepage);
+            int level = reader.ReadInt32();
+            int[] attributeValues = reader.ReadInt32s(12);
+            byte[] combatStateImpactTypes = reader.ReadBytes(31);
             _ = reader.ReadByte(); // padding
-            var maxRound = reader.ReadInt32();
-            var specialActionId = reader.ReadInt32();
-            var escapeRate = reader.ReadSingle();
-            var mainActorFavor = reader.ReadUInt16s(6);
-            var experience = reader.ReadInt32();
-            var money = reader.ReadUInt16();
+            int maxRound = reader.ReadInt32();
+            int specialActionId = reader.ReadInt32();
+            float escapeRate = reader.ReadSingle();
+            ushort[] mainActorFavor = reader.ReadUInt16s(6);
+            int experience = reader.ReadInt32();
+            ushort money = reader.ReadUInt16();
             _ = reader.ReadUInt16(); // padding
-            var normalAttackModeId = reader.ReadUInt32();
-            var heightLevel = reader.ReadByte();
-            var moveRangeLevel = reader.ReadByte();
-            var attackRangeLevel = reader.ReadByte();
-            var moveSpeedLevel = reader.ReadByte();
-            var chaseSpeed = reader.ReadByte();
+            uint normalAttackModeId = reader.ReadUInt32();
+            byte heightLevel = reader.ReadByte();
+            byte moveRangeLevel = reader.ReadByte();
+            byte attackRangeLevel = reader.ReadByte();
+            byte moveSpeedLevel = reader.ReadByte();
+            byte chaseSpeed = reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var skillIds = reader.ReadUInt32s(4);
-            var skillLevels = reader.ReadBytes(4);
-            var spImpactValue = reader.ReadInt32();
-            var properties = reader.ReadSingles(10);
-            var normalLoot = reader.ReadUInt32();
-            var normalLootCount = reader.ReadInt16();
+            uint[] skillIds = reader.ReadUInt32s(4);
+            byte[] skillLevels = reader.ReadBytes(4);
+            int spImpactValue = reader.ReadInt32();
+            float[] properties = reader.ReadSingles(10);
+            uint normalLoot = reader.ReadUInt32();
+            short normalLootCount = reader.ReadInt16();
             _ = reader.ReadInt16(); // padding
-            var corpseId = reader.ReadUInt32();
-            var corpseSkillId = reader.ReadUInt32();
-            var corpseSuccessRate = reader.ReadInt16();
-            var stealableMoneyAmount = reader.ReadInt16();
-            var stealableItemId = reader.ReadUInt32();
-            var stealableItemCount = reader.ReadInt16();
-            var moneyWhenKilled = reader.ReadInt16();
+            uint corpseId = reader.ReadUInt32();
+            uint corpseSkillId = reader.ReadUInt32();
+            short corpseSuccessRate = reader.ReadInt16();
+            short stealableMoneyAmount = reader.ReadInt16();
+            uint stealableItemId = reader.ReadUInt32();
+            short stealableItemCount = reader.ReadInt16();
+            short moneyWhenKilled = reader.ReadInt16();
 
             return new CombatActorInfo()
             {
@@ -151,49 +151,49 @@ namespace Pal3.Core.DataReader.Gdb
 
         private SkillInfo ReadSkillInfo(IBinaryReader reader, int codepage)
         {
-            var id = reader.ReadUInt32();
-            var type = (SkillType)reader.ReadByte();
+            uint id = reader.ReadUInt32();
+            SkillType type = (SkillType)reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var elementAttributes = reader.ReadInt32s(5).Select(_ => (byte)_).ToArray();
+            byte[] elementAttributes = reader.ReadInt32s(5).Select(_ => (byte)_).ToArray();
 
-            var name = reader.ReadString(32, codepage);
-            var description = reader.ReadString(512, codepage);
-            var mainActorCanUse = reader.ReadBytes(5);
-            var targetRangeType = (TargetRangeType)reader.ReadByte();
-            var specialSkillId = reader.ReadByte();
-            var attributeImpactType = reader.ReadBytes(12);
+            string name = reader.ReadString(32, codepage);
+            string description = reader.ReadString(512, codepage);
+            byte[] mainActorCanUse = reader.ReadBytes(5);
+            TargetRangeType targetRangeType = (TargetRangeType)reader.ReadByte();
+            byte specialSkillId = reader.ReadByte();
+            byte[] attributeImpactType = reader.ReadBytes(12);
             _ = reader.ReadByte(); // padding
-            var attributeImpactValue = reader.ReadInt16s(12);
-            var successRateLevel = reader.ReadByte();
+            short[] attributeImpactValue = reader.ReadInt16s(12);
+            byte successRateLevel = reader.ReadByte();
             _ = reader.ReadByte(); // padding
-            var combatStateImpactTypes = reader.ReadInt16s(31).Select(_ => (byte)_).ToArray();
+            byte[] combatStateImpactTypes = reader.ReadInt16s(31).Select(_ => (byte)_).ToArray();
 
-            var spConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
-            var mpConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
+            AttributeImpactType spConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
+            AttributeImpactType mpConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
 
-            var spConsumeValue = reader.ReadInt32();
-            var mpConsumeValue = reader.ReadInt32();
+            int spConsumeValue = reader.ReadInt32();
+            int mpConsumeValue = reader.ReadInt32();
 
-            var specialConsumeType = reader.ReadInt32();
-            var specialConsumeImpactType = (AttributeImpactType)reader.ReadByte();
+            int specialConsumeType = reader.ReadInt32();
+            AttributeImpactType specialConsumeImpactType = (AttributeImpactType)reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var specialConsumeValue = reader.ReadInt32();
+            int specialConsumeValue = reader.ReadInt32();
 
-            var level = reader.ReadByte();
-            var timesBeforeLevelUp = reader.ReadBytes(4);
+            byte level = reader.ReadByte();
+            byte[] timesBeforeLevelUp = reader.ReadBytes(4);
 
-            var requiredActorLevel = reader.ReadByte();
-            var magicLevel = reader.ReadByte();
+            byte requiredActorLevel = reader.ReadByte();
+            byte magicLevel = reader.ReadByte();
             _ = reader.ReadByte(); // padding
-            var nextLevelSkillId = reader.ReadUInt32();
-            var isUsableOutsideCombat = reader.ReadByte();
+            uint nextLevelSkillId = reader.ReadUInt32();
+            byte isUsableOutsideCombat = reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
-            var compositeSkillIds = reader.ReadUInt32s(3);
-            var compositeRequiredSkillIds = reader.ReadUInt32s(3);
-            var compositeRequiredSkillLevels = reader.ReadBytes(3);
-            var compositeRequiredCurrentSkillLevels = reader.ReadBytes(3);
-            var compositeRequiredActorLevels = reader.ReadBytes(3);
-            var canTriggerComboSkill = reader.ReadByte();
+            uint[] compositeSkillIds = reader.ReadUInt32s(3);
+            uint[] compositeRequiredSkillIds = reader.ReadUInt32s(3);
+            byte[] compositeRequiredSkillLevels = reader.ReadBytes(3);
+            byte[] compositeRequiredCurrentSkillLevels = reader.ReadBytes(3);
+            byte[] compositeRequiredActorLevels = reader.ReadBytes(3);
+            byte canTriggerComboSkill = reader.ReadByte();
             _ = reader.ReadBytes(2); // padding
 
             return new SkillInfo()
@@ -233,53 +233,53 @@ namespace Pal3.Core.DataReader.Gdb
 
         private static GameItemInfo ReadGameItemInfo(IBinaryReader reader, int codepage)
         {
-            var id = reader.ReadUInt32();
-            var name = reader.ReadString(32, codepage);
-            var modelName = reader.ReadString(30, codepage);
-            var iconName = reader.ReadString(30, codepage);
-            var description = reader.ReadString(512, codepage);
-            var price = reader.ReadInt32();
-            var type = (ItemType) reader.ReadByte();
-            var weaponType = (WeaponType) reader.ReadByte();
-            var mainActorCanUse = reader.ReadBytes(5);
-            var elementAttributes = reader.ReadBytes(5);
-            var ancientValue = reader.ReadInt32();
-            var itemSpecialType = (ItemSpecialType) reader.ReadByte();
-            var targetRangeType = (TargetRangeType) reader.ReadByte();
-            var placeOfUseType = (PlaceOfUseType) reader.ReadByte();
-            var attributeImpactType = reader.ReadBytes(12);
+            uint id = reader.ReadUInt32();
+            string name = reader.ReadString(32, codepage);
+            string modelName = reader.ReadString(30, codepage);
+            string iconName = reader.ReadString(30, codepage);
+            string description = reader.ReadString(512, codepage);
+            int price = reader.ReadInt32();
+            ItemType type = (ItemType) reader.ReadByte();
+            WeaponType weaponType = (WeaponType) reader.ReadByte();
+            byte[] mainActorCanUse = reader.ReadBytes(5);
+            byte[] elementAttributes = reader.ReadBytes(5);
+            int ancientValue = reader.ReadInt32();
+            ItemSpecialType itemSpecialType = (ItemSpecialType) reader.ReadByte();
+            TargetRangeType targetRangeType = (TargetRangeType) reader.ReadByte();
+            PlaceOfUseType placeOfUseType = (PlaceOfUseType) reader.ReadByte();
+            byte[] attributeImpactType = reader.ReadBytes(12);
             _ = reader.ReadByte(); // padding
-            var attributeImpactValue = reader.ReadInt16s(12);
-            var combatStateImpactTypes = reader.ReadBytes(31);
+            short[] attributeImpactValue = reader.ReadInt16s(12);
+            byte[] combatStateImpactTypes = reader.ReadBytes(31);
             _ = reader.ReadByte(); // padding
-            var combatStateImpactValue = reader.ReadInt16s(31);
+            short[] combatStateImpactValue = reader.ReadInt16s(31);
             _ = reader.ReadBytes(2); // padding
 
             #if PAL3
-            var comboCount = reader.ReadInt32();
-            var spSavingPercentage = reader.ReadInt16();
-            var mpSavingPercentage = reader.ReadInt16();
-            var criticalAttackAmplifyPercentage = reader.ReadInt16();
-            var specialSkillSuccessRate = reader.ReadInt16();
-            var oreId = reader.ReadUInt32();
-            var productId = reader.ReadUInt32();
-            var productPrice = reader.ReadInt32();
-            var synthesisMaterialIds = reader.ReadUInt32s(2);
-            var synthesisProductId = reader.ReadUInt32();
+            int comboCount = reader.ReadInt32();
+            short spSavingPercentage = reader.ReadInt16();
+            short mpSavingPercentage = reader.ReadInt16();
+            short criticalAttackAmplifyPercentage = reader.ReadInt16();
+            short specialSkillSuccessRate = reader.ReadInt16();
+            uint oreId = reader.ReadUInt32();
+            uint productId = reader.ReadUInt32();
+            int productPrice = reader.ReadInt32();
+            uint[] synthesisMaterialIds = reader.ReadUInt32s(2);
+            uint synthesisProductId = reader.ReadUInt32();
             #elif PAL3A
-            var unknown1 = reader.ReadInt32();
-            var unknown2 = reader.ReadUInt32();
+            int unknown1 = reader.ReadInt32();
+            uint unknown2 = reader.ReadUInt32();
 
-            var spSavingPercentage = reader.ReadInt16();
-            var mpSavingPercentage = reader.ReadInt16();
-            var criticalAttackAmplifyPercentage = reader.ReadInt16();
-            var specialSkillSuccessRate = reader.ReadInt16();
+            short spSavingPercentage = reader.ReadInt16();
+            short mpSavingPercentage = reader.ReadInt16();
+            short criticalAttackAmplifyPercentage = reader.ReadInt16();
+            short specialSkillSuccessRate = reader.ReadInt16();
 
-            var creatorActorId = (PlayerActorId)reader.ReadInt32();
-            var materialId = reader.ReadUInt32();
-            var productType = reader.ReadInt32();
-            var productId = reader.ReadUInt32();
-            var requiredFavorValue = reader.ReadUInt32();
+            PlayerActorId creatorActorId = (PlayerActorId)reader.ReadInt32();
+            uint materialId = reader.ReadUInt32();
+            int productType = reader.ReadInt32();
+            uint productId = reader.ReadUInt32();
+            uint requiredFavorValue = reader.ReadUInt32();
             #endif
 
             return new GameItemInfo()
@@ -331,25 +331,25 @@ namespace Pal3.Core.DataReader.Gdb
 
         private ComboSkillInfo ReadComboSkillInfo(IBinaryReader reader, int codepage)
         {
-            var name = reader.ReadString(32, codepage);
-            var id = reader.ReadUInt32();
-            var mainActorRequirements = reader.ReadUInt32s(4);
-            var elementPositionRequirements = reader.ReadBytes(4)
+            string name = reader.ReadString(32, codepage);
+            uint id = reader.ReadUInt32();
+            uint[] mainActorRequirements = reader.ReadUInt32s(4);
+            ElementPositionRequirementType[] elementPositionRequirements = reader.ReadBytes(4)
                 .Select(_ => (ElementPositionRequirementType)_).ToArray();
-            var skillId = reader.ReadUInt32();
-            var weaponTypeRequirements = reader.ReadBytes(4).Select(_ => (WeaponType)_).ToArray();
+            uint skillId = reader.ReadUInt32();
+            WeaponType[] weaponTypeRequirements = reader.ReadBytes(4).Select(_ => (WeaponType)_).ToArray();
             _ = reader.ReadBytes(4); // not used
-            var combatStateRequirements = reader.ReadInt32s(3)
+            ActorCombatStateType[] combatStateRequirements = reader.ReadInt32s(3)
                 .Select(_ => (ActorCombatStateType)_).ToArray();
-            var description = reader.ReadString(512, codepage);
-            var targetRangeType = (TargetRangeType)reader.ReadByte();
+            string description = reader.ReadString(512, codepage);
+            TargetRangeType targetRangeType = (TargetRangeType)reader.ReadByte();
 
-            var attributeImpactType = reader.ReadBytes(12);
+            byte[] attributeImpactType = reader.ReadBytes(12);
             _ = reader.ReadBytes(3); // padding
-            var attributeImpactValue = reader.ReadInt16s(12);
+            short[] attributeImpactValue = reader.ReadInt16s(12);
 
             #if PAL3A
-            var unknown = reader.ReadInt32();
+            int unknown = reader.ReadInt32();
             #endif
 
             return new ComboSkillInfo()

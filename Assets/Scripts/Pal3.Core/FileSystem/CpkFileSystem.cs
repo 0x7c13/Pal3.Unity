@@ -67,7 +67,7 @@ namespace Pal3.Core.FileSystem
                 throw new FileNotFoundException($"CPK file not found: {cpkFilePath}");
             }
 
-            CpkArchive cpkArchive = new CpkArchive(cpkFilePath, _crcHash, codepage);
+            CpkArchive cpkArchive = new (cpkFilePath, _crcHash, codepage);
             cpkArchive.Init();
             _cpkArchives[cpkFileName] = cpkArchive;
         }
@@ -237,17 +237,17 @@ namespace Pal3.Core.FileSystem
         /// <returns>A list of file paths that match the specified keyword.</returns>
         public IList<string> Search(string keyword = "")
         {
-            var results = new ConcurrentBag<IEnumerable<string>>();
+            ConcurrentBag<IEnumerable<string>> results = new();
 
             Parallel.ForEach(_cpkArchives, archive =>
             {
-                var rootNodes = archive.Value.GetRootEntries();
+                IEnumerable<CpkEntry> rootNodes = archive.Value.GetRootEntries();
                 results.Add(from result in SearchInternal(rootNodes, keyword)
                     select archive.Key + CpkConstants.DirectorySeparatorChar + result);
             });
 
-            var resultList = new List<string>();
-            foreach (var result in results)
+            List<string> resultList = new();
+            foreach (IEnumerable<string> result in results)
             {
                 resultList.AddRange(result);
             }
@@ -260,7 +260,7 @@ namespace Pal3.Core.FileSystem
             {
                 if (node.IsDirectory)
                 {
-                    foreach (var result in SearchInternal(node.Children, keyword))
+                    foreach (string result in SearchInternal(node.Children, keyword))
                     {
                         yield return result;
                     }
@@ -280,7 +280,7 @@ namespace Pal3.Core.FileSystem
         /// and the values are the lines in the files that contain the keywords.</returns>
         public IDictionary<string, IList<string>> BatchSearch(IList<string> keywords)
         {
-            var results = new ConcurrentDictionary<string, ConcurrentBag<string>>();
+            ConcurrentDictionary<string, ConcurrentBag<string>> results = new();
             foreach (string keyword in keywords)
             {
                 results[keyword] = new ConcurrentBag<string>();
@@ -288,15 +288,15 @@ namespace Pal3.Core.FileSystem
 
             Parallel.ForEach(_cpkArchives, archive =>
             {
-                var rootNodes = archive.Value.GetRootEntries();
+                IEnumerable<CpkEntry> rootNodes = archive.Value.GetRootEntries();
 
-                foreach (var match in SearchInternal(rootNodes, keywords))
+                foreach (KeyValuePair<string, HashSet<string>> match in SearchInternal(rootNodes, keywords))
                 {
-                    foreach (var keyword in keywords)
+                    foreach (string keyword in keywords)
                     {
                         if (match.Value.Contains(keyword))
                         {
-                            var resultPath = archive.Key + CpkConstants.DirectorySeparatorChar + match.Key;
+                            string resultPath = archive.Key + CpkConstants.DirectorySeparatorChar + match.Key;
                             results[keyword].Add(resultPath);
                         }
                     }
@@ -310,19 +310,19 @@ namespace Pal3.Core.FileSystem
 
         private IDictionary<string, HashSet<string>> SearchInternal(IEnumerable<CpkEntry> nodes, IList<string> keywords)
         {
-            var results = new Dictionary<string, HashSet<string>>();
+            Dictionary<string, HashSet<string>> results = new();
 
             foreach (CpkEntry node in nodes)
             {
                 if (node.IsDirectory)
                 {
-                    foreach (var result in SearchInternal(node.Children, keywords))
+                    foreach (KeyValuePair<string, HashSet<string>> result in SearchInternal(node.Children, keywords))
                     {
                         if (!results.ContainsKey(result.Key))
                         {
                             results[result.Key] = new HashSet<string>();
                         }
-                        foreach (var path in result.Value)
+                        foreach (string path in result.Value)
                         {
                             results[result.Key].Add(path);
                         }
@@ -330,7 +330,7 @@ namespace Pal3.Core.FileSystem
                 }
                 else
                 {
-                    foreach (var keyword in keywords)
+                    foreach (string keyword in keywords)
                     {
                         if (!string.IsNullOrEmpty(node.VirtualPath) &&
                             node.VirtualPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)

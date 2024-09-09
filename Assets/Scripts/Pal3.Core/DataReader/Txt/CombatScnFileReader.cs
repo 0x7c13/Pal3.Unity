@@ -21,8 +21,8 @@ namespace Pal3.Core.DataReader.Txt
 
         public CombatScnFile Read(byte[] data, int _)
         {
-            var content = Encoding.GetEncoding(DEFAULT_CODEPAGE).GetString(data, 0, data.Length);
-            var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string content = Encoding.GetEncoding(DEFAULT_CODEPAGE).GetString(data, 0, data.Length);
+            string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             string currentCombatSceneName = string.Empty;
             Dictionary<FloorType, string> currentCombatSceneMap = null;
@@ -30,7 +30,7 @@ namespace Pal3.Core.DataReader.Txt
             Dictionary<string, ElementType> combatSceneElementTypeInfo = new(StringComparer.OrdinalIgnoreCase);
             Dictionary<string, Dictionary<FloorType, string>> combatSceneMapInfo = new(StringComparer.OrdinalIgnoreCase);
 
-            for (var i = 0; i < lines.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
 

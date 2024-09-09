@@ -38,7 +38,7 @@ namespace Pal3.Game.Command
 
             if (!executors.Any()) return false;
 
-            foreach (var executor in executors)
+            foreach (ICommandExecutor<T> executor in executors)
             {
                 executor.Execute(command);
             }

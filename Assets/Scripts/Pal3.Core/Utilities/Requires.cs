@@ -17,8 +17,8 @@ namespace Pal3.Core.Utilities
         public static T IsNotNull<T>([NotNull] T instance, string paramName)
             where T : class
         {
-            if (typeof(T) == typeof(Object) ||
-                typeof(T).IsSubclassOf(typeof(Object)))
+            if (typeof(T) == typeof(object) ||
+                typeof(T).IsSubclassOf(typeof(object)))
             {
                 if (ReferenceEquals(null, instance))
                 {

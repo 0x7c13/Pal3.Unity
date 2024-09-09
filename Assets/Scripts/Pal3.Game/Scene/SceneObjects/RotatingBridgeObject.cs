@@ -82,8 +82,8 @@ namespace Pal3.Game.Scene.SceneObjects
             CameraFocusOnObject(ObjectInfo.Id);
 
             Vector3 eulerAngles = bridgeObjectTransform.EulerAngles;
-            var targetYRotation = (eulerAngles.y  + 90f) % 360f;
-            var targetRotation = new Vector3(eulerAngles.x, targetYRotation, eulerAngles.z);
+            float targetYRotation = (eulerAngles.y  + 90f) % 360f;
+            Vector3 targetRotation = new(eulerAngles.x, targetYRotation, eulerAngles.z);
 
             PlaySfx("wg004");
 

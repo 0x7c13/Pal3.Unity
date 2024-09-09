@@ -126,7 +126,7 @@ namespace Pal3.Game.GamePlay
         {
             if (_playerActorGameEntity == null) return;
 
-            var isPlayerInControl = false;
+            bool isPlayerInControl = false;
 
             if (_gameStateManager.GetCurrentState() == GameState.Gameplay &&
                 _playerActorManager.IsPlayerInputEnabled() &&
@@ -136,10 +136,10 @@ namespace Pal3.Game.GamePlay
                 ReadInputAndMovePlayerIfNeeded(deltaTime);
             }
 
-            var shouldUpdatePlayerActorMovementSfx = false;
+            bool shouldUpdatePlayerActorMovementSfx = false;
 
             Vector3 position = _playerActorGameEntity.Transform.Position;
-            var layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+            int layerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             if (!(position == _playerActorManager.LastKnownPosition &&
                   layerIndex == _playerActorManager.LastKnownLayerIndex))
@@ -162,7 +162,7 @@ namespace Pal3.Game.GamePlay
 
             _playerActorManager.LastKnownLayerIndex = layerIndex;
 
-            var currentAction = _playerActorActionController.GetCurrentAction();
+            string currentAction = _playerActorActionController.GetCurrentAction();
             if (currentAction != _lastKnownPlayerActorAction)
             {
                 _lastKnownPlayerActorAction = currentAction;
@@ -403,7 +403,9 @@ namespace Pal3.Game.GamePlay
                 currentScene.GetSceneInfo(),
                 _playerActorMovementController.GetCurrentLayerIndex(),
                 _playerActorMovementController.GetTilePosition(),
-                _playerActorGameEntity.Transform.Forward));
+                _playerActorGameEntity != null 
+                    ? _playerActorGameEntity.Transform.Forward
+                    : Vector3.forward));
 
             if (_playerActorLastKnownSceneState.Count > LAST_KNOWN_SCENE_STATE_LIST_MAX_LENGTH)
             {

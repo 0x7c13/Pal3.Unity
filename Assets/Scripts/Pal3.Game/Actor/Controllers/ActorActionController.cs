@@ -249,21 +249,21 @@ namespace Pal3.Game.Actor.Controllers
             // but only 11 sprite sheet in the data folder (PAL3A has 12 but PAL3 has 11).
             if (!Enum.IsDefined(typeof(ActorEmojiType), emojiType)) yield break;
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
-            var sprites = _resourceProvider.GetEmojiSprites(emojiType);
+            ISprite[] sprites = _resourceProvider.GetEmojiSprites(emojiType);
 
             IGameEntity emojiGameEntity = GameEntityFactory.Create($"Emoji_{emojiType.ToString()}",
                 GameEntity, worldPositionStays: false);
             emojiGameEntity.Transform.LocalScale = new Vector3(1.5f, 1.5f, 1.5f);
             emojiGameEntity.Transform.LocalPosition = new Vector3(0f, GetActorHeight(), 0f);
 
-            var billboardRenderer = emojiGameEntity.AddComponent<AnimatedBillboardRenderer>();
+            AnimatedBillboardRenderer billboardRenderer = emojiGameEntity.AddComponent<AnimatedBillboardRenderer>();
             billboardRenderer.Init(sprites, EMOJI_ANIMATION_FPS);
 
             #if PAL3
-            var emojiSfx = ActorEmojiConstants.EmojiSfxInfo[emojiType];
+            string emojiSfx = ActorEmojiConstants.EmojiSfxInfo[emojiType];
             if (!string.IsNullOrEmpty(emojiSfx))
             {
                 Pal3.Instance.Execute(new PlaySfxCommand(emojiSfx, 1));

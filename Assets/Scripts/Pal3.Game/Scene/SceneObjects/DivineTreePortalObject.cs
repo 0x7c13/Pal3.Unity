@@ -46,7 +46,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
-            var bounds = new Bounds
+            Bounds bounds = new()
             {
                 center = new Vector3(0f, -1f, 0f),
                 size = new Vector3(9f, 2f, 9f),
@@ -96,8 +96,8 @@ namespace Pal3.Game.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             #if PAL3
-            var upperLevelScriptId = ObjectInfo.Parameters[0];
-            var lowerLevelScriptId = ObjectInfo.Parameters[1];
+            int upperLevelScriptId = ObjectInfo.Parameters[0];
+            int lowerLevelScriptId = ObjectInfo.Parameters[1];
 
             bool? shouldGoUp = null;
 
@@ -121,12 +121,12 @@ namespace Pal3.Game.Scene.SceneObjects
 
             IGameEntity portalEntity = GetGameEntity();
             Vector3 platformPosition = _platformController.Transform.Position;
-            var actorStandingPosition = new Vector3(
+            Vector3 actorStandingPosition = new(
                 platformPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 

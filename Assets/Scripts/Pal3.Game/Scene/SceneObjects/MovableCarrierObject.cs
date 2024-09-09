@@ -107,7 +107,7 @@ namespace Pal3.Game.Scene.SceneObjects
             #endif
 
             IGameEntity carrierEntity = GetGameEntity();
-            var isNearFirstWaypoint = IsNearFirstWaypoint();
+            bool isNearFirstWaypoint = IsNearFirstWaypoint();
 
             // Triggered by other objects
             if (ctx.InitObjectId != ObjectInfo.Id)
@@ -127,7 +127,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 if (SceneInfo.Is("m07", "2") &&
                     ObjectInfo.LinkedObjectGroupId != 0)
                 {
-                    var allObjects = ctx.CurrentScene.GetAllSceneObjects();
+                    Dictionary<int, SceneObject> allObjects = ctx.CurrentScene.GetAllSceneObjects();
                     foreach (SceneObject otherObject in allObjects.Values)
                     {
                         if (ObjectInfo.Id != otherObject.ObjectInfo.Id &&
@@ -143,13 +143,13 @@ namespace Pal3.Game.Scene.SceneObjects
                 #endif
             }
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
-            var waypoints = new List<Vector3>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            List<Vector3> waypoints = new();
 
             // Move player to center of the carrier
             {
                 Vector3 platformPosition = _platformController.Transform.Position;
-                var actorStandingPosition = new Vector3(
+                Vector3 actorStandingPosition = new(
                     platformPosition.x,
                     _platformController.GetPlatformHeight(),
                     platformPosition.z);
@@ -159,7 +159,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             // Move carrier to final waypoint
             {
-                for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
+                for (int i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
                 {
                     Vector3 waypoint = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
                     if (isNearFirstWaypoint)
@@ -176,7 +176,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 for (int i = 1; i < waypoints.Count; i++)
                 {
-                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
+                    float duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
                     yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }
@@ -229,7 +229,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 for (int i = 1; i < waypoints.Count; i++)
                 {
-                    var duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
+                    float duration = Vector3.Distance(waypoints[i], carrierObjectTransform.Position) / MOVE_SPEED;
                     yield return carrierObjectTransform.MoveAsync(waypoints[i],
                         duration);
                 }

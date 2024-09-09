@@ -48,7 +48,7 @@ namespace Pal3.Game.Scene
         {
             bool isInside = IsTilePositionInsideTileMap(tilePosition, layerIndex);
             NavLayer currentLayer = _navFile.Layers[layerIndex];
-            var position = new GameBoxVector3(
+            GameBoxVector3 position = new(
                 currentLayer.GameBoxMinWorldPosition.X + (tilePosition.x + 1/2f) * NAV_TILE_SIZE,
                 isInside ? GetTile(tilePosition, layerIndex).GameBoxYPosition : 0f,
                 currentLayer.GameBoxMinWorldPosition.Z + (tilePosition.y + 1/2f) * NAV_TILE_SIZE);
@@ -164,7 +164,7 @@ namespace Pal3.Game.Scene
                 if (Vector2Int.Distance(from, pos) > 1 &&
                     Vector2Int.Distance(to, pos) > 1 &&
                     obstacles.Contains(pos)) return true;
-                var index = position.x + position.y * currentLayer.Width;
+                int index = position.x + position.y * currentLayer.Width;
 
                 return !currentLayer.Tiles[index].IsWalkable();
             }
@@ -179,14 +179,14 @@ namespace Pal3.Game.Scene
                        GetTileExtraWeight(GetTile(new Vector2Int(toTile.x, toTile.y), layerIndex));
             }
 
-            var result = LazyThetaStarPathFinder.FindPath(
+            IList<(int x, int y)> result = LazyThetaStarPathFinder.FindPath(
                 (from.x, from.y),
                 (to.x, to.y),
                 (currentLayer.Width, currentLayer.Height),
                 IsObstacle,
                 GetDistanceCost);
 
-            for (var i = 0; i < result.Count; i++)
+            for (int i = 0; i < result.Count; i++)
             {
                 if (i == 0 && result[i].x == from.x && result[i].y == from.y) continue;
                 path.Add(new Vector2Int(result[i].x, result[i].y));
@@ -215,11 +215,11 @@ namespace Pal3.Game.Scene
 
         public void MarkFloorTypeAsObstacle(FloorType floorType, bool isObstacle)
         {
-            for (var i = 0; i < _navFile.Layers.Length; i++)
+            for (int i = 0; i < _navFile.Layers.Length; i++)
             {
-                var newTiles = new NavTile[_navFile.Layers[i].Tiles.Length];
+                NavTile[] newTiles = new NavTile[_navFile.Layers[i].Tiles.Length];
 
-                for (var j = 0; j < _navFile.Layers[i].Tiles.Length; j++)
+                for (int j = 0; j < _navFile.Layers[i].Tiles.Length; j++)
                 {
                     NavTile navTile = _navFile.Layers[i].Tiles[j];
 

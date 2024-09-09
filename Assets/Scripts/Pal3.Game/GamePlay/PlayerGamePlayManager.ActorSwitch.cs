@@ -6,6 +6,7 @@
 namespace Pal3.Game.GamePlay
 {
     using System;
+    using System.Collections.Generic;
     using Command;
     using Command.Extensions;
     using Core.Command;
@@ -43,10 +44,10 @@ namespace Pal3.Game.GamePlay
                 return;
             }
 
-            var actorsInTeam = _teamManager.GetActorsInTeam();
+            HashSet<PlayerActorId> actorsInTeam = _teamManager.GetActorsInTeam();
             if (actorsInTeam.Count <= 1) return; // Makes no sense to change player actor if there is only one actor in the team
 
-            var playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
+            int playerActorIdLength = Enum.GetNames(typeof(PlayerActorId)).Length;
             int targetPlayerActorId = _playerActor.Id;
 
             do

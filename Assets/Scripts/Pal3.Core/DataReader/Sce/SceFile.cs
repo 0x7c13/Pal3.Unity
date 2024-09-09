@@ -49,7 +49,7 @@ namespace Pal3.Core.DataReader.Sce
         {
             Indexes = indexes;
 
-            var scriptBlocksDic = new Dictionary<uint, SceScriptBlock>();
+            Dictionary<uint, SceScriptBlock> scriptBlocksDic = new();
             foreach (SceScriptBlock block in scriptBlocks)
             {
                 scriptBlocksDic[block.Id] = block;

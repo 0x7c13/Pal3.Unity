@@ -18,18 +18,18 @@ namespace Pal3.Core.DataReader.Txt
 
         public TaskDefinitionFile Read(byte[] data, int codepage)
         {
-            var content = Encoding.GetEncoding(codepage).GetString(data, 0, data.Length);
-            var tasks = new List<Task>();
-            var taskLines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var currentTask = new Task();
+            string content = Encoding.GetEncoding(codepage).GetString(data, 0, data.Length);
+            List<Task> tasks = new();
+            string[] taskLines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            Task currentTask = new();
 
-            foreach (var taskLine in taskLines)
+            foreach (string taskLine in taskLines)
             {
                 if (taskLine.TrimStart().StartsWith(";")) continue;
 
-                var splitLine = taskLine.Split('$');
-                var tag = splitLine[0].Trim();
-                var value = splitLine.Length > 1 ? splitLine[1].Trim().Trim('$', '&') : string.Empty;
+                string[] splitLine = taskLine.Split('$');
+                string tag = splitLine[0].Trim();
+                string value = splitLine.Length > 1 ? splitLine[1].Trim().Trim('$', '&') : string.Empty;
 
                 switch (tag)
                 {

@@ -95,7 +95,7 @@ namespace Pal3.ResourceViewer
             _renderingRoot.transform.SetParent(null);
 
             #if UNITY_2022_1_OR_NEWER
-            var monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            int monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
             #else
             var monitorRefreshRate = Screen.currentResolution.refreshRate;
             #endif
@@ -239,7 +239,7 @@ namespace Pal3.ResourceViewer
                 return false;
             }
 
-            var ext = Path.GetExtension(filePath).ToLower();
+            string ext = Path.GetExtension(filePath).ToLower();
             return ext switch
             {
                 ".pol" => LoadPol(filePath),
@@ -264,8 +264,8 @@ namespace Pal3.ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                var mesh = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
-                var meshRenderer = mesh.AddComponent<PolyModelRenderer>();
+                GameObject mesh = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                PolyModelRenderer meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile,
                     textureProvider,
@@ -300,8 +300,8 @@ namespace Pal3.ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                var animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
-                var meshRenderer = animationNode.AddComponent<CvdModelRenderer>();
+                GameObject animationNode = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                CvdModelRenderer meshRenderer = animationNode.AddComponent<CvdModelRenderer>();
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
                 meshRenderer.Init(cvdFile,
@@ -342,9 +342,9 @@ namespace Pal3.ResourceViewer
                     EngineLogger.LogWarning($"{filePath} has {mv3File.Meshes.Length} meshes.");
                 }
 
-                var animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                GameObject animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
-                var mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
+                Mv3ModelRenderer mv3AnimationRenderer = animationNode.AddComponent<Mv3ModelRenderer>();
 
                 //For debugging tag node:
                 // if (mv3File.TagNodes is {Length: > 0} &&
@@ -397,29 +397,29 @@ namespace Pal3.ResourceViewer
 
             try
             {
-                var actorFolderPath = CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar);
-                var actorName = CoreUtility.GetFileName(actorFolderPath, CpkConstants.DirectorySeparatorChar);
+                string actorFolderPath = CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar);
+                string actorName = CoreUtility.GetFileName(actorFolderPath, CpkConstants.DirectorySeparatorChar);
 
-                var mshFilePath = filePath.Replace(".mov", ".msh", StringComparison.OrdinalIgnoreCase);
+                string mshFilePath = filePath.Replace(".mov", ".msh", StringComparison.OrdinalIgnoreCase);
                 if (!_fileSystem.FileExists(mshFilePath))
                 {
                     mshFilePath = actorFolderPath + CpkConstants.DirectorySeparatorChar + actorName + ".msh";
                 }
 
-                var mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
+                MshFile mshFile = _resourceProvider.GetGameResourceFile<MshFile>(mshFilePath);
 
                 string mtlFilePath = actorFolderPath + CpkConstants.DirectorySeparatorChar + actorName + ".mtl";
-                var mtlFile = _resourceProvider.GetGameResourceFile<MtlFile>(mtlFilePath);
+                MtlFile mtlFile = _resourceProvider.GetGameResourceFile<MtlFile>(mtlFilePath);
 
-                var movFile = _resourceProvider.GetGameResourceFile<MovFile>(filePath);
+                MovFile movFile = _resourceProvider.GetGameResourceFile<MovFile>(filePath);
 
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
 
-                var animationNode = new GameObject(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                GameObject animationNode = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
-                var skeletalModelRenderer = animationNode.AddComponent<SkeletalModelRenderer>();
+                SkeletalModelRenderer skeletalModelRenderer = animationNode.AddComponent<SkeletalModelRenderer>();
 
                 skeletalModelRenderer.Init(mshFile,
                     mtlFile,
@@ -445,12 +445,12 @@ namespace Pal3.ResourceViewer
         #if UNITY_EDITOR
         private void DecompileAllSceScripts(bool dialogueOnly)
         {
-            var sceFiles = _fileSystem.Search(".sce")
+            IEnumerable<string> sceFiles = _fileSystem.Search(".sce")
                 .Where(_ => !_.Contains(".bak", StringComparison.OrdinalIgnoreCase));
 
             string title = dialogueOnly ? "选择脚本导出目录(仅对话)" : "选择脚本导出目录";
 
-            var outputFolderPath = EditorUtility.SaveFolderPanel(title, "", "");
+            string outputFolderPath = EditorUtility.SaveFolderPanel(title, "", "");
             if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
 
             outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}" + (dialogueOnly ? "_对话脚本" : "");
@@ -504,7 +504,7 @@ namespace Pal3.ResourceViewer
 
         private void ExportAllGdbFiles()
         {
-            var outputFolderPath = EditorUtility.SaveFolderPanel("选择GDB文件解包后的导出目录", "", "");
+            string outputFolderPath = EditorUtility.SaveFolderPanel("选择GDB文件解包后的导出目录", "", "");
             if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
 
             outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
@@ -522,19 +522,19 @@ namespace Pal3.ResourceViewer
                 new ByteArrayConverter()
             };
 
-            var combatActorInfos = JsonConvert.SerializeObject(_resourceProvider.GetCombatActorInfos(),
+            string combatActorInfos = JsonConvert.SerializeObject(_resourceProvider.GetCombatActorInfos(),
                 Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatActors.json", combatActorInfos);
 
-            var combatSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetSkillInfos(),
+            string combatSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetSkillInfos(),
                 Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatSkills.json", combatSkillInfos);
 
-            var combatComboSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetComboSkillInfos(),
+            string combatComboSkillInfos = JsonConvert.SerializeObject(_resourceProvider.GetComboSkillInfos(),
                 Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "CombatComboSkills.json", combatComboSkillInfos);
 
-            var gameItemInfos = JsonConvert.SerializeObject(_resourceProvider.GetGameItemInfos(),
+            string gameItemInfos = JsonConvert.SerializeObject(_resourceProvider.GetGameItemInfos(),
                 Formatting.Indented, converters);
             File.WriteAllText(outputFolderPath + "GameItems.json", gameItemInfos);
 
@@ -543,7 +543,7 @@ namespace Pal3.ResourceViewer
 
         private void ExtractAllCpkArchives()
         {
-            var outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
+            string outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
             if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
 
             outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
@@ -567,7 +567,7 @@ namespace Pal3.ResourceViewer
             {
                 foreach (string movieCpkFileName in FileConstants.MovieCpkFileNames)
                 {
-                    var movieCpkFilePath = FileConstants.GetMovieCpkFileRelativePath(movieCpkFileName);
+                    string movieCpkFilePath = FileConstants.GetMovieCpkFileRelativePath(movieCpkFileName);
                     if (File.Exists(_fileSystem.GetRootPath() + movieCpkFilePath))
                     {
                         _fileSystem.Mount(movieCpkFilePath, _codePage);
@@ -577,7 +577,7 @@ namespace Pal3.ResourceViewer
                 _isMovieCpkMounted = true;
             }
 
-            var workerThread = new Thread(() =>
+            Thread workerThread = new(() =>
             {
                 _fileSystem.ExtractTo(outputFolderPath);
             })
@@ -601,7 +601,7 @@ namespace Pal3.ResourceViewer
         private readonly Dictionary<string, int> _actorDialogueCountMap = new ();
         private bool DecompileSce(string filePath, string outputFolderPath, bool dialogueOnly)
         {
-            var output = new StringBuilder();
+            StringBuilder output = new();
 
             SceFile sceFile;
 
@@ -616,19 +616,19 @@ namespace Pal3.ResourceViewer
                 return true;
             }
 
-            foreach (var scriptBlock in sceFile.ScriptBlocks)
+            foreach (KeyValuePair<uint, SceScriptBlock> scriptBlock in sceFile.ScriptBlocks)
             {
                 output.Append($"----------------------------------------------------------");
                 output.Append($"\n{scriptBlock.Value.Id} {scriptBlock.Value.Description}\n");
 
-                using var scriptDataReader = new SafeBinaryReader(scriptBlock.Value.ScriptData);
+                using SafeBinaryReader scriptDataReader = new (scriptBlock.Value.ScriptData);
 
                 int dialogueIndex = 1;
                 ICommand lastCommand = null;
 
                 while (scriptDataReader.BaseStream.Position < scriptDataReader.BaseStream.Length)
                 {
-                    var currentPosition = scriptDataReader.BaseStream.Position;
+                    long currentPosition = scriptDataReader.BaseStream.Position;
 
                     ICommand command = _sceCommandParser.ParseNextCommand(scriptDataReader,
                         _codePage,
@@ -688,9 +688,9 @@ namespace Pal3.ResourceViewer
                     : $"{scriptDataReader.BaseStream.Length} __END__\n");
             }
 
-            var cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparatorChar) + 1).Replace(".sce", "");
+            string cpkFileName = filePath.Substring(filePath.LastIndexOf(CpkConstants.DirectorySeparatorChar) + 1).Replace(".sce", "");
 
-            var sceneName = SceneConstants.SceneCpkNameInfos
+            string sceneName = SceneConstants.SceneCpkNameInfos
                 .FirstOrDefault(_ => string.Equals(_.cpkName, cpkFileName + CpkConstants.FileExtension, StringComparison.OrdinalIgnoreCase)).sceneName;
 
             if (dialogueOnly && _actorDialogueCountMap.Count > 0)
@@ -758,13 +758,13 @@ namespace Pal3.ResourceViewer
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var bytes = (byte[])value;
+            byte[] bytes = (byte[])value;
 
             writer.WriteStartArray();
 
             if (bytes != null)
             {
-                foreach (var bt in bytes)
+                foreach (byte bt in bytes)
                 {
                     writer.WriteValue(bt);
                 }

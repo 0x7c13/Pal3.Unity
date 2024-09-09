@@ -35,7 +35,7 @@ namespace Pal3.Core.DataReader
             Length = stream.Length;
             if (Length == 0) return;
 
-            var data = new byte[Length];
+            byte[] data = new byte[Length];
             _ = stream.Read(data, 0, (int)Length);
 
             Init(data);

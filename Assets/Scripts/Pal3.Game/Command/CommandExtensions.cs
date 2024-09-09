@@ -14,7 +14,7 @@ namespace Pal3.Game.Command
     {
         public static string ToString(ICommand command)
         {
-            var builder = new StringBuilder();
+            StringBuilder builder = new();
             Type type = command.GetType();
 
             builder.Append(type.Name[..^"Command".Length]);

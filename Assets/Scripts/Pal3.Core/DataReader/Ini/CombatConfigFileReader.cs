@@ -25,13 +25,13 @@ namespace Pal3.Core.DataReader.Ini
 
         public CombatConfigFile Read(byte[] data, int codepage)
         {
-            var parser = new FileIniDataParser();
-            using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
+            FileIniDataParser parser = new();
+            using MemoryStream stream = new(data);
+            using StreamReader reader = new(stream, Encoding.GetEncoding(codepage));
 
             IniData iniData = parser.ReadData(reader);
 
-            var actorGameBoxPositions = new GameBoxVector3[10];
+            GameBoxVector3[] actorGameBoxPositions = new GameBoxVector3[10];
             FiveElementsFormationConfig allyFormationConfig = default;
             FiveElementsFormationConfig enemyFormationConfig = default;
             int[] levelExperienceTable = new int[100];
@@ -62,7 +62,7 @@ namespace Pal3.Core.DataReader.Ini
 
                     if (radius.Contains(";")) radius = radius[..radius.IndexOf(';')].Trim();
 
-                    var config = new FiveElementsFormationConfig()
+                    FiveElementsFormationConfig config = new()
                     {
                         CenterGameBoxPosition = new GameBoxVector3(float.Parse(x), float.Parse(y), float.Parse(z)),
                         GameBoxRadius = float.Parse(radius),

@@ -21,16 +21,16 @@ namespace Pal3.Game.GameSystems.Dialogue
         {
             if (text.Contains('\n'))
             {
-                var indexOfSecondNewLineChar = text.IndexOf('\n', text.IndexOf('\n') + 1);
+                int indexOfSecondNewLineChar = text.IndexOf('\n', text.IndexOf('\n') + 1);
                 if (indexOfSecondNewLineChar != -1)
                 {
-                    var indexOfThirdNewLineChar = text.IndexOf('\n', indexOfSecondNewLineChar + 1);
+                    int indexOfThirdNewLineChar = text.IndexOf('\n', indexOfSecondNewLineChar + 1);
                     if (indexOfThirdNewLineChar != -1 && indexOfThirdNewLineChar != text.Length)
                     {
-                        var firstPart = text.Substring(0, indexOfThirdNewLineChar);
-                        var secondPart = text.Substring(indexOfThirdNewLineChar, text.Length - indexOfThirdNewLineChar);
+                        string firstPart = text[..indexOfThirdNewLineChar];
+                        string secondPart = text.Substring(indexOfThirdNewLineChar, text.Length - indexOfThirdNewLineChar);
                         yield return firstPart;
-                        yield return text.Substring(0, text.IndexOf('\n')) + secondPart;
+                        yield return text[..text.IndexOf('\n')] + secondPart;
                         yield break;
                     }
                 }
@@ -47,7 +47,7 @@ namespace Pal3.Game.GameSystems.Dialogue
         /// <returns>The formatted text with information text color.</returns>
         public static string GetDisplayText(string text, string informationTextColorHex)
         {
-            var formattedText = text.Replace("\\n", "\n");
+            string formattedText = text.Replace("\\n", "\n");
 
             return ReplaceStringInTextWithPatternForEachChar(formattedText,
                 "\\i", "\\r",
@@ -66,7 +66,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
             if (selectionText.Contains('.'))
             {
-                var numberStr = selectionText[..selectionText.IndexOf('.')];
+                string numberStr = selectionText[..selectionText.IndexOf('.')];
                 if (int.TryParse(numberStr, out _))
                 {
                     return selectionText[(selectionText.IndexOf('.') + 1)..];
@@ -75,7 +75,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
             if (selectionText.Contains('、'))
             {
-                var numberStr = selectionText[..selectionText.IndexOf('、')];
+                string numberStr = selectionText[..selectionText.IndexOf('、')];
                 if (int.TryParse(numberStr, out _))
                 {
                     return selectionText[(selectionText.IndexOf('、') + 1)..];
@@ -83,9 +83,9 @@ namespace Pal3.Game.GameSystems.Dialogue
             }
 
             // I don't think there will be more than 20 options, so let's start with 20
-            for (var i = 20; i >= 0; i--)
+            for (int i = 20; i >= 0; i--)
             {
-                var intStr = i.ToString();
+                string intStr = i.ToString();
                 if (selectionText.StartsWith(intStr) && !string.Equals(selectionText, intStr))
                 {
                     return selectionText[intStr.Length..];
@@ -110,17 +110,17 @@ namespace Pal3.Game.GameSystems.Dialogue
             string charStartPattern,
             string charEndPattern)
         {
-            var newStr = string.Empty;
+            string newStr = string.Empty;
 
-            var currentIndex = 0;
-            var startOfInformation = text.IndexOf(startPattern, StringComparison.Ordinal);
+            int currentIndex = 0;
+            int startOfInformation = text.IndexOf(startPattern, StringComparison.Ordinal);
             while (startOfInformation != -1)
             {
-                var endOfInformation = text.IndexOf(endPattern, startOfInformation, StringComparison.Ordinal);
+                int endOfInformation = text.IndexOf(endPattern, startOfInformation, StringComparison.Ordinal);
 
                 newStr += text.Substring(currentIndex, startOfInformation - currentIndex);
 
-                foreach (var ch in text.Substring(
+                foreach (char ch in text.Substring(
                              startOfInformation + startPattern.Length,
                              endOfInformation - startOfInformation - startPattern.Length))
                 {

@@ -39,7 +39,7 @@ namespace Pal3.Game.GameSystems.Minimap
         {
             byte[] rgbaDataBuffer = ArrayPool<byte>.Shared.Rent(layer.Width * layer.Height * 4);
 
-            for (var i = 0; i < layer.Width; i++)
+            for (int i = 0; i < layer.Width; i++)
             {
                 for (int j = 0; j < layer.Height; j++)
                 {

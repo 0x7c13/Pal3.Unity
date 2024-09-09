@@ -14,24 +14,24 @@ namespace Pal3.Core.DataReader.Mtl
     {
         public MtlFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header[..^1]);
 
             if (headerStr != "mtl")
             {
                 throw new InvalidDataException("Invalid MTL(.mtl) file: header != mtl");
             }
 
-            var version = reader.ReadInt32();
+            int version = reader.ReadInt32();
             if (version != 100)
             {
                 throw new InvalidDataException("Invalid MTL(.mtl) file: version != 100");
             }
 
             int numberOfMaterials = reader.ReadInt32();
-            var materials = new GameBoxMaterial[numberOfMaterials];
+            GameBoxMaterial[] materials = new GameBoxMaterial[numberOfMaterials];
 
-            for (var i = 0; i < numberOfMaterials; i++)
+            for (int i = 0; i < numberOfMaterials; i++)
             {
                 materials[i] = new GameBoxMaterial
                 {
@@ -43,7 +43,7 @@ namespace Pal3.Core.DataReader.Mtl
                 };
 
                 List<string> textureNames = new ();
-                for (var j = 0; j < 4; j++)
+                for (int j = 0; j < 4; j++)
                 {
                     int textureNameLength = reader.ReadInt32();
                     if (textureNameLength == 0) continue;

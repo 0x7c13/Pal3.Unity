@@ -77,12 +77,12 @@ namespace Pal3.Game.UI
             _debugInfo.SetText(_defaultText);
 
             #if UNITY_2022_1_OR_NEWER
-            var refreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
+            int refreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
             #else
             var refreshRate = Screen.currentResolution.refreshRate;
             #endif
 
-            var deviceInfo =
+            string deviceInfo =
                 $"Device: {SystemInfo.deviceModel.Trim()} OS: {SystemInfo.operatingSystem.Trim()}\n" +
                 $"CPU: {SystemInfo.processorType.Trim()} ({SystemInfo.processorCount} vCores) RAM: {SystemInfo.systemMemorySize / 1024f:0.0} GB\n" +
                 $"GPU: {SystemInfo.graphicsDeviceName.Trim()} ({SystemInfo.graphicsDeviceType}) VRAM: {SystemInfo.graphicsMemorySize / 1024f:0.0} GB\n";
@@ -104,7 +104,7 @@ namespace Pal3.Game.UI
         {
             if (!_gameSettings.IsDebugInfoEnabled) return;
 
-            var currentTime = GameTimeProvider.Instance.RealTimeSinceStartup;
+            double currentTime = GameTimeProvider.Instance.RealTimeSinceStartup;
             if (currentTime - _heapSizeLastQueryTime > 5f)
             {
                 _heapSize = GC.GetTotalMemory(false) / (1024f * 1024f);
@@ -145,7 +145,7 @@ namespace Pal3.Game.UI
 
             if (_noteCanvasGroup.alpha > 0f)
             {
-                var currentText = _noteText.text;
+                string currentText = _noteText.text;
                 if (_noteAnimation != null)
                 {
                     Pal3.Instance.StopCoroutine(_noteAnimation);

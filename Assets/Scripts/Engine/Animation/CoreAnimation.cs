@@ -71,10 +71,10 @@ namespace Engine.Animation
                 yield break;
             }
 
-            var timePast = 0f;
+            float timePast = 0f;
             while (timePast < duration && !cancellationToken.IsCancellationRequested)
             {
-                var newValue = Lerp(from, to, GetInterpolationRatio(timePast / duration, curveType));
+                float newValue = Lerp(from, to, GetInterpolationRatio(timePast / duration, curveType));
                 onValueChanged?.Invoke(newValue);
                 timePast += GameTimeProvider.Instance.DeltaTime;
                 yield return null;
@@ -95,7 +95,7 @@ namespace Engine.Animation
         {
             Vector3 oldPosition = target.Position;
 
-            var timePast = 0f;
+            float timePast = 0f;
             while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 target.Position = oldPosition + (toPosition - oldPosition) *
@@ -139,10 +139,10 @@ namespace Engine.Animation
             float distanceDelta,
             CancellationToken cancellationToken = default)
         {
-            var distance = Vector3.Distance(target.Position, centerPoint);
+            float distance = Vector3.Distance(target.Position, centerPoint);
             Quaternion startRotation = target.Rotation;
 
-            var timePast = 0f;
+            float timePast = 0f;
             while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion newRotation = Quaternion.Slerp(startRotation, toRotation,
@@ -174,7 +174,7 @@ namespace Engine.Animation
         {
             Quaternion startRotation = target.Rotation;
 
-            var timePast = 0f;
+            float timePast = 0f;
             while (timePast < duration && !target.IsNativeObjectDisposed && !cancellationToken.IsCancellationRequested)
             {
                 Quaternion rotation = Quaternion.Slerp(startRotation, toRotation,

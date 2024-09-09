@@ -31,7 +31,7 @@ namespace Pal3.Core.DataReader.Cpk
             for (uint i = 0; i <= CRC_TABLE_MAX; i++)
             {
                 uint crcAccum = i << 24;
-                for (var j = 0; j < 8; j++)
+                for (int j = 0; j < 8; j++)
                 {
                     crcAccum = (crcAccum & 0x80000000L) != 0 ?
                         (crcAccum << 1) ^ POLYNOMIAL :

@@ -142,9 +142,9 @@ namespace Pal3.Game.Camera
 
             _isTouchEnabled = UnityEngineUtility.IsHandheldDevice();
 
-            var onScreenStick = touchControlUI.GetComponentInChildren<OnScreenStick>();
+            OnScreenStick onScreenStick = touchControlUI.GetComponentInChildren<OnScreenStick>();
             _joyStickMovementRange = onScreenStick.movementRange;
-            var joyStickImage = onScreenStick.gameObject.GetComponent<Image>();
+            Image joyStickImage = onScreenStick.gameObject.GetComponent<Image>();
             _joyStickRectTransform = joyStickImage.rectTransform;
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -174,7 +174,7 @@ namespace Pal3.Game.Camera
                 _lastLookAtPoint = _playerActorManager.LastKnownPosition.Value;
             }
 
-            var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
+            Vector3 yOffset = new (0f, _lookAtPointYOffset, 0f);
             Vector3 targetPosition = _lastLookAtPoint + _cameraOffset;
             Vector3 currentPosition = _cameraTransform.Position;
 
@@ -222,7 +222,7 @@ namespace Pal3.Game.Camera
                 RotateToOrbitPoint(-deltaTime * CAMERA_ROTATION_SPEED_KEY_PRESS);
             }
 
-            var mouseScroll = _inputActions.Gameplay.OnScroll.ReadValue<float>();
+            float mouseScroll = _inputActions.Gameplay.OnScroll.ReadValue<float>();
             if (mouseScroll != 0)
             {
                 RotateToOrbitPoint(mouseScroll * deltaTime * CAMERA_ROTATION_SPEED_SCROLL);
@@ -230,10 +230,10 @@ namespace Pal3.Game.Camera
 
             if (!_isTouchEnabled) return;
 
-            var touch0Delta = _inputActions.Gameplay.Touch0Delta.ReadValue<float>();
+            float touch0Delta = _inputActions.Gameplay.Touch0Delta.ReadValue<float>();
             if (touch0Delta != 0)
             {
-                var startPosition = _inputActions.Gameplay.Touch0Start.ReadValue<Vector2>();
+                Vector2 startPosition = _inputActions.Gameplay.Touch0Start.ReadValue<Vector2>();
 
                 if (IsTouchPositionOutsideVirtualJoyStickRange(startPosition))
                 {
@@ -241,10 +241,10 @@ namespace Pal3.Game.Camera
                 }
             }
 
-            var touch1Delta = _inputActions.Gameplay.Touch1Delta.ReadValue<float>();
+            float touch1Delta = _inputActions.Gameplay.Touch1Delta.ReadValue<float>();
             if (touch1Delta != 0)
             {
-                var startPosition = _inputActions.Gameplay.Touch1Start.ReadValue<Vector2>();
+                Vector2 startPosition = _inputActions.Gameplay.Touch1Start.ReadValue<Vector2>();
 
                 if (IsTouchPositionOutsideVirtualJoyStickRange(startPosition))
                 {
@@ -270,7 +270,7 @@ namespace Pal3.Game.Camera
 
         private void RotateToOrbitPoint(float yaw)
         {
-            var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
+            Vector3 yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
             _cameraOffset = Quaternion.AngleAxis(yaw, Vector3.up) * _cameraOffset;
             _cameraTransform.Position = _actualLookAtPoint + _cameraOffset;
             _cameraTransform.LookAt(_actualLookAtPoint + yOffset);
@@ -366,7 +366,7 @@ namespace Pal3.Game.Camera
         {
             _cameraAnimationInProgress = true;
             Vector3 oldPosition = _cameraTransform.Position;
-            var oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
+            float oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
             Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
             Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
 
@@ -489,7 +489,7 @@ namespace Pal3.Game.Camera
 
             _camera.fieldOfView = cameraFov;
 
-            var yOffset = new Vector3(0f, _lookAtPointYOffset, 0f);
+            Vector3 yOffset = new (0f, _lookAtPointYOffset, 0f);
 
             Vector3 cameraFacingDirection = (cameraRotation * Vector3.forward).normalized;
             Vector3 cameraPosition = _lastLookAtPoint + cameraFacingDirection * -cameraDistance + yOffset;
@@ -552,7 +552,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(ShakeAsync(command.Duration,
                 command.Amplitude.ToUnityDistance(),
@@ -563,7 +563,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
             Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
@@ -583,7 +583,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(RotateAsync(rotation,
@@ -609,7 +609,7 @@ namespace Pal3.Game.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(true,
                 FADE_ANIMATION_DURATION,
@@ -622,7 +622,7 @@ namespace Pal3.Game.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(true,
                 FADE_ANIMATION_DURATION,
@@ -635,7 +635,7 @@ namespace Pal3.Game.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(false,
                 FADE_ANIMATION_DURATION,
@@ -648,7 +648,7 @@ namespace Pal3.Game.Camera
         {
             if (!_cameraFadeAnimationCts.IsCancellationRequested) _cameraFadeAnimationCts.Cancel();
             _cameraFadeAnimationCts = new CancellationTokenSource();
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
             Pal3.Instance.StartCoroutine(FadeAsync(false,
                 FADE_ANIMATION_DURATION,
@@ -667,7 +667,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 float distance = command.GameBoxDistance.ToUnityDistance();
                 Pal3.Instance.StartCoroutine(PushAsync(distance,
@@ -679,7 +679,7 @@ namespace Pal3.Game.Camera
             else
             {
                 _asyncCameraAnimationCts = new CancellationTokenSource();
-                var distance = command.GameBoxDistance.ToUnityDistance();
+                float distance = command.GameBoxDistance.ToUnityDistance();
                 Pal3.Instance.StartCoroutine(PushAsync(distance,
                     command.Duration,
                     (AnimationCurveType)command.CurveType,
@@ -699,7 +699,7 @@ namespace Pal3.Game.Camera
             if (command.Synchronous == 1)
             #endif
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Vector3 position = new GameBoxVector3(
                     command.GameBoxXPosition,
@@ -834,13 +834,13 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var oldDistance = _cameraOffset.magnitude;
-            var newDistance = command.GameBoxDistance.ToUnityDistance();
-            var distanceDelta = newDistance - oldDistance;
+            float oldDistance = _cameraOffset.magnitude;
+            float newDistance = command.GameBoxDistance.ToUnityDistance();
+            float distanceDelta = newDistance - oldDistance;
 
             if (command.Synchronous == 1)
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
@@ -866,13 +866,13 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var oldDistance = _cameraOffset.magnitude;
-            var newDistance = command.GameBoxDistance.ToUnityDistance();
-            var distanceDelta = newDistance - oldDistance;
+            float oldDistance = _cameraOffset.magnitude;
+            float newDistance = command.GameBoxDistance.ToUnityDistance();
+            float distanceDelta = newDistance - oldDistance;
 
             if (command.Synchronous == 1)
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
                 Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
@@ -904,7 +904,7 @@ namespace Pal3.Game.Camera
 
             if (command.Synchronous == 1)
             {
-                var waiter = new WaitUntilCanceled();
+                WaitUntilCanceled waiter = new();
                 Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
                 Vector3 position = _cameraOffset + new GameBoxVector3(
                     command.GameBoxXPosition,
@@ -934,7 +934,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
             if (_playerActorManager.LastKnownPosition.HasValue)

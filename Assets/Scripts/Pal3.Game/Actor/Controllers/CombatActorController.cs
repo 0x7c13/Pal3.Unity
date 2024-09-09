@@ -76,19 +76,19 @@ namespace Pal3.Game.Actor.Controllers
 
             _actionController.PerformAction(_actor.GetMovementAction());
 
-            var enemySize = combatActorController.GetActionController().GetMeshBounds().size;
-            var enemyRadius = MathF.Max(enemySize.x, enemySize.z) / 2f;
+            Vector3 enemySize = combatActorController.GetActionController().GetMeshBounds().size;
+            float enemyRadius = MathF.Max(enemySize.x, enemySize.z) / 2f;
 
-            var mySize = _actionController.GetMeshBounds().size;
-            var myRadius = MathF.Max(mySize.x, mySize.z) / 2f;
+            Vector3 mySize = _actionController.GetMeshBounds().size;
+            float myRadius = MathF.Max(mySize.x, mySize.z) / 2f;
 
-            var targetElementPosition = combatScene.GetWorldPosition(combatActorController.GetElementPosition());
-            var myElementPosition = combatScene.GetWorldPosition(GetElementPosition());
+            Vector3 targetElementPosition = combatScene.GetWorldPosition(combatActorController.GetElementPosition());
+            Vector3 myElementPosition = combatScene.GetWorldPosition(GetElementPosition());
 
             targetElementPosition += (myElementPosition - targetElementPosition).normalized * (enemyRadius + myRadius);
 
-            var distance = Vector3.Distance(targetElementPosition, myElementPosition);
-            var duration = distance / _actor.GetMovementSpeed();
+            float distance = Vector3.Distance(targetElementPosition, myElementPosition);
+            float duration = distance / _actor.GetMovementSpeed();
 
             _actionController.Transform.LookAt(targetElementPosition);
             yield return Transform.MoveAsync(targetElementPosition, duration);

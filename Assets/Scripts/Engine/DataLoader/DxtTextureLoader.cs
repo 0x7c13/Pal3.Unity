@@ -31,8 +31,8 @@ namespace Engine.DataLoader
 		{
 			if (_rawRgbaDataBuffer != null) throw new Exception("DXT texture already loaded");
 
-			using var stream = new MemoryStream(data);
-			using var headerReader = new BinaryReader(stream);
+			using MemoryStream stream = new(data);
+			using BinaryReader headerReader = new(stream);
 
 			if (new string(headerReader.ReadChars(4)) != "DDS ")
 			{

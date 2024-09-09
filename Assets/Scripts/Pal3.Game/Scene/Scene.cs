@@ -99,7 +99,7 @@ namespace Pal3.Game.Scene
                 SceneObjects[sceneObjectId].Deactivate();
             }
 
-            foreach (var actor in _actorEntities)
+            foreach (KeyValuePair<int, IGameEntity> actor in _actorEntities)
             {
                 actor.Value.Destroy();
             }
@@ -183,7 +183,7 @@ namespace Pal3.Game.Scene
 
         public SceneObject GetSceneObject(int id)
         {
-            return SceneObjects.TryGetValue(id, out SceneObject sceneObject) ? sceneObject : null;
+            return SceneObjects.GetValueOrDefault(id);
         }
 
         public HashSet<int> GetAllActivatedSceneObjects()
@@ -198,7 +198,7 @@ namespace Pal3.Game.Scene
 
         public Actor GetActor(int id)
         {
-            return Actors.TryGetValue(id, out Actor actor) ? actor : null;
+            return Actors.GetValueOrDefault(id);
         }
 
         public Dictionary<int, Actor> GetAllActors()
@@ -208,7 +208,7 @@ namespace Pal3.Game.Scene
 
         public IGameEntity GetActorGameEntity(int id)
         {
-            return _actorEntities.TryGetValue(id, out IGameEntity actorObject) ? actorObject : null;
+            return _actorEntities.GetValueOrDefault(id);
         }
 
         public Dictionary<int, IGameEntity> GetAllActorGameEntities()
@@ -218,7 +218,7 @@ namespace Pal3.Game.Scene
 
         public bool IsPositionInsideJumpableArea(int layerIndex, Vector2Int tilePosition)
         {
-            foreach (var objectId in _activatedSceneObjects)
+            foreach (int objectId in _activatedSceneObjects)
             {
                 SceneObject sceneObject = SceneObjects[objectId];
                 if (sceneObject.ObjectInfo.Type == SceneObjectType.JumpableArea &&
@@ -239,7 +239,7 @@ namespace Pal3.Game.Scene
                 _parent, worldPositionStays: false);
             _mesh.IsStatic = true; // Scene mesh is static
 
-            var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
+            PolyModelRenderer polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
                 _materialManager,
@@ -249,7 +249,7 @@ namespace Pal3.Game.Scene
 
             if (SceneCvdMesh != null)
             {
-                var cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
+                CvdModelRenderer cvdMeshRenderer = _mesh.AddComponent<CvdModelRenderer>();
                 cvdMeshRenderer.Init(SceneCvdMesh.Value.CvdFile,
                     SceneCvdMesh.Value.TextureProvider,
                     _materialManager);
@@ -281,7 +281,7 @@ namespace Pal3.Game.Scene
                 return;
             }
 
-            for (var i = 0; i < NavFile.Layers.Length; i++)
+            for (int i = 0; i < NavFile.Layers.Length; i++)
             {
                 IGameEntity navMeshGameEntity = GameEntityFactory.Create($"NavMesh_Layer_{i}",
                     _parent, worldPositionStays: false);
@@ -351,7 +351,7 @@ namespace Pal3.Game.Scene
                 new Color(180f / 255f, 180f / 255f, 160f / 255f).ToUnityColor();
 
             // Apply lighting override
-            var key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
+            (string, string) key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
             if (LightingConstants.MainLightColorInfoGlobal.TryGetValue(ScnFile.SceneInfo.CityName, out Color globalMainLightColorOverride))
             {
                 _mainLight.color = globalMainLightColorOverride.ToUnityColor();
@@ -373,7 +373,7 @@ namespace Pal3.Game.Scene
                 parent, worldPositionStays: false);
             lightSource.Transform.LocalPosition = new Vector3(0f, yOffset, 0f);
 
-            var lightComponent = lightSource.AddComponent<Light>();
+            Light lightComponent = lightSource.AddComponent<Light>();
             lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f).ToUnityColor();
             lightComponent.type = LightType.Point;
             lightComponent.intensity = IsNightScene() ? 1f : 1.2f;
@@ -388,7 +388,7 @@ namespace Pal3.Game.Scene
 
         private void StripPointLightShadowsIfNecessary()
         {
-            var disableShadows = !IsNightScene() || _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
+            bool disableShadows = !IsNightScene() || _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
 
             foreach (Light pointLight in _pointLights)
             {
@@ -492,22 +492,22 @@ namespace Pal3.Game.Scene
         /// </summary>
         private HashSet<Vector2Int> GetAllActiveActorBlockingTilePositions(int layerIndex, int[] excludeActorIds)
         {
-            var allActors = GetAllActorGameEntities();
+            Dictionary<int, IGameEntity> allActors = GetAllActorGameEntities();
 
-            var actorTiles = new HashSet<Vector2Int>();
-            foreach ((var id, IGameEntity actor) in allActors)
+            HashSet<Vector2Int> actorTiles = new HashSet<Vector2Int>();
+            foreach ((int id, IGameEntity actor) in allActors)
             {
                 if (excludeActorIds.Contains(id)) continue;
                 if (actor.GetComponent<ActorController>().IsActive)
                 {
-                    var actorMovementController = actor.GetComponent<ActorMovementController>();
+                    ActorMovementController actorMovementController = actor.GetComponent<ActorMovementController>();
                     if (actorMovementController.GetCurrentLayerIndex() != layerIndex) continue;
                     Vector2Int tilePosition = actorMovementController.GetTilePosition();
                     actorTiles.Add(tilePosition);
                 }
             }
 
-            var obstacles = new HashSet<Vector2Int>();
+            HashSet<Vector2Int> obstacles = new();
             foreach (Vector2Int actorTile in actorTiles)
             {
                 if (!Tilemap.IsTilePositionInsideTileMap(actorTile, layerIndex)) continue;
@@ -627,7 +627,7 @@ namespace Pal3.Game.Scene
             {
                 SceneObject sceneObject = SceneObjects[command.ObjectId];
 
-                GameBoxVector3 gameBoxPositionOffset = new GameBoxVector3(
+                GameBoxVector3 gameBoxPositionOffset = new(
                     command.GameBoxXOffset,
                     command.GameBoxYOffset,
                     command.GameBoxZOffset);
@@ -739,7 +739,7 @@ namespace Pal3.Game.Scene
                         .GetActorHeight();
 
                     // Height adjustment based on bird action type
-                    var yOffset = command.ActionType == 0 ? -0.23f : 0.23f;
+                    float yOffset = command.ActionType == 0 ? -0.23f : 0.23f;
 
                     IGameEntity birdActorGameEntity = GetActorGameEntity((int)activeBirdActorId);
                     birdActorGameEntity.Transform.Position = new Vector3(leiYuanGePosition.x,

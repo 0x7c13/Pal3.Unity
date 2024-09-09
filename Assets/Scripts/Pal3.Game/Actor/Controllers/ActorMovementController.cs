@@ -135,7 +135,7 @@ namespace Pal3.Game.Actor.Controllers
                 {
                     Vector2Int tilePosition = _tilemap.GetTilePosition(initPosition, _currentLayerIndex);
                     // Snap to the nearest adjacent tile if exists
-                    var hasAdjacentWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
+                    bool hasAdjacentWalkableTile =_tilemap.TryGetAdjacentWalkableTile(tilePosition,
                         _currentLayerIndex, out Vector2Int nearestTile);
                     Transform.Position = hasAdjacentWalkableTile ?
                         _tilemap.GetWorldPosition(nearestTile, _currentLayerIndex) :
@@ -166,7 +166,7 @@ namespace Pal3.Game.Actor.Controllers
         private bool TryGetLastEnteredStandingPlatform(out ActiveStandingPlatformInfo platformInfo)
         {
             platformInfo = null;
-            var latestTime = double.MinValue;
+            double latestTime = double.MinValue;
 
             foreach (ActiveStandingPlatformInfo info in _activeStandingPlatforms)
             {
@@ -190,9 +190,9 @@ namespace Pal3.Game.Actor.Controllers
             Vector3 nearestPosition = Transform.Position;
             float distance = float.MaxValue;
 
-            foreach (var colliderInfo in _activeColliders)
+            foreach (ActiveColliderInfo colliderInfo in _activeColliders)
             {
-                var distanceToLastKnownPosition = Vector3.Distance(
+                float distanceToLastKnownPosition = Vector3.Distance(
                     colliderInfo.ActorPositionWhenCollisionEnter, Transform.Position);
                 if (distanceToLastKnownPosition < distance)
                 {
@@ -321,7 +321,7 @@ namespace Pal3.Game.Actor.Controllers
                     }
                     else
                     {
-                        var adjustedPosition = new Vector3(currentPosition.x,
+                        Vector3 adjustedPosition = new (currentPosition.x,
                             tile.GameBoxYPosition.ToUnityYPosition(),
                             currentPosition.z);
                         actorTransform.Position = adjustedPosition;
@@ -384,7 +384,7 @@ namespace Pal3.Game.Actor.Controllers
 
                 // Move actor on to the platform if platform is higher than current position
                 Vector3 currentPosition = Transform.Position;
-                var targetYPosition = standingPlatformController.GetPlatformHeight();
+                float targetYPosition = standingPlatformController.GetPlatformHeight();
                 if (MathF.Abs(currentPosition.y - targetYPosition) <= _movementMaxYDifferentialCrossPlatform &&
                     currentPosition.y < targetYPosition) // Don't move the actor if platform is lower
                 {
@@ -450,7 +450,7 @@ namespace Pal3.Game.Actor.Controllers
         public void MoveToTapPoint(Dictionary<int, (Vector3 point, bool isPlatform)> tapPoints, bool isDoubleTap)
         {
             Vector3 targetPosition = Vector3.zero;
-            var targetPositionFound = false;
+            bool targetPositionFound = false;
             if (tapPoints.ContainsKey(_currentLayerIndex))
             {
                 if (tapPoints[_currentLayerIndex].isPlatform ||
@@ -462,7 +462,7 @@ namespace Pal3.Game.Actor.Controllers
                 }
             }
 
-            var nextLayer = (_currentLayerIndex + 1) % 2;
+            int nextLayer = (_currentLayerIndex + 1) % 2;
             if (!targetPositionFound &&
                 nextLayer < _tilemap.GetLayerCount() &&
                 tapPoints.TryGetValue(nextLayer, out (Vector3 point, bool isPlatform) tapPoint))
@@ -492,8 +492,8 @@ namespace Pal3.Game.Actor.Controllers
         {
             Vector3 currentPosition = Transform.Position;
 
-            var currentXZPosition = new Vector2(currentPosition.x, currentPosition.z);
-            var targetXZPosition = new Vector2(targetPosition.x, targetPosition.z);
+            Vector2 currentXZPosition = new(currentPosition.x, currentPosition.z);
+            Vector2 targetXZPosition = new(targetPosition.x, targetPosition.z);
 
             Vector2 goalXZPosition = Vector2.MoveTowards(currentXZPosition, targetXZPosition, maxDistanceDelta);
 
@@ -502,7 +502,7 @@ namespace Pal3.Game.Actor.Controllers
                  Vector2.Distance(targetXZPosition, currentXZPosition)) *
                  (targetPosition.y - currentPosition.y) + currentPosition.y;
 
-            var newPosition = new Vector3(goalXZPosition.x, goalYPosition, goalXZPosition.y);
+            Vector3 newPosition = new(goalXZPosition.x, goalYPosition, goalXZPosition.y);
 
             // If actor is moving towards a collider, check if the new position is still inside the collider.
             // If yes, don't move the actor. This is to prevent the actor from moving through the collider
@@ -514,7 +514,7 @@ namespace Pal3.Game.Actor.Controllers
                 return MovementResult.InProgress;
             }
 
-            var canGotoPosition = CanGotoPosition(currentPosition, newPosition, out var newYPosition);
+            bool canGotoPosition = CanGotoPosition(currentPosition, newPosition, out var newYPosition);
 
             if (!canGotoPosition && !ignoreObstacle)
             {
@@ -580,10 +580,10 @@ namespace Pal3.Game.Actor.Controllers
                     continue; // In case the collider is destroyed
                 }
 
-                var centerYPosition = _actionController.GetRendererBounds().center.y;
+                float centerYPosition = _actionController.GetRendererBounds().center.y;
 
-                var fromCenterPosition = new Vector3(currentPosition.x, centerYPosition, currentPosition.z);
-                var toCenterPosition = new Vector3(newPosition.x, centerYPosition, newPosition.z);
+                Vector3 fromCenterPosition = new (currentPosition.x, centerYPosition, currentPosition.z);
+                Vector3 toCenterPosition = new (newPosition.x, centerYPosition, newPosition.z);
                 Vector3 movingDirection = (toCenterPosition - fromCenterPosition).normalized;
 
                 if (_actionController.GetCollider() is { } capsuleCollider)
@@ -603,7 +603,7 @@ namespace Pal3.Game.Actor.Controllers
         private bool CanGotoPosition(Vector3 currentPosition, Vector3 newPosition, out float newYPosition)
         {
             newYPosition = float.MinValue;
-            var isNewPositionValid = false;
+            bool isNewPositionValid = false;
 
             // Check if actor is on top of a platform
             if (IsNearOrOnTopOfPlatform())
@@ -611,7 +611,7 @@ namespace Pal3.Game.Actor.Controllers
                 // Check if the new position is still on top of the nearest platform(s)
                 foreach (ActiveStandingPlatformInfo platformInfo in _activeStandingPlatforms)
                 {
-                    var targetYPosition = platformInfo.Platform.GetPlatformHeight();
+                    float targetYPosition = platformInfo.Platform.GetPlatformHeight();
 
                     // Tolerance is used to allow the actor to be able to walk
                     // on a standing platform that has a slight slope
@@ -633,7 +633,7 @@ namespace Pal3.Game.Actor.Controllers
             if (_tilemap.TryGetTile(newPosition, _currentLayerIndex, out NavTile tileAtCurrentLayer) &&
                 tileAtCurrentLayer.IsWalkable())
             {
-                var tileYPosition = tileAtCurrentLayer.GameBoxYPosition.ToUnityYPosition();
+                float tileYPosition = tileAtCurrentLayer.GameBoxYPosition.ToUnityYPosition();
 
                 // Choose a higher position if possible
                 if (tileYPosition > newYPosition)
@@ -648,13 +648,13 @@ namespace Pal3.Game.Actor.Controllers
 
             if (_tilemap.GetLayerCount() <= 1) return false;
 
-            var nextLayer = (_currentLayerIndex + 1) % 2;
+            int nextLayer = (_currentLayerIndex + 1) % 2;
 
             // New position is not blocked at next layer and y offset is within range
             if (_tilemap.TryGetTile(newPosition, nextLayer, out NavTile tileAtNextLayer) &&
                 tileAtNextLayer.IsWalkable())
             {
-                var yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition.ToUnityYPosition();
+                float yPositionAtNextLayer = tileAtNextLayer.GameBoxYPosition.ToUnityYPosition();
 
                 if (MathF.Abs(currentPosition.y - yPositionAtNextLayer) > _movementMaxYDifferentialCrossLayer)
                 {
@@ -741,7 +741,7 @@ namespace Pal3.Game.Actor.Controllers
             do
             {
                 Vector3 currentPosition = Transform.Position;
-                var deltaTime = GameTimeProvider.Instance.DeltaTime;
+                float deltaTime = GameTimeProvider.Instance.DeltaTime;
 
                 result = MoveTowards(position,
                     movementMode,
@@ -778,9 +778,9 @@ namespace Pal3.Game.Actor.Controllers
             }
 
             Vector2Int[] path = Array.Empty<Vector2Int>();
-            var obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Id});
+            HashSet<Vector2Int> obstacles = _getAllActiveActorBlockingTilePositions(_currentLayerIndex, new [] {_actor.Id});
 
-            var pathFindingThread = new Thread(() =>
+            Thread pathFindingThread = new (() =>
             {
                 path = _tilemap.FindPathToTilePositionThreadSafe(
                     fromTilePosition,
@@ -805,7 +805,7 @@ namespace Pal3.Game.Actor.Controllers
             {
                 if (moveTowardsPositionIfNoPathFound)
                 {
-                    var directWayPoints = new[]
+                    Vector3[] directWayPoints =
                     {
                         _tilemap.GetWorldPosition(toTilePosition, _currentLayerIndex),
                     };
@@ -821,8 +821,8 @@ namespace Pal3.Game.Actor.Controllers
                 yield break;
             }
 
-            var wayPoints = new Vector3[path.Length];
-            for (var i = 0; i < path.Length; i++)
+            Vector3[] wayPoints = new Vector3[path.Length];
+            for (int i = 0; i < path.Length; i++)
             {
                 wayPoints[i] = _tilemap.GetWorldPosition(new Vector2Int(path[i].x, path[i].y), _currentLayerIndex);
             }
@@ -841,7 +841,7 @@ namespace Pal3.Game.Actor.Controllers
             _movementWaiter = new WaitUntilCanceled();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(_movementWaiter));
 
-            var wayPoints = new [] { position };
+            Vector3[] wayPoints = { position };
             SetupPath(wayPoints, movementMode, EndOfPathActionType.Idle, ignoreObstacle: false);
         }
 
@@ -874,7 +874,7 @@ namespace Pal3.Game.Actor.Controllers
 
             CancelMovement();
 
-            var tilePosition = new Vector2Int(command.TileXPosition, command.TileYPosition);
+            Vector2Int tilePosition = new (command.TileXPosition, command.TileYPosition);
 
             // Check if position at current layer exists, if not, auto switch
             // to next layer (if tile at next layer is valid).
@@ -940,7 +940,7 @@ namespace Pal3.Game.Actor.Controllers
         public void Execute(ActorMoveBackwardsCommand command)
         {
             if (_actor.Id != command.ActorId) return;
-            var moveDistance = command.GameBoxDistance.ToUnityDistance();
+            float moveDistance = command.GameBoxDistance.ToUnityDistance();
             Vector3 newPosition = Transform.Position + (-Transform.Forward * moveDistance);
             MoveTo(newPosition, MovementMode.StepBack);
         }

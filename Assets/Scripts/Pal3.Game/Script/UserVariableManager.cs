@@ -65,7 +65,7 @@ namespace Pal3.Game.Script
 
         public int Get(ushort variable)
         {
-            return _variables.TryGetValue(variable, out int value) ? value : DEFAULT_VARIABLE_VALUE;
+            return _variables.GetValueOrDefault(variable, DEFAULT_VARIABLE_VALUE);
         }
 
         public IEnumerator<KeyValuePair<ushort, int>> GetEnumerator()

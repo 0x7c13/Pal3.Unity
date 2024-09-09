@@ -15,12 +15,16 @@ namespace Editor
 
     public static class SourceGeneratorEditorOptions
     {
+        private const string NameSpace = "Pal3.Game.Command";
+        private const string ClassName = "ConsoleCommands";
+        private const string OutputFolderPath = "Assets/Scripts/Pal3.Game/Command/";
+        
         #if PAL3
         private const string GAME_VARIANT_SYMBOL = "PAL3";
-        private static string OutputFileName = "ConsoleCommands.PAL3.g.cs";
+        private const string OutputFileName = "ConsoleCommands.PAL3.g.cs";
         #elif PAL3A
         private const string GAME_VARIANT_SYMBOL = "PAL3A";
-        private static string OutputFileName = "ConsoleCommands.PAL3A.g.cs";
+        private const string OutputFileName = "ConsoleCommands.PAL3A.g.cs";
         #endif
 
         #if PAL3
@@ -30,11 +34,9 @@ namespace Editor
         #endif
         public static void GenerateConsoleCommands()
         {
-            var writePath = $"Assets/Scripts/Pal3.Game/Command/{OutputFileName}";
-            var nameSpace = "Pal3.Game.Command";
-            var className = "ConsoleCommands";
+            string writePath = $"{OutputFolderPath}{OutputFileName}";
             ISourceGenerator sourceGenerator = new ConsoleCommandsAutoGen<ICommand>();
-            GenerateSourceInternal(OutputFileName, writePath, className, nameSpace, sourceGenerator, true);
+            GenerateSourceInternal(OutputFileName, writePath, ClassName, NameSpace, sourceGenerator, true);
         }
 
         private static void GenerateSourceInternal(string fileName,
@@ -52,7 +54,7 @@ namespace Editor
 
             Debug.Log($"[{nameof(SourceGeneratorEditorOptions)}] Generating source file: " + writePath);
 
-            var writer = new CodeWriter
+            CodeWriter writer = new()
             {
                 Buffer = new StringBuilder(),
                 SpacesPerIndentLevel = 4,
@@ -61,10 +63,10 @@ namespace Editor
             sourceGenerator.GenerateSourceClass(writer, className, nameSpace);
 
             // Final output string
-            var output = $"#if {GAME_VARIANT_SYMBOL}\n\n{writer.Buffer}\n#endif";
+            string output = $"#if {GAME_VARIANT_SYMBOL}\n\n{writer.Buffer}\n#endif";
 
             // Write to file
-            using StreamWriter sw = new StreamWriter(writePath);
+            using StreamWriter sw = new(writePath);
             sw.Write(output);
 
             Debug.Log($"[{nameof(SourceGeneratorEditorOptions)}] {fileName} generated.");

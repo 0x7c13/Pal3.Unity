@@ -105,12 +105,12 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             IGameEntity pedalSwitchEntity = GetGameEntity();
             Vector3 platformCenterPosition = _platformController.GetCollider().bounds.center;
-            var actorStandingPosition = new Vector3(
+            Vector3 actorStandingPosition = new(
                 platformCenterPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformCenterPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 

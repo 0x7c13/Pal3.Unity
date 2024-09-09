@@ -181,7 +181,7 @@ namespace Pal3.Game.Script
 
             _currentSceFile = sceFile;
 
-            foreach (var scriptBlock in _currentSceFile.ScriptBlocks
+            foreach (KeyValuePair<uint, SceScriptBlock> scriptBlock in _currentSceFile.ScriptBlocks
                          .Where(scriptBlock =>
                              string.Equals(scriptBlock.Value.Description,
                                  sceneScriptDescription,

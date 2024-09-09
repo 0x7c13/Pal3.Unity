@@ -60,16 +60,16 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             IGameEntity playerActorGameEntity = ctx.PlayerActorGameEntity;
 
-            var waypoints = new Vector3[ObjectInfo.Path.NumberOfWaypoints];
-            for (var i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
+            Vector3[] waypoints = new Vector3[ObjectInfo.Path.NumberOfWaypoints];
+            for (int i = 0; i < ObjectInfo.Path.NumberOfWaypoints; i++)
             {
                 waypoints[i] = ObjectInfo.Path.GameBoxWaypoints[i].ToUnityPosition();
             }
 
-            var movementController = playerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController movementController = playerActorGameEntity.GetComponent<ActorMovementController>();
             movementController.CancelMovement();
 
-            var actorController = playerActorGameEntity.GetComponent<ActorController>();
+            ActorController actorController = playerActorGameEntity.GetComponent<ActorController>();
 
             // Temporarily set the speed to a higher value to make the actor slide faster
             actorController.GetActor().ChangeMoveSpeed(ACTOR_SLIDE_SPEED);

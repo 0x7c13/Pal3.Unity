@@ -234,7 +234,7 @@ namespace Pal3.Game.Data
             if (File.Exists(musicFileCachePath)) yield break;
 
             EngineLogger.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
-            var dataMovementThread = new Thread(() =>
+            Thread dataMovementThread = new(() =>
             {
                 try
                 {
@@ -266,10 +266,10 @@ namespace Pal3.Game.Data
             string sfxFileName = (sfxName + ".wav").ToUpper();
             #endif
 
-            var sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" + sfxFileName;
+            string sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" + sfxFileName;
 
-            var rootPath = _fileSystem.GetRootPath();
-            var sfxFilePath = $"{rootPath}{sfxFileRelativePath}";
+            string rootPath = _fileSystem.GetRootPath();
+            string sfxFilePath = $"{rootPath}{sfxFileRelativePath}";
 
             return sfxFilePath;
         }
@@ -317,14 +317,14 @@ namespace Pal3.Game.Data
 
         private ITexture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
-            var roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
+            string roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
 
         public ISprite GetActorAvatarSprite(string actorName, string avatarName)
         {
-            var cacheKey = $"ActorAvatar_{actorName}_{avatarName}";
+            string cacheKey = $"ActorAvatar_{actorName}_{avatarName}";
 
             if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
             {
@@ -355,7 +355,7 @@ namespace Pal3.Game.Data
 
         public ITexture2D GetCaptionTexture(string name)
         {
-            var captionTextureRelativePath = FileConstants.CaptionFolderVirtualPath;
+            string captionTextureRelativePath = FileConstants.CaptionFolderVirtualPath;
             // No need to cache caption texture since it is a one time thing
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(captionTextureRelativePath, useCache: false);
             return textureProvider.GetTexture($"{name}.tga");
@@ -363,15 +363,15 @@ namespace Pal3.Game.Data
 
         public ITexture2D[] GetSkyBoxTextures(int skyBoxId)
         {
-            var relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
+            string relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
                 CoreUtility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
 
-            var textures = new ITexture2D[FileConstants.SkyBoxTexturePathFormat.Length];
-            for (var i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
+            ITexture2D[] textures = new ITexture2D[FileConstants.SkyBoxTexturePathFormat.Length];
+            for (int i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
             {
-                var textureNameFormat = CoreUtility.GetFileName(
+                string textureNameFormat = CoreUtility.GetFileName(
                     string.Format(FileConstants.SkyBoxTexturePathFormat[i], skyBoxId), DIR_SEPARATOR);
                 ITexture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i));
                 // Set wrap mode to clamp to remove "edges" between sides
@@ -384,7 +384,7 @@ namespace Pal3.Game.Data
 
         public ITexture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
-            var effectFolderRelativePath = FileConstants.EffectFolderVirtualPath;
+            string effectFolderRelativePath = FileConstants.EffectFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
@@ -394,12 +394,12 @@ namespace Pal3.Game.Data
             (int Width, int Height, int Frames) textureInfo = ActorEmojiConstants.TextureInfo[emojiType];
             ITexture2D spriteSheetTexture = GetEmojiSpriteSheetTexture(emojiType);
 
-            var widthIndex = 0f;
-            var sprites = new ISprite[textureInfo.Frames];
+            float widthIndex = 0f;
+            ISprite[] sprites = new ISprite[textureInfo.Frames];
 
-            for (var i = 0; i < textureInfo.Frames; i++)
+            for (int i = 0; i < textureInfo.Frames; i++)
             {
-                var cacheKey = $"EmojiSprite_{emojiType}_{i}";
+                string cacheKey = $"EmojiSprite_{emojiType}_{i}";
 
                 if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
                 {
@@ -425,14 +425,14 @@ namespace Pal3.Game.Data
 
         public ISprite[] GetJumpIndicatorSprites()
         {
-            var relativePath = FileConstants.UISceneFolderVirtualPath;
-            var textureProvider = CreateTextureResourceProvider(relativePath);
+            string relativePath = FileConstants.UISceneFolderVirtualPath;
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(relativePath);
 
-            var sprites = new ISprite[4];
+            ISprite[] sprites = new ISprite[4];
 
-            for (var i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
-                var cacheKey = $"JumpIndicatorSprite_{i}";
+                string cacheKey = $"JumpIndicatorSprite_{i}";
 
                 if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
                 {
@@ -465,8 +465,8 @@ namespace Pal3.Game.Data
                 return null;
             }
 
-            var configData = _fileSystem.ReadAllBytes(actorConfigFilePath);
-            var configHeaderStr = Encoding.ASCII.GetString(configData[..MV3_ACTOR_CONFIG_HEADER.Length]);
+            byte[] configData = _fileSystem.ReadAllBytes(actorConfigFilePath);
+            string configHeaderStr = Encoding.ASCII.GetString(configData[..MV3_ACTOR_CONFIG_HEADER.Length]);
 
             if (string.Equals(MV3_ACTOR_CONFIG_HEADER, configHeaderStr))
             {
@@ -480,18 +480,18 @@ namespace Pal3.Game.Data
 
         public string GetVideoFilePath(string videoName)
         {
-            var videoFolder = $"{_fileSystem.GetRootPath()}{FileConstants.MovieFolderName}{Path.DirectorySeparatorChar}";
+            string videoFolder = $"{_fileSystem.GetRootPath()}{FileConstants.MovieFolderName}{Path.DirectorySeparatorChar}";
 
             if (!Directory.Exists(videoFolder))
             {
                 throw new DirectoryNotFoundException($"Video directory does not exists: {videoFolder}");
             }
 
-            var supportedVideoFormats = UnitySupportedVideoFormats.GetSupportedVideoFormats(Application.platform);
+            HashSet<string> supportedVideoFormats = UnitySupportedVideoFormats.GetSupportedVideoFormats(Application.platform);
 
             foreach (FileInfo file in new DirectoryInfo(videoFolder).GetFiles($"*.*", SearchOption.AllDirectories))
             {
-                var fileExtension = Path.GetExtension(file.Name).ToLower();
+                string fileExtension = Path.GetExtension(file.Name).ToLower();
                 if (supportedVideoFormats.Contains(fileExtension) &&
                     Path.GetFileNameWithoutExtension(file.Name).Equals(videoName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -510,11 +510,11 @@ namespace Pal3.Game.Data
 
             if (effect == GraphicsEffectType.Fire)
             {
-                var numberOfFrames = EffectConstants.AnimatedFireEffectFrameCount;
-                var textures = new (ITexture2D texture, bool hasAlphaChannel)[numberOfFrames];
-                for (var i = 0; i < numberOfFrames; i++)
+                int numberOfFrames = EffectConstants.AnimatedFireEffectFrameCount;
+                (ITexture2D texture, bool hasAlphaChannel)[] textures = new (ITexture2D texture, bool hasAlphaChannel)[numberOfFrames];
+                for (int i = 0; i < numberOfFrames; i++)
                 {
-                    var textureNameFormat = CoreUtility.GetFileName(texturePathFormat, DIR_SEPARATOR);
+                    string textureNameFormat = CoreUtility.GetFileName(texturePathFormat, DIR_SEPARATOR);
                     ITexture2D texture = textureProvider.GetTexture(string.Format(textureNameFormat, i + 1), out var hasAlphaChannel);
                     textures[i] = (texture, hasAlphaChannel);
                 }
@@ -576,7 +576,7 @@ namespace Pal3.Game.Data
 
         public ITexture2D GetCursorTexture()
         {
-            var cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
+            string cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
             ITexture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
@@ -619,17 +619,17 @@ namespace Pal3.Game.Data
             _spriteCache.Clear();
 
             // Dispose in-memory game resource files
-            foreach (var fileCache in _gameResourceFileCache)
+            foreach (KeyValuePair<Type, Dictionary<string, object>> fileCache in _gameResourceFileCache)
             {
                 if (fileCache.Key == typeof(Mv3File))
                 {
                     // Dispose non-main actor mv3 files
                     // All main actor names start with "1"
-                    var mainActorMv3 = $"{FileConstants.GetActorFolderName()}{DIR_SEPARATOR}1".ToLower();
-                    var mv3FilesToDispose = fileCache.Value.Keys
+                    string mainActorMv3 = $"{FileConstants.GetActorFolderName()}{DIR_SEPARATOR}1".ToLower();
+                    string[] mv3FilesToDispose = fileCache.Value.Keys
                         .Where(mv3FilePath => !mv3FilePath.Contains(mainActorMv3))
                         .ToArray();
-                    foreach (var mv3File in mv3FilesToDispose)
+                    foreach (string mv3File in mv3FilesToDispose)
                     {
                         fileCache.Value.Remove(mv3File);
                     }

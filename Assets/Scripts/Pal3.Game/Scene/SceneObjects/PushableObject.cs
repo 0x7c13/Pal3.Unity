@@ -179,12 +179,12 @@ namespace Pal3.Game.Scene.SceneObjects
                 };
             }
 
-            var smallestAngle = float.MaxValue;
+            float smallestAngle = float.MaxValue;
             Vector3 closetDirection = validPushingDirections[0];
 
             foreach (Vector3 direction in validPushingDirections)
             {
-                var facingAngle = Vector3.Angle(direction, vector);
+                float facingAngle = Vector3.Angle(direction, vector);
                 if (facingAngle < smallestAngle)
                 {
                     smallestAngle = facingAngle;
@@ -215,7 +215,7 @@ namespace Pal3.Game.Scene.SceneObjects
             Vector3 movingDirection = GetClosetMovableDirection(relativeDirection);
 
             // Move player actor to holding position
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
             actorMovementController.CancelMovement();
             Vector3 actorHoldingPosition = pushableObjectTransform.Position + -movingDirection * (movingDistance * 0.8f);
             actorHoldingPosition.y = playerActorTransform.Position.y;
@@ -230,7 +230,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
 
             playerActorTransform.Forward = movingDirection;
-            var actorActionController = ctx.PlayerActorGameEntity.GetComponent<ActorActionController>();
+            ActorActionController actorActionController = ctx.PlayerActorGameEntity.GetComponent<ActorActionController>();
             actorActionController.PerformAction(ActorConstants.ActionToNameMap[ActorActionType.Push],
                 overwrite: true, loopCount: -1);
 
@@ -366,7 +366,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 orientation: Quaternion.LookRotation(direction),
                 _hitResults);
 
-            for (var i = 0; i < hitCount; i++)
+            for (int i = 0; i < hitCount; i++)
             {
                 (Vector3 _, IGameEntity colliderGameEntity) = _hitResults[i];
 

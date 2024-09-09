@@ -44,7 +44,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 // scene when holding the stick while transferring between scenes.
                 // We simply disable the auto trigger for a short time window after
                 // a fresh scene load.
-                var effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup + 1f; // 1 second
+                double effectiveTime = GameTimeProvider.Instance.RealTimeSinceStartup + 1f; // 1 second
                 _triggerController = sceneObjectGameEntity.AddComponent<TilemapTriggerController>();
                 _triggerController.Init(ObjectInfo.TileMapTriggerRect, ObjectInfo.LayerIndex, effectiveTime);
                 _triggerController.OnPlayerActorEntered += OnPlayerActorEntered;
@@ -120,7 +120,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 if (ModelType == SceneObjectModelType.PolModel)
                 {
-                    var polyModelRenderer = GetPolyModelRenderer();
+                    PolyModelRenderer polyModelRenderer = GetPolyModelRenderer();
                     polyModelRenderer.Dispose();
                     polyModelRenderer.Destroy();
                 }

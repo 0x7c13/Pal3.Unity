@@ -30,9 +30,9 @@ namespace Pal3.Core.DataReader.Ini
 
         public MovActionConfig Read(byte[] data, int codepage)
         {
-            FileIniDataParser parser = new ();
-            using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.GetEncoding(codepage));
+            FileIniDataParser parser = new();
+            using MemoryStream stream = new(data);
+            using StreamReader reader = new(stream, Encoding.GetEncoding(codepage));
 
             IniData iniData = parser.ReadData(reader);
 

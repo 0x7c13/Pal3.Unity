@@ -16,20 +16,20 @@ namespace Pal3.Core.DataReader.Cvd
     {
         public CvdFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new (header);
 
-            var version = headerStr switch
+            float version = headerStr switch
             {
                 "cvdf" => 0.4f,
                 "cvds" => 0.5f,
                 _ => throw new InvalidDataException($"Invalid CVD(.cvd) file: header != cvdf or cvds")
             };
 
-            var animationDuration = 0f;
-            var numberONodes = reader.ReadInt32();
-            var rootNodes = new List<CvdGeometryNode>();
-            for (var i = 0; i < numberONodes; i++)
+            float animationDuration = 0f;
+            int numberONodes = reader.ReadInt32();
+            List<CvdGeometryNode> rootNodes = new();
+            for (int i = 0; i < numberONodes; i++)
             {
                 ReadGeometryNodes(reader, version, rootNodes, ref animationDuration, codepage);
             }
@@ -45,17 +45,17 @@ namespace Pal3.Core.DataReader.Cvd
         {
             CvdGeometryNode parentNode = default;
 
-            var isGeometryNode = reader.ReadByte();
+            byte isGeometryNode = reader.ReadByte();
             if (isGeometryNode == 1)
             {
                 parentNode = ReadGeometryNode(reader, version, ref animationDuration, codepage);
                 parentNode.IsGeometryNode = true;
             }
 
-            var numberOfChildNodes = reader.ReadInt32();
+            int numberOfChildNodes = reader.ReadInt32();
 
-            var children = new List<CvdGeometryNode>();
-            for (var i = 0; i < numberOfChildNodes; i++)
+            List<CvdGeometryNode> children = new();
+            for (int i = 0; i < numberOfChildNodes; i++)
             {
                 ReadGeometryNodes(reader, version, children, ref animationDuration, codepage);
             }
@@ -69,33 +69,33 @@ namespace Pal3.Core.DataReader.Cvd
             ref float animationDuration,
             int codepage)
         {
-            var positionKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbVector3Key)),
+            int positionKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbVector3Key)),
                 Math.Max(Marshal.SizeOf(typeof(CvdBezierVector3Key)),
                     Marshal.SizeOf(typeof(CvdLinearVector3Key))));
 
-            var positionKeyInfos = ReadPositionAnimationKeyInfo(reader, positionKeySize);
+            CvdAnimationPositionKeyFrame[] positionKeyInfos = ReadPositionAnimationKeyInfo(reader, positionKeySize);
             if (positionKeyInfos[^1].Time > animationDuration) animationDuration = positionKeyInfos[^1].Time;
 
-            var rotationKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbRotationKey)),
+            int rotationKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbRotationKey)),
                 Math.Max(Marshal.SizeOf(typeof(CvdBezierRotationKey)),
                 Marshal.SizeOf(typeof(CvdLinearRotationKey))));
 
-            var rotationKeyInfos = ReadRotationAnimationKeyInfo(reader, rotationKeySize);
+            CvdAnimationRotationKeyFrame[] rotationKeyInfos = ReadRotationAnimationKeyInfo(reader, rotationKeySize);
             if (rotationKeyInfos[^1].Time > animationDuration) animationDuration = rotationKeyInfos[^1].Time;
 
-            var scaleKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbScaleKey)),
+            int scaleKeySize = Math.Max(Marshal.SizeOf(typeof(CvdTcbScaleKey)),
                 Math.Max(Marshal.SizeOf(typeof(CvdBezierScaleKey)),
                 Marshal.SizeOf(typeof(CvdLinearScaleKey))));
 
-            var scaleKeyInfos = ReadScaleAnimationKeyInfo(reader, scaleKeySize);
+            CvdAnimationScaleKeyFrame[] scaleKeyInfos = ReadScaleAnimationKeyInfo(reader, scaleKeySize);
             if (scaleKeyInfos[^1].Time > animationDuration) animationDuration = scaleKeyInfos[^1].Time;
 
-            var scale = reader.ReadSingle();
+            float scale = reader.ReadSingle();
 
             CvdMesh mesh = ReadMesh(reader, version, codepage);
             if (mesh.AnimationTimeKeys[^1] > animationDuration) animationDuration = mesh.AnimationTimeKeys[^1];
 
-            var transformMatrix = new GameBoxMatrix4x4()
+            GameBoxMatrix4x4 transformMatrix = new()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
@@ -117,12 +117,12 @@ namespace Pal3.Core.DataReader.Cvd
 
         private static (CvdAnimationKeyType, byte[])[] ReadAnimationKeyInfo(IBinaryReader reader, int size)
         {
-            var numberOfKeys = reader.ReadInt32();
-            var keyInfos = new (CvdAnimationKeyType, byte[])[numberOfKeys];
+            int numberOfKeys = reader.ReadInt32();
+            (CvdAnimationKeyType, byte[])[] keyInfos = new (CvdAnimationKeyType, byte[])[numberOfKeys];
 
-            var keyType = (CvdAnimationKeyType)reader.ReadByte();
+            CvdAnimationKeyType keyType = (CvdAnimationKeyType)reader.ReadByte();
 
-            for (var i = 0; i < numberOfKeys; i++)
+            for (int i = 0; i < numberOfKeys; i++)
             {
                 keyInfos[i] = (keyType, reader.ReadBytes(size));
             }
@@ -132,18 +132,18 @@ namespace Pal3.Core.DataReader.Cvd
 
         private static CvdAnimationPositionKeyFrame[] ReadPositionAnimationKeyInfo(IBinaryReader reader, int size)
         {
-            var frameInfos = ReadAnimationKeyInfo(reader, size);
-            var positionKeyFrames = new CvdAnimationPositionKeyFrame[frameInfos.Length];
+            (CvdAnimationKeyType, byte[])[] frameInfos = ReadAnimationKeyInfo(reader, size);
+            CvdAnimationPositionKeyFrame[] positionKeyFrames = new CvdAnimationPositionKeyFrame[frameInfos.Length];
 
-            for (var i = 0; i < frameInfos.Length; i++)
+            for (int i = 0; i < frameInfos.Length; i++)
             {
-                (CvdAnimationKeyType type, var data) = frameInfos[i];
+                (CvdAnimationKeyType type, byte[] data) = frameInfos[i];
 
                 switch (type)
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var positionKey = CoreUtility.ReadStruct<CvdTcbVector3Key>(data);
+                        CvdTcbVector3Key positionKey = CoreUtility.ReadStruct<CvdTcbVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
@@ -154,7 +154,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var positionKey = CoreUtility.ReadStruct<CvdBezierVector3Key>(data);
+                        CvdBezierVector3Key positionKey = CoreUtility.ReadStruct<CvdBezierVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
@@ -165,7 +165,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var positionKey = CoreUtility.ReadStruct<CvdLinearVector3Key>(data);
+                        CvdLinearVector3Key positionKey = CoreUtility.ReadStruct<CvdLinearVector3Key>(data);
                         positionKeyFrames[i] = new CvdAnimationPositionKeyFrame()
                         {
                             KeyType = type,
@@ -182,18 +182,18 @@ namespace Pal3.Core.DataReader.Cvd
 
         private static CvdAnimationRotationKeyFrame[] ReadRotationAnimationKeyInfo(IBinaryReader reader, int size)
         {
-            var frameInfos = ReadAnimationKeyInfo(reader, size);
-            var rotationKeyFrames = new CvdAnimationRotationKeyFrame[frameInfos.Length];
+            (CvdAnimationKeyType, byte[])[] frameInfos = ReadAnimationKeyInfo(reader, size);
+            CvdAnimationRotationKeyFrame[] rotationKeyFrames = new CvdAnimationRotationKeyFrame[frameInfos.Length];
 
-            for (var i = 0; i < frameInfos.Length; i++)
+            for (int i = 0; i < frameInfos.Length; i++)
             {
-                (CvdAnimationKeyType type, var data) = frameInfos[i];
+                (CvdAnimationKeyType type, byte[] data) = frameInfos[i];
 
                 switch (type)
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var rotationKey = CoreUtility.ReadStruct<CvdTcbRotationKey>(data);
+                        CvdTcbRotationKey rotationKey = CoreUtility.ReadStruct<CvdTcbRotationKey>(data);
                         GameBoxQuaternion quaternion = GameBoxQuaternion.AngleAxis(rotationKey.Angle, rotationKey.Axis);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
@@ -211,7 +211,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var rotationKey = CoreUtility.ReadStruct<CvdBezierRotationKey>(data);
+                        CvdBezierRotationKey rotationKey = CoreUtility.ReadStruct<CvdBezierRotationKey>(data);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
@@ -222,7 +222,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var rotationKey = CoreUtility.ReadStruct<CvdLinearRotationKey>(data);
+                        CvdLinearRotationKey rotationKey = CoreUtility.ReadStruct<CvdLinearRotationKey>(data);
                         rotationKeyFrames[i] = new CvdAnimationRotationKeyFrame()
                         {
                             KeyType = type,
@@ -239,18 +239,18 @@ namespace Pal3.Core.DataReader.Cvd
 
         private static CvdAnimationScaleKeyFrame[] ReadScaleAnimationKeyInfo(IBinaryReader reader, int size)
         {
-            var frameInfos = ReadAnimationKeyInfo(reader, size);
-            var scaleKeyFrames = new CvdAnimationScaleKeyFrame[frameInfos.Length];
+            (CvdAnimationKeyType, byte[])[] frameInfos = ReadAnimationKeyInfo(reader, size);
+            CvdAnimationScaleKeyFrame[] scaleKeyFrames = new CvdAnimationScaleKeyFrame[frameInfos.Length];
 
-            for (var i = 0; i < frameInfos.Length; i++)
+            for (int i = 0; i < frameInfos.Length; i++)
             {
-                (CvdAnimationKeyType type, var data) = frameInfos[i];
+                (CvdAnimationKeyType type, byte[] data) = frameInfos[i];
 
                 switch (type)
                 {
                     case CvdAnimationKeyType.Tcb:
                     {
-                        var scaleKey = CoreUtility.ReadStruct<CvdTcbScaleKey>(data);
+                        CvdTcbScaleKey scaleKey = CoreUtility.ReadStruct<CvdTcbScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
@@ -262,7 +262,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Bezier:
                     {
-                        var scaleKey = CoreUtility.ReadStruct<CvdBezierScaleKey>(data);
+                        CvdBezierScaleKey scaleKey = CoreUtility.ReadStruct<CvdBezierScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
@@ -274,7 +274,7 @@ namespace Pal3.Core.DataReader.Cvd
                     }
                     case CvdAnimationKeyType.Linear:
                     {
-                        var scaleKey = CoreUtility.ReadStruct<CvdLinearScaleKey>(data);
+                        CvdLinearScaleKey scaleKey = CoreUtility.ReadStruct<CvdLinearScaleKey>(data);
                         scaleKeyFrames[i] = new CvdAnimationScaleKeyFrame()
                         {
                             KeyType = type,
@@ -292,14 +292,14 @@ namespace Pal3.Core.DataReader.Cvd
 
         private static CvdMesh ReadMesh(IBinaryReader reader, float version, int codepage)
         {
-            var numberOfFrames = reader.ReadInt32();
-            var numberOfVertices = reader.ReadInt32();
+            int numberOfFrames = reader.ReadInt32();
+            int numberOfVertices = reader.ReadInt32();
 
-            var frameVertices = new CvdVertex[numberOfFrames][];
-            for (var i = 0; i < numberOfFrames; i++)
+            CvdVertex[][] frameVertices = new CvdVertex[numberOfFrames][];
+            for (int i = 0; i < numberOfFrames; i++)
             {
-                var vertices = new CvdVertex[numberOfVertices];
-                for (var j = 0; j < numberOfVertices; j++)
+                CvdVertex[] vertices = new CvdVertex[numberOfVertices];
+                for (int j = 0; j < numberOfVertices; j++)
                 {
                     GameBoxVector2 uv = reader.ReadGameBoxVector2();
                     GameBoxVector3 normal = reader.ReadGameBoxVector3();
@@ -321,15 +321,15 @@ namespace Pal3.Core.DataReader.Cvd
                 frameVertices[i] = vertices;
             }
 
-            var animationTimeKeys = reader.ReadSingles(numberOfFrames);
-            for (var i = 0; i < numberOfFrames; i++)
+            float[] animationTimeKeys = reader.ReadSingles(numberOfFrames);
+            for (int i = 0; i < numberOfFrames; i++)
             {
                 animationTimeKeys[i] -= animationTimeKeys[0];
             }
 
-            var numberOfMeshes = reader.ReadInt32();
-            var meshSections = new CvdMeshSection[numberOfMeshes];
-            for (var i = 0; i < numberOfMeshes; i++)
+            int numberOfMeshes = reader.ReadInt32();
+            CvdMeshSection[] meshSections = new CvdMeshSection[numberOfMeshes];
+            for (int i = 0; i < numberOfMeshes; i++)
             {
                 meshSections[i] = ReadMeshSection(reader, version, frameVertices, codepage);
             }
@@ -358,31 +358,31 @@ namespace Pal3.Core.DataReader.Cvd
                 TextureFileNames = new [] { reader.ReadString(64, codepage) }
             };
 
-            var numberOfIndices = reader.ReadInt32();
+            int numberOfIndices = reader.ReadInt32();
 
-            var indices = new (ushort x, ushort y, ushort z)[numberOfIndices];
-            for (var i = 0; i < numberOfIndices; i++)
+            (ushort x, ushort y, ushort z)[] indices = new (ushort x, ushort y, ushort z)[numberOfIndices];
+            for (int i = 0; i < numberOfIndices; i++)
             {
-                var x = reader.ReadUInt16();
-                var y = reader.ReadUInt16();
-                var z = reader.ReadUInt16();
+                ushort x = reader.ReadUInt16();
+                ushort y = reader.ReadUInt16();
+                ushort z = reader.ReadUInt16();
                 indices[i] = (x, y, z);
             }
 
-            var animationTimeKeys = new float[] {};
-            var animationMaterials = Array.Empty<GameBoxMaterial>();
+            float[] animationTimeKeys = {};
+            GameBoxMaterial[] animationMaterials = Array.Empty<GameBoxMaterial>();
             if (version >= 0.5)
             {
-                var numberOfFrames = reader.ReadInt32();
+                int numberOfFrames = reader.ReadInt32();
 
                 animationTimeKeys = reader.ReadSingles(numberOfFrames);
-                for (var i = 0; i < numberOfFrames; i++)
+                for (int i = 0; i < numberOfFrames; i++)
                 {
                     animationTimeKeys[i] -= animationTimeKeys[0];
                 }
 
                 animationMaterials = new GameBoxMaterial[numberOfFrames];
-                for (var i = 0; i < numberOfFrames; i++)
+                for (int i = 0; i < numberOfFrames; i++)
                 {
                     animationMaterials[i] = new GameBoxMaterial()
                     {
@@ -395,14 +395,14 @@ namespace Pal3.Core.DataReader.Cvd
                 }
             }
 
-            var frameVertices = new CvdVertex[allFrameVertices.Length][];
+            CvdVertex[][] frameVertices = new CvdVertex[allFrameVertices.Length][];
 
             (int[] triangles, int[] indexBuffer) = CalculateTriangles(indices);
 
-            for (var i = 0; i < allFrameVertices.Length; i++)
+            for (int i = 0; i < allFrameVertices.Length; i++)
             {
-                var verts = new CvdVertex[indexBuffer.Length];
-                var allVertices = allFrameVertices[i];
+                CvdVertex[] verts = new CvdVertex[indexBuffer.Length];
+                CvdVertex[] allVertices = allFrameVertices[i];
 
                 for (var j = 0; j < indexBuffer.Length; j++)
                 {
@@ -426,11 +426,11 @@ namespace Pal3.Core.DataReader.Cvd
         private static (int[] triangles, int[] indexBuffer) CalculateTriangles(
             (ushort x, ushort y, ushort z)[] allIndices)
         {
-            var indexBuffer = new int[allIndices.Length * 3];
-            var triangles = new int[allIndices.Length * 3];
+            int[] indexBuffer = new int[allIndices.Length * 3];
+            int[] triangles = new int[allIndices.Length * 3];
             int index = 0;
 
-            for (var i = 0; i < allIndices.Length; i++)
+            for (int i = 0; i < allIndices.Length; i++)
             {
                 ushort[] indices =
                 {
@@ -439,7 +439,7 @@ namespace Pal3.Core.DataReader.Cvd
                     allIndices[i].z
                 };
 
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     indexBuffer[index] = indices[j];
                     triangles[index] = index;

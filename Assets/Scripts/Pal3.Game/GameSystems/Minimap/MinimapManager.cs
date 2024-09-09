@@ -118,7 +118,7 @@ namespace Pal3.Game.GameSystems.Minimap
             _miniMapTextures = new ITexture2D[_currentTilemap.GetLayerCount()];
             _miniMapSprites = new ISprite[_currentTilemap.GetLayerCount()];
 
-            for (var i = 0; i < _currentTilemap.GetLayerCount(); i++)
+            for (int i = 0; i < _currentTilemap.GetLayerCount(); i++)
             {
                 NavLayer layer = _currentTilemap.GetLayer(i);
                 _miniMapTextures[i] = _miniMapTextureCreator.CreateMinimapTexture(layer);

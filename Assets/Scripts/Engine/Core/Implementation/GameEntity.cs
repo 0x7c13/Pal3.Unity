@@ -109,10 +109,10 @@ namespace Engine.Core.Implementation
 
         public T GetOrAddComponent<T>() where T : class
         {
-            var component = GetComponent<T>();
+            T component = GetComponent<T>();
 
             // Since ?? operation does not work well with UnityObject
-            // so I have to use the old fashion here checking if it is null.
+            // So I have to use the old fashion here checking if it is null.
             if (component as UnityEngine.Object == null)
             {
                 component = AddComponent<T>();

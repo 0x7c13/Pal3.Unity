@@ -130,7 +130,7 @@ namespace Pal3.Game.State
             int objectId,
             out SceneObjectStateOverride stateOverride)
         {
-            var key = (cityName.ToLower(), sceneName.ToLower(), objectId);
+            (string, string, int objectId) key = (cityName.ToLower(), sceneName.ToLower(), objectId);
             if (_sceneObjectStateOverrides.TryGetValue(key, out SceneObjectStateOverride objectStateOverride))
             {
                 stateOverride = objectStateOverride;
@@ -150,35 +150,35 @@ namespace Pal3.Game.State
 
         public void Execute(SceneSaveGlobalObjectActivationStateCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].IsActivated = command.IsActivated;
         }
 
         public void Execute(SceneSaveGlobalObjectSwitchStateCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].SwitchState = command.SwitchState;
         }
 
         public void Execute(SceneSaveGlobalObjectTimesCountCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].TimesCount = command.TimesCount;
         }
 
         public void Execute(SceneSaveGlobalObjectLayerIndexCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].LayerIndex = command.LayerIndex;
         }
 
         public void Execute(SceneSaveGlobalObjectPositionCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].GameBoxPosition =
                 new GameBoxVector3(command.GameBoxXPosition, command.GameBoxYPosition, command.GameBoxZPosition);
@@ -186,7 +186,7 @@ namespace Pal3.Game.State
 
         public void Execute(SceneSaveGlobalObjectYRotationCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].GameBoxYRotation = command.GameBoxYRotation;
         }
@@ -194,14 +194,14 @@ namespace Pal3.Game.State
         #if PAL3
         public void Execute(SceneSaveGlobalBidirectionalPushableObjectStateCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].BidirectionalPushableObjectState = command.State;
         }
         #elif PAL3A
         public void Execute(SceneSaveGlobalThreePhaseSwitchStateCommand command)
         {
-            var key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
+            (string, string, int ObjectId) key = (command.CityName.ToLower(), command.SceneName.ToLower(), command.ObjectId);
             InitKeyIfNotExists(key);
             _sceneObjectStateOverrides[key].ThreePhaseSwitchPreviousState = command.PreviousState;
             _sceneObjectStateOverrides[key].ThreePhaseSwitchCurrentState = command.CurrentState;

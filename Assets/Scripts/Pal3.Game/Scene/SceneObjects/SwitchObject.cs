@@ -8,6 +8,7 @@
 namespace Pal3.Game.Scene.SceneObjects
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using Command;
     using Command.Extensions;
@@ -109,7 +110,7 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            var shouldResetCamera = false;
+            bool shouldResetCamera = false;
 
             if (ObjectInfo.Parameters[1] == 2) // 2 means interactable but executing script only
             {
@@ -126,7 +127,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 CameraFocusOnObject(ObjectInfo.Id);
             }
 
-            var switchStateBeforeInteraction = ObjectInfo.SwitchState;
+            byte switchStateBeforeInteraction = ObjectInfo.SwitchState;
 
             FlipAndSaveSwitchState();
 
@@ -178,11 +179,11 @@ namespace Pal3.Game.Scene.SceneObjects
                         ObjectInfo.Id,
                         ObjectInfo.SwitchState));
 
-                var allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
-                var allFlowerObjects = ctx.CurrentScene.GetAllSceneObjects().Where(
+                HashSet<int> allActivatedSceneObjects = ctx.CurrentScene.GetAllActivatedSceneObjects();
+                IEnumerable<KeyValuePair<int, SceneObject>> allFlowerObjects = ctx.CurrentScene.GetAllSceneObjects().Where(
                     _ => allActivatedSceneObjects.Contains(_.Key) &&
                          _.Value.ObjectInfo.Type == SceneObjectType.DivineTreeFlower);
-                foreach (var flowerObject in allFlowerObjects)
+                foreach (KeyValuePair<int, SceneObject> flowerObject in allFlowerObjects)
                 {
                     // Re-activate all flowers in current scene to refresh their state
                     ctx.CurrentScene.DeactivateSceneObject(flowerObject.Key);

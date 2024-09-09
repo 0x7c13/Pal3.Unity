@@ -122,7 +122,7 @@ namespace Pal3.Game.Effect
             EffectPlayCommand effectPlayCommand,
             Scene currentScene)
         {
-            var actorId = effectAttachToActorCommand.ActorId;
+            int actorId = effectAttachToActorCommand.ActorId;
             switch (effectPlayCommand.EffectGroupId)
             {
                 // 南宫煌切换为狼妖形态特效
@@ -132,7 +132,7 @@ namespace Pal3.Game.Effect
                     actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameEntity(actorId)
+                        ActorActionController actorActionController = currentScene.GetActorGameEntity(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }
@@ -145,7 +145,7 @@ namespace Pal3.Game.Effect
                     actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
                     if (actor.IsActive)
                     {
-                        var actorActionController = currentScene.GetActorGameEntity(actorId)
+                        ActorActionController actorActionController = currentScene.GetActorGameEntity(actorId)
                             .GetComponent<ActorActionController>();
                         actorActionController.PerformAction(actor.GetIdleAction(), overwrite: true);
                     }

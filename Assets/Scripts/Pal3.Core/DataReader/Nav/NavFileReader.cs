@@ -15,29 +15,29 @@ namespace Pal3.Core.DataReader.Nav
     {
         public NavFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header[..^1]);
 
             if (headerStr != "NAV")
             {
                 throw new InvalidDataException("Invalid NAV(.nav) file: header != NAV");
             }
 
-            var version = reader.ReadByte();
-            var numberOfLayers = reader.ReadByte();
-            var tileOffset = reader.ReadUInt32();
-            var faceOffset = reader.ReadUInt32();
+            byte version = reader.ReadByte();
+            byte numberOfLayers = reader.ReadByte();
+            uint tileOffset = reader.ReadUInt32();
+            uint faceOffset = reader.ReadUInt32();
 
             reader.Seek(tileOffset, SeekOrigin.Begin);
-            var layers = new NavLayer[numberOfLayers];
-            for (var i = 0; i < numberOfLayers; i++)
+            NavLayer[] layers = new NavLayer[numberOfLayers];
+            for (int i = 0; i < numberOfLayers; i++)
             {
                 layers[i] = ReadLayerData(reader, version);
             }
 
             reader.Seek(faceOffset, SeekOrigin.Begin);
-            var meshData = new NavMeshData[numberOfLayers];
-            for (var i = 0; i < numberOfLayers; i++)
+            NavMeshData[] meshData = new NavMeshData[numberOfLayers];
+            for (int i = 0; i < numberOfLayers; i++)
             {
                 meshData[i] = ReadMeshData(reader);
             }
@@ -47,12 +47,12 @@ namespace Pal3.Core.DataReader.Nav
 
         private static NavLayer ReadLayerData(IBinaryReader reader, byte version)
         {
-            var portals = Array.Empty<GameBoxRect>();
+            GameBoxRect[] portals = Array.Empty<GameBoxRect>();
 
             if (version == 2)
             {
                 portals = new GameBoxRect[8];
-                for (var i = 0; i < 8; i++)
+                for (int i = 0; i < 8; i++)
                 {
                     portals[i] = new GameBoxRect()
                     {
@@ -67,17 +67,17 @@ namespace Pal3.Core.DataReader.Nav
             GameBoxVector3 gameBoxMaxWorldPosition = reader.ReadGameBoxVector3();
             GameBoxVector3 gameBoxMinWorldPosition = reader.ReadGameBoxVector3();
 
-            var width = reader.ReadInt32();
-            var height = reader.ReadInt32();
+            int width = reader.ReadInt32();
+            int height = reader.ReadInt32();
 
-            var navMapSize = width * height;
+            int navMapSize = width * height;
             if (navMapSize <= 0)
             {
                 throw new Exception($"Invalid NAV(.nav) file: Map size is in valid: {navMapSize}");
             }
 
-            var tiles = new NavTile[navMapSize];
-            for (var i = 0; i < navMapSize; i++)
+            NavTile[] tiles = new NavTile[navMapSize];
+            for (int i = 0; i < navMapSize; i++)
             {
                 tiles[i] = new NavTile
                 {
@@ -101,15 +101,15 @@ namespace Pal3.Core.DataReader.Nav
 
         private static NavMeshData ReadMeshData(IBinaryReader reader)
         {
-            var numberOfVertices = reader.ReadUInt16();
-            var numberOfFaces = reader.ReadUInt16();
+            ushort numberOfVertices = reader.ReadUInt16();
+            ushort numberOfFaces = reader.ReadUInt16();
 
             GameBoxVector3[] gameBoxVertices = reader.ReadGameBoxVector3s(numberOfVertices);
 
-            var gameBoxTriangles = new int[numberOfFaces * 3];
-            for (var i = 0; i < numberOfFaces; i++)
+            int[] gameBoxTriangles = new int[numberOfFaces * 3];
+            for (int i = 0; i < numberOfFaces; i++)
             {
-                var index = i * 3;
+                int index = i * 3;
                 gameBoxTriangles[index]     = reader.ReadUInt16();
                 gameBoxTriangles[index + 1] = reader.ReadUInt16();
                 gameBoxTriangles[index + 2] = reader.ReadUInt16();
@@ -121,9 +121,9 @@ namespace Pal3.Core.DataReader.Nav
             {
                 GameBoxVector3[] normals = CoreUtility.CalculateNormals(gameBoxVertices, gameBoxTriangles);
 
-                for (var i = 0; i < numberOfFaces; i++)
+                for (int i = 0; i < numberOfFaces; i++)
                 {
-                    var index = i * 3;
+                    int index = i * 3;
 
                     // Determine if the face is pointing downwards.
                     if (normals[gameBoxTriangles[index]].Y +

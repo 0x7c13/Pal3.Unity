@@ -14,51 +14,51 @@ namespace Pal3.Core.DataReader.Mv3
     {
         public Mv3File Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header[..^1]);
 
             if (headerStr != "MV3")
             {
                 throw new InvalidDataException("Invalid MV3(.mv3) file: header != MV3");
             }
 
-            var version = reader.ReadInt32();
+            int version = reader.ReadInt32();
             if (version != 100)
             {
                 throw new InvalidDataException("Invalid MV3(.mv3) file: version != 100");
             }
 
-            var duration = reader.ReadUInt32();
-            var numberOfMaterials = reader.ReadInt32();
-            var numberOfTagNodes = reader.ReadInt32();
-            var numberOfMeshes = reader.ReadInt32();
-            var numberOfAnimationEvents = reader.ReadInt32();
+            uint duration = reader.ReadUInt32();
+            int numberOfMaterials = reader.ReadInt32();
+            int numberOfTagNodes = reader.ReadInt32();
+            int numberOfMeshes = reader.ReadInt32();
+            int numberOfAnimationEvents = reader.ReadInt32();
 
             if (numberOfMeshes == 0 || numberOfMaterials == 0)
             {
                 throw new InvalidDataException("Invalid MV3(.mv3) file: missing mesh or material info");
             }
 
-            var animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
-            for (var i = 0; i < numberOfAnimationEvents; i++)
+            Mv3AnimationEvent[] animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
+            for (int i = 0; i < numberOfAnimationEvents; i++)
             {
                 animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
-            var tagNodes = new Mv3TagNode[numberOfTagNodes];
-            for (var i = 0; i < numberOfTagNodes; i++)
+            Mv3TagNode[] tagNodes = new Mv3TagNode[numberOfTagNodes];
+            for (int i = 0; i < numberOfTagNodes; i++)
             {
                 tagNodes[i] = ReadTagNode(reader, codepage);
             }
 
-            var materials = new GameBoxMaterial[numberOfMaterials];
-            for (var i = 0; i < numberOfMaterials; i++)
+            GameBoxMaterial[] materials = new GameBoxMaterial[numberOfMaterials];
+            for (int i = 0; i < numberOfMaterials; i++)
             {
                 materials[i] = ReadMaterial(reader, codepage);
             }
 
-            var meshes = new Mv3Mesh[numberOfMeshes];
-            for (var i = 0; i < numberOfMeshes; i++)
+            Mv3Mesh[] meshes = new Mv3Mesh[numberOfMeshes];
+            for (int i = 0; i < numberOfMeshes; i++)
             {
                 meshes[i] = ReadMesh(reader, codepage);
             }
@@ -72,19 +72,19 @@ namespace Pal3.Core.DataReader.Mv3
 
         private static Mv3Mesh ReadMesh(IBinaryReader reader, int codepage)
         {
-            var name = reader.ReadString(64, codepage);
-            var numberOfVertices = reader.ReadInt32();
+            string name = reader.ReadString(64, codepage);
+            int numberOfVertices = reader.ReadInt32();
 
             GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
             GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
-            var numberOfFrames = reader.ReadInt32();
-            var frames = new Mv3VertFrame[numberOfFrames];
-            for (var i = 0; i < numberOfFrames; i++)
+            int numberOfFrames = reader.ReadInt32();
+            Mv3VertFrame[] frames = new Mv3VertFrame[numberOfFrames];
+            for (int i = 0; i < numberOfFrames; i++)
             {
-                var gameBoxTick = reader.ReadUInt32();
-                var vertices = new Mv3Vert[numberOfVertices];
-                for (var j = 0; j < numberOfVertices; j++)
+                uint gameBoxTick = reader.ReadUInt32();
+                Mv3Vert[] vertices = new Mv3Vert[numberOfVertices];
+                for (int j = 0; j < numberOfVertices; j++)
                 {
                     vertices[j] = new Mv3Vert()
                     {
@@ -101,20 +101,20 @@ namespace Pal3.Core.DataReader.Mv3
                 };
             }
 
-            var numberOfTexCoords = reader.ReadInt32();
+            int numberOfTexCoords = reader.ReadInt32();
             GameBoxVector2[] texCoords = numberOfTexCoords == 0 ?
                 new GameBoxVector2[] { new (0f, 0f) } :
                 reader.ReadGameBoxVector2s(numberOfTexCoords);
 
-            var numberOfAttributes = reader.ReadInt32();
-            var attributes = new Mv3Attribute[numberOfAttributes];
-            for (var i = 0; i < numberOfAttributes; i++)
+            int numberOfAttributes = reader.ReadInt32();
+            Mv3Attribute[] attributes = new Mv3Attribute[numberOfAttributes];
+            for (int i = 0; i < numberOfAttributes; i++)
             {
-                var materialId = reader.ReadInt32();
-                var numberOfTriangles = reader.ReadInt32();
+                int materialId = reader.ReadInt32();
+                int numberOfTriangles = reader.ReadInt32();
 
-                var triangles = new Mv3IndexBuffer[numberOfTriangles];
-                for (var j = 0; j < numberOfTriangles; j++)
+                Mv3IndexBuffer[] triangles = new Mv3IndexBuffer[numberOfTriangles];
+                for (int j = 0; j < numberOfTriangles; j++)
                 {
                     triangles[j] = new Mv3IndexBuffer()
                     {
@@ -123,9 +123,9 @@ namespace Pal3.Core.DataReader.Mv3
                     };
                 }
 
-                var numberOfCommands = reader.ReadInt32();
-                var commands = new int[numberOfCommands];
-                for (var j = 0; j < numberOfCommands; j++)
+                int numberOfCommands = reader.ReadInt32();
+                int[] commands = new int[numberOfCommands];
+                for (int j = 0; j < numberOfCommands; j++)
                 {
                     commands[j] = reader.ReadInt32();
                 }
@@ -149,24 +149,24 @@ namespace Pal3.Core.DataReader.Mv3
             GameBoxVector2[] texCoords)
         {
             int numberOfTriangles = attributes[0].IndexBuffers.Length * 3;
-            var triangles = new int[numberOfTriangles];
-            var uvs = new GameBoxVector2[numberOfTriangles];
+            int[] triangles = new int[numberOfTriangles];
+            GameBoxVector2[] uvs = new GameBoxVector2[numberOfTriangles];
 
             int totalVerticesPerKeyFrame = attributes[0].IndexBuffers.Length * 3;
-            var keyFrameVertices = new GameBoxVector3[vertFrames.Length][];
+            GameBoxVector3[][] keyFrameVertices = new GameBoxVector3[vertFrames.Length][];
             for (int i = 0; i < vertFrames.Length; i++)
             {
                 keyFrameVertices[i] = new GameBoxVector3[totalVerticesPerKeyFrame];
             }
 
-            var triangleIndex = 0;
+            int triangleIndex = 0;
 
-            for (var i = 0; i < attributes[0].IndexBuffers.Length; i++)
+            for (int i = 0; i < attributes[0].IndexBuffers.Length; i++)
             {
                 Mv3IndexBuffer indexBuffer = attributes[0].IndexBuffers[i];
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    for (var k = 0; k < vertFrames.Length; k++)
+                    for (int k = 0; k < vertFrames.Length; k++)
                     {
                         Mv3VertFrame frame = vertFrames[k];
                         Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
@@ -180,8 +180,8 @@ namespace Pal3.Core.DataReader.Mv3
                 }
             }
 
-            var animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
-            for (var i = 0; i < animationKeyFrames.Length; i++)
+            Mv3AnimationKeyFrame[] animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
+            for (int i = 0; i < animationKeyFrames.Length; i++)
             {
                 animationKeyFrames[i] = new Mv3AnimationKeyFrame()
                 {
@@ -205,12 +205,12 @@ namespace Pal3.Core.DataReader.Mv3
 
         private static Mv3TagNode ReadTagNode(IBinaryReader reader, int codepage)
         {
-            var nodeName = reader.ReadString(64, codepage);
-            var flipScale = reader.ReadSingle();
-            var numberOfFrames = reader.ReadInt32();
+            string nodeName = reader.ReadString(64, codepage);
+            float flipScale = reader.ReadSingle();
+            int numberOfFrames = reader.ReadInt32();
 
-            var tagFrames = new Mv3TagFrame[numberOfFrames];
-            for (var i = 0; i < numberOfFrames; i++)
+            Mv3TagFrame[] tagFrames = new Mv3TagFrame[numberOfFrames];
+            for (int i = 0; i < numberOfFrames; i++)
             {
                 tagFrames[i] = ReadTagFrame(reader);
             }
@@ -225,10 +225,10 @@ namespace Pal3.Core.DataReader.Mv3
 
         private static Mv3TagFrame ReadTagFrame(IBinaryReader reader)
         {
-            var gameBoxTick = reader.ReadUInt32();
+            uint gameBoxTick = reader.ReadUInt32();
             GameBoxVector3 gameBoxPosition = reader.ReadGameBoxVector3();
 
-            var gameBoxRotation = new GameBoxQuaternion()
+            GameBoxQuaternion gameBoxRotation = new()
             {
                 X = reader.ReadSingle(),
                 Y = reader.ReadSingle(),
@@ -236,7 +236,7 @@ namespace Pal3.Core.DataReader.Mv3
                 W = reader.ReadSingle(),
             };
 
-            var scale = new []
+            float[][] scale =
             {
                 new [] {reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()},
                 new [] {reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()},
@@ -273,10 +273,10 @@ namespace Pal3.Core.DataReader.Mv3
             };
 
             List<string> textureNames = new ();
-            for (var i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 string textureName;
-                var length = reader.ReadInt32();
+                int length = reader.ReadInt32();
 
                 if (length == 0)
                 {

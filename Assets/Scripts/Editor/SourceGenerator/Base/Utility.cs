@@ -16,7 +16,7 @@ namespace Editor.SourceGenerator.Base
         public static string GetMethodArgumentDefinitionListAsString(PropertyInfo[] properties)
         {
             StringBuilder argListStrBuilder = new ();
-            for (var i = 0; i < properties.Length; i++)
+            for (int i = 0; i < properties.Length; i++)
             {
                 argListStrBuilder.Append(properties[i].PropertyType);
                 argListStrBuilder.Append(" ");
@@ -29,7 +29,7 @@ namespace Editor.SourceGenerator.Base
         public static string GetMethodArgumentListAsString(PropertyInfo[] properties)
         {
             StringBuilder argListStrBuilder = new ();
-            for (var i = 0; i < properties.Length; i++)
+            for (int i = 0; i < properties.Length; i++)
             {
                 argListStrBuilder.Append(ToLowerFirstChar(properties[i].Name));
                 if (i < properties.Length - 1) argListStrBuilder.Append(", ");

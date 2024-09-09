@@ -63,7 +63,7 @@ namespace Pal3.Game.Actor
 
             // For MOV animated skeletal actor, additional action config files are defined as
             // 01.ini, 02.ini ...up tp 09.ini
-            for (var i = 0; i <= 9; i++)
+            for (int i = 0; i <= 9; i++)
             {
                 if (_resourceProvider.GetActorActionConfig(name, $"{i:D2}.ini")
                     is MovActionConfig movConfig)

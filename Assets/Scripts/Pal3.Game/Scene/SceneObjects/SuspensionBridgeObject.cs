@@ -54,7 +54,7 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (!IsInteractableBasedOnTimesCount()) yield break;
 
-            var shouldResetCamera = false;
+            bool shouldResetCamera = false;
             if (!IsFullyVisibleToCamera())
             {
                 shouldResetCamera = true;
@@ -82,7 +82,7 @@ namespace Pal3.Game.Scene.SceneObjects
         private void EnableStandingPlatform()
         {
             // _e.cvd
-            var bounds = new Bounds
+            Bounds bounds = new()
             {
                 center = new Vector3(0f, -0.2f, 1.4f),
                 size = new Vector3(4.5f, 0.7f, 6f),

@@ -51,7 +51,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             IGameEntity blockerEntity = GetGameEntity();
             Vector3 currentPosition = blockerEntity.Transform.Position;
-            var zOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
+            float zOffset = ((float)ObjectInfo.Parameters[2]).ToUnityDistance();
             Vector3 toPosition = currentPosition + blockerEntity.Transform.Forward * -zOffset;
 
             yield return blockerEntity.Transform.MoveAsync(toPosition, 1.5f);

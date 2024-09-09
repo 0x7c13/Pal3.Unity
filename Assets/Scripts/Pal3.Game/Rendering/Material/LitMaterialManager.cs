@@ -85,12 +85,12 @@ namespace Pal3.Game.Rendering.Material
 
             Stopwatch timer = Stopwatch.StartNew();
 
-            for (var i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
             {
                 _opaqueMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_toonOpaqueMaterial));
             }
 
-            for (var i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
+            for (int i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
             {
                 _transparentMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_toonTransparentMaterial));
             }

@@ -899,7 +899,7 @@ namespace Pal3.Game.Dev
 
         public bool IsMazeSceneAndHasSkipperCommands(ScnSceneInfo sceneInfo)
         {
-            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(sceneInfo);
+            string cmdHashKeyPrefix = GetCommandHashKeyPrefix(sceneInfo);
             return _skipperCommands.Keys.Any(_ => _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -926,13 +926,13 @@ namespace Pal3.Game.Dev
 
             int mainStoryVarCurrentValue = _userVariableStore.Get(ScriptConstants.MainStoryVariableId);
 
-            var cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentScene.GetSceneInfo());
-            foreach (var commandKey in _skipperCommands.Keys.Where(_ =>
+            string cmdHashKeyPrefix = GetCommandHashKeyPrefix(currentScene.GetSceneInfo());
+            foreach (string commandKey in _skipperCommands.Keys.Where(_ =>
                          _.StartsWith(cmdHashKeyPrefix, StringComparison.OrdinalIgnoreCase) &&
                          !_.EndsWith("_0") &&
                          !_.EndsWith("_1")))
             {
-                var mainStoryVarValue = int.Parse(commandKey[cmdHashKeyPrefix.Length..]);
+                int mainStoryVarValue = int.Parse(commandKey[cmdHashKeyPrefix.Length..]);
                 if (mainStoryVarCurrentValue == mainStoryVarValue)
                 {
                     foreach (ICommand command in _skipperCommands[commandKey])

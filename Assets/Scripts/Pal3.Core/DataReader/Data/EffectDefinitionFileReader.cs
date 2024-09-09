@@ -11,9 +11,9 @@ namespace Pal3.Core.DataReader.Data
 
         public EffectDefinitionFile Read(IBinaryReader reader, int codepage)
         {
-            var effectDefinitions = new EffectDefinition[NUM_OF_EFFECTS];
+            EffectDefinition[] effectDefinitions = new EffectDefinition[NUM_OF_EFFECTS];
 
-            for (var i = 0; i < NUM_OF_EFFECTS; i++)
+            for (int i = 0; i < NUM_OF_EFFECTS; i++)
             {
                 effectDefinitions[i] = ReadEffectDefinition(reader, codepage);
             }
@@ -23,7 +23,7 @@ namespace Pal3.Core.DataReader.Data
 
         private EffectDefinition ReadEffectDefinition(IBinaryReader reader, int codepage)
         {
-            var effectDefinition = new EffectDefinition
+            EffectDefinition effectDefinition = new()
             {
                 ClassNameCrc = reader.ReadUInt32(),
                 TypeName = reader.ReadString(32, codepage),
@@ -32,7 +32,7 @@ namespace Pal3.Core.DataReader.Data
 
             // union
             {
-                var unionStr = reader.ReadString(128, codepage);
+                string unionStr = reader.ReadString(128, codepage);
                 effectDefinition.TextureName = unionStr;
                 effectDefinition.ParticleFileName = unionStr;
                 effectDefinition.SfxFileNamePrefix = unionStr;
@@ -50,7 +50,7 @@ namespace Pal3.Core.DataReader.Data
 
             // union
             {
-                var unionFloat = reader.ReadSingle();
+                float unionFloat = reader.ReadSingle();
                 effectDefinition.InitYRotation = unionFloat;
                 effectDefinition.InitAngle = unionFloat;
             }

@@ -18,6 +18,7 @@ namespace Pal3.Game.Scene.SceneObjects
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Extensions;
+    using Rendering.Renderer;
 
     using Color = Core.Primitives.Color;
     using Vector3 = UnityEngine.Vector3;
@@ -64,13 +65,13 @@ namespace Pal3.Game.Scene.SceneObjects
 
             yield return GetCvdModelRenderer().PlayAnimationAsync(2f, 1, 0.5f, true);
 
-            var portalToFlowerObjectId = ObjectInfo.Parameters[2];
+            int portalToFlowerObjectId = ObjectInfo.Parameters[2];
 
             Pal3.Instance.Execute(new CameraFocusOnSceneObjectCommand(portalToFlowerObjectId));
 
             SceneObject portalToFlowerObject = ctx.CurrentScene.GetSceneObject(portalToFlowerObjectId);
 
-            var portalToFlowerObjectCvdModelRenderer = portalToFlowerObject.GetCvdModelRenderer();
+            CvdModelRenderer portalToFlowerObjectCvdModelRenderer = portalToFlowerObject.GetCvdModelRenderer();
 
             // Skip part of the animation, start from 80% of the animation
             portalToFlowerObjectCvdModelRenderer.SetCurrentTime(

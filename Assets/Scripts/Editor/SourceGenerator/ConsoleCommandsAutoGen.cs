@@ -52,7 +52,7 @@ namespace Editor.SourceGenerator
 
             Debug.Log($"[{nameof(ConsoleCommandsAutoGen<TCommand>)}] Found {commands.Length} available console commands");
 
-            for (var i = 0; i < commands.Length; i++)
+            for (int i = 0; i < commands.Length; i++)
             {
                 string commandName = commands[i].Name.Replace("Command", string.Empty);
                 PropertyInfo[] properties = commands[i].GetProperties();

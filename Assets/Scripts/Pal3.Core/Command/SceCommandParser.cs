@@ -85,7 +85,7 @@ namespace Pal3.Core.Command
             {
                 ushort length = reader.ReadUInt16(); // First 2 bytes is array length
                 object[] propertyArray = new object[length];
-                for (var i = 0; i < length; i++)
+                for (int i = 0; i < length; i++)
                 {
                     Type varType = GetVariableType(reader.ReadByte());
                     // Read from the end of the array to the beginning by design

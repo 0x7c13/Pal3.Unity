@@ -88,12 +88,12 @@ namespace Pal3.Core.Algorithm.PathFinding
             Func<(int x, int y), bool> isObstacle,
             Func<(int x, int y), (int x, int y), int> heuristicFunc)
         {
-            var nodes = new SearchNode[gridSize.width, gridSize.height];
+            SearchNode[,] nodes = new SearchNode[gridSize.width, gridSize.height];
 
             // Init
-            for (var x = 0; x < gridSize.width; x++)
+            for (int x = 0; x < gridSize.width; x++)
             {
-                for (var y = 0; y < gridSize.height; y++)
+                for (int y = 0; y < gridSize.height; y++)
                 {
                     (int x, int y) position = (x, y);
                     var node = new SearchNode()
@@ -139,13 +139,13 @@ namespace Pal3.Core.Algorithm.PathFinding
                     {
                         node.SetParent(null, float.MaxValue);
 
-                        var currentNeighbors = GetNeighbors(node, nodes);
-                        for (var i = 0; i < currentNeighbors.Count; i++)
+                        List<SearchNode> currentNeighbors = GetNeighbors(node, nodes);
+                        for (int i = 0; i < currentNeighbors.Count; i++)
                         {
                             SearchNode neighbor = currentNeighbors[i];
                             if (neighbor.Closed)
                             {
-                                var newGCost = neighbor.GCost +
+                                float newGCost = neighbor.GCost +
                                              heuristicFunc((neighbor.X, neighbor.Y), (node.X, node.Y));
                                 if (newGCost < node.GCost)
                                     node.SetParent(neighbor, newGCost);
@@ -160,8 +160,8 @@ namespace Pal3.Core.Algorithm.PathFinding
                 node.SearchType = SearchType.Expanded;
                 node.Closed = true;
 
-                var neighbors = GetNeighbors(node, nodes);
-                for (var i = 0; i < neighbors.Count; i++)
+                List<SearchNode> neighbors = GetNeighbors(node, nodes);
+                for (int i = 0; i < neighbors.Count; i++)
                 {
                     SearchNode neighbor = neighbors[i];
                     if (IsNeighborValid(neighbor))
@@ -182,7 +182,7 @@ namespace Pal3.Core.Algorithm.PathFinding
                 }
             }
 
-            var path = new List<(int x, int y)>();
+            List<(int x, int y)> path = new();
             SearchNode lastNode = GetNode(endNode.X, endNode.Y, nodes);
             while (lastNode != null)
             {

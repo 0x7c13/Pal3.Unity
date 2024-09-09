@@ -59,7 +59,7 @@ namespace Pal3.Game.Effect
         {
             if (_root is { IsNativeObjectDisposed: false })
             {
-                var rotationDelta = _rotationSpeed * deltaTime;
+                float rotationDelta = _rotationSpeed * deltaTime;
                 _root.Transform.LocalRotation *= Quaternion.Euler(0f, 0f, -rotationDelta);
             }
         }

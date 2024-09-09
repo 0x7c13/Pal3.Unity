@@ -47,7 +47,7 @@ namespace Pal3.Game.Input
         {
             if (change == InputActionChange.ActionPerformed)
             {
-                var inputAction = (InputAction) action;
+                InputAction inputAction = (InputAction) action;
                 InputControl lastControl = inputAction.activeControl;
                 if (_lastActiveInputDevice != lastControl.device)
                 {

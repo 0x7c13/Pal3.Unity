@@ -168,7 +168,7 @@ namespace Pal3.Game.State
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return null;
 
-            var playerActorMovementController = currentScene
+            ActorMovementController playerActorMovementController = currentScene
                 .GetActorGameEntity(_playerActorManager.GetPlayerActorId()).GetComponent<ActorMovementController>();
             Vector3 playerActorWorldPosition = playerActorMovementController.GetWorldPosition();
             GameBoxVector3 playerActorGameBoxPosition = playerActorMovementController.GetWorldPosition().ToGameBoxPosition();
@@ -200,7 +200,7 @@ namespace Pal3.Game.State
             int currentPlayerActorId = _playerActorManager.GetPlayerActorId();
 
             // Save current playing script music (if any)
-            var currentScriptMusic = _audioManager.GetCurrentScriptMusic();
+            string currentScriptMusic = _audioManager.GetCurrentScriptMusic();
             if (!string.IsNullOrEmpty(currentScriptMusic))
             {
                 commands.Add(new PlayScriptMusicCommand(currentScriptMusic, 0));
@@ -230,7 +230,7 @@ namespace Pal3.Game.State
             }
 
             // Save current applied screen effect state
-            var currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
+            int currentEffectMode = _postProcessManager.GetCurrentAppliedEffectMode();
             if (currentEffectMode != -1)
             {
                 commands.Add(new EffectSetScreenEffectCommand(currentEffectMode));
@@ -262,8 +262,8 @@ namespace Pal3.Game.State
                     (int)playerActorMovementController.GameEntity.Transform.EulerAngles.y)
             });
 
-            var allActors = currentScene.GetAllActors();
-            var allActorGameEntities = currentScene.GetAllActorGameEntities();
+            Dictionary<int, Actor> allActors = currentScene.GetAllActors();
+            Dictionary<int, IGameEntity> allActorGameEntities = currentScene.GetAllActorGameEntities();
 
             // Save npc actor state
             foreach ((int actorId, IGameEntity actorGameEntity) in allActorGameEntities)
@@ -274,7 +274,7 @@ namespace Pal3.Game.State
 
             #if PAL3
             // Save LongKui state
-            var longKuiCurrentMode = currentScene.GetActorGameEntity((int) PlayerActorId.LongKui)
+            int longKuiCurrentMode = currentScene.GetActorGameEntity((int) PlayerActorId.LongKui)
                 .GetComponent<LongKuiController>()
                 .GetCurrentMode();
             if (longKuiCurrentMode != 0)
@@ -283,8 +283,8 @@ namespace Pal3.Game.State
             }
 
             // Save HuaYing state
-            var huaYingGameEntity = currentScene.GetActorGameEntity((int) PlayerActorId.HuaYing);
-            var huaYingCurrentMode = huaYingGameEntity.GetComponent<HuaYingController>().GetCurrentMode();
+            IGameEntity huaYingGameEntity = currentScene.GetActorGameEntity((int) PlayerActorId.HuaYing);
+            int huaYingCurrentMode = huaYingGameEntity.GetComponent<HuaYingController>().GetCurrentMode();
             if (huaYingCurrentMode != 1)
             {
                 commands.Add(new HuaYingSwitchBehaviourModeCommand(huaYingCurrentMode));
@@ -292,7 +292,7 @@ namespace Pal3.Game.State
             if (huaYingCurrentMode == 2 && huaYingGameEntity.GetComponent<ActorController>().IsActive)
             {
                 commands.Add(new ActorActivateCommand((int) PlayerActorId.HuaYing, 1));
-                var huaYingMovementController = huaYingGameEntity.GetComponent<ActorMovementController>();
+                ActorMovementController huaYingMovementController = huaYingGameEntity.GetComponent<ActorMovementController>();
                 commands.Add(new ActorSetNavLayerCommand((int)PlayerActorId.HuaYing,
                     huaYingMovementController.GetCurrentLayerIndex()));
                 Vector3 position = huaYingMovementController.GetWorldPosition();
@@ -326,7 +326,7 @@ namespace Pal3.Game.State
             IGameEntity actorGameEntity,
             Dictionary<int, Actor> allActors)
         {
-            var actorController = actorGameEntity.GetComponent<ActorController>();
+            ActorController actorController = actorGameEntity.GetComponent<ActorController>();
 
             // Save activation state if changed by the script
             if (!actorController.IsActive && allActors[actorId].Info.InitActive == 1)
@@ -344,7 +344,7 @@ namespace Pal3.Game.State
                 commands.Add(new ActorActivateCommand(actorId, 1));
             }
 
-            var actorMovementController = actorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = actorGameEntity.GetComponent<ActorMovementController>();
 
             // Save position and rotation if not in initial state
             // Only save position and rotation if the actor behavior is None or Hold
@@ -356,8 +356,8 @@ namespace Pal3.Game.State
                         actorMovementController.GetCurrentLayerIndex()));
                 }
 
-                var currentPosition = actorGameEntity.Transform.Position;
-                var currentGameBoxPosition = currentPosition.ToGameBoxPosition();
+                Vector3 currentPosition = actorGameEntity.Transform.Position;
+                GameBoxVector3 currentGameBoxPosition = currentPosition.ToGameBoxPosition();
 
                 if (MathF.Abs(currentGameBoxPosition.X - actor.Info.GameBoxXPosition) > 0.01f ||
                     MathF.Abs(currentGameBoxPosition.Z - actor.Info.GameBoxZPosition) > 0.01f)

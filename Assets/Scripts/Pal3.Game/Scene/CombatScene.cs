@@ -62,7 +62,7 @@ namespace Pal3.Game.Scene
             _combatSceneName = combatSceneName;
             _isLightingEnabled = isLightingEnabled;
 
-            var meshFileRelativeFolderPath = FileConstants.CombatSceneFolderVirtualPath + combatSceneName;
+            string meshFileRelativeFolderPath = FileConstants.CombatSceneFolderVirtualPath + combatSceneName;
 
             ITextureResourceProvider sceneTextureProvider = _resourceProvider.CreateTextureResourceProvider(
                 meshFileRelativeFolderPath);
@@ -80,7 +80,7 @@ namespace Pal3.Game.Scene
                 _parent, worldPositionStays: false);
             _mesh.IsStatic = true; // Combat Scene mesh is static
 
-            var polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
+            PolyModelRenderer polyMeshRenderer = _mesh.AddComponent<PolyModelRenderer>();
             polyMeshRenderer.Render(polFile,
                 textureProvider,
                 _materialManager,

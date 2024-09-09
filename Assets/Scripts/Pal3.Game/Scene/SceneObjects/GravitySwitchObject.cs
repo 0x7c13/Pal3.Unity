@@ -49,7 +49,7 @@ namespace Pal3.Game.Scene.SceneObjects
             IGameEntity sceneObjectGameEntity = base.Activate(resourceProvider, tintColor);
 
             // wz06.cvd
-            var bounds = new Bounds
+            Bounds bounds = new()
             {
                 center = new Vector3(0f, 0.8f, 0f),
                 size = new Vector3(4f, 1f, 4f),
@@ -96,12 +96,12 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             IGameEntity gravityTriggerEntity = GetGameEntity();
             Vector3 platformPosition = _platformController.Transform.Position;
-            var actorStandingPosition = new Vector3(
+            Vector3 actorStandingPosition = new(
                 platformPosition.x,
                 _platformController.GetPlatformHeight(),
                 platformPosition.z);
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             yield return actorMovementController.MoveDirectlyToAsync(actorStandingPosition, 0, true);
 

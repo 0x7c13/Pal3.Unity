@@ -59,7 +59,7 @@ namespace Pal3.Core.Utilities
         {
             GameBoxVector3[] normals = new GameBoxVector3[vertices.Length];
 
-            for (var face = 0; face < triangles.Length / 3; face++)
+            for (int face = 0; face < triangles.Length / 3; face++)
             {
                 int v1 = triangles[face * 3];
                 int v2 = triangles[face * 3 + 1];
@@ -78,7 +78,7 @@ namespace Pal3.Core.Utilities
                 normals[v3] += normal;
             }
 
-            for (var i = 0; i < normals.Length; i++)
+            for (int i = 0; i < normals.Length; i++)
             {
                 if (normals[i] == GameBoxVector3.Zero)
                 {
@@ -96,7 +96,7 @@ namespace Pal3.Core.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Rgb565ToRgb888(ushort rgb565Color, out byte r, out byte g, out byte b)
         {
-            var temp = (rgb565Color >> 11) * 255 + 16;
+            int temp = (rgb565Color >> 11) * 255 + 16;
             r = (byte) ((temp / 32 + temp) / 32);
             temp = ((rgb565Color & 0x07E0) >> 5) * 255 + 32;
             g = (byte) ((temp / 64 + temp) / 64);
@@ -123,7 +123,7 @@ namespace Pal3.Core.Utilities
             string[] latestParts = latestVersion.Split('.');
             string[] currentParts = currentVersion.Split('.');
 
-            for (var i = 0; i < Math.Min(latestParts.Length, currentParts.Length); i++)
+            for (int i = 0; i < Math.Min(latestParts.Length, currentParts.Length); i++)
             {
                 int latest = int.Parse(latestParts[i]);
                 int current = int.Parse(currentParts[i]);

@@ -88,7 +88,7 @@ namespace Pal3.Core.Command
             }
 
             uint hashCode = GetHashCode(commandId, userVariableMask);
-            return SceCommandTypeCache.TryGetValue(hashCode, out Type type) ? type : null; // not found
+            return SceCommandTypeCache.GetValueOrDefault(hashCode);
         }
     }
 }

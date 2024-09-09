@@ -21,9 +21,9 @@ namespace Pal3.Core.DataReader
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
             #if ENABLE_IL2CPP || UNITY_EDITOR
-            using var reader = new UnsafeBinaryReader(data);
+            using IBinaryReader reader = new UnsafeBinaryReader(data);
             #else
-            using var reader = new SafeBinaryReader(data);
+            using IBinaryReader reader = new SafeBinaryReader(data);
             #endif
 
             return Read(reader, codepage);
@@ -34,9 +34,9 @@ namespace Pal3.Core.DataReader
             // Use unsafe binary reader (faster) if IL2CPP is enabled
             // otherwise use safe reader
             #if ENABLE_IL2CPP || UNITY_EDITOR
-            using var reader = new UnsafeBinaryReader(stream);
+            using IBinaryReader reader = new UnsafeBinaryReader(stream);
             #else
-            using var reader = new SafeBinaryReader(stream);
+            using IBinaryReader reader = new SafeBinaryReader(stream);
             #endif
 
             return Read(reader, codepage);

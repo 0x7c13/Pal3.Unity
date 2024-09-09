@@ -71,11 +71,11 @@ namespace Pal3.Game.Actor.Controllers
                 Transform.Position = (Transform.Position - targetPosition).normalized * MAX_TARGET_DISTANCE + targetPosition;
             }
 
-            var waiter = new WaitUntilCanceled();
+            WaitUntilCanceled waiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
-            var distance = (targetPosition - Transform.Position).magnitude;
-            var duration = distance / DefaultFlySpeed;
+            float distance = (targetPosition - Transform.Position).magnitude;
+            float duration = distance / DefaultFlySpeed;
 
             _actionController.PerformAction(distance < FLYING_MOVEMENT_MODE_SWITCH_DISTANCE
                 ? _actor.GetMovementAction(MovementMode.Walk)
@@ -91,7 +91,7 @@ namespace Pal3.Game.Actor.Controllers
             // Facing towards target position, ignoring y
             Transform.LookAt(new Vector3(targetPosition.x, oldPosition.y, targetPosition.z));
 
-            var timePast = 0f;
+            float timePast = 0f;
             while (timePast < duration)
             {
                 Vector3 newPosition = oldPosition;

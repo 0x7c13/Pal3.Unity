@@ -12,7 +12,7 @@ namespace Pal3.Core.Extensions
         public static Dictionary<TValue, TKey> Reverse<TKey, TValue>(this IDictionary<TKey, TValue> source)
         {
             Dictionary<TValue, TKey> dictionary = new ();
-            foreach (var entry in source)
+            foreach (KeyValuePair<TKey, TValue> entry in source)
             {
                 dictionary.TryAdd(entry.Value, entry.Key);
             }

@@ -12,39 +12,39 @@ namespace Pal3.Core.DataReader.Mov
     {
         public MovFile Read(IBinaryReader reader, int codepage)
         {
-            var header = reader.ReadChars(4);
-            var headerStr = new string(header[..^1]);
+            char[] header = reader.ReadChars(4);
+            string headerStr = new string(header[..^1]);
 
             if (headerStr != "anm")
             {
                 throw new InvalidDataException("Invalid MOV(.mov) file: header != anm");
             }
 
-            var version = reader.ReadInt32();
+            int version = reader.ReadInt32();
             if (version != 100)
             {
                 throw new InvalidDataException("Invalid MOV(.mov) file: version != 100");
             }
 
-            var duration = reader.ReadSingle();
-            var numberOfBoneAnimationTracks = reader.ReadInt32();
-            var numberOfVertices = reader.ReadInt32();
-            var numberOfAnimationEvents = reader.ReadInt32();
+            float duration = reader.ReadSingle();
+            int numberOfBoneAnimationTracks = reader.ReadInt32();
+            int numberOfVertices = reader.ReadInt32();
+            int numberOfAnimationEvents = reader.ReadInt32();
 
-            var animationEvents = new MovAnimationEvent[numberOfAnimationEvents];
-            for (var i = 0; i < numberOfAnimationEvents; i++)
+            MovAnimationEvent[] animationEvents = new MovAnimationEvent[numberOfAnimationEvents];
+            for (int i = 0; i < numberOfAnimationEvents; i++)
             {
                 animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
-            var boneAnimationTracks = new MovBoneAnimationTrack[numberOfBoneAnimationTracks];
-            for (var i = 0; i < numberOfBoneAnimationTracks; i++)
+            MovBoneAnimationTrack[] boneAnimationTracks = new MovBoneAnimationTrack[numberOfBoneAnimationTracks];
+            for (int i = 0; i < numberOfBoneAnimationTracks; i++)
             {
                 boneAnimationTracks[i] = ReadBoneAnimationTrack(reader, codepage);
             }
 
             float totalDuration = 0;
-            for (var i = 0; i < boneAnimationTracks.Length; i++)
+            for (int i = 0; i < boneAnimationTracks.Length; i++)
             {
                 int numOfKeyFrames = boneAnimationTracks[i].KeyFrames.Length;
                 if (numOfKeyFrames > 0)
@@ -71,16 +71,16 @@ namespace Pal3.Core.DataReader.Mov
 
         private static MovBoneAnimationTrack ReadBoneAnimationTrack(IBinaryReader reader, int codepage)
         {
-            var boneId = reader.ReadInt32();
+            int boneId = reader.ReadInt32();
 
-            var lengthOfBoneName = reader.ReadInt32();
-            var boneName = reader.ReadString(lengthOfBoneName, codepage);
+            int lengthOfBoneName = reader.ReadInt32();
+            string boneName = reader.ReadString(lengthOfBoneName, codepage);
 
-            var numberOfKeyFrames = reader.ReadInt32();
-            var animationFlags = reader.ReadInt32();
+            int numberOfKeyFrames = reader.ReadInt32();
+            int animationFlags = reader.ReadInt32();
 
-            var animationKeyFrames = new MovAnimationKeyFrame[numberOfKeyFrames];
-            for (var i = 0; i < animationKeyFrames.Length; i++)
+            MovAnimationKeyFrame[] animationKeyFrames = new MovAnimationKeyFrame[numberOfKeyFrames];
+            for (int i = 0; i < animationKeyFrames.Length; i++)
             {
                 animationKeyFrames[i] = new MovAnimationKeyFrame()
                 {

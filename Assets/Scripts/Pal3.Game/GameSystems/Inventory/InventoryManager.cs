@@ -45,12 +45,12 @@ namespace Pal3.Game.GameSystems.Inventory
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append("----- Inventory info -----\n");
             sb.Append($"Total money: {_items[MONEY_ITEM_ID]}\n");
 
-            foreach (var (id, count) in _items.Where(_ => _.Key != MONEY_ITEM_ID))
+            foreach ((int id, int count) in _items.Where(_ => _.Key != MONEY_ITEM_ID))
             {
                 sb.Append($"{_gameItemInfos[id].Name}({id}) x {count} [{_gameItemInfos[id].Type}]\n");
             }
@@ -95,7 +95,7 @@ namespace Pal3.Game.GameSystems.Inventory
                 _items[command.ItemId] = command.Count;
             }
 
-            var itemName = _gameItemInfos[command.ItemId].Name;
+            string itemName = _gameItemInfos[command.ItemId].Name;
 
             Pal3.Instance.Execute(new UIDisplayNoteCommand($"得到{itemName}"));
 
@@ -114,7 +114,7 @@ namespace Pal3.Game.GameSystems.Inventory
                 _items.Remove(command.ItemId);
             }
 
-            var itemName = _gameItemInfos[command.ItemId].Name;
+            string itemName = _gameItemInfos[command.ItemId].Name;
 
             Pal3.Instance.Execute(new UIDisplayNoteCommand($"失去{itemName}"));
 

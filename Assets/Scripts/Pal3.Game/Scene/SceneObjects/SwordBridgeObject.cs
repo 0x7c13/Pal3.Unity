@@ -40,7 +40,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
             Bounds bounds = GetMeshBounds();
             bounds.size += new Vector3(0.1f, 0.1f, 0.1f);
-            var heightOffset = 0f;
+            float heightOffset = 0f;
 
             if (SceneInfo.IsCity("m11") &&
                 ObjectInfo.Name.Equals("_t.pol", StringComparison.OrdinalIgnoreCase))

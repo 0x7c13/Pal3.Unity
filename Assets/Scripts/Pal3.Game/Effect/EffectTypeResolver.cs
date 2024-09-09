@@ -29,8 +29,8 @@ namespace Pal3.Game.Effect
 
             if (!string.IsNullOrEmpty(name) && name.StartsWith('+'))
             {
-                var hexName = '0' + name[^1..];
-                var effect = int.Parse(hexName, NumberStyles.HexNumber);
+                string hexName = '0' + name[^1..];
+                int effect = int.Parse(hexName, NumberStyles.HexNumber);
                 return (GraphicsEffectType)effect;
             }
             else

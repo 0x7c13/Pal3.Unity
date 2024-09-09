@@ -7,6 +7,7 @@ namespace Pal3.Game.GamePlay
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using Actor;
     using Actor.Controllers;
     using Command;
@@ -83,12 +84,12 @@ namespace Pal3.Game.GamePlay
         {
             Vector3 actorFacingDirection = _playerActorMovementController.Transform.Forward;
             Vector3 actorCenterPosition = _playerActorActionController.GetRendererBounds().center;
-            var currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
+            int currentLayerIndex = _playerActorMovementController.GetCurrentLayerIndex();
 
             float nearestInteractableFacingAngle = 181f;
             IEnumerator interactionRoutine = null;
 
-            foreach (var sceneObjectId in
+            foreach (int sceneObjectId in
                      _sceneManager.GetCurrentScene().GetAllActivatedSceneObjects())
             {
                 SceneObject sceneObject = _sceneManager.GetCurrentScene().GetSceneObject(sceneObjectId);
@@ -109,19 +110,19 @@ namespace Pal3.Game.GamePlay
                 }
             }
 
-            foreach (var actorInfo in
+            foreach (KeyValuePair<int, IGameEntity> actorInfo in
                      _sceneManager.GetCurrentScene().GetAllActorGameEntities())
             {
-                var actorController = actorInfo.Value.GetComponent<ActorController>();
-                var actorActionController = actorInfo.Value.GetComponent<ActorActionController>();
-                var actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
+                ActorController actorController = actorInfo.Value.GetComponent<ActorController>();
+                ActorActionController actorActionController = actorInfo.Value.GetComponent<ActorActionController>();
+                ActorMovementController actorMovementController = actorInfo.Value.GetComponent<ActorMovementController>();
 
                 if (actorMovementController.GetCurrentLayerIndex() != currentLayerIndex ||
                     actorInfo.Key == _playerActorManager.GetPlayerActorId() ||
                     !actorController.IsActive) continue;
 
                 Vector3 targetActorCenterPosition = actorActionController.GetRendererBounds().center;
-                var distance = Vector3.Distance(actorCenterPosition,targetActorCenterPosition);
+                float distance = Vector3.Distance(actorCenterPosition,targetActorCenterPosition);
                 Vector3 actorToActorFacing = targetActorCenterPosition - actorCenterPosition;
                 float facingAngle = Vector2.Angle(
                     new Vector2(actorFacingDirection.x, actorFacingDirection.z),
@@ -144,8 +145,8 @@ namespace Pal3.Game.GamePlay
 
         private IEnumerator InteractWithSceneObjectAsync(SceneObject sceneObject, bool startedByPlayer)
         {
-            var correlationId = Guid.NewGuid();
-            var requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
+            Guid correlationId = Guid.NewGuid();
+            bool requiresStateChange = sceneObject.ShouldGoToCutsceneWhenInteractionStarted();
 
             if (requiresStateChange)
             {
@@ -177,8 +178,8 @@ namespace Pal3.Game.GamePlay
             Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
             Quaternion rotationBeforeInteraction = actorGameEntity.Transform.Rotation;
 
-            var actorController = actorGameEntity.GetComponent<ActorController>();
-            var movementController = actorGameEntity.GetComponent<ActorMovementController>();
+            ActorController actorController = actorGameEntity.GetComponent<ActorController>();
+            ActorMovementController movementController = actorGameEntity.GetComponent<ActorMovementController>();
 
             // Pause current path follow movement of the interacting actor
             if (actorController != null &&
@@ -205,7 +206,7 @@ namespace Pal3.Game.GamePlay
             if (targetActor.Info.InitBehaviour == ActorBehaviourType.Hold &&
                 targetActor.Info.LoopAction == 0)
             {
-                var actionController = actorGameEntity.GetComponent<ActorActionController>();
+                ActorActionController actionController = actorGameEntity.GetComponent<ActorActionController>();
                 // PerformAction internally checks if the target actor is already performing the action
                 actionController.PerformAction(actionController.GetCurrentAction(), false, 1);
             }

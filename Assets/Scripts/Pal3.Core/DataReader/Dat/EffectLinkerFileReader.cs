@@ -11,9 +11,9 @@ namespace Pal3.Core.DataReader.Dat
 
         public EffectLinkerFile Read(IBinaryReader reader, int codepage)
         {
-            var effectDefinitions = new EffectLinker[NUM_OF_EFFECT_LINKERS];
+            EffectLinker[] effectDefinitions = new EffectLinker[NUM_OF_EFFECT_LINKERS];
 
-            for (var i = 0; i < NUM_OF_EFFECT_LINKERS; i++)
+            for (int i = 0; i < NUM_OF_EFFECT_LINKERS; i++)
             {
                 effectDefinitions[i] = ReadEffectLinker(reader);
             }
@@ -23,11 +23,11 @@ namespace Pal3.Core.DataReader.Dat
 
         private static EffectLinker ReadEffectLinker(IBinaryReader reader)
         {
-            var skillId = reader.ReadUInt32();
+            uint skillId = reader.ReadUInt32();
 
-            var effectGroupInfos = new EffectGroupInfo[2];
+            EffectGroupInfo[] effectGroupInfos = new EffectGroupInfo[2];
 
-            for (var i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 effectGroupInfos[i] = ReadEffectGroupInfo(reader);
             }

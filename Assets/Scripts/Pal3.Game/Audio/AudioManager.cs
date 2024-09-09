@@ -96,7 +96,7 @@ namespace Pal3.Game.Audio
 
         private IEnumerator PlaySceneMusicAsync(string cityName, string sceneName)
         {
-            var musicName = string.Empty;
+            string musicName = string.Empty;
 
             if (MusicConstants.SceneMusicInfo.TryGetValue($"{cityName}_{sceneName}".ToLower(), out var sceneMusic))
             {
@@ -121,8 +121,8 @@ namespace Pal3.Game.Audio
             }
 
             _currentMusicClipName = musicName;
-            var musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(musicName);
-            var musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicName);
+            string musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(musicName);
+            string musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicName);
 
             yield return PlayMusicAsync(musicName, musicFileVirtualPath, musicFileCachePath, -1);
         }
@@ -288,12 +288,12 @@ namespace Pal3.Game.Audio
         public void Execute(PlaySfxCommand command)
         {
             #if PAL3
-            var sfxName = command.SfxName.ToLower();
+            string sfxName = command.SfxName.ToLower();
             #elif PAL3A
-            var sfxName = command.SfxName.ToUpper();
+            string sfxName = command.SfxName.ToUpper();
             #endif
 
-            var loopCount = command.LoopCount;
+            int loopCount = command.LoopCount;
 
             #if PAL3
             // Fix actor movement sfx name
@@ -330,7 +330,7 @@ namespace Pal3.Game.Audio
                 default:
                 {
                     _playingSfxSourceNames.Add(sfxName);
-                    var sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
+                    string sfxFilePath = _resourceProvider.GetSfxFilePath(sfxName);
                     CancellationToken cancellationToken = _sceneAudioCts.Token;
                     Pal3.Instance.StartCoroutine(AttachSfxToGameEntityAndPlaySfxAsync(
                         _cameraEntity,
@@ -352,7 +352,7 @@ namespace Pal3.Game.Audio
                 _playerMovementSfxInProgress = true;
             }
 
-            var sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
+            string sfxFilePath = _resourceProvider.GetSfxFilePath(request.SfxName);
             CancellationToken cancellationToken = _sceneAudioCts.Token;
             Pal3.Instance.StartCoroutine(StartWithDelayAsync(request.StartDelayInSeconds,
                 AttachSfxToGameEntityAndPlaySfxAsync(request.Parent,
@@ -377,7 +377,7 @@ namespace Pal3.Game.Audio
             IGameEntity audioSourceParent = command.Parent.FindChild(command.AudioSourceName);
             if (audioSourceParent == null) return;
 
-            var audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
+            AudioSource audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
             if (audioSource == default) return;
 
             audioSource.Stop();
@@ -412,8 +412,8 @@ namespace Pal3.Game.Audio
 
             _currentScriptMusic = command.MusicName;
             _currentMusicClipName = command.MusicName;
-            var musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(command.MusicName);
-            var musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicFileVirtualPath);
+            string musicFileVirtualPath = FileConstants.GetMusicFileVirtualPath(command.MusicName);
+            string musicFileCachePath = _resourceProvider.GetMusicFilePathInCacheFolder(musicFileVirtualPath);
             Pal3.Instance.StartCoroutine(PlayMusicAsync(command.MusicName,
                 musicFileVirtualPath,
                 musicFileCachePath,

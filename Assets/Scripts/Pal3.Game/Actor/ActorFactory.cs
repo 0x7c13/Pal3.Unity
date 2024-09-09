@@ -31,11 +31,11 @@ namespace Pal3.Game.Actor
             float movementMaxYDifferentialCrossPlatform,
             Func<int, int[], HashSet<Vector2Int>> getAllActiveActorBlockingTilePositions)
         {
-            var actorGameEntity = GameEntityFactory.Create($"Actor_{actor.Id}_{actor.Name}");
+            IGameEntity actorGameEntity = GameEntityFactory.Create($"Actor_{actor.Id}_{actor.Name}");
 
             // Attach ScnNpcInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var npcInfoPresent = actorGameEntity.AddComponent<NpcInfoPresenter>();
+            NpcInfoPresenter npcInfoPresent = actorGameEntity.AddComponent<NpcInfoPresenter>();
             npcInfoPresent.npcInfo = actor.Info;
             #endif
 
@@ -46,8 +46,8 @@ namespace Pal3.Game.Actor
             {
                 case ActorAnimationType.Vertex:
                 {
-                    var autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
-                    var canPerformHoldAnimation = actor.Info is {InitBehaviour: ActorBehaviourType.Hold, LoopAction: 0};
+                    bool autoStand = actor.Info.InitBehaviour != ActorBehaviourType.Hold;
+                    bool canPerformHoldAnimation = actor.Info is {InitBehaviour: ActorBehaviourType.Hold, LoopAction: 0};
                     VertexAnimationActorActionController vertexActionController =
                         actorGameEntity.AddComponent<VertexAnimationActorActionController>();
                     vertexActionController.Init(resourceProvider,
@@ -76,7 +76,7 @@ namespace Pal3.Game.Actor
                     throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
             }
 
-            var movementController = actorGameEntity.AddComponent<ActorMovementController>();
+            ActorMovementController movementController = actorGameEntity.AddComponent<ActorMovementController>();
             movementController.Init(actor,
                 tilemap,
                 actionController,
@@ -85,7 +85,7 @@ namespace Pal3.Game.Actor
                 movementMaxYDifferentialCrossPlatform,
                 getAllActiveActorBlockingTilePositions);
 
-            var actorController = actorGameEntity.AddComponent<ActorController>();
+            ActorController actorController = actorGameEntity.AddComponent<ActorController>();
             actorController.Init(actor, actionController, movementController);
 
             // Attach additional controller(s) to special actor
@@ -120,7 +120,7 @@ namespace Pal3.Game.Actor
 
             // Attach CombatActorInfo to the GameEntity for better debuggability
             #if UNITY_EDITOR
-            var combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
+            CombatActorInfoPresenter combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
             combatActorInfoPresent.combatActorInfo = actor.Info;
             #endif
 
@@ -155,7 +155,7 @@ namespace Pal3.Game.Actor
                     throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
             }
 
-            var actorController = actorGameEntity.AddComponent<CombatActorController>();
+            CombatActorController actorController = actorGameEntity.AddComponent<CombatActorController>();
             actorController.Init(actor, actionController, elementPosition);
             actorController.IsActive = true; // combat actor is always active
 

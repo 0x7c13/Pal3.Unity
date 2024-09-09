@@ -40,7 +40,7 @@ namespace Pal3.Game.GameSystems.Task
         {
             Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
 
-            var taskDefinitionFile = resourceProvider.GetGameResourceFile<TaskDefinitionFile>(
+            TaskDefinitionFile taskDefinitionFile = resourceProvider.GetGameResourceFile<TaskDefinitionFile>(
                 FileConstants.DataScriptFolderVirtualPath + TASK_DEFINITION_FILE_NAME);
 
             Requires.IsNotNull(taskDefinitionFile, nameof(taskDefinitionFile));

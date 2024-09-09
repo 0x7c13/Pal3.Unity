@@ -126,11 +126,11 @@ namespace Pal3.Game.Scene.SceneObjects
                 yield break;
             }
 
-            var fromTilePosition = new Vector2Int(ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
-            var toTilePosition = new Vector2Int(ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
-            var crossLayer = ObjectInfo.Parameters[4] == 1;
+            Vector2Int fromTilePosition = new (ObjectInfo.Parameters[0], ObjectInfo.Parameters[1]);
+            Vector2Int toTilePosition = new (ObjectInfo.Parameters[2], ObjectInfo.Parameters[3]);
+            bool crossLayer = ObjectInfo.Parameters[4] == 1;
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
             IGameEntity climbableGameEntity = GetGameEntity();
 
             Vector3 climbableObjectPosition = climbableGameEntity.Transform.Position;
@@ -148,7 +148,7 @@ namespace Pal3.Game.Scene.SceneObjects
             }
             else
             {
-                var playerCurrentLayer = actorMovementController.GetCurrentLayerIndex();
+                int playerCurrentLayer = actorMovementController.GetCurrentLayerIndex();
                 upperLayer = playerCurrentLayer;
                 lowerLayer = playerCurrentLayer;
             }
@@ -174,10 +174,10 @@ namespace Pal3.Game.Scene.SceneObjects
             lowerPosition.y = lowerStandingPosition.y;
 
             Vector3 playerActorPosition = actorMovementController.GetWorldPosition();
-            var climbUp = MathF.Abs(playerActorPosition.y - lowerPosition.y) <
+            bool climbUp = MathF.Abs(playerActorPosition.y - lowerPosition.y) <
                               MathF.Abs(playerActorPosition.y - upperPosition.y);
 
-            var climbableHeight = upperPosition.y - lowerPosition.y;
+            float climbableHeight = upperPosition.y - lowerPosition.y;
 
             yield return _playerGamePlayManager.PlayerActorMoveToClimbableObjectAndClimbAsync(climbableGameEntity,
                 climbUp,

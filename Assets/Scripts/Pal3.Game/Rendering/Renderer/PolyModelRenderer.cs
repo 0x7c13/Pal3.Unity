@@ -72,7 +72,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             _animationCts = new CancellationTokenSource();
 
-            for (var i = 0; i < polFile.Meshes.Length; i++)
+            for (int i = 0; i < polFile.Meshes.Length; i++)
             {
                 RenderMeshInternal(
                     polFile.NodeDescriptions[i],
@@ -83,13 +83,13 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetRendererBounds()
         {
-            var renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
+            StaticMeshRenderer[] renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
             if (renderers.Length == 0)
             {
                 return new Bounds(Transform.Position, Vector3.one);
             }
             Bounds bounds = renderers[0].GetRendererBounds();
-            for (var i = 1; i < renderers.Length; i++)
+            for (int i = 1; i < renderers.Length; i++)
             {
                 bounds.Encapsulate(renderers[i].GetRendererBounds());
             }
@@ -98,13 +98,13 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetMeshBounds()
         {
-            var renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
+            StaticMeshRenderer[] renderers = GameEntity.GetComponentsInChildren<StaticMeshRenderer>();
             if (renderers.Length == 0)
             {
                 return new Bounds(Vector3.zero, Vector3.one);
             }
             Bounds bounds = renderers[0].GetMeshBounds();
-            for (var i = 1; i < renderers.Length; i++)
+            for (int i = 1; i < renderers.Length; i++)
             {
                 bounds.Encapsulate(renderers[i].GetMeshBounds());
             }
@@ -151,9 +151,9 @@ namespace Pal3.Game.Rendering.Renderer
             PolMesh mesh,
             CancellationToken cancellationToken)
         {
-            for (var i = 0; i < mesh.Textures.Length; i++)
+            for (int i = 0; i < mesh.Textures.Length; i++)
             {
-                var textures = new List<(string name, ITexture2D texture)>();
+                List<(string name, ITexture2D texture)> textures = new();
                 foreach (string textureName in mesh.Textures[i].Material.TextureFileNames)
                 {
                     if (string.IsNullOrEmpty(textureName))
@@ -179,13 +179,13 @@ namespace Pal3.Game.Rendering.Renderer
 
                 // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
                 #if UNITY_EDITOR
-                var materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
+                MaterialInfoPresenter materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
                 materialInfoPresenter.blendFlag = mesh.Textures[i].BlendFlag;
                 materialInfoPresenter.material = mesh.Textures[i].Material;
                 #endif
 
-                var meshRenderer = meshEntity.AddComponent<StaticMeshRenderer>();
-                var blendFlag = mesh.Textures[i].BlendFlag;
+                StaticMeshRenderer meshRenderer = meshEntity.AddComponent<StaticMeshRenderer>();
+                GameBoxBlendFlag blendFlag = mesh.Textures[i].BlendFlag;
 
                 IMaterial[] CreateMaterials(bool isWaterSurface, int mainTextureIndex, int shadowTextureIndex = -1)
                 {
@@ -254,9 +254,9 @@ namespace Pal3.Game.Rendering.Renderer
             ITexture2D defaultTexture,
             CancellationToken cancellationToken)
         {
-            var waterTextures = new List<ITexture2D> { defaultTexture };
+            List<ITexture2D> waterTextures = new() { defaultTexture };
 
-            for (var i = 2; i <= ANIMATED_WATER_ANIMATION_FRAMES; i++)
+            for (int i = 2; i <= ANIMATED_WATER_ANIMATION_FRAMES; i++)
             {
                 ITexture2D texture = _textureProvider.GetTexture(
                     ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX +
@@ -265,11 +265,11 @@ namespace Pal3.Game.Rendering.Renderer
                 waterTextures.Add(texture);
             }
 
-            var waterAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
+            object waterAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                for (var i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
+                for (int i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
                 {
                     if (cancellationToken.IsCancellationRequested) break;
                     material.SetTexture(_mainTexturePropertyId, waterTextures[i]);

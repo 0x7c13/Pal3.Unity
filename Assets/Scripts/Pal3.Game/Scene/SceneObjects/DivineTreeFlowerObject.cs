@@ -63,7 +63,7 @@ namespace Pal3.Game.Scene.SceneObjects
             // Add a standing platform controller to the flower if it is in the open state
             if (isFlowerInOpenState)
             {
-                var bounds = new Bounds
+                Bounds bounds = new()
                 {
                     center = new Vector3(0f, -1f, 0f),
                     size = new Vector3(17f, 2f, 17f),

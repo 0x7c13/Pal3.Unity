@@ -31,8 +31,8 @@ namespace Engine.Extensions
             float scale = GameBoxUnitToUnityUnit)
         {
             if (gameBoxPositions == null) return null;
-            var unityPositions = new UnityEngine.Vector3[gameBoxPositions.Length];
-            for (var i = 0; i < gameBoxPositions.Length; i++)
+            UnityEngine.Vector3[] unityPositions = new UnityEngine.Vector3[gameBoxPositions.Length];
+            for (int i = 0; i < gameBoxPositions.Length; i++)
             {
                 unityPositions[i] = ToUnityVector3(gameBoxPositions[i], scale);
             }
@@ -49,7 +49,7 @@ namespace Engine.Extensions
                 throw new ArgumentException("gameBoxPositions and unityPositionsBuffer must be non-null and have the same length");
             }
 
-            for (var i = 0; i < gameBoxPositions.Length; i++)
+            for (int i = 0; i < gameBoxPositions.Length; i++)
             {
                 unityPositionsBuffer[i] = ToUnityVector3(gameBoxPositions[i], scale);
             }
@@ -148,8 +148,8 @@ namespace Engine.Extensions
         public static UnityEngine.Vector3[] ToUnityNormals(this GameBoxVector3[] gameBoxNormals)
         {
             if (gameBoxNormals == null) return null;
-            var unityNormals = new UnityEngine.Vector3[gameBoxNormals.Length];
-            for (var i = 0; i < gameBoxNormals.Length; i++)
+            UnityEngine.Vector3[] unityNormals = new UnityEngine.Vector3[gameBoxNormals.Length];
+            for (int i = 0; i < gameBoxNormals.Length; i++)
             {
                 unityNormals[i] = ToUnityNormal(gameBoxNormals[i]);
             }
@@ -166,7 +166,7 @@ namespace Engine.Extensions
                 throw new ArgumentException("gameBoxNormals and unityNormalsBuffer must be non-null and have the same length");
             }
 
-            for (var i = 0; i < gameBoxNormals.Length; i++)
+            for (int i = 0; i < gameBoxNormals.Length; i++)
             {
                 unityNormalsBuffer[i] = ToUnityNormal(gameBoxNormals[i]);
             }
@@ -248,8 +248,8 @@ namespace Engine.Extensions
         public static int[] ToUnityTriangles(this int[] gameBoxTriangles)
         {
             if (gameBoxTriangles == null) return null;
-            var unityTriangles = new int[gameBoxTriangles.Length];
-            for (var i = 0; i < gameBoxTriangles.Length; i++)
+            int[] unityTriangles = new int[gameBoxTriangles.Length];
+            for (int i = 0; i < gameBoxTriangles.Length; i++)
             {
                 unityTriangles[i] = gameBoxTriangles[gameBoxTriangles.Length - 1 - i];
             }
@@ -271,7 +271,7 @@ namespace Engine.Extensions
                 throw new ArgumentException("gameBoxTriangles and unityTrianglesBuffer must be non-null and have the same length");
             }
 
-            for (var i = 0; i < gameBoxTriangles.Length; i++)
+            for (int i = 0; i < gameBoxTriangles.Length; i++)
             {
                 unityTrianglesBuffer[i] = gameBoxTriangles[gameBoxTriangles.Length - 1 - i];
             }
@@ -309,8 +309,8 @@ namespace Engine.Extensions
         public static UnityEngine.Vector2[] ToUnityVector2s(this GameBoxVector2[] gameBoxVector2s)
         {
             if (gameBoxVector2s == null) return null;
-            var unityVector2s = new UnityEngine.Vector2[gameBoxVector2s.Length];
-            for (var i = 0; i < gameBoxVector2s.Length; i++)
+            UnityEngine.Vector2[] unityVector2s = new UnityEngine.Vector2[gameBoxVector2s.Length];
+            for (int i = 0; i < gameBoxVector2s.Length; i++)
             {
                 unityVector2s[i] = gameBoxVector2s[i].ToUnityVector2();
             }
@@ -326,7 +326,7 @@ namespace Engine.Extensions
                 throw new ArgumentException("gameBoxVector2s and unityVector2sBuffer must be non-null and have the same length");
             }
 
-            for (var i = 0; i < gameBoxVector2s.Length; i++)
+            for (int i = 0; i < gameBoxVector2s.Length; i++)
             {
                 unityVector2sBuffer[i] = gameBoxVector2s[i].ToUnityVector2();
             }
@@ -358,8 +358,8 @@ namespace Engine.Extensions
         public static UnityEngine.Color32[] ToUnityColor32s(this Color32[] gameBoxColor32s)
         {
             if (gameBoxColor32s == null) return null;
-            var unityColor32s = new UnityEngine.Color32[gameBoxColor32s.Length];
-            for (var i = 0; i < gameBoxColor32s.Length; i++)
+            UnityEngine.Color32[] unityColor32s = new UnityEngine.Color32[gameBoxColor32s.Length];
+            for (int i = 0; i < gameBoxColor32s.Length; i++)
             {
                 unityColor32s[i] = gameBoxColor32s[i].ToUnityColor32();
             }

@@ -67,11 +67,11 @@ namespace Pal3.Game.Scene.SceneObjects
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
             GameBoxRect tileRect = ObjectInfo.TileMapTriggerRect;
-            var fromCenterTilePosition = new Vector2Int(
+            Vector2Int fromCenterTilePosition = new Vector2Int(
                 (tileRect.Left + tileRect.Right) / 2,
                 (tileRect.Top + tileRect.Bottom) / 2);
-            var fromNavLayer = ObjectInfo.LayerIndex;
-            var toNavLayer = ObjectInfo.Parameters[0];
+            byte fromNavLayer = ObjectInfo.LayerIndex;
+            int toNavLayer = ObjectInfo.Parameters[0];
 
             Tilemap tilemap = ctx.CurrentScene.GetTilemap();
 
@@ -79,12 +79,12 @@ namespace Pal3.Game.Scene.SceneObjects
             Vector2Int toCenterTilePosition = tilemap.GetTilePosition(fromCenterPosition, toNavLayer);
             Vector3 toCenterPosition = tilemap.GetWorldPosition(toCenterTilePosition, toNavLayer);
 
-            var actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
+            ActorMovementController actorMovementController = ctx.PlayerActorGameEntity.GetComponent<ActorMovementController>();
 
             // Move the player to the center of the elevator
             yield return actorMovementController.MoveDirectlyToAsync(fromCenterPosition, 0, true);
 
-            var duration = Vector3.Distance(fromCenterPosition, toCenterPosition) / ELEVATOR_SPEED;
+            float duration = Vector3.Distance(fromCenterPosition, toCenterPosition) / ELEVATOR_SPEED;
 
             PlaySfx("wc014");
 
@@ -95,7 +95,7 @@ namespace Pal3.Game.Scene.SceneObjects
             actorMovementController.SetNavLayer(toNavLayer);
 
             const float zOffset = 5f; // Move player actor outside the elevator tilemap rect
-            var finalPosition = new Vector3(toCenterPosition.x, toCenterPosition.y, toCenterPosition.z + zOffset);
+            Vector3 finalPosition = new (toCenterPosition.x, toCenterPosition.y, toCenterPosition.z + zOffset);
             finalPosition.y = tilemap.TryGetTile(finalPosition, toNavLayer, out var tile)
                 ? tile.GameBoxYPosition.ToUnityYPosition()
                 : finalPosition.y;

@@ -555,11 +555,10 @@ namespace Pal3.Game
         private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
         {
             if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>()) return;
+            
+            float buttonPressPoint = InputSystem.settings.defaultButtonPressPoint;
 
-            var controls = device.allControls;
-            var buttonPressPoint = InputSystem.settings.defaultButtonPressPoint;
-
-            foreach (InputControl control in controls)
+            foreach (InputControl control in device.allControls)
             {
                 if (control.synthetic || control.noisy) continue;
 
@@ -740,14 +739,14 @@ namespace Pal3.Game
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
-            var info = new StringBuilder();
+            StringBuilder info = new();
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
 
             info.Append($"----- Scene info -----\n" +
                         $"{currentSceneInfo.ToString()}\n");
 
-            var playerActorMovementController = currentScene
+            ActorMovementController playerActorMovementController = currentScene
                 .GetActorGameEntity(_playerActorManager.GetPlayerActorId()).GetComponent<ActorMovementController>();
 
             info.Append($"----- Player info -----\n" +

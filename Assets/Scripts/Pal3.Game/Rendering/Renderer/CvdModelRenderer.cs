@@ -66,9 +66,9 @@ namespace Pal3.Game.Rendering.Renderer
             IGameEntity root = GameEntityFactory.Create("Cvd Mesh",
                 GameEntity, worldPositionStays: false);
 
-            for (var i = 0; i < cvdFile.RootNodes.Length; i++)
+            for (int i = 0; i < cvdFile.RootNodes.Length; i++)
             {
-                var hashKey = $"{i}";
+                string hashKey = $"{i}";
                 RenderMeshInternal(
                     initTime,
                     hashKey,
@@ -96,14 +96,14 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetRendererBounds()
         {
-            var boundsInitialized = false;
-            var bounds = new Bounds(Transform.Position, Vector3.one);
+            bool boundsInitialized = false;
+            Bounds bounds = new (Transform.Position, Vector3.one);
 
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
                 if (!node.IsGeometryNode) continue;
 
-                foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                foreach (RenderMeshComponent meshComponent in meshComponents.Values)
                 {
                     Bounds rendererBounds = meshComponent.MeshRenderer.GetRendererBounds();
                     if (!boundsInitialized)
@@ -123,14 +123,14 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Bounds GetMeshBounds()
         {
-            var boundsInitialized = false;
-            var bounds = new Bounds(Vector3.zero, Vector3.one);
+            bool boundsInitialized = false;
+            Bounds bounds = new (Vector3.zero, Vector3.one);
 
             foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
             {
                 if (!node.IsGeometryNode) continue;
 
-                foreach(RenderMeshComponent meshComponent in meshComponents.Values)
+                foreach (RenderMeshComponent meshComponent in meshComponents.Values)
                 {
                     Bounds meshBounds = meshComponent.MeshRenderer.GetMeshBounds();
                     if (!boundsInitialized)
@@ -218,10 +218,10 @@ namespace Pal3.Game.Rendering.Renderer
                 (CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) nodeMeshes =
                     (node, new Dictionary<int, RenderMeshComponent>());
 
-                var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, initTime);
+                int frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, initTime);
                 Matrix4x4 frameMatrix = GetFrameMatrix(initTime, node);
 
-                var influence = 0f;
+                float influence = 0f;
                 if (initTime > float.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
                 {
                     influence = (initTime - node.Mesh.AnimationTimeKeys[frameIndex]) /
@@ -229,7 +229,7 @@ namespace Pal3.Game.Rendering.Renderer
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
 
-                for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
+                for (int i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 
@@ -258,7 +258,7 @@ namespace Pal3.Game.Rendering.Renderer
 
                     // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability.
                     #if UNITY_EDITOR
-                    var materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
+                    MaterialInfoPresenter materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
                     materialInfoPresenter.blendFlag = meshSection.BlendFlag;
                     materialInfoPresenter.material = meshSection.Material;
                     #endif
@@ -270,7 +270,7 @@ namespace Pal3.Game.Rendering.Renderer
                         tintColor: _tintColor,
                         blendFlag: meshSection.BlendFlag);
 
-                    var meshRenderer = meshSectionEntity.AddComponent<StaticMeshRenderer>();
+                    StaticMeshRenderer meshRenderer = meshSectionEntity.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
                         vertices: meshDataBuffer.VertexBuffer,
                         triangles: meshDataBuffer.TriangleBuffer,
@@ -295,9 +295,9 @@ namespace Pal3.Game.Rendering.Renderer
                 _renderers.Add(nodeMeshes);
             }
 
-            for (var i = 0; i < node.Children.Length; i++)
+            for (int i = 0; i < node.Children.Length; i++)
             {
-                var childMeshName = $"{meshName}-{i}";
+                string childMeshName = $"{meshName}-{i}";
                 RenderMeshInternal(initTime,
                     childMeshName,
                     node.Children[i],
@@ -312,11 +312,11 @@ namespace Pal3.Game.Rendering.Renderer
             float influence,
             Matrix4x4 matrix)
         {
-            var frameVertices = meshSection.FrameVertices[frameIndex];
+            CvdVertex[] frameVertices = meshSection.FrameVertices[frameIndex];
 
             if (influence < float.Epsilon)
             {
-                for (var i = 0; i < frameVertices.Length; i++)
+                for (int i = 0; i < frameVertices.Length; i++)
                 {
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
                         frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition());
@@ -325,9 +325,9 @@ namespace Pal3.Game.Rendering.Renderer
             }
             else
             {
-                for (var i = 0; i < frameVertices.Length; i++)
+                for (int i = 0; i < frameVertices.Length; i++)
                 {
-                    var toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
+                    CvdVertex[] toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                     Vector3 lerpPosition = Vector3.Lerp(
                         frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(),
                         toFrameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(), influence);
@@ -344,12 +344,12 @@ namespace Pal3.Game.Rendering.Renderer
         {
             _currentAnimationTime = time;
 
-            foreach ((CvdGeometryNode node, var renderMeshComponents) in _renderers)
+            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> renderMeshComponents) in _renderers)
             {
-                var frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
+                int frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
                 Matrix4x4 frameMatrix = GetFrameMatrix(time, node);
 
-                var influence = 0f;
+                float influence = 0f;
                 if (time > float.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
                 {
                     influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
@@ -357,11 +357,9 @@ namespace Pal3.Game.Rendering.Renderer
                                  node.Mesh.AnimationTimeKeys[frameIndex]);
                 }
 
-                for (var i = 0; i < node.Mesh.MeshSections.Length; i++)
+                for (int i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
-                    if (!renderMeshComponents.ContainsKey(i)) continue;
-
-                    RenderMeshComponent renderMeshComponent = renderMeshComponents[i];
+                    if (!renderMeshComponents.TryGetValue(i, out RenderMeshComponent renderMeshComponent)) continue;
 
                     CvdMeshSection meshSection = node.Mesh.MeshSections[i];
 

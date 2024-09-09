@@ -54,7 +54,7 @@ namespace Pal3.Game.GamePlay
         {
             if (_jumpIndicatorGameEntity == null)
             {
-                var sprites = _resourceProvider.GetJumpIndicatorSprites();
+                ISprite[] sprites = _resourceProvider.GetJumpIndicatorSprites();
 
                 _jumpIndicatorGameEntity = GameEntityFactory.Create($"JumpIndicator",
                     _playerActorGameEntity, worldPositionStays: false);
@@ -158,13 +158,13 @@ namespace Pal3.Game.GamePlay
                 _playerActorGameEntity.Transform.Forward = jumpDirection;
             }
 
-            var validJumpTargetPositions = new List<(Vector3 position, int layerIndex, int distanceToObstacle)>();
+            List<(Vector3 position, int layerIndex, int distanceToObstacle)> validJumpTargetPositions = new();
 
             for (float i = MIN_JUMP_DISTANCE; i <= MAX_JUMP_DISTANCE; i += 0.1f)
             {
                 Vector3 targetPosition = currentPosition + jumpDirection * i;
 
-                for (var j = 0; j < tilemap.GetLayerCount(); j++)
+                for (int j = 0; j < tilemap.GetLayerCount(); j++)
                 {
                     if (IsPositionCanJumpTo(targetPosition, j,
                             out float yPosition, out int distanceToObstacle))
@@ -176,8 +176,8 @@ namespace Pal3.Game.GamePlay
                 }
             }
 
-            var currentLayer = _playerActorMovementController.GetCurrentLayerIndex();
-            var jumpTargetLayer = currentLayer;
+            int currentLayer = _playerActorMovementController.GetCurrentLayerIndex();
+            int jumpTargetLayer = currentLayer;
             if (validJumpTargetPositions.Count > 0)
             {
                 // If there are valid jump target positions in different layers,
@@ -201,11 +201,11 @@ namespace Pal3.Game.GamePlay
                  overwrite: true, loopCount: 1);
             yield return CoroutineYieldInstruction.WaitForSeconds(0.7f);
 
-            var xzOffset = Vector2.Distance(
+            float xzOffset = Vector2.Distance(
                 new Vector2(jumpTargetPosition.Value.x, jumpTargetPosition.Value.z),
                 new Vector2(currentPosition.x, currentPosition.z));
-            var startingYPosition = currentPosition.y;
-            var yOffset = jumpTargetPosition.Value.y - currentPosition.y;
+            float startingYPosition = currentPosition.y;
+            float yOffset = jumpTargetPosition.Value.y - currentPosition.y;
 
             yield return CoreAnimation.EnumerateValueAsync(0f, 1f, 1.1f, AnimationCurveType.Sine,
                 value =>

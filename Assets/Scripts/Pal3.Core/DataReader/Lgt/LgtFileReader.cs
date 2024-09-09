@@ -14,12 +14,12 @@ namespace Pal3.Core.DataReader.Lgt
     {
         public LgtFile Read(IBinaryReader reader, int codepage)
         {
-            var numOfLightNodes = reader.ReadInt32();
-            var lightNodes = new List<LightNode>();
+            int numOfLightNodes = reader.ReadInt32();
+            List<LightNode> lightNodes = new();
 
-            for (var i = 0; i < numOfLightNodes; i++)
+            for (int i = 0; i < numOfLightNodes; i++)
             {
-                var lightNode = ReadLightNode(reader);
+                LightNode lightNode = ReadLightNode(reader);
 
                 if (Enum.IsDefined(typeof(GameBoxLightType), lightNode.LightType) &&
                     Enum.IsDefined(typeof(GameBoxLightShapeType), lightNode.LightShapeType))
@@ -33,7 +33,7 @@ namespace Pal3.Core.DataReader.Lgt
 
         private static LightNode ReadLightNode(IBinaryReader reader)
         {
-            var transformMatrix = new GameBoxMatrix4x4()
+            GameBoxMatrix4x4 transformMatrix = new()
             {
                 Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
                 Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
@@ -42,7 +42,7 @@ namespace Pal3.Core.DataReader.Lgt
             };
             transformMatrix.Tw = 1f;
 
-            var lightNode = new LightNode
+            LightNode lightNode = new()
             {
                 GameBoxWorldMatrix = transformMatrix,
                 LightType = (GameBoxLightType)reader.ReadInt32(),

@@ -148,14 +148,14 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         private IEnumerator TypeSentenceAsync(TextMeshProUGUI textUI, string sentence, float waitSecondsBeforeRenderingChar)
         {
-            var charTypingAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(waitSecondsBeforeRenderingChar);
+            object charTypingAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(waitSecondsBeforeRenderingChar);
 
             textUI.text = string.Empty;
 
             yield return charTypingAnimationDelay;
 
-            var richText = string.Empty;
-            foreach (var letter in sentence.ToCharArray())
+            string richText = string.Empty;
+            foreach (char letter in sentence.ToCharArray())
             {
                 if (richText.Length > 0)
                 {
@@ -270,7 +270,7 @@ namespace Pal3.Game.GameSystems.Dialogue
             }
 
             // Render dialogue text typing animation
-            foreach (var dialogue in DialogueTextProcessor.GetSubDialoguesAsync(text))
+            foreach (string dialogue in DialogueTextProcessor.GetSubDialoguesAsync(text))
             {
                 IEnumerator renderDialogue = RenderDialogueTextWithAnimationAsync(dialogueTextUI, dialogue);
 
@@ -351,8 +351,8 @@ namespace Pal3.Game.GameSystems.Dialogue
                 dialogueCanvasGroupTransform.localPosition = startPosition;
             }
 
-            var initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
-            var initialTransparency = _backgroundFrostedGlassImage.transparency;
+            float initialBlurAmount = _backgroundFrostedGlassImage.blurAmount;
+            float initialTransparency = _backgroundFrostedGlassImage.transparency;
             yield return CoreAnimation.EnumerateValueAsync(startValue, endValue, DIALOGUE_SHOW_HIDE_ANIMATION_DURATION,
                 AnimationCurveType.EaseIn, value =>
                 {
@@ -408,7 +408,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         public void Execute(DialogueRenderTextCommand command)
         {
-            var skipDialogueWaiter = new WaitUntilCanceled();
+            WaitUntilCanceled skipDialogueWaiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
@@ -421,7 +421,7 @@ namespace Pal3.Game.GameSystems.Dialogue
 
         public void Execute(DialogueRenderTextWithTimeLimitCommand command)
         {
-            var skipDialogueWaiter = new WaitUntilCanceled();
+            WaitUntilCanceled skipDialogueWaiter = new();
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(skipDialogueWaiter));
             DialogueRenderActorAvatarCommand avatarCommand = _lastAvatarCommand;
             _dialogueRenderQueue.Enqueue(RenderDialogueAndWaitAsync(
@@ -447,13 +447,13 @@ namespace Pal3.Game.GameSystems.Dialogue
             Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
 
             Transform canvasTransform = _dialogueSelectionButtonsCanvas.transform;
-            for (var i = 0; i < command.Selections.Length; i++)
+            for (int i = 0; i < command.Selections.Length; i++)
             {
                 GameObject selectionButton = UnityEngine.Object.Instantiate(_dialogueSelectionButtonPrefab, canvasTransform);
-                var buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
+                TextMeshProUGUI buttonTextUI = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
                 buttonTextUI.text = DialogueTextProcessor.GetSelectionDisplayText((string)command.Selections[i]);
-                var buttonIndex = i;
-                var button = selectionButton.GetComponentInChildren<Button>();
+                int buttonIndex = i;
+                Button button = selectionButton.GetComponentInChildren<Button>();
                 button.colors = UITheme.GetButtonColors();
                 button.onClick
                     .AddListener(delegate
@@ -480,13 +480,13 @@ namespace Pal3.Game.GameSystems.Dialogue
                 button.navigation = buttonNavigation;
             }
 
-            for (var i = 0; i < command.Selections.Length; i++)
+            for (int i = 0; i < command.Selections.Length; i++)
             {
-                var button = _selectionButtons[i].GetComponentInChildren<Button>();
+                Button button = _selectionButtons[i].GetComponentInChildren<Button>();
                 ConfigureButtonNavigation(button, i, command.Selections.Length);
             }
 
-            var firstButton = _selectionButtons.First().GetComponentInChildren<Button>();
+            Button firstButton = _selectionButtons.First().GetComponentInChildren<Button>();
 
             InputDevice lastActiveInputDevice = _inputManager.GetLastActiveInputDevice();
             if (lastActiveInputDevice == Keyboard.current ||

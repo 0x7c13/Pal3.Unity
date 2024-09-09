@@ -121,7 +121,7 @@ namespace Pal3.Game.Scene.SceneObjects
 
                 Vector3 toPosition = new Vector3(currentPosition.x, finalYPosition, currentPosition.z);
 
-                var duration = 2f;
+                float duration = 2f;
 
                 if (SceneInfo.Is("m06", "2"))
                 {
