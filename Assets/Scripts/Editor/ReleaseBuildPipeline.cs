@@ -133,12 +133,12 @@ namespace Editor
 
             var buildConfigurations = new[]
             {
-                new { Platform = Pal3BuildTarget.Windows_x86, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows },
-                new { Platform = Pal3BuildTarget.Windows_x64, Extension = ".exe", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneWindows64 },
-                new { Platform = Pal3BuildTarget.Linux_x86_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneLinux64 },
-                new { Platform = Pal3BuildTarget.macOS_arm64_x64, Extension = "", Group = BuildTargetGroup.Standalone, Target = BuildTarget.StandaloneOSX },
-                new { Platform = Pal3BuildTarget.Android, Extension = ".apk", Group = BuildTargetGroup.Android, Target = BuildTarget.Android },
-                new { Platform = Pal3BuildTarget.iOS, Extension = "", Group = BuildTargetGroup.iOS, Target = BuildTarget.iOS },
+                new { Platform = Pal3BuildTarget.Windows_x86, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneWindows },
+                new { Platform = Pal3BuildTarget.Windows_x64, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneWindows64 },
+                new { Platform = Pal3BuildTarget.Linux_x86_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneLinux64 },
+                new { Platform = Pal3BuildTarget.macOS_arm64_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneOSX },
+                new { Platform = Pal3BuildTarget.Android, Extension = ".apk", NamedTarget = NamedBuildTarget.Android, Target = BuildTarget.Android },
+                new { Platform = Pal3BuildTarget.iOS, Extension = "", NamedTarget = NamedBuildTarget.iOS, Target = BuildTarget.iOS },
             };
 
             List<Action> logActions = new List<Action>();
@@ -149,7 +149,7 @@ namespace Editor
                 {
                     Build(config.Platform.ToString(),
                         config.Extension,
-                        config.Group,
+                        config.NamedTarget,
                         config.Target,
                         buildOutputPath,
                         logActions);
@@ -168,7 +168,7 @@ namespace Editor
 
         private static void Build(string folderName,
             string extension,
-            BuildTargetGroup buildTargetGroup,
+            NamedBuildTarget namedBuildTarget,
             BuildTarget buildTarget,
             string buildOutputPath,
             List<Action> logActions,
@@ -193,7 +193,7 @@ namespace Editor
 
             string outputPath = outputFolder + $"{GameConstants.AppName}{extension}";
 
-            PlayerSettings.SetScriptingBackend(buildTargetGroup, ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetScriptingBackend(namedBuildTarget, ScriptingImplementation.IL2CPP);
 
             BuildReport report = BuildPipeline.BuildPlayer(BuildLevels, outputPath, buildTarget, BuildOptions.None);
 

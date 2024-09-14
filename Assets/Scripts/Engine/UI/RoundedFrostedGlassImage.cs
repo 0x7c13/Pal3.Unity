@@ -92,7 +92,10 @@ namespace Engine.UI
 
             if (_material == null)
             {
-                _material = new Material(_shader);
+                _material = new Material(_shader)
+                {
+                    hideFlags = HideFlags.DontSave
+                };
             }
 
             if (image == null)

@@ -36,7 +36,7 @@ namespace Editor
         #endif
         public static bool ValidateSwitchToPal3()
         {
-            return !SymbolsHelper.HasSymbol("PAL3");
+            return !SymbolsHelper.IsSymbolDefined("PAL3");
         }
 
         #if PAL3
@@ -61,7 +61,7 @@ namespace Editor
         #endif
         public static bool ValidateSwitchToPal3A()
         {
-            return !SymbolsHelper.HasSymbol("PAL3A");
+            return !SymbolsHelper.IsSymbolDefined("PAL3A");
         }
 
         private static void ApplyPlayerSettingsForVariant(string appName)
@@ -69,30 +69,27 @@ namespace Editor
             PlayerSettings.productName = appName;
             PlayerSettings.companyName = GameConstants.CompanyName;
 
-            foreach (BuildTargetGroup targetGroup in SymbolsHelper.GetAllSupportedTargetGroups())
-            {
-                PlayerSettings.SetApplicationIdentifier(targetGroup,
-                    $"{GameConstants.AppIdentifierPrefix}.{appName}");
-            }
-
             string gameIconPath = $"UI/game-icon-{appName}";
             Texture2D gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
 
-            foreach (NamedBuildTarget buildTarget in SymbolsHelper.GetAllSupportedNamedBuildTargets())
+            foreach (NamedBuildTarget target in SymbolsHelper.GetAllSupportedBuildTargets())
             {
+                PlayerSettings.SetApplicationIdentifier(target,
+                    $"{GameConstants.AppIdentifierPrefix}.{appName}");
+                
                 // Set app icon
-                int[] iconSizes = PlayerSettings.GetIconSizes(buildTarget, IconKind.Application);
-                PlayerSettings.SetIcons(buildTarget,
+                int[] iconSizes = PlayerSettings.GetIconSizes(target, IconKind.Application);
+                PlayerSettings.SetIcons(target,
                     Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
                     IconKind.Application);
 
                 // Set iOS store icon which is required for store publishing or TestFlight
-                if (buildTarget == NamedBuildTarget.iOS)
+                if (target == NamedBuildTarget.iOS)
                 {
-                    PlayerSettings.SetIcons(buildTarget,
+                    PlayerSettings.SetIcons(target,
                         Enumerable.Repeat(gameIcon,
-                            PlayerSettings.GetIconSizes(buildTarget, IconKind.Store).Length).ToArray(),
+                            PlayerSettings.GetIconSizes(target, IconKind.Store).Length).ToArray(),
                         IconKind.Store);
                 }
             }

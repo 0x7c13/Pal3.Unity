@@ -22,7 +22,7 @@ namespace Engine.Utilities
             {
                 if (_instance != null) return _instance;
 
-                _instance = FindObjectOfType<T>();
+                _instance = (T)FindFirstObjectByType(typeof(T));
 
                 if (_instance != null) return _instance;
 
