@@ -68,10 +68,15 @@ namespace Pal3.Game.Camera
         private const float CAMERA_DEFAULT_DISTANCE = 46f;
         private const float CAMERA_IN_DOOR_DISTANCE = 34f;
         private const float CAMERA_ROTATION_SPEED_KEY_PRESS = 120f;
-        private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
         private const float CAMERA_SMOOTH_FOLLOW_TIME = 0.2f;
         private const float CAMERA_SMOOTH_FOLLOW_MAX_DISTANCE = 7f;
+        
+        #if UNITY_6000_0_OR_NEWER
+        private const float CAMERA_ROTATION_SPEED_SCROLL = 700f;
+        #else
+        private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
+        #endif
 
         private static readonly Quaternion[] DefaultCameraRotations =
         {

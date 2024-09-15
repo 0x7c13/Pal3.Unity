@@ -94,7 +94,7 @@ namespace Engine.UI
             {
                 _material = new Material(_shader)
                 {
-                    hideFlags = HideFlags.DontSave
+                    hideFlags = HideFlags.HideAndDontSave
                 };
             }
 
