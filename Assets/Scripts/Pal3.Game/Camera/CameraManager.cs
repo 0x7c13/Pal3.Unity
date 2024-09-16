@@ -67,16 +67,12 @@ namespace Pal3.Game.Camera
         private const float SCENE_IN_DOOR_ROOM_FLOOR_HEIGHT = 1.6f;
         private const float CAMERA_DEFAULT_DISTANCE = 46f;
         private const float CAMERA_IN_DOOR_DISTANCE = 34f;
-        private const float CAMERA_ROTATION_SPEED_KEY_PRESS = 120f;
+        private const float CAMERA_ROTATION_SPEED_PER_SECOND_KEYBOARD = 120f;
+        private const float CAMERA_ROTATION_SPEED_PER_SECOND_MOUSE_SCROLL = 520f;
         private const float CAMERA_ROTATION_SPEED_DRAG = 10f;
         private const float CAMERA_SMOOTH_FOLLOW_TIME = 0.2f;
         private const float CAMERA_SMOOTH_FOLLOW_MAX_DISTANCE = 7f;
-        
-        #if UNITY_6000_0_OR_NEWER
-        private const float CAMERA_ROTATION_SPEED_SCROLL = 700f;
-        #else
-        private const float CAMERA_ROTATION_SPEED_SCROLL = 15f;
-        #endif
+
 
         private static readonly Quaternion[] DefaultCameraRotations =
         {
@@ -220,17 +216,18 @@ namespace Pal3.Game.Camera
         {
             if (_inputActions.Gameplay.RotateCameraClockwise.inProgress)
             {
-                RotateToOrbitPoint(deltaTime * CAMERA_ROTATION_SPEED_KEY_PRESS);
+                RotateToOrbitPoint(deltaTime * CAMERA_ROTATION_SPEED_PER_SECOND_KEYBOARD);
             }
             else if (_inputActions.Gameplay.RotateCameraCounterClockwise.inProgress)
             {
-                RotateToOrbitPoint(-deltaTime * CAMERA_ROTATION_SPEED_KEY_PRESS);
+                RotateToOrbitPoint(-deltaTime * CAMERA_ROTATION_SPEED_PER_SECOND_KEYBOARD);
             }
 
             float mouseScroll = _inputActions.Gameplay.OnScroll.ReadValue<float>();
             if (mouseScroll != 0)
             {
-                RotateToOrbitPoint(mouseScroll * deltaTime * CAMERA_ROTATION_SPEED_SCROLL);
+                float direction = mouseScroll > 0 ? 1 : -1;
+                RotateToOrbitPoint(direction * deltaTime * CAMERA_ROTATION_SPEED_PER_SECOND_MOUSE_SCROLL);
             }
 
             if (!_isTouchEnabled) return;

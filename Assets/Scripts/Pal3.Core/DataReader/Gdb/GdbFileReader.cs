@@ -455,8 +455,7 @@ namespace Pal3.Core.DataReader.Gdb
                 {
                     combatStateImpacts[combatState] = new CombatStateImpact
                     {
-                        Type = combatStateImpactTypes.TryGetValue(combatState, out CombatStateImpactType impactType) ?
-                            impactType : CombatStateImpactType.None,
+                        Type = combatStateImpactTypes.GetValueOrDefault(combatState, CombatStateImpactType.None),
                         Value = impactValue
                     };
                 }

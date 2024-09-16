@@ -161,9 +161,8 @@ namespace Pal3.Core.DataReader.Mv3
 
             int triangleIndex = 0;
 
-            for (int i = 0; i < attributes[0].IndexBuffers.Length; i++)
+            foreach (Mv3IndexBuffer indexBuffer in attributes[0].IndexBuffers)
             {
-                Mv3IndexBuffer indexBuffer = attributes[0].IndexBuffers[i];
                 for (int j = 0; j < 3; j++)
                 {
                     for (int k = 0; k < vertFrames.Length; k++)
