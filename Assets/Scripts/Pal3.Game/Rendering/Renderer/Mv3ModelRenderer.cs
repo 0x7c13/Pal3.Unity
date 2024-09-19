@@ -29,6 +29,7 @@ namespace Pal3.Game.Rendering.Renderer
     public sealed class Mv3ModelRenderer : GameEntityScript, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
+        public event EventHandler<string> AnimationEventTriggered;
 
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
         private const string MV3_MODEL_DEFAULT_TEXTURE_EXTENSION = ".tga";
@@ -62,6 +63,7 @@ namespace Pal3.Game.Rendering.Renderer
         public bool IsInitialized { get; private set; }
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
+        private int _lastCheckedTick = -1; // Track the last checked tick
         private CancellationTokenSource _animationCts;
 
         protected override void OnEnableGameEntity()
@@ -184,7 +186,7 @@ namespace Pal3.Game.Rendering.Renderer
             string textureName = material.TextureFileNames[0];
 
             _gbMaterials[index] = material;
-            _textures[index] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
+            _textures[index] = _textureProvider.GetTexture(textureName, out bool hasAlphaChannel);
             _textureHasAlphaChannel[index]= hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
 
@@ -361,46 +363,58 @@ namespace Pal3.Game.Rendering.Renderer
         private IEnumerator PlayAnimationInternalAsync(int loopCount,
             CancellationToken cancellationToken)
         {
-            uint startTick = 0;
+            const uint startTick = 0;
 
-            if (loopCount == -1) // Infinite loop until cancelled
+            switch (loopCount)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                // Infinite loop until cancelled
+                case -1:
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            AnimationLoopPointReached?.Invoke(this, loopCount);
+                        }
+                    }
+
+                    break;
+                }
+                // Finite loop
+                case > 0:
+                {
+                    while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
+                    {
+                        yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            AnimationLoopPointReached?.Invoke(this, loopCount);
+                        }
+                    }
+
+                    break;
+                }
+                // Play until action holding point
+                case -2:
+                {
+                    if (TryGetLastHoldingTick(out uint holdingTick))
+                    {
+                        _actionHoldingTick = holdingTick;
+                        yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, cancellationToken);
+                        _isActionInHoldState = true;
+                    }
+                    else
+                    {
+                        yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
+                    }
+
                     if (!cancellationToken.IsCancellationRequested)
                     {
                         AnimationLoopPointReached?.Invoke(this, loopCount);
                     }
-                }
-            }
-            else if (loopCount > 0)
-            {
-                while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
-                {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        AnimationLoopPointReached?.Invoke(this, loopCount);
-                    }
-                }
-            }
-            else if (loopCount == -2) // Play until action holding point
-            {
-                if (TryGetLastHoldingTick(out uint holdingTick))
-                {
-                    _actionHoldingTick = holdingTick;
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _actionHoldingTick, cancellationToken);
-                    _isActionInHoldState = true;
-                }
-                else
-                {
-                    yield return PlayOneTimeAnimationInternalAsync(startTick, _totalGameBoxTicks, cancellationToken);
-                }
 
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    AnimationLoopPointReached?.Invoke(this, loopCount);
+                    break;
                 }
             }
         }
@@ -421,16 +435,36 @@ namespace Pal3.Game.Rendering.Renderer
             return false;
         }
 
+        private void CheckForAnimationEvents(uint currentTick)
+        {
+            foreach (Mv3AnimationEvent animationEvent in _events)
+            {
+                if (animationEvent.GameBoxTick > _lastCheckedTick && animationEvent.GameBoxTick <= currentTick)
+                {
+                    AnimationEventTriggered?.Invoke(this, animationEvent.Name);
+                    break;
+                }
+            }
+            
+            _lastCheckedTick = (int)currentTick;
+        }
+
         private IEnumerator PlayOneTimeAnimationInternalAsync(uint startTick,
             uint endTick,
             CancellationToken cancellationToken)
         {
             double startTime = GameTimeProvider.Instance.TimeSinceStartup;
+            _lastCheckedTick = -1;
+
+            CheckForAnimationEvents(startTick); // In case the startTick is an event tick
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 uint tick = ((float)(GameTimeProvider.Instance.TimeSinceStartup - startTime)).SecondsToGameBoxTick() + startTick;
 
+                // Trigger animation events
+                CheckForAnimationEvents(tick);
+                
                 if (tick >= endTick)
                 {
                     yield break;
@@ -527,7 +561,7 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    var materials = renderMeshComponent.MeshRenderer.GetMaterials();
+                    IMaterial[] materials = renderMeshComponent.MeshRenderer.GetMaterials();
                     if (materials != null)
                     {
                         #if PAL3A

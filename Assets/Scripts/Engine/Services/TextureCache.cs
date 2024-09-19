@@ -28,7 +28,7 @@ namespace Engine.Services
             }
             else
             {
-                _textureCache[key] = new (texture, hasAlphaChannel);
+                _textureCache[key] = (texture, hasAlphaChannel);
             }
         }
 

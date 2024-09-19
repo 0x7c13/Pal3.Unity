@@ -19,6 +19,8 @@ namespace Pal3.Game.Actor.Controllers
 
     public sealed class CombatActorController : GameEntityScript
     {
+        private const string COMBAT_ANIMATION_ATTACK_EVENT_NAME_PREFIX = "work";
+        
         private CombatActor _actor;
         private ActorActionController _actionController;
         private ElementPosition _elementPosition;
@@ -44,6 +46,14 @@ namespace Pal3.Game.Actor.Controllers
             _elementPosition = elementPosition;
         }
 
+        private void AnimationEventTriggered(object sender, string eventName)
+        {
+            if (eventName.StartsWith(COMBAT_ANIMATION_ATTACK_EVENT_NAME_PREFIX, StringComparison.Ordinal))
+            {
+                // TODO: Impl attack behavior
+            }
+        }
+
         public ElementPosition GetElementPosition()
         {
             return _elementPosition;
@@ -61,28 +71,38 @@ namespace Pal3.Game.Actor.Controllers
 
         private void Activate()
         {
+            if (_actionController is VertexAnimationActorActionController vertexActionController)
+            {
+                vertexActionController.AnimationEventTriggered += AnimationEventTriggered;
+            }
+
             _actionController.PerformAction(_actor.GetPreAttackAction());
         }
 
         private void DeActivate()
         {
+            if (_actionController is VertexAnimationActorActionController vertexActionController)
+            {
+                vertexActionController.AnimationEventTriggered -= AnimationEventTriggered;
+            }
+            
             _actionController.DeActivate();
         }
 
-        public IEnumerator StartNormalAttackAsync(CombatActorController combatActorController,
+        public IEnumerator StartNormalAttackAsync(CombatActorController enemyActorController,
             CombatScene combatScene)
         {
             Quaternion currentRotation = _actionController.Transform.Rotation;
 
             _actionController.PerformAction(_actor.GetMovementAction());
 
-            Vector3 enemySize = combatActorController.GetActionController().GetMeshBounds().size;
+            Vector3 enemySize = enemyActorController.GetActionController().GetMeshBounds().size;
             float enemyRadius = MathF.Max(enemySize.x, enemySize.z) / 2f;
 
             Vector3 mySize = _actionController.GetMeshBounds().size;
             float myRadius = MathF.Max(mySize.x, mySize.z) / 2f;
 
-            Vector3 targetElementPosition = combatScene.GetWorldPosition(combatActorController.GetElementPosition());
+            Vector3 targetElementPosition = combatScene.GetWorldPosition(enemyActorController.GetElementPosition());
             Vector3 myElementPosition = combatScene.GetWorldPosition(GetElementPosition());
 
             targetElementPosition += (myElementPosition - targetElementPosition).normalized * (enemyRadius + myRadius);
@@ -92,11 +112,8 @@ namespace Pal3.Game.Actor.Controllers
 
             _actionController.Transform.LookAt(targetElementPosition);
             yield return Transform.MoveAsync(targetElementPosition, duration);
-
-            WaitUntilCanceled waiter = new WaitUntilCanceled();
-            _actionController.PerformAction(_actor.GetAttackAction(), overwrite: true, loopCount: 1, waiter);
-
-            yield return CoroutineYieldInstruction.WaitUntil(() => !waiter.ShouldWait());
+            
+            yield return _actionController.PerformActionAsync(_actor.GetAttackAction());
 
             _actionController.PerformAction(_actor.GetMovementAction());
             _actionController.Transform.LookAt(myElementPosition);

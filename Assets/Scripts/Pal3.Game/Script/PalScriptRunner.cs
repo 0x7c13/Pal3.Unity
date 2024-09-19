@@ -71,12 +71,11 @@ namespace Pal3.Game.Script
             ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
         {
-            if (!sceFile.ScriptBlocks.ContainsKey(scriptId))
+            if (!sceFile.ScriptBlocks.TryGetValue(scriptId, out SceScriptBlock sceScriptBlock))
             {
                 throw new ArgumentException($"Invalid script id: {scriptId}");
             }
 
-            SceScriptBlock sceScriptBlock = sceFile.ScriptBlocks[scriptId];
             EngineLogger.Log($"Create script runner: [{sceScriptBlock.Id} {sceScriptBlock.Description}]");
 
             return new PalScriptRunner(scriptType,

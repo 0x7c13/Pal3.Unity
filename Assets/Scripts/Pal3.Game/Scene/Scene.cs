@@ -579,8 +579,7 @@ namespace Pal3.Game.Scene
 
         public void Execute(ActorActivateCommand command)
         {
-            if (!_actorEntities.ContainsKey(command.ActorId)) return;
-            IGameEntity actorGameEntity = _actorEntities[command.ActorId];
+            if (!_actorEntities.TryGetValue(command.ActorId, out IGameEntity actorGameEntity)) return;
             actorGameEntity.GetComponent<ActorController>().IsActive = command.IsActive == 1;
         }
 

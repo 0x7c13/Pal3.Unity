@@ -32,6 +32,12 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorStopActionCommand>,
         ICommandExecutor<ActorChangeTextureCommand>
     {
+        public event EventHandler<string> AnimationEventTriggered
+        {
+            add => _mv3ModelRenderer.AnimationEventTriggered += value;
+            remove => _mv3ModelRenderer.AnimationEventTriggered -= value;
+        }
+        
         private GameResourceProvider _resourceProvider;
         private IMaterialManager _materialManager;
         private ActorBase _actor;

@@ -16,6 +16,7 @@ namespace Pal3.Game.Actor.Controllers
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
+    using Engine.Coroutine;
     using Engine.Extensions;
     using Engine.Logging;
     using Engine.Renderer;
@@ -96,6 +97,13 @@ namespace Pal3.Game.Actor.Controllers
             PerformAction(ActorConstants.ActionToNameMap[actorActionType], overwrite, loopCount, waiter);
         }
 
+        /// <summary>
+        /// Start playing the specified action.
+        /// </summary>
+        /// <param name="actionName">Name of the action to play.</param>
+        /// <param name="overwrite">Whether to overwrite the current action.</param>
+        /// <param name="loopCount">How many times to play the action. -1 for infinite loop. -2 for playing until the holding point.</param>
+        /// <param name="waiter">Waiter to wait until the action is done.</param>
         public virtual void PerformAction(string actionName,
             bool overwrite = false,
             int loopCount = -1,
@@ -113,6 +121,16 @@ namespace Pal3.Game.Actor.Controllers
                 SetupCollider();
                 SetupRigidBody();
             }
+        }
+
+        /// <summary>
+        /// Perform one-time action and wait until it's done.
+        /// </summary>
+        public IEnumerator PerformActionAsync(string actionName)
+        {
+            WaitUntilCanceled waiter = new();
+            PerformAction(actionName, overwrite: true, loopCount: 1, waiter);
+            yield return CoroutineYieldInstruction.WaitUntil(() => !waiter.ShouldWait());
         }
 
         public abstract void PauseAnimation();

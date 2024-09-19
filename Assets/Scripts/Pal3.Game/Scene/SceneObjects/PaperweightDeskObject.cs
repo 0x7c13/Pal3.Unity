@@ -52,9 +52,9 @@ namespace Pal3.Game.Scene.SceneObjects
 
         public override IEnumerator InteractAsync(InteractionContext ctx)
         {
-            if (!_deskIdToRequiredItemIdMap.ContainsKey(ObjectInfo.Id)) yield break;
+            if (!_deskIdToRequiredItemIdMap.TryGetValue(ObjectInfo.Id, out int requiredItemId)) yield break;
 
-            if (_inventoryManager.HaveItem(_deskIdToRequiredItemIdMap[ObjectInfo.Id]))
+            if (_inventoryManager.HaveItem(requiredItemId))
             {
                 if (!IsInteractableBasedOnTimesCount()) yield break;
 

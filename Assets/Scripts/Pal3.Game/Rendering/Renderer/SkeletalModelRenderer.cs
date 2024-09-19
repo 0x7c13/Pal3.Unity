@@ -180,18 +180,27 @@ namespace Pal3.Game.Rendering.Renderer
         private IEnumerator PlayAnimationInternalAsync(int loopCount,
             CancellationToken cancellationToken)
         {
-            if (loopCount == -1) // Infinite loop until cancelled
+            switch (loopCount)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                // Infinite loop until cancelled
+                case -1:
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(cancellationToken);
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        yield return PlayOneTimeAnimationInternalAsync(cancellationToken);
+                    }
+
+                    break;
                 }
-            }
-            else if (loopCount > 0)
-            {
-                while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
+                // Finite loop
+                case > 0:
                 {
-                    yield return PlayOneTimeAnimationInternalAsync(cancellationToken);
+                    while (!cancellationToken.IsCancellationRequested && --loopCount >= 0)
+                    {
+                        yield return PlayOneTimeAnimationInternalAsync(cancellationToken);
+                    }
+
+                    break;
                 }
             }
         }

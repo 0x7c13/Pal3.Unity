@@ -169,8 +169,7 @@ namespace Pal3.Game.Actor
         // TODO: Get weapon based on inventory context
         public string GetTagObjectName()
         {
-            return ActorConstants.MainActorWeaponMap.TryGetValue(Name, out var value) ?
-                value : null;
+            return ActorConstants.MainActorWeaponMap.GetValueOrDefault(Name);
         }
 
         public bool HasAction(string actionName)
