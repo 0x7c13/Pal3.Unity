@@ -114,7 +114,7 @@ namespace Pal3.Game.GamePlay
 
             Vector3 currentPosition = _playerActorMovementController.GetWorldPosition();
 
-            Scene currentScene = _sceneManager.GetCurrentScene();
+            GameScene currentScene = _sceneManager.GetCurrentScene();
             Tilemap tilemap = currentScene.GetTilemap();
 
             bool IsPositionCanJumpTo(Vector3 position, int layerIndex, out float yPosition, out int distanceToObstacle)

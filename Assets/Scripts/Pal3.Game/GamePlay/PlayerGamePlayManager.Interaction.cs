@@ -35,7 +35,7 @@ namespace Pal3.Game.GamePlay
     {
         public void Execute(PlayerInteractWithObjectCommand command)
         {
-            Scene currentScene = _sceneManager.GetCurrentScene();
+            GameScene currentScene = _sceneManager.GetCurrentScene();
             if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
             {
                 Pal3.Instance.StartCoroutine(InteractWithSceneObjectAsync(
@@ -175,7 +175,7 @@ namespace Pal3.Game.GamePlay
             Pal3.Instance.Execute(new GameStateChangeRequest(GameState.Cutscene));
             Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-            Actor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
+            GameActor targetActor = _sceneManager.GetCurrentScene().GetActor(actorId);
             Quaternion rotationBeforeInteraction = actorGameEntity.Transform.Rotation;
 
             ActorController actorController = actorGameEntity.GetComponent<ActorController>();

@@ -31,7 +31,7 @@ namespace Pal3.Game.GamePlay
     {
         public void Execute(ActorPerformClimbActionCommand command)
         {
-            Scene scene = _sceneManager.GetCurrentScene();
+            GameScene scene = _sceneManager.GetCurrentScene();
             SceneObject climbableSceneObject = scene.GetSceneObject(command.ObjectId);
             IGameEntity climbableEntity = climbableSceneObject.GetGameEntity();
             if (climbableEntity == null)

@@ -262,7 +262,7 @@ namespace Pal3.Game.State
                     (int)playerActorMovementController.GameEntity.Transform.EulerAngles.y)
             });
 
-            Dictionary<int, Actor> allActors = currentScene.GetAllActors();
+            Dictionary<int, GameActor> allActors = currentScene.GetAllActors();
             Dictionary<int, IGameEntity> allActorGameEntities = currentScene.GetAllActorGameEntities();
 
             // Save npc actor state
@@ -324,7 +324,7 @@ namespace Pal3.Game.State
         private static void SaveNpcActorState(List<ICommand> commands,
             int actorId,
             IGameEntity actorGameEntity,
-            Dictionary<int, Actor> allActors)
+            Dictionary<int, GameActor> allActors)
         {
             ActorController actorController = actorGameEntity.GetComponent<ActorController>();
 
@@ -337,7 +337,7 @@ namespace Pal3.Game.State
 
             if (!actorController.IsActive) return; // Skip inactive actor
 
-            Actor actor = actorController.GetActor();
+            GameActor actor = actorController.GetActor();
 
             if (actor.Info.InitActive == 0)
             {
@@ -384,7 +384,7 @@ namespace Pal3.Game.State
             if (actor.IsScriptIdChanged())
             {
                 commands.Add(new ActorSetScriptCommand(actorId,
-                    (int) actor.GetScriptId()));
+                    (int)actor.GetScriptId()));
             }
         }
 

@@ -35,7 +35,7 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorSetYPositionCommand>,
         ICommandExecutor<ActorChangeScaleCommand>
     {
-        private Actor _actor;
+        private GameActor _actor;
         private ActorActionController _actionController;
         private ActorMovementController _movementController;
         private PlayerInputActions _inputActions;
@@ -64,7 +64,7 @@ namespace Pal3.Game.Actor.Controllers
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void Init(Actor actor,
+        public void Init(GameActor actor,
             ActorActionController actionController,
             ActorMovementController movementController)
         {
@@ -90,7 +90,7 @@ namespace Pal3.Game.Actor.Controllers
             return _actor.GetScriptId() != ScriptConstants.InvalidScriptId;
         }
 
-        public Actor GetActor()
+        public GameActor GetActor()
         {
             return _actor;
         }

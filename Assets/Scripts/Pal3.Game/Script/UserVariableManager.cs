@@ -174,7 +174,7 @@ namespace Pal3.Game.Script
 
         public void Execute(ScriptVarSetObjectUsageStatusCommand command)
         {
-            Scene scene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
+            GameScene scene = ServiceLocator.Instance.Get<SceneManager>().GetCurrentScene();
             ScnSceneInfo sceneInfo = scene.GetSceneInfo();
             SceneStateManager sceneStateManager = ServiceLocator.Instance.Get<SceneStateManager>();
 

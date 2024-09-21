@@ -11,7 +11,7 @@ namespace Pal3.Game.Actor
     using Data;
     using Engine.Extensions;
 
-    public sealed class Actor : ActorBase
+    public sealed class GameActor : ActorBase
     {
         private const float DEFAULT_ROTATION_SPEED = 20f;
 
@@ -20,7 +20,7 @@ namespace Pal3.Game.Actor
         private uint? _overwrittenScriptId;
         private uint? _overwrittenMoveSpeed;
 
-        public Actor(GameResourceProvider resourceProvider, ScnNpcInfo npcInfo) :
+        public GameActor(GameResourceProvider resourceProvider, ScnNpcInfo npcInfo) :
             base(resourceProvider, npcInfo.Id, npcInfo.Name)
         {
             Info = npcInfo;

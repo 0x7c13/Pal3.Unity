@@ -3,12 +3,13 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Game.Actor
+namespace Pal3.Game.GameSystems.Combat.Actor
 {
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Gdb;
     using Data;
+    using Game.Actor;
 
     public sealed class CombatActor : ActorBase
     {

@@ -65,7 +65,7 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorActivateCommand>,
         ICommandExecutor<ActorSetNavLayerCommand>
     {
-        private Actor _actor;
+        private GameActor _actor;
         private Tilemap _tilemap;
         private ActorActionController _actionController;
         private int _currentLayerIndex = 0;
@@ -97,7 +97,7 @@ namespace Pal3.Game.Actor.Controllers
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public void Init(Actor actor,
+        public void Init(GameActor actor,
             Tilemap tilemap,
             ActorActionController actionController,
             float movementMaxYDifferential,

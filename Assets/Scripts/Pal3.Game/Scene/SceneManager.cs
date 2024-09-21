@@ -22,6 +22,7 @@ namespace Pal3.Game.Scene
     using Engine.Core.Implementation;
     using Engine.Extensions;
     using Engine.Logging;
+    using GameSystems.Combat.Scene;
     using Newtonsoft.Json;
     using Script;
     using Settings;
@@ -43,7 +44,7 @@ namespace Pal3.Game.Scene
         private IGameEntity _currentSceneRoot;
         private IGameEntity _currentCombatSceneRoot;
 
-        private Scene _currentScene;
+        private GameScene _currentGameScene;
         private CombatScene _currentCombatScene;
 
         private readonly HashSet<int> _sceneObjectIdsToNotLoadFromSaveState = new ();
@@ -70,9 +71,9 @@ namespace Pal3.Game.Scene
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
 
-        public Scene GetCurrentScene()
+        public GameScene GetCurrentScene()
         {
-            return _currentScene;
+            return _currentGameScene;
         }
 
         public CombatScene GetCurrentCombatScene()
@@ -94,7 +95,7 @@ namespace Pal3.Game.Scene
             return null;
         }
 
-        public Scene LoadScene(string sceneCityName, string sceneName)
+        public GameScene LoadScene(string sceneCityName, string sceneName)
         {
             Stopwatch timer = Stopwatch.StartNew();
 
@@ -109,14 +110,14 @@ namespace Pal3.Game.Scene
 
             _currentSceneRoot = GameEntityFactory.Create($"Scene_{sceneCityName}_{sceneName}",
                 null, worldPositionStays: false);
-            _currentScene = _currentSceneRoot.AddComponent<Scene>();
-            _currentScene.Init(_resourceProvider,
+            _currentGameScene = _currentSceneRoot.AddComponent<GameScene>();
+            _currentGameScene.Init(_resourceProvider,
                 _sceneObjectFactory,
                 _sceneStateManager,
                 _gameSettings.IsRealtimeLightingAndShadowsEnabled,
                 _cameraEntity,
                 _sceneObjectIdsToNotLoadFromSaveState);
-            _currentScene.Load(scnFile, _currentSceneRoot);
+            _currentGameScene.Load(scnFile, _currentSceneRoot);
 
             // Must to clear the exclude list after loading the scene.
             _sceneObjectIdsToNotLoadFromSaveState.Clear();
@@ -135,7 +136,7 @@ namespace Pal3.Game.Scene
             // Also a good time to collect garbage
             System.GC.Collect();
 
-            return _currentScene;
+            return _currentGameScene;
         }
 
         public CombatScene LoadCombatScene(string combatSceneName)
@@ -244,11 +245,11 @@ namespace Pal3.Game.Scene
             _temporarilyDisabledRenderers.Clear();
             _temporarilyDisabledGameObjects.Clear();
 
-            if (_currentScene != null)
+            if (_currentGameScene != null)
             {
                 Pal3.Instance.Execute(new SceneLeavingCurrentSceneNotification());
-                _currentScene.Destroy();
-                _currentScene = null;
+                _currentGameScene.Destroy();
+                _currentGameScene = null;
             }
 
             if (_currentCombatScene != null)

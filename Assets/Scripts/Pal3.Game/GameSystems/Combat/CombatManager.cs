@@ -22,6 +22,7 @@ namespace Pal3.Game.GameSystems.Combat
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Extensions;
+    using Game.Scene;
     using Scene;
     using State;
     using Team;

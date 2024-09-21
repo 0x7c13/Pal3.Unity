@@ -9,7 +9,6 @@ namespace Pal3.Game.GameSystems.Combat
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
-    using Actor.Controllers;
     using Audio;
     using Command;
     using Command.Extensions;
@@ -24,8 +23,10 @@ namespace Pal3.Game.GameSystems.Combat
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Logging;
+    using Game.Actor;
+    using Game.Actor.Controllers;
+    using Game.Scene;
     using GamePlay;
-    using Scene;
     using Script.Waiter;
     using Settings;
     using State;
@@ -94,7 +95,7 @@ namespace Pal3.Game.GameSystems.Combat
         {
             if (!_gameSettings.IsTurnBasedCombatEnabled) return;
 
-            Scene currentScene = _sceneManager.GetCurrentScene();
+            GameScene currentScene = _sceneManager.GetCurrentScene();
 
             // Figure out which combat scene to use
             string combatSceneName = GetCombatSceneName(currentScene);
@@ -156,7 +157,7 @@ namespace Pal3.Game.GameSystems.Combat
             }
         }
 
-        private string GetCombatSceneName(Scene currentScene)
+        private string GetCombatSceneName(GameScene currentScene)
         {
             ScnSceneInfo sceneInfo = currentScene.GetSceneInfo();
 
@@ -318,18 +319,18 @@ namespace Pal3.Game.GameSystems.Combat
             {
                 Pal3.Instance.Execute(new ActorStopActionAndStandCommand(ActorConstants.PlayerActorVirtualID));
 
-                Scene currentScene = _sceneManager.GetCurrentScene();
-                Actor.Actor combatActor = currentScene.GetActor(command.CombatActorId);
+                GameScene currentScene = _sceneManager.GetCurrentScene();
+                GameActor gameActor = currentScene.GetActor(command.CombatActorId);
                 ITransform playerTransform = currentScene.GetActorGameEntity(command.PlayerActorId).Transform;
                 ITransform enemyTransform = currentScene.GetActorGameEntity(command.CombatActorId).Transform;
 
                 _combatContextBuilder.WithMeetType(CalculateMeetType(playerTransform, enemyTransform));
 
                 Execute(new CombatEnterNormalFightCommand(
-                    combatActor.Info.NumberOfMonsters,
-                    combatActor.Info.MonsterIds[0],
-                    combatActor.Info.MonsterIds[1],
-                    combatActor.Info.MonsterIds[2]));
+                    gameActor.Info.NumberOfMonsters,
+                    gameActor.Info.MonsterIds[0],
+                    gameActor.Info.MonsterIds[1],
+                    gameActor.Info.MonsterIds[2]));
             }
             else // TODO: Remove once combat system is fully implemented
             {

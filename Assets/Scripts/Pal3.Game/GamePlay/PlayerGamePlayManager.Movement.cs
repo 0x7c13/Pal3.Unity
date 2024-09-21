@@ -79,7 +79,7 @@ namespace Pal3.Game.GamePlay
         {
             if (!_lastInputTapPosition.HasValue) return;
 
-            Scene currentScene = _sceneManager.GetCurrentScene();
+            GameScene currentScene = _sceneManager.GetCurrentScene();
 
             int hitCount = _physicsManager.CameraRaycastFromScreenPoint(
                 _lastInputTapPosition.Value,

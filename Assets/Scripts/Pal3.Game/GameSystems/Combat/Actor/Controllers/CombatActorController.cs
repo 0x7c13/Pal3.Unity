@@ -3,16 +3,15 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Game.Actor.Controllers
+namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
 {
     using System;
     using System.Collections;
+    using Combat;
     using Engine.Animation;
     using Engine.Core.Implementation;
-    using Engine.Coroutine;
-    using GameSystems.Combat;
+    using Game.Actor.Controllers;
     using Scene;
-    using Script.Waiter;
 
     using Quaternion = UnityEngine.Quaternion;
     using Vector3 = UnityEngine.Vector3;
@@ -73,6 +72,7 @@ namespace Pal3.Game.Actor.Controllers
         {
             if (_actionController is VertexAnimationActorActionController vertexActionController)
             {
+                vertexActionController.AnimationEventTriggered -= AnimationEventTriggered;
                 vertexActionController.AnimationEventTriggered += AnimationEventTriggered;
             }
 

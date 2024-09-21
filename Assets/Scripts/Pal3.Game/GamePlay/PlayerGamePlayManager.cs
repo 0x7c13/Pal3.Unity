@@ -67,7 +67,7 @@ namespace Pal3.Game.GamePlay
         private int _longKuiLastKnownMode = 0;
         #endif
 
-        private Actor _playerActor;
+        private GameActor _playerActor;
         private IGameEntity _playerActorGameEntity;
         private ActorController _playerActorController;
         private ActorActionController _playerActorActionController;

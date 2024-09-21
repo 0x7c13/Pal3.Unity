@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
-namespace Pal3.Game.Scene
+namespace Pal3.Game.GameSystems.Combat.Scene
 {
     using System.Collections.Generic;
     using Actor;
@@ -18,7 +18,6 @@ namespace Pal3.Game.Scene
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
-    using GameSystems.Combat;
     using Rendering.Material;
     using Rendering.Renderer;
 
@@ -106,8 +105,7 @@ namespace Pal3.Game.Scene
 
         public CombatActorController GetCombatActorController(ElementPosition elementPosition)
         {
-            return _combatActorControllers.TryGetValue(elementPosition,
-                out CombatActorController combatActorController) ? combatActorController : null;
+            return _combatActorControllers.GetValueOrDefault(elementPosition);
         }
 
         public void LoadActors(Dictionary<ElementPosition, CombatActorInfo> combatActors,
@@ -126,8 +124,8 @@ namespace Pal3.Game.Scene
                     combatActorInfo.ModelId = combatActorInfo.Id.ToString();
                 }
 
-                CombatActor combatActor = new CombatActor(_resourceProvider, combatActorInfo);
-                IGameEntity combatActorGameEntity = ActorFactory.CreateCombatActorGameEntity(
+                CombatActor combatActor = new(_resourceProvider, combatActorInfo);
+                IGameEntity combatActorGameEntity = CombatActorFactory.CreateCombatActorGameEntity(
                     _resourceProvider,
                     combatActor,
                     elementPosition,

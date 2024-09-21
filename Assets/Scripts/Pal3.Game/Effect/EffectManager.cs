@@ -120,7 +120,7 @@ namespace Pal3.Game.Effect
         #if PAL3A
         private void HandleNanGongHuangTransformEffect(EffectAttachToActorCommand effectAttachToActorCommand,
             EffectPlayCommand effectPlayCommand,
-            Scene currentScene)
+            GameScene currentScene)
         {
             int actorId = effectAttachToActorCommand.ActorId;
             switch (effectPlayCommand.EffectGroupId)
@@ -128,7 +128,7 @@ namespace Pal3.Game.Effect
                 // 南宫煌切换为狼妖形态特效
                 case 164:
                 {
-                    Actor actor = currentScene.GetActor(actorId);
+                    GameActor actor = currentScene.GetActor(actorId);
                     actor.ChangeName(ActorConstants.NanGongHuangWolfModeActorName);
                     if (actor.IsActive)
                     {
@@ -141,7 +141,7 @@ namespace Pal3.Game.Effect
                 // 南宫煌切换为人形态特效
                 case 315:
                 {
-                    Actor actor = currentScene.GetActor(actorId);
+                    GameActor actor = currentScene.GetActor(actorId);
                     actor.ChangeName(ActorConstants.NanGongHuangHumanModeActorName);
                     if (actor.IsActive)
                     {

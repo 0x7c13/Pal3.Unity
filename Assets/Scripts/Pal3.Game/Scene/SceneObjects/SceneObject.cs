@@ -47,7 +47,7 @@ namespace Pal3.Game.Scene.SceneObjects
     {
         public Guid CorrelationId;
         public int InitObjectId;
-        public Scene CurrentScene;
+        public GameScene CurrentScene;
         public IGameEntity PlayerActorGameEntity;
         public bool StartedByPlayer;
     }

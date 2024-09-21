@@ -45,7 +45,7 @@ namespace Pal3.Game.Scene
         protected (CvdFile CvdFile, ITextureResourceProvider TextureProvider)? SceneCvdMesh;
 
         protected readonly Dictionary<int, SceneObject> SceneObjects = new ();
-        protected readonly Dictionary<int, Actor> Actors = new ();
+        protected readonly Dictionary<int, GameActor> Actors = new ();
 
         private HashSet<int> _sceneObjectIdsToNotLoadFromSaveState;
 
@@ -178,14 +178,14 @@ namespace Pal3.Game.Scene
         {
             foreach (ScnNpcInfo npcInfo in ScnFile.NpcInfos)
             {
-                Actors[npcInfo.Id] = new Actor(_resourceProvider, npcInfo);
+                Actors[npcInfo.Id] = new GameActor(_resourceProvider, npcInfo);
             }
 
             foreach (ScnNpcInfo playerInfo in NpcInfoFactory.CreateAllPlayerActorNpcInfos())
             {
                 if (!Actors.ContainsKey(playerInfo.Id))
                 {
-                    Actors[playerInfo.Id] = new Actor(_resourceProvider, playerInfo);
+                    Actors[playerInfo.Id] = new GameActor(_resourceProvider, playerInfo);
                 }
             }
 
@@ -194,7 +194,7 @@ namespace Pal3.Game.Scene
             {
                 if (!Actors.ContainsKey(fengYaSongInfo.Id))
                 {
-                    Actors[fengYaSongInfo.Id] = new Actor(_resourceProvider, fengYaSongInfo);
+                    Actors[fengYaSongInfo.Id] = new GameActor(_resourceProvider, fengYaSongInfo);
                 }
             }
             #endif
