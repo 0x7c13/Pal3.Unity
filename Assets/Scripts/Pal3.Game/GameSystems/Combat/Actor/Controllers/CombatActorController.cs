@@ -18,7 +18,8 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
 
     public sealed class CombatActorController : GameEntityScript
     {
-        private const string COMBAT_ANIMATION_ATTACK_EVENT_NAME_PREFIX = "work";
+        private const string COMBAT_ANIMATION_NORMAL_ATTACK_EVENT_NAME_PREFIX = "work";
+        private const string COMBAT_ANIMATION_JUMP_ATTACK_EVENT_NAME_PREFIX = "flydown";
         
         private CombatActor _actor;
         private ActorActionController _actionController;
@@ -47,9 +48,13 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
 
         private void AnimationEventTriggered(object sender, string eventName)
         {
-            if (eventName.StartsWith(COMBAT_ANIMATION_ATTACK_EVENT_NAME_PREFIX, StringComparison.Ordinal))
+            if (eventName.StartsWith(COMBAT_ANIMATION_NORMAL_ATTACK_EVENT_NAME_PREFIX, StringComparison.Ordinal))
             {
-                // TODO: Impl attack behavior
+                // TODO: Impl normal attack behavior
+            }
+            else if (eventName.StartsWith(COMBAT_ANIMATION_JUMP_ATTACK_EVENT_NAME_PREFIX, StringComparison.Ordinal))
+            {
+                // TODO: Impl jump attack behavior
             }
         }
 
