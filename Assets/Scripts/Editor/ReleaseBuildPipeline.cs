@@ -15,19 +15,16 @@ namespace Editor
     using UnityEditor.Build.Reporting;
     using UnityEngine;
 
-    #if UNITY_2020_2_OR_NEWER && UNITY_STANDALONE_OSX
-    using UnityEditor.OSXStandalone;
-    #endif
-
     [Flags]
     public enum Pal3BuildTarget
     {
-        Windows_x86      = 1 << 0,
-        Windows_x64      = 1 << 1,
-        Linux_x86_x64    = 1 << 2,
-        macOS_arm64_x64  = 1 << 3,
-        Android          = 1 << 4,
-        iOS              = 1 << 5,
+        Windows_arm64    = 1 << 0,
+        Windows_x86      = 1 << 1,
+        Windows_x64      = 1 << 2,
+        Linux_x86_x64    = 1 << 3,
+        macOS_arm64_x64  = 1 << 4,
+        Android          = 1 << 5,
+        iOS              = 1 << 6,
     }
 
     public static class ReleaseBuildPipeline
@@ -35,7 +32,17 @@ namespace Editor
         private static readonly string[] BuildLevels = { "Assets/Scenes/Game.unity" };
 
         private static readonly char DirSeparator = Path.DirectorySeparatorChar;
-
+        
+        #if PAL3
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable")]
+        #elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable")]
+        #endif
+        public static void Build_Windows_arm64()
+        {
+            BuildGame(Pal3BuildTarget.Windows_arm64);
+        }
+        
         #if PAL3
         [MenuItem("PAL3/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
         #elif PAL3A
@@ -103,7 +110,8 @@ namespace Editor
         #endif
         public static void BuildAll()
         {
-            BuildGame(Pal3BuildTarget.Windows_x86 |
+            BuildGame(Pal3BuildTarget.Windows_arm64 |
+                      Pal3BuildTarget.Windows_x86 |
                       Pal3BuildTarget.Windows_x64 |
                       Pal3BuildTarget.Linux_x86_x64 |
                       Pal3BuildTarget.macOS_arm64_x64 |
@@ -133,69 +141,98 @@ namespace Editor
 
             var buildConfigurations = new[]
             {
-                new { Platform = Pal3BuildTarget.Windows_x86, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneWindows },
-                new { Platform = Pal3BuildTarget.Windows_x64, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneWindows64 },
-                new { Platform = Pal3BuildTarget.Linux_x86_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneLinux64 },
-                new { Platform = Pal3BuildTarget.macOS_arm64_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone, Target = BuildTarget.StandaloneOSX },
-                new { Platform = Pal3BuildTarget.Android, Extension = ".apk", NamedTarget = NamedBuildTarget.Android, Target = BuildTarget.Android },
-                new { Platform = Pal3BuildTarget.iOS, Extension = "", NamedTarget = NamedBuildTarget.iOS, Target = BuildTarget.iOS },
+                new { Target = Pal3BuildTarget.Windows_x86, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone },
+                new { Target = Pal3BuildTarget.Windows_x64, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone },
+                new { Target = Pal3BuildTarget.Windows_arm64, Extension = ".exe", NamedTarget = NamedBuildTarget.Standalone },
+                new { Target = Pal3BuildTarget.Linux_x86_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone},
+                new { Target = Pal3BuildTarget.macOS_arm64_x64, Extension = "", NamedTarget = NamedBuildTarget.Standalone },
+                new { Target = Pal3BuildTarget.Android, Extension = ".apk", NamedTarget = NamedBuildTarget.Android },
+                new { Target = Pal3BuildTarget.iOS, Extension = "", NamedTarget = NamedBuildTarget.iOS },
             };
 
-            List<Action> logActions = new List<Action>();
+            List<Action> logActions = new();
 
             foreach (var config in buildConfigurations)
             {
-                if (buildTarget.HasFlag(config.Platform))
+                if (buildTarget.HasFlag(config.Target))
                 {
-                    Build(config.Platform.ToString(),
+                    Build(config.Target,
                         config.Extension,
                         config.NamedTarget,
-                        config.Target,
                         buildOutputPath,
                         logActions);
                 }
             }
-
-            // Restore build target settings
-            EditorUserBuildSettings.SwitchActiveBuildTarget(targetGroupBeforeBuild, targetBeforeBuild);
-
+            
             // Execute report log actions
             logActions.ForEach(action => action.Invoke());
 
             Debug.Log($"[{nameof(ReleaseBuildPipeline)}] Build for version {PlayerSettings.bundleVersion} complete! Output path: " +
                       $"{buildOutputPath}{GameConstants.AppName}");
+            
+            // Restore build target settings
+            EditorUserBuildSettings.SwitchActiveBuildTargetAsync(targetGroupBeforeBuild, targetBeforeBuild);
         }
 
-        private static void Build(string folderName,
+        private static void Build(Pal3BuildTarget target,
             string extension,
             NamedBuildTarget namedBuildTarget,
-            BuildTarget buildTarget,
             string buildOutputPath,
             List<Action> logActions,
             bool deletePdbFiles = true)
         {
             string outputFolder = buildOutputPath + $"{GameConstants.AppName}{DirSeparator}" +
-                                $"{folderName}{DirSeparator}";
+                                $"{target.ToString()}{DirSeparator}";
 
-            if (buildTarget is BuildTarget.StandaloneWindows
-                or BuildTarget.StandaloneWindows64
-                or BuildTarget.StandaloneLinux64)
+            BuildTarget buildTarget = BuildTarget.NoTarget;
+            
+            switch (target)
             {
-                outputFolder += $"{GameConstants.AppName}{DirSeparator}";
-            }
-            else if (buildTarget is BuildTarget.StandaloneOSX)
-            {
-                #if UNITY_2020_2_OR_NEWER && UNITY_STANDALONE_OSX
-                UserBuildSettings.architecture = OSArchitecture.x64ARM64;
-                UserBuildSettings.createXcodeProject = true;
-                #endif
+                case Pal3BuildTarget.Windows_arm64:
+                    buildTarget = BuildTarget.StandaloneWindows64;
+                    outputFolder += $"{GameConstants.AppName}{DirSeparator}";
+                    #if UNITY_2020_2_OR_NEWER && UNITY_EDITOR_WIN
+                    UnityEditor.WindowsStandalone.UserBuildSettings.architecture = OSArchitecture.ARM64;
+                    #endif
+                    break;
+                case Pal3BuildTarget.Windows_x86:
+                    buildTarget = BuildTarget.StandaloneWindows;
+                    outputFolder += $"{GameConstants.AppName}{DirSeparator}";
+                    #if UNITY_2020_2_OR_NEWER && UNITY_EDITOR_WIN
+                    UnityEditor.WindowsStandalone.UserBuildSettings.architecture = OSArchitecture.x86;
+                    #endif
+                    break;
+                case Pal3BuildTarget.Windows_x64:
+                    buildTarget = BuildTarget.StandaloneWindows64;
+                    outputFolder += $"{GameConstants.AppName}{DirSeparator}";
+                    #if UNITY_2020_2_OR_NEWER && UNITY_EDITOR_WIN
+                    UnityEditor.WindowsStandalone.UserBuildSettings.architecture = OSArchitecture.x64;
+                    #endif
+                    break;
+                case Pal3BuildTarget.Linux_x86_x64:
+                    buildTarget = BuildTarget.StandaloneLinux64;
+                    outputFolder += $"{GameConstants.AppName}{DirSeparator}";
+                    break;
+                case Pal3BuildTarget.macOS_arm64_x64:
+                    buildTarget = BuildTarget.StandaloneOSX;
+                    #if UNITY_2020_2_OR_NEWER && UNITY_EDITOR_OSX
+                    UnityEditor.OSXStandalone.UserBuildSettings.architecture = OSArchitecture.x64ARM64;
+                    UnityEditor.OSXStandalone.UserBuildSettings.createXcodeProject = true;
+                    #endif
+                    break;
+                case Pal3BuildTarget.Android:
+                    buildTarget = BuildTarget.Android;
+                    break;
+                case Pal3BuildTarget.iOS:
+                    buildTarget = BuildTarget.iOS;
+                    break;
             }
 
             string outputPath = outputFolder + $"{GameConstants.AppName}{extension}";
 
             PlayerSettings.SetScriptingBackend(namedBuildTarget, ScriptingImplementation.IL2CPP);
 
-            BuildReport report = BuildPipeline.BuildPlayer(BuildLevels, outputPath, buildTarget, BuildOptions.None);
+            BuildReport report = BuildPipeline.BuildPlayer(BuildLevels, outputPath, buildTarget, BuildOptions.CleanBuildCache);
 
             if (deletePdbFiles)
             {
@@ -250,6 +287,7 @@ namespace Editor
             List<(string FolderPath, Pal3BuildTarget Target)> buildTargets = new()
             {
                 ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Android.ToString()}{DirSeparator}{GameConstants.AppName}.apk", Pal3BuildTarget.Android),
+                ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Windows_arm64.ToString()}", Pal3BuildTarget.Windows_arm64),
                 ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Windows_x86.ToString()}", Pal3BuildTarget.Windows_x86),
                 ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Windows_x64.ToString()}", Pal3BuildTarget.Windows_x64),
                 ($"{GameConstants.AppName}{DirSeparator}{Pal3BuildTarget.Linux_x86_x64.ToString()}", Pal3BuildTarget.Linux_x86_x64)

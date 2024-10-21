@@ -73,6 +73,7 @@ namespace Editor
             Texture2D gameIcon = Resources.Load<Texture2D>(gameIconPath);
             if (gameIcon == null) throw new Exception($"Game icon not found: {gameIconPath}");
 
+            // Set app icons for all supported build targets
             foreach (NamedBuildTarget target in SymbolsHelper.GetAllSupportedBuildTargets())
             {
                 PlayerSettings.SetApplicationIdentifier(target,
@@ -92,6 +93,14 @@ namespace Editor
                             PlayerSettings.GetIconSizes(target, IconKind.Store).Length).ToArray(),
                         IconKind.Store);
                 }
+            }
+            
+            // Set default app icon (I don't know why Unity decided to use NamedBuildTarget.Unknown here but it is what it is)
+            {
+                int[] iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Unknown, IconKind.Application);
+                PlayerSettings.SetIcons(NamedBuildTarget.Unknown,
+                    Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
+                    IconKind.Application);   
             }
         }
     }

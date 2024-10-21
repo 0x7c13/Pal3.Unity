@@ -67,6 +67,9 @@ crashlytics-build.properties
 # MacOS generated files
 .DS_Store
 
+# Unity CMake tmp files
+.utmp
+
 # Unity StreamingAssets folder
 /Assets/StreamingAssets
 
