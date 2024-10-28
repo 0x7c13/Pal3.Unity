@@ -29,7 +29,7 @@ jobs:
           find: "6b32649dccc45df4ebe8e3f8eccee249"
           replace: "d03d417e5660d5849939c8fe43732dbd"
           include: "**ProjectSettings.asset"
-      - uses: actions/cache@v4.1.1
+      - uses: actions/cache@v4.1.2
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
