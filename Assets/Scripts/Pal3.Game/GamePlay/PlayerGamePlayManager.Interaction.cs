@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -17,6 +17,7 @@ namespace Pal3.Game.GamePlay
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Engine.Core.Abstraction;
+    using Engine.Extensions;
     using Engine.Logging;
     using Scene;
     using Scene.SceneObjects;
@@ -226,7 +227,7 @@ namespace Pal3.Game.GamePlay
             }
 
             // Reset facing rotation of the interacting actor if needed
-            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsNativeObjectDisposed)
+            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsNullOrDisposed())
             {
                 actorGameEntity.Transform.Rotation = rotationBeforeInteraction;
             }

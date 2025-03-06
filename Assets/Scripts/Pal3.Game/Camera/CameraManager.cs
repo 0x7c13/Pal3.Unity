@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ namespace Pal3.Game.Camera
 
             if (_cameraAnimationInProgress) return;
 
-            if (_lookAtGameEntity != null)
+            if (!_lookAtGameEntity.IsNullOrDisposed())
             {
                 _lastLookAtPoint = _lookAtGameEntity.Transform.Position;
             }
@@ -201,7 +201,7 @@ namespace Pal3.Game.Camera
 
             _cameraTransform.Position = _actualPosition;
 
-            if (_lookAtGameEntity != null) return;
+            if (!_lookAtGameEntity.IsNullOrDisposed()) return;
 
             if (!_freeToRotate)
             {
@@ -791,7 +791,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             IGameEntity lookAtEntity = _sceneManager.GetCurrentScene().GetActorGameEntity(command.ActorId);
-            if (lookAtEntity != null)
+            if (!lookAtEntity.IsNullOrDisposed())
             {
                 _lookAtGameEntity = lookAtEntity;
             }
@@ -801,7 +801,7 @@ namespace Pal3.Game.Camera
         {
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
             IGameEntity lookAtEntity = _sceneManager.GetCurrentScene().GetSceneObject(command.SceneObjectId).GetGameEntity();
-            if (lookAtEntity != null)
+            if (!lookAtEntity.IsNullOrDisposed())
             {
                 _lookAtGameEntity = lookAtEntity;
             }

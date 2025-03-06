@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ namespace Pal3.Game.Audio
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Coroutine;
+    using Engine.Extensions;
     using Scene;
     using Settings;
     using State;
@@ -64,7 +65,7 @@ namespace Pal3.Game.Audio
             AudioSource musicSource,
             GameSettings gameSettings)
         {
-            _cameraEntity = Requires.IsNotNull(cameraEntity, nameof(cameraEntity));;
+            _cameraEntity = Requires.IsNotNull(cameraEntity, nameof(cameraEntity));
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
             _musicPlayer = Requires.IsNotNull(musicSource, nameof(musicSource));
@@ -175,25 +176,25 @@ namespace Pal3.Game.Audio
             float interval = 0f,
             CancellationToken cancellationToken = default)
         {
-            if (parent == null || cancellationToken.IsCancellationRequested) yield break;
+            if (parent.IsNullOrDisposed() || cancellationToken.IsCancellationRequested) yield break;
 
             AudioClip sfxAudioClip = null;
 
             yield return _resourceProvider.LoadAudioClipAsync(sfxFilePath, AudioType.WAV, streamAudio: false,
                 audioClip => { sfxAudioClip = audioClip; });
 
-            if (parent.IsNativeObjectDisposed ||
+            if (parent.IsNullOrDisposed() ||
                 cancellationToken.IsCancellationRequested ||
                 sfxAudioClip == null) yield break;
 
-            if (parent != _cameraEntity &&
+            if (parent.NativeObject != _cameraEntity.NativeObject &&
                 audioSourceName == AudioConstants.PlayerActorMovementSfxAudioSourceName &&
                 _playerMovementSfxInProgress == false)
             {
                 yield break; // Means movement sfx is already stopped before it started due to the delay of the coroutine
             }
 
-            if (parent == _cameraEntity &&
+            if (parent.NativeObject == _cameraEntity.NativeObject &&
                 !_playingSfxSourceNames.Contains(audioSourceName))
             {
                 yield break; // Means sfx is already stopped before it started due to the delay of the coroutine
@@ -206,7 +207,7 @@ namespace Pal3.Game.Audio
                 audioSourceParent.Transform.Position = parent.Transform.Position;
             }
 
-            var audioSource = audioSourceParent.GetOrAddComponent<AudioSource>();
+            AudioSource audioSource = audioSourceParent.GetOrAddComponent<AudioSource>();
             audioSource.spatialBlend = 1.0f;
             audioSource.rolloffMode = AudioRolloffMode.Linear;
             audioSource.maxDistance = 75f;
@@ -375,10 +376,10 @@ namespace Pal3.Game.Audio
             if (command.Parent == null || command.Parent.IsNativeObjectDisposed) return;
 
             IGameEntity audioSourceParent = command.Parent.FindChild(command.AudioSourceName);
-            if (audioSourceParent == null) return;
+            if (audioSourceParent.IsNullOrDisposed()) return;
 
             AudioSource audioSource = audioSourceParent.GetComponentInChildren<AudioSource>();
-            if (audioSource == default) return;
+            if (audioSource == null) return;
 
             audioSource.Stop();
             audioSource.clip = null;

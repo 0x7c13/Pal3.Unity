@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -191,11 +191,11 @@ namespace Pal3.Game.Actor.Controllers
             // Disable shadow for some actions
             if (actionType.HasValue && ActorConstants.ActionWithoutShadow.Contains(actionType.Value))
             {
-                if (_shadow != null) _shadowSpriteRenderer.enabled = false;
+                if (!_shadow.IsNullOrDisposed()) _shadowSpriteRenderer.enabled = false;
             }
             else
             {
-                if (_shadow == null) RenderShadow();
+                if (_shadow.IsNullOrDisposed()) RenderShadow();
                 else _shadowSpriteRenderer.enabled = true;
             }
         }

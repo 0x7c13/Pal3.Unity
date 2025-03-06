@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ namespace Pal3.Game.Effect
                     parent = currentScene.GetActorGameEntity(actorCommand.ActorId);
                 }
 
-                if (parent != null)
+                if (!parent.IsNullOrDisposed())
                 {
                     IGameEntity effectEntity = GameEntityFactory.Create(name: $"VFX_{command.EffectGroupId}",
                         vfxPrefab, parent, worldPositionStays: false);

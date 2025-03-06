@@ -999,7 +999,7 @@ PlayerSettings:
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
-    Android: 0
+    Android: 1
     Standalone: 0
     iPhone: 1
   il2cppCompilerConfiguration: {}

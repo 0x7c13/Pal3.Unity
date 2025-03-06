@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -283,8 +283,7 @@ namespace Pal3.Game.Actor.Controllers
             // Sanity cleanup
             if (_activeColliders.Count > 0)
             {
-                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity == null ||
-                                                  _.ColliderGameEntity.IsNativeObjectDisposed ||
+                _activeColliders.RemoveWhere(_ => _.ColliderGameEntity.IsNullOrDisposed() ||
                                                   // Just in case the collider is destroyed during the collision
                                                   _.ColliderGameEntity.GetComponent<Collider>() == null);
             }
@@ -574,8 +573,7 @@ namespace Pal3.Game.Actor.Controllers
             // Check if actor is running into any of the active collision colliders
             foreach (ActiveColliderInfo colliderInfo in _activeColliders)
             {
-                if (colliderInfo.ColliderGameEntity == null ||
-                    colliderInfo.ColliderGameEntity.IsNativeObjectDisposed)
+                if (colliderInfo.ColliderGameEntity.IsNullOrDisposed())
                 {
                     continue; // In case the collider is destroyed
                 }

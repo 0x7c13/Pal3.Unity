@@ -1,5 +1,5 @@
 ﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ namespace Pal3.Game.Scene.SceneObjects
             if (ObjectInfo.Parameters[2] != 0)
             {
                 objectOnThePlatform = ctx.CurrentScene.GetSceneObject(ObjectInfo.Parameters[2]).GetGameEntity();
-                if (objectOnThePlatform != null)
+                if (!objectOnThePlatform.IsNullOrDisposed())
                 {
                     hasObjectOnPlatform = true;
                     objectOnThePlatformOriginalPosition = objectOnThePlatform.Transform.Position;

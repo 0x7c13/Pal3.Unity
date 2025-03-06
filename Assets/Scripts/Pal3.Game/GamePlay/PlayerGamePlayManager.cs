@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2024, Jiaqi (0x7c13) Liu. All rights reserved.
+//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ---------------------------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ namespace Pal3.Game.GamePlay
     using Core.Utilities;
     using Data;
     using Engine.Core.Abstraction;
+    using Engine.Extensions;
     using Engine.Logging;
     using Engine.Services;
     using GameSystems.Team;
@@ -124,7 +125,7 @@ namespace Pal3.Game.GamePlay
 
         public void Update(float deltaTime)
         {
-            if (_playerActorGameEntity == null) return;
+            if (_playerActorGameEntity.IsNullOrDisposed()) return;
 
             bool isPlayerInControl = false;
 
@@ -270,7 +271,7 @@ namespace Pal3.Game.GamePlay
             }
 
             // Stop & dispose current player actor movement sfx
-            if (_playerActorGameEntity != null)
+            if (!_playerActorGameEntity.IsNullOrDisposed())
             {
                 _currentMovementSfxAudioName = string.Empty;
                 Pal3.Instance.Execute(new StopSfxPlayingAtGameEntityRequest(_playerActorGameEntity,
@@ -287,7 +288,7 @@ namespace Pal3.Game.GamePlay
             int? lastActivePlayerActorNavLayerIndex = null;
 
             // Deactivate current player actor
-            if (_playerActorGameEntity != null &&
+            if (!_playerActorGameEntity.IsNullOrDisposed() &&
                 _playerActor.Id != command.ActorId &&
                 _playerActorController != null &&
                 _playerActorController.IsActive)
@@ -388,7 +389,7 @@ namespace Pal3.Game.GamePlay
             if (_sceneManager.GetCurrentScene() is not { } currentScene) return;
 
             // Stop current player actor movement sfx
-            if (_playerActorGameEntity != null)
+            if (!_playerActorGameEntity.IsNullOrDisposed())
             {
                 _currentMovementSfxAudioName = string.Empty;
                 Pal3.Instance.Execute(new StopSfxPlayingAtGameEntityRequest(_playerActorGameEntity,
@@ -403,7 +404,7 @@ namespace Pal3.Game.GamePlay
                 currentScene.GetSceneInfo(),
                 _playerActorMovementController.GetCurrentLayerIndex(),
                 _playerActorMovementController.GetTilePosition(),
-                _playerActorGameEntity != null 
+                !_playerActorGameEntity.IsNullOrDisposed()
                     ? _playerActorGameEntity.Transform.Forward
                     : Vector3.forward));
 
