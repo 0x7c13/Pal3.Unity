@@ -78,29 +78,45 @@ namespace Editor
             {
                 PlayerSettings.SetApplicationIdentifier(target,
                     $"{GameConstants.AppIdentifierPrefix}.{appName}");
-                
+
                 // Set app icon
-                int[] iconSizes = PlayerSettings.GetIconSizes(target, IconKind.Application);
                 PlayerSettings.SetIcons(target,
-                    Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
+                    Enumerable.Repeat(gameIcon,
+                        PlayerSettings.GetIconSizes(target, IconKind.Application).Length).ToArray(),
                     IconKind.Application);
 
-                // Set iOS store icon which is required for store publishing or TestFlight
+                // Set settings icon
+                PlayerSettings.SetIcons(target,
+                    Enumerable.Repeat(gameIcon,
+                        PlayerSettings.GetIconSizes(target, IconKind.Settings).Length).ToArray(),
+                    IconKind.Settings);
+
+                // Set notification icon
+                PlayerSettings.SetIcons(target,
+                    Enumerable.Repeat(gameIcon,
+                        PlayerSettings.GetIconSizes(target, IconKind.Notification).Length).ToArray(),
+                    IconKind.Notification);
+
+                // Set iOS store and spotlight icon which are required for store publishing or TestFlight
                 if (target == NamedBuildTarget.iOS)
                 {
                     PlayerSettings.SetIcons(target,
                         Enumerable.Repeat(gameIcon,
                             PlayerSettings.GetIconSizes(target, IconKind.Store).Length).ToArray(),
                         IconKind.Store);
+                    PlayerSettings.SetIcons(target,
+                        Enumerable.Repeat(gameIcon,
+                            PlayerSettings.GetIconSizes(target, IconKind.Spotlight).Length).ToArray(),
+                        IconKind.Spotlight);
                 }
             }
-            
+
             // Set default app icon (I don't know why Unity decided to use NamedBuildTarget.Unknown here but it is what it is)
             {
-                int[] iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Unknown, IconKind.Application);
                 PlayerSettings.SetIcons(NamedBuildTarget.Unknown,
-                    Enumerable.Repeat(gameIcon, iconSizes.Length).ToArray(),
-                    IconKind.Application);   
+                    Enumerable.Repeat(gameIcon,
+                        PlayerSettings.GetIconSizes(NamedBuildTarget.Unknown, IconKind.Application).Length).ToArray(),
+                    IconKind.Application);
             }
         }
     }
