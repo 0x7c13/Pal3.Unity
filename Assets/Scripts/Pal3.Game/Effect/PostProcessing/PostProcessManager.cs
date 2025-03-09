@@ -104,7 +104,8 @@ namespace Pal3.Game.Effect.PostProcessing
                 _ambientOcclusion.active ||
                 _colorGrading.active ||
                 _vignette.active ||
-                _distortion.active)
+                _distortion.active ||
+                _snow.active)
             {
                 _postProcessLayer.enabled = true;
             }
@@ -184,6 +185,7 @@ namespace Pal3.Game.Effect.PostProcessing
                 command.NewSceneInfo.IsCity("m22"))
             {
                 _snow.active = true;
+                TogglePostProcessLayerWhenNeeded();
             }
             #elif PAL3A
             if (command.NewSceneInfo.Is("q02", "hs") ||
@@ -192,6 +194,7 @@ namespace Pal3.Game.Effect.PostProcessing
                 command.NewSceneInfo.Is("q02", "zs"))
             {
                 _snow.active = true;
+                TogglePostProcessLayerWhenNeeded();
             }
             #endif
         }
@@ -199,6 +202,7 @@ namespace Pal3.Game.Effect.PostProcessing
         public void Execute(SceneLeavingCurrentSceneNotification command)
         {
             _snow.active = false;
+            TogglePostProcessLayerWhenNeeded();
         }
     }
 }
