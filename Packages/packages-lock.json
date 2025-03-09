@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "a011c51ed65c9abc3151a7a408bc70d408352933"
+      "hash": "36d3260fdca03bf6feb105c67022d1fd7629dd2f"
     },
     "com.unity.ai.navigation": {
       "version": "2.0.6",
@@ -84,7 +84,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.13.0",
+      "version": "1.13.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -104,11 +104,11 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.editorcoroutines": "1.0.0",
+        "com.unity.burst": "1.8.0",
         "com.unity.collections": "1.2.3",
         "com.unity.mathematics": "1.2.1",
-        "com.unity.burst": "1.8.0",
-        "com.unity.profiling.core": "1.0.0"
+        "com.unity.profiling.core": "1.0.0",
+        "com.unity.editorcoroutines": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -204,7 +204,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.8.7",
+      "version": "1.8.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -245,7 +245,7 @@
       }
     },
     "com.unity.visualscripting": {
-      "version": "1.9.5",
+      "version": "1.9.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
