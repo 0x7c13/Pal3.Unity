@@ -43,7 +43,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3A
           versioning: Semantic
-      - uses: actions/upload-artifact@v4.6.1
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: PAL3A-Mono-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
