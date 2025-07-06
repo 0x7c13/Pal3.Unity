@@ -388,9 +388,54 @@ PlayerSettings:
       m_Kind: 0
     - serializedVersion: 2
       m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 87
+      m_Height: 87
+      m_Kind: 1
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 58
+      m_Height: 58
+      m_Kind: 1
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 29
+      m_Height: 29
+      m_Kind: 1
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 60
+      m_Height: 60
+      m_Kind: 2
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 40
+      m_Height: 40
+      m_Kind: 2
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 20
+      m_Height: 20
+      m_Kind: 2
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
       m_Width: 1024
       m_Height: 1024
       m_Kind: 4
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 120
+      m_Height: 120
+      m_Kind: 3
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 80
+      m_Height: 80
+      m_Kind: 3
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 6b32649dccc45df4ebe8e3f8eccee249, type: 3}
+      m_Width: 40
+      m_Height: 40
+      m_Kind: 3
   - m_BuildTarget: tvOS
     m_Icons: []
   - m_BuildTarget: Android
@@ -737,6 +782,7 @@ PlayerSettings:
   - serializedVersion: 2
     m_BuildTarget: tvOS
     m_EncodingQuality: 1
+  m_BuildTargetGroupHDRCubemapEncodingQuality: []
   m_BuildTargetGroupLightmapSettings: []
   m_BuildTargetGroupLoadStoreDebugModeSettings: []
   m_BuildTargetNormalMapEncoding:
@@ -1012,12 +1058,12 @@ PlayerSettings:
   webGLMemoryLinearGrowthStep: 16
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
-  webGLEnableWebGPU: 0
   webGLPowerPreference: 2
   webGLWebAssemblyTable: 0
   webGLWebAssemblyBigInt: 0
   webGLCloseOnQuit: 0
   webWasm2023: 0
+  webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
     Android: PAL3;UNITY_POST_PROCESSING_STACK_V2
     Bratwurst: UNITY_POST_PROCESSING_STACK_V2
@@ -1025,6 +1071,7 @@ PlayerSettings:
     EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2
     GameCoreScarlett: PAL3A;UNITY_POST_PROCESSING_STACK_V2
     GameCoreXboxOne: PAL3A;UNITY_POST_PROCESSING_STACK_V2
+    Kepler: UNITY_POST_PROCESSING_STACK_V2
     LinuxHeadlessSimulation: UNITY_POST_PROCESSING_STACK_V2
     Lumin: UNITY_POST_PROCESSING_STACK_V2
     Nintendo Switch: PAL3;UNITY_POST_PROCESSING_STACK_V2
@@ -1156,3 +1203,4 @@ PlayerSettings:
   insecureHttpOption: 0
   androidVulkanDenyFilterList: []
   androidVulkanAllowFilterList: []
+  androidVulkanDeviceFilterListAsset: {fileID: 0}
