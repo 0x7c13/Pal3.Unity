@@ -28,6 +28,9 @@
 # Visual Studio cache directory
 .vs/
 
+# Unity-generated Visual Studio Code settings
+/.vscode/
+
 # Gradle cache directory
 .gradle/
 
@@ -36,6 +39,7 @@ ExportedObj/
 .consulo/
 /*.csproj
 /*.sln
+/*.slnx
 *.unityproj
 *.suo
 *.tmp
