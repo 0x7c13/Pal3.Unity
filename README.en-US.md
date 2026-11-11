@@ -71,7 +71,7 @@ Both games default to the original visual style in URP, preserving the original 
 
 The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and night fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. At most one fire casts real-time shadows. Bloom has a separate switch and defaults to enabled only for the original style on desktop.
 
-The screenshots above show the previous toon renderer.
+The screenshots above show the previous toon renderer. Optional story VFX load numbered prefabs from `Assets/Resources/Prefabs/VFX/PAL3/` or `PAL3A/`. Install URP-compatible versions locally, then enable optional story VFX in the visual effects settings. Use a fresh checkout without optional assets for public builds.
 
 ## Controls
   - Mouse and keyboard: Left mouse button to click and control character movement (arrow keys can also be used), A/D to control camera rotation, Spacebar to interact with nearby items or NPCs (also used as the jump button when available), M key to toggle the big map, U key or ESC key to open the story selection menu, Tab key to switch characters (in the maze).

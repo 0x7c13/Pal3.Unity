@@ -61,6 +61,7 @@ namespace Pal3.Game.Data
 
         private readonly Dictionary<string, ISprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
+        private readonly Dictionary<int, UnityEngine.Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
@@ -107,6 +108,8 @@ namespace Pal3.Game.Data
                 audioClip.Destroy();
             }
             _audioClipCache.Clear();
+
+            _vfxEffectPrefabCache.Clear();
 
             _materialManager.Dispose();
 
@@ -512,12 +515,57 @@ namespace Pal3.Game.Data
             return Array.Empty<(ITexture2D, bool)>();
         }
 
-        // Story prefabs for the Built-in pipeline are unavailable in URP.
-        public object GetVfxEffectPrefab(int effectGroupId) => null;
+        private string GetVfxPrefabPath(int effectGroupId)
+        {
+            return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
+        }
+
+        public object GetVfxEffectPrefab(int effectGroupId)
+        {
+            if (!_gameSettings.OptionalVfxEnabled) return null;
+
+            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out UnityEngine.Object vfxEffectPrefab))
+            {
+                return vfxEffectPrefab;
+            }
+
+            UnityEngine.Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
+
+            if (vfxPrefab == null)
+            {
+                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
+            }
+
+            _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
+            return vfxPrefab;
+        }
 
         public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
         {
-            yield break;
+            if (!_gameSettings.OptionalVfxEnabled) yield break;
+
+            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
+            {
+                yield break;
+            }
+
+            ResourceRequest request = Resources.LoadAsync(GetVfxPrefabPath(effectGroupId));
+
+            while (!request.isDone)
+            {
+                yield return request;
+            }
+
+            if (request.asset == null)
+            {
+                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
+            }
+            else
+            {
+                EngineLogger.Log($"VFX prefab preloaded: {effectGroupId}");
+            }
+
+            _vfxEffectPrefabCache[effectGroupId] = request.asset;
         }
 
         public ITexture2D GetCursorTexture()
@@ -591,6 +639,9 @@ namespace Pal3.Game.Data
                     fileCache.Value.Clear();
                 }
             }
+
+            // clear all vfx prefabs in cache
+            _vfxEffectPrefabCache.Clear();
         }
 
     }

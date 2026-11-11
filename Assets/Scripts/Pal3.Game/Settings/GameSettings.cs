@@ -60,6 +60,7 @@ namespace Pal3.Game.Settings
             RegisterVisualOption(nameof(ToonCharacterLighting), "角色光照", enabled => ToonCharacterLighting = enabled);
             RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
             RegisterVisualOption(nameof(BloomEnabled), "泛光", enabled => BloomEnabled = enabled);
+            RegisterVisualOption(nameof(OptionalVfxEnabled), "可选剧情特效", enabled => OptionalVfxEnabled = enabled);
             RegisterVisualOption(nameof(ToonNightFireShadows), "夜景火光投影", enabled => ToonNightFireShadows = enabled);
 
             DebugLogConsole.AddCommand("Settings.Save",
@@ -216,6 +217,7 @@ namespace Pal3.Game.Settings
                 || nightFireBoost;
             _sessionUsesToon ??= ToonRendering;
             LoadBloomSetting(defaultEnabled: desktop && !_sessionUsesToon.Value);
+            OptionalVfxEnabled = SettingsStore.TryGet(nameof(OptionalVfxEnabled), out bool optionalVfx) && optionalVfx;
             ToonNightFireShadows = SettingsStore.TryGet(nameof(ToonNightFireShadows), out bool nightFireShadows)
                 ? nightFireShadows : desktop;
 
