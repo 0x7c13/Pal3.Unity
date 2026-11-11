@@ -137,34 +137,58 @@ namespace Pal3.Game.Settings
             }
         }
 
-        private bool _isRealtimeLightingAndShadowsEnabled = false; // Default disable realtime lighting and shadows
-        public bool IsRealtimeLightingAndShadowsEnabled
+        private bool _toonRendering;
+        public bool ToonRendering
         {
-            get => _isRealtimeLightingAndShadowsEnabled;
+            get => _toonRendering;
             internal set
             {
-                if (_isRealtimeLightingAndShadowsEnabled != value)
+                if (_toonRendering != value)
                 {
-                    _isRealtimeLightingAndShadowsEnabled = value;
-                    SettingsStore.Set(nameof(IsRealtimeLightingAndShadowsEnabled), value);
+                    _toonRendering = value;
+                    SettingsStore.Set(nameof(ToonRendering), value);
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        private bool _isAmbientOcclusionEnabled = false; // Default to disable ambient occlusion
-        public bool IsAmbientOcclusionEnabled
+        private bool _toonContactShadows;
+        public bool ToonContactShadows
         {
-            get => _isAmbientOcclusionEnabled;
-            internal set
-            {
-                if (_isAmbientOcclusionEnabled != value)
-                {
-                    _isAmbientOcclusionEnabled = value;
-                    SettingsStore.Set(nameof(IsAmbientOcclusionEnabled), value);
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _toonContactShadows;
+            internal set => SetBooleanOption(ref _toonContactShadows, value);
+        }
+
+        private bool _toonCharacterLighting;
+        public bool ToonCharacterLighting
+        {
+            get => _toonCharacterLighting;
+            internal set => SetBooleanOption(ref _toonCharacterLighting, value);
+        }
+
+        internal const string NightFireBoostSettingsKey = "ToonNightFireLighting";
+
+        private bool _toonNightFireBoost;
+        public bool ToonNightFireBoost
+        {
+            get => _toonNightFireBoost;
+            internal set => SetBooleanOption(ref _toonNightFireBoost, value, settingsKey: NightFireBoostSettingsKey);
+        }
+
+        private bool _toonNightFireShadows;
+        public bool ToonNightFireShadows
+        {
+            get => _toonNightFireShadows;
+            internal set => SetBooleanOption(ref _toonNightFireShadows, value);
+        }
+
+        private void SetBooleanOption(ref bool option, bool value,
+            [CallerMemberName] string propertyName = null, string settingsKey = null)
+        {
+            if (option == value) return;
+            option = value;
+            SettingsStore.Set(settingsKey ?? propertyName, value);
+            NotifyPropertyChanged(propertyName);
         }
 
         private bool _isVoiceOverEnabled = true; // Default to enable voice over

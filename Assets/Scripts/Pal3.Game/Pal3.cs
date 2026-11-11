@@ -45,6 +45,7 @@ namespace Pal3.Game
     using GameSystems.WorldMap;
     using Input;
     using IngameDebugConsole;
+    using Rendering.Toon;
     using Scene;
     using Script;
     using Script.Patcher;
@@ -198,6 +199,7 @@ namespace Pal3.Game
         private MainMenu _mainMenu;
 
         private IEnumerable<object> _allDisposableServices;
+        private ToonCameraLighting _toonCameraLighting;
 
         private void OnEnable()
         {
@@ -210,6 +212,10 @@ namespace Pal3.Game
             _fileSystem = Requires.IsNotNull(ServiceLocator.Instance.Get<ICpkFileSystem>(), nameof(ICpkFileSystem));
             _gameResourceProvider = Requires.IsNotNull(ServiceLocator.Instance.Get<GameResourceProvider>(), nameof(GameResourceProvider));
             _gameResourceProvider.UseTextureCache(_textureCache);
+            if (_gameResourceProvider.GetMaterialManager().UsesToonRendering)
+            {
+                _toonCameraLighting = ToonCameraLighting.Attach(mainCamera, _gameSettings);
+            }
 
             _commandPreprocessor = Requires.IsNotNull(ServiceLocator.Instance.Get<ISceCommandPreprocessor>(), nameof(ISceCommandPreprocessor));
 
@@ -277,7 +283,6 @@ namespace Pal3.Game
                     sceneObjectFactory,
                     _sceneStateManager,
                     _scriptManager,
-                    _gameSettings,
                     cameraEntity)
             );
 
@@ -686,6 +691,7 @@ namespace Pal3.Game
 
         private void OnDisable()
         {
+            _toonCameraLighting?.Detach();
             _gameSettings.OnGameSettingsChanged -= OnGameSettingsChanged;
 
             DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;

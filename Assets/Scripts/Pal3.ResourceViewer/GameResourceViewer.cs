@@ -33,6 +33,7 @@ namespace Pal3.ResourceViewer
     using Engine.Utilities;
     using Game.Constants;
     using Game.Data;
+    using Game.Rendering.Toon;
     using Game.Rendering.Renderer;
     using Game.Settings;
     using IngameDebugConsole;
@@ -76,6 +77,8 @@ namespace Pal3.ResourceViewer
         private static readonly Random Random = new ();
 
         private GameObject _renderingRoot;
+        private Light _previewKey;
+        private ToonCameraLighting _toonCameraLighting;
 
         private int _codePage;
         //private HashSet<char> _charSet;
@@ -105,10 +108,15 @@ namespace Pal3.ResourceViewer
                 DebugLogManager.Instance.PopupEnabled = true;
             }
 
-            if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
+            if (_resourceProvider.GetMaterialManager().UsesToonRendering)
             {
-                RenderSettings.ambientIntensity = 1f;
-                RenderSettings.ambientLight = Color.White.ToUnityColor();
+                _previewKey ??= ToonLighting.CreateKey(transform, Quaternion.Euler(40f, -35f, 0f),
+                    new UnityEngine.Color(1f, 0.97f, 0.94f), 1f);
+                _previewKey.enabled = true;
+                if (Camera.main is { } camera)
+                {
+                    _toonCameraLighting = ToonCameraLighting.Attach(camera, _gameSettings);
+                }
             }
 
             IDictionary<string, IList<string>> searchResults =
@@ -190,6 +198,12 @@ namespace Pal3.ResourceViewer
             //  }
             //
             // EngineLogger.Log(sb.ToString());
+        }
+
+        private void OnDisable()
+        {
+            _toonCameraLighting?.Detach();
+            if (_previewKey != null) _previewKey.enabled = false;
         }
 
         private void Update()

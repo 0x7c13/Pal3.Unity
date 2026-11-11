@@ -61,8 +61,9 @@ namespace Pal3.Core.DataReader.Mv3
         public GameBoxVector3 GameBoxBoundsMin;
         public GameBoxVector3 GameBoxBoundsMax;
         public Mv3Attribute[] Attributes;
-        public GameBoxVector3[] GameBoxNormals;
         public int[] GameBoxTriangles;
+        public int[] NormalIndices;
+        public int NormalCount;
         public GameBoxVector2[] Uvs;
         public Mv3AnimationKeyFrame[] KeyFrames;
     }

@@ -49,6 +49,7 @@ namespace Pal3.Game.Rendering.Renderer
         private ITexture2D[] _textures;
         private bool[] _textureHasAlphaChannel;
         private IMaterial[][] _materials;
+        private Vector3[][] _sourceNormals;
         private string[] _animationName;
         private uint[][] _frameTicks;
         private IGameEntity[] _meshEntities;
@@ -107,6 +108,11 @@ namespace Pal3.Game.Rendering.Renderer
                 _animationName = new string[_meshCount];
                 _frameTicks = new uint[_meshCount][];
                 _meshEntities = new IGameEntity[_meshCount];
+            }
+
+            if (_materialManager.UsesToonRendering && (_sourceNormals == null || _sourceNormals.Length != _meshCount))
+            {
+                _sourceNormals = new Vector3[_meshCount][];
             }
 
             // Same for tag nodes
@@ -187,7 +193,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             _gbMaterials[index] = material;
             _textures[index] = _textureProvider.GetTexture(textureName, out bool hasAlphaChannel);
-            _textureHasAlphaChannel[index]= hasAlphaChannel;
+            _textureHasAlphaChannel[index] = hasAlphaChannel;
             _animationName[index] = mv3Mesh.Name;
 
             Mv3AnimationKeyFrame[] keyFrames = mv3Mesh.KeyFrames;
@@ -217,56 +223,41 @@ namespace Pal3.Game.Rendering.Renderer
 
             StaticMeshRenderer meshRenderer = _meshEntities[index].AddComponent<StaticMeshRenderer>();
 
-            IMaterial[] materials = _materialManager.CreateStandardMaterials(
-                RendererType.Mv3,
-                mainTexture: (textureName, _textures[index]),
-                shadowTexture: default, // MV3 models don't have shadow textures
-                tintColor: _tintColor,
-                blendFlag: _textureHasAlphaChannel[index] ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
-
-            _materials[index] = materials;
-
-            #if PAL3A
-            // Apply PAL3A texture scaling/tiling fix
-            string texturePath = _textureProvider.GetTexturePath(textureName);
-            if (Dev.TexturePatcher.TextureFileHasWrongTiling(texturePath))
-            {
-                _materials[index][0].SetMainTextureScale(1f, -1f);
-            }
-            #endif
+            _materials[index] = CreateMaterials(textureName, _textures[index], hasAlphaChannel);
 
             _renderMeshComponents[index] ??= new RenderMeshComponent();
             _renderMeshComponents[index].MeshDataBuffer ??= new MeshDataBuffer();
 
-            _renderMeshComponents[index].MeshDataBuffer
-                .AllocateOrResizeBuffers(vertexBufferSize: mv3Mesh.KeyFrames[0].GameBoxVertices.Length,
-                    normalBufferSize: mv3Mesh.GameBoxNormals.Length,
+            MeshDataBuffer buffer = _renderMeshComponents[index].MeshDataBuffer;
+            bool usesToon = _materialManager.UsesToonRendering;
+            int vertexCount = mv3Mesh.KeyFrames[0].GameBoxVertices.Length;
+            buffer.AllocateOrResizeBuffers(vertexBufferSize: vertexCount,
+                    normalBufferSize: usesToon ? vertexCount : 0,
                     uvBufferSize: mv3Mesh.Uvs.Length,
                     triangleBufferSize: mv3Mesh.GameBoxTriangles.Length);
 
             mv3Mesh.KeyFrames[0].GameBoxVertices.ToUnityPositions(
-                _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
-                UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit);
+                buffer.VertexBuffer, UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit);
+            mv3Mesh.GameBoxTriangles.ToUnityTriangles(buffer.TriangleBuffer);
+            mv3Mesh.Uvs.ToUnityVector2s(buffer.UvBuffer);
 
-            mv3Mesh.GameBoxTriangles.ToUnityTriangles(
-                _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer);
-
-            mv3Mesh.GameBoxNormals.ToUnityNormals(
-                _renderMeshComponents[index].MeshDataBuffer.NormalBuffer);
-
-            mv3Mesh.Uvs.ToUnityVector2s(
-                _renderMeshComponents[index].MeshDataBuffer.UvBuffer);
+            if (usesToon)
+            {
+                if (_sourceNormals[index]?.Length != mv3Mesh.NormalCount)
+                {
+                    _sourceNormals[index] = new Vector3[mv3Mesh.NormalCount];
+                }
+                buffer.RebuildNormalsBySourceVertex(mv3Mesh.NormalIndices, _sourceNormals[index]);
+            }
 
             Mesh renderMesh = meshRenderer.Render(
-                vertices: _renderMeshComponents[index].MeshDataBuffer.VertexBuffer,
-                triangles: _renderMeshComponents[index].MeshDataBuffer.TriangleBuffer,
-                normals: _renderMeshComponents[index].MeshDataBuffer.NormalBuffer,
-                mainTextureUvs: (channel: 0, uvs: _renderMeshComponents[index].MeshDataBuffer.UvBuffer),
+                vertices: buffer.VertexBuffer,
+                triangles: buffer.TriangleBuffer,
+                normals: usesToon ? buffer.NormalBuffer : null,
+                mainTextureUvs: (channel: 0, uvs: buffer.UvBuffer),
                 secondaryTextureUvs: default, // MV3 models don't have secondary texture
                 materials: _materials[index],
                 isDynamic: true);
-
-            renderMesh.RecalculateTangents();
 
             _renderMeshComponents[index].Mesh = renderMesh;
             _renderMeshComponents[index].MeshRenderer = meshRenderer;
@@ -285,17 +276,70 @@ namespace Pal3.Game.Rendering.Renderer
             StartCoroutine(PlayAnimationInternalAsync(loopCount, _animationCts.Token));
         }
 
+        private IMaterial[] CreateMaterials(string textureName, ITexture2D texture, bool hasAlphaChannel)
+        {
+            IMaterial[] materials = _materialManager.CreateStandardMaterials(
+                RendererType.Mv3,
+                mainTexture: (textureName, texture),
+                bakedLightmap: default,
+                tintColor: _tintColor,
+                blendFlag: hasAlphaChannel ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
+            ApplyTextureScale(materials, textureName);
+            return materials;
+        }
+
+        private void ApplyTextureScale(IMaterial[] materials, string textureName)
+        {
+            #if PAL3A
+            string texturePath = _textureProvider.GetTexturePath(textureName);
+            float scaleY = Dev.TexturePatcher.TextureFileHasWrongTiling(texturePath) ? -1f : 1f;
+            foreach (IMaterial material in materials)
+            {
+                material.SetMainTextureScale(1f, scaleY);
+            }
+            #endif
+        }
+
         public void ChangeTexture(string textureName)
         {
+            if (!IsInitialized || _meshCount == 0) return;
             if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
 
-            _textures[0] = _textureProvider.GetTexture(textureName, out var hasAlphaChannel);
-            _textureHasAlphaChannel[0] = hasAlphaChannel;
+            ITexture2D texture = _textureProvider.GetTexture(textureName, out bool hasAlphaChannel);
+            if (texture == null) return;
 
-            // Change the texture for the first sub-mesh only
-            _materialManager.UpdateMaterial(_materials[0][0], _textures[0], _textureHasAlphaChannel[0] ?
-                GameBoxBlendFlag.AlphaBlend :
-                GameBoxBlendFlag.Opaque);
+            // ActorChangeTexture targets the first sub-mesh and all of its material passes.
+            IMaterial[] materials = _materials[0];
+            if (_textureHasAlphaChannel[0] != hasAlphaChannel)
+            {
+                IMaterial[] replacement = CreateMaterials(textureName, texture, hasAlphaChannel);
+                _renderMeshComponents[0].MeshRenderer.SetMaterials(replacement);
+                _materials[0] = replacement;
+                ReturnMaterials(materials);
+            }
+            else
+            {
+                foreach (IMaterial material in materials)
+                {
+                    material.SetMainTexture(texture);
+                }
+                ApplyTextureScale(materials, textureName);
+            }
+
+            _textures[0] = texture;
+            _textureHasAlphaChannel[0] = hasAlphaChannel;
+        }
+
+        private void ReturnMaterials(IMaterial[] materials)
+        {
+            #if PAL3A
+            foreach (IMaterial material in materials)
+            {
+                material.SetMainTextureScale(1f, 1f);
+            }
+            #endif
+
+            _materialManager.ReturnToPool(materials);
         }
 
         public void PauseAnimation()
@@ -503,6 +547,11 @@ namespace Pal3.Game.Rendering.Renderer
                     }
 
                     meshComponent.Mesh.SetVertices(vertices);
+                    if (_materialManager.UsesToonRendering)
+                    {
+                        meshComponent.MeshDataBuffer.RebuildNormalsBySourceVertex(_meshes[i].NormalIndices, _sourceNormals[i]);
+                        meshComponent.Mesh.SetNormals(meshComponent.MeshDataBuffer.NormalBuffer);
+                    }
                     meshComponent.Mesh.RecalculateBounds();
                 }
 
@@ -561,22 +610,19 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    IMaterial[] materials = renderMeshComponent.MeshRenderer.GetMaterials();
-                    if (materials != null)
-                    {
-                        #if PAL3A
-                        // Revert tiling fix before returning to pool
-                        foreach (IMaterial material in materials)
-                        {
-                            material.SetMainTextureScale(1f, 1f);
-                        }
-                        #endif
-                        _materialManager.ReturnToPool(materials);
-                    }
-                    renderMeshComponent.Mesh.Destroy();
+                    if (renderMeshComponent?.MeshRenderer == null) continue;
                     renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
+            }
+
+            for (int i = 0; i < _materials.Length; i++)
+            {
+                IMaterial[] materials = _materials[i];
+                if (materials == null) continue;
+
+                ReturnMaterials(materials);
+                _materials[i] = null;
             }
 
             if (_meshEntities != null)

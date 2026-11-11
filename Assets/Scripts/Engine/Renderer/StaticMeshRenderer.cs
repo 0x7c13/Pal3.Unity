@@ -11,6 +11,7 @@ namespace Engine.Renderer
     using Core.Implementation;
     using Extensions;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     public sealed class StaticMeshRenderer : GameEntityScript, IDisposable
     {
@@ -33,10 +34,8 @@ namespace Engine.Renderer
         {
             Dispose();
 
-            _materials = materials;
             _meshRenderer = GameEntity.AddComponent<MeshRenderer>();
-            _meshRenderer.sharedMaterials = materials.Select(material => material.NativeObject as Material).ToArray();
-            _meshRenderer.receiveShadows = _receiveShadows;
+            SetMaterials(materials);
 
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
 
@@ -83,16 +82,28 @@ namespace Engine.Renderer
             return mesh;
         }
 
-        private bool _receiveShadows = true; // Default to receive shadows
-        public bool ReceiveShadows
+        private static readonly int ReceiveShadowsId = Shader.PropertyToID("_ReceiveShadows");
+        private bool _shadowsDisabled;
+
+        public void SetMaterials(IMaterial[] materials)
         {
-            get => _receiveShadows;
-            set
+            _meshRenderer.sharedMaterials = materials.Select(material => material.NativeObject as Material).ToArray();
+            _materials = materials;
+            if (_shadowsDisabled) DisableShadows();
+        }
+
+        public void DisableShadows()
+        {
+            _shadowsDisabled = true;
+            if (_meshRenderer == null) return;
+
+            _meshRenderer.receiveShadows = false;
+            _meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+            foreach (IMaterial material in _materials)
             {
-                _receiveShadows = value;
-                if (_meshRenderer != null)
+                if (material.NativeObject is Material unityMaterial && unityMaterial.HasProperty(ReceiveShadowsId))
                 {
-                    _meshRenderer.receiveShadows = value;
+                    unityMaterial.SetFloat(ReceiveShadowsId, 0f);
                 }
             }
         }
@@ -114,11 +125,6 @@ namespace Engine.Renderer
             return _meshFilter.sharedMesh.bounds;
         }
 
-        public IMaterial[] GetMaterials()
-        {
-            return _materials;
-        }
-
         public void Dispose()
         {
             if (_meshFilter != null)
@@ -130,6 +136,7 @@ namespace Engine.Renderer
 
             if (_meshRenderer != null)
             {
+                _meshRenderer.enabled = false;
                 _meshRenderer.Destroy();
                 _meshRenderer = null;
             }

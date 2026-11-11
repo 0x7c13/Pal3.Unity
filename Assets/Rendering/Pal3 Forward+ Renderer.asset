@@ -26,7 +26,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
   - {fileID: 6015277420500135746}
-  m_RendererFeatureMap: 42af5692f18e7a53l
+  - {fileID: 7317615400953120047}
+  m_RendererFeatureMap: 42af5692f18e7a532f05bdd06f648d65
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_AssetVersion: 3
@@ -70,3 +71,29 @@ MonoBehaviour:
   m_Active: 1
   distortionShader: {fileID: 4800000, guid: 0b8bcccc572f924448668c94cfa547b4, type: 3}
   snowShader: {fileID: 4800000, guid: 310e70fe34ae470e9e0521e3fbb649d0, type: 3}
+--- !u!114 &7317615400953120047
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8375d96629014bce9e8f3ecf7aad6a08, type: 3}
+  m_Name: Toon Contact Shadows
+  m_EditorClassIdentifier: Pal3.Game::Pal3.Game.Rendering.Toon.ToonAmbientOcclusionFeature
+  m_Active: 1
+  m_Settings:
+    AOMethod: 0
+    Downsample: 1
+    AfterOpaque: 1
+    Source: 1
+    NormalSamples: 2
+    Intensity: 0.95
+    DirectLightingStrength: 0
+    Radius: 0.32
+    Samples: 1
+    BlurQuality: 0
+    Falloff: 60
+    SampleCount: -1

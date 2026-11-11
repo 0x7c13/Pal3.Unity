@@ -14,29 +14,32 @@ namespace Pal3.Game.Rendering.Material
     using Color = Core.Primitives.Color;
 
     /// <summary>
-    /// Unlit material factory for generating materials that have similar
-    /// look and feel as the original game
+    /// Material factory for the original and toon rendering styles.
     /// </summary>
-    public sealed class UnlitMaterialManager : MaterialManagerBase, IMaterialManager
+    public sealed class GameMaterialManager : MaterialManagerBase, IMaterialManager
     {
-        // Pal3 unlit shaders
-        private const string OPAQUE_SHADER_PATH = "Pal3/Opaque";
-        private const string TRANSPARENT_SHADER_PATH = "Pal3/Transparent";
-        private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
-        private const string WATER_SHADER_PATH = "Pal3/Water";
-
+        private const string OpaqueShaderName = "Pal3/Opaque";
+        private const string TransparentShaderName = "Pal3/Transparent";
+        private const string AlphaCutoutShaderName = "Pal3/TransparentOpaquePart";
+        private const string WaterShaderName = "Pal3/Water";
+        private const string ToonOpaqueShaderName = "Pal3/ToonOpaque";
+        private const string ToonTransparentShaderName = "Pal3/ToonTransparent";
+        private const string ToonCutoutShaderName = "Pal3/ToonCutout";
 
         // Water material uniforms
         private static readonly int WaterAlphaPropId = ShaderUtility.GetPropertyIdByName("_Alpha");
 
-        // Standard material uniforms for Pal3 unlit shaders
+        // Material properties shared by the original and Toon shaders
         private static readonly int BlendSrcFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendSrcFactor");
         private static readonly int BlendDstFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendDstFactor");
         private static readonly int TintColorPropertyId = ShaderUtility.GetPropertyIdByName("_TintColor");
         private static readonly int TransparentThresholdPropertyId = ShaderUtility.GetPropertyIdByName("_Threshold");
-        private static readonly int HasShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
+        private static readonly int HasBakedLightmapId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
         private static readonly int LightmapScalePropertyId = ShaderUtility.GetPropertyIdByName("_LightmapScale");
-        private static readonly int ShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_ShadowTex");
+        private static readonly int ReceiveShadowsPropertyId = ShaderUtility.GetPropertyIdByName("_ReceiveShadows");
+        private static readonly int CharacterPropertyId = ShaderUtility.GetPropertyIdByName("_IsCharacter");
+        private static readonly int ReceiveLightingPropertyId = ShaderUtility.GetPropertyIdByName("_ReceiveLighting");
+        private static readonly int BakedLightmapId = ShaderUtility.GetPropertyIdByName("_ShadowTex");
 
         private const float DefaultAlphaCutoff = 0.9f;
         private const float PolAlphaCutoff = 245f / 255f;
@@ -44,31 +47,32 @@ namespace Pal3.Game.Rendering.Material
         private const float DefaultLightmapScale = 1f / 0.6f;
         private const float PolLightmapScale = 2f;
 
-        public MaterialShaderType ShaderType => MaterialShaderType.Unlit;
+        public bool UsesToonRendering { get; }
 
         private readonly IMaterial _waterMaterial;
         private readonly IMaterial _transparentMaterial;
-        private readonly IMaterial _transparentOpaquePartMaterial;
+        private readonly IMaterial _alphaCutoutMaterial;
         private readonly IMaterial _opaqueMaterial;
 
         private const int WATER_MATERIAL_POOL_SIZE = 100;
         private const int TRANSPARENT_MATERIAL_POOL_SIZE = 1500;
-        private const int TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE = 1500;
+        private const int ALPHA_CUTOUT_MATERIAL_POOL_SIZE = 1500;
         private const int OPAQUE_MATERIAL_POOL_SIZE = 2000;
 
         private readonly Stack<IMaterial> _waterMaterialPool = new();
         private readonly Stack<IMaterial> _transparentMaterialPool = new();
-        private readonly Stack<IMaterial> _transparentOpaquePartMaterialPool = new();
+        private readonly Stack<IMaterial> _alphaCutoutMaterialPool = new();
         private readonly Stack<IMaterial> _opaqueMaterialPool = new();
 
         private bool _disposed;
 
-        public UnlitMaterialManager(IMaterialFactory materialFactory) : base(materialFactory)
+        public GameMaterialManager(IMaterialFactory materialFactory, bool usesToonRendering) : base(materialFactory)
         {
-            _waterMaterial = MaterialFactory.CreateMaterial(WATER_SHADER_PATH);
-            _transparentMaterial = MaterialFactory.CreateMaterial(TRANSPARENT_SHADER_PATH);
-            _transparentOpaquePartMaterial = MaterialFactory.CreateMaterial(TRANSPARENT_OPAQUE_PART_SHADER_PATH);
-            _opaqueMaterial = MaterialFactory.CreateMaterial(OPAQUE_SHADER_PATH);
+            UsesToonRendering = usesToonRendering;
+            _waterMaterial = MaterialFactory.CreateMaterial(WaterShaderName);
+            _transparentMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonTransparentShaderName : TransparentShaderName);
+            _alphaCutoutMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonCutoutShaderName : AlphaCutoutShaderName);
+            _opaqueMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonOpaqueShaderName : OpaqueShaderName);
         }
 
         public void Dispose()
@@ -77,11 +81,11 @@ namespace Pal3.Game.Rendering.Material
             _disposed = true;
             DisposePool(_waterMaterialPool);
             DisposePool(_transparentMaterialPool);
-            DisposePool(_transparentOpaquePartMaterialPool);
+            DisposePool(_alphaCutoutMaterialPool);
             DisposePool(_opaqueMaterialPool);
             _waterMaterial.Destroy();
             _transparentMaterial.Destroy();
-            _transparentOpaquePartMaterial.Destroy();
+            _alphaCutoutMaterial.Destroy();
             _opaqueMaterial.Destroy();
         }
 
@@ -97,7 +101,7 @@ namespace Pal3.Game.Rendering.Material
         public IMaterial[] CreateStandardMaterials(
             RendererType rendererType,
             (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
+            (string name, ITexture2D texture) bakedLightmap,
             Color tintColor,
             GameBoxBlendFlag blendFlag)
         {
@@ -109,8 +113,8 @@ namespace Pal3.Game.Rendering.Material
                 case GameBoxBlendFlag.AlphaBlend:
                 {
                     float cutoff = rendererType == RendererType.Pol ? PolAlphaCutoff : DefaultAlphaCutoff;
-                    IMaterial depthWriting = CreateMeshMaterial(_transparentOpaquePartMaterialPool,
-                        _transparentOpaquePartMaterial);
+                    IMaterial depthWriting = CreateMeshMaterial(_alphaCutoutMaterialPool,
+                        _alphaCutoutMaterial);
                     depthWriting.SetFloat(TransparentThresholdPropertyId, cutoff);
                     return new[] { depthWriting, CreateBlendedMaterial(cutoff, BlendMode.SrcAlpha, BlendMode.OneMinusSrcAlpha) };
                 }
@@ -128,7 +132,12 @@ namespace Pal3.Game.Rendering.Material
                 material.SetMainTexture(mainTexture.texture);
                 material.SetColor(TintColorPropertyId, tintColor);
                 material.SetFloat(LightmapScalePropertyId, lightmapScale);
-                SetShadowTexture(material, shadowTexture.texture);
+                SetBakedLightmap(material, bakedLightmap.texture);
+                if (UsesToonRendering)
+                {
+                    material.SetFloat(ReceiveShadowsPropertyId, 1f);
+                    material.SetFloat(CharacterPropertyId, rendererType is RendererType.Mv3 or RendererType.Msh ? 1f : 0f);
+                }
                 return material;
             }
 
@@ -138,36 +147,25 @@ namespace Pal3.Game.Rendering.Material
                 material.SetFloat(TransparentThresholdPropertyId, cutoff);
                 material.SetInt(BlendSrcFactorPropertyId, (int)sourceBlend);
                 material.SetInt(BlendDstFactorPropertyId, (int)destinationBlend);
+                if (UsesToonRendering)
+                {
+                    // Additive and inverse-color meshes are emissive in the original assets.
+                    material.SetFloat(ReceiveLightingPropertyId, sourceBlend == BlendMode.SrcAlpha ? 1f : 0f);
+                }
                 return material;
-            }
-        }
-
-        public void UpdateMaterial(IMaterial material,
-            ITexture2D newMainTexture,
-            GameBoxBlendFlag blendFlag)
-        {
-            if (newMainTexture != null)
-            {
-                material.SetMainTexture(newMainTexture);
-            }
-
-            if (blendFlag == GameBoxBlendFlag.AlphaBlend)
-            {
-                material.SetFloat(TransparentThresholdPropertyId, DefaultAlphaCutoff);
             }
         }
 
         /// <inheritdoc/>
         public IMaterial CreateWaterMaterial(
             (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
-            float opacity,
-            GameBoxBlendFlag blendFlag)
+            (string name, ITexture2D texture) bakedLightmap,
+            float opacity)
         {
             IMaterial material = RentMaterial(_waterMaterialPool, _waterMaterial);
             material.SetMainTexture(mainTexture.texture);
             material.SetFloat(WaterAlphaPropId, opacity);
-            SetShadowTexture(material, shadowTexture.texture);
+            SetBakedLightmap(material, bakedLightmap.texture);
             return material;
         }
 
@@ -176,10 +174,10 @@ namespace Pal3.Game.Rendering.Material
             return pool.TryPop(out IMaterial material) ? material : MaterialFactory.CreateMaterialFrom(template);
         }
 
-        private static void SetShadowTexture(IMaterial material, ITexture2D shadowTexture)
+        private static void SetBakedLightmap(IMaterial material, ITexture2D bakedLightmap)
         {
-            material.SetFloat(HasShadowTexturePropertyId, shadowTexture == null ? 0f : 1f);
-            material.SetTexture(ShadowTexturePropertyId, shadowTexture);
+            material.SetFloat(HasBakedLightmapId, bakedLightmap == null ? 0f : 1f);
+            material.SetTexture(BakedLightmapId, bakedLightmap);
         }
 
         protected override void ReturnToPool(IMaterial material)
@@ -188,11 +186,11 @@ namespace Pal3.Game.Rendering.Material
 
             (Stack<IMaterial> pool, int capacity) = material.ShaderName switch
             {
-                WATER_SHADER_PATH => (_waterMaterialPool, WATER_MATERIAL_POOL_SIZE),
-                TRANSPARENT_SHADER_PATH => (_transparentMaterialPool, TRANSPARENT_MATERIAL_POOL_SIZE),
-                TRANSPARENT_OPAQUE_PART_SHADER_PATH => (_transparentOpaquePartMaterialPool,
-                    TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE),
-                OPAQUE_SHADER_PATH => (_opaqueMaterialPool, OPAQUE_MATERIAL_POOL_SIZE),
+                WaterShaderName => (_waterMaterialPool, WATER_MATERIAL_POOL_SIZE),
+                TransparentShaderName or ToonTransparentShaderName => (_transparentMaterialPool, TRANSPARENT_MATERIAL_POOL_SIZE),
+                AlphaCutoutShaderName or ToonCutoutShaderName => (_alphaCutoutMaterialPool,
+                    ALPHA_CUTOUT_MATERIAL_POOL_SIZE),
+                OpaqueShaderName or ToonOpaqueShaderName => (_opaqueMaterialPool, OPAQUE_MATERIAL_POOL_SIZE),
                 _ => (null, 0),
             };
 
@@ -204,7 +202,7 @@ namespace Pal3.Game.Rendering.Material
             }
 
             material.SetMainTexture(null);
-            material.SetTexture(ShadowTexturePropertyId, null);
+            material.SetTexture(BakedLightmapId, null);
             pool.Push(material);
         }
     }

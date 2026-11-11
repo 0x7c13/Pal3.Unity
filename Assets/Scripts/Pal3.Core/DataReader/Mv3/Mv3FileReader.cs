@@ -148,44 +148,60 @@ namespace Pal3.Core.DataReader.Mv3
             Mv3VertFrame[] vertFrames,
             GameBoxVector2[] texCoords)
         {
-            int numberOfTriangles = attributes[0].IndexBuffers.Length * 3;
-            int[] triangles = new int[numberOfTriangles];
-            GameBoxVector2[] uvs = new GameBoxVector2[numberOfTriangles];
-
-            int totalVerticesPerKeyFrame = attributes[0].IndexBuffers.Length * 3;
-            GameBoxVector3[][] keyFrameVertices = new GameBoxVector3[vertFrames.Length][];
-            for (int i = 0; i < vertFrames.Length; i++)
+            Mv3IndexBuffer[] faces = attributes[0].IndexBuffers;
+            int[] triangles = new int[faces.Length * 3];
+            int positionCount = vertFrames[0].Vertices.Length;
+            var sourceCorners = new int[triangles.Length];
+            for (int i = 0; i < faces.Length; i++)
             {
-                keyFrameVertices[i] = new GameBoxVector3[totalVerticesPerKeyFrame];
+                ushort[] corners = faces[i].TriangleIndex;
+                sourceCorners[i * 3] = corners[0];
+                sourceCorners[i * 3 + 1] = corners[1];
+                sourceCorners[i * 3 + 2] = corners[2];
             }
 
-            int triangleIndex = 0;
+            var (normalCorners, normalCount) = CoreUtility.GetNormalIndices(sourceCorners, positionCount);
+            var renderVertexByCorner = new Dictionary<(int normalIndex, ushort uv), int>();
+            var normalIndices = new List<int>();
+            var positionIndices = new List<int>();
+            var uvs = new List<GameBoxVector2>();
 
-            foreach (Mv3IndexBuffer indexBuffer in attributes[0].IndexBuffers)
+            // Share render vertices across matching corners while keeping UV seams and back faces distinct.
+            int corner = 0;
+            foreach (Mv3IndexBuffer face in faces)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < vertFrames.Length; k++)
+                    int normalIndex = normalCorners[corner];
+                    var key = (normalIndex, uv: face.TexCoordIndex[j]);
+                    if (!renderVertexByCorner.TryGetValue(key, out int renderVertex))
                     {
-                        Mv3VertFrame frame = vertFrames[k];
-                        Mv3Vert vertex = frame.Vertices[indexBuffer.TriangleIndex[j]];
-
-                        keyFrameVertices[k][triangleIndex] = new GameBoxVector3(vertex.X, vertex.Y, vertex.Z);
+                        renderVertex = normalIndices.Count;
+                        renderVertexByCorner.Add(key, renderVertex);
+                        normalIndices.Add(normalIndex);
+                        positionIndices.Add(face.TriangleIndex[j]);
+                        uvs.Add(texCoords[key.uv]);
                     }
 
-                    uvs[triangleIndex] = texCoords[indexBuffer.TexCoordIndex[j]];
-                    triangles[triangleIndex] = triangleIndex;
-                    triangleIndex++;
+                    triangles[corner++] = renderVertex;
                 }
             }
 
             Mv3AnimationKeyFrame[] animationKeyFrames = new Mv3AnimationKeyFrame[vertFrames.Length];
             for (int i = 0; i < animationKeyFrames.Length; i++)
             {
-                animationKeyFrames[i] = new Mv3AnimationKeyFrame()
+                Mv3VertFrame frame = vertFrames[i];
+                var vertices = new GameBoxVector3[normalIndices.Count];
+                for (int j = 0; j < vertices.Length; j++)
                 {
-                    GameBoxTick = vertFrames[i].GameBoxTick,
-                    GameBoxVertices = keyFrameVertices[i],
+                    Mv3Vert vertex = frame.Vertices[positionIndices[j]];
+                    vertices[j] = new GameBoxVector3(vertex.X, vertex.Y, vertex.Z);
+                }
+
+                animationKeyFrames[i] = new Mv3AnimationKeyFrame
+                {
+                    GameBoxTick = frame.GameBoxTick,
+                    GameBoxVertices = vertices,
                 };
             }
 
@@ -196,8 +212,9 @@ namespace Pal3.Core.DataReader.Mv3
                 GameBoxBoundsMax = gameBoxBoundsMax,
                 Attributes = attributes,
                 GameBoxTriangles = triangles,
-                Uvs = uvs,
-                GameBoxNormals = CoreUtility.CalculateNormals(animationKeyFrames[0].GameBoxVertices, triangles),
+                NormalIndices = normalIndices.ToArray(),
+                NormalCount = normalCount,
+                Uvs = uvs.ToArray(),
                 KeyFrames = animationKeyFrames,
             };
         }

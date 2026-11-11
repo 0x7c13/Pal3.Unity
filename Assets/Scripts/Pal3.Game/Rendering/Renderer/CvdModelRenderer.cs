@@ -236,7 +236,7 @@ namespace Pal3.Game.Rendering.Renderer
                     string sectionHashKey = $"{meshName}_{i}";
 
                     MeshDataBuffer meshDataBuffer = new(meshSection.FrameVertices[frameIndex].Length,
-                        meshSection.FrameVertices[frameIndex].Length,
+                        0,
                         meshSection.FrameVertices[frameIndex].Length,
                         meshSection.GameBoxTriangles.Length);
 
@@ -266,7 +266,7 @@ namespace Pal3.Game.Rendering.Renderer
                     IMaterial[] materials = _materialManager.CreateStandardMaterials(
                         RendererType.Cvd,
                         mainTexture: (textureName, textureCache[textureName]),
-                        shadowTexture: default, // CVD models don't have shadow textures
+                        bakedLightmap: default, // CVD models don't have shadow textures
                         tintColor: _tintColor,
                         blendFlag: meshSection.BlendFlag);
 
@@ -274,20 +274,20 @@ namespace Pal3.Game.Rendering.Renderer
                     Mesh renderMesh = meshRenderer.Render(
                         vertices: meshDataBuffer.VertexBuffer,
                         triangles: meshDataBuffer.TriangleBuffer,
-                        normals: meshDataBuffer.NormalBuffer,
+                        normals: null,
                         mainTextureUvs: (channel: 0, uvs: meshDataBuffer.UvBuffer),
                         secondaryTextureUvs: default, // CVD models don't have secondary texture
                         materials: materials,
                         isDynamic: true);
 
-                    renderMesh.RecalculateNormals();
-                    renderMesh.RecalculateTangents();
+                    if (_materialManager.UsesToonRendering) renderMesh.RecalculateNormals();
                     renderMesh.RecalculateBounds();
 
                     nodeMeshes.meshComponents[i] = new RenderMeshComponent
                     {
                         Mesh = renderMesh,
                         MeshRenderer = meshRenderer,
+                        Materials = materials,
                         MeshDataBuffer = meshDataBuffer
                     };
                 }
@@ -371,6 +371,7 @@ namespace Pal3.Game.Rendering.Renderer
                         frameMatrix);
 
                     renderMeshComponent.Mesh.SetVertices(meshDataBuffer.VertexBuffer);
+                    if (_materialManager.UsesToonRendering) renderMeshComponent.Mesh.RecalculateNormals();
                     renderMeshComponent.Mesh.SetUVs(0, meshDataBuffer.UvBuffer);
                     renderMeshComponent.Mesh.RecalculateBounds();
                 }
@@ -591,12 +592,19 @@ namespace Pal3.Game.Rendering.Renderer
         {
             StopCurrentAnimation();
 
-            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (var (_, sections) in _renderers)
             {
-                _materialManager.ReturnToPool(meshRenderer.GetMaterials());
-                meshRenderer.Dispose();
-                meshRenderer.Destroy();
+                foreach (RenderMeshComponent component in sections.Values)
+                {
+                    if (component.MeshRenderer != null)
+                    {
+                        component.MeshRenderer.Dispose();
+                        component.MeshRenderer.Destroy();
+                    }
+                    _materialManager.ReturnToPool(component.Materials);
+                }
             }
+            _renderers.Clear();
         }
     }
 }

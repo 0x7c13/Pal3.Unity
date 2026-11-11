@@ -25,7 +25,6 @@ namespace Pal3.Game.Scene
     using GameSystems.Combat.Scene;
     using Newtonsoft.Json;
     using Script;
-    using Settings;
     using State;
     using UnityEngine;
 
@@ -38,7 +37,6 @@ namespace Pal3.Game.Scene
         private readonly ISceneObjectFactory _sceneObjectFactory;
         private readonly SceneStateManager _sceneStateManager;
         private readonly ScriptManager _scriptManager;
-        private readonly GameSettings _gameSettings;
         private readonly IGameEntity _cameraEntity;
 
         private IGameEntity _currentSceneRoot;
@@ -53,14 +51,12 @@ namespace Pal3.Game.Scene
             ISceneObjectFactory sceneObjectFactory,
             SceneStateManager sceneStateManager,
             ScriptManager scriptManager,
-            GameSettings gameSettings,
             IGameEntity cameraEntity)
         {
             _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
             _sceneObjectFactory = Requires.IsNotNull(sceneObjectFactory, nameof(sceneObjectFactory));
             _sceneStateManager = Requires.IsNotNull(sceneStateManager, nameof(sceneStateManager));
             _scriptManager = Requires.IsNotNull(scriptManager, nameof(scriptManager));
-            _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
             _cameraEntity = Requires.IsNotNull(cameraEntity, nameof(cameraEntity));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -114,7 +110,7 @@ namespace Pal3.Game.Scene
             _currentGameScene.Init(_resourceProvider,
                 _sceneObjectFactory,
                 _sceneStateManager,
-                _gameSettings.IsRealtimeLightingAndShadowsEnabled,
+                _resourceProvider.GetMaterialManager().UsesToonRendering,
                 _cameraEntity,
                 _sceneObjectIdsToNotLoadFromSaveState);
             _currentGameScene.Load(scnFile, _currentSceneRoot);
@@ -143,16 +139,24 @@ namespace Pal3.Game.Scene
         {
             Stopwatch timer = Stopwatch.StartNew();
 
-            HideCurrentScene();
+            if (_currentCombatSceneRoot != null) UnloadCombatScene();
 
-            _currentCombatSceneRoot = GameEntityFactory.Create($"CombatScene_{combatSceneName}",
-                null, worldPositionStays: false);
-
-            _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
-            _currentCombatScene.Init(_resourceProvider);
-            _currentCombatScene.Load(_currentCombatSceneRoot,
-                combatSceneName,
-                _gameSettings.IsRealtimeLightingAndShadowsEnabled);
+            try
+            {
+                HideCurrentScene();
+                _currentCombatSceneRoot = GameEntityFactory.Create($"CombatScene_{combatSceneName}",
+                    null, worldPositionStays: false);
+                _currentCombatScene = _currentCombatSceneRoot.AddComponent<CombatScene>();
+                _currentCombatScene.Init(_resourceProvider);
+                _currentCombatScene.Load(_currentCombatSceneRoot,
+                    combatSceneName,
+                    _resourceProvider.GetMaterialManager().UsesToonRendering);
+            }
+            catch
+            {
+                UnloadCombatScene();
+                throw;
+            }
 
             EngineLogger.Log($"CombatScene loaded in {timer.ElapsedMilliseconds} ms");
 
@@ -164,25 +168,27 @@ namespace Pal3.Game.Scene
 
         public void UnloadCombatScene()
         {
-            if (_currentCombatScene != null)
-            {
-                _currentCombatScene.Destroy();
-                _currentCombatScene = null;
-            }
-
-            if (_currentCombatSceneRoot != null)
-            {
-                _currentCombatSceneRoot.Destroy();
-                _currentCombatSceneRoot = null;
-            }
-
+            DisposeCombatScene();
             ShowCurrentScene();
+        }
+
+        private void DisposeCombatScene()
+        {
+            if (_currentCombatSceneRoot?.NativeObject is GameObject root && root != null)
+            {
+                root.SetActive(false);
+                _currentCombatSceneRoot.Destroy();
+            }
+
+            _currentCombatSceneRoot = null;
+            _currentCombatScene = null;
         }
 
         private readonly IList<Renderer> _temporarilyDisabledRenderers = new List<Renderer>();
         private readonly IList<GameObject> _temporarilyDisabledGameObjects = new List<GameObject>();
         private void HideCurrentScene()
         {
+            _currentGameScene?.SetLightingActive(false);
             _temporarilyDisabledRenderers.Clear();
             _temporarilyDisabledGameObjects.Clear();
 
@@ -217,6 +223,7 @@ namespace Pal3.Game.Scene
 
         private void ShowCurrentScene()
         {
+            _currentGameScene?.SetLightingActive(true);
             // Move the scene root back to the original position.
             _currentSceneRoot.Transform.LocalPosition = Vector3.zero;
 
@@ -252,11 +259,7 @@ namespace Pal3.Game.Scene
                 _currentGameScene = null;
             }
 
-            if (_currentCombatScene != null)
-            {
-                _currentCombatScene.Destroy();
-                _currentCombatScene = null;
-            }
+            DisposeCombatScene();
 
             if (_currentSceneRoot != null)
             {

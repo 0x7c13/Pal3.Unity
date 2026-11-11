@@ -34,7 +34,6 @@ namespace Pal3.Game.Dev
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.DualShock;
-    using UnityEngine.Rendering;
     using UnityEngine.UI;
 
     public sealed class MainMenu : IDisposable,
@@ -346,74 +345,22 @@ namespace Pal3.Game.Dev
         {
             SetupMenuLayout(isVertical: true);
 
-            const string lightingEnabledText = "实时光影：开启";
-            const string lightingDisabledText = "实时光影：关闭";
-            const string ssaoEnabledText = "环境光遮蔽：开启";
-            const string ssaoDisabledText = "环境光遮蔽：关闭";
-
-            // Toon materials are not available in open source build.
-            // so lighting and shadow will not work, thus we remove the option.
-            if (!_gameSettings.IsOpenSourceVersion)
+            string GetRenderingStyleButtonText() => _gameSettings.ToonRendering
+                ? "画风：卡通与实时光影"
+                : "画风：原版";
+            CreateMenuButton(GetRenderingStyleButtonText(), buttonText => delegate
             {
-                string GetLightAndShadowButtonText() => _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
-                        lightingEnabledText :
-                        lightingDisabledText;
-                CreateMenuButton(GetLightAndShadowButtonText(), buttonTextUGUI => delegate
-                {
-                    // Do not allow toggling lighting and shadow if there are scripts running
-                    // because it might cause unexpected behavior.
-                    if (_scriptManager.GetNumberOfRunningScripts() > 0) return;
+                _gameSettings.ToonRendering = !_gameSettings.ToonRendering;
+                _gameSettings.SaveSettings();
+                buttonText.text = GetRenderingStyleButtonText();
+                Pal3.Instance.Execute(new UIDisplayNoteCommand("画风将在重启游戏后生效"));
+            });
 
-                    _gameSettings.IsRealtimeLightingAndShadowsEnabled = !_gameSettings.IsRealtimeLightingAndShadowsEnabled;
-
-                    buttonTextUGUI.text = GetLightAndShadowButtonText();
-
-                    // Should turn off SSAO if realtime lighting and shadows is disabled
-                    if (!_gameSettings.IsRealtimeLightingAndShadowsEnabled && _gameSettings.IsAmbientOcclusionEnabled)
-                    {
-                        _gameSettings.IsAmbientOcclusionEnabled = false;
-                        _menuItems.FirstOrDefault(_ => _.GetComponentInChildren<TextMeshProUGUI>() is {text: ssaoEnabledText})!
-                            .GetComponentInChildren<TextMeshProUGUI>().text = ssaoDisabledText;
-                        Pal3.Instance.Execute(new UIDisplayNoteCommand("环境光遮蔽已关闭"));
-                    }
-
-                    if (_isInInitView)
-                    {
-                        ShowInitView(); // Reload init scene to apply changes
-                    }
-                    else // reload scene to apply changes
-                    {
-                        List<ICommand> commands = _saveManager.ConvertCurrentGameStateToCommands(SaveLevel.Full);
-                        string saveFileContent = string.Join('\n', commands.Select(CommandExtensions.ToString).ToList());
-                        ExecuteCommandsFromSaveFile(saveFileContent);
-                    }
-
-                    Pal3.Instance.Execute(new UIDisplayNoteCommand("实时光影已" +
-                        (_gameSettings.IsRealtimeLightingAndShadowsEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                });
-
-                // SSAO is not available on Android OpenGLES3
-                if (!(Application.platform == RuntimePlatform.Android &&
-                      SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan))
-                {
-                    string GetSSAOButtonText() => _gameSettings.IsAmbientOcclusionEnabled ? ssaoEnabledText : ssaoDisabledText;
-                    CreateMenuButton(GetSSAOButtonText(), buttonTextUGUI => delegate
-                    {
-                        if (!_gameSettings.IsAmbientOcclusionEnabled && !_gameSettings.IsRealtimeLightingAndShadowsEnabled)
-                        {
-                            Pal3.Instance.Execute(new UIDisplayNoteCommand("请先开启实时光影，再开启环境光遮蔽"));
-                            return;
-                        }
-
-                        _gameSettings.IsAmbientOcclusionEnabled = !_gameSettings.IsAmbientOcclusionEnabled;
-
-                        buttonTextUGUI.text = GetSSAOButtonText();
-
-                        Pal3.Instance.Execute(new UIDisplayNoteCommand("环境光遮蔽已" +
-                            (_gameSettings.IsAmbientOcclusionEnabled ? "开启（注意性能和耗电影响）" : "关闭") + ""));
-                    });
-                }
-            }
+            CreateMenuButton("画面与特效设置", _ => delegate
+            {
+                DestroyAllMenuItems();
+                SetupVisualEffectButtons();
+            });
 
             #if UNITY_STANDALONE
             const string vsyncEnabledText = "垂直同步：开启";
@@ -551,6 +498,43 @@ namespace Pal3.Game.Dev
                 _contentGridLayoutGroup.cellSize.x,
                 (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y) * _menuItems.Count
                 - _contentGridLayoutGroup.spacing.y);
+        }
+
+        private void SetupVisualEffectButtons()
+        {
+            SetupMenuLayout(isVertical: true);
+            AddOption("接触阴影", () => _gameSettings.ToonContactShadows,
+                value => _gameSettings.ToonContactShadows = value);
+            AddOption("角色光照", () => _gameSettings.ToonCharacterLighting,
+                value => _gameSettings.ToonCharacterLighting = value);
+            AddOption("增强夜景火光", () => _gameSettings.ToonNightFireBoost,
+                value => _gameSettings.ToonNightFireBoost = value);
+            AddOption("夜景火光投影", () => _gameSettings.ToonNightFireShadows,
+                value => _gameSettings.ToonNightFireShadows = value);
+
+            CreateMenuButton("返回", _ => delegate
+            {
+                DestroyAllMenuItems();
+                SetupSettingButtons();
+            });
+            SetupButtonNavigations(isUpAndDown: true);
+            SelectFirstButtonForEventSystem();
+
+            UpdateRectTransformWidthAndHeight(_backgroundTransform,
+                _contentGridLayoutGroup.cellSize.x + _contentGridLayoutGroup.padding.horizontal,
+                _menuItems.Count * (_contentGridLayoutGroup.cellSize.y + _contentGridLayoutGroup.spacing.y)
+                + _contentGridLayoutGroup.padding.vertical - _contentGridLayoutGroup.spacing.y);
+
+            void AddOption(string label, Func<bool> get, Action<bool> set)
+            {
+                string Text() => $"{label}：{(get() ? "开启" : "关闭")}";
+                CreateMenuButton(Text(), text => delegate
+                {
+                    set(!get());
+                    _gameSettings.SaveSettings();
+                    text.text = Text();
+                });
+            }
         }
 
         private void SetupSaveMenuButtons()

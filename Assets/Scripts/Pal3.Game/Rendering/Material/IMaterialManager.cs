@@ -10,15 +10,9 @@ namespace Pal3.Game.Rendering.Material
     using Engine.Core.Abstraction;
     using Color = Core.Primitives.Color;
 
-    public enum MaterialShaderType
-    {
-        Unlit,
-        Lit,
-    }
-
     public interface IMaterialManager : IDisposable
     {
-        public MaterialShaderType ShaderType { get; }
+        public bool UsesToonRendering { get; }
 
         /// <summary>
         /// Create a material for effect sprite without alpha channel.
@@ -38,14 +32,14 @@ namespace Pal3.Game.Rendering.Material
         /// </summary>
         /// <param name="rendererType">Renderer type</param>
         /// <param name="mainTexture">Main texture</param>
-        /// <param name="shadowTexture">Shadow texture</param>
+        /// <param name="bakedLightmap">Baked lightmap</param>
         /// <param name="tintColor">Tint color</param>
         /// <param name="blendFlag">Blend flag</param>
         /// <returns>Materials</returns>
         public IMaterial[] CreateStandardMaterials(
             RendererType rendererType,
             (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
+            (string name, ITexture2D texture) bakedLightmap,
             Color tintColor,
             GameBoxBlendFlag blendFlag);
 
@@ -53,15 +47,13 @@ namespace Pal3.Game.Rendering.Material
         /// Create material for water surface
         /// </summary>
         /// <param name="mainTexture">Main texture</param>
-        /// <param name="shadowTexture">Shadow texture</param>
+        /// <param name="bakedLightmap">Baked lightmap</param>
         /// <param name="opacity">Opacity</param>
-        /// <param name="blendFlag">Blend flag</param>
         /// <returns>Material</returns>
         public IMaterial CreateWaterMaterial(
             (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
-            float opacity,
-            GameBoxBlendFlag blendFlag);
+            (string name, ITexture2D texture) bakedLightmap,
+            float opacity);
 
         /// <summary>
         /// Create material for sky box
@@ -80,16 +72,6 @@ namespace Pal3.Game.Rendering.Material
             ITexture2D frontTex,
             ITexture2D upTex,
             ITexture2D downTex);
-
-        /// <summary>
-        /// Update existing material with new texture.
-        /// </summary>
-        /// <param name="material">Material</param>
-        /// <param name="newMainTexture">New main texture</param>
-        /// <param name="blendFlag">Blend flag</param>
-        public void UpdateMaterial(IMaterial material,
-            ITexture2D newMainTexture,
-            GameBoxBlendFlag blendFlag);
 
         /// <summary>
         /// Return materials to the pool.

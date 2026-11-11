@@ -17,18 +17,13 @@ namespace Pal3.Game.Settings
     using Engine.Utilities;
     using IngameDebugConsole;
     using UnityEngine;
-    using UnityEngine.Rendering;
 
     public sealed class GameSettings : SettingsBase, IDisposable
     {
         public event Action<string> OnGameSettingsChanged;
 
-        public bool IsOpenSourceVersion { get; }
-
-        public GameSettings(ITransactionalKeyValueStore settingsStore, bool isOpenSourceVersion) : base(settingsStore)
+        public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
         {
-            IsOpenSourceVersion = isOpenSourceVersion;
-
             InitDefaultSettings();
 
             DebugLogConsole.AddCommand<int>("Settings.VSyncCount",
@@ -52,13 +47,17 @@ namespace Pal3.Game.Settings
             DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
                 "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
 
-            if (!IsOpenSourceVersion)
-            {
-                DebugLogConsole.AddCommand<bool>("Settings.IsRealtimeLightingAndShadowsEnabled",
-                    "设置实时光照和阴影设定（true：开启，false：关闭）", _ => IsRealtimeLightingAndShadowsEnabled = _);
-                DebugLogConsole.AddCommand<bool>("Settings.IsAmbientOcclusionEnabled",
-                    "设置环境光遮蔽设定（true：开启，false：关闭）", _ => IsAmbientOcclusionEnabled = _);
-            }
+            DebugLogConsole.AddCommand<bool>("Settings.ToonRendering",
+                "设置卡通画风与实时光影，重启后生效", enabled =>
+                {
+                    ToonRendering = enabled;
+                    SaveSettings();
+                });
+
+            RegisterVisualOption(nameof(ToonContactShadows), "接触阴影", enabled => ToonContactShadows = enabled);
+            RegisterVisualOption(nameof(ToonCharacterLighting), "角色光照", enabled => ToonCharacterLighting = enabled);
+            RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
+            RegisterVisualOption(nameof(ToonNightFireShadows), "夜景火光投影", enabled => ToonNightFireShadows = enabled);
 
             DebugLogConsole.AddCommand("Settings.Save",
                 "保存所有设置", SaveSettings);
@@ -68,6 +67,15 @@ namespace Pal3.Game.Settings
                 "打印所有设置", PrintCurrentSettings);
 
             PropertyChanged += OnPropertyChanged;
+        }
+
+        private void RegisterVisualOption(string name, string label, Action<bool> apply)
+        {
+            DebugLogConsole.AddCommand<bool>($"Settings.{name}", $"设置{label}", enabled =>
+            {
+                apply(enabled);
+                SaveSettings();
+            });
         }
 
         public void Dispose()
@@ -195,53 +203,16 @@ namespace Pal3.Game.Settings
                 SfxVolume = 0.5f;
             }
 
-            if (IsOpenSourceVersion)
-            {
-                // Toon materials are available in closed source builds only
-                // so there will be no lit shader variants in the build for lighting to work
-                IsRealtimeLightingAndShadowsEnabled = false;
-            }
-            else
-            {
-                if (SettingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
-                        out bool isRealtimeLightingAndShadowsEnabled))
-                {
-                    IsRealtimeLightingAndShadowsEnabled = isRealtimeLightingAndShadowsEnabled;
-                }
-                else
-                {
-                    // Enable realtime lighting and shadows by default
-                    // unless the device is a legacy mobile device
-                    IsRealtimeLightingAndShadowsEnabled = !UnityEngineUtility.IsLegacyMobileDevice();
-                }
-            }
-
-            if (IsOpenSourceVersion)
-            {
-                // Toon materials are available in closed source builds only
-                // so there will be no lit shader variants in the build for lighting to work
-                // thus AO will not work anyway
-                IsAmbientOcclusionEnabled = false;
-            }
-            else if (Application.platform == RuntimePlatform.Android &&
-                     SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
-            {
-                // AO is only supported on Android with Vulkan
-                // Disable AO on Android with OpenGL ES by default
-                IsAmbientOcclusionEnabled = false;
-            }
-            else
-            {
-                if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
-                {
-                    IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
-                }
-                else
-                {
-                    // Enable ambient occlusion by default on desktop devices
-                    IsAmbientOcclusionEnabled = UnityEngineUtility.IsDesktopDevice();
-                }
-            }
+            ToonRendering = SettingsStore.TryGet(nameof(ToonRendering), out bool toonRendering) && toonRendering;
+            bool desktop = UnityEngineUtility.IsDesktopDevice();
+            ToonContactShadows = SettingsStore.TryGet(nameof(ToonContactShadows), out bool contactShadows)
+                ? contactShadows : desktop;
+            ToonCharacterLighting = !SettingsStore.TryGet(nameof(ToonCharacterLighting), out bool characterLighting)
+                || characterLighting;
+            ToonNightFireBoost = !SettingsStore.TryGet(NightFireBoostSettingsKey, out bool nightFireBoost)
+                || nightFireBoost;
+            ToonNightFireShadows = SettingsStore.TryGet(nameof(ToonNightFireShadows), out bool nightFireShadows)
+                ? nightFireShadows : desktop;
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
             {
@@ -328,6 +299,8 @@ namespace Pal3.Game.Settings
             {
                 SettingsStore.DeleteKey(property.Name);
             }
+
+            SettingsStore.DeleteKey(NightFireBoostSettingsKey);
 
             // Re-initialize settings
             InitOrLoadSettings();

@@ -67,7 +67,11 @@ The version switching is implemented through [Custom scripting symbols](https://
 ![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
 
 ## About VFX and Toon Rendering
-The project uses open-source shaders for the original visual style and loads game data from the player’s local installation. The earlier toon renderer and story VFX prefabs used commercial assets. Use a clean checkout for builds. New toon rendering and story VFX are separate work.
+Both games default to the original visual style in URP, preserving the original textures, baked lighting, and transparency. Choose **Toon with real-time lighting** under the visual style option in game settings and restart to apply it. Both styles use shaders from this repository and load game data from the player’s local installation.
+
+The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and night fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. At most one fire casts real-time shadows.
+
+The screenshots above show the previous toon renderer.
 
 ## Controls
   - Mouse and keyboard: Left mouse button to click and control character movement (arrow keys can also be used), A/D to control camera rotation, Spacebar to interact with nearby items or NPCs (also used as the jump button when available), M key to toggle the big map, U key or ESC key to open the story selection menu, Tab key to switch characters (in the maze).

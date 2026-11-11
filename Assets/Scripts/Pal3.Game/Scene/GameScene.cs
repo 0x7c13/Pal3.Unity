@@ -29,12 +29,16 @@ namespace Pal3.Game.Scene
     using Engine.Logging;
     using Engine.Navigation;
     using Engine.Renderer;
+    using Engine.Services;
     using Engine.Utilities;
+    using Rendering.Toon;
     using Rendering.Material;
     using Rendering.Renderer;
     using SceneObjects;
+    using Settings;
     using State;
     using UnityEngine;
+    using UnityEngine.Rendering.Universal;
     using Color = Core.Primitives.Color;
 
     public sealed class GameScene : SceneBase,
@@ -50,15 +54,20 @@ namespace Pal3.Game.Scene
         ICommandExecutor<ActorLookAtActorCommand>
     {
         private const float SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE = .2f;
-        private const int MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS = 3;
-
-        private static int _lightCullingMask;
 
         private IGameEntity _parent;
         private IGameEntity _mesh;
 
         private Light _mainLight;
-        private readonly List<Light> _pointLights = new();
+        private readonly Dictionary<int, Light> _fireLights = new();
+        private Light _shadowedFire;
+        private GameSettings _lightingSettings;
+        private UnityEngine.Camera _lightingCamera;
+        private ToonCameraLighting _cameraLighting;
+        private readonly Plane[] _fireFrustum = new Plane[6];
+        private bool _isNight;
+        private bool _enhancedFire;
+        private float _nextFireUpdate;
 
         private readonly List<IGameEntity> _navMeshEntities = new ();
 
@@ -70,7 +79,7 @@ namespace Pal3.Game.Scene
         private GameResourceProvider _resourceProvider;
         private ISceneObjectFactory _sceneObjectFactory;
         private SceneStateManager _sceneStateManager;
-        private bool _isLightingEnabled;
+        private bool _usesToonRendering;
         private IGameEntity _cameraEntity;
         private SkyBoxRenderer _skyBoxRenderer;
         private IMaterialManager _materialManager;
@@ -82,6 +91,8 @@ namespace Pal3.Game.Scene
 
         protected override void OnDisableGameEntity()
         {
+            SetLightingActive(false);
+
             // Remove fog when scene is disabled
             if (RenderSettings.fog) RenderSettings.fog = false;
 
@@ -113,19 +124,23 @@ namespace Pal3.Game.Scene
         public void Init(GameResourceProvider resourceProvider,
             ISceneObjectFactory sceneObjectFactory,
             SceneStateManager sceneStateManager,
-            bool isLightingEnabled,
+            bool usesToonRendering,
             IGameEntity cameraEntity,
             HashSet<int> sceneObjectIdsToNotLoadFromSaveState)
         {
             _resourceProvider = resourceProvider;
             _sceneObjectFactory = sceneObjectFactory;
             _sceneStateManager = sceneStateManager;
-            _isLightingEnabled = isLightingEnabled;
+            _usesToonRendering = usesToonRendering;
             _cameraEntity = cameraEntity;
             _sceneObjectIdsToNotLoadFromSaveState = sceneObjectIdsToNotLoadFromSaveState;
-            _lightCullingMask = (1 << LayerMask.NameToLayer("Default")) |
-                                (1 << LayerMask.NameToLayer("VFX"));
             _materialManager = resourceProvider.GetMaterialManager();
+            if (usesToonRendering)
+            {
+                _lightingSettings = ServiceLocator.Instance.Get<GameSettings>();
+                _lightingCamera = ((GameObject)cameraEntity.NativeObject).GetComponent<UnityEngine.Camera>();
+                _cameraLighting = _lightingCamera.GetComponent<ToonCameraLighting>();
+            }
         }
 
         public void Load(ScnFile scnFile, IGameEntity parent)
@@ -143,8 +158,10 @@ namespace Pal3.Game.Scene
             EngineLogger.Log($"Scene data initialized in {timer.ElapsedMilliseconds} ms");
             timer.Restart();
 
+            _isNight = IsNightScene();
+            _enhancedFire = _isNight && _lightingSettings?.ToonNightFireBoost == true;
             Color actorTintColor = Color.White;
-            if (IsNightScene())
+            if (_isNight)
             {
                 actorTintColor = new Color(0.7f, 0.7f, 0.7f, 1f);
             }
@@ -156,7 +173,7 @@ namespace Pal3.Game.Scene
 
             RenderSkyBox();
             SetupNavMesh();
-            if (_isLightingEnabled)
+            if (_usesToonRendering)
             {
                 SetupEnvironmentLighting();
             }
@@ -243,9 +260,8 @@ namespace Pal3.Game.Scene
             polyMeshRenderer.Render(ScenePolyMesh.PolFile,
                 ScenePolyMesh.TextureProvider,
                 _materialManager,
-                isStaticObject: true, // Scene mesh is static
-                Color.White,
-                IsWaterSurfaceOpaque());
+                isStaticObject: true,
+                forceOpaqueWater: _usesToonRendering && HasOpaqueToonWater(ScnFile.SceneInfo));
 
             if (SceneCvdMesh != null)
             {
@@ -255,6 +271,17 @@ namespace Pal3.Game.Scene
                     _materialManager);
                 cvdMeshRenderer.LoopAnimation(SCENE_CVD_ANIMATION_DEFAULT_TIMESCALE);
             }
+        }
+
+        private static bool HasOpaqueToonWater(ScnSceneInfo sceneInfo)
+        {
+            #if PAL3
+            return sceneInfo.Is("q17", "q17");
+            #elif PAL3A
+            return sceneInfo.IsCity("m07") || sceneInfo.IsCity("m12");
+            #else
+            return false;
+            #endif
         }
 
         private void RenderSkyBox()
@@ -296,104 +323,121 @@ namespace Pal3.Game.Scene
 
         private void SetupEnvironmentLighting()
         {
-            Vector3 mainLightPosition = new Vector3(0, 20f, 0);
-            Quaternion mainLightRotation = ScnFile.SceneInfo.SceneType == SceneType.InDoor ?
-                    Quaternion.Euler(120f, -20f, 0f) :
-                    Quaternion.Euler(70f, -30f, 0f);
+            bool isNight = IsNightScene();
+            bool isIndoors = ScnFile.SceneInfo.SceneType == SceneType.InDoor;
+            Quaternion rotation = Quaternion.Euler(isIndoors ? 112f : 58f, isIndoors ? -20f : -30f, 0f);
+            Color color = isNight ? new Color(0.68f, 0.77f, 1f) : new Color(1f, 0.94f, 0.86f);
+            float intensity = isNight ? 0.7f : isIndoors ? 0.8f : 1f;
 
-            if (ScnFile.SceneInfo.SceneType == SceneType.InDoor && IsNightScene())
-            {
-                mainLightRotation = Quaternion.Euler(90f, 0f, 0f);
-            }
+            string city = ScnFile.SceneInfo.CityName;
+            var key = (city.ToLowerInvariant(), ScnFile.SceneInfo.SceneName.ToLowerInvariant());
+            if (LightingConstants.MainLightColorInfoGlobal.TryGetValue(city, out Color cityColor))
+                color = cityColor;
+            if (LightingConstants.MainLightColorInfo.TryGetValue(key, out Color sceneColor))
+                color = sceneColor;
+            if (LightingConstants.MainLightRotationInfo.TryGetValue(key, out Quaternion sceneRotation))
+                rotation = sceneRotation;
 
-            // Most in-door scenes have a single spot light source where we can find in the LGT file,
-            // which can be used as the main light source for the scene.
-            // if (ScnFile.SceneInfo.SceneType == ScnSceneType.InDoor &&
-            //     LgtFile.LightNodes.FirstOrDefault(_ => _.LightType == GameBoxLightType.Spot) is var mainLight)
-            // {
-            //     float w = MathF.Sqrt(1.0f + mainLight.WorldMatrix.m00 + mainLight.WorldMatrix.m11 + mainLight.WorldMatrix.m22) / 2.0f;
-            //     mainLightRotation = GameBoxInterpreter.LgtQuaternionToUnityQuaternion(new GameBoxQuaternion()
-            //     {
-            //         X = (mainLight.WorldMatrix.m21 - mainLight.WorldMatrix.m12) / (4.0f * w),
-            //         Y = (mainLight.WorldMatrix.m02 - mainLight.WorldMatrix.m20) / (4.0f * w),
-            //         Z = (mainLight.WorldMatrix.m10 - mainLight.WorldMatrix.m01) / (4.0f * w),
-            //         W = w,
-            //     });
-            // }
-
-            IGameEntity mainLightEntity = GameEntityFactory.Create($"LightSource_Main",
-                _parent, worldPositionStays: false);
-            mainLightEntity.Transform.SetPositionAndRotation(mainLightPosition, mainLightRotation);
-
-            _mainLight = mainLightEntity.AddComponent<Light>();
-            _mainLight.type = LightType.Directional;
-            _mainLight.range = 500f;
-            _mainLight.shadows = LightShadows.Soft;
-            _mainLight.cullingMask = _lightCullingMask;
+            _mainLight = ToonLighting.CreateKey(transform, rotation, color.ToUnityColor(), intensity);
             RenderSettings.sun = _mainLight;
-
-            #if PAL3
-            _mainLight.color = IsNightScene() ?
-                new Color(60f / 255f, 80f / 255f, 170f / 255f).ToUnityColor() :
-                new Color(220f / 255f, 210f / 255f, 200f / 255f).ToUnityColor();
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.75f : 0.9f;
-            #elif PAL3A
-            _mainLight.color = IsNightScene() ?
-                new Color(60f / 255f, 80f / 255f, 170f / 255f).ToUnityColor() :
-                new Color(200f / 255f, 200f / 255f, 200f / 255f).ToUnityColor();
-            _mainLight.intensity = (IsNightScene() || ScnFile.SceneInfo.SceneType == SceneType.InDoor) ? 0.65f : 0.9f;
-            #endif
-
-            // Ambient light
-            RenderSettings.ambientIntensity = 1f;
-            RenderSettings.ambientLight = IsNightScene() ?
-                new Color( 90f/ 255f, 100f / 255f, 130f / 255f).ToUnityColor() :
-                new Color(180f / 255f, 180f / 255f, 160f / 255f).ToUnityColor();
-
-            // Apply lighting override
-            (string, string) key = (ScnFile.SceneInfo.CityName.ToLower(), ScnFile.SceneInfo.SceneName.ToLower());
-            if (LightingConstants.MainLightColorInfoGlobal.TryGetValue(ScnFile.SceneInfo.CityName, out Color globalMainLightColorOverride))
-            {
-                _mainLight.color = globalMainLightColorOverride.ToUnityColor();
-            }
-            if (LightingConstants.MainLightColorInfo.TryGetValue(key, out Color mainLightColorOverride))
-            {
-                _mainLight.color = mainLightColorOverride.ToUnityColor();
-            }
-            if (LightingConstants.MainLightRotationInfo.TryGetValue(key, out Quaternion mainLightRotationOverride))
-            {
-                mainLightEntity.Transform.Rotation = mainLightRotationOverride;
-            }
+            _cameraLighting?.SetNightScene(_isNight && _fireLights.Count > 0 ? this : null);
         }
 
-        private void AddPointLight(IGameEntity parent, float yOffset)
+        internal void SetLightingActive(bool active)
         {
-            // Add a point light to the fire fx
-            IGameEntity lightSource = GameEntityFactory.Create($"LightSource_Point",
-                parent, worldPositionStays: false);
-            lightSource.Transform.LocalPosition = new Vector3(0f, yOffset, 0f);
+            if (!active)
+            {
+                _cameraLighting?.ClearNightScene(this);
+                SetFireShadow(null);
+            }
+            if (_mainLight == null) return;
 
-            Light lightComponent = lightSource.AddComponent<Light>();
-            lightComponent.color = new Color(220f / 255f, 145f / 255f, 105f / 255f).ToUnityColor();
-            lightComponent.type = LightType.Point;
-            lightComponent.intensity = IsNightScene() ? 1f : 1.2f;
-            lightComponent.range = 50f;
-            lightComponent.shadows = LightShadows.Soft;
-            lightComponent.shadowNearPlane = 0.25f;
-            lightComponent.cullingMask = _lightCullingMask;
+            _mainLight.enabled = active;
+            if (active)
+            {
+                RenderSettings.sun = _mainLight;
+                _cameraLighting?.SetNightScene(_isNight && _fireLights.Count > 0 ? this : null);
+            }
+            else
+            {
+                if (RenderSettings.sun == _mainLight) RenderSettings.sun = null;
+            }
 
-            _pointLights.Add(lightComponent);
-            StripPointLightShadowsIfNecessary();
+            foreach (Light light in _fireLights.Values)
+            {
+                if (light != null) light.enabled = active;
+            }
+
+            _nextFireUpdate = 0f;
         }
 
-        private void StripPointLightShadowsIfNecessary()
+        private void LateUpdate()
         {
-            bool disableShadows = !IsNightScene() || _pointLights.Count > MAX_NUM_OF_POINT_LIGHTS_WITH_SHADOWS;
+            if (!_isNight || _fireLights.Count == 0 || _mainLight == null || !_mainLight.enabled) return;
+            float now = Time.unscaledTime;
+            if (now < _nextFireUpdate) return;
+            _nextFireUpdate = now + 0.2f;
 
-            foreach (Light pointLight in _pointLights)
+            bool enhanced = _lightingSettings.ToonNightFireBoost;
+            if (enhanced != _enhancedFire)
             {
-                pointLight.shadows = disableShadows ? LightShadows.None : LightShadows.Soft;
+                _enhancedFire = enhanced;
+                foreach (Light light in _fireLights.Values)
+                {
+                    if (light != null) ToonLighting.ConfigureFireFill(light, enhanced);
+                }
             }
+
+            SetFireShadow(_lightingSettings.ToonNightFireShadows ? SelectFireShadow() : null);
+        }
+
+        private Light SelectFireShadow()
+        {
+            GeometryUtility.CalculateFrustumPlanes(_lightingCamera, _fireFrustum);
+            Transform cameraTransform = _lightingCamera.transform;
+            Vector3 cameraPosition = cameraTransform.position;
+            Vector3 forward = cameraTransform.forward;
+            float shadowDistance = UniversalRenderPipeline.asset.shadowDistance;
+            Light candidate = null;
+            float bestScore = float.PositiveInfinity;
+            foreach (Light light in _fireLights.Values)
+            {
+                if (light == null || !light.isActiveAndEnabled) continue;
+
+                Vector3 position = light.transform.position;
+                if (!IsFireInView(position, light.range) ||
+                    (position - cameraPosition).sqrMagnitude > Mathf.Pow(shadowDistance + light.range, 2f))
+                    continue;
+
+                // Prefer coverage near the middle of the shot, including fires just beyond the frame.
+                Vector3 toLight = position - cameraPosition;
+                float depth = Vector3.Dot(toLight, forward);
+                float lateral = (toLight - depth * forward).sqrMagnitude;
+                float score = lateral / Mathf.Max(depth * depth, 1f) + Mathf.Abs(depth) * 0.005f;
+                if (light == _shadowedFire) score *= 0.8f;
+                if (score >= bestScore) continue;
+
+                bestScore = score;
+                candidate = light;
+            }
+            return candidate;
+        }
+
+        private bool IsFireInView(Vector3 position, float range)
+        {
+            foreach (Plane plane in _fireFrustum)
+            {
+                if (plane.GetDistanceToPoint(position) < -range) return false;
+            }
+            return true;
+        }
+
+        private void SetFireShadow(Light light)
+        {
+            if (_shadowedFire == light) return;
+            if (_shadowedFire != null) _shadowedFire.shadows = LightShadows.None;
+            _shadowedFire = light;
+            if (light != null) light.shadows = LightShadows.Soft;
         }
 
         private void InitSceneObjects()
@@ -440,14 +484,19 @@ namespace Pal3.Game.Scene
             IGameEntity sceneObjectGameEntity = sceneObject.Activate(_resourceProvider, tintColor);
             sceneObjectGameEntity.SetParent(_parent, worldPositionStays: false);
 
-            if (_isLightingEnabled)
+            if (_usesToonRendering)
             {
                 if (sceneObject.GraphicsEffectType == GraphicsEffectType.Fire &&
                     sceneObjectGameEntity.GetComponent<FireEffect>() is { } fireEffect &&
                     !fireEffect.EffectGameEntity.IsNullOrDisposed())
                 {
                     var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
-                    AddPointLight(fireEffect.EffectGameEntity, yOffset);
+                    var parent = (Transform)fireEffect.EffectGameEntity.Transform.NativeObject;
+                    var light = ToonLighting.CreateFireFill(parent, yOffset, _enhancedFire);
+                    light.enabled = _mainLight.enabled;
+                    _fireLights.Add(id, light);
+                    if (_isNight && light.enabled) _cameraLighting?.SetNightScene(this);
+                    _nextFireUpdate = 0f;
                 }
             }
 
@@ -459,11 +508,12 @@ namespace Pal3.Game.Scene
             if (!_activatedSceneObjects.Contains(id)) return;
             _activatedSceneObjects.Remove(id);
 
-            if (_isLightingEnabled &&
-                SceneObjects[id].GetGameEntity().GetComponentInChildren<Light>() is {type: LightType.Point} pointLight)
+            if (_fireLights.Remove(id, out Light light))
             {
-                _pointLights.Remove(pointLight);
-                StripPointLightShadowsIfNecessary();
+                if (light == _shadowedFire) SetFireShadow(null);
+                if (light != null) light.enabled = false;
+                if (_fireLights.Count == 0) _cameraLighting?.ClearNightScene(this);
+                _nextFireUpdate = 0f;
             }
 
             SceneObjects[id].Deactivate();
@@ -476,7 +526,7 @@ namespace Pal3.Game.Scene
             IGameEntity actorGameEntity = ActorFactory.CreateActorGameEntity(_resourceProvider,
                 actor,
                 tileMap,
-                isDropShadowEnabled: !_isLightingEnabled,
+                isDropShadowEnabled: !_usesToonRendering,
                 tintColor,
                 ActorMovementMaxYDifferential,
                 ActorMovementMaxYDifferentialCrossLayer,
@@ -526,34 +576,6 @@ namespace Pal3.Game.Scene
             }
 
             return obstacles;
-        }
-
-        /// <summary>
-        /// Opaque water surface looks better in some scenes.
-        /// This method is to override the default transparent
-        /// water surface if necessary when lit shader is used.
-        /// </summary>
-        /// <returns></returns>
-        private bool IsWaterSurfaceOpaque()
-        {
-            if (_materialManager.ShaderType == MaterialShaderType.Lit)
-            {
-                #if PAL3
-                if (ScnFile.SceneInfo.Is("q17", "q17"))
-                {
-                    return true;
-                }
-                #elif PAL3A
-                if (ScnFile.SceneInfo.IsCity("m07") ||
-                    ScnFile.SceneInfo.IsCity("m12"))
-                {
-                    return true;
-                }
-                #endif
-            }
-
-            // Default to transparent water surface
-            return false;
         }
 
         public void Execute(SceneActivateObjectCommand command)

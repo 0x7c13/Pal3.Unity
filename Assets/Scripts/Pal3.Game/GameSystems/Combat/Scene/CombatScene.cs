@@ -18,6 +18,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
+    using Rendering.Toon;
     using Rendering.Material;
     using Rendering.Renderer;
 
@@ -32,7 +33,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
         private IMaterialManager _materialManager;
 
         private string _combatSceneName;
-        private bool _isLightingEnabled;
+        private bool _usesToonRendering;
 
         private IGameEntity _parent;
         private IGameEntity _mesh;
@@ -55,11 +56,16 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
         public void Load(IGameEntity parent,
             string combatSceneName,
-            bool isLightingEnabled)
+            bool usesToonRendering)
         {
             _parent = parent;
             _combatSceneName = combatSceneName;
-            _isLightingEnabled = isLightingEnabled;
+            _usesToonRendering = usesToonRendering;
+            if (usesToonRendering)
+            {
+                ToonLighting.CreateKey(transform, Quaternion.Euler(58f, -30f, 0f),
+                    new UnityEngine.Color(1f, 0.95f, 0.9f), 1f);
+            }
 
             string meshFileRelativeFolderPath = FileConstants.CombatSceneFolderVirtualPath + combatSceneName;
 
@@ -129,7 +135,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
                     _resourceProvider,
                     combatActor,
                     elementPosition,
-                    isDropShadowEnabled: !_isLightingEnabled);
+                    isDropShadowEnabled: !_usesToonRendering);
                 combatActorGameEntity.SetParent(_parent, worldPositionStays: false);
 
                 Quaternion rotation;

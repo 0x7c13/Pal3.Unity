@@ -65,7 +65,7 @@ namespace Pal3.Game
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
 
             // Init settings
-            GameSettings gameSettings = new (settingsStore, isOpenSourceVersion: true);
+            GameSettings gameSettings = new (settingsStore);
             gameSettings.InitOrLoadSettings();
             ServiceLocator.Instance.Register<GameSettings>(gameSettings);
 
@@ -171,8 +171,8 @@ namespace Pal3.Game
             IMaterialFactory materialFactory = new UnityMaterialFactory();
             ServiceLocator.Instance.Register<IMaterialFactory>(materialFactory);
 
-            // Init material factories
-            IMaterialManager unlitMaterialManager = new UnlitMaterialManager(materialFactory);
+            // Select the material family for the lifetime of this session.
+            IMaterialManager materialManager = new GameMaterialManager(materialFactory, gameSettings.ToonRendering);
 
             // Init command related services
             SceCommandTypeResolver sceCommandTypeResolver = new SceCommandTypeResolver();
@@ -195,7 +195,7 @@ namespace Pal3.Game
             GameResourceProvider resourceProvider = new GameResourceProvider(cpkFileSystem,
                 textureLoaderFactory,
                 textureFactory,
-                unlitMaterialManager,
+                materialManager,
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 
