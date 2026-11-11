@@ -96,17 +96,20 @@ namespace Pal3.Core.DataReader.Gdb
         public string ModelId;                  // 战斗角色模型ID
         public string IconId;                   // 战斗角色图标ID
 
-        // 角色基础五灵属性值
-        public Dictionary<ElementType, int> ElementAttributeValues;
+        // 角色基础五灵属性值（由 GDB 文件读取）
+        [field: System.NonSerialized]
+        public Dictionary<ElementType, int> ElementAttributeValues { get; set; }
 
         public string Name;                     // 战斗角色名称
         public int Level;                       // 战斗角色等级
 
         // 角色基础属性值
-        public Dictionary<ActorAttributeType, int> AttributeValues;
+        [field: System.NonSerialized]
+        public Dictionary<ActorAttributeType, int> AttributeValues { get; set; }
 
         // 战斗状态影响类型
-        public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
+        [field: System.NonSerialized]
+        public Dictionary<ActorCombatStateType, CombatStateImpactType> CombatStateImpactTypes { get; set; }
 
         public int MaxRound;                    // 指定最大回合数 （保存或者初始化的时候用，数据库文件里均为-1，主角为0）
         public int SpecialActionId;             // 特殊动作ID

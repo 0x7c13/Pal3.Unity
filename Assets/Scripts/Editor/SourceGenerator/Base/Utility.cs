@@ -10,6 +10,7 @@ namespace Editor.SourceGenerator.Base
     using System.Linq;
     using System.Reflection;
     using System.Text;
+    using UnityEditor;
 
     public static class Utility
     {
@@ -45,9 +46,7 @@ namespace Editor.SourceGenerator.Base
 
         public static IEnumerable<Type> GetTypesOfInterface(Type interfaceType)
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(t => t.IsClass && t.GetInterfaces().Contains(interfaceType));
+            return TypeCache.GetTypesDerivedFrom(interfaceType).Where(type => type.IsClass);
         }
     }
 }

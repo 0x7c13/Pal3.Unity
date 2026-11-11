@@ -33,6 +33,7 @@ namespace Pal3.Game
     using SimpleFileBrowser;
     using TMPro;
     using UnityEngine;
+    using UnityEngine.Assemblies;
     using Transform = UnityEngine.Transform;
 
     /// <summary>
@@ -139,7 +140,8 @@ namespace Pal3.Game
             }
 
             // Create and register IFileReader<T> instances using reflection
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly[] loadedAssemblies = CurrentAssemblies.GetLoadedAssemblies().ToArray();
+            foreach (Assembly assembly in loadedAssemblies)
             {
                 // Get all types that implement any version of IFileReader<>
                 IEnumerable<Type> fileReaderTypes = assembly.GetTypes().Where(type =>
@@ -183,7 +185,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register<ISceCommandParser>(sceCommandParser);
 
             SceCommandPreprocessor sceCommandPreprocessor = new SceCommandPreprocessor();
-            sceCommandPreprocessor.Init();
+            sceCommandPreprocessor.Init(loadedAssemblies);
             ServiceLocator.Instance.Register<ISceCommandPreprocessor>(sceCommandPreprocessor);
 
             // Init scene object factory

@@ -17,11 +17,11 @@ namespace Pal3.Core.Command
         private bool _isInitialized = false;
         private readonly Dictionary<Type, PropertyInfo[]> _sceCommandToActorIdPropertiesCache = new();
 
-        public void Init()
+        public void Init(IEnumerable<Assembly> commandAssemblies)
         {
             if (_isInitialized) return;
 
-            IEnumerable<Type> commandTypes = AppDomain.CurrentDomain.GetAssemblies()
+            IEnumerable<Type> commandTypes = commandAssemblies
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
 
