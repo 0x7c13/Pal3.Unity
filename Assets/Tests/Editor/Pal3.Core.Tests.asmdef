@@ -1,0 +1,14 @@
+{
+    "name": "Pal3.Core.Tests",
+    "rootNamespace": "Pal3.Core.Tests",
+    "references": [
+        "Pal3.Core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "autoReferenced": false
+}

@@ -73,7 +73,7 @@ namespace Pal3.Core.DataReader.Dxt
 					}
 					else
 					{
-						a = (byte) ((*(src + (alphaIndex-1) / 2) & 0xF0) | ((*(src + (alphaIndex-1) / 2) & 0xF0) << 4));
+						a = (byte) ((*(src + (alphaIndex-1) / 2) & 0xF0) | ((*(src + (alphaIndex-1) / 2) & 0xF0) >> 4));
 					}
 
 					alphaIndex++;
