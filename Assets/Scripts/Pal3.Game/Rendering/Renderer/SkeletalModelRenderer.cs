@@ -419,7 +419,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (_bindNormals != null)
             {
-                BuildBindNormals(subMeshIndex, subMesh.Vertices.Length, renderMeshComponent.MeshDataBuffer);
+                BuildBindNormals(subMeshIndex, subMesh.Vertices, renderMeshComponent.MeshDataBuffer);
             }
 
             IMaterial[] materials = _materialManager.CreateStandardMaterials(
@@ -446,9 +446,25 @@ namespace Pal3.Game.Rendering.Renderer
             renderMeshComponent.Materials = materials;
         }
 
-        private void BuildBindNormals(int subMeshIndex, int sourceVertexCount, MeshDataBuffer mesh)
+        private void BuildBindNormals(int subMeshIndex, PhyVertex[] vertices, MeshDataBuffer mesh)
         {
-            var (indices, count) = CoreUtility.GetNormalIndices(_indexBuffer[subMeshIndex], sourceVertexCount);
+            var verticesByBinding = new Dictionary<(float x, float y, float z, byte bone), int>(vertices.Length);
+            var vertexRepresentatives = new int[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                PhyVertex vertex = vertices[i];
+                GameBoxVector3 position = vertex.GameBoxPosition;
+                // The pose uses the first bone only, so coincident positions with different bones can separate.
+                var key = (position.X, position.Y, position.Z, vertex.BoneIds[0]);
+                if (!verticesByBinding.TryGetValue(key, out int first))
+                {
+                    first = i;
+                    verticesByBinding.Add(key, first);
+                }
+                vertexRepresentatives[i] = first;
+            }
+
+            var (indices, count) = CoreUtility.GetNormalIndices(_indexBuffer[subMeshIndex], vertices.Length, vertexRepresentatives);
             var normals = new Vector3[count];
             _normalIndices[subMeshIndex] = indices;
             _bindNormals[subMeshIndex] = normals;

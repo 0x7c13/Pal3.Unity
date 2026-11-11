@@ -56,18 +56,36 @@ namespace Pal3.Core.Utilities
             return index;
         }
 
-        public static (int[] indices, int count) GetNormalIndices(int[] corners, int sourceVertexCount)
+        public static (int[] indices, int count) GetNormalIndices(int[] corners, int sourceVertexCount,
+            int[] vertexRepresentatives = null)
         {
-            // Opposite-winding copies share positions and UVs but need separate normal groups.
+            // Match faces by deformation identity while keeping normals indexed by source vertex.
+            int[] faceCorners = corners;
+            if (vertexRepresentatives != null)
+            {
+                faceCorners = new int[corners.Length];
+                for (int i = 0; i + 2 < corners.Length; i += 3)
+                {
+                    int a = vertexRepresentatives[corners[i]];
+                    int b = vertexRepresentatives[corners[i + 1]];
+                    int c = vertexRepresentatives[corners[i + 2]];
+                    // Preserve exact-index matching for collapsed faces.
+                    bool collapsed = a == b || b == c || a == c;
+                    faceCorners[i] = collapsed ? corners[i] : a;
+                    faceCorners[i + 1] = collapsed ? corners[i + 1] : b;
+                    faceCorners[i + 2] = collapsed ? corners[i + 2] : c;
+                }
+            }
+
             int faceCount = corners.Length / 3;
             var firstFaces = new Dictionary<(int, int, int), int>();
             var matchingFaces = new int[faceCount];
             bool[] pairedFaces = null;
             for (int face = 0; face < faceCount; face++)
             {
-                int a = corners[face * 3];
-                int b = corners[face * 3 + 1];
-                int c = corners[face * 3 + 2];
+                int a = faceCorners[face * 3];
+                int b = faceCorners[face * 3 + 1];
+                int c = faceCorners[face * 3 + 2];
                 if (a == b || b == c || a == c) continue;
 
                 // Rotate to the smallest corner without changing the winding.
@@ -91,21 +109,40 @@ namespace Pal3.Core.Utilities
 
             if (pairedFaces == null) return (corners, sourceVertexCount);
 
-            sbyte[] sides = OrientPairedFaces(corners, firstFaces.Values, pairedFaces);
-            var normalIndices = (int[])corners.Clone();
+            sbyte[] sides = OrientPairedFaces(faceCorners, firstFaces.Values, pairedFaces);
+            var backFaces = new bool[faceCount];
+            var frontVertices = new bool[sourceVertexCount];
             for (int face = 0; face < faceCount; face++)
             {
                 int match = matchingFaces[face];
                 int first = match == 0 ? face : Math.Abs(match) - 1;
-                if ((sides[first] < 0) == (match < 0)) continue;
+                if (pairedFaces[first] && (sides[first] < 0) != (match < 0))
+                {
+                    backFaces[face] = true;
+                    continue;
+                }
 
                 int corner = face * 3;
-                normalIndices[corner] += sourceVertexCount;
-                normalIndices[corner + 1] += sourceVertexCount;
-                normalIndices[corner + 2] += sourceVertexCount;
+                frontVertices[corners[corner]] = true;
+                frontVertices[corners[corner + 1]] = true;
+                frontVertices[corners[corner + 2]] = true;
             }
 
-            return (normalIndices, sourceVertexCount * 2);
+            // A source vertex that already belongs to only one side keeps its normal group.
+            int[] normalIndices = null;
+            for (int face = 0; face < faceCount; face++)
+            {
+                if (!backFaces[face]) continue;
+                int corner = face * 3;
+                for (int i = corner; i < corner + 3; i++)
+                {
+                    if (!frontVertices[corners[i]]) continue;
+                    normalIndices ??= (int[])corners.Clone();
+                    normalIndices[i] += sourceVertexCount;
+                }
+            }
+
+            return normalIndices == null ? (corners, sourceVertexCount) : (normalIndices, sourceVertexCount * 2);
         }
 
         private static sbyte[] OrientPairedFaces(int[] corners, IEnumerable<int> firstFaces, bool[] pairedFaces)

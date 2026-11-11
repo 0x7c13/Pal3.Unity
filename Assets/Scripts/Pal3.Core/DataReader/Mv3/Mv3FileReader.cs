@@ -5,6 +5,7 @@
 
 namespace Pal3.Core.DataReader.Mv3
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using Primitives;
@@ -160,7 +161,8 @@ namespace Pal3.Core.DataReader.Mv3
                 sourceCorners[i * 3 + 2] = corners[2];
             }
 
-            var (normalCorners, normalCount) = CoreUtility.GetNormalIndices(sourceCorners, positionCount);
+            int[] vertexRepresentatives = GetVertexRepresentatives(vertFrames, positionCount);
+            var (normalCorners, normalCount) = CoreUtility.GetNormalIndices(sourceCorners, positionCount, vertexRepresentatives);
             var renderVertexByCorner = new Dictionary<(int normalIndex, ushort uv), int>();
             var normalIndices = new List<int>();
             var positionIndices = new List<int>();
@@ -217,6 +219,50 @@ namespace Pal3.Core.DataReader.Mv3
                 Uvs = uvs.ToArray(),
                 KeyFrames = animationKeyFrames,
             };
+        }
+
+        private static int[] GetVertexRepresentatives(Mv3VertFrame[] frames, int vertexCount)
+        {
+            var verticesByTrajectory = new Dictionary<int, int>(vertexCount, new VertexTrajectoryComparer(frames));
+            var vertexRepresentatives = new int[vertexCount];
+            for (int vertex = 0; vertex < vertexCount; vertex++)
+            {
+                vertexRepresentatives[vertex] = verticesByTrajectory.TryAdd(vertex, vertex)
+                    ? vertex
+                    : verticesByTrajectory[vertex];
+            }
+            return verticesByTrajectory.Count < vertexCount ? vertexRepresentatives : null;
+        }
+
+        private sealed class VertexTrajectoryComparer : IEqualityComparer<int>
+        {
+            private readonly Mv3VertFrame[] _frames;
+
+            public VertexTrajectoryComparer(Mv3VertFrame[] frames) => _frames = frames;
+
+            public bool Equals(int a, int b)
+            {
+                foreach (Mv3VertFrame frame in _frames)
+                {
+                    Mv3Vert first = frame.Vertices[a];
+                    Mv3Vert second = frame.Vertices[b];
+                    if (first.X != second.X || first.Y != second.Y || first.Z != second.Z) return false;
+                }
+                return true;
+            }
+
+            public int GetHashCode(int index)
+            {
+                var hash = new HashCode();
+                foreach (Mv3VertFrame frame in _frames)
+                {
+                    Mv3Vert vertex = frame.Vertices[index];
+                    hash.Add(vertex.X);
+                    hash.Add(vertex.Y);
+                    hash.Add(vertex.Z);
+                }
+                return hash.ToHashCode();
+            }
         }
 
         private static Mv3TagNode ReadTagNode(IBinaryReader reader, int codepage)
