@@ -20,6 +20,9 @@ CBUFFER_START(UnityPerMaterial)
     float _ReceiveLighting;
     float _ReceiveShadows;
     float _IsCharacter;
+    #if defined(PAL3_TOON_WATER)
+        float _Alpha;
+    #endif
 CBUFFER_END
 
 struct ToonAttributes

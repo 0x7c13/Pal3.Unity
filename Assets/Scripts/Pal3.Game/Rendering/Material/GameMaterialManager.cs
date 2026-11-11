@@ -22,6 +22,7 @@ namespace Pal3.Game.Rendering.Material
         private const string TransparentShaderName = "Pal3/Transparent";
         private const string AlphaCutoutShaderName = "Pal3/TransparentOpaquePart";
         private const string WaterShaderName = "Pal3/Water";
+        private const string ToonWaterShaderName = "Pal3/ToonWater";
         private const string ToonOpaqueShaderName = "Pal3/ToonOpaque";
         private const string ToonTransparentShaderName = "Pal3/ToonTransparent";
         private const string ToonCutoutShaderName = "Pal3/ToonCutout";
@@ -69,7 +70,7 @@ namespace Pal3.Game.Rendering.Material
         public GameMaterialManager(IMaterialFactory materialFactory, bool usesToonRendering) : base(materialFactory)
         {
             UsesToonRendering = usesToonRendering;
-            _waterMaterial = MaterialFactory.CreateMaterial(WaterShaderName);
+            _waterMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonWaterShaderName : WaterShaderName);
             _transparentMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonTransparentShaderName : TransparentShaderName);
             _alphaCutoutMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonCutoutShaderName : AlphaCutoutShaderName);
             _opaqueMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonOpaqueShaderName : OpaqueShaderName);
@@ -165,6 +166,7 @@ namespace Pal3.Game.Rendering.Material
             IMaterial material = RentMaterial(_waterMaterialPool, _waterMaterial);
             material.SetMainTexture(mainTexture.texture);
             material.SetFloat(WaterAlphaPropId, opacity);
+            if (UsesToonRendering) material.SetFloat(ReceiveShadowsPropertyId, 1f);
             SetBakedLightmap(material, bakedLightmap.texture);
             return material;
         }
@@ -186,7 +188,7 @@ namespace Pal3.Game.Rendering.Material
 
             (Stack<IMaterial> pool, int capacity) = material.ShaderName switch
             {
-                WaterShaderName => (_waterMaterialPool, WATER_MATERIAL_POOL_SIZE),
+                WaterShaderName or ToonWaterShaderName => (_waterMaterialPool, WATER_MATERIAL_POOL_SIZE),
                 TransparentShaderName or ToonTransparentShaderName => (_transparentMaterialPool, TRANSPARENT_MATERIAL_POOL_SIZE),
                 AlphaCutoutShaderName or ToonCutoutShaderName => (_alphaCutoutMaterialPool,
                     ALPHA_CUTOUT_MATERIAL_POOL_SIZE),

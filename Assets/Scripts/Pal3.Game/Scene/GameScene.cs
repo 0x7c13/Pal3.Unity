@@ -60,12 +60,17 @@ namespace Pal3.Game.Scene
 
         private Light _mainLight;
         private readonly Dictionary<int, Light> _fireLights = new();
-        private Light _shadowedFire;
+        private readonly Light[] _shadowedFires = new Light[SettingsBase.MaximumFireShadowBudget];
+        private readonly Light[] _shadowCandidates = new Light[SettingsBase.MaximumFireShadowBudget];
+        private readonly float[] _shadowCandidateScores = new float[SettingsBase.MaximumFireShadowBudget];
+        private float _mainLightIntensity;
         private GameSettings _lightingSettings;
         private UnityEngine.Camera _lightingCamera;
         private ToonCameraLighting _cameraLighting;
         private readonly Plane[] _fireFrustum = new Plane[6];
         private bool _isNight;
+        private bool _isIndoors;
+        private bool _lightingDirty = true;
         private bool _enhancedFire;
         private float _nextFireUpdate;
 
@@ -92,6 +97,7 @@ namespace Pal3.Game.Scene
         protected override void OnDisableGameEntity()
         {
             SetLightingActive(false);
+            if (_lightingSettings != null) _lightingSettings.OnGameSettingsChanged -= OnLightingSettingsChanged;
 
             // Remove fog when scene is disabled
             if (RenderSettings.fog) RenderSettings.fog = false;
@@ -138,6 +144,7 @@ namespace Pal3.Game.Scene
             if (usesToonRendering)
             {
                 _lightingSettings = ServiceLocator.Instance.Get<GameSettings>();
+                _lightingSettings.OnGameSettingsChanged += OnLightingSettingsChanged;
                 _lightingCamera = ((GameObject)cameraEntity.NativeObject).GetComponent<UnityEngine.Camera>();
                 _cameraLighting = _lightingCamera.GetComponent<ToonCameraLighting>();
             }
@@ -159,6 +166,7 @@ namespace Pal3.Game.Scene
             timer.Restart();
 
             _isNight = IsNightScene();
+            _isIndoors = ScnFile.SceneInfo.SceneType == SceneType.InDoor;
             _enhancedFire = _isNight && _lightingSettings?.ToonNightFireBoost == true;
             Color actorTintColor = Color.White;
             if (_isNight)
@@ -338,17 +346,19 @@ namespace Pal3.Game.Scene
             if (LightingConstants.MainLightRotationInfo.TryGetValue(key, out Quaternion sceneRotation))
                 rotation = sceneRotation;
 
-            _mainLight = ToonLighting.CreateKey(transform, rotation, color.ToUnityColor(), intensity);
+            _mainLightIntensity = intensity;
+            _mainLight = ToonLighting.CreateKey(transform, rotation, color.ToUnityColor(), intensity,
+                _lightingSettings.ToonRealtimeShadows ? _lightingSettings.ToonShadowStrength : 0f);
             RenderSettings.sun = _mainLight;
-            _cameraLighting?.SetNightScene(_isNight && _fireLights.Count > 0 ? this : null);
+            _cameraLighting?.SetScene(this, _isNight, _isIndoors);
         }
 
         internal void SetLightingActive(bool active)
         {
             if (!active)
             {
-                _cameraLighting?.ClearNightScene(this);
-                SetFireShadow(null);
+                _cameraLighting?.ClearScene(this);
+                ClearFireShadows();
             }
             if (_mainLight == null) return;
 
@@ -356,7 +366,7 @@ namespace Pal3.Game.Scene
             if (active)
             {
                 RenderSettings.sun = _mainLight;
-                _cameraLighting?.SetNightScene(_isNight && _fireLights.Count > 0 ? this : null);
+                _cameraLighting?.SetScene(this, _isNight, _isIndoors);
             }
             else
             {
@@ -371,38 +381,54 @@ namespace Pal3.Game.Scene
             _nextFireUpdate = 0f;
         }
 
+        private void OnLightingSettingsChanged(string propertyName)
+        {
+            _lightingDirty = true;
+            _nextFireUpdate = 0f;
+        }
+
         private void LateUpdate()
         {
-            if (!_isNight || _fireLights.Count == 0 || _mainLight == null || !_mainLight.enabled) return;
+            if (_mainLight == null || !_mainLight.enabled) return;
             float now = Time.unscaledTime;
             if (now < _nextFireUpdate) return;
             _nextFireUpdate = now + 0.2f;
 
-            bool enhanced = _lightingSettings.ToonNightFireBoost;
-            if (enhanced != _enhancedFire)
+            if (_lightingDirty)
             {
-                _enhancedFire = enhanced;
+                _enhancedFire = _isNight && _lightingSettings.ToonNightFireBoost;
+                float contrast = _lightingSettings.ToonEnvironmentContrast
+                    ? _lightingSettings.ToonEnvironmentContrastStrength : 0f;
+                _mainLight.intensity = _mainLightIntensity * (_isNight && _isIndoors ? Mathf.Lerp(1f, 0.65f, contrast) : 1f);
+                ToonLighting.ConfigureKeyShadows(_mainLight, _lightingSettings);
                 foreach (Light light in _fireLights.Values)
                 {
-                    if (light != null) ToonLighting.ConfigureFireFill(light, enhanced);
+                    if (light != null)
+                        ToonLighting.ConfigureFireFill(light, _enhancedFire, _isIndoors, _lightingSettings);
                 }
+                _lightingDirty = false;
             }
 
-            SetFireShadow(_lightingSettings.ToonNightFireShadows ? SelectFireShadow() : null);
+            bool fireShadows = _lightingSettings.ToonRealtimeShadows && _lightingSettings.ToonFireLighting &&
+                               _lightingSettings.ToonFireShadows && _lightingSettings.ToonShadowStrength > 0f &&
+                               _lightingSettings.ToonFireIntensityScale > 0f && _lightingSettings.ToonFireRangeScale > 0f;
+            if (fireShadows && _lightingSettings.ToonFireShadowBudget > 0) SelectFireShadows();
+            else ClearFireShadows();
         }
 
-        private Light SelectFireShadow()
+        private void SelectFireShadows()
         {
             GeometryUtility.CalculateFrustumPlanes(_lightingCamera, _fireFrustum);
             Transform cameraTransform = _lightingCamera.transform;
             Vector3 cameraPosition = cameraTransform.position;
             Vector3 forward = cameraTransform.forward;
             float shadowDistance = UniversalRenderPipeline.asset.shadowDistance;
-            Light candidate = null;
-            float bestScore = float.PositiveInfinity;
+            int budget = _lightingSettings.ToonFireShadowBudget;
+            Array.Clear(_shadowCandidates, 0, _shadowCandidates.Length);
+            Array.Fill(_shadowCandidateScores, float.PositiveInfinity);
             foreach (Light light in _fireLights.Values)
             {
-                if (light == null || !light.isActiveAndEnabled) continue;
+                if (light == null || !light.isActiveAndEnabled || light.intensity <= 0f) continue;
 
                 Vector3 position = light.transform.position;
                 if (!IsFireInView(position, light.range) ||
@@ -414,13 +440,34 @@ namespace Pal3.Game.Scene
                 float depth = Vector3.Dot(toLight, forward);
                 float lateral = (toLight - depth * forward).sqrMagnitude;
                 float score = lateral / Mathf.Max(depth * depth, 1f) + Mathf.Abs(depth) * 0.005f;
-                if (light == _shadowedFire) score *= 0.8f;
-                if (score >= bestScore) continue;
+                if (Array.IndexOf(_shadowedFires, light) >= 0) score *= 0.8f;
 
-                bestScore = score;
-                candidate = light;
+                // Keep the best candidates without allocating or sorting the whole light set.
+                for (int index = 0; index < budget; index++)
+                {
+                    if (score >= _shadowCandidateScores[index]) continue;
+                    for (int next = budget - 1; next > index; next--)
+                    {
+                        _shadowCandidates[next] = _shadowCandidates[next - 1];
+                        _shadowCandidateScores[next] = _shadowCandidateScores[next - 1];
+                    }
+                    _shadowCandidates[index] = light;
+                    _shadowCandidateScores[index] = score;
+                    break;
+                }
             }
-            return candidate;
+
+            foreach (Light previous in _shadowedFires)
+            {
+                if (previous != null && Array.IndexOf(_shadowCandidates, previous) < 0)
+                    previous.shadows = LightShadows.None;
+            }
+            Array.Copy(_shadowCandidates, _shadowedFires, _shadowedFires.Length);
+            foreach (Light selected in _shadowedFires)
+            {
+                if (selected != null && selected.shadows != LightShadows.Soft)
+                    selected.shadows = LightShadows.Soft;
+            }
         }
 
         private bool IsFireInView(Vector3 position, float range)
@@ -432,12 +479,13 @@ namespace Pal3.Game.Scene
             return true;
         }
 
-        private void SetFireShadow(Light light)
+        private void ClearFireShadows()
         {
-            if (_shadowedFire == light) return;
-            if (_shadowedFire != null) _shadowedFire.shadows = LightShadows.None;
-            _shadowedFire = light;
-            if (light != null) light.shadows = LightShadows.Soft;
+            foreach (Light previous in _shadowedFires)
+            {
+                if (previous != null) previous.shadows = LightShadows.None;
+            }
+            Array.Clear(_shadowedFires, 0, _shadowedFires.Length);
         }
 
         private void InitSceneObjects()
@@ -492,10 +540,9 @@ namespace Pal3.Game.Scene
                 {
                     var yOffset = EffectConstants.FireEffectInfo[fireEffect.FireEffectType].lightSourceYOffset;
                     var parent = (Transform)fireEffect.EffectGameEntity.Transform.NativeObject;
-                    var light = ToonLighting.CreateFireFill(parent, yOffset, _enhancedFire);
+                    var light = ToonLighting.CreateFireFill(parent, yOffset, _enhancedFire, _isIndoors, _lightingSettings);
                     light.enabled = _mainLight.enabled;
                     _fireLights.Add(id, light);
-                    if (_isNight && light.enabled) _cameraLighting?.SetNightScene(this);
                     _nextFireUpdate = 0f;
                 }
             }
@@ -510,9 +557,11 @@ namespace Pal3.Game.Scene
 
             if (_fireLights.Remove(id, out Light light))
             {
-                if (light == _shadowedFire) SetFireShadow(null);
-                if (light != null) light.enabled = false;
-                if (_fireLights.Count == 0) _cameraLighting?.ClearNightScene(this);
+                if (light != null)
+                {
+                    light.shadows = LightShadows.None;
+                    light.enabled = false;
+                }
                 _nextFireUpdate = 0f;
             }
 

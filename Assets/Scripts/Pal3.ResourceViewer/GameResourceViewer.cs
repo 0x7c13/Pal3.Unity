@@ -115,6 +115,7 @@ namespace Pal3.ResourceViewer
             {
                 _previewKey ??= ToonLighting.CreateKey(transform, Quaternion.Euler(40f, -35f, 0f),
                     new UnityEngine.Color(1f, 0.97f, 0.94f), 1f);
+                ToonLighting.ConfigureKeyShadows(_previewKey, _gameSettings);
                 _previewKey.enabled = true;
                 if (Camera.main is { } camera)
                 {
@@ -207,6 +208,7 @@ namespace Pal3.ResourceViewer
         {
             if (propertyName == nameof(GameSettings.AntiAliasing))
                 _antiAliasing?.Apply(_gameSettings.AntiAliasing);
+            if (_previewKey != null) ToonLighting.ConfigureKeyShadows(_previewKey, _gameSettings);
         }
 
         private void OnDisable()

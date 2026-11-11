@@ -61,7 +61,29 @@ namespace Pal3.Game.Settings
             RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
             RegisterVisualOption(nameof(BloomEnabled), "泛光", enabled => BloomEnabled = enabled);
             RegisterVisualOption(nameof(OptionalVfxEnabled), "可选剧情特效", enabled => OptionalVfxEnabled = enabled);
-            RegisterVisualOption(nameof(ToonNightFireShadows), "夜景火光投影", enabled => ToonNightFireShadows = enabled);
+            RegisterVisualOption(nameof(ToonFireShadows), "火光投影", enabled => ToonFireShadows = enabled);
+
+            RegisterVisualOption(nameof(ToonEnvironmentContrast), "环境明暗对比", enabled => ToonEnvironmentContrast = enabled);
+            RegisterVisualOption(nameof(ToonFireLighting), "火光照明", enabled => ToonFireLighting = enabled);
+            RegisterVisualOption(nameof(ToonBakedShadows), "原版烘焙阴影", enabled => ToonBakedShadows = enabled);
+            RegisterVisualOption(nameof(ToonRealtimeShadows), "实时投影", enabled => ToonRealtimeShadows = enabled);
+            RegisterVisualStrength(nameof(ToonEnvironmentContrastStrength), "环境明暗对比强度（0–1）", value => ToonEnvironmentContrastStrength = value);
+            RegisterVisualStrength(nameof(ToonContactShadowStrength), "环境遮蔽强度（0–2）", value => ToonContactShadowStrength = value, maximum: 2f);
+            RegisterVisualStrength(nameof(ToonCharacterLightingStrength), "角色补光强度（0–1）", value => ToonCharacterLightingStrength = value);
+            RegisterVisualStrength(nameof(ToonFireIntensityScale), "火光亮度倍率（0–3）", value => ToonFireIntensityScale = value, maximum: 3f);
+            RegisterVisualStrength(nameof(ToonFireRangeScale), "火光范围倍率（0–2）", value => ToonFireRangeScale = value, maximum: 2f);
+            DebugLogConsole.AddCommand<int>("Settings.ToonFireShadowBudget", "设置火光投影灯上限（0–4）", value =>
+            {
+                if (value < 0 || value > MaximumFireShadowBudget)
+                {
+                    EngineLogger.LogWarning($"Settings.ToonFireShadowBudget: {value} 无效，范围为 0–{MaximumFireShadowBudget}。");
+                    return;
+                }
+                ToonFireShadowBudget = value;
+                SaveSettings();
+            });
+            RegisterVisualStrength(nameof(ToonShadowStrength), "实时阴影强度（0–1）", value => ToonShadowStrength = value);
+            RegisterVisualStrength(nameof(ToonBakedShadowStrength), "原版烘焙阴影强度（0–1）", value => ToonBakedShadowStrength = value);
 
             DebugLogConsole.AddCommand("Settings.Save",
                 "保存所有设置", SaveSettings);
@@ -80,6 +102,27 @@ namespace Pal3.Game.Settings
                 apply(enabled);
                 SaveSettings();
             });
+        }
+
+        private void RegisterVisualStrength(string name, string label, Action<float> apply, float maximum = 1f)
+        {
+            DebugLogConsole.AddCommand<float>($"Settings.{name}", $"设置{label}", value =>
+            {
+                if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > maximum)
+                {
+                    EngineLogger.LogWarning($"Settings.{name}: {value} 无效，范围为 0–{maximum}，且必须为有限数值。");
+                    return;
+                }
+                apply(value);
+                SaveSettings();
+            });
+        }
+
+        private float LoadVisualStrength(string name, float fallback, float maximum)
+        {
+            return SettingsStore.TryGet(name, out float value) &&
+                   !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f && value <= maximum
+                ? value : fallback;
         }
 
         public void Dispose()
@@ -218,8 +261,22 @@ namespace Pal3.Game.Settings
             _sessionUsesToon ??= ToonRendering;
             LoadBloomSetting(defaultEnabled: desktop && !_sessionUsesToon.Value);
             OptionalVfxEnabled = SettingsStore.TryGet(nameof(OptionalVfxEnabled), out bool optionalVfx) && optionalVfx;
-            ToonNightFireShadows = SettingsStore.TryGet(nameof(ToonNightFireShadows), out bool nightFireShadows)
-                ? nightFireShadows : desktop;
+            ToonFireShadows = SettingsStore.TryGet(FireShadowsSettingsKey, out bool fireShadows)
+                ? fireShadows : desktop;
+
+            ToonEnvironmentContrast = !SettingsStore.TryGet(nameof(ToonEnvironmentContrast), out bool toonEnvironmentContrast) || toonEnvironmentContrast;
+            ToonFireLighting = !SettingsStore.TryGet(nameof(ToonFireLighting), out bool toonFireLighting) || toonFireLighting;
+            ToonBakedShadows = !SettingsStore.TryGet(nameof(ToonBakedShadows), out bool toonBakedShadows) || toonBakedShadows;
+            ToonRealtimeShadows = !SettingsStore.TryGet(nameof(ToonRealtimeShadows), out bool toonRealtimeShadows) || toonRealtimeShadows;
+            ToonEnvironmentContrastStrength = LoadVisualStrength(nameof(ToonEnvironmentContrastStrength), 1.0f, 1.0f);
+            ToonContactShadowStrength = LoadVisualStrength(nameof(ToonContactShadowStrength), 1.25f, 2.0f);
+            ToonCharacterLightingStrength = LoadVisualStrength(nameof(ToonCharacterLightingStrength), 0.9f, 1.0f);
+            ToonFireIntensityScale = LoadVisualStrength(nameof(ToonFireIntensityScale), 1.0f, 3.0f);
+            ToonFireRangeScale = LoadVisualStrength(nameof(ToonFireRangeScale), 1.0f, 2.0f);
+            ToonFireShadowBudget = SettingsStore.TryGet(nameof(ToonFireShadowBudget), out int shadowBudget) &&
+                                   shadowBudget is >= 0 and <= MaximumFireShadowBudget ? shadowBudget : desktop ? 4 : 1;
+            ToonShadowStrength = LoadVisualStrength(nameof(ToonShadowStrength), 0.95f, 1.0f);
+            ToonBakedShadowStrength = LoadVisualStrength(nameof(ToonBakedShadowStrength), 0.65f, 1.0f);
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
             {
@@ -308,6 +365,7 @@ namespace Pal3.Game.Settings
             }
 
             SettingsStore.DeleteKey(NightFireBoostSettingsKey);
+            SettingsStore.DeleteKey(FireShadowsSettingsKey);
 
             // Re-initialize settings
             InitOrLoadSettings();

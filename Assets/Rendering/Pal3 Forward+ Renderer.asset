@@ -87,7 +87,7 @@ MonoBehaviour:
   m_Settings:
     AOMethod: 0
     Downsample: 1
-    AfterOpaque: 1
+    AfterOpaque: 0
     Source: 1
     NormalSamples: 2
     Intensity: 0.95

@@ -509,8 +509,8 @@ namespace Pal3.Game.Dev
                 value => _gameSettings.ToonCharacterLighting = value);
             AddOption("增强夜景火光", () => _gameSettings.ToonNightFireBoost,
                 value => _gameSettings.ToonNightFireBoost = value);
-            AddOption("夜景火光投影", () => _gameSettings.ToonNightFireShadows,
-                value => _gameSettings.ToonNightFireShadows = value);
+            AddOption("火光投影", () => _gameSettings.ToonFireShadows,
+                value => _gameSettings.ToonFireShadows = value);
             AddOption("泛光", () => _gameSettings.BloomEnabled,
                 value => _gameSettings.BloomEnabled = value);
             AddOption("可选剧情特效", () => _gameSettings.OptionalVfxEnabled,

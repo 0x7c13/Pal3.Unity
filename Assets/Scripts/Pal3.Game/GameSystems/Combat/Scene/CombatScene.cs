@@ -18,6 +18,8 @@ namespace Pal3.Game.GameSystems.Combat.Scene
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
+    using Engine.Services;
+    using Settings;
     using Rendering.Toon;
     using Rendering.Material;
     using Rendering.Renderer;
@@ -30,6 +32,8 @@ namespace Pal3.Game.GameSystems.Combat.Scene
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 
         private GameResourceProvider _resourceProvider;
+        private GameSettings _lightingSettings;
+        private UnityEngine.Light _keyLight;
         private IMaterialManager _materialManager;
 
         private string _combatSceneName;
@@ -63,8 +67,11 @@ namespace Pal3.Game.GameSystems.Combat.Scene
             _usesToonRendering = usesToonRendering;
             if (usesToonRendering)
             {
-                ToonLighting.CreateKey(transform, Quaternion.Euler(58f, -30f, 0f),
+                _lightingSettings = ServiceLocator.Instance.Get<GameSettings>();
+                _keyLight = ToonLighting.CreateKey(transform, Quaternion.Euler(58f, -30f, 0f),
                     new UnityEngine.Color(1f, 0.95f, 0.9f), 1f);
+                ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
+                _lightingSettings.OnGameSettingsChanged += OnLightingSettingsChanged;
             }
 
             string meshFileRelativeFolderPath = FileConstants.CombatSceneFolderVirtualPath + combatSceneName;
@@ -76,6 +83,16 @@ namespace Pal3.Game.GameSystems.Combat.Scene
                 CpkConstants.DirectorySeparatorChar + combatSceneName.ToLower() + ".pol");
 
             RenderMesh(polFile, sceneTextureProvider);
+        }
+
+        private void OnLightingSettingsChanged(string propertyName)
+        {
+            if (_keyLight != null) ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            if (_lightingSettings != null) _lightingSettings.OnGameSettingsChanged -= OnLightingSettingsChanged;
         }
 
         private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
