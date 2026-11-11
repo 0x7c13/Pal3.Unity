@@ -32,6 +32,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public Matrix4x4 BindPoseModelToBoneSpace { get; set; }
         public Matrix4x4 CurrentPoseToModelMatrix { get; set; }
+        public Matrix4x4 SkinningMatrix { get; set; }
 
         public MovBoneAnimationTrack? AnimationTrack { get; private set; }
 
@@ -98,6 +99,9 @@ namespace Pal3.Game.Rendering.Renderer
 
         private int[][] _indexBuffer;
         private Vector3[][] _allVerticesBuffer;
+        private int[][] _normalIndices;
+        private Vector3[][] _bindNormals;
+        private Vector3[][] _posedNormals;
 
         public bool IsInitialized { get; private set; }
 
@@ -292,11 +296,17 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void UpdateSkinning()
         {
+            foreach (Bone bone in _bones.Values)
+            {
+                bone.SkinningMatrix = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace;
+            }
+
             for (int subMeshIndex = 0; subMeshIndex < _renderMeshComponents.Length; subMeshIndex++)
             {
                 UpdateVerticesWithCurrentSkeleton(subMeshIndex);
                 Mesh mesh = _renderMeshComponents[subMeshIndex].Mesh;
                 mesh.SetVertices(_renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer);
+                if (_bindNormals != null) mesh.SetNormals(_renderMeshComponents[subMeshIndex].MeshDataBuffer.NormalBuffer);
                 mesh.RecalculateBounds();
             }
         }
@@ -343,6 +353,12 @@ namespace Pal3.Game.Rendering.Renderer
                 _meshEntities = new IGameEntity[_mshFile.SubMeshes.Length];
                 _indexBuffer = new int[_mshFile.SubMeshes.Length][];
                 _allVerticesBuffer = new Vector3[_mshFile.SubMeshes.Length][];
+                if (_materialManager.UsesToonRendering)
+                {
+                    _normalIndices = new int[_mshFile.SubMeshes.Length][];
+                    _bindNormals = new Vector3[_mshFile.SubMeshes.Length][];
+                    _posedNormals = new Vector3[_mshFile.SubMeshes.Length][];
+                }
             }
 
             for (int i = 0; i < _mshFile.SubMeshes.Length; i++)
@@ -364,7 +380,7 @@ namespace Pal3.Game.Rendering.Renderer
             renderMeshComponent.MeshDataBuffer ??= new MeshDataBuffer();
             renderMeshComponent.MeshDataBuffer.AllocateOrResizeBuffers(
                 vertexBufferSize: numOfIndices,
-                normalBufferSize: 0, // Skeletal model does not have normals, we will recalculate them later
+                normalBufferSize: _bindNormals != null ? numOfIndices : 0,
                 uvBufferSize: numOfIndices,
                 triangleBufferSize: numOfIndices);
 
@@ -401,10 +417,15 @@ namespace Pal3.Game.Rendering.Renderer
                     subMesh.Vertices[_indexBuffer[subMeshIndex][i]].GameBoxPosition.ToUnityPosition();
             }
 
+            if (_bindNormals != null)
+            {
+                BuildBindNormals(subMeshIndex, subMesh.Vertices, renderMeshComponent.MeshDataBuffer);
+            }
+
             IMaterial[] materials = _materialManager.CreateStandardMaterials(
                 RendererType.Msh,
                 mainTexture: _mainTexture,
-                shadowTexture: default,
+                bakedLightmap: default,
                 tintColor: _tintColor,
                 blendFlag: GameBoxBlendFlag.Opaque);
 
@@ -412,26 +433,57 @@ namespace Pal3.Game.Rendering.Renderer
             Mesh renderMesh = meshRenderer.Render(
                 vertices: renderMeshComponent.MeshDataBuffer.VertexBuffer,
                 triangles: renderMeshComponent.MeshDataBuffer.TriangleBuffer,
-                normals: default,
+                normals: _bindNormals != null ? renderMeshComponent.MeshDataBuffer.NormalBuffer : null,
                 mainTextureUvs: (channel: 0, uvs: renderMeshComponent.MeshDataBuffer.UvBuffer),
                 secondaryTextureUvs: default, // Skeletal model does not have secondary texture
                 materials: materials,
                 isDynamic: true);
 
-            renderMesh.RecalculateNormals();
-            renderMesh.RecalculateTangents();
             renderMesh.RecalculateBounds();
 
             renderMeshComponent.Mesh = renderMesh;
             renderMeshComponent.MeshRenderer = meshRenderer;
+            renderMeshComponent.Materials = materials;
+        }
+
+        private void BuildBindNormals(int subMeshIndex, PhyVertex[] vertices, MeshDataBuffer mesh)
+        {
+            var verticesByBinding = new Dictionary<(float x, float y, float z, byte bone), int>(vertices.Length);
+            var vertexRepresentatives = new int[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                PhyVertex vertex = vertices[i];
+                GameBoxVector3 position = vertex.GameBoxPosition;
+                // The pose uses the first bone only, so coincident positions with different bones can separate.
+                var key = (position.X, position.Y, position.Z, vertex.BoneIds[0]);
+                if (!verticesByBinding.TryGetValue(key, out int first))
+                {
+                    first = i;
+                    verticesByBinding.Add(key, first);
+                }
+                vertexRepresentatives[i] = first;
+            }
+
+            var (indices, count) = CoreUtility.GetNormalIndices(_indexBuffer[subMeshIndex], vertices.Length, vertexRepresentatives);
+            var normals = new Vector3[count];
+            _normalIndices[subMeshIndex] = indices;
+            _bindNormals[subMeshIndex] = normals;
+            _posedNormals[subMeshIndex] = new Vector3[count];
+
+            mesh.RebuildNormalsBySourceVertex(indices, normals);
         }
 
         private void UpdateVerticesWithCurrentSkeleton(int subMeshIndex)
         {
             MshMesh subMesh = _mshFile.SubMeshes[subMeshIndex];
             Vector3[] allVertices = _allVerticesBuffer[subMeshIndex];
+            Vector3[] bindNormals = _bindNormals?[subMeshIndex];
+            Vector3[] posedNormals = _posedNormals?[subMeshIndex];
+            int[] normalIndices = _normalIndices?[subMeshIndex];
+            int vertexCount = subMesh.Vertices.Length;
+            bool hasBackNormals = posedNormals?.Length > vertexCount;
 
-            for (int i = 0; i < subMesh.Vertices.Length; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 PhyVertex vert = subMesh.Vertices[i];
 
@@ -439,18 +491,30 @@ namespace Pal3.Game.Rendering.Renderer
                 Bone bone = _bones[boneId];
 
                 Vector3 originalPosition = vert.GameBoxPosition.ToUnityPosition();
-                Vector4 currentPosition = bone.CurrentPoseToModelMatrix * bone.BindPoseModelToBoneSpace *
+                Vector4 currentPosition = bone.SkinningMatrix *
                                           new Vector4(originalPosition.x, originalPosition.y, originalPosition.z, 1.0f);
 
                 allVertices[i].x = currentPosition.x / currentPosition.w;
                 allVertices[i].y = currentPosition.y / currentPosition.w;
                 allVertices[i].z = currentPosition.z / currentPosition.w;
+                if (posedNormals != null)
+                {
+                    posedNormals[i] = bone.SkinningMatrix.MultiplyVector(bindNormals[i]);
+                    if (hasBackNormals)
+                    {
+                        int backIndex = i + vertexCount;
+                        posedNormals[backIndex] = bone.SkinningMatrix.MultiplyVector(bindNormals[backIndex]);
+                    }
+                }
             }
 
-            for (int i = 0; i < _indexBuffer[subMeshIndex].Length; i++)
+            var mesh = _renderMeshComponents[subMeshIndex].MeshDataBuffer;
+            int[] sourceIndices = _indexBuffer[subMeshIndex];
+            for (int i = 0; i < sourceIndices.Length; i++)
             {
-                _renderMeshComponents[subMeshIndex].MeshDataBuffer.VertexBuffer[i] =
-                    allVertices[_indexBuffer[subMeshIndex][i]];
+                int sourceIndex = sourceIndices[i];
+                mesh.VertexBuffer[i] = allVertices[sourceIndex];
+                if (posedNormals != null) mesh.NormalBuffer[i] = posedNormals[normalIndices[i]];
             }
         }
 
@@ -494,10 +558,14 @@ namespace Pal3.Game.Rendering.Renderer
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    _materialManager.ReturnToPool(renderMeshComponent.MeshRenderer.GetMaterials());
-                    renderMeshComponent.Mesh.Destroy();
-                    renderMeshComponent.MeshRenderer.Dispose();
-                    renderMeshComponent.MeshRenderer.Destroy();
+                    if (renderMeshComponent == null) continue;
+                    if (renderMeshComponent.MeshRenderer != null)
+                    {
+                        renderMeshComponent.MeshRenderer.Dispose();
+                        renderMeshComponent.MeshRenderer.Destroy();
+                    }
+                    _materialManager.ReturnToPool(renderMeshComponent.Materials);
+                    renderMeshComponent.Materials = null;
                 }
             }
 

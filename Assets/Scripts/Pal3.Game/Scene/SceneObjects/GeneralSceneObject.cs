@@ -41,7 +41,7 @@ namespace Pal3.Game.Scene.SceneObjects
                 foreach (StaticMeshRenderer meshRenderer in
                          sceneObjectGameEntity.GetComponentsInChildren<StaticMeshRenderer>())
                 {
-                    meshRenderer.ReceiveShadows = false;
+                    meshRenderer.DisableShadows();
                 }
             }
 

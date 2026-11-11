@@ -13,8 +13,8 @@ Shader "Pal3/Snow"
     }
 
     HLSLINCLUDE
-        #include "Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl"
-        TEXTURE2D_SAMPLER2D(_MainTex, sampler_MainTex);
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
 		#define vec2 float2
 		#define vec3 float3
@@ -123,8 +123,9 @@ Shader "Pal3/Snow"
     		return f;
 		}
 
-        float4 Frag(VaryingsDefault i) : SV_Target
+        float4 Frag(Varyings i) : SV_Target
         {
+            UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 			float2 uv = i.texcoord;
         	float2 originUV = uv;
 			const float time = _Time.y;
@@ -166,18 +167,19 @@ Shader "Pal3/Snow"
 			float Snowout=N5+N4+N3+N2+N1;
 
         	float4 snowColor = vec4(Snowout*0.9, Snowout, Snowout*1.1, 1.0);
-        	float4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex,originUV);
+            float4 col = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, originUV);
 			return col + snowColor;
 		}
     ENDHLSL
 
     SubShader
     {
+      Tags { "RenderPipeline" = "UniversalPipeline" }
       Cull Off ZWrite Off ZTest Always
       Pass
       {
           HLSLPROGRAM
-              #pragma vertex VertDefault
+              #pragma vertex Vert
               #pragma fragment Frag
           ENDHLSL
       }

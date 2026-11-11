@@ -4,6 +4,7 @@
 #endif
 
 using UnityEngine;
+using UnityEngine.Assemblies;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -154,7 +155,7 @@ namespace IngameDebugConsole
 #endif
 
 #if UNITY_EDITOR || !NETFX_CORE
-			foreach( Assembly assembly in AppDomain.CurrentDomain.GetAssemblies() )
+			foreach( Assembly assembly in CurrentAssemblies.GetLoadedAssemblies() )
 #else
 			foreach( Assembly assembly in new Assembly[] { typeof( DebugLogConsole ).Assembly } ) // On UWP, at least search this plugin's Assembly for console methods
 #endif

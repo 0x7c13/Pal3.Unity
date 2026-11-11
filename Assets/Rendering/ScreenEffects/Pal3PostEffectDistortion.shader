@@ -17,15 +17,16 @@ Shader "Pal3/PostEffectDistortion"
     }
 
     HLSLINCLUDE
-        #include "Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl"
-        TEXTURE2D_SAMPLER2D(_MainTex, sampler_MainTex);
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
         float _TimeScale;
         float _XFactor;
         float _YFactor;
 
-        float4 Frag(VaryingsDefault i) : SV_Target
+        float4 Frag(Varyings i) : SV_Target
         {
+            UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
             float2 uv = i.texcoord;
             const float time = _Time.y;
 
@@ -35,18 +36,19 @@ Shader "Pal3/PostEffectDistortion"
             uv.x += sin((uv.y+uv.x) * _XFactor + time * _TimeScale) / (180.0 + (_TimeScale * sin(time)));
             uv.y += cos((uv.y+uv.x) * _YFactor + time * _TimeScale) / (200.0 + (_TimeScale * sin(time)));
 
-            float4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex,uv);
+            float4 col = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp,uv);
             return col;
         }
     ENDHLSL
 
     SubShader
     {
+      Tags { "RenderPipeline" = "UniversalPipeline" }
       Cull Off ZWrite Off ZTest Always
       Pass
       {
           HLSLPROGRAM
-              #pragma vertex VertDefault
+              #pragma vertex Vert
               #pragma fragment Frag
           ENDHLSL
       }

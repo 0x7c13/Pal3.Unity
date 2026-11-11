@@ -13,7 +13,7 @@ Shader "Pal3/Transparent"
 
         _HasShadowTex ("Has Shadow Texture", Range(0, 1)) = 0.0
         _ShadowTex ("Shadow Texture", 2D) = "white" {}
-        _Exposure("Exposure Amount", Range(0.1, 1.0)) = 0.4
+        _LightmapScale("Lightmap Scale", Float) = 1.666667
 
         [Enum(UnityEngine.Rendering.BlendMode)]
         _BlendSrcFactor("Source Blend Factor", int) = 5    // BlendMode.SrcAlpha as Default
@@ -23,23 +23,22 @@ Shader "Pal3/Transparent"
     }
     SubShader
     {
-        Lighting Off
-
-        Tags { "Queue" = "Transparent" }
+        Tags { "RenderPipeline" = "UniversalPipeline" "Queue" = "Transparent" }
 
         // Pass 2 ,transparent part
         Pass
         {
+            Tags { "LightMode" = "SRPDefaultUnlit" }
             Blend [_BlendSrcFactor] [_BlendDstFactor]
             ZWrite Off
 
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
-            #pragma multi_compile_fog
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             struct appdata_t
             {
@@ -54,52 +53,53 @@ Shader "Pal3/Transparent"
                 float4 vertex : SV_POSITION;
                 float2 texcoord0 : TEXCOORD0;
                 float2 texcoord1 : TEXCOORD1;
-                UNITY_FOG_COORDS(7)
+                float fogFactor : TEXCOORD7;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float _Threshold;
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+            TEXTURE2D(_ShadowTex);
+            SAMPLER(sampler_ShadowTex);
 
-            float _HasShadowTex;
-            sampler2D _ShadowTex;
-            float4 _ShadowTex_ST;
-            float _Exposure;
-
-            float4 _TintColor;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float _Threshold;
+                float _HasShadowTex;
+                float4 _ShadowTex_ST;
+                float _LightmapScale;
+                float4 _TintColor;
+            CBUFFER_END
 
             v2f vert(appdata_t v)
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = TransformObjectToHClip(v.vertex.xyz);
                 o.texcoord0 = TRANSFORM_TEX(v.texcoord0, _MainTex);
                 o.texcoord1 = TRANSFORM_TEX(v.texcoord1, _ShadowTex);
-                UNITY_TRANSFER_FOG(o, o.vertex);
+                o.fogFactor = ComputeFogFactor(o.vertex.z);
                 return o;
             }
 
             half4 frag(v2f i) : SV_Target
             {
-                half4 color = tex2D(_MainTex, i.texcoord0);
-                const float alpha = color.a;
-                if(color.a >= _Threshold)
+                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord0);
+                if (color.a >= _Threshold || (color.a <= 0.0 && _Threshold <= 1.0))
                 {
                     discard;
                 }
 
                 if(_HasShadowTex > 0.5f)
                 {
-                    color *= tex2D(_ShadowTex, i.texcoord1) / (1 - _Exposure);
-                    color.a = alpha;
+                    color.rgb *= SAMPLE_TEXTURE2D(_ShadowTex, sampler_ShadowTex, i.texcoord1).rgb * _LightmapScale;
                 }
                 color *= _TintColor;
-                UNITY_APPLY_FOG(i.fogCoord, color);
+                color.rgb = MixFog(color.rgb, i.fogFactor);
                 return color;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

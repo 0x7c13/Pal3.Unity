@@ -859,13 +859,6 @@ namespace SimpleFileBrowser
 
 			if( !showResizeCursor )
 				Destroy( resizeCursorHandler );
-
-#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-			// On new Input System, scroll sensitivity is much higher than legacy Input system
-			filesScrollRect.scrollSensitivity *= 0.25f;
-			quickLinksContainer.GetComponentInParent<ScrollRect>().scrollSensitivity *= 0.25f;
-			filtersDropdownContainer.GetComponent<ScrollRect>().scrollSensitivity *= 0.25f;
-#endif
 		}
 
 		private void OnRectTransformDimensionsChange()

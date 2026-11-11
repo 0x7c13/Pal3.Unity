@@ -3,7 +3,7 @@
 --- !u!30 &1
 GraphicsSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 15
+  serializedVersion: 16
   m_Deferred:
     m_Mode: 1
     m_Shader: {fileID: 69, guid: 0000000000000000f000000000000000, type: 0}
@@ -37,8 +37,17 @@ GraphicsSettings:
   - {fileID: 4800000, guid: 7207745e33764e88af7a51d39feb7b81, type: 3}
   m_PreloadedShaders: []
   m_PreloadShadersBatchTimeLimit: 0
+  m_GraphicsStateCollection: {fileID: 0}
+  m_CollectionStartupAction: 0
+  m_TraceSavePath: TracedCollection
+  m_TraceSendToEditor: 1
+  m_AdditionalWarmupCollections: []
+  m_WarmupAsync: 1
+  m_EnableCacheMissTracing: 0
+  m_WarmupProgressivelyLimit: -1
+  m_CacheMissCollectionPath: CacheMissCollection
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_CustomRenderPipeline: {fileID: 0}
+  m_CustomRenderPipeline: {fileID: 11400000, guid: 895616fcdb17845859539e6c06adacb2, type: 2}
   m_TransparencySortMode: 0
   m_TransparencySortAxis: {x: 0, y: 0, z: 1}
   m_DefaultRenderingPath: 1
@@ -116,6 +125,7 @@ GraphicsSettings:
   m_FogStripping: 1
   m_InstancingStripping: 0
   m_BrgStripping: 0
+  m_DefaultLightBaker: 0
   m_LightmapKeepPlain: 1
   m_LightmapKeepDirCombined: 1
   m_LightmapKeepDynamicPlain: 1
@@ -126,11 +136,16 @@ GraphicsSettings:
   m_FogKeepExp: 0
   m_FogKeepExp2: 0
   m_AlbedoSwatchInfos: []
+  m_RenderPipelineGlobalSettingsMap:
+    UnityEngine.Rendering.Universal.UniversalRenderPipeline: {fileID: 11400000, guid: a67b5f1a0a2d042b7ab35bfde91ca6e3, type: 2}
+  m_ShaderBuildSettings:
+    keywordDeclarationOverrides: []
+    numInternalDefines: 0
+    defines: []
+    compilerSettings: []
   m_LightsUseLinearIntensity: 0
-  m_LightsUseColorTemperature: 0
-  m_DefaultRenderingLayerMask: 1
+  m_LightsUseColorTemperature: 1
   m_LogWhenShaderIsCompiled: 0
-  m_SRPDefaultSettings: {}
   m_LightProbeOutsideHullStrategy: 0
   m_CameraRelativeLightCulling: 0
   m_CameraRelativeShadowCulling: 0

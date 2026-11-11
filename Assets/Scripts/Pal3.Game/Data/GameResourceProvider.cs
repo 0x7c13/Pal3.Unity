@@ -25,6 +25,7 @@ namespace Pal3.Game.Data
     using Core.DataReader.Mv3;
     using Core.FileSystem;
     using Core.Utilities;
+    using Effect;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.DataLoader;
@@ -42,8 +43,7 @@ namespace Pal3.Game.Data
     /// Also manages the lifecycle of the resource it provides.
     /// </summary>
     public sealed class GameResourceProvider : IDisposable,
-        ICommandExecutor<ScenePreLoadingNotification>,
-        ICommandExecutor<SettingChangedNotification>
+        ICommandExecutor<ScenePreLoadingNotification>
     {
         private const string CACHE_FOLDER_NAME = "CacheData";
         private const string MV3_ACTOR_CONFIG_HEADER = ";#MV3#";
@@ -53,8 +53,7 @@ namespace Pal3.Game.Data
         private readonly ICpkFileSystem _fileSystem;
         private readonly ITextureLoaderFactory _textureLoaderFactory;
         private readonly ITextureFactory _textureFactory;
-        private readonly IMaterialManager _unlitMaterialManager;
-        private readonly IMaterialManager _litMaterialManager;
+        private readonly IMaterialManager _materialManager;
         private readonly GameSettings _gameSettings;
 
         private readonly GdbFile _gameDatabase;
@@ -63,28 +62,28 @@ namespace Pal3.Game.Data
 
         private readonly Dictionary<string, ISprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
-        private readonly Dictionary<int, UnityEngine.Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
         private readonly int _codepage;
 
+        internal OptionalVfxPlayer OptionalVfx { get; }
+
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
-            IMaterialManager unlitMaterialManager,
-            IMaterialManager litMaterialManager,
+            IMaterialManager materialManager,
             GameSettings gameSettings)
         {
             _fileSystem = Requires.IsNotNull(fileSystem, nameof(fileSystem));
             _textureLoaderFactory = Requires.IsNotNull(textureLoaderFactory, nameof(textureLoaderFactory));
             _textureFactory = Requires.IsNotNull(textureFactory, nameof(textureFactory));
-            _unlitMaterialManager = Requires.IsNotNull(unlitMaterialManager, nameof(unlitMaterialManager));
-            _litMaterialManager = litMaterialManager; // Lit materials are not required
+            _materialManager = Requires.IsNotNull(materialManager, nameof(materialManager));
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
             _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
+            OptionalVfx = new OptionalVfxPlayer(_gameSettings);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -113,10 +112,9 @@ namespace Pal3.Game.Data
             }
             _audioClipCache.Clear();
 
-            _vfxEffectPrefabCache.Clear();
+            OptionalVfx.Dispose();
 
-            _unlitMaterialManager?.DeallocateMaterialPool();
-            _litMaterialManager?.DeallocateMaterialPool();
+            _materialManager.Dispose();
 
             _gameResourceFileCache.Clear();
         }
@@ -145,12 +143,7 @@ namespace Pal3.Game.Data
             return _shadowSprite;
         }
 
-        public IMaterialManager GetMaterialManager()
-        {
-            return !_gameSettings.IsOpenSourceVersion && _gameSettings.IsRealtimeLightingAndShadowsEnabled ?
-                _litMaterialManager :
-                _unlitMaterialManager;
-        }
+        public IMaterialManager GetMaterialManager() => _materialManager;
 
         public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
         {
@@ -525,55 +518,6 @@ namespace Pal3.Game.Data
             return Array.Empty<(ITexture2D, bool)>();
         }
 
-        private string GetVfxPrefabPath(int effectGroupId)
-        {
-            return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
-        }
-
-        public object GetVfxEffectPrefab(int effectGroupId)
-        {
-            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out UnityEngine.Object vfxEffectPrefab))
-            {
-                return vfxEffectPrefab;
-            }
-
-            UnityEngine.Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
-
-            if (vfxPrefab == null)
-            {
-                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
-            }
-
-            _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
-            return vfxPrefab;
-        }
-
-        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
-        {
-            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
-            {
-                yield break;
-            }
-
-            ResourceRequest request = Resources.LoadAsync(GetVfxPrefabPath(effectGroupId));
-
-            while (!request.isDone)
-            {
-                yield return request;
-            }
-
-            if (request.asset == null)
-            {
-                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
-            }
-            else
-            {
-                EngineLogger.Log($"VFX prefab preloaded: {effectGroupId}");
-            }
-
-            _vfxEffectPrefabCache[effectGroupId] = request.asset;
-        }
-
         public ITexture2D GetCursorTexture()
         {
             string cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
@@ -646,26 +590,8 @@ namespace Pal3.Game.Data
                 }
             }
 
-            // clear all vfx prefabs in cache
-            _vfxEffectPrefabCache.Clear();
+            OptionalVfx.ClearPrefabCache();
         }
 
-        public void Execute(SettingChangedNotification command)
-        {
-            // Need to deallocate and reallocate material pool when switching between lit and unlit materials
-            if (command.SettingName == nameof(_gameSettings.IsRealtimeLightingAndShadowsEnabled))
-            {
-                if (_gameSettings.IsRealtimeLightingAndShadowsEnabled)
-                {
-                    _unlitMaterialManager?.DeallocateMaterialPool();
-                    _litMaterialManager?.AllocateMaterialPool();
-                }
-                else
-                {
-                    _litMaterialManager?.DeallocateMaterialPool();
-                    _unlitMaterialManager?.AllocateMaterialPool();
-                }
-            }
-        }
     }
 }

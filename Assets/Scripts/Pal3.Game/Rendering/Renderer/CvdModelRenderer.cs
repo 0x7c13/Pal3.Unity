@@ -28,7 +28,20 @@ namespace Pal3.Game.Rendering.Renderer
     public sealed class CvdModelRenderer : GameEntityScript, IDisposable
     {
         private readonly Dictionary<string, ITexture2D> _textureCache = new ();
-        private readonly List<(CvdGeometryNode, Dictionary<int, RenderMeshComponent>)> _renderers = new ();
+        private readonly List<CvdNodeRenderState> _renderers = new();
+
+        private sealed class CvdNodeRenderState
+        {
+            public readonly CvdGeometryNode Node;
+            public readonly List<(int index, RenderMeshComponent renderMesh)> Sections = new();
+            public (Matrix4x4 matrix, int frameIndex, float influence) Pose;
+
+            public CvdNodeRenderState(CvdGeometryNode node, (Matrix4x4 matrix, int frameIndex, float influence) pose)
+            {
+                Node = node;
+                Pose = pose;
+            }
+        }
 
         private Color _tintColor;
 
@@ -99,11 +112,9 @@ namespace Pal3.Game.Rendering.Renderer
             bool boundsInitialized = false;
             Bounds bounds = new (Transform.Position, Vector3.one);
 
-            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
+            foreach (CvdNodeRenderState node in _renderers)
             {
-                if (!node.IsGeometryNode) continue;
-
-                foreach (RenderMeshComponent meshComponent in meshComponents.Values)
+                foreach (var (_, meshComponent) in node.Sections)
                 {
                     Bounds rendererBounds = meshComponent.MeshRenderer.GetRendererBounds();
                     if (!boundsInitialized)
@@ -126,11 +137,9 @@ namespace Pal3.Game.Rendering.Renderer
             bool boundsInitialized = false;
             Bounds bounds = new (Vector3.zero, Vector3.one);
 
-            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) in _renderers)
+            foreach (CvdNodeRenderState node in _renderers)
             {
-                if (!node.IsGeometryNode) continue;
-
-                foreach (RenderMeshComponent meshComponent in meshComponents.Values)
+                foreach (var (_, meshComponent) in node.Sections)
                 {
                     Bounds meshBounds = meshComponent.MeshRenderer.GetMeshBounds();
                     if (!boundsInitialized)
@@ -215,19 +224,9 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (node.IsGeometryNode)
             {
-                (CvdGeometryNode node, Dictionary<int, RenderMeshComponent> meshComponents) nodeMeshes =
-                    (node, new Dictionary<int, RenderMeshComponent>());
-
-                int frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, initTime);
-                Matrix4x4 frameMatrix = GetFrameMatrix(initTime, node);
-
-                float influence = 0f;
-                if (initTime > float.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
-                {
-                    influence = (initTime - node.Mesh.AnimationTimeKeys[frameIndex]) /
-                                (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
-                                 node.Mesh.AnimationTimeKeys[frameIndex]);
-                }
+                var nodeMeshes = new CvdNodeRenderState(node, SamplePose(node, initTime));
+                var (frameMatrix, frameIndex, influence) = nodeMeshes.Pose;
+                bool usesToon = _materialManager.UsesToonRendering;
 
                 for (int i = 0; i < node.Mesh.MeshSections.Length; i++)
                 {
@@ -235,23 +234,14 @@ namespace Pal3.Game.Rendering.Renderer
 
                     string sectionHashKey = $"{meshName}_{i}";
 
-                    MeshDataBuffer meshDataBuffer = new(meshSection.FrameVertices[frameIndex].Length,
-                        meshSection.FrameVertices[frameIndex].Length,
-                        meshSection.FrameVertices[frameIndex].Length,
-                        meshSection.GameBoxTriangles.Length);
-
-                    // Triangles are the same for all frames, so we can just copy them once.
-                    meshSection.GameBoxTriangles.ToUnityTriangles(meshDataBuffer.TriangleBuffer);
-
-                    UpdateMeshDataBuffer(ref meshDataBuffer,
-                        meshSection,
-                        frameIndex,
-                        influence,
-                        frameMatrix);
-
                     string textureName = meshSection.Material.TextureFileNames[0];
+                    if (string.IsNullOrEmpty(textureName) || !textureCache.TryGetValue(textureName, out ITexture2D texture))
+                        continue;
 
-                    if (string.IsNullOrEmpty(textureName) || !textureCache.ContainsKey(textureName)) continue;
+                    int vertexCount = meshSection.FrameVertices[frameIndex].Length;
+                    MeshDataBuffer meshDataBuffer = new(vertexCount, 0, vertexCount, meshSection.GameBoxTriangles.Length);
+                    meshSection.GameBoxTriangles.ToUnityTriangles(meshDataBuffer.TriangleBuffer);
+                    UpdateMeshDataBuffer(meshDataBuffer, meshSection, frameIndex, influence, frameMatrix);
 
                     IGameEntity meshSectionEntity = GameEntityFactory.Create($"{sectionHashKey}",
                         meshEntity, worldPositionStays: false);
@@ -265,8 +255,8 @@ namespace Pal3.Game.Rendering.Renderer
 
                     IMaterial[] materials = _materialManager.CreateStandardMaterials(
                         RendererType.Cvd,
-                        mainTexture: (textureName, textureCache[textureName]),
-                        shadowTexture: default, // CVD models don't have shadow textures
+                        mainTexture: (textureName, texture),
+                        bakedLightmap: default, // CVD models don't have shadow textures
                         tintColor: _tintColor,
                         blendFlag: meshSection.BlendFlag);
 
@@ -274,22 +264,21 @@ namespace Pal3.Game.Rendering.Renderer
                     Mesh renderMesh = meshRenderer.Render(
                         vertices: meshDataBuffer.VertexBuffer,
                         triangles: meshDataBuffer.TriangleBuffer,
-                        normals: meshDataBuffer.NormalBuffer,
+                        normals: null,
                         mainTextureUvs: (channel: 0, uvs: meshDataBuffer.UvBuffer),
                         secondaryTextureUvs: default, // CVD models don't have secondary texture
                         materials: materials,
                         isDynamic: true);
 
-                    renderMesh.RecalculateNormals();
-                    renderMesh.RecalculateTangents();
-                    renderMesh.RecalculateBounds();
+                    if (usesToon) renderMesh.RecalculateNormals();
 
-                    nodeMeshes.meshComponents[i] = new RenderMeshComponent
+                    nodeMeshes.Sections.Add((i, new RenderMeshComponent
                     {
                         Mesh = renderMesh,
                         MeshRenderer = meshRenderer,
+                        Materials = materials,
                         MeshDataBuffer = meshDataBuffer
-                    };
+                    }));
                 }
 
                 _renderers.Add(nodeMeshes);
@@ -306,11 +295,22 @@ namespace Pal3.Game.Rendering.Renderer
             }
         }
 
-        private void UpdateMeshDataBuffer(ref MeshDataBuffer meshDataBuffer,
+        private (Matrix4x4 matrix, int frameIndex, float influence) SamplePose(CvdGeometryNode node, float time)
+        {
+            float[] times = node.Mesh.AnimationTimeKeys;
+            int frameIndex = GetFrameIndex(times, time);
+            float influence = time > float.Epsilon && frameIndex + 1 < times.Length
+                ? (time - times[frameIndex]) / (times[frameIndex + 1] - times[frameIndex])
+                : 0f;
+            return (GetFrameMatrix(time, node), frameIndex, influence);
+        }
+
+        private static void UpdateMeshDataBuffer(MeshDataBuffer meshDataBuffer,
             CvdMeshSection meshSection,
             int frameIndex,
             float influence,
-            Matrix4x4 matrix)
+            Matrix4x4 matrix,
+            bool updateUvs = true)
         {
             CvdVertex[] frameVertices = meshSection.FrameVertices[frameIndex];
 
@@ -320,22 +320,23 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
                         frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition());
-                    meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv.ToUnityVector2();
+                    if (updateUvs) meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv.ToUnityVector2();
                 }
             }
             else
             {
+                CvdVertex[] toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                 for (int i = 0; i < frameVertices.Length; i++)
                 {
-                    CvdVertex[] toFrameVertices = meshSection.FrameVertices[frameIndex + 1];
                     Vector3 lerpPosition = Vector3.Lerp(
                         frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(),
                         toFrameVertices[i].GameBoxPosition.CvdPositionToUnityPosition(), influence);
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(lerpPosition);
-                    Vector2 lerpUv = Vector2.Lerp(
-                        frameVertices[i].Uv.ToUnityVector2(),
-                        toFrameVertices[i].Uv.ToUnityVector2(), influence);
-                    meshDataBuffer.UvBuffer[i] = lerpUv;
+                    if (updateUvs)
+                    {
+                        meshDataBuffer.UvBuffer[i] = Vector2.Lerp(frameVertices[i].Uv.ToUnityVector2(),
+                            toFrameVertices[i].Uv.ToUnityVector2(), influence);
+                    }
                 }
             }
         }
@@ -343,36 +344,33 @@ namespace Pal3.Game.Rendering.Renderer
         private void UpdateMesh(float time)
         {
             _currentAnimationTime = time;
+            if (_renderers.Count == 0) return;
 
-            foreach ((CvdGeometryNode node, Dictionary<int, RenderMeshComponent> renderMeshComponents) in _renderers)
+            bool usesToon = _materialManager.UsesToonRendering;
+            foreach (CvdNodeRenderState node in _renderers)
             {
-                int frameIndex = GetFrameIndex(node.Mesh.AnimationTimeKeys, time);
-                Matrix4x4 frameMatrix = GetFrameMatrix(time, node);
+                var pose = SamplePose(node.Node, time);
+                var previous = node.Pose;
+                bool matrixChanged = !pose.matrix.Equals(previous.matrix);
+                bool vertexFrameChanged = pose.frameIndex != previous.frameIndex || pose.influence != previous.influence;
+                if (!matrixChanged && !vertexFrameChanged) continue;
+                node.Pose = pose;
 
-                float influence = 0f;
-                if (time > float.Epsilon && frameIndex + 1 < node.Mesh.AnimationTimeKeys.Length)
+                bool normalTransformChanged = usesToon &&
+                    (!pose.matrix.GetColumn(0).Equals(previous.matrix.GetColumn(0)) ||
+                     !pose.matrix.GetColumn(1).Equals(previous.matrix.GetColumn(1)) ||
+                     !pose.matrix.GetColumn(2).Equals(previous.matrix.GetColumn(2)));
+
+                foreach (var (sectionIndex, renderMesh) in node.Sections)
                 {
-                    influence = (time - node.Mesh.AnimationTimeKeys[frameIndex]) /
-                                (node.Mesh.AnimationTimeKeys[frameIndex + 1] -
-                                 node.Mesh.AnimationTimeKeys[frameIndex]);
-                }
-
-                for (int i = 0; i < node.Mesh.MeshSections.Length; i++)
-                {
-                    if (!renderMeshComponents.TryGetValue(i, out RenderMeshComponent renderMeshComponent)) continue;
-
-                    CvdMeshSection meshSection = node.Mesh.MeshSections[i];
-
-                    MeshDataBuffer meshDataBuffer = renderMeshComponent.MeshDataBuffer;
-                    UpdateMeshDataBuffer(ref meshDataBuffer,
-                        meshSection,
-                        frameIndex,
-                        influence,
-                        frameMatrix);
-
-                    renderMeshComponent.Mesh.SetVertices(meshDataBuffer.VertexBuffer);
-                    renderMeshComponent.Mesh.SetUVs(0, meshDataBuffer.UvBuffer);
-                    renderMeshComponent.Mesh.RecalculateBounds();
+                    Mesh mesh = renderMesh.Mesh;
+                    MeshDataBuffer buffer = renderMesh.MeshDataBuffer;
+                    CvdMeshSection source = node.Node.Mesh.MeshSections[sectionIndex];
+                    UpdateMeshDataBuffer(buffer, source, pose.frameIndex, pose.influence, pose.matrix, vertexFrameChanged);
+                    mesh.SetVertices(buffer.VertexBuffer);
+                    if (usesToon && (vertexFrameChanged || normalTransformChanged)) mesh.RecalculateNormals();
+                    if (vertexFrameChanged) mesh.SetUVs(0, buffer.UvBuffer);
+                    mesh.RecalculateBounds();
                 }
             }
         }
@@ -591,12 +589,19 @@ namespace Pal3.Game.Rendering.Renderer
         {
             StopCurrentAnimation();
 
-            foreach (StaticMeshRenderer meshRenderer in GetComponentsInChildren<StaticMeshRenderer>())
+            foreach (CvdNodeRenderState node in _renderers)
             {
-                _materialManager.ReturnToPool(meshRenderer.GetMaterials());
-                meshRenderer.Dispose();
-                meshRenderer.Destroy();
+                foreach (var (_, component) in node.Sections)
+                {
+                    if (component.MeshRenderer != null)
+                    {
+                        component.MeshRenderer.Dispose();
+                        component.MeshRenderer.Destroy();
+                    }
+                    _materialManager.ReturnToPool(component.Materials);
+                }
             }
+            _renderers.Clear();
         }
     }
 }

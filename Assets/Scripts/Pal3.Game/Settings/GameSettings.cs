@@ -17,18 +17,15 @@ namespace Pal3.Game.Settings
     using Engine.Utilities;
     using IngameDebugConsole;
     using UnityEngine;
-    using UnityEngine.Rendering;
 
     public sealed class GameSettings : SettingsBase, IDisposable
     {
         public event Action<string> OnGameSettingsChanged;
 
-        public bool IsOpenSourceVersion { get; }
+        private bool? _sessionUsesToon;
 
-        public GameSettings(ITransactionalKeyValueStore settingsStore, bool isOpenSourceVersion) : base(settingsStore)
+        public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
         {
-            IsOpenSourceVersion = isOpenSourceVersion;
-
             InitDefaultSettings();
 
             DebugLogConsole.AddCommand<int>("Settings.VSyncCount",
@@ -52,13 +49,41 @@ namespace Pal3.Game.Settings
             DebugLogConsole.AddCommand<string>("Settings.GameDataFolderPath",
                 "设置自定义游戏数据文件夹路径", _ => GameDataFolderPath = _);
 
-            if (!IsOpenSourceVersion)
+            DebugLogConsole.AddCommand<bool>("Settings.ToonRendering",
+                "设置卡通画风与实时光影，重启后生效", enabled =>
+                {
+                    ToonRendering = enabled;
+                    SaveSettings();
+                });
+
+            RegisterVisualOption(nameof(ToonContactShadows), "接触阴影", enabled => ToonContactShadows = enabled);
+            RegisterVisualOption(nameof(ToonCharacterLighting), "角色光照", enabled => ToonCharacterLighting = enabled);
+            RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
+            RegisterVisualOption(nameof(BloomEnabled), "泛光", enabled => BloomEnabled = enabled);
+            RegisterVisualOption(nameof(OptionalVfxEnabled), "可选剧情特效", enabled => OptionalVfxEnabled = enabled);
+            RegisterVisualOption(nameof(ToonFireShadows), "火光投影", enabled => ToonFireShadows = enabled);
+
+            RegisterVisualOption(nameof(ToonEnvironmentContrast), "环境明暗对比", enabled => ToonEnvironmentContrast = enabled);
+            RegisterVisualOption(nameof(ToonFireLighting), "火光照明", enabled => ToonFireLighting = enabled);
+            RegisterVisualOption(nameof(ToonBakedShadows), "原版烘焙阴影", enabled => ToonBakedShadows = enabled);
+            RegisterVisualOption(nameof(ToonRealtimeShadows), "实时投影", enabled => ToonRealtimeShadows = enabled);
+            RegisterVisualStrength(nameof(ToonEnvironmentContrastStrength), "环境明暗对比强度（0–1）", value => ToonEnvironmentContrastStrength = value);
+            RegisterVisualStrength(nameof(ToonContactShadowStrength), "环境遮蔽强度（0–2）", value => ToonContactShadowStrength = value, maximum: 2f);
+            RegisterVisualStrength(nameof(ToonCharacterLightingStrength), "角色补光强度（0–1）", value => ToonCharacterLightingStrength = value);
+            RegisterVisualStrength(nameof(ToonFireIntensityScale), "火光亮度倍率（0–3）", value => ToonFireIntensityScale = value, maximum: 3f);
+            RegisterVisualStrength(nameof(ToonFireRangeScale), "火光范围倍率（0–2）", value => ToonFireRangeScale = value, maximum: 2f);
+            DebugLogConsole.AddCommand<int>("Settings.ToonFireShadowBudget", "设置火光投影灯上限（0–4）", value =>
             {
-                DebugLogConsole.AddCommand<bool>("Settings.IsRealtimeLightingAndShadowsEnabled",
-                    "设置实时光照和阴影设定（true：开启，false：关闭）", _ => IsRealtimeLightingAndShadowsEnabled = _);
-                DebugLogConsole.AddCommand<bool>("Settings.IsAmbientOcclusionEnabled",
-                    "设置环境光遮蔽设定（true：开启，false：关闭）", _ => IsAmbientOcclusionEnabled = _);
-            }
+                if (value < 0 || value > MaximumFireShadowBudget)
+                {
+                    EngineLogger.LogWarning($"Settings.ToonFireShadowBudget: {value} 无效，范围为 0–{MaximumFireShadowBudget}。");
+                    return;
+                }
+                ToonFireShadowBudget = value;
+                SaveSettings();
+            });
+            RegisterVisualStrength(nameof(ToonShadowStrength), "实时阴影强度（0–1）", value => ToonShadowStrength = value);
+            RegisterVisualStrength(nameof(ToonBakedShadowStrength), "原版烘焙阴影强度（0–1）", value => ToonBakedShadowStrength = value);
 
             DebugLogConsole.AddCommand("Settings.Save",
                 "保存所有设置", SaveSettings);
@@ -68,6 +93,36 @@ namespace Pal3.Game.Settings
                 "打印所有设置", PrintCurrentSettings);
 
             PropertyChanged += OnPropertyChanged;
+        }
+
+        private void RegisterVisualOption(string name, string label, Action<bool> apply)
+        {
+            DebugLogConsole.AddCommand<bool>($"Settings.{name}", $"设置{label}", enabled =>
+            {
+                apply(enabled);
+                SaveSettings();
+            });
+        }
+
+        private void RegisterVisualStrength(string name, string label, Action<float> apply, float maximum = 1f)
+        {
+            DebugLogConsole.AddCommand<float>($"Settings.{name}", $"设置{label}", value =>
+            {
+                if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > maximum)
+                {
+                    EngineLogger.LogWarning($"Settings.{name}: {value} 无效，范围为 0–{maximum}，且必须为有限数值。");
+                    return;
+                }
+                apply(value);
+                SaveSettings();
+            });
+        }
+
+        private float LoadVisualStrength(string name, float fallback, float maximum)
+        {
+            return SettingsStore.TryGet(name, out float value) &&
+                   !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f && value <= maximum
+                ? value : fallback;
         }
 
         public void Dispose()
@@ -195,53 +250,33 @@ namespace Pal3.Game.Settings
                 SfxVolume = 0.5f;
             }
 
-            if (IsOpenSourceVersion)
-            {
-                // Toon materials are available in closed source builds only
-                // so there will be no lit shader variants in the build for lighting to work
-                IsRealtimeLightingAndShadowsEnabled = false;
-            }
-            else
-            {
-                if (SettingsStore.TryGet(nameof(IsRealtimeLightingAndShadowsEnabled),
-                        out bool isRealtimeLightingAndShadowsEnabled))
-                {
-                    IsRealtimeLightingAndShadowsEnabled = isRealtimeLightingAndShadowsEnabled;
-                }
-                else
-                {
-                    // Enable realtime lighting and shadows by default
-                    // unless the device is a legacy mobile device
-                    IsRealtimeLightingAndShadowsEnabled = !UnityEngineUtility.IsLegacyMobileDevice();
-                }
-            }
+            ToonRendering = SettingsStore.TryGet(nameof(ToonRendering), out bool toonRendering) && toonRendering;
+            bool desktop = UnityEngineUtility.IsDesktopDevice();
+            ToonContactShadows = SettingsStore.TryGet(nameof(ToonContactShadows), out bool contactShadows)
+                ? contactShadows : desktop;
+            ToonCharacterLighting = !SettingsStore.TryGet(nameof(ToonCharacterLighting), out bool characterLighting)
+                || characterLighting;
+            ToonNightFireBoost = !SettingsStore.TryGet(NightFireBoostSettingsKey, out bool nightFireBoost)
+                || nightFireBoost;
+            _sessionUsesToon ??= ToonRendering;
+            LoadBloomSetting(defaultEnabled: desktop && !_sessionUsesToon.Value);
+            OptionalVfxEnabled = SettingsStore.TryGet(nameof(OptionalVfxEnabled), out bool optionalVfx) && optionalVfx;
+            ToonFireShadows = SettingsStore.TryGet(FireShadowsSettingsKey, out bool fireShadows)
+                ? fireShadows : desktop;
 
-            if (IsOpenSourceVersion)
-            {
-                // Toon materials are available in closed source builds only
-                // so there will be no lit shader variants in the build for lighting to work
-                // thus AO will not work anyway
-                IsAmbientOcclusionEnabled = false;
-            }
-            else if (Application.platform == RuntimePlatform.Android &&
-                     SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
-            {
-                // AO is only supported on Android with Vulkan
-                // Disable AO on Android with OpenGL ES by default
-                IsAmbientOcclusionEnabled = false;
-            }
-            else
-            {
-                if (SettingsStore.TryGet(nameof(IsAmbientOcclusionEnabled), out bool isAmbientOcclusionEnabled))
-                {
-                    IsAmbientOcclusionEnabled = isAmbientOcclusionEnabled;
-                }
-                else
-                {
-                    // Enable ambient occlusion by default on desktop devices
-                    IsAmbientOcclusionEnabled = UnityEngineUtility.IsDesktopDevice();
-                }
-            }
+            ToonEnvironmentContrast = !SettingsStore.TryGet(nameof(ToonEnvironmentContrast), out bool toonEnvironmentContrast) || toonEnvironmentContrast;
+            ToonFireLighting = !SettingsStore.TryGet(nameof(ToonFireLighting), out bool toonFireLighting) || toonFireLighting;
+            ToonBakedShadows = !SettingsStore.TryGet(nameof(ToonBakedShadows), out bool toonBakedShadows) || toonBakedShadows;
+            ToonRealtimeShadows = !SettingsStore.TryGet(nameof(ToonRealtimeShadows), out bool toonRealtimeShadows) || toonRealtimeShadows;
+            ToonEnvironmentContrastStrength = LoadVisualStrength(nameof(ToonEnvironmentContrastStrength), 1.0f, 1.0f);
+            ToonContactShadowStrength = LoadVisualStrength(nameof(ToonContactShadowStrength), 1.25f, 2.0f);
+            ToonCharacterLightingStrength = LoadVisualStrength(nameof(ToonCharacterLightingStrength), 0.9f, 1.0f);
+            ToonFireIntensityScale = LoadVisualStrength(nameof(ToonFireIntensityScale), 1.0f, 3.0f);
+            ToonFireRangeScale = LoadVisualStrength(nameof(ToonFireRangeScale), 1.0f, 2.0f);
+            ToonFireShadowBudget = SettingsStore.TryGet(nameof(ToonFireShadowBudget), out int shadowBudget) &&
+                                   shadowBudget is >= 0 and <= MaximumFireShadowBudget ? shadowBudget : desktop ? 4 : 1;
+            ToonShadowStrength = LoadVisualStrength(nameof(ToonShadowStrength), 0.95f, 1.0f);
+            ToonBakedShadowStrength = LoadVisualStrength(nameof(ToonBakedShadowStrength), 0.65f, 1.0f);
 
             if (SettingsStore.TryGet(nameof(IsVoiceOverEnabled), out bool isVoiceOverEnabled))
             {
@@ -328,6 +363,9 @@ namespace Pal3.Game.Settings
             {
                 SettingsStore.DeleteKey(property.Name);
             }
+
+            SettingsStore.DeleteKey(NightFireBoostSettingsKey);
+            SettingsStore.DeleteKey(FireShadowsSettingsKey);
 
             // Re-initialize settings
             InitOrLoadSettings();

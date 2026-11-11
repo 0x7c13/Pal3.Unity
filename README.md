@@ -42,7 +42,7 @@
 | 仙剑奇侠传三外传：问情篇 | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## 如何运行项目
-使用 Unity 6 打开当前项目文件夹即可，具体当前项目所使用的Unity版本请查看这里: [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt)，理论上任何Unity 6版本都没问题（实际上老版本Unity也行）。
+使用 [ProjectVersion.txt](ProjectSettings/ProjectVersion.txt) 指定的 Unity 版本打开项目。项目使用 URP Forward+。
 因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可）。
   - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
   - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
@@ -60,13 +60,19 @@
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
 两部游戏版本在项目中的切换是靠 [Custom scripting symbols](https://docs.unity3d.com/6000.0/Documentation/Manual/CustomScriptingSymbols.html) 实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。切换的过程中，包括Symbol，图标和应用程序名在内的所有名称和标示都会由PAL3变为PAL3A。
 
-## 卡通渲染与光影下的截图
+## 旧版卡通渲染截图
 ![PAL3 卡通渲染+光影](Screenshots/PAL3_ToonShading_Lighting.png?raw=true)
 ![PAL3A 卡通渲染+光影](Screenshots/PAL3A_ToonShading_Lighting.png?raw=true)
 ![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
 
 ## 关于特效和卡通渲染
-注意：游戏当前实现的所有特效以及卡通渲染部分使用了Unity Asset Store的资源，所以这部分实现（特效Prefab和Toon shader）没有办法开源。项目启动后默认会使用开源实现的Shader进行渲染（与原始游戏渲染风格一致），特效的话则会不显示，注意：这并不会影响游戏的编译和运行。
+两作都默认使用 URP 原版画风，保留原作贴图、烘焙光照和透明混合。可在「游戏设置 → 画风」选择「卡通与实时光影」，重启后生效。两档都使用仓库内的 shader，运行时从玩家本地读取原版游戏资源。
+
+「游戏设置 → 画面与特效设置」提供接触阴影、角色光照、增强夜景火光和火光投影四个独立开关，在卡通画风中即时生效。接触阴影和火光投影在桌面设备默认开启，手持设备可按需开启。夜景火光使用暖色灯光与冷色环境底色。火光投影也适用于暗色迷宫，桌面默认四盏，控制台可通过 `Settings.ToonFireShadowBudget` 设置 0–4 盏，阴影图集随预算扩容。泛光可以独立开关，默认仅桌面原版画风开启。
+
+上方截图来自旧版卡通渲染。可选剧情特效默认关闭。请在本地安装与 URP 兼容的编号预制体到 `Assets/Resources/Prefabs/VFX/PAL3/` 或 `Assets/Resources/Prefabs/VFX/PAL3A/`，再启用「可选剧情特效」。关闭时会立即隐藏当前可选特效。重新启用后，仍在场景中的持续特效会恢复，后续触发的剧情特效会照常显示。
+
+公开构建请使用未导入本地付费素材的全新检出。若工程中有可选特效预制体、Hovl Studio、RealToon 或旧版卡通材质，Unity 会阻止构建。仅供个人使用的构建可通过环境变量 `PAL3_ALLOW_PRIVATE_ASSETS=1` 启动本地 Unity 来显式启用。工程打包菜单会将这类构建输出到带 `-Private` 后缀的版本目录。
 
 ## 按键以及操作
   - 鼠标键盘：鼠标左键点击操作人物行走方向（键盘方向键也可以），AD控制镜头旋转，空格与周边附近的物品或者NPC交互（也是跳跃键），M键打开大地图，U键或ESC键打开剧情选择菜单，Tab键切换角色（迷宫中）。

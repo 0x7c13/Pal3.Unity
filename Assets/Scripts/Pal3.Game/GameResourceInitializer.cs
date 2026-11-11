@@ -33,6 +33,7 @@ namespace Pal3.Game
     using SimpleFileBrowser;
     using TMPro;
     using UnityEngine;
+    using UnityEngine.Assemblies;
     using Transform = UnityEngine.Transform;
 
     /// <summary>
@@ -44,30 +45,10 @@ namespace Pal3.Game
         [SerializeField] private GameObject startingComponent;
         [SerializeField] private TextMeshProUGUI loadingText;
 
-        // Optional materials that are used in the game but not open sourced
-        private Material _toonOpaqueMaterial;
-        private Material _toonTransparentMaterial;
-
         private IEnumerator Start()
         {
             loadingText.text = "正在加载游戏数据...";
             yield return null; // Wait for next frame to make sure the text is updated
-
-            ResourceRequest toonOpaqueMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonDefault");
-            yield return toonOpaqueMaterialLoadRequest;
-
-            if (toonOpaqueMaterialLoadRequest.asset != null)
-            {
-                _toonOpaqueMaterial = toonOpaqueMaterialLoadRequest.asset as Material;
-            }
-
-            ResourceRequest toonTransparentMaterialLoadRequest = Resources.LoadAsync<Material>("Materials/ToonTransparent");
-            yield return toonTransparentMaterialLoadRequest;
-
-            if (toonTransparentMaterialLoadRequest.asset != null)
-            {
-                _toonTransparentMaterial = toonTransparentMaterialLoadRequest.asset as Material;
-            }
 
             yield return InitResourceAsync();
         }
@@ -81,14 +62,11 @@ namespace Pal3.Game
             crcHash.Init();
             ServiceLocator.Instance.Register<Crc32Hash>(crcHash);
 
-            // If toon materials are not present, it's an open source build
-            bool isOpenSourceVersion = _toonOpaqueMaterial == null || _toonTransparentMaterial == null;
-
             // Init settings store
             ITransactionalKeyValueStore settingsStore = new PlayerPrefsStore();
 
             // Init settings
-            GameSettings gameSettings = new (settingsStore, isOpenSourceVersion);
+            GameSettings gameSettings = new (settingsStore);
             gameSettings.InitOrLoadSettings();
             ServiceLocator.Instance.Register<GameSettings>(gameSettings);
 
@@ -162,7 +140,8 @@ namespace Pal3.Game
             }
 
             // Create and register IFileReader<T> instances using reflection
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly[] loadedAssemblies = CurrentAssemblies.GetLoadedAssemblies().ToArray();
+            foreach (Assembly assembly in loadedAssemblies)
             {
                 // Get all types that implement any version of IFileReader<>
                 IEnumerable<Type> fileReaderTypes = assembly.GetTypes().Where(type =>
@@ -194,27 +173,8 @@ namespace Pal3.Game
             IMaterialFactory materialFactory = new UnityMaterialFactory();
             ServiceLocator.Instance.Register<IMaterialFactory>(materialFactory);
 
-            // Init material factories
-            IMaterialManager unlitMaterialManager = new UnlitMaterialManager(materialFactory);
-
-            IMaterialManager litMaterialManager = null;
-            // Only create litMaterialFactory when toon materials are present
-            if (_toonOpaqueMaterial != null && _toonTransparentMaterial != null)
-            {
-                litMaterialManager = new LitMaterialManager(materialFactory,
-                    new UnityMaterial(_toonOpaqueMaterial, isClone: false),
-                    new UnityMaterial(_toonTransparentMaterial, isClone: false));
-            }
-
-            // Pre-allocate material pool, since it is very costly to create new materials at runtime
-            if (!isOpenSourceVersion && gameSettings.IsRealtimeLightingAndShadowsEnabled && litMaterialManager != null)
-            {
-                litMaterialManager.AllocateMaterialPool();
-            }
-            else
-            {
-                unlitMaterialManager.AllocateMaterialPool();
-            }
+            // Select the material family for the lifetime of this session.
+            IMaterialManager materialManager = new GameMaterialManager(materialFactory, gameSettings.ToonRendering);
 
             // Init command related services
             SceCommandTypeResolver sceCommandTypeResolver = new SceCommandTypeResolver();
@@ -225,7 +185,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register<ISceCommandParser>(sceCommandParser);
 
             SceCommandPreprocessor sceCommandPreprocessor = new SceCommandPreprocessor();
-            sceCommandPreprocessor.Init();
+            sceCommandPreprocessor.Init(loadedAssemblies);
             ServiceLocator.Instance.Register<ISceCommandPreprocessor>(sceCommandPreprocessor);
 
             // Init scene object factory
@@ -237,8 +197,7 @@ namespace Pal3.Game
             GameResourceProvider resourceProvider = new GameResourceProvider(cpkFileSystem,
                 textureLoaderFactory,
                 textureFactory,
-                unlitMaterialManager,
-                litMaterialManager,
+                materialManager,
                 gameSettings);
             ServiceLocator.Instance.Register(resourceProvider);
 

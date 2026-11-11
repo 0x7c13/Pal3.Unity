@@ -137,34 +137,184 @@ namespace Pal3.Game.Settings
             }
         }
 
-        private bool _isRealtimeLightingAndShadowsEnabled = false; // Default disable realtime lighting and shadows
-        public bool IsRealtimeLightingAndShadowsEnabled
+        private bool _toonRendering;
+        public bool ToonRendering
         {
-            get => _isRealtimeLightingAndShadowsEnabled;
+            get => _toonRendering;
             internal set
             {
-                if (_isRealtimeLightingAndShadowsEnabled != value)
+                if (_toonRendering != value)
                 {
-                    _isRealtimeLightingAndShadowsEnabled = value;
-                    SettingsStore.Set(nameof(IsRealtimeLightingAndShadowsEnabled), value);
+                    _toonRendering = value;
+                    SettingsStore.Set(nameof(ToonRendering), value);
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        private bool _isAmbientOcclusionEnabled = false; // Default to disable ambient occlusion
-        public bool IsAmbientOcclusionEnabled
+        private bool _toonContactShadows;
+        public bool ToonContactShadows
         {
-            get => _isAmbientOcclusionEnabled;
+            get => _toonContactShadows;
+            internal set => SetBooleanOption(ref _toonContactShadows, value);
+        }
+
+        private bool _toonCharacterLighting;
+        public bool ToonCharacterLighting
+        {
+            get => _toonCharacterLighting;
+            internal set => SetBooleanOption(ref _toonCharacterLighting, value);
+        }
+
+        internal const string NightFireBoostSettingsKey = "ToonNightFireLighting";
+
+        private bool _toonNightFireBoost;
+        public bool ToonNightFireBoost
+        {
+            get => _toonNightFireBoost;
+            internal set => SetBooleanOption(ref _toonNightFireBoost, value, settingsKey: NightFireBoostSettingsKey);
+        }
+
+        internal const string FireShadowsSettingsKey = "ToonNightFireShadows";
+
+        private bool _toonFireShadows;
+        public bool ToonFireShadows
+        {
+            get => _toonFireShadows;
+            internal set => SetBooleanOption(ref _toonFireShadows, value, settingsKey: FireShadowsSettingsKey);
+        }
+
+        private bool _bloomEnabled;
+        public bool BloomEnabled
+        {
+            get => _bloomEnabled;
+            internal set => SetBooleanOption(ref _bloomEnabled, value);
+        }
+
+        private bool _optionalVfxEnabled;
+        public bool OptionalVfxEnabled
+        {
+            get => _optionalVfxEnabled;
+            internal set => SetBooleanOption(ref _optionalVfxEnabled, value);
+        }
+
+        private bool _toonEnvironmentContrast;
+        public bool ToonEnvironmentContrast
+        {
+            get => _toonEnvironmentContrast;
+            internal set => SetBooleanOption(ref _toonEnvironmentContrast, value);
+        }
+
+        private bool _toonFireLighting;
+        public bool ToonFireLighting
+        {
+            get => _toonFireLighting;
+            internal set => SetBooleanOption(ref _toonFireLighting, value);
+        }
+
+        private bool _toonBakedShadows;
+        public bool ToonBakedShadows
+        {
+            get => _toonBakedShadows;
+            internal set => SetBooleanOption(ref _toonBakedShadows, value);
+        }
+
+        private bool _toonRealtimeShadows;
+        public bool ToonRealtimeShadows
+        {
+            get => _toonRealtimeShadows;
+            internal set => SetBooleanOption(ref _toonRealtimeShadows, value);
+        }
+
+        private float _toonEnvironmentContrastStrength = 1.0f;
+        public float ToonEnvironmentContrastStrength
+        {
+            get => _toonEnvironmentContrastStrength;
+            internal set => SetFloatOption(ref _toonEnvironmentContrastStrength, value, 1.0f);
+        }
+
+        private float _toonContactShadowStrength = 1.25f;
+        public float ToonContactShadowStrength
+        {
+            get => _toonContactShadowStrength;
+            internal set => SetFloatOption(ref _toonContactShadowStrength, value, 2.0f);
+        }
+
+        private float _toonCharacterLightingStrength = 0.9f;
+        public float ToonCharacterLightingStrength
+        {
+            get => _toonCharacterLightingStrength;
+            internal set => SetFloatOption(ref _toonCharacterLightingStrength, value, 1.0f);
+        }
+
+        private float _toonFireIntensityScale = 1.0f;
+        public float ToonFireIntensityScale
+        {
+            get => _toonFireIntensityScale;
+            internal set => SetFloatOption(ref _toonFireIntensityScale, value, 3.0f);
+        }
+
+        private float _toonFireRangeScale = 1.0f;
+        public float ToonFireRangeScale
+        {
+            get => _toonFireRangeScale;
+            internal set => SetFloatOption(ref _toonFireRangeScale, value, 2.0f);
+        }
+
+        internal const int MaximumFireShadowBudget = 4;
+
+        private int _toonFireShadowBudget = 1;
+        public int ToonFireShadowBudget
+        {
+            get => _toonFireShadowBudget;
             internal set
             {
-                if (_isAmbientOcclusionEnabled != value)
-                {
-                    _isAmbientOcclusionEnabled = value;
-                    SettingsStore.Set(nameof(IsAmbientOcclusionEnabled), value);
-                    NotifyPropertyChanged();
-                }
+                if (_toonFireShadowBudget == value || value < 0 || value > MaximumFireShadowBudget) return;
+                _toonFireShadowBudget = value;
+                SettingsStore.Set(nameof(ToonFireShadowBudget), value);
+                NotifyPropertyChanged();
             }
+        }
+
+        private float _toonShadowStrength = 0.95f;
+        public float ToonShadowStrength
+        {
+            get => _toonShadowStrength;
+            internal set => SetFloatOption(ref _toonShadowStrength, value, 1.0f);
+        }
+
+        private float _toonBakedShadowStrength = 0.65f;
+        public float ToonBakedShadowStrength
+        {
+            get => _toonBakedShadowStrength;
+            internal set => SetFloatOption(ref _toonBakedShadowStrength, value, 1.0f);
+        }
+
+        private void SetFloatOption(ref float option, float value, float maximum,
+            [CallerMemberName] string propertyName = null)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > maximum || option == value)
+                return;
+            option = value;
+            SettingsStore.Set(propertyName, value);
+            NotifyPropertyChanged(propertyName);
+        }
+
+        internal void LoadBloomSetting(bool defaultEnabled)
+        {
+            bool bloom = SettingsStore.TryGet(nameof(BloomEnabled), out bool enabled) ? enabled : defaultEnabled;
+            if (_bloomEnabled == bloom) return;
+            _bloomEnabled = bloom;
+            NotifyPropertyChanged(nameof(BloomEnabled));
+        }
+
+        private void SetBooleanOption(ref bool option, bool value,
+            [CallerMemberName] string propertyName = null, string settingsKey = null)
+        {
+            if (option == value) return;
+            option = value;
+            SettingsStore.Set(settingsKey ?? propertyName, value);
+            NotifyPropertyChanged(propertyName);
         }
 
         private bool _isVoiceOverEnabled = true; // Default to enable voice over

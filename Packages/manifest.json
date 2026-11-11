@@ -8,7 +8,7 @@
     "com.unity.inputsystem": "1.20.1",
     "com.unity.memoryprofiler": "1.1.12",
     "com.unity.mobile.android-logcat": "1.4.7",
-    "com.unity.postprocessing": "3.5.4",
+    "com.unity.render-pipelines.universal": "17.6.0",
     "com.unity.test-framework": "1.8.0",
     "com.unity.timeline": "6.6.0",
     "com.unity.ugui": "2.6.0",

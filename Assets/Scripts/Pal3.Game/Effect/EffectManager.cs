@@ -17,8 +17,6 @@ namespace Pal3.Game.Effect
     using Core.Primitives;
     using Core.Utilities;
     using Data;
-    using Engine.Core.Abstraction;
-    using Engine.Core.Implementation;
     using Engine.Extensions;
     using Scene;
 
@@ -32,7 +30,7 @@ namespace Pal3.Game.Effect
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly GameResourceProvider _resourceProvider;
+        private readonly OptionalVfxPlayer _optionalVfx;
         private readonly SceneManager _sceneManager;
         private ICommand _effectPositionCommand;
 
@@ -42,10 +40,10 @@ namespace Pal3.Game.Effect
         public EffectManager(GameResourceProvider resourceProvider,
             SceneManager sceneManager)
         {
-            _resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+            _optionalVfx = Requires.IsNotNull(resourceProvider, nameof(resourceProvider)).OptionalVfx;
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 
-            _effectLinkerFile = _resourceProvider.GetGameResourceFile<EffectLinkerFile>(
+            _effectLinkerFile = resourceProvider.GetGameResourceFile<EffectLinkerFile>(
                 FileConstants.CombatDataFolderVirtualPath + EFFECT_LINKER_FILE_NAME);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
@@ -54,7 +52,7 @@ namespace Pal3.Game.Effect
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-            _effectPositionCommand = null;
+            ClearSceneEffects();
         }
 
         public void Execute(EffectPreLoadCommand command)
@@ -64,7 +62,7 @@ namespace Pal3.Game.Effect
             // Even with a waiter, we need to make sure waiter's current execution mode is set
             // to synchronous otherwise the effect will be played before the pre-load is finished.
             #if PAL3
-            Pal3.Instance.StartCoroutine(_resourceProvider.PreLoadVfxEffectAsync(command.EffectGroupId));
+            Pal3.Instance.StartCoroutine(_optionalVfx.PreloadAsync(command.EffectGroupId));
             #endif
         }
 
@@ -80,33 +78,20 @@ namespace Pal3.Game.Effect
             }
             #endif
 
-            // Play VFX
-            object vfxPrefab = _resourceProvider.GetVfxEffectPrefab(command.EffectGroupId);
-            if (vfxPrefab != null)
+            if (_effectPositionCommand is EffectSetPositionCommand positionCommand)
             {
-                IGameEntity parent = null;
-                Vector3 localPosition = Vector3.zero;
+                Vector3 localPosition = new GameBoxVector3(
+                    positionCommand.GameBoxXPosition,
+                    positionCommand.GameBoxYPosition,
+                    positionCommand.GameBoxZPosition).ToUnityPosition();
 
-                if (_effectPositionCommand is EffectSetPositionCommand positionCommand &&
-                    _sceneManager.GetSceneRootGameEntity() is {} sceneRootGameEntity)
-                {
-                    parent = sceneRootGameEntity;
-                    localPosition = new GameBoxVector3(
-                            positionCommand.GameBoxXPosition,
-                            positionCommand.GameBoxYPosition,
-                            positionCommand.GameBoxZPosition).ToUnityPosition();
-                }
-                else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
-                {
-                    parent = currentScene.GetActorGameEntity(actorCommand.ActorId);
-                }
-
-                if (!parent.IsNullOrDisposed())
-                {
-                    IGameEntity effectEntity = GameEntityFactory.Create(name: $"VFX_{command.EffectGroupId}",
-                        vfxPrefab, parent, worldPositionStays: false);
-                    effectEntity.Transform.LocalPosition += localPosition;
-                }
+                _optionalVfx.Play(command.EffectGroupId,
+                    _sceneManager.GetSceneRootGameEntity(), localPosition);
+            }
+            else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
+            {
+                _optionalVfx.Play(command.EffectGroupId,
+                    currentScene.GetActorGameEntity(actorCommand.ActorId), Vector3.zero);
             }
 
             // Play SFX if any
@@ -159,8 +144,14 @@ namespace Pal3.Game.Effect
 
         public void Execute(EffectAttachToActorCommand command) => _effectPositionCommand = command;
 
-        public void Execute(SceneLeavingCurrentSceneNotification command) => _effectPositionCommand = null;
+        public void Execute(SceneLeavingCurrentSceneNotification command) => ClearSceneEffects();
 
-        public void Execute(ResetGameStateCommand command) => _effectPositionCommand = null;
+        public void Execute(ResetGameStateCommand command) => ClearSceneEffects();
+
+        private void ClearSceneEffects()
+        {
+            _effectPositionCommand = null;
+            _optionalVfx.ClearPlayedEffects();
+        }
     }
 }

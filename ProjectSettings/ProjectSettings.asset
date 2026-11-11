@@ -3,7 +3,7 @@
 --- !u!129 &1
 PlayerSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 29
+  serializedVersion: 30
   productGUID: caf016b1d0f910b419947546aaa5fdc5
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
@@ -54,7 +54,7 @@ PlayerSettings:
   mipStripping: 0
   numberOfMipsStripped: 0
   numberOfMipsStrippedPerMipmapLimitGroup: {}
-  m_StackTraceTypes: 010000000100000001000000010000000100000001000000
+  m_StackTraceTypes: 010000000100000001000000010000000100000001000000i
   iosShowActivityIndicatorOnLoading: -1
   androidShowActivityIndicatorOnLoading: -1
   iosUseCustomAppBackgroundBehavior: 0
@@ -88,6 +88,7 @@ PlayerSettings:
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
   runInBackground: 1
+  callOnDisableOnAssetBundleUnload: 1
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
@@ -162,7 +163,7 @@ PlayerSettings:
   allowHDRDisplaySupport: 0
   useHDRDisplay: 0
   hdrBitDepth: 0
-  m_ColorGamuts: 00000000
+  m_ColorGamuts: 00000000i
   targetPixelDensity: 30
   resolutionScalingMode: 0
   resetResolutionOnWindowResize: 0
@@ -787,25 +788,25 @@ PlayerSettings:
     m_GraphicsJobMode: 0
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: AndroidPlayer
-    m_APIs: 0b00000015000000
+    m_APIs: 0b00000015000000i
     m_Automatic: 0
   - m_BuildTarget: iOSSupport
-    m_APIs: 10000000
+    m_APIs: 10000000i
     m_Automatic: 1
   - m_BuildTarget: AppleTVSupport
-    m_APIs: 10000000
+    m_APIs: 10000000i
     m_Automatic: 1
   - m_BuildTarget: WebGLSupport
-    m_APIs: 0b000000
+    m_APIs: 0b000000i
     m_Automatic: 1
   - m_BuildTarget: MacStandaloneSupport
-    m_APIs: 10000000
+    m_APIs: 10000000i
     m_Automatic: 0
   - m_BuildTarget: LinuxStandaloneSupport
-    m_APIs: 1500000011000000
+    m_APIs: 1500000011000000i
     m_Automatic: 0
   - m_BuildTarget: WindowsStandaloneSupport
-    m_APIs: 0200000015000000
+    m_APIs: 0200000015000000i
     m_Automatic: 0
   m_DefaultShaderChunkSizeInMB: 16
   m_DefaultShaderChunkCount: 0
@@ -840,10 +841,10 @@ PlayerSettings:
   m_BuildTargetDefaultTextureCompressionFormat:
   - serializedVersion: 3
     m_BuildTarget: Android
-    m_Formats: 03000000
+    m_Formats: 03000000i
   - serializedVersion: 3
     m_BuildTarget: iOS
-    m_Formats: 03000000
+    m_Formats: 03000000i
   playModeTestRunnerEnabled: 0
   runPlayModeTestAsEditModeTest: 0
   actionOnDotNetUnhandledException: 1
@@ -1111,30 +1112,20 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
+  webProgressiveAssetLoading: 0
   scriptingDefineSymbols:
-    Android: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    Bratwurst: UNITY_POST_PROCESSING_STACK_V2
-    CloudRendering: UNITY_POST_PROCESSING_STACK_V2
-    EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2
-    GameCoreScarlett: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    GameCoreXboxOne: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    Kepler: UNITY_POST_PROCESSING_STACK_V2
-    LinuxHeadlessSimulation: UNITY_POST_PROCESSING_STACK_V2
-    Lumin: UNITY_POST_PROCESSING_STACK_V2
-    Nintendo Switch: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    Nintendo Switch 2: UNITY_POST_PROCESSING_STACK_V2
-    PS4: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    PS5: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    QNX: UNITY_POST_PROCESSING_STACK_V2
-    ReservedCFE: UNITY_POST_PROCESSING_STACK_V2
-    Stadia: UNITY_POST_PROCESSING_STACK_V2
-    Standalone: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    VisionOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    WebGL: UNITY_POST_PROCESSING_STACK_V2
-    Windows Store Apps: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    XboxOne: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    Android: PAL3
+    GameCoreScarlett: PAL3A
+    GameCoreXboxOne: PAL3A
+    Nintendo Switch: PAL3
+    PS4: PAL3
+    PS5: PAL3A
+    Standalone: PAL3
+    VisionOS: PAL3
+    Windows Store Apps: PAL3
+    XboxOne: PAL3
     iPhone: PAL3
-    tvOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    tvOS: PAL3
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -1155,6 +1146,7 @@ PlayerSettings:
   scriptingRuntimeVersion: 1
   gcIncremental: 1
   gcWBarrierValidation: 0
+  managedCodeVariant: {}
   apiCompatibilityLevelPerPlatform:
     Standalone: 6
   editorAssembliesCompatibilityLevel: 1
@@ -1236,7 +1228,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 2
+  activeInputHandler: 1
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
   cloudProjectId: 
@@ -1254,4 +1246,5 @@ PlayerSettings:
   androidVulkanAllowFilterList: []
   androidVulkanDeviceFilterListAsset: {fileID: 0}
   d3d12DeviceFilterListAsset: {fileID: 0}
+  webGPUDeviceFilterListAsset: {fileID: 0}
   allowedHttpConnections: 3

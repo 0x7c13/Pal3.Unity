@@ -5,12 +5,14 @@
 
 namespace Pal3.Game.Rendering
 {
+    using Engine.Core.Abstraction;
     using Engine.Renderer;
     using UnityEngine;
 
     public sealed class RenderMeshComponent
     {
         public Mesh Mesh { get; set; }
+        public IMaterial[] Materials { get; set; }
         public StaticMeshRenderer MeshRenderer { get; set; }
         public MeshDataBuffer MeshDataBuffer { get; set; }
     }

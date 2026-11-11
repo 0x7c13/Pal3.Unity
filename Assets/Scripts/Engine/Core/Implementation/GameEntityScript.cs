@@ -6,7 +6,6 @@
 namespace Engine.Core.Implementation
 {
     using System;
-    using System.Collections;
     using Abstraction;
     using UnityEngine;
 
@@ -23,11 +22,6 @@ namespace Engine.Core.Implementation
         public IGameEntity GameEntity
         {
             get { return _gameEntity ??= new GameEntity(base.gameObject); }
-        }
-
-        protected new void StartCoroutine(IEnumerator coroutine)
-        {
-            base.StartCoroutine(coroutine);
         }
 
         protected virtual void OnEnableGameEntity() {}

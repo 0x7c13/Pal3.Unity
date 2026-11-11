@@ -5,8 +5,8 @@
 
 namespace Pal3.Game.Effect
 {
+    using System;
     using Data;
-    using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
 
@@ -32,7 +32,7 @@ namespace Pal3.Game.Effect
 
         private RotatingSpriteEffect _bridgeBaseEffect;
         private RotatingSpriteEffect _bridgeEffect;
-        private IGameEntity _effect;
+        private IDisposable _effect;
 
         protected override void OnDisableGameEntity()
         {
@@ -41,14 +41,6 @@ namespace Pal3.Game.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
-            // object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
-            //
-            // if (vfxPrefab != null)
-            // {
-            //     _effect = PrefabFactory.Instantiate(vfxPrefab, Transform, worldPositionStays: false);
-            //     _effect.Name = "VFX_" + effectParameter;
-            // }
-
             #if PAL3
             if (effectParameter == 465) // 蜀山太极桥特效
             #elif PAL3A
@@ -78,14 +70,11 @@ namespace Pal3.Game.Effect
             if (effectParameter == 344) // 重盘古元灵特效
             #endif
             {
-                object vfxPrefab = resourceProvider.GetVfxEffectPrefab((int)effectParameter);
-                if (vfxPrefab != null)
-                {
-                    _effect = GameEntityFactory.Create(name: $"VFX_{effectParameter}",
-                        vfxPrefab, GameEntity, worldPositionStays: false);
-                }
+                _effect = resourceProvider.OptionalVfx.Attach((int)effectParameter, GameEntity);
             }
         }
+
+        private void OnDestroy() => Dispose();
 
         public void Dispose()
         {
@@ -103,11 +92,8 @@ namespace Pal3.Game.Effect
                 _bridgeEffect = null;
             }
 
-            if (_effect != null)
-            {
-                _effect.Destroy();
-                _effect = null;
-            }
+            _effect?.Dispose();
+            _effect = null;
         }
     }
 }

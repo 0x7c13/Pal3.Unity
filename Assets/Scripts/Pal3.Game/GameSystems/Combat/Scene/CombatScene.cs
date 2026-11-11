@@ -18,6 +18,9 @@ namespace Pal3.Game.GameSystems.Combat.Scene
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.Extensions;
+    using Engine.Services;
+    using Settings;
+    using Rendering.Toon;
     using Rendering.Material;
     using Rendering.Renderer;
 
@@ -29,10 +32,12 @@ namespace Pal3.Game.GameSystems.Combat.Scene
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 
         private GameResourceProvider _resourceProvider;
+        private GameSettings _lightingSettings;
+        private UnityEngine.Light _keyLight;
         private IMaterialManager _materialManager;
 
         private string _combatSceneName;
-        private bool _isLightingEnabled;
+        private bool _usesToonRendering;
 
         private IGameEntity _parent;
         private IGameEntity _mesh;
@@ -55,11 +60,19 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
         public void Load(IGameEntity parent,
             string combatSceneName,
-            bool isLightingEnabled)
+            bool usesToonRendering)
         {
             _parent = parent;
             _combatSceneName = combatSceneName;
-            _isLightingEnabled = isLightingEnabled;
+            _usesToonRendering = usesToonRendering;
+            if (usesToonRendering)
+            {
+                _lightingSettings = ServiceLocator.Instance.Get<GameSettings>();
+                _keyLight = ToonLighting.CreateKey(transform, Quaternion.Euler(58f, -30f, 0f),
+                    new UnityEngine.Color(1f, 0.95f, 0.9f), 1f);
+                ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
+                _lightingSettings.OnGameSettingsChanged += OnLightingSettingsChanged;
+            }
 
             string meshFileRelativeFolderPath = FileConstants.CombatSceneFolderVirtualPath + combatSceneName;
 
@@ -70,6 +83,16 @@ namespace Pal3.Game.GameSystems.Combat.Scene
                 CpkConstants.DirectorySeparatorChar + combatSceneName.ToLower() + ".pol");
 
             RenderMesh(polFile, sceneTextureProvider);
+        }
+
+        private void OnLightingSettingsChanged(string propertyName)
+        {
+            if (_keyLight != null) ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            if (_lightingSettings != null) _lightingSettings.OnGameSettingsChanged -= OnLightingSettingsChanged;
         }
 
         private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
@@ -129,7 +152,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
                     _resourceProvider,
                     combatActor,
                     elementPosition,
-                    isDropShadowEnabled: !_isLightingEnabled);
+                    isDropShadowEnabled: !_usesToonRendering);
                 combatActorGameEntity.SetParent(_parent, worldPositionStays: false);
 
                 Quaternion rotation;

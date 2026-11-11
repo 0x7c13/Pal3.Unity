@@ -6,6 +6,7 @@
 namespace Pal3.Core.Utilities
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
@@ -53,6 +54,155 @@ namespace Pal3.Core.Utilities
             }
 
             return index;
+        }
+
+        public static (int[] indices, int count) GetNormalIndices(int[] corners, int sourceVertexCount,
+            int[] vertexRepresentatives = null)
+        {
+            // Match faces by deformation identity while keeping normals indexed by source vertex.
+            int[] faceCorners = corners;
+            if (vertexRepresentatives != null)
+            {
+                faceCorners = new int[corners.Length];
+                for (int i = 0; i + 2 < corners.Length; i += 3)
+                {
+                    int a = vertexRepresentatives[corners[i]];
+                    int b = vertexRepresentatives[corners[i + 1]];
+                    int c = vertexRepresentatives[corners[i + 2]];
+                    // Preserve exact-index matching for collapsed faces.
+                    bool collapsed = a == b || b == c || a == c;
+                    faceCorners[i] = collapsed ? corners[i] : a;
+                    faceCorners[i + 1] = collapsed ? corners[i + 1] : b;
+                    faceCorners[i + 2] = collapsed ? corners[i + 2] : c;
+                }
+            }
+
+            int faceCount = corners.Length / 3;
+            var firstFaces = new Dictionary<(int, int, int), int>();
+            var matchingFaces = new int[faceCount];
+            bool[] pairedFaces = null;
+            for (int face = 0; face < faceCount; face++)
+            {
+                int a = faceCorners[face * 3];
+                int b = faceCorners[face * 3 + 1];
+                int c = faceCorners[face * 3 + 2];
+                if (a == b || b == c || a == c) continue;
+
+                // Rotate to the smallest corner without changing the winding.
+                if (b < a && b < c) (a, b, c) = (b, c, a);
+                else if (c < a && c < b) (a, b, c) = (c, a, b);
+                if (firstFaces.TryGetValue((a, c, b), out int opposite))
+                {
+                    pairedFaces ??= new bool[faceCount];
+                    pairedFaces[opposite] = true;
+                    matchingFaces[face] = -(opposite + 1);
+                }
+                else if (firstFaces.TryGetValue((a, b, c), out int same))
+                {
+                    matchingFaces[face] = same + 1;
+                }
+                else
+                {
+                    firstFaces.Add((a, b, c), face);
+                }
+            }
+
+            if (pairedFaces == null) return (corners, sourceVertexCount);
+
+            sbyte[] sides = OrientPairedFaces(faceCorners, firstFaces.Values, pairedFaces);
+            var backFaces = new bool[faceCount];
+            var frontVertices = new bool[sourceVertexCount];
+            for (int face = 0; face < faceCount; face++)
+            {
+                int match = matchingFaces[face];
+                int first = match == 0 ? face : Math.Abs(match) - 1;
+                if (pairedFaces[first] && (sides[first] < 0) != (match < 0))
+                {
+                    backFaces[face] = true;
+                    continue;
+                }
+
+                int corner = face * 3;
+                frontVertices[corners[corner]] = true;
+                frontVertices[corners[corner + 1]] = true;
+                frontVertices[corners[corner + 2]] = true;
+            }
+
+            // A source vertex that already belongs to only one side keeps its normal group.
+            int[] normalIndices = null;
+            for (int face = 0; face < faceCount; face++)
+            {
+                if (!backFaces[face]) continue;
+                int corner = face * 3;
+                for (int i = corner; i < corner + 3; i++)
+                {
+                    if (!frontVertices[corners[i]]) continue;
+                    normalIndices ??= (int[])corners.Clone();
+                    normalIndices[i] += sourceVertexCount;
+                }
+            }
+
+            return normalIndices == null ? (corners, sourceVertexCount) : (normalIndices, sourceVertexCount * 2);
+        }
+
+        private static sbyte[] OrientPairedFaces(int[] corners, IEnumerable<int> firstFaces, bool[] pairedFaces)
+        {
+            var edges = new Dictionary<(int, int), (int first, int second, bool firstAscending, bool secondAscending)>();
+            foreach (int face in firstFaces)
+            {
+                for (int edge = 0; edge < 3; edge++)
+                {
+                    var (key, ascending) = GetEdge(face, edge);
+                    if (!edges.TryGetValue(key, out var adjacent))
+                        edges.Add(key, (face, -1, ascending, false));
+                    else if (adjacent.second == -1)
+                        edges[key] = (adjacent.first, face, adjacent.firstAscending, ascending);
+                    else
+                        edges[key] = (adjacent.first, -2, false, false);
+                }
+            }
+
+            var sides = new sbyte[pairedFaces.Length];
+            var pending = new Stack<int>();
+            // Prefer the orientation of any adjoining single-sided surface.
+            foreach (int face in firstFaces)
+            {
+                if (!pairedFaces[face]) Walk(face);
+            }
+            foreach (int face in firstFaces)
+            {
+                if (sides[face] == 0) Walk(face);
+            }
+
+            return sides;
+
+            void Walk(int seed)
+            {
+                sides[seed] = 1;
+                pending.Push(seed);
+                while (pending.TryPop(out int face))
+                {
+                    for (int edge = 0; edge < 3; edge++)
+                    {
+                        var (key, _) = GetEdge(face, edge);
+                        var (first, second, firstAscending, secondAscending) = edges[key];
+                        if (second < 0) continue; // Border or non-manifold edge.
+                        int neighbor = face == first ? second : first;
+                        if (!pairedFaces[neighbor] || sides[neighbor] != 0) continue;
+
+                        // Adjacent faces on the same side traverse a shared edge in opposite directions.
+                        sides[neighbor] = firstAscending == secondAscending ? (sbyte)-sides[face] : sides[face];
+                        pending.Push(neighbor);
+                    }
+                }
+            }
+
+            ((int, int) key, bool ascending) GetEdge(int face, int edge)
+            {
+                int from = corners[face * 3 + edge];
+                int to = corners[face * 3 + (edge + 1) % 3];
+                return from < to ? ((from, to), true) : ((to, from), false);
+            }
         }
 
         public static GameBoxVector3[] CalculateNormals(GameBoxVector3[] vertices, int[] triangles)
