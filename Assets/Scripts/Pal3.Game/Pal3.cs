@@ -131,7 +131,7 @@ namespace Pal3.Game
         [SerializeField] private EventSystem eventSystem;
 
         // Post-processing
-        [SerializeField] private Volume postProcessVolume;
+        [SerializeField] private VolumeProfile postProcessProfile;
 
         // Game logo
         [SerializeField] private GameObject logoCanvas;
@@ -198,7 +198,7 @@ namespace Pal3.Game
         private MazeSkipper _mazeSkipper;
         private MainMenu _mainMenu;
 
-        private IEnumerable<object> _allDisposableServices;
+        private IDisposable[] _allDisposableServices;
         private ToonCameraLighting _toonCameraLighting;
 
         private void OnEnable()
@@ -350,7 +350,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_postProcessManager =
-                new PostProcessManager(postProcessVolume, mainCamera, _gameSettings)
+                new PostProcessManager(postProcessProfile, mainCamera, _gameSettings)
             );
 
             ServiceLocator.Instance.Register(_effectManager =
@@ -515,7 +515,7 @@ namespace Pal3.Game
                     eventSystem)
             );
 
-            _allDisposableServices = ServiceLocator.Instance.GetAllRegisteredServices().Where(o => o is IDisposable);
+            _allDisposableServices = ServiceLocator.Instance.GetAllRegisteredServices().OfType<IDisposable>().Distinct().ToArray();
 
             DebugLogManager.Instance.OnLogWindowShown += OnDebugWindowShown;
             DebugLogManager.Instance.OnLogWindowHidden += OnDebugWindowHidden;
@@ -691,16 +691,39 @@ namespace Pal3.Game
 
         private void OnDisable()
         {
-            _toonCameraLighting?.Detach();
-            _gameSettings.OnGameSettingsChanged -= OnGameSettingsChanged;
-
-            DebugLogManager.Instance.OnLogWindowShown -= OnDebugWindowShown;
-            DebugLogManager.Instance.OnLogWindowHidden -= OnDebugWindowHidden;
-
-            foreach (IDisposable service in _allDisposableServices)
+            try
             {
-                EngineLogger.Log($"Disposing service: [{service.GetType().Name}]");
-                service.Dispose();
+                if (_toonCameraLighting != null) _toonCameraLighting.Detach();
+                if (_gameSettings != null) _gameSettings.OnGameSettingsChanged -= OnGameSettingsChanged;
+
+                var console = DebugLogManager.Instance;
+                if (console != null)
+                {
+                    console.OnLogWindowShown -= OnDebugWindowShown;
+                    console.OnLogWindowHidden -= OnDebugWindowHidden;
+                }
+
+                // Initialization can fail before the normal service snapshot is created.
+                IDisposable[] services = _allDisposableServices ??
+                    FindAnyObjectByType<ServiceLocator>(FindObjectsInactive.Include)?.GetAllRegisteredServices()
+                        .OfType<IDisposable>().Distinct().ToArray() ?? Array.Empty<IDisposable>();
+                foreach (IDisposable service in services)
+                {
+                    try
+                    {
+                        EngineLogger.Log($"Disposing service: [{service.GetType().Name}]");
+                        service.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogException(exception);
+                    }
+                }
+            }
+            finally
+            {
+                // Pipeline overrides must be restored even if another cleanup step fails.
+                _renderingSettingsManager?.Dispose();
             }
 
             EngineLogger.Log("Game exited");

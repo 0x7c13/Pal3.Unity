@@ -79,6 +79,7 @@ namespace Pal3.ResourceViewer
         private GameObject _renderingRoot;
         private Light _previewKey;
         private ToonCameraLighting _toonCameraLighting;
+        private MultisampleAntiAliasing _antiAliasing;
 
         private int _codePage;
         //private HashSet<char> _charSet;
@@ -88,6 +89,8 @@ namespace Pal3.ResourceViewer
             ServiceLocator.Instance.Register<IGameTimeProvider>(GameTimeProvider.Instance);
 
             _gameSettings = ServiceLocator.Instance.Get<GameSettings>();
+            _gameSettings.OnGameSettingsChanged += OnRenderingSettingsChanged;
+            _antiAliasing = new MultisampleAntiAliasing(_gameSettings.AntiAliasing);
             _codePage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
 
             _fileSystem = ServiceLocator.Instance.Get<ICpkFileSystem>();
@@ -200,8 +203,16 @@ namespace Pal3.ResourceViewer
             // EngineLogger.Log(sb.ToString());
         }
 
+        private void OnRenderingSettingsChanged(string propertyName)
+        {
+            if (propertyName == nameof(GameSettings.AntiAliasing))
+                _antiAliasing?.Apply(_gameSettings.AntiAliasing);
+        }
+
         private void OnDisable()
         {
+            if (_gameSettings != null) _gameSettings.OnGameSettingsChanged -= OnRenderingSettingsChanged;
+            _antiAliasing?.Dispose();
             _toonCameraLighting?.Detach();
             if (_previewKey != null) _previewKey.enabled = false;
         }

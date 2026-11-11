@@ -1672,8 +1672,8 @@ MonoBehaviour:
   blurAmount: 5
   transparency: 1
   cornerRadius: 40
-  additiveTintColor: {r: 0.16, g: 0.16, b: 0.16, a: 1}
-  multiplyTintColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  additiveTintColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  multiplyTintColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   image: {fileID: 6514349001384511054}
 --- !u!1 &2165102651006652904
 GameObject:
@@ -3084,55 +3084,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 220}
   m_Pivot: {x: 0.5, y: 0}
---- !u!1 &4227195284865171261
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5491488055271105370}
-  - component: {fileID: 8346885185333560231}
-  m_Layer: 3
-  m_Name: PostProcessVolume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5491488055271105370
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4227195284865171261}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8627381932629902483}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8346885185333560231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4227195284865171261}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sharedProfile: {fileID: 11400000, guid: ff7231d545273e045a612dccba8a02ad, type: 2}
-  m_IsGlobal: 1
-  blendDistance: 0
-  weight: 1
-  priority: 0
 --- !u!1 &4647852684174260219
 GameObject:
   m_ObjectHideFlags: 0
@@ -4899,7 +4850,6 @@ Transform:
   - {fileID: 4424067051843665300}
   - {fileID: 20216136}
   - {fileID: 9166793672834059380}
-  - {fileID: 5491488055271105370}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8627381932629902480
@@ -4949,7 +4899,7 @@ MonoBehaviour:
   multiFunctionButton: {fileID: 416810473558055248}
   mainMenuButton: {fileID: 7186792160907318265}
   eventSystem: {fileID: 20216138}
-  postProcessVolume: {fileID: 8346885185333560231}
+  postProcessProfile: {fileID: 11400000, guid: ff7231d545273e045a612dccba8a02ad, type: 2}
   logoCanvas: {fileID: 6400366477307100862}
   logoImage: {fileID: 5537344167455247235}
 --- !u!114 &887733067292281693

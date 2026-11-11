@@ -26,47 +26,56 @@ namespace Pal3.Game.Effect.PostProcessing
         ICommandExecutor<SettingChangedNotification>
     {
         private readonly Camera _camera;
-        private readonly Volume _volume;
         private readonly UniversalAdditionalCameraData _cameraData;
         private readonly GameSettings _settings;
-        private readonly LayerMask _originalVolumeLayerMask;
+        private readonly VolumeFrameworkUpdateMode _originalVolumeUpdateMode;
+        private readonly VolumeStack _originalVolumeStack;
         private readonly bool _originalPostProcessing;
         private readonly bool _originalHdr;
         private readonly Pal3ScreenEffects _screenEffects;
-        private readonly VolumeProfile _profile;
+        private readonly bool _originalScreenEffectsEnabled;
+        private readonly bool _originalDistortion;
+        private readonly bool _originalSnow;
         private readonly Bloom _bloom;
         private readonly ColorAdjustments _colorGrading;
         private readonly Vignette _vignette;
+        private VolumeStack _volumeStack;
+        private bool _volumeDirty = true;
+        private bool _gradingEnabled;
         private int _currentAppliedEffectMode = -1;
         private bool _disposed;
 
-        public PostProcessManager(Volume volume, Camera camera, GameSettings settings)
+        public PostProcessManager(VolumeProfile profile, Camera camera, GameSettings settings)
         {
             _camera = camera;
-            _volume = volume;
             _settings = settings;
             _cameraData = camera.GetUniversalAdditionalCameraData();
-            _originalVolumeLayerMask = _cameraData.volumeLayerMask;
+            _originalVolumeUpdateMode = camera.GetVolumeFrameworkUpdateMode();
+            _originalVolumeStack = _cameraData.volumeStack;
             _originalPostProcessing = _cameraData.renderPostProcessing;
             _originalHdr = camera.allowHDR;
-            _cameraData.volumeLayerMask = 1 << volume.gameObject.layer;
             _screenEffects = camera.TryGetComponent(out Pal3ScreenEffects existingEffects)
                 ? existingEffects
                 : camera.gameObject.AddComponent<Pal3ScreenEffects>();
+            _originalScreenEffectsEnabled = existingEffects != null && existingEffects.enabled;
+            _originalDistortion = _screenEffects.Distortion;
+            _originalSnow = _screenEffects.Snow;
             _screenEffects.enabled = true;
-            _profile = volume.profile;
-            _profile.TryGet(out _bloom);
-            _profile.TryGet(out _colorGrading);
-            _profile.TryGet(out _vignette);
+            profile.TryGet(out _bloom);
+            profile.TryGet(out _colorGrading);
+            profile.TryGet(out _vignette);
 
             UpdateBloom();
+            RenderPipelineManager.beginCameraRendering += RefreshVolumeStack;
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
+        private bool BloomEnabled => _bloom != null && _settings.BloomEnabled;
+
         private void UpdateBloom()
         {
-            _camera.allowHDR = _settings.BloomEnabled;
-            _bloom.active = _settings.BloomEnabled;
+            _camera.allowHDR = BloomEnabled;
+            _volumeDirty = true;
             UpdateCameraPostProcessing();
         }
 
@@ -77,7 +86,39 @@ namespace Pal3.Game.Effect.PostProcessing
 
         private void UpdateCameraPostProcessing()
         {
-            _cameraData.renderPostProcessing = _bloom.active || _colorGrading.active || _vignette.active;
+            _cameraData.renderPostProcessing = BloomEnabled || _gradingEnabled;
+        }
+
+        private void RefreshVolumeStack(ScriptableRenderContext context, Camera camera)
+        {
+            if (camera != _camera || (!_volumeDirty && _volumeStack?.isValid == true)) return;
+
+            // Rebuild from URP defaults only when settings change. A private stack avoids
+            // blending another camera's Volume even when both cameras share a profile.
+            var manager = VolumeManager.instance;
+            var previous = _volumeStack;
+            _volumeStack = manager.CreateStack();
+            _cameraData.volumeStack = _volumeStack;
+            camera.SetVolumeFrameworkUpdateMode(VolumeFrameworkUpdateMode.ViaScripting);
+            manager.Update(_volumeStack, null, 0);
+
+            if (BloomEnabled) _bloom.Override(_volumeStack.GetComponent<Bloom>(), 1f);
+            if (_gradingEnabled)
+            {
+                _colorGrading?.Override(_volumeStack.GetComponent<ColorAdjustments>(), 1f);
+                _vignette?.Override(_volumeStack.GetComponent<Vignette>(), 1f);
+            }
+
+            DestroyVolumeStack(previous);
+            _volumeDirty = false;
+        }
+
+        private static void DestroyVolumeStack(VolumeStack stack)
+        {
+            if (stack?.isValid != true) return;
+            var manager = VolumeManager.instance;
+            if (manager.stack == stack) manager.ResetMainStack();
+            manager.DestroyStack(stack);
         }
 
         public void Dispose()
@@ -85,23 +126,24 @@ namespace Pal3.Game.Effect.PostProcessing
             if (_disposed) return;
             _disposed = true;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            RenderPipelineManager.beginCameraRendering -= RefreshVolumeStack;
             if (_screenEffects != null)
             {
-                _screenEffects.Distortion = false;
-                _screenEffects.Snow = false;
-                _screenEffects.enabled = false;
+                _screenEffects.Distortion = _originalDistortion;
+                _screenEffects.Snow = _originalSnow;
+                _screenEffects.enabled = _originalScreenEffectsEnabled;
             }
+            DestroyVolumeStack(_volumeStack);
             if (_cameraData != null)
             {
-                _cameraData.volumeLayerMask = _originalVolumeLayerMask;
+                if (_volumeStack != null && _cameraData.volumeStack == _volumeStack)
+                {
+                    _cameraData.volumeStack = _originalVolumeStack?.isValid == true ? _originalVolumeStack : null;
+                    _camera.SetVolumeFrameworkUpdateMode(_originalVolumeUpdateMode);
+                }
                 _cameraData.renderPostProcessing = _originalPostProcessing;
             }
             if (_camera != null) _camera.allowHDR = _originalHdr;
-            if (_volume != null && _volume.HasInstantiatedProfile() && _volume.profile == _profile)
-            {
-                _volume.profile = null;
-            }
-            UnityEngine.Object.Destroy(_profile);
         }
 
         public int GetCurrentAppliedEffectMode()
@@ -116,8 +158,7 @@ namespace Pal3.Game.Effect.PostProcessing
                 // Disable all post-processing effects used by the game
                 case -1:
                 {
-                    _colorGrading.active = false;
-                    _vignette.active = false;
+                    SetColorGrading(false);
                     _screenEffects.Distortion = false;
                     break;
                 }
@@ -130,14 +171,20 @@ namespace Pal3.Game.Effect.PostProcessing
                 // Vintage + color filter effect
                 case 1:
                 {
-                    _colorGrading.active = true;
-                    _vignette.active = true;
+                    SetColorGrading(true);
                     break;
                 }
             }
 
             _currentAppliedEffectMode = command.Mode;
             UpdateCameraPostProcessing();
+        }
+
+        private void SetColorGrading(bool enabled)
+        {
+            if (_gradingEnabled == enabled) return;
+            _gradingEnabled = enabled;
+            _volumeDirty = true;
         }
 
         public void Execute(ResetGameStateCommand command)
