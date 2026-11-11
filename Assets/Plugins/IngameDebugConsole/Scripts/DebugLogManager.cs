@@ -487,9 +487,6 @@ namespace IngameDebugConsole
 						ShowLogWindow();
 				}
 			};
-
-			// On new Input System, scroll sensitivity is much higher than legacy Input system
-			logItemsScrollRect.scrollSensitivity *= 0.25f;
 #endif
 		}
 
