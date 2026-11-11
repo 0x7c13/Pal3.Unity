@@ -25,6 +25,7 @@ namespace Pal3.Game.Data
     using Core.DataReader.Mv3;
     using Core.FileSystem;
     using Core.Utilities;
+    using Effect;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
     using Engine.DataLoader;
@@ -61,11 +62,12 @@ namespace Pal3.Game.Data
 
         private readonly Dictionary<string, ISprite> _spriteCache = new ();
         private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
-        private readonly Dictionary<int, UnityEngine.Object> _vfxEffectPrefabCache = new ();
 
         private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
 
         private readonly int _codepage;
+
+        internal OptionalVfxPlayer OptionalVfx { get; }
 
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
@@ -81,6 +83,7 @@ namespace Pal3.Game.Data
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
             _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
+            OptionalVfx = new OptionalVfxPlayer(_gameSettings);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -109,7 +112,7 @@ namespace Pal3.Game.Data
             }
             _audioClipCache.Clear();
 
-            _vfxEffectPrefabCache.Clear();
+            OptionalVfx.Dispose();
 
             _materialManager.Dispose();
 
@@ -515,59 +518,6 @@ namespace Pal3.Game.Data
             return Array.Empty<(ITexture2D, bool)>();
         }
 
-        private string GetVfxPrefabPath(int effectGroupId)
-        {
-            return $"Prefabs/VFX/{GameConstants.AppName}/{effectGroupId}";
-        }
-
-        public object GetVfxEffectPrefab(int effectGroupId)
-        {
-            if (!_gameSettings.OptionalVfxEnabled) return null;
-
-            if (_vfxEffectPrefabCache.TryGetValue(effectGroupId, out UnityEngine.Object vfxEffectPrefab))
-            {
-                return vfxEffectPrefab;
-            }
-
-            UnityEngine.Object vfxPrefab = Resources.Load(GetVfxPrefabPath(effectGroupId));
-
-            if (vfxPrefab == null)
-            {
-                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
-            }
-
-            _vfxEffectPrefabCache[effectGroupId] = vfxPrefab;
-            return vfxPrefab;
-        }
-
-        public IEnumerator PreLoadVfxEffectAsync(int effectGroupId)
-        {
-            if (!_gameSettings.OptionalVfxEnabled) yield break;
-
-            if (_vfxEffectPrefabCache.ContainsKey(effectGroupId))
-            {
-                yield break;
-            }
-
-            ResourceRequest request = Resources.LoadAsync(GetVfxPrefabPath(effectGroupId));
-
-            while (!request.isDone)
-            {
-                yield return request;
-            }
-
-            if (request.asset == null)
-            {
-                EngineLogger.LogWarning($"VFX prefab not found: {effectGroupId}");
-            }
-            else
-            {
-                EngineLogger.Log($"VFX prefab preloaded: {effectGroupId}");
-            }
-
-            _vfxEffectPrefabCache[effectGroupId] = request.asset;
-        }
-
         public ITexture2D GetCursorTexture()
         {
             string cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
@@ -640,8 +590,7 @@ namespace Pal3.Game.Data
                 }
             }
 
-            // clear all vfx prefabs in cache
-            _vfxEffectPrefabCache.Clear();
+            OptionalVfx.ClearPrefabCache();
         }
 
     }
