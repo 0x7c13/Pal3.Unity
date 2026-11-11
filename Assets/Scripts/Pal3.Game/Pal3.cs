@@ -350,7 +350,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_postProcessManager =
-                new PostProcessManager(postProcessVolume, mainCamera)
+                new PostProcessManager(postProcessVolume, mainCamera, _gameSettings)
             );
 
             ServiceLocator.Instance.Register(_effectManager =

@@ -182,6 +182,21 @@ namespace Pal3.Game.Settings
             internal set => SetBooleanOption(ref _toonNightFireShadows, value);
         }
 
+        private bool _bloomEnabled;
+        public bool BloomEnabled
+        {
+            get => _bloomEnabled;
+            internal set => SetBooleanOption(ref _bloomEnabled, value);
+        }
+
+        internal void LoadBloomSetting(bool defaultEnabled)
+        {
+            bool bloom = SettingsStore.TryGet(nameof(BloomEnabled), out bool enabled) ? enabled : defaultEnabled;
+            if (_bloomEnabled == bloom) return;
+            _bloomEnabled = bloom;
+            NotifyPropertyChanged(nameof(BloomEnabled));
+        }
+
         private void SetBooleanOption(ref bool option, bool value,
             [CallerMemberName] string propertyName = null, string settingsKey = null)
         {

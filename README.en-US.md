@@ -69,7 +69,7 @@ The version switching is implemented through [Custom scripting symbols](https://
 ## About VFX and Toon Rendering
 Both games default to the original visual style in URP, preserving the original textures, baked lighting, and transparency. Choose **Toon with real-time lighting** under the visual style option in game settings and restart to apply it. Both styles use shaders from this repository and load game data from the player’s local installation.
 
-The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and night fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. At most one fire casts real-time shadows.
+The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and night fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. At most one fire casts real-time shadows. Bloom has a separate switch and defaults to enabled only for the original style on desktop.
 
 The screenshots above show the previous toon renderer.
 

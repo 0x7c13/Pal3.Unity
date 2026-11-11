@@ -22,6 +22,8 @@ namespace Pal3.Game.Settings
     {
         public event Action<string> OnGameSettingsChanged;
 
+        private bool? _sessionUsesToon;
+
         public GameSettings(ITransactionalKeyValueStore settingsStore) : base(settingsStore)
         {
             InitDefaultSettings();
@@ -57,6 +59,7 @@ namespace Pal3.Game.Settings
             RegisterVisualOption(nameof(ToonContactShadows), "接触阴影", enabled => ToonContactShadows = enabled);
             RegisterVisualOption(nameof(ToonCharacterLighting), "角色光照", enabled => ToonCharacterLighting = enabled);
             RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
+            RegisterVisualOption(nameof(BloomEnabled), "泛光", enabled => BloomEnabled = enabled);
             RegisterVisualOption(nameof(ToonNightFireShadows), "夜景火光投影", enabled => ToonNightFireShadows = enabled);
 
             DebugLogConsole.AddCommand("Settings.Save",
@@ -211,6 +214,8 @@ namespace Pal3.Game.Settings
                 || characterLighting;
             ToonNightFireBoost = !SettingsStore.TryGet(NightFireBoostSettingsKey, out bool nightFireBoost)
                 || nightFireBoost;
+            _sessionUsesToon ??= ToonRendering;
+            LoadBloomSetting(defaultEnabled: desktop && !_sessionUsesToon.Value);
             ToonNightFireShadows = SettingsStore.TryGet(nameof(ToonNightFireShadows), out bool nightFireShadows)
                 ? nightFireShadows : desktop;
 

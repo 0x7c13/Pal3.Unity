@@ -11,8 +11,8 @@ namespace Pal3.Game.Effect.PostProcessing
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Utilities;
-    using Engine.Utilities;
     using Rendering.ScreenEffects;
+    using Settings;
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
@@ -22,30 +22,57 @@ namespace Pal3.Game.Effect.PostProcessing
         ICommandExecutor<EffectShowSnowCommand>,
         ICommandExecutor<ScenePostLoadingNotification>,
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
-        ICommandExecutor<ResetGameStateCommand>
+        ICommandExecutor<ResetGameStateCommand>,
+        ICommandExecutor<SettingChangedNotification>
     {
+        private readonly Camera _camera;
+        private readonly Volume _volume;
         private readonly UniversalAdditionalCameraData _cameraData;
+        private readonly GameSettings _settings;
+        private readonly LayerMask _originalVolumeLayerMask;
+        private readonly bool _originalPostProcessing;
+        private readonly bool _originalHdr;
         private readonly Pal3ScreenEffects _screenEffects;
         private readonly VolumeProfile _profile;
         private readonly Bloom _bloom;
         private readonly ColorAdjustments _colorGrading;
         private readonly Vignette _vignette;
         private int _currentAppliedEffectMode = -1;
+        private bool _disposed;
 
-        public PostProcessManager(Volume volume, Camera camera)
+        public PostProcessManager(Volume volume, Camera camera, GameSettings settings)
         {
+            _camera = camera;
+            _volume = volume;
+            _settings = settings;
             _cameraData = camera.GetUniversalAdditionalCameraData();
+            _originalVolumeLayerMask = _cameraData.volumeLayerMask;
+            _originalPostProcessing = _cameraData.renderPostProcessing;
+            _originalHdr = camera.allowHDR;
             _cameraData.volumeLayerMask = 1 << volume.gameObject.layer;
-            _screenEffects = camera.gameObject.AddComponent<Pal3ScreenEffects>();
+            _screenEffects = camera.TryGetComponent(out Pal3ScreenEffects existingEffects)
+                ? existingEffects
+                : camera.gameObject.AddComponent<Pal3ScreenEffects>();
+            _screenEffects.enabled = true;
             _profile = volume.profile;
             _profile.TryGet(out _bloom);
             _profile.TryGet(out _colorGrading);
             _profile.TryGet(out _vignette);
 
-            camera.allowHDR = UnityEngineUtility.IsDesktopDevice();
-            _bloom.active = camera.allowHDR;
-            UpdateCameraPostProcessing();
+            UpdateBloom();
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
+        }
+
+        private void UpdateBloom()
+        {
+            _camera.allowHDR = _settings.BloomEnabled;
+            _bloom.active = _settings.BloomEnabled;
+            UpdateCameraPostProcessing();
+        }
+
+        public void Execute(SettingChangedNotification command)
+        {
+            if (command.SettingName == nameof(GameSettings.BloomEnabled)) UpdateBloom();
         }
 
         private void UpdateCameraPostProcessing()
@@ -55,7 +82,25 @@ namespace Pal3.Game.Effect.PostProcessing
 
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            if (_screenEffects != null)
+            {
+                _screenEffects.Distortion = false;
+                _screenEffects.Snow = false;
+                _screenEffects.enabled = false;
+            }
+            if (_cameraData != null)
+            {
+                _cameraData.volumeLayerMask = _originalVolumeLayerMask;
+                _cameraData.renderPostProcessing = _originalPostProcessing;
+            }
+            if (_camera != null) _camera.allowHDR = _originalHdr;
+            if (_volume != null && _volume.HasInstantiatedProfile() && _volume.profile == _profile)
+            {
+                _volume.profile = null;
+            }
             UnityEngine.Object.Destroy(_profile);
         }
 

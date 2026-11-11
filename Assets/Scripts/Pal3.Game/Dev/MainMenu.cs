@@ -511,6 +511,8 @@ namespace Pal3.Game.Dev
                 value => _gameSettings.ToonNightFireBoost = value);
             AddOption("夜景火光投影", () => _gameSettings.ToonNightFireShadows,
                 value => _gameSettings.ToonNightFireShadows = value);
+            AddOption("泛光", () => _gameSettings.BloomEnabled,
+                value => _gameSettings.BloomEnabled = value);
 
             CreateMenuButton("返回", _ => delegate
             {
