@@ -166,7 +166,6 @@ GameObject:
   - component: {fileID: 311849592}
   - component: {fileID: 311849591}
   - component: {fileID: 311849595}
-  - component: {fileID: 7927220425085558669}
   m_Layer: 0
   m_Name: GameCamera
   m_TagString: MainCamera
@@ -345,70 +344,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7927220425085558669
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 311849590}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 311849593}
-  volumeLayer:
-    serializedVersion: 2
-    m_Bits: 136
-  stopNaNPropagation: 0
-  finalBlitToCameraTarget: 0
-  antialiasingMode: 0
-  temporalAntialiasing:
-    jitterSpread: 0.75
-    sharpness: 0.25
-    stationaryBlending: 0.95
-    motionBlending: 0.85
-  subpixelMorphologicalAntialiasing:
-    quality: 2
-  fastApproximateAntialiasing:
-    fastMode: 1
-    keepAlpha: 0
-  fog:
-    enabled: 1
-    excludeSkybox: 1
-  debugLayer:
-    lightMeter:
-      width: 512
-      height: 256
-      showCurves: 1
-    histogram:
-      width: 512
-      height: 256
-      channel: 3
-    waveform:
-      exposure: 0.12
-      height: 256
-    vectorscope:
-      size: 256
-      exposure: 0.12
-    overlaySettings:
-      linearDepth: 0
-      motionColorIntensity: 4
-      motionGridSize: 64
-      colorBlindnessType: 0
-      colorBlindnessStrength: 1
-  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
-  m_ShowToolkit: 0
-  m_ShowCustomSorter: 0
-  breakBeforeColorGrading: 0
-  m_BeforeTransparentBundles: []
-  m_BeforeStackBundles: []
-  m_AfterStackBundles:
-  - assemblyQualifiedName: Pal3.Game.Effect.PostProcessing.Distortion, Pal3.Game,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - assemblyQualifiedName: Pal3.Game.Effect.PostProcessing.Snow, Pal3.Game, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!1 &547426358569454562
 GameObject:
   m_ObjectHideFlags: 0
@@ -1734,11 +1669,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 4
+  blurAmount: 5
   transparency: 1
   cornerRadius: 40
-  additiveTintColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  multiplyTintColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  additiveTintColor: {r: 0.16, g: 0.16, b: 0.16, a: 1}
+  multiplyTintColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   image: {fileID: 6514349001384511054}
 --- !u!1 &2165102651006652904
 GameObject:
@@ -2061,11 +1996,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 3
+  blurAmount: 4
   transparency: 1
   cornerRadius: 35
-  additiveTintColor: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
-  multiplyTintColor: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
+  additiveTintColor: {r: 0.03, g: 0.03, b: 0.03, a: 1}
+  multiplyTintColor: {r: 0.46, g: 0.46, b: 0.46, a: 1}
   image: {fileID: 3596785283706710040}
 --- !u!1 &2430233534765130901
 GameObject:
@@ -3190,11 +3125,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4227195284865171261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   sharedProfile: {fileID: 11400000, guid: ff7231d545273e045a612dccba8a02ad, type: 2}
-  isGlobal: 1
+  m_IsGlobal: 1
   blendDistance: 0
   weight: 1
   priority: 0
@@ -3767,11 +3702,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47aa715050ab45e09496c366d4e11600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blurAmount: 3
+  blurAmount: 4
   transparency: 1
   cornerRadius: 20
-  additiveTintColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  multiplyTintColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  additiveTintColor: {r: 0.16, g: 0.16, b: 0.16, a: 1}
+  multiplyTintColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   image: {fileID: 4638320210657625687}
 --- !u!1 &6400366477307100862
 GameObject:
@@ -5015,7 +4950,6 @@ MonoBehaviour:
   mainMenuButton: {fileID: 7186792160907318265}
   eventSystem: {fileID: 20216138}
   postProcessVolume: {fileID: 8346885185333560231}
-  postProcessLayer: {fileID: 7927220425085558669}
   logoCanvas: {fileID: 6400366477307100862}
   logoImage: {fileID: 5537344167455247235}
 --- !u!114 &887733067292281693

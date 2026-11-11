@@ -11,6 +11,7 @@ namespace Pal3.Game.Settings
     using Core.Command;
     using Core.Utilities;
     using UnityEngine;
+    using UnityEngine.Rendering.Universal;
 
     public sealed class RenderingSettingsManager : IDisposable,
         ICommandExecutor<SettingChangedNotification>
@@ -19,11 +20,15 @@ namespace Pal3.Game.Settings
         private int _mainDisplayHeight;
 
         private readonly GameSettings _gameSettings;
+        private readonly UniversalRenderPipelineAsset _pipeline;
+        private readonly int _initialMsaaSampleCount;
 
         public RenderingSettingsManager(GameSettings gameSettings)
         {
             _gameSettings = Requires.IsNotNull(gameSettings, nameof(gameSettings));
 
+            _pipeline = UniversalRenderPipeline.asset;
+            _initialMsaaSampleCount = _pipeline.msaaSampleCount;
             _mainDisplayWidth = Display.main.systemWidth;
             _mainDisplayHeight = Display.main.systemHeight;
 
@@ -35,7 +40,7 @@ namespace Pal3.Game.Settings
         private void ApplyCurrentSettings(GameSettings settings)
         {
             QualitySettings.vSyncCount = settings.VSyncCount;
-            QualitySettings.antiAliasing = settings.AntiAliasing;
+            ApplyAntiAliasing(settings.AntiAliasing);
             Application.targetFrameRate = settings.TargetFrameRate;
             ApplyResolutionScale(settings.ResolutionScale);
         }
@@ -43,6 +48,7 @@ namespace Pal3.Game.Settings
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+            _pipeline.msaaSampleCount = _initialMsaaSampleCount;
         }
 
         public void Update(float deltaTime)
@@ -60,6 +66,11 @@ namespace Pal3.Game.Settings
         private void OnResolutionChanged()
         {
             ApplyResolutionScale(_gameSettings.ResolutionScale);
+        }
+
+        private void ApplyAntiAliasing(int samples)
+        {
+            _pipeline.msaaSampleCount = samples is 2 or 4 or 8 ? samples : 1;
         }
 
         private static void ApplyResolutionScale(float scale)
@@ -80,7 +91,7 @@ namespace Pal3.Game.Settings
             }
             else if (command.SettingName == nameof(_gameSettings.AntiAliasing))
             {
-                QualitySettings.antiAliasing = _gameSettings.AntiAliasing;
+                ApplyAntiAliasing(_gameSettings.AntiAliasing);
             }
             else if (command.SettingName == nameof(_gameSettings.TargetFrameRate))
             {

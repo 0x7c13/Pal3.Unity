@@ -5,6 +5,7 @@
 
 namespace Engine.UI
 {
+    using System.Collections.Generic;
     using Extensions;
     using Logging;
     using UnityEngine;
@@ -21,6 +22,7 @@ namespace Engine.UI
         private static readonly int AdditiveColorPropertyId = Shader.PropertyToID("_AdditiveColor");
         private static readonly int MultiplyColorPropertyId = Shader.PropertyToID("_MultiplyColor");
 
+        private static readonly HashSet<RoundedFrostedGlassImage> EnabledPanels = new();
         private static Shader _shader;
 
         [SerializeField] public float blurAmount = 1f;
@@ -32,6 +34,29 @@ namespace Engine.UI
         private Material _material;
 
         [HideInInspector, SerializeField] private MaskableGraphic image;
+
+        public static bool HasVisibleOverlay(int targetDisplay)
+        {
+            foreach (var panel in EnabledPanels)
+            {
+                var graphic = panel.image;
+                if (graphic == null || !graphic.isActiveAndEnabled || graphic.color.a <= 0f ||
+                    graphic.canvasRenderer.GetInheritedAlpha() <= 0f)
+                {
+                    continue;
+                }
+
+                Canvas canvas = graphic.canvas;
+                if (canvas != null && canvas.isActiveAndEnabled &&
+                    canvas.rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay &&
+                    canvas.rootCanvas.targetDisplay == targetDisplay)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         public void SetMaterialBlurAmount(float newBlurAmount)
         {
@@ -55,6 +80,12 @@ namespace Engine.UI
         {
             Init();
             UpdateLayout();
+            EnabledPanels.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            EnabledPanels.Remove(this);
         }
 
         private void Start()

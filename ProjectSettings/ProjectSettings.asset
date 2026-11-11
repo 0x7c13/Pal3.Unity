@@ -1112,29 +1112,18 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    Bratwurst: UNITY_POST_PROCESSING_STACK_V2
-    CloudRendering: UNITY_POST_PROCESSING_STACK_V2
-    EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2
-    GameCoreScarlett: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    GameCoreXboxOne: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    Kepler: UNITY_POST_PROCESSING_STACK_V2
-    LinuxHeadlessSimulation: UNITY_POST_PROCESSING_STACK_V2
-    Lumin: UNITY_POST_PROCESSING_STACK_V2
-    Nintendo Switch: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    Nintendo Switch 2: UNITY_POST_PROCESSING_STACK_V2
-    PS4: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    PS5: PAL3A;UNITY_POST_PROCESSING_STACK_V2
-    QNX: UNITY_POST_PROCESSING_STACK_V2
-    ReservedCFE: UNITY_POST_PROCESSING_STACK_V2
-    Stadia: UNITY_POST_PROCESSING_STACK_V2
-    Standalone: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    VisionOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    WebGL: UNITY_POST_PROCESSING_STACK_V2
-    Windows Store Apps: PAL3;UNITY_POST_PROCESSING_STACK_V2
-    XboxOne: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    Android: PAL3
+    GameCoreScarlett: PAL3A
+    GameCoreXboxOne: PAL3A
+    Nintendo Switch: PAL3
+    PS4: PAL3
+    PS5: PAL3A
+    Standalone: PAL3
+    VisionOS: PAL3
+    Windows Store Apps: PAL3
+    XboxOne: PAL3
     iPhone: PAL3
-    tvOS: PAL3;UNITY_POST_PROCESSING_STACK_V2
+    tvOS: PAL3
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

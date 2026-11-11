@@ -9,7 +9,7 @@ namespace Pal3.Core.Primitives
     {
         Opaque,             // opaque
         AlphaBlend,         // src.alpha, 1-src.alpha, +
-        InvertColorBlend,   // srcAlpha, One , +
-        AdditiveBlend,      //
+        InvertColorBlend,   // One, OneMinusSrcColor
+        AdditiveBlend,      // One, One
     }
 }

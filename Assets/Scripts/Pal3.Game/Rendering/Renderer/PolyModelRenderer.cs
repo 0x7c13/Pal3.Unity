@@ -8,7 +8,6 @@ namespace Pal3.Game.Rendering.Renderer
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Threading;
     using Core.DataReader.Pol;
     using Core.Primitives;
     using Dev.Presenters;
@@ -42,9 +41,8 @@ namespace Pal3.Game.Rendering.Renderer
         private bool _isStaticObject;
         private Color _tintColor;
         private bool _isWaterSurfaceOpaque;
-        private CancellationTokenSource _animationCts;
-
-        private readonly int _mainTexturePropertyId = ShaderUtility.GetPropertyIdByName("_MainTex");
+        private List<(IMaterial[] materials, ITexture2D firstFrame)> _waterSurfaces;
+        private UnityEngine.Coroutine _waterAnimation;
 
         protected override void OnEnableGameEntity()
         {
@@ -70,14 +68,14 @@ namespace Pal3.Game.Rendering.Renderer
             _isWaterSurfaceOpaque = isWaterSurfaceOpaque;
             _textureCache = BuildTextureCache(polFile, textureProvider);
 
-            _animationCts = new CancellationTokenSource();
-
             for (int i = 0; i < polFile.Meshes.Length; i++)
             {
-                RenderMeshInternal(
-                    polFile.NodeDescriptions[i],
-                    polFile.Meshes[i],
-                    _animationCts.Token);
+                RenderMeshInternal(polFile.NodeDescriptions[i], polFile.Meshes[i]);
+            }
+
+            if (_waterSurfaces != null)
+            {
+                _waterAnimation = StartCoroutine(AnimateWaterTextures());
             }
         }
 
@@ -147,10 +145,14 @@ namespace Pal3.Game.Rendering.Renderer
             return textureCache;
         }
 
-        private void RenderMeshInternal(PolGeometryNode meshNode,
-            PolMesh mesh,
-            CancellationToken cancellationToken)
+        private void RenderMeshInternal(PolGeometryNode meshNode, PolMesh mesh)
         {
+            Vector3[] positions = mesh.VertexInfo.GameBoxPositions.ToUnityPositions();
+            Vector3[] normals = mesh.VertexInfo.GameBoxNormals.ToUnityNormals();
+            var uvs = new Vector2[mesh.VertexInfo.Uvs.Length][];
+
+            Vector2[] GetUvs(int index) => uvs[index] ??= mesh.VertexInfo.Uvs[index].ToUnityVector2s();
+
             for (int i = 0; i < mesh.Textures.Length; i++)
             {
                 List<(string name, ITexture2D texture)> textures = new();
@@ -235,62 +237,66 @@ namespace Pal3.Game.Rendering.Renderer
 
                     if (isWaterSurface)
                     {
-                        StartWaterSurfaceAnimation(materials[0], textures[mainTextureIndex].texture, cancellationToken);
+                        (_waterSurfaces ??= new()).Add((materials, textures[mainTextureIndex].texture));
                     }
 
                     _ = meshRenderer.Render(
-                        vertices: mesh.VertexInfo.GameBoxPositions.ToUnityPositions(),
+                        vertices: positions,
                         triangles: mesh.Textures[i].GameBoxTriangles.ToUnityTriangles(),
-                        normals: mesh.VertexInfo.GameBoxNormals.ToUnityNormals(),
-                        mainTextureUvs: (channel: 0, uvs: mesh.VertexInfo.Uvs[mainTextureIndex].ToUnityVector2s()),
-                        secondaryTextureUvs: (channel: 1, uvs: mesh.VertexInfo.Uvs[Math.Max(shadowTextureIndex, 0)].ToUnityVector2s()),
+                        normals: normals,
+                        mainTextureUvs: (channel: 0, uvs: GetUvs(mainTextureIndex)),
+                        secondaryTextureUvs: (channel: 1, uvs: GetUvs(Math.Max(shadowTextureIndex, 0))),
                         materials: materials,
                         isDynamic: false);
                 }
             }
         }
 
-        private IEnumerator AnimateWaterTextureAsync(IMaterial material,
-            ITexture2D defaultTexture,
-            CancellationToken cancellationToken)
+        private IEnumerator AnimateWaterTextures()
         {
-            List<ITexture2D> waterTextures = new() { defaultTexture };
-
-            for (int i = 2; i <= ANIMATED_WATER_ANIMATION_FRAMES; i++)
+            var frames = new ITexture2D[ANIMATED_WATER_ANIMATION_FRAMES];
+            for (int i = 1; i < frames.Length; i++)
             {
-                ITexture2D texture = _textureProvider.GetTexture(
-                    ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX +
-                    $"{i:00}" +
-                    ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION);
-                waterTextures.Add(texture);
+                string name = ANIMATED_WATER_TEXTURE_DEFAULT_NAME_PREFIX +
+                    $"{i + 1:00}" + ANIMATED_WATER_TEXTURE_DEFAULT_EXTENSION;
+                frames[i] = _textureCache.TryGetValue(name, out ITexture2D texture)
+                    ? texture
+                    : _textureProvider.GetTexture(name);
             }
 
-            object waterAnimationDelay = CoroutineYieldInstruction.WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
-
-            while (!cancellationToken.IsCancellationRequested)
+            object delay = CoroutineYieldInstruction.WaitForSeconds(1 / ANIMATED_WATER_ANIMATION_FPS);
+            while (true)
             {
-                for (int i = 0; i < ANIMATED_WATER_ANIMATION_FRAMES; i++)
+                foreach (var (materials, firstFrame) in _waterSurfaces)
                 {
-                    if (cancellationToken.IsCancellationRequested) break;
-                    material.SetTexture(_mainTexturePropertyId, waterTextures[i]);
-                    yield return waterAnimationDelay;
+                    materials[0].SetMainTexture(firstFrame);
+                }
+                yield return delay;
+
+                for (int i = 1; i < frames.Length; i++)
+                {
+                    ITexture2D frame = frames[i];
+                    if (frame != null)
+                    {
+                        foreach (var (materials, _) in _waterSurfaces)
+                        {
+                            materials[0].SetMainTexture(frame);
+                        }
+                    }
+
+                    yield return delay;
                 }
             }
         }
 
-        private void StartWaterSurfaceAnimation(IMaterial material,
-            ITexture2D defaultTexture,
-            CancellationToken cancellationToken)
-        {
-            StartCoroutine(AnimateWaterTextureAsync(material, defaultTexture, cancellationToken));
-        }
-
         public void Dispose()
         {
-            if (_animationCts is {IsCancellationRequested: false})
+            if (_waterAnimation != null)
             {
-                _animationCts.Cancel();
+                StopCoroutine(_waterAnimation);
+                _waterAnimation = null;
             }
+            _waterSurfaces = null;
 
             foreach (StaticMeshRenderer meshRenderer in GameEntity.GetComponentsInChildren<StaticMeshRenderer>())
             {

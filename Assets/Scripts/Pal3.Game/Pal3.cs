@@ -57,7 +57,7 @@ namespace Pal3.Game
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.Controls;
     using UnityEngine.InputSystem.LowLevel;
-    using UnityEngine.Rendering.PostProcessing;
+    using UnityEngine.Rendering;
     using UnityEngine.UI;
     using UnityEngine.Video;
     using Video;
@@ -129,9 +129,8 @@ namespace Pal3.Game
         // Event system
         [SerializeField] private EventSystem eventSystem;
 
-        // Post-process volume and layer
-        [SerializeField] private PostProcessVolume postProcessVolume;
-        [SerializeField] private PostProcessLayer postProcessLayer;
+        // Post-processing
+        [SerializeField] private Volume postProcessVolume;
 
         // Game logo
         [SerializeField] private GameObject logoCanvas;
@@ -346,9 +345,7 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_postProcessManager =
-                new PostProcessManager(postProcessVolume,
-                    postProcessLayer,
-                    _gameSettings)
+                new PostProcessManager(postProcessVolume, mainCamera)
             );
 
             ServiceLocator.Instance.Register(_effectManager =

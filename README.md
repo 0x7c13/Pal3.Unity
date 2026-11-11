@@ -42,7 +42,7 @@
 | 仙剑奇侠传三外传：问情篇 | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-windows.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-linux.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-macos.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-macos.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-android.yml" alt="Size" /></a> | <a style="text-decoration:none" href="https://github.com/0x7c13/Pal3.Unity/actions/workflows/build-pal3a-mono-ios.yml"><img src="https://img.shields.io/github/actions/workflow/status/0x7c13/Pal3.Unity/build-pal3a-mono-ios.yml" alt="Size" /></a> |
 
 ## 如何运行项目
-使用 Unity 6 打开当前项目文件夹即可，具体当前项目所使用的Unity版本请查看这里: [ProjectVersion](https://github.com/0x7c13/Pal3.Unity/blob/main/ProjectSettings/ProjectVersion.txt)，理论上任何Unity 6版本都没问题（实际上老版本Unity也行）。
+使用 [ProjectVersion.txt](ProjectSettings/ProjectVersion.txt) 指定的 Unity 版本打开项目。项目使用 URP Forward+。
 因为项目本身不含有仙剑奇侠传三或仙剑奇侠传三外传的游戏数据，所以你需要持有一份仙剑三或外传的游戏原始文件（Steam或者方块游戏获得皆可）。
   - 第一次打开Unity项目之后，先双击选择Scenes\Game作为当前场景，然后点播放键即可。如果选择Scenes\ResourceViewer，则会打开游戏资源查看器。
   - 第一次打开的时候会自动弹出文件夹选择窗口，请选择当前电脑上仙剑奇侠传三（或者外传）的安装文件夹即可。
@@ -60,13 +60,13 @@
 ## 如何切换仙剑奇侠传三/仙剑奇侠传三外传
 两部游戏版本在项目中的切换是靠 [Custom scripting symbols](https://docs.unity3d.com/6000.0/Documentation/Manual/CustomScriptingSymbols.html) 实现的，PAL3对应仙剑奇侠传三，PAL3A对应仙剑奇侠传三外传。我在Unity编辑器菜单栏里面加了一个快捷按钮可以一键切换（菜单栏->Pal3->Switch Variant->PAL3A），切换之后对应的游戏文件夹也自动的从PAL3转换成PAL3A。切换的过程中，包括Symbol，图标和应用程序名在内的所有名称和标示都会由PAL3变为PAL3A。
 
-## 卡通渲染与光影下的截图
+## 旧版卡通渲染截图
 ![PAL3 卡通渲染+光影](Screenshots/PAL3_ToonShading_Lighting.png?raw=true)
 ![PAL3A 卡通渲染+光影](Screenshots/PAL3A_ToonShading_Lighting.png?raw=true)
 ![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
 
 ## 关于特效和卡通渲染
-注意：游戏当前实现的所有特效以及卡通渲染部分使用了Unity Asset Store的资源，所以这部分实现（特效Prefab和Toon shader）没有办法开源。项目启动后默认会使用开源实现的Shader进行渲染（与原始游戏渲染风格一致），特效的话则会不显示，注意：这并不会影响游戏的编译和运行。
+当前版本使用开源 shader 还原原版画风，运行时从玩家本地读取原版资源。旧版卡通渲染和剧情特效 prefab 依赖商业素材。构建当前版本时请使用干净检出，新版 Toon 和剧情特效将单独实现。
 
 ## 按键以及操作
   - 鼠标键盘：鼠标左键点击操作人物行走方向（键盘方向键也可以），AD控制镜头旋转，空格与周边附近的物品或者NPC交互（也是跳跃键），M键打开大地图，U键或ESC键打开剧情选择菜单，Tab键切换角色（迷宫中）。

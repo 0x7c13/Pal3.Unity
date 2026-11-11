@@ -5,6 +5,7 @@
 
 namespace Pal3.Game.Rendering.Material
 {
+    using System;
     using Core.Primitives;
     using Engine.Core.Abstraction;
     using Color = Core.Primitives.Color;
@@ -15,7 +16,7 @@ namespace Pal3.Game.Rendering.Material
         Lit,
     }
 
-    public interface IMaterialManager
+    public interface IMaterialManager : IDisposable
     {
         public MaterialShaderType ShaderType { get; }
 
@@ -89,16 +90,6 @@ namespace Pal3.Game.Rendering.Material
         public void UpdateMaterial(IMaterial material,
             ITexture2D newMainTexture,
             GameBoxBlendFlag blendFlag);
-
-        /// <summary>
-        /// Allocate a pool of materials.
-        /// </summary>
-        public void AllocateMaterialPool();
-
-        /// <summary>
-        /// Deallocate the material pool.
-        /// </summary>
-        public void DeallocateMaterialPool();
 
         /// <summary>
         /// Return materials to the pool.

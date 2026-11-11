@@ -5,11 +5,10 @@
 
 namespace Pal3.Game.Rendering.Material
 {
+    using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using Core.Primitives;
     using Engine.Core.Abstraction;
-    using Engine.Logging;
     using Engine.Services;
     using UnityEngine.Rendering;
     using Color = Core.Primitives.Color;
@@ -26,14 +25,9 @@ namespace Pal3.Game.Rendering.Material
         private const string TRANSPARENT_OPAQUE_PART_SHADER_PATH = "Pal3/TransparentOpaquePart";
         private const string WATER_SHADER_PATH = "Pal3/Water";
 
-        private const string OPAQUE_SHADER_NAME = "Pal3/Opaque";
-        private const string TRANSPARENT_SHADER_NAME = "Pal3/Transparent";
-        private const string TRANSPARENT_OPAQUE_PART_SHADER_NAME = "Pal3/TransparentOpaquePart";
-        private const string WATER_SHADER_NAME = "Pal3/Water";
 
         // Water material uniforms
         private static readonly int WaterAlphaPropId = ShaderUtility.GetPropertyIdByName("_Alpha");
-        private static readonly int WaterHasShadowTexPropId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
 
         // Standard material uniforms for Pal3 unlit shaders
         private static readonly int BlendSrcFactorPropertyId = ShaderUtility.GetPropertyIdByName("_BlendSrcFactor");
@@ -41,9 +35,14 @@ namespace Pal3.Game.Rendering.Material
         private static readonly int TintColorPropertyId = ShaderUtility.GetPropertyIdByName("_TintColor");
         private static readonly int TransparentThresholdPropertyId = ShaderUtility.GetPropertyIdByName("_Threshold");
         private static readonly int HasShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_HasShadowTex");
+        private static readonly int LightmapScalePropertyId = ShaderUtility.GetPropertyIdByName("_LightmapScale");
         private static readonly int ShadowTexturePropertyId = ShaderUtility.GetPropertyIdByName("_ShadowTex");
 
-        private const float DEFAULT_TRANSPARENT_THRESHOLD = 0.9f;
+        private const float DefaultAlphaCutoff = 0.9f;
+        private const float PolAlphaCutoff = 245f / 255f;
+        private const float DisabledAlphaCutoff = 2f;
+        private const float DefaultLightmapScale = 1f / 0.6f;
+        private const float PolLightmapScale = 2f;
 
         public MaterialShaderType ShaderType => MaterialShaderType.Unlit;
 
@@ -57,12 +56,12 @@ namespace Pal3.Game.Rendering.Material
         private const int TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE = 1500;
         private const int OPAQUE_MATERIAL_POOL_SIZE = 2000;
 
-        private readonly Stack<IMaterial> _waterMaterialPool = new (WATER_MATERIAL_POOL_SIZE);
-        private readonly Stack<IMaterial> _transparentMaterialPool = new (TRANSPARENT_MATERIAL_POOL_SIZE);
-        private readonly Stack<IMaterial> _transparentOpaquePartMaterialPool = new (TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE);
-        private readonly Stack<IMaterial> _opaqueMaterialPool = new (OPAQUE_MATERIAL_POOL_SIZE);
+        private readonly Stack<IMaterial> _waterMaterialPool = new();
+        private readonly Stack<IMaterial> _transparentMaterialPool = new();
+        private readonly Stack<IMaterial> _transparentOpaquePartMaterialPool = new();
+        private readonly Stack<IMaterial> _opaqueMaterialPool = new();
 
-        private bool _isMaterialPoolAllocated = false;
+        private bool _disposed;
 
         public UnlitMaterialManager(IMaterialFactory materialFactory) : base(materialFactory)
         {
@@ -72,62 +71,26 @@ namespace Pal3.Game.Rendering.Material
             _opaqueMaterial = MaterialFactory.CreateMaterial(OPAQUE_SHADER_PATH);
         }
 
-        public void AllocateMaterialPool()
+        public void Dispose()
         {
-            if (_isMaterialPoolAllocated) return;
-
-            Stopwatch timer = Stopwatch.StartNew();
-
-            for (int i = 0; i < WATER_MATERIAL_POOL_SIZE; i++)
-            {
-                _waterMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_waterMaterial));
-            }
-
-            for (int i = 0; i < TRANSPARENT_MATERIAL_POOL_SIZE; i++)
-            {
-                _transparentMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_transparentMaterial));
-            }
-
-            for (int i = 0; i < TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE; i++)
-            {
-                _transparentOpaquePartMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_transparentOpaquePartMaterial));
-            }
-
-            for (int i = 0; i < OPAQUE_MATERIAL_POOL_SIZE; i++)
-            {
-                _opaqueMaterialPool.Push(MaterialFactory.CreateMaterialFrom(_opaqueMaterial));
-            }
-
-            EngineLogger.Log($"Material pool allocated in {timer.ElapsedMilliseconds} ms");
+            if (_disposed) return;
+            _disposed = true;
+            DisposePool(_waterMaterialPool);
+            DisposePool(_transparentMaterialPool);
+            DisposePool(_transparentOpaquePartMaterialPool);
+            DisposePool(_opaqueMaterialPool);
+            _waterMaterial.Destroy();
+            _transparentMaterial.Destroy();
+            _transparentOpaquePartMaterial.Destroy();
+            _opaqueMaterial.Destroy();
         }
 
-        public void DeallocateMaterialPool()
+        private static void DisposePool(Stack<IMaterial> pool)
         {
-            Stopwatch timer = Stopwatch.StartNew();
-
-            while (_waterMaterialPool.Count > 0)
+            while (pool.TryPop(out IMaterial material))
             {
-                _waterMaterialPool.Pop().Destroy();
+                material.Destroy();
             }
-
-            while (_transparentMaterialPool.Count > 0)
-            {
-                _transparentMaterialPool.Pop().Destroy();
-            }
-
-            while (_transparentOpaquePartMaterialPool.Count > 0)
-            {
-                _transparentOpaquePartMaterialPool.Pop().Destroy();
-            }
-
-            while (_opaqueMaterialPool.Count > 0)
-            {
-                _opaqueMaterialPool.Pop().Destroy();
-            }
-
-            _isMaterialPoolAllocated = false;
-
-            EngineLogger.Log($"Material pool de-allocated in {timer.ElapsedMilliseconds} ms");
         }
 
         /// <inheritdoc/>
@@ -138,51 +101,45 @@ namespace Pal3.Game.Rendering.Material
             Color tintColor,
             GameBoxBlendFlag blendFlag)
         {
-            IMaterial[] materials = null;
-
-            float transparentThreshold = DEFAULT_TRANSPARENT_THRESHOLD;
-
-            if (shadowTexture.texture == null && rendererType == RendererType.Pol)
+            float lightmapScale = rendererType == RendererType.Pol ? PolLightmapScale : DefaultLightmapScale;
+            switch (blendFlag)
             {
-                transparentThreshold = 1.0f;
-            }
-
-            if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
-            {
-                materials = new IMaterial[2];
-                materials[0] = CreateTransparentOpaquePartMaterial(mainTexture,
-                    shadowTexture,
-                    tintColor,
-                    transparentThreshold);
-                materials[1] = CreateTransparentMaterial(mainTexture,
-                    shadowTexture,
-                    tintColor,
-                    transparentThreshold);
-
-                BlendMode srcFactor;
-                BlendMode destFactor;
-
-                if (blendFlag == GameBoxBlendFlag.InvertColorBlend)
+                case GameBoxBlendFlag.Opaque:
+                    return new[] { CreateMeshMaterial(_opaqueMaterialPool, _opaqueMaterial) };
+                case GameBoxBlendFlag.AlphaBlend:
                 {
-                    srcFactor = BlendMode.SrcAlpha;
-                    destFactor = BlendMode.One;
+                    float cutoff = rendererType == RendererType.Pol ? PolAlphaCutoff : DefaultAlphaCutoff;
+                    IMaterial depthWriting = CreateMeshMaterial(_transparentOpaquePartMaterialPool,
+                        _transparentOpaquePartMaterial);
+                    depthWriting.SetFloat(TransparentThresholdPropertyId, cutoff);
+                    return new[] { depthWriting, CreateBlendedMaterial(cutoff, BlendMode.SrcAlpha, BlendMode.OneMinusSrcAlpha) };
                 }
-                else
-                {
-                    srcFactor = BlendMode.SrcAlpha;
-                    destFactor = BlendMode.OneMinusSrcAlpha;
-                }
-
-                materials[1].SetInt(BlendSrcFactorPropertyId, (int)srcFactor);
-                materials[1].SetInt(BlendDstFactorPropertyId, (int)destFactor);
+                case GameBoxBlendFlag.InvertColorBlend:
+                    return new[] { CreateBlendedMaterial(DisabledAlphaCutoff, BlendMode.One, BlendMode.OneMinusSrcColor) };
+                case GameBoxBlendFlag.AdditiveBlend:
+                    return new[] { CreateBlendedMaterial(DisabledAlphaCutoff, BlendMode.One, BlendMode.One) };
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(blendFlag), blendFlag, "Unknown mesh blend mode");
             }
-            else if (blendFlag == GameBoxBlendFlag.Opaque)
+
+            IMaterial CreateMeshMaterial(Stack<IMaterial> pool, IMaterial template)
             {
-                materials = new IMaterial[1];
-                materials[0] = CreateOpaqueMaterial(mainTexture, shadowTexture, tintColor);
+                IMaterial material = RentMaterial(pool, template);
+                material.SetMainTexture(mainTexture.texture);
+                material.SetColor(TintColorPropertyId, tintColor);
+                material.SetFloat(LightmapScalePropertyId, lightmapScale);
+                SetShadowTexture(material, shadowTexture.texture);
+                return material;
             }
 
-            return materials;
+            IMaterial CreateBlendedMaterial(float cutoff, BlendMode sourceBlend, BlendMode destinationBlend)
+            {
+                IMaterial material = CreateMeshMaterial(_transparentMaterialPool, _transparentMaterial);
+                material.SetFloat(TransparentThresholdPropertyId, cutoff);
+                material.SetInt(BlendSrcFactorPropertyId, (int)sourceBlend);
+                material.SetInt(BlendDstFactorPropertyId, (int)destinationBlend);
+                return material;
+            }
         }
 
         public void UpdateMaterial(IMaterial material,
@@ -194,13 +151,9 @@ namespace Pal3.Game.Rendering.Material
                 material.SetMainTexture(newMainTexture);
             }
 
-            if (blendFlag is GameBoxBlendFlag.AlphaBlend or GameBoxBlendFlag.InvertColorBlend)
+            if (blendFlag == GameBoxBlendFlag.AlphaBlend)
             {
-                material.SetFloat(TransparentThresholdPropertyId, DEFAULT_TRANSPARENT_THRESHOLD);
-            }
-            else if (blendFlag == GameBoxBlendFlag.Opaque)
-            {
-                material.SetFloat(TransparentThresholdPropertyId, 0f);
+                material.SetFloat(TransparentThresholdPropertyId, DefaultAlphaCutoff);
             }
         }
 
@@ -211,157 +164,48 @@ namespace Pal3.Game.Rendering.Material
             float opacity,
             GameBoxBlendFlag blendFlag)
         {
-            IMaterial material;
-            if (_waterMaterialPool.Count > 0)
-            {
-                material = _waterMaterialPool.Pop();
-            }
-            else
-            {
-                material = MaterialFactory.CreateMaterialFrom(_waterMaterial);
-            }
-
-            if (mainTexture.texture != null)
-            {
-                material.SetMainTexture(mainTexture.texture);
-            }
-
+            IMaterial material = RentMaterial(_waterMaterialPool, _waterMaterial);
+            material.SetMainTexture(mainTexture.texture);
             material.SetFloat(WaterAlphaPropId, opacity);
-
-            if (shadowTexture.texture != null)
-            {
-                material.SetFloat(WaterHasShadowTexPropId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
-            }
-            else
-            {
-                material.SetFloat(WaterHasShadowTexPropId, 0.5f);
-                material.SetTexture(ShadowTexturePropertyId, null);
-            }
+            SetShadowTexture(material, shadowTexture.texture);
             return material;
         }
 
-        private IMaterial CreateTransparentMaterial(
-            (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
-            Color tintColor,
-            float transparentThreshold)
+        private IMaterial RentMaterial(Stack<IMaterial> pool, IMaterial template)
         {
-            IMaterial material = _transparentMaterialPool.Count > 0 ?
-                _transparentMaterialPool.Pop() :
-                MaterialFactory.CreateMaterialFrom(_transparentMaterial);
-
-            if (mainTexture.texture != null)
-            {
-                material.SetMainTexture(mainTexture.texture);
-            }
-
-            material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-
-            if (shadowTexture.texture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
-            }
-            else
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-                material.SetTexture(ShadowTexturePropertyId, null);
-            }
-
-            return material;
+            return pool.TryPop(out IMaterial material) ? material : MaterialFactory.CreateMaterialFrom(template);
         }
 
-        private IMaterial CreateTransparentOpaquePartMaterial(
-            (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
-            Color tintColor,
-            float transparentThreshold)
+        private static void SetShadowTexture(IMaterial material, ITexture2D shadowTexture)
         {
-            IMaterial material = _transparentOpaquePartMaterialPool.Count > 0 ?
-                _transparentOpaquePartMaterialPool.Pop() :
-                MaterialFactory.CreateMaterialFrom(_transparentOpaquePartMaterial);
-
-            if (mainTexture.texture != null)
-            {
-                material.SetMainTexture(mainTexture.texture);
-            }
-
-            material.SetColor(TintColorPropertyId, tintColor);
-            material.SetFloat(TransparentThresholdPropertyId, transparentThreshold);
-
-            if (shadowTexture.texture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
-            }
-            else
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-                material.SetTexture(ShadowTexturePropertyId, null);
-            }
-
-            return material;
-        }
-
-        private IMaterial CreateOpaqueMaterial(
-            (string name, ITexture2D texture) mainTexture,
-            (string name, ITexture2D texture) shadowTexture,
-            Color tintColor)
-        {
-            IMaterial material = _opaqueMaterialPool.Count > 0 ?
-                _opaqueMaterialPool.Pop() :
-                MaterialFactory.CreateMaterialFrom(_opaqueMaterial);
-
-            if (mainTexture.texture != null)
-            {
-                material.SetMainTexture(mainTexture.texture);
-            }
-
-            material.SetColor(TintColorPropertyId, tintColor);
-
-            if (shadowTexture.texture != null)
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 1.0f);
-                material.SetTexture(ShadowTexturePropertyId, shadowTexture.texture);
-            }
-            else
-            {
-                material.SetFloat(HasShadowTexturePropertyId, 0.0f);
-                material.SetTexture(ShadowTexturePropertyId, null);
-            }
-
-            return material;
+            material.SetFloat(HasShadowTexturePropertyId, shadowTexture == null ? 0f : 1f);
+            material.SetTexture(ShadowTexturePropertyId, shadowTexture);
         }
 
         protected override void ReturnToPool(IMaterial material)
         {
-            switch (material.ShaderName)
+            if (material == null || material.IsNativeObjectDisposed) return;
+
+            (Stack<IMaterial> pool, int capacity) = material.ShaderName switch
             {
-                case WATER_SHADER_NAME:
-                    material.SetMainTexture(null);
-                    material.SetTexture(ShadowTexturePropertyId, null);
-                    _waterMaterialPool.Push(material);
-                    break;
-                case TRANSPARENT_SHADER_NAME:
-                    material.SetMainTexture(null);
-                    material.SetTexture(ShadowTexturePropertyId, null);
-                    _transparentMaterialPool.Push(material);
-                    break;
-                case TRANSPARENT_OPAQUE_PART_SHADER_NAME:
-                    material.SetMainTexture(null);
-                    material.SetTexture(ShadowTexturePropertyId, null);
-                    _transparentOpaquePartMaterialPool.Push(material);
-                    break;
-                case OPAQUE_SHADER_NAME:
-                    material.SetMainTexture(null);
-                    material.SetTexture(ShadowTexturePropertyId, null);
-                    _opaqueMaterialPool.Push(material);
-                    break;
-                default:
-                    return;
+                WATER_SHADER_PATH => (_waterMaterialPool, WATER_MATERIAL_POOL_SIZE),
+                TRANSPARENT_SHADER_PATH => (_transparentMaterialPool, TRANSPARENT_MATERIAL_POOL_SIZE),
+                TRANSPARENT_OPAQUE_PART_SHADER_PATH => (_transparentOpaquePartMaterialPool,
+                    TRANSPARENT_OPAQUE_PART_MATERIAL_POOL_SIZE),
+                OPAQUE_SHADER_PATH => (_opaqueMaterialPool, OPAQUE_MATERIAL_POOL_SIZE),
+                _ => (null, 0),
+            };
+
+            if (pool == null) return;
+            if (_disposed || pool.Count >= capacity)
+            {
+                material.Destroy();
+                return;
             }
+
+            material.SetMainTexture(null);
+            material.SetTexture(ShadowTexturePropertyId, null);
+            pool.Push(material);
         }
     }
 }
