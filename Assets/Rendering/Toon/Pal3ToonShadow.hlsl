@@ -1,4 +1,7 @@
-// See LICENSE in the project root.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2026, Jiaqi (0x7c13) Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ------------------------------------------------------------------------
 
 #include "Pal3ToonInput.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"

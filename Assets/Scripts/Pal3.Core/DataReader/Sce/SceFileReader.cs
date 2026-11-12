@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader.Sce
 {
@@ -45,6 +45,7 @@ namespace Pal3.Core.DataReader.Sce
 
         private static SceScriptBlock ReadScriptBlock(IBinaryReader reader, SceIndex sceIndex, int codepage)
         {
+            if (sceIndex.Offset > reader.Length - 4) throw new InvalidDataException("SCE block offset is outside the file");
             reader.Seek(sceIndex.Offset, SeekOrigin.Begin);
 
             uint id = reader.ReadUInt32();
@@ -59,7 +60,7 @@ namespace Pal3.Core.DataReader.Sce
             }
 
             uint scriptSize = reader.ReadUInt32();
-            byte[] scriptData = reader.ReadBytes((int)scriptSize);
+            byte[] scriptData = reader.ReadExactly(checked((int)scriptSize));
 
             return new SceScriptBlock()
             {
@@ -74,7 +75,7 @@ namespace Pal3.Core.DataReader.Sce
         {
             byte type = reader.ReadByte();
             ushort length = reader.ReadUInt16();
-            byte[] data = reader.ReadBytes(length);
+            byte[] data = reader.ReadExactly(length);
 
             return new SceUserVarInfo()
             {

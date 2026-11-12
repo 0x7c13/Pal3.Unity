@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.Utilities
 {
@@ -18,7 +18,7 @@ namespace Pal3.Core.Utilities
         {
             int structSize = Marshal.SizeOf(typeof(T));
             byte[] buffer = new byte[structSize];
-            _ = stream.Read(buffer);
+            ReadExactly(stream, buffer);
             return ReadStructInternal<T>(buffer);
         }
 
@@ -27,8 +27,21 @@ namespace Pal3.Core.Utilities
             return ReadStructInternal<T>(bytes, offset);
         }
 
+        internal static void ReadExactly(Stream stream, Span<byte> buffer)
+        {
+            int offset = 0;
+            while (offset < buffer.Length)
+            {
+                int read = stream.Read(buffer[offset..]);
+                if (read == 0) throw new EndOfStreamException();
+                offset += read;
+            }
+        }
+
         private static unsafe T ReadStructInternal<T>(Span<byte> bytes, int offset = 0) where T : struct
         {
+            if (offset < 0 || offset > bytes.Length - Marshal.SizeOf(typeof(T)))
+                throw new EndOfStreamException("Truncated binary structure");
             fixed (byte* ptr = &bytes[offset])
             {
                 return (T) (Marshal.PtrToStructure((IntPtr) ptr, typeof(T)) ?? default(T));
@@ -264,7 +277,7 @@ namespace Pal3.Core.Utilities
         public static string GetFileName(string filePath, char directorySeparatorChar)
         {
             return !filePath.Contains(directorySeparatorChar) ?
-                string.Empty :
+                filePath :
                 filePath[(filePath.LastIndexOf(directorySeparatorChar)+1)..];
         }
 

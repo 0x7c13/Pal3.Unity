@@ -10,5 +10,10 @@
     "optionalUnityReferences": [
         "TestAssemblies"
     ],
-    "autoReferenced": false
+    "autoReferenced": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Newtonsoft.Json.dll"
+    ]
 }

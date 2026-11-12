@@ -1,12 +1,14 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Editor
 {
+    using System;
     using System.IO;
     using System.Text;
+    using System.Text.RegularExpressions;
     using Pal3.Core.Command;
     using SourceGenerator;
     using SourceGenerator.Base;
@@ -39,6 +41,18 @@ namespace Editor
             GenerateSourceInternal(OutputFileName, writePath, ClassName, NameSpace, sourceGenerator, true);
         }
 
+        private static string CopyrightHeader(string writePath)
+        {
+            int currentYear = DateTime.Now.Year;
+            Match previous = Regex.Match(File.Exists(writePath) ? File.ReadAllText(writePath) : string.Empty,
+                @"Copyright \(c\) (?<first>\d{4})");
+            int firstYear = previous.Success ? int.Parse(previous.Groups["first"].Value) : currentYear;
+            string years = firstYear == currentYear ? $"{currentYear}" : $"{firstYear}-{currentYear}";
+            const string separator = "// ------------------------------------------------------------------------";
+            return $"{separator}\n//  Copyright (c) {years}, Jiaqi (0x7c13) Liu. All rights reserved.\n" +
+                   $"//  See LICENSE file in the project root for license information.\n{separator}\n\n";
+        }
+
         private static void GenerateSourceInternal(string fileName,
             string writePath,
             string className,
@@ -63,7 +77,7 @@ namespace Editor
             sourceGenerator.GenerateSourceClass(writer, className, nameSpace);
 
             // Final output string
-            string output = $"#if {GAME_VARIANT_SYMBOL}\n\n{writer.Buffer}\n#endif";
+            string output = CopyrightHeader(writePath) + $"#if {GAME_VARIANT_SYMBOL}\n\n{writer.Buffer}\n#endif";
 
             // Write to file
             using StreamWriter sw = new(writePath);

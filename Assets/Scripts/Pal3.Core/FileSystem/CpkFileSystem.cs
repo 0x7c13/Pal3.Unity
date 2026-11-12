@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.FileSystem
 {
@@ -53,7 +53,8 @@ namespace Pal3.Core.FileSystem
         /// <param name="codepage">Codepage CPK file uses for encoding text info</param>
         public void Mount(string cpkFileRelativePath, int codepage)
         {
-            string cpkFileName = CoreUtility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLower();
+            cpkFileRelativePath = cpkFileRelativePath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+            string cpkFileName = CoreUtility.GetFileName(cpkFileRelativePath, Path.DirectorySeparatorChar).ToLowerInvariant();
 
             if (_cpkArchives.ContainsKey(cpkFileName))
             {
@@ -224,7 +225,7 @@ namespace Pal3.Core.FileSystem
                 }
                 else
                 {
-                    uint crcHash = _crcHash.Compute(node.VirtualPath.ToLower(), _codepage);
+                    uint crcHash = _crcHash.Compute(node.VirtualPath.ToLowerInvariant(), _codepage);
                     File.WriteAllBytes(outputFolder + relativePath, archive.ReadAllBytes(crcHash));
                 }
             }
@@ -356,13 +357,14 @@ namespace Pal3.Core.FileSystem
         /// <param name="relativeVirtualPath">File relative path inside archive in lower cases</param>
         private void ParseFileVirtualPath(string fullVirtualPath, out string cpkFileName, out string relativeVirtualPath)
         {
+            fullVirtualPath = fullVirtualPath.Replace('/', CpkConstants.DirectorySeparatorChar);
             if (!fullVirtualPath.Contains(CpkConstants.DirectorySeparatorChar))
             {
                 throw new ArgumentException($"File virtual path is invalid: {fullVirtualPath}");
             }
 
-            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLower();
-            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..].ToLower();
+            cpkFileName = fullVirtualPath[..fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar)].ToLowerInvariant();
+            relativeVirtualPath = fullVirtualPath[(fullVirtualPath.IndexOf(CpkConstants.DirectorySeparatorChar) + 1)..].ToLowerInvariant();
         }
     }
 }

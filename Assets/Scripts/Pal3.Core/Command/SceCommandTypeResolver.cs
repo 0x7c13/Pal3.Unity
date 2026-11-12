@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.Command
 {
@@ -25,22 +25,31 @@ namespace Pal3.Core.Command
             IEnumerable<Type> commandTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ICommand)));
 
-            foreach (Type commandType in commandTypes)
-            {
-                if (commandType.GetCustomAttribute(typeof(SceCommandAttribute)) is SceCommandAttribute attribute)
-                {
-                    ushort userVariableMask = CalculateUserVariableMask(commandType);
-                    uint hashCode = GetHashCode(attribute.CommandId, userVariableMask);
-                    SceCommandTypeCache[hashCode] = commandType;
-                }
-            }
+            Dictionary<uint, Type> definitions = BuildTypeMap(commandTypes);
+            foreach (var definition in definitions)
+                SceCommandTypeCache.Add(definition.Key, definition.Value);
 
             _isInitialized = true;
         }
 
+        internal static Dictionary<uint, Type> BuildTypeMap(IEnumerable<Type> commandTypes)
+        {
+            var definitions = new Dictionary<uint, Type>();
+            foreach (Type type in commandTypes)
+            {
+                if (type.GetCustomAttribute<SceCommandAttribute>() is not { } attribute) continue;
+                ushort mask = CalculateUserVariableMask(type);
+                uint key = GetHashCode(attribute.CommandId, mask);
+                if (!definitions.TryAdd(key, type))
+                    throw new InvalidDataContractException(
+                        $"Duplicate SCE command id/mask: {attribute.CommandId}/{mask} ({definitions[key].Name}, {type.Name})");
+            }
+            return definitions;
+        }
+
         private static ushort CalculateUserVariableMask(Type commandType)
         {
-            PropertyInfo[] propertyInfos = commandType.GetProperties();
+            PropertyInfo[] propertyInfos = SceCommandSchema.GetProperties(commandType);
 
             ushort userVariableMask = 0;
             for (int i = 0; i < propertyInfos.Length; i++)

@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader
 {
@@ -33,6 +33,15 @@ namespace Pal3.Core.DataReader
         public byte[] ReadBytes(int count);
 
         #region Helper Extensions (Default Implementation)
+        public byte[] ReadExactly(int count)
+        {
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+            if (count > Length - Position) throw new EndOfStreamException();
+            byte[] bytes = ReadBytes(count);
+            if (bytes.Length != count) throw new EndOfStreamException();
+            return bytes;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float[] ReadSingles(int count)
         {
@@ -135,7 +144,7 @@ namespace Pal3.Core.DataReader
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public char[] ReadChars(int count)
         {
-            return Encoding.ASCII.GetChars(ReadBytes(count));
+            return Encoding.ASCII.GetChars(ReadExactly(count));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -144,7 +153,7 @@ namespace Pal3.Core.DataReader
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ReadString(int count, int codepage)
         {
-            var strBytes = ReadBytes(count);
+            var strBytes = ReadExactly(count);
             int length = Array.IndexOf(strBytes, (byte)0);
             if (length == -1) length = strBytes.Length; // If no null byte is found, use the full length
             return Encoding.GetEncoding(codepage).GetString(strBytes, 0, length);

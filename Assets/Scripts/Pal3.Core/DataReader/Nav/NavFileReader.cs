@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader.Nav
 {
@@ -24,6 +24,8 @@ namespace Pal3.Core.DataReader.Nav
             }
 
             byte version = reader.ReadByte();
+            if (version != 1 && version != 2)
+                throw new InvalidDataException($"Invalid NAV version: {version}");
             byte numberOfLayers = reader.ReadByte();
             uint tileOffset = reader.ReadUInt32();
             uint faceOffset = reader.ReadUInt32();
@@ -70,11 +72,10 @@ namespace Pal3.Core.DataReader.Nav
             int width = reader.ReadInt32();
             int height = reader.ReadInt32();
 
-            int navMapSize = width * height;
-            if (navMapSize <= 0)
-            {
-                throw new Exception($"Invalid NAV(.nav) file: Map size is in valid: {navMapSize}");
-            }
+            long mapSize = (long)width * height;
+            if (width <= 0 || height <= 0 || mapSize > int.MaxValue || mapSize > (reader.Length - reader.Position) / 8)
+                throw new InvalidDataException($"Invalid NAV dimensions: {width}x{height}");
+            int navMapSize = (int)mapSize;
 
             NavTile[] tiles = new NavTile[navMapSize];
             for (int i = 0; i < navMapSize; i++)
