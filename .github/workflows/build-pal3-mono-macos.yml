@@ -1,6 +1,10 @@
 name: Builds - PAL3 - Mono - MacOS
 
-on: [push, pull_request]
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   build_pal3_mono_macos:
@@ -12,16 +16,16 @@ jobs:
         targetPlatform:
           - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/cache@v5.0.5
+      - uses: actions/cache@v6.1.0
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
           restore-keys: Library-
-      - uses: game-ci/unity-builder@v5
+      - uses: game-ci/unity-builder@v6.0.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -30,6 +34,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3
           versioning: Semantic
+          cliVersion: v0.1.73
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: PAL3-Mono-${{ matrix.targetPlatform }}

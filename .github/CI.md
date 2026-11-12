@@ -2,12 +2,17 @@
 
 GitHub Actions builds PAL3 and PAL3A with the Unity version in
 `ProjectSettings/ProjectVersion.txt`. Each variant covers Android, iOS,
-macOS, Linux, and 32-bit/64-bit Windows. The workflows run on pushes and pull
-requests, and successful desktop/Android builds upload artifacts.
+macOS, Linux, and 32-bit/64-bit Windows. The workflows run only on pull requests.
+New commits cancel superseded runs for the same pull request and workflow.
+Successful desktop/Android builds upload artifacts.
 
 Codacy is not part of this repository's CI. Its repository webhook is disabled;
 there is no Codacy workflow or Codacy-required branch protection check. Re-enabling
 that external integration would resume its checks independently of these workflows.
+
+The workflows use checkout v7.0.1, cache v6.1.0, and unity-builder v6.0.0.
+The builder CLI is pinned to v0.1.73 so its behavior does not change independently
+of the workflow. Update and validate this pin together with builder upgrades.
 
 Keep the committed project configured for PAL3. PAL3A workflows switch their own
 checkout before building. Public builds reject imported private VFX and legacy Toon assets;
