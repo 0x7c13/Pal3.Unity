@@ -20,12 +20,13 @@ namespace Pal3.Game.Data
         private readonly ITextureFactory _textureFactory;
         private readonly ITextureCache _textureCache;
         private readonly string _relativeDirectoryPath;
+        private readonly TextureUsage _usage;
 
         public TextureProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
             ITextureFactory textureFactory,
             string relativeDirectoryPath,
-            ITextureCache textureCache = null)
+            ITextureCache textureCache = null, TextureUsage usage = TextureUsage.World)
         {
             if (!relativeDirectoryPath.EndsWith(CpkConstants.DirectorySeparatorChar))
             {
@@ -37,6 +38,7 @@ namespace Pal3.Game.Data
             _textureFactory = textureFactory;
             _relativeDirectoryPath = relativeDirectoryPath.ToLower(); // Texture path is case insensitive
             _textureCache = textureCache;
+            _usage = usage;
         }
 
         private bool TryGetTextureFromCache(string textureFullPath,
@@ -44,12 +46,20 @@ namespace Pal3.Game.Data
         {
             if (_textureCache != null)
             {
-                return _textureCache.TryGet(textureFullPath, out texture);
+                return _textureCache.TryGet(CacheKey(textureFullPath), out texture);
             }
 
             texture = default;
             return false;
         }
+
+        private string CacheKey(string path) => path + (_usage switch
+        {
+            TextureUsage.World => "|world",
+            TextureUsage.Sprite => "|sprite",
+            TextureUsage.Skybox => "|skybox",
+            _ => throw new ArgumentOutOfRangeException(nameof(_usage)),
+        });
 
         public string GetTexturePath(string name)
         {
@@ -108,17 +118,17 @@ namespace Pal3.Game.Data
 
             // Get dds texture
             ITextureLoader textureLoader = _textureLoaderFactory.GetTextureLoader(".dds");
-            ITexture2D texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, out hasAlphaChannel);
+            ITexture2D texture = base.GetTexture(_fileSystem, ddsTexturePath, textureLoader, _textureFactory, _usage, out hasAlphaChannel);
             if (texture != null)
             {
-                _textureCache?.Add(ddsTexturePath, texture, hasAlphaChannel);
+                _textureCache?.Add(CacheKey(ddsTexturePath), texture, hasAlphaChannel);
             }
             else // If dds texture does not exist, try original extension
             {
                 textureLoader = _textureLoaderFactory.GetTextureLoader(Path.GetExtension(name));
-                texture = base.GetTexture(_fileSystem, texturePath, textureLoader, out hasAlphaChannel);
+                texture = base.GetTexture(_fileSystem, texturePath, textureLoader, _textureFactory, _usage, out hasAlphaChannel);
                 if (texture == null) EngineLogger.LogWarning($"Texture not found: {texturePath}");
-                else _textureCache?.Add(texturePath, texture, hasAlphaChannel);
+                else _textureCache?.Add(CacheKey(texturePath), texture, hasAlphaChannel);
             }
 
             return texture;

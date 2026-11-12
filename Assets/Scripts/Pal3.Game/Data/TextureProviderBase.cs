@@ -14,10 +14,11 @@ namespace Pal3.Game.Data
         protected ITexture2D GetTexture(ICpkFileSystem fileSystem,
             string texturePath,
             ITextureLoader textureLoader,
+            ITextureFactory textureFactory,
+            TextureUsage usage,
             out bool hasAlphaChannel)
         {
             byte[] data;
-
             try
             {
                 data = fileSystem.ReadAllBytes(texturePath);
@@ -28,8 +29,8 @@ namespace Pal3.Game.Data
                 return null;
             }
 
-            textureLoader.Load(data, out hasAlphaChannel);
-            return textureLoader.ToTexture();
+            using ITextureDataSource source = textureLoader.Load(data, out hasAlphaChannel);
+            return textureFactory.CreateTexture(source, TextureCreationPolicy.Resolve(source, usage));
         }
     }
 }

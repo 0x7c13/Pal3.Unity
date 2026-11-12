@@ -166,7 +166,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register<ITextureFactory>(textureFactory);
 
             // Init TextureLoaderFactory
-            TextureLoaderFactory textureLoaderFactory = new (textureFactory);
+            TextureLoaderFactory textureLoaderFactory = new ();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init MaterialFactory

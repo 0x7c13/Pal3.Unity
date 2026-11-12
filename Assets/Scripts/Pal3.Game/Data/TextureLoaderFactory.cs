@@ -15,11 +15,11 @@ namespace Pal3.Game.Data
         private readonly ITextureLoader _tgaTextureLoader;
         private readonly ITextureLoader _bmpTextureLoader;
 
-        public TextureLoaderFactory(ITextureFactory textureFactory)
+        public TextureLoaderFactory()
         {
-            _dxtTextureLoader = new DxtTextureLoader(textureFactory);
-            _tgaTextureLoader = new TgaTextureLoader(textureFactory);
-            _bmpTextureLoader = new BmpTextureLoader(textureFactory);
+            _dxtTextureLoader = new DxtTextureLoader();
+            _tgaTextureLoader = new TgaTextureLoader();
+            _bmpTextureLoader = new BmpTextureLoader();
         }
 
         public ITextureLoader GetTextureLoader(string fileExtension)

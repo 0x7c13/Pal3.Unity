@@ -40,6 +40,7 @@ namespace Engine.Renderer
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
 
             Mesh mesh = new();
+            if (vertices.Length > ushort.MaxValue) mesh.indexFormat = IndexFormat.UInt32;
 
             if (isDynamic)
             {

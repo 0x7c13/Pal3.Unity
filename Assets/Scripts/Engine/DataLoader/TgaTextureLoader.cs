@@ -8,67 +8,44 @@ namespace Engine.DataLoader
     using System;
     using System.Buffers;
     using Core.Abstraction;
+    using Core.Implementation;
     using Pal3.Core.DataReader.Tga;
 
-    /// <summary>
-    /// .tga file loader and Texture2D converter.
-    /// </summary>
     public sealed class TgaTextureLoader : ITextureLoader
     {
-        private readonly ITextureFactory _textureFactory;
-
-        private short _width;
-        private short _height;
-        private byte[] _rawRgbaDataBuffer;
-
-        public TgaTextureLoader(ITextureFactory textureFactory)
+        public unsafe ITextureDataSource Load(byte[] data, out bool hasAlphaChannel)
         {
-            _textureFactory = textureFactory;
-        }
-
-        public unsafe void Load(byte[] data, out bool hasAlphaChannel)
-        {
-            if (_rawRgbaDataBuffer != null) throw new Exception("TGA texture already loaded");
-
+            short width;
+            short height;
             byte bitDepth;
-
             fixed (byte* p = &data[12])
             {
-                _width = *(short*)p;
-                _height = *(short*)(p + 2);
+                width = *(short*)p;
+                height = *(short*)(p + 2);
                 bitDepth = *(p + 4);
             }
 
-            _rawRgbaDataBuffer = ArrayPool<byte>.Shared.Rent(_width * _height * 4);
-
-            switch (bitDepth)
-            {
-                case 24:
-                    hasAlphaChannel = false;
-                    TgaDecoder.Decode24BitDataToRgba32(
-                        data, _width, _height, _rawRgbaDataBuffer);
-                    break;
-                case 32:
-                    TgaDecoder.Decode32BitDataToRgba32(
-                        data, _width, _height, _rawRgbaDataBuffer, out hasAlphaChannel);
-                    break;
-                default:
-                    throw new Exception("TGA texture had non 32/24 bit depth");
-            }
-        }
-
-        public ITexture2D ToTexture()
-        {
-            if (_rawRgbaDataBuffer == null) return null;
-
+            byte[] rgba = ArrayPool<byte>.Shared.Rent(checked(width * height * 4));
             try
             {
-                return _textureFactory.CreateTexture(_width, _height, _rawRgbaDataBuffer);
+                switch (bitDepth)
+                {
+                    case 24:
+                        hasAlphaChannel = false;
+                        TgaDecoder.Decode24BitDataToRgba32(data, width, height, rgba);
+                        break;
+                    case 32:
+                        TgaDecoder.Decode32BitDataToRgba32(data, width, height, rgba, out hasAlphaChannel);
+                        break;
+                    default:
+                        throw new Exception("TGA texture had non 32/24 bit depth");
+                }
+                return Rgba32TextureDataSource.TakePooledBuffer(width, height, rgba, hasTransparency: true);
             }
-            finally
+            catch
             {
-                ArrayPool<byte>.Shared.Return(_rawRgbaDataBuffer);
-                _rawRgbaDataBuffer = null;
+                ArrayPool<byte>.Shared.Return(rgba);
+                throw;
             }
         }
     }

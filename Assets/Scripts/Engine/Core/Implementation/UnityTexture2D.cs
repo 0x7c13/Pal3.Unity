@@ -16,10 +16,12 @@ namespace Engine.Core.Implementation
         public bool IsNativeObjectDisposed => _texture2D == null;
 
         private Texture2D _texture2D;
+        private ITexturePixelReader _pixelReader;
 
-        public UnityTexture2D(Texture2D texture2D)
+        public UnityTexture2D(Texture2D texture2D, ITexturePixelReader pixelReader = null)
         {
             _texture2D = texture2D;
+            _pixelReader = pixelReader;
         }
 
         public int Width => _texture2D.width;
@@ -38,6 +40,15 @@ namespace Engine.Core.Implementation
 
         public (float r, float g, float b, float a) GetPixel(int x, int y)
         {
+            if (_pixelReader != null)
+            {
+                x = _texture2D.wrapMode == TextureWrapMode.Clamp
+                    ? Mathf.Clamp(x, 0, Width - 1) : (x % Width + Width) % Width;
+                y = _texture2D.wrapMode == TextureWrapMode.Clamp
+                    ? Mathf.Clamp(y, 0, Height - 1) : (y % Height + Height) % Height;
+                var rgba = _pixelReader.GetPixel(x, y);
+                return (rgba.r / 255f, rgba.g / 255f, rgba.b / 255f, rgba.a / 255f);
+            }
             Color pixel = _texture2D.GetPixel(x, y);
             return (pixel.r, pixel.g, pixel.b, pixel.a);
         }
@@ -64,6 +75,7 @@ namespace Engine.Core.Implementation
             }
 
             _texture2D = null;
+            _pixelReader = null;
         }
     }
 }
