@@ -333,7 +333,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) yield break;
             Pal3.Instance.Execute(new ScriptExecuteCommand((int)ObjectInfo.ScriptId));
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId);
+            using (var completion = new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId))
+            {
+                yield return completion;
+            }
         }
 
         internal void PlaySfxIfAny()

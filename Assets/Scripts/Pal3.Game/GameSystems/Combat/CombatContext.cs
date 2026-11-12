@@ -31,6 +31,15 @@ namespace Pal3.Game.GameSystems.Combat
         public bool IsNoGameOverWhenLose { get; set; } = false;
         public uint[] EnemyIds { get; set; } = new uint[6];
 
+        #if PAL3A
+        public bool NanGongHuangAbilitiesEnabled { get; set; }
+        public bool WangPengXuTransformEnabled { get; set; }
+        public bool NanGongHuangStartsTransformed { get; set; }
+        public bool WangPengXuStartsTransformed { get; set; }
+        public int LiaoRiHpBonus { get; set; }
+        public int LiaoRiMpBonus { get; set; }
+        #endif
+
         public override string ToString()
         {
             return $"CombatContext: " +

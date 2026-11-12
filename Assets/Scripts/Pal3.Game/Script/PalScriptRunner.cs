@@ -47,6 +47,9 @@ namespace Pal3.Game.Script
         public PalScriptType ScriptType { get; }
         public string ScriptDescription { get; }
 
+        public bool IsCompleted => _isDisposed || _isCompleted;
+        internal IUserVariableStore<ushort, int> Variables => _userVariableStore;
+
         private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
         private readonly IUserVariableStore<ushort, int> _userVariableStore;
@@ -60,7 +63,9 @@ namespace Pal3.Game.Script
         private ScriptOperatorType _operatorType = ScriptOperatorType.Assign;
         private bool _tempVariable = false;
 
-        private readonly Stack<IScriptRunnerWaiter> _waiters = new ();
+        private readonly List<IScriptRunnerWaiter> _waiters = new ();
+        private PalScriptRunner _calledScript;
+        private bool _isCompleted;
         private bool _isExecuting;
         private bool _isDisposed;
 
@@ -100,7 +105,7 @@ namespace Pal3.Game.Script
             ScriptId = scriptId;
             ScriptDescription = scriptBlock.Description;
 
-            _userVariableStore = userVariableStore;
+            _userVariableStore = new ScriptVariableStore(userVariableStore, scriptBlock.UserVariables);
             _codepage = codepage;
             _sceCommandParser = sceCommandParser;
             _scriptPatcher = scriptPatcher;
@@ -113,52 +118,69 @@ namespace Pal3.Game.Script
 
         public bool Update(float deltaTime)
         {
-            var canExecute = true;
+            if (IsCompleted) return false;
 
             if (_waiters.Count > 0)
             {
                 UpdateWaiters(deltaTime);
             }
 
-            if (_waiters.Count == 0)
+            if (_calledScript != null)
             {
-                do { canExecute = Execute(); }
-                while (canExecute && _waiters.Count == 0);
+                if (!_calledScript.IsCompleted) return true;
+                _calledScript = null;
             }
 
+            if (_waiters.Count > 0) return true;
+
+            bool canExecute;
+            do { canExecute = Execute(); }
+            while (canExecute && _waiters.Count == 0 && _calledScript == null);
+
+            if (!canExecute) _isCompleted = true;
             return canExecute;
         }
 
         private void UpdateWaiters(float deltaTime)
         {
-            if (_waiters.Count <= 0) return;
-
-            if (!_waiters.Peek().ShouldWait(deltaTime))
+            // All waiters in one command group advance concurrently. In particular,
+            // a dialogue/action waiter must not delay the start of a timer below it.
+            for (int i = _waiters.Count - 1; i >= 0; i--)
             {
-                _waiters.Pop();
+                if (!_waiters[i].ShouldWait(deltaTime)) _waiters.RemoveAt(i);
             }
+        }
+
+        internal void WaitForCalledScript(PalScriptRunner script)
+        {
+            if (_isExecuting && !_isDisposed) _calledScript = script;
         }
 
         private bool Execute()
         {
-            if (_isDisposed) return false;
+            if (IsCompleted) return false;
 
-            if (_scriptDataReader.Position == _scriptDataReader.Length)
+            if (_scriptDataReader.Position >= _scriptDataReader.Length)
             {
                 return false;
             }
 
             _isExecuting = true;
 
-            while (!_isDisposed &&
-                   _scriptDataReader.Position < _scriptDataReader.Length)
+            try
             {
-                ExecuteNextCommand();
-                if (_executionMode == ScriptExecutionMode.Asynchronous) break;
+                while (!_isDisposed && _scriptDataReader.Position < _scriptDataReader.Length)
+                {
+                    ExecuteNextCommand();
+                    if (_executionMode == ScriptExecutionMode.Asynchronous || _calledScript != null) break;
+                }
+            }
+            finally
+            {
+                _isExecuting = false;
             }
 
-            _isExecuting = false;
-            return true;
+            return !_isDisposed;
         }
 
         private void ExecuteNextCommand()
@@ -227,6 +249,8 @@ namespace Pal3.Game.Script
             }
 
             _isDisposed = true;
+            _calledScript = null;
+            _waiters.Clear();
         }
 
         public void Execute(ScriptRunnerSetOperatorCommand command)
@@ -238,13 +262,13 @@ namespace Pal3.Game.Script
         public void Execute(ScriptRunnerWaitUntilTimeCommand untilTimeCommand)
         {
             if (!_isExecuting) return;
-            _waiters.Push(new WaitUntilTime(untilTimeCommand.Time));
+            _waiters.Add(new WaitUntilTime(untilTimeCommand.Time));
         }
 
         public void Execute(ScriptRunnerAddWaiterRequest request)
         {
             if (!_isExecuting) return;
-            _waiters.Push(request.Waiter);
+            _waiters.Add(request.Waiter);
         }
 
         public void Execute(ScriptRunnerGotoCommand command)

@@ -17,6 +17,11 @@ namespace Pal3.Game.Actor
 
         public ScnNpcInfo Info { get; }
 
+        private int? _noTurnOverride;
+        public int NoTurn => _noTurnOverride ?? (int)Info.NoTurn;
+        public bool IsNoTurnChanged => _noTurnOverride.HasValue;
+        public void SetNoTurn(int noTurn) => _noTurnOverride = noTurn;
+
         private uint? _overwrittenScriptId;
         private uint? _overwrittenMoveSpeed;
 

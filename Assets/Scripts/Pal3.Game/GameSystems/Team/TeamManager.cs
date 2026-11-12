@@ -14,6 +14,8 @@ namespace Pal3.Game.GameSystems.Team
     using Core.Command;
     using Core.Command.SceCommands;
     using Core.Contract.Enums;
+    using Core.Contract.Constants;
+    using Data;
     using Core.Utilities;
     using Engine.Core.Abstraction;
     using Engine.Logging;
@@ -28,12 +30,16 @@ namespace Pal3.Game.GameSystems.Team
         ICommandExecutor<TeamOpenCommand>,
         ICommandExecutor<TeamCloseCommand>,
         ICommandExecutor<TeamAddOrRemoveActorCommand>,
+        #if PAL3A
+        ICommandExecutor<TeamAddOrRemoveActorSilentlyCommand>,
+        #endif
         ICommandExecutor<ResetGameStateCommand>
     {
         private const float TEAM_OPEN_SPAWN_POINT_PLAYER_OFFSET = 2.5f;
 
         private readonly PlayerActorManager _playerActorManager;
         private readonly SceneManager _sceneManager;
+        private readonly GameResourceProvider _resources;
 
         private readonly HashSet<PlayerActorId> _actorsInTeam = new ();
 
@@ -57,10 +63,11 @@ namespace Pal3.Game.GameSystems.Team
         };
         #endif
 
-        public TeamManager(PlayerActorManager playerActorManager, SceneManager sceneManager)
+        public TeamManager(PlayerActorManager playerActorManager, SceneManager sceneManager, GameResourceProvider resources)
         {
             _playerActorManager = Requires.IsNotNull(playerActorManager, nameof(playerActorManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
+            _resources = Requires.IsNotNull(resources, nameof(resources));
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
 
@@ -170,13 +177,18 @@ namespace Pal3.Game.GameSystems.Team
 
         public void Execute(TeamAddOrRemoveActorCommand command)
         {
-            if (!Enum.IsDefined(typeof(PlayerActorId), command.ActorId))
+            SetMembership(command.ActorId, command.IsIn, notify: true);
+        }
+
+        private void SetMembership(int actorId, int isIn, bool notify)
+        {
+            if (!Enum.IsDefined(typeof(PlayerActorId), actorId))
             {
                 EngineLogger.LogError("Cannot add non-player actor to the team");
                 return;
             }
 
-            PlayerActorId actor = (PlayerActorId) command.ActorId;
+            PlayerActorId actor = (PlayerActorId)actorId;
 
             #if PAL3
             if (actor == PlayerActorId.HuaYing)
@@ -188,7 +200,8 @@ namespace Pal3.Game.GameSystems.Team
                 return;
             }
 
-            if (command.IsIn == 1)
+            bool inTeam = isIn != 0;
+            if (inTeam)
             {
                 AddActor(actor);
             }
@@ -196,7 +209,22 @@ namespace Pal3.Game.GameSystems.Team
             {
                 RemoveActor(actor);
             }
+
+            #if PAL3A
+            if (notify)
+            {
+                string name = _resources.GetCombatActorInfos()[ActorConstants.MainActorCombatActorIdMap[actor]].Name;
+                Pal3.Instance.Execute(new UIDisplayNoteCommand($"{name}{(inTeam ? "加入" : "离开")}队伍"));
+            }
+            #endif
         }
+
+        #if PAL3A
+        public void Execute(TeamAddOrRemoveActorSilentlyCommand command)
+        {
+            SetMembership(command.ActorId, command.IsIn, notify: false);
+        }
+        #endif
 
         public void Execute(ResetGameStateCommand command)
         {

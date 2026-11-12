@@ -27,38 +27,46 @@ namespace Pal3.Game.GameSystems.Combat.Actor
         {
             IGameEntity actorGameEntity = GameEntityFactory.Create($"CombatActor_{actor.Id}_{actor.Name}");
 
-            // Attach CombatActorInfo to the GameEntity for better debuggability
-            #if UNITY_EDITOR
-            CombatActorInfoPresenter combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
-            combatActorInfoPresent.combatActorInfo = actor.Info;
-            #endif
-
-            ActorActionController actionController;
-            switch (actor.AnimationType)
+            try
             {
-                case ActorAnimationType.Vertex:
+                // Attach CombatActorInfo to the GameEntity for better debuggability
+                #if UNITY_EDITOR
+                CombatActorInfoPresenter combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
+                combatActorInfoPresent.combatActorInfo = actor.Info;
+                #endif
+
+                ActorActionController actionController;
+                switch (actor.AnimationType)
                 {
-                    VertexAnimationActorActionController vertexActionController =
-                        actorGameEntity.AddComponent<VertexAnimationActorActionController>();
-                    vertexActionController.Init(resourceProvider,
-                        actor,
-                        hasColliderAndRigidBody: false, // combat actor has no collider and rigidbody
-                        isDropShadowEnabled,
-                        autoStand: true, // combat actor always auto stand
-                        canPerformHoldAnimation: false); // combat actor can't perform hold animation
-                    actionController = vertexActionController;
-                    break;
+                    case ActorAnimationType.Vertex:
+                    {
+                        VertexAnimationActorActionController vertexActionController =
+                            actorGameEntity.AddComponent<VertexAnimationActorActionController>();
+                        vertexActionController.Init(resourceProvider,
+                            actor,
+                            hasColliderAndRigidBody: false, // combat actor has no collider and rigidbody
+                            isDropShadowEnabled,
+                            autoStand: true, // combat actor always auto stand
+                            canPerformHoldAnimation: false); // combat actor can't perform hold animation
+                        actionController = vertexActionController;
+                        break;
+                    }
+                    case ActorAnimationType.Skeletal:
+                    default:
+                        throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
                 }
-                case ActorAnimationType.Skeletal:
-                default:
-                    throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
+
+                CombatActorController actorController = actorGameEntity.AddComponent<CombatActorController>();
+                actorController.Init(actor, actionController, elementPosition);
+                actorController.IsActive = true; // combat actor is always active
+
+                return actorGameEntity;
             }
-
-            CombatActorController actorController = actorGameEntity.AddComponent<CombatActorController>();
-            actorController.Init(actor, actionController, elementPosition);
-            actorController.IsActive = true; // combat actor is always active
-
-            return actorGameEntity;
+            catch
+            {
+                actorGameEntity.Destroy();
+                throw;
+            }
         }
     }
 }

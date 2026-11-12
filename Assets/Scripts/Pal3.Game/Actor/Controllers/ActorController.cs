@@ -31,6 +31,9 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorSetFacingDirectionCommand>,
         ICommandExecutor<ActorRotateFacingCommand>,
         ICommandExecutor<ActorRotateFacingDirectionCommand>,
+        #if PAL3A
+        ICommandExecutor<ActorSetNoTurnCommand>,
+        #endif
         ICommandExecutor<ActorSetScriptCommand>,
         ICommandExecutor<ActorSetYPositionCommand>,
         ICommandExecutor<ActorChangeScaleCommand>
@@ -83,6 +86,13 @@ namespace Pal3.Game.Actor.Controllers
         {
             return _currentBehaviour;
         }
+
+        #if PAL3A
+        public void Execute(ActorSetNoTurnCommand command)
+        {
+            if (_actor.Id == command.ActorId) _actor.SetNoTurn(command.NoTurn);
+        }
+        #endif
 
         public bool IsDirectlyInteractable(float distance)
         {

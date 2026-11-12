@@ -4,6 +4,13 @@ Run the EditMode suite in Unity Test Runner. Run it once for each variant using
 `PAL3 / Switch Variant / PAL3A` and `PAL3A / Switch Variant / PAL3`; restore PAL3
 after validation. The two variants compile different command and SCN layouts.
 
+`Assets/Tests/Game/Editor/ScriptRuntimeTests.cs` additionally runs the actual
+parser, command dispatcher, script manager and variable manager without loading
+a game scene. It checks per-instance local initialization and isolation, shared
+globals, parallel waits (including timers behind dialogue waits), variant-specific
+child calls, exception cleanup, and resets during dispatch and completion. Local
+variables are never exposed by the global store's save enumeration.
+
 `CopyrightHeaderTests` scans project-owned C# and shader sources under
 `Assets/Scripts`, `Assets/Tests`, `Assets/Rendering` and `Assets/Resources/Shaders`.
 The required header has 72 hyphens on each separator, the exact copyright owner

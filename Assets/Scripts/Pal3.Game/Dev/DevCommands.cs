@@ -704,7 +704,7 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 190 20
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 0 1
                 TaskOpen 077
                 CameraFadeIn"},
             {"蜀山\n\n第一次回家", @"
@@ -715,7 +715,7 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 91 114
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 0 1
                 TaskOpen 083
                 CameraFadeIn"},
             {"蜀山\n\n绿萝嶂", @"
@@ -730,8 +730,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 342 137
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 TaskOpen 086
                 CameraFadeIn"},
             {"地脉门户\n\n少阳三焦", @"
@@ -746,8 +746,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 29 66
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -767,9 +767,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 321 102
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -790,9 +790,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 346 180
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -813,9 +813,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 127 15
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -836,9 +836,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 335 157
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -861,8 +861,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 55 18
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -885,7 +885,7 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 13 192
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -909,9 +909,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 14 90
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 2 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -936,10 +936,10 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 311 124
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 3 1
-                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 3 1
+                TeamAddOrRemoveActorSilently 2 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -964,10 +964,10 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 41 428
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 3 1
-                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 3 1
+                TeamAddOrRemoveActorSilently 2 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -992,8 +992,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 1
                 ActorSetTilePosition -1 265 400
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1018,9 +1018,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 89 116
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1046,9 +1046,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 25 17
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1075,9 +1075,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 50 21
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1105,7 +1105,7 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 123 226
-                TeamAddOrRemoveActor 0 1
+                TeamAddOrRemoveActorSilently 0 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1132,8 +1132,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 112 160
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 2 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1160,9 +1160,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 195 394
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 3 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1189,9 +1189,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 122 111
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 3 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1218,10 +1218,10 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 383 310
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1248,10 +1248,10 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 144 53
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1278,9 +1278,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 343 140
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 4 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 4 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1308,8 +1308,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 76 45
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1337,9 +1337,9 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 115 173
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 2 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1367,10 +1367,10 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 403 116
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
-                TeamAddOrRemoveActor 2 1
-                TeamAddOrRemoveActor 3 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
+                TeamAddOrRemoveActorSilently 2 1
+                TeamAddOrRemoveActorSilently 3 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1398,8 +1398,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 132 155
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1427,8 +1427,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 353 98
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2
@@ -1458,8 +1458,8 @@ namespace Pal3.Game.Dev
                 PlayerEnableInput 1
                 ActorSetNavLayer -1 0
                 ActorSetTilePosition -1 353 98
-                TeamAddOrRemoveActor 0 1
-                TeamAddOrRemoveActor 1 1
+                TeamAddOrRemoveActorSilently 0 1
+                TeamAddOrRemoveActorSilently 1 1
                 WorldMapEnableRegion 0 2
                 WorldMapEnableRegion 1 2
                 WorldMapEnableRegion 2 2

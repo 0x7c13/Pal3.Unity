@@ -5,15 +5,18 @@
 
 namespace Pal3.Game.Script.Waiter
 {
+    using System;
     using Command;
     using Command.Extensions;
     using Core.Command;
     using UnityEngine;
 
-    public sealed class WaitUntilScriptFinished : CustomYieldInstruction,
-        ICommandExecutor<ScriptFinishedRunningNotification>
+    public sealed class WaitUntilScriptFinished : CustomYieldInstruction, IDisposable,
+        ICommandExecutor<ScriptFinishedRunningNotification>,
+        ICommandExecutor<ResetGameStateCommand>
     {
         public override bool keepWaiting => !_isFinished;
+        public bool IsCanceled { get; private set; }
 
         private readonly PalScriptType _scriptType;
         private readonly uint _scriptId;
@@ -31,8 +34,24 @@ namespace Pal3.Game.Script.Waiter
             if (_scriptType == command.ScriptType && _scriptId == command.ScriptId)
             {
                 _isFinished = true;
-                CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
+                CommandExecutorRegistry<ICommand>.Instance.UnRegister<ScriptFinishedRunningNotification>(this);
             }
+        }
+
+        public void Execute(ResetGameStateCommand command)
+        {
+            IsCanceled = true;
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (!_isFinished)
+            {
+                IsCanceled = true;
+                _isFinished = true;
+            }
+            CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
         }
     }
 }

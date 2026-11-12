@@ -58,6 +58,22 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
             }
         }
 
+        // The combat resolver must route all vital changes through this method, including skill costs.
+        public void ChangeAttribute(Core.Contract.Enums.ActorAttributeType attribute, int delta)
+        {
+            var values = _actor.Info.AttributeValues;
+            values[attribute] = (int)Math.Clamp((long)values[attribute] + delta, 0, int.MaxValue);
+            #if PAL3A
+            if (_elementPosition <= ElementPosition.AllyCenter)
+            {
+                foreach (var mapping in Core.Contract.Constants.ActorConstants.MainActorCombatActorIdMap)
+                    if (mapping.Value == _actor.Id)
+                        Engine.Services.ServiceLocator.Instance.Get<CombatCoordinator>().ScriptState
+                            .RecordAttributeChange((int)mapping.Key, attribute, delta);
+            }
+            #endif
+        }
+
         public ElementPosition GetElementPosition()
         {
             return _elementPosition;
@@ -97,6 +113,9 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
         public IEnumerator StartNormalAttackAsync(CombatActorController enemyActorController,
             CombatScene combatScene)
         {
+            // Some scripted forms (e.g. WangPengXu's beast form) have no normal attack.
+            if (!_actor.HasAction(_actor.GetAttackAction())) yield break;
+
             Quaternion currentRotation = _actionController.Transform.Rotation;
 
             _actionController.PerformAction(_actor.GetMovementAction());

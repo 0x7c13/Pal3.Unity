@@ -140,7 +140,8 @@ namespace Pal3.Game.GameSystems.Combat.Scene
             {
                 CombatActorInfo combatActorInfo = actorInfo;
 
-                if (combatActorInfo.Type == CombatActorType.MainActor)
+                if (combatActorInfo.Type == CombatActorType.MainActor &&
+                    (string.IsNullOrEmpty(combatActorInfo.ModelId) || combatActorInfo.ModelId == "Null"))
                 {
                     // Player actor's model id is not set in the file but it is equal
                     // to its id in string format

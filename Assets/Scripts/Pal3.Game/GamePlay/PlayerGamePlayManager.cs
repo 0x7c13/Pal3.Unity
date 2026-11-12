@@ -452,6 +452,7 @@ namespace Pal3.Game.GamePlay
 
         public void Execute(ResetGameStateCommand command)
         {
+            _interactionGeneration++;
             ResetAndDisposeJumpIndicators();
 
             _playerActorLastKnownSceneState.Clear();
