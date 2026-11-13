@@ -21,7 +21,7 @@ namespace Editor
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
 
-    public sealed class OriginalEffectEditor : EditorWindow
+    public sealed class EffectEditor : EditorWindow
     {
         private OriginalEffectResources _resources;
         private OriginalEffectPlayer _player;
@@ -29,10 +29,10 @@ namespace Editor
         private uint _portalType;
         [SerializeField] private OriginalEffectOverrides _edits;
         [SerializeField] private string _assetPath = "", _savedJson;
-        private GameObject _root, _private;
+        private GameObject _root;
         private Scene _scene;
         private Camera _camera;
-        private RenderTexture _target, _privateTarget;
+        private RenderTexture _target;
         private string _dataPath, _search = "", _error;
         [SerializeField] private bool _pal3a;
 
@@ -43,7 +43,7 @@ namespace Editor
         private Vector2 _listScroll, _inspectorScroll, _orbit = new(135, 15);
         private float _distance = 14, _speed = 1, _duration = 15;
         [SerializeField] private float _time;
-        private bool _playing, _compare, _loop;
+        private bool _playing, _loop;
         private uint _seed = 1;
         private bool _emitterCurve;
         private int _particleIndex, _curveIndex;
@@ -52,17 +52,17 @@ namespace Editor
         private float? _pendingSeek;
         private double _seekAfter;
 
-        [MenuItem("PAL3/Original Effect Editor")]
+        [MenuItem("PAL3/Effect Editor")]
         public static void Open()
         {
-            var window = GetWindow<OriginalEffectEditor>("Original Effects");
+            var window = GetWindow<EffectEditor>("Effects");
             window.ChangeVariant(false);
         }
 
-        [MenuItem("PAL3A/Original Effect Editor")]
+        [MenuItem("PAL3A/Effect Editor")]
         public static void OpenPal3A()
         {
-            var window = GetWindow<OriginalEffectEditor>("Original Effects");
+            var window = GetWindow<EffectEditor>("Effects");
             window.ChangeVariant(true);
         }
 
@@ -123,11 +123,6 @@ namespace Editor
             {
                 _target.Release();
                 DestroyImmediate(_target);
-            }
-            if (_privateTarget != null)
-            {
-                _privateTarget.Release();
-                DestroyImmediate(_privateTarget);
             }
             if (_scene.IsValid())
                 EditorSceneManager.ClosePreviewScene(_scene);
@@ -247,8 +242,6 @@ namespace Editor
         {
             if (_root != null)
                 DestroyImmediate(_root);
-            if (_private != null)
-                DestroyImmediate(_private);
             _player = null;
             _portal = null;
         }
@@ -285,23 +278,6 @@ namespace Editor
                         _player.Loop = false;
                         if (_player.Error != null)
                             _error = _player.Error;
-                    }
-                }
-                if (_compare)
-                {
-                    GameObject prefab = Resources.Load<GameObject>($"Prefabs/VFX/{Variant}/{(_id < 0 ? 0 : _id)}");
-                    if (prefab != null)
-                    {
-                        _private = Instantiate(prefab);
-                        SceneManager.MoveGameObjectToScene(_private, _scene);
-                        foreach (Transform child in _private.GetComponentsInChildren<Transform>(true))
-                            child.gameObject.hideFlags = HideFlags.HideAndDontSave;
-                        foreach (ParticleSystem system in _private.GetComponentsInChildren<ParticleSystem>(true))
-                        {
-                            system.useAutoRandomSeed = false;
-                            system.randomSeed = _seed;
-                            system.Simulate(0, false, true, true);
-                        }
                     }
                 }
             }
@@ -341,9 +317,6 @@ namespace Editor
             _time += delta;
             _player?.Advance(delta);
             _portal?.Sample(_time);
-            if (_private != null)
-                foreach (ParticleSystem ps in _private.GetComponentsInChildren<ParticleSystem>(true))
-                    ps.Simulate(delta, false, false, true);
         }
 
         private void Seek(float time)
@@ -352,9 +325,6 @@ namespace Editor
             _time = time;
             _player?.Seek(time);
             _portal?.Sample(time);
-            if (_private != null)
-                foreach (ParticleSystem ps in _private.GetComponentsInChildren<ParticleSystem>(true))
-                    ps.Simulate(time, false, true, true);
         }
 
         private void QueueSeek(float time)
@@ -463,12 +433,6 @@ namespace Editor
                         _speed = EditorGUILayout.FloatField(_speed, GUILayout.Width(45));
                         _speed = float.IsFinite(_speed) ? Mathf.Clamp(_speed, 0, 16) : 1;
                         _loop = GUILayout.Toggle(_loop, "Loop");
-                        bool compare = GUILayout.Toggle(_compare, "Private comparison");
-                        if (compare != _compare)
-                        {
-                            _compare = compare;
-                            Restart();
-                        }
                     }
                     Rect preview = GUILayoutUtility.GetRect(200, 200, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                     DrawPreview(preview);
@@ -487,7 +451,7 @@ namespace Editor
                             Restart();
                         }
                     }
-                    EditorGUILayout.LabelField($"Original nodes: {_player?.NodeCount ?? 0}   Quads/particles: {_player?.QuadCount ?? 0}   {_player?.Error}");
+                    EditorGUILayout.LabelField($"Objects: {_player?.NodeCount ?? 0}   Quads/particles: {_player?.QuadCount ?? 0}   {_player?.Error}");
                     EditorGUILayout.LabelField("Drag to orbit · Scroll to zoom", EditorStyles.miniLabel);
                     if (_error != null)
                         EditorGUILayout.HelpBox(_error, MessageType.Warning);
@@ -524,7 +488,7 @@ namespace Editor
             }
             if (e.type != EventType.Repaint || rect.width < 1 || rect.height < 1)
                 return;
-            int w = Mathf.Max(1, (int)(rect.width / (_compare ? 2 : 1))), h = Mathf.Max(1, (int)rect.height);
+            int w = Mathf.Max(1, (int)rect.width), h = Mathf.Max(1, (int)rect.height);
             if (_target == null || _target.width != w || _target.height != h)
             {
                 if (_target != null)
@@ -532,47 +496,21 @@ namespace Editor
                     _target.Release();
                     DestroyImmediate(_target);
                 }
-                if (_privateTarget != null)
-                {
-                    _privateTarget.Release();
-                    DestroyImmediate(_privateTarget);
-                }
                 _target = new RenderTexture(w, h, 24) { hideFlags = HideFlags.HideAndDontSave };
                 _target.Create();
-                _privateTarget = new RenderTexture(w, h, 24) { hideFlags = HideFlags.HideAndDontSave };
-                _privateTarget.Create();
             }
             _camera.transform.position = Quaternion.Euler(_orbit.y, _orbit.x, 0) * new Vector3(0, 0, -_distance) + Vector3.up * 1.5f;
             _camera.transform.LookAt(Vector3.up * 1.5f);
             _camera.aspect = (float)w / h;
             _player?.Render(_camera);
-            void Draw(RenderTexture destination, GameObject hidden, Rect area, string label)
-            {
-                Renderer[] rs = hidden == null ? Array.Empty<Renderer>() : hidden.GetComponentsInChildren<Renderer>();
-                bool[] state = rs.Select(r => r.enabled).ToArray();
-                for (int i = 0; i < rs.Length; i++)
-                    rs[i].enabled = false;
-                try
-                {
-                    RenderPipeline.SubmitRenderRequest(_camera, new UniversalRenderPipeline.SingleCameraRequest { destination = destination });
-                    GUI.DrawTexture(area, destination, ScaleMode.StretchToFill, false);
-                    GUI.Label(new Rect(area.x + 8, area.y + 8, area.width - 16, 25), label, EditorStyles.whiteBoldLabel);
-                }
-                finally
-                {
-                    for (int i = 0; i < rs.Length; i++)
-                        if (rs[i] != null)
-                            rs[i].enabled = state[i];
-                }
-            }
-            Draw(_target, _private, new Rect(rect.x, rect.y, w, h), $"Original {Variant} data");
-            if (_compare)
-                Draw(_privateTarget, _root, new Rect(rect.x + w, rect.y, w, h), _private != null ? "Private prefab (comparison only)" : "No private prefab");
+            RenderPipeline.SubmitRenderRequest(_camera, new UniversalRenderPipeline.SingleCameraRequest { destination = _target });
+            GUI.DrawTexture(rect, _target, ScaleMode.StretchToFill, false);
+            GUI.Label(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 25), $"{Variant} effect data", EditorStyles.whiteBoldLabel);
         }
 
         private void DrawInspector()
         {
-            EditorGUILayout.LabelField("Original object / task parameters", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Object / task parameters", EditorStyles.boldLabel);
             if (_id < 0)
             {
                 EditorGUILayout.HelpBox("MXTransport: original two cones and rotating plane. This is separate from flexeff group 0.", MessageType.Info);

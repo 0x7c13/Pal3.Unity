@@ -60,7 +60,6 @@ namespace Pal3.Game.Settings
             RegisterVisualOption(nameof(ToonCharacterLighting), "角色光照", enabled => ToonCharacterLighting = enabled);
             RegisterVisualOption(nameof(ToonNightFireBoost), "增强夜景火光", enabled => ToonNightFireBoost = enabled);
             RegisterVisualOption(nameof(BloomEnabled), "泛光", enabled => BloomEnabled = enabled);
-            RegisterVisualOption(nameof(OptionalVfxEnabled), "可选剧情特效", enabled => OptionalVfxEnabled = enabled);
             RegisterVisualOption(nameof(ToonFireShadows), "火光投影", enabled => ToonFireShadows = enabled);
 
             RegisterVisualOption(nameof(ToonEnvironmentContrast), "环境明暗对比", enabled => ToonEnvironmentContrast = enabled);
@@ -185,9 +184,9 @@ namespace Pal3.Game.Settings
             int screenRefreshRate = Screen.currentResolution.refreshRate;
             #endif
 
+            // Only respect the target frame rate if it is higher than the screen refresh rate
             if (SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate) &&
                 targetFrameRate >= screenRefreshRate)
-                // Only respect the target frame rate if it is higher than the screen refresh rate
             {
                 TargetFrameRate = targetFrameRate;
             }
@@ -260,7 +259,6 @@ namespace Pal3.Game.Settings
                 || nightFireBoost;
             _sessionUsesToon ??= ToonRendering;
             LoadBloomSetting(defaultEnabled: desktop && !_sessionUsesToon.Value);
-            OptionalVfxEnabled = SettingsStore.TryGet(nameof(OptionalVfxEnabled), out bool optionalVfx) && optionalVfx;
             ToonFireShadows = SettingsStore.TryGet(FireShadowsSettingsKey, out bool fireShadows)
                 ? fireShadows : desktop;
 

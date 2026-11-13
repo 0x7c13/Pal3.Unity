@@ -30,9 +30,11 @@ namespace Pal3.Game.Effect
         ICommandExecutor<SceneLeavingCurrentSceneNotification>,
         ICommandExecutor<ResetGameStateCommand>
     {
-        private readonly OptionalVfxPlayer _optionalVfx;
+        private readonly EffectRuntime _effects;
         private readonly SceneManager _sceneManager;
-        private ICommand _effectPositionCommand;
+#if PAL3A
+        private EffectAttachToActorCommand _attachedActor;
+#endif
         private Vector3 _originalPosition;
 
         private const string EFFECT_LINKER_FILE_NAME = "efflinker.dat";
@@ -41,7 +43,7 @@ namespace Pal3.Game.Effect
         public EffectManager(GameResourceProvider resourceProvider,
             SceneManager sceneManager)
         {
-            _optionalVfx = Requires.IsNotNull(resourceProvider, nameof(resourceProvider)).OptionalVfx;
+            _effects = Requires.IsNotNull(resourceProvider, nameof(resourceProvider)).Effects;
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 
             _effectLinkerFile = resourceProvider.GetGameResourceFile<EffectLinkerFile>(
@@ -63,7 +65,7 @@ namespace Pal3.Game.Effect
             // Even with a waiter, we need to make sure waiter's current execution mode is set
             // to synchronous otherwise the effect will be played before the pre-load is finished.
 #if PAL3
-            Pal3.Instance.StartCoroutine(_optionalVfx.PreloadAsync(command.EffectGroupId));
+            Pal3.Instance.StartCoroutine(_effects.PreloadAsync(command.EffectGroupId));
 #endif
         }
 
@@ -72,23 +74,14 @@ namespace Pal3.Game.Effect
             if (_sceneManager.GetCurrentScene() is not { } currentScene)
                 return;
 #if PAL3A
-            if (_effectPositionCommand is EffectAttachToActorCommand attach &&
+            if (_attachedActor is { } attach &&
                 !currentScene.GetActorGameEntity(attach.ActorId).IsNullOrDisposed())
                 HandleNanGongHuangTransformEffect(attach, command, currentScene);
 #endif
             // Both games retain the last position when cmd_CEft_Role cannot find
             // its actor. Playback uses that snapshot even if the actor is gone.
-            bool playedOriginal = _optionalVfx.Play(command.EffectGroupId,
-                _sceneManager.GetSceneRootGameEntity(), _originalPosition,
-                privateFallback: _effectPositionCommand is EffectAttachToActorCommand role
-                    ? (currentScene.GetActorGameEntity(role.ActorId), Vector3.zero) : null);
-
-            // Private fallback retains its old audio mapping; native groups own their audio tracks.
-            if (!playedOriginal && EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
-            {
-                Pal3.Instance.Execute(
-                    new PlaySfxCommand(sfxName, 1));
-            }
+            _effects.Play(command.EffectGroupId,
+                _sceneManager.GetSceneRootGameEntity(), _originalPosition);
         }
 
 #if PAL3A
@@ -131,13 +124,17 @@ namespace Pal3.Game.Effect
 
         public void Execute(EffectSetPositionCommand command)
         {
-            _effectPositionCommand = command;
+#if PAL3A
+            _attachedActor = null;
+#endif
             _originalPosition = new GameBoxVector3(command.GameBoxXPosition, command.GameBoxYPosition, command.GameBoxZPosition).ToUnityPosition();
         }
 
         public void Execute(EffectAttachToActorCommand command)
         {
-            _effectPositionCommand = command;
+#if PAL3A
+            _attachedActor = command;
+#endif
             var scene = _sceneManager.GetCurrentScene();
             var actor = scene?.GetActorGameEntity(command.ActorId);
             if (!actor.IsNullOrDisposed())
@@ -156,9 +153,11 @@ namespace Pal3.Game.Effect
 
         private void ClearSceneEffects()
         {
-            _effectPositionCommand = null;
+#if PAL3A
+            _attachedActor = null;
+#endif
             _originalPosition = Vector3.zero;
-            _optionalVfx.ClearPlayedEffects();
+            _effects.ClearPlayedEffects();
         }
     }
 }

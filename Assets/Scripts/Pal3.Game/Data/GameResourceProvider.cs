@@ -67,7 +67,7 @@ namespace Pal3.Game.Data
 
         private readonly int _codepage;
 
-        internal OptionalVfxPlayer OptionalVfx
+        internal EffectRuntime Effects
         {
             get;
         }
@@ -86,7 +86,7 @@ namespace Pal3.Game.Data
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
             _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
-            OptionalVfx = new OptionalVfxPlayer(_gameSettings, _fileSystem, _codepage);
+            Effects = new EffectRuntime(_fileSystem, _codepage);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -115,7 +115,7 @@ namespace Pal3.Game.Data
             }
             _audioClipCache.Clear();
 
-            OptionalVfx.Dispose();
+            Effects.Dispose();
 
             _materialManager.Dispose();
 
@@ -148,7 +148,7 @@ namespace Pal3.Game.Data
             return _shadowSprite;
         }
 
-        public Effect.Original.OriginalEffectResources OriginalEffects => OptionalVfx.Original;
+        public Effect.Original.OriginalEffectResources OriginalEffects => Effects.Original;
 
         public IMaterialManager GetMaterialManager() => _materialManager;
 
@@ -601,7 +601,7 @@ namespace Pal3.Game.Data
                 }
             }
 
-            OptionalVfx.ClearPrefabCache();
+            Effects.InvalidatePreloads();
         }
 
     }

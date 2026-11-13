@@ -21,7 +21,7 @@ namespace Pal3.Game.Effect
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
             // Scene effects use the same native group scheduler as script effects.
-            _effect = resourceProvider.OptionalVfx.Attach((int)effectParameter, GameEntity);
+            _effect = resourceProvider.Effects.Attach((int)effectParameter, GameEntity);
         }
 
         private void OnDestroy() => Dispose();

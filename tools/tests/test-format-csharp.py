@@ -4,11 +4,12 @@
 #  See LICENSE file in the project root for license information.
 # ------------------------------------------------------------------------
 
-"""Exercise the actual formatter with missing member gaps in both variants."""
+"""Exercise layout fixes, change boundaries and read-only checks with Roslyn."""
 
 import os
 from pathlib import Path
 import shutil
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -26,6 +27,16 @@ def run(command, cwd, success=True):
 
 
 def main():
+    select = runpy.run_path(str(ROOT / "tools/format-csharp.py"))["select_formatting"]
+    legacy = b"int  A;\r\n\r\nint B;\r\n"
+    changed = legacy.replace(b"int B", b"int   B")
+    formatted = b"int A;\r\n\r\nint B;\r\n"
+    assert select(legacy, changed, formatted) == legacy
+    assert select(legacy, legacy, formatted) == legacy
+    assert select(None, changed, formatted) == formatted
+    assert select(legacy.replace(b"\r\n", b"\n"), changed.replace(b"\r\n", b"\n"), formatted) == legacy.replace(b"\r\n", b"\n")
+    assert select(legacy, legacy[:-2], formatted) == legacy, "Newly removed final newline was missed"
+    assert select(legacy, legacy.replace(b";\r\n\r\n", b";\r\n"), formatted) == legacy
     workspace = ROOT.parent / "workspace"
     temporary_root = workspace / "Tooling" / "CodeStyle" if workspace.is_dir() else None
     if temporary_root is not None:
@@ -54,7 +65,7 @@ def main():
         source.write_bytes(good.replace(";\n\n", ";\n").replace("\n", "\r\n").encode())
         before = source.read_bytes()
         output = run([*command, "--check"], fixture, success=False)
-        assert "SA1516" in output, output
+        assert "Formatting required:" in output, output
         assert source.read_bytes() == before, "Check mode modified the source"
         run(command, fixture)
         fixed = source.read_bytes()
@@ -65,9 +76,26 @@ def main():
         # A violation only in PAL3A must fail the same --base mode as PR CI.
         source.write_bytes(fixed.replace(b"BOne() => 1;\r\n\r\n", b"BOne() => 1;\r\n"))
         output = run([*command, "--check", "--base", base], fixture, success=False)
-        assert "SA1516" in output, output
+        assert "Formatting required:" in output, output
+        run(command, fixture)
+        # Keep inherited formatting outside the edit, even in the same file.
+        legacy = fixture / "Assets/Scripts/Legacy.cs"
+        legacy.write_bytes(b"class Legacy\r\n{\r\n    int  Untouched;\r\n\r\n    int Changed;\r\n}\r\n")
+        run(["git", "add", "."], fixture)
+        run(["git", "-c", "user.name=Format fixture", "-c", "user.email=fixture@localhost",
+             "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "Legacy baseline"], fixture)
+        legacy.write_bytes(legacy.read_bytes().replace(b"int Changed", b"int   Changed"))
+        before = legacy.read_bytes()
+        run([*command, "--check"], fixture, success=False)
+        assert legacy.read_bytes() == before, "Changed-line check modified the source"
+        run(command, fixture)
+        assert b"int  Untouched;" in legacy.read_bytes(), "Inherited formatting was changed"
+        assert b"int Changed;" in legacy.read_bytes(), "Modified line was not formatted"
+        run([*command, "--check"], fixture)
+        # Explicit paths still provide an intentional whole-file format/audit.
+        run([*command, "--check", str(legacy.relative_to(fixture))], fixture, success=False)
         assert plugin.read_bytes() == plugin_before, "Third-party source was modified"
-    print("Passed: missing member gaps fail, both variants auto-fix, check is read-only and stable, --base checks PAL3A, plugins stay untouched.")
+    print("Passed: both variants fix member gaps, checks are read-only, --base checks PAL3A, inherited formatting and plugins stay untouched, explicit paths audit whole files.")
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ namespace Pal3.Game.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint parameter)
         {
-            _effect = resourceProvider.OptionalVfx.AttachPortal(GameEntity, parameter);
+            _effect = resourceProvider.Effects.AttachPortal(GameEntity, parameter);
         }
 
         private void OnDestroy() => Dispose();

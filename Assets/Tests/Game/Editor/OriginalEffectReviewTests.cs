@@ -24,7 +24,6 @@ namespace Pal3.Game.Tests
     using Engine.Extensions;
     using NUnit.Framework;
     using Scene;
-    using Settings;
     using UnityEngine;
 
     [Category("LocalGameData")]
@@ -53,10 +52,7 @@ namespace Pal3.Game.Tests
             public readonly GameScene Scene;
             public readonly EffectManager Manager;
             public readonly OriginalEffectResources Resources;
-            public readonly Dictionary<int, GameObject> Prefabs;
-            private readonly IDisposable _vfx;
-            private readonly GameSettings _settings;
-            private readonly int _sleepTimeout = Screen.sleepTimeout;
+            public readonly EffectRuntime Runtime;
 
             public EffectScene()
             {
@@ -65,23 +61,18 @@ namespace Pal3.Game.Tests
 #else
                 var fs = OpenFileSystem("PAL3A");
 #endif
-                _settings = new GameSettings(new InMemoryKeyValueStore());
                 Root.SetActive(false);
                 Scene = Root.AddComponent<GameScene>();
-                Type type = typeof(OriginalEffectPlayer).Assembly.GetType("Pal3.Game.Effect.OptionalVfxPlayer");
+                Runtime = new EffectRuntime(fs, 936);
+                Resources = Runtime.Original;
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                _vfx = (IDisposable)Activator.CreateInstance(type, flags, null, new object[] { _settings, fs, 936 }, null);
-                Resources = (OriginalEffectResources)type.GetField("_original", flags).GetValue(_vfx);
-                Prefabs = (Dictionary<int, GameObject>)type.GetField("_prefabs", flags).GetValue(_vfx);
                 var scenes = (SceneManager)FormatterServices.GetUninitializedObject(typeof(SceneManager));
                 typeof(SceneManager).GetField("_currentGameScene", flags).SetValue(scenes, Scene);
                 typeof(SceneManager).GetField("_currentSceneRoot", flags).SetValue(scenes, new GameEntity(Root));
                 Manager = (EffectManager)FormatterServices.GetUninitializedObject(typeof(EffectManager));
                 typeof(EffectManager).GetField("_sceneManager", flags).SetValue(Manager, scenes);
-                typeof(EffectManager).GetField("_optionalVfx", flags).SetValue(Manager, _vfx);
+                typeof(EffectManager).GetField("_effects", flags).SetValue(Manager, Runtime);
             }
-
-            public void EnablePrivateFallback() => _settings.OptionalVfxEnabled = true;
 
             public OriginalEffectPlayer PlayOriginal(int group = 15)
             {
@@ -97,10 +88,8 @@ namespace Pal3.Game.Tests
 
             public void Dispose()
             {
-                _vfx.Dispose();
+                Runtime.Dispose();
                 UnityEngine.Object.DestroyImmediate(Root);
-                _settings.Dispose();
-                Screen.sleepTimeout = _sleepTimeout;
             }
         }
 
@@ -147,22 +136,29 @@ namespace Pal3.Game.Tests
         }
 
         [Test]
-        public void MissingActorDoesNotReparentPrivateFallbackToTheScene()
+        public void UnsupportedGroupsProduceOneDiagnosticWithoutCreatingPartialEffects()
         {
             using var scene = new EffectScene();
-            scene.EnablePrivateFallback();
-            var prefab = new GameObject("Missing actor private fallback");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("Effect -2:"));
+            Assert.That(scene.Runtime.Play(-2, new GameEntity(scene.Root), Vector3.zero), Is.False);
+            Assert.That(scene.Runtime.Play(-2, new GameEntity(scene.Root), Vector3.zero), Is.False);
+            Assert.That(scene.Root.transform.childCount, Is.Zero);
+        }
+
+        [Test]
+        public void SceneCacheInvalidationCancelsAnInFlightPreload()
+        {
+            using var runtime = new EffectRuntime(OpenFileSystem("PAL3"), 936);
+            var preload = runtime.PreloadAsync(15);
             try
             {
-                scene.Prefabs[-2] = prefab;
-                scene.Manager.Execute(new EffectSetPositionCommand(80, 120, -160));
-                scene.Manager.Execute(new EffectAttachToActorCommand(32767));
-                scene.Manager.Execute(new EffectPlayCommand(-2));
-                Assert.That(scene.Root.transform.childCount, Is.Zero);
+                Assert.That(preload.MoveNext(), Is.True);
+                runtime.InvalidatePreloads();
+                Assert.That(preload.MoveNext(), Is.False);
             }
             finally
             {
-                UnityEngine.Object.DestroyImmediate(prefab);
+                (preload as IDisposable)?.Dispose();
             }
         }
 

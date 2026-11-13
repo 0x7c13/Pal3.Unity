@@ -77,20 +77,15 @@ crashlytics-build.properties
 # Unity StreamingAssets folder
 /Assets/StreamingAssets
 
-# 3rd party plugin/assets
-/Assets/Hovl Studio
-/Assets/Hovl Studio.meta
-/Assets/RealToon
-/Assets/RealToon.meta
-
-# VFX prefabs that are using 3rd party assets
-/Assets/Resources/Prefabs/VFX/PAL3/*.prefab
-/Assets/Resources/Prefabs/VFX/PAL3/*.meta
-/Assets/Resources/Prefabs/VFX/PAL3A/*.prefab
-/Assets/Resources/Prefabs/VFX/PAL3A/*.meta
-
-# Materials that are using 3rd party assets
-/Assets/Resources/Materials/
-
 # VS Conde config file
 .vsconfig
+
+# Local asset imports
+/Assets/Hovl Studio/
+/Assets/Hovl Studio.meta
+/Assets/RealToon/
+/Assets/RealToon.meta
+/Assets/Resources/Prefabs/VFX/
+/Assets/Resources/Prefabs/VFX.meta
+/Assets/Resources/Materials/
+/Assets/Resources/Materials.meta

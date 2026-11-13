@@ -504,7 +504,7 @@ namespace Pal3.Game.Tests
         public void EditorReloadKeepsWorkingCopyAndInvalidDataPathLeavesNoBrokenProvider()
         {
             using var resources = Open();
-            Type type = TypeCache.GetTypesDerivedFrom<EditorWindow>().FirstOrDefault(t => t.FullName == "Editor.OriginalEffectEditor");
+            Type type = TypeCache.GetTypesDerivedFrom<EditorWindow>().FirstOrDefault(t => t.FullName == "Editor.EffectEditor");
             Assert.That(type, Is.Not.Null);
             var window = (EditorWindow)ScriptableObject.CreateInstance(type);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -822,7 +822,7 @@ namespace Pal3.Game.Tests
         }
 
         [Test]
-        public void PrivateFallbackUsesActorParentWhileOriginalUsesSceneSnapshot()
+        public void RuntimeKeepsAttachedEffectsWhenPlayedEffectsAreCleared()
         {
             string path = Environment.GetEnvironmentVariable("PAL3_TEST_DATA_ROOT") ?? Path.GetFullPath("../Game Data/PAL3");
             if (!Directory.Exists(path))
@@ -831,46 +831,36 @@ namespace Pal3.Game.Tests
             crc.Init();
             var fs = new CpkFileSystem(path, crc, 936);
             fs.Mount("basedata/basedata.cpk", 936);
-            int sleepTimeout = Screen.sleepTimeout;
-            using var settings = new GameSettings(new InMemoryKeyValueStore());
-            settings.OptionalVfxEnabled = true;
-            Type type = typeof(OriginalEffectPlayer).Assembly.GetType("Pal3.Game.Effect.OptionalVfxPlayer");
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var facade = (IDisposable)Activator.CreateInstance(type, flags, null, new object[] { settings, fs, 936 }, null);
+            using var runtime = new Effect.EffectRuntime(fs, 936);
             var scene = new GameObject("Effect scene");
-            var actor = new GameObject("Effect actor");
-            var prefab = new GameObject("Synthetic private prefab");
             try
             {
-                var prefabs = (Dictionary<int, GameObject>)type.GetField("_prefabs", flags).GetValue(facade);
-                prefabs[-2] = prefab;
-                var sceneEntity = new GameEntity(scene);
-                var actorEntity = new GameEntity(actor);
-                bool original = (bool)type.GetMethod("Play", flags).Invoke(facade, new object[] { -2, sceneEntity, new Vector3(10, 0, 0), ((Engine.Core.Abstraction.IGameEntity)actorEntity, Vector3.zero) });
-                Assert.That(original, Is.False);
-                Transform fallback = actor.transform.GetChild(0);
-                actor.transform.position = new Vector3(7, 0, 0);
-                Assert.That(fallback.position.x, Is.EqualTo(7));
-                original = (bool)type.GetMethod("Play", flags).Invoke(facade, new object[] { 15, sceneEntity, new Vector3(10, 0, 0), ((Engine.Core.Abstraction.IGameEntity)actorEntity, Vector3.zero) });
-                Assert.That(original, Is.True);
-                Transform native = scene.transform.GetChild(0);
-                actor.transform.position = new Vector3(9, 0, 0);
-                Assert.That(native.position.x, Is.EqualTo(10));
+                runtime.Original.Definitions.Groups[15] = new EffectGroup();
+                using var attachment = runtime.Attach(15, new GameEntity(scene));
+                Assert.That(runtime.Play(15, new GameEntity(scene), new Vector3(10, 0, 0)), Is.True);
+                var players = scene.GetComponentsInChildren<OriginalEffectPlayer>();
+                Assert.That(players, Has.Length.EqualTo(2));
+                Assert.That(players.Single(p => p.Loop).DestroyOnComplete, Is.False);
+                Assert.That(players.Single(p => !p.Loop).transform.localPosition.x, Is.EqualTo(10));
+                runtime.ClearPlayedEffects();
+                players = scene.GetComponentsInChildren<OriginalEffectPlayer>();
+                Assert.That(players, Has.Length.EqualTo(1));
+                Assert.That(players[0].Loop, Is.True);
+                attachment.Dispose();
+                Assert.That(scene.transform.childCount, Is.Zero);
+                runtime.Dispose();
+                runtime.Dispose();
             }
             finally
             {
-                facade.Dispose();
-                UnityEngine.Object.DestroyImmediate(prefab);
-                UnityEngine.Object.DestroyImmediate(actor);
                 UnityEngine.Object.DestroyImmediate(scene);
-                Screen.sleepTimeout = sleepTimeout;
             }
         }
 
         [Test]
         public void EditorCoalescesTimelineRequestsBeforeResimulating()
         {
-            Type type = TypeCache.GetTypesDerivedFrom<EditorWindow>().First(t => t.FullName == "Editor.OriginalEffectEditor");
+            Type type = TypeCache.GetTypesDerivedFrom<EditorWindow>().First(t => t.FullName == "Editor.EffectEditor");
             var window = (EditorWindow)ScriptableObject.CreateInstance(type);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             try
