@@ -650,27 +650,31 @@ namespace Pal3.Game.Tests
         }
 
         [Test]
-        public void UnsupportedModelOpacityTasksAreDiagnosedInsteadOfSilentlyIgnored()
+        public void ModelOpacityTasksUseNormalizedAlphaAndSeparateMaterials()
         {
             using var resources = Open();
             var edits = ScriptableObject.CreateInstance<OriginalEffectOverrides>();
-            var root = new GameObject("Model opacity diagnosis");
+            var root = new GameObject("Model opacity");
             try
             {
                 var edit = SoloObject(resources, edits, 173);
                 edit.Tasks = new[] { new EffectTask { IsValid = true, StartTime = -1, Duration = 2, SpeedAlpha = -0.5f } };
-                Assert.That(resources.Diagnose(173, edits).Any(error => error.Contains("model opacity")), Is.True);
-                Assert.That(resources.Diagnose(173), Is.Empty, "Override errors must not affect the original group");
+                Assert.That(resources.Diagnose(173, edits), Is.Empty);
                 var player = root.AddComponent<OriginalEffectPlayer>();
                 player.AutoAdvance = false;
                 player.Initialize(resources, 173, overrides: edits);
-                Assert.That(player.Error, Does.Contain("model opacity"));
-                Assert.That(player.NodeCount, Is.Zero);
-                edit.Tasks[0].IsValid = false;
-                Assert.That(resources.Diagnose(173, edits), Is.Empty, "Disabled tasks must not block a group");
-                edit.Tasks[0].IsValid = true;
-                edit.Tasks[0].SpeedAlpha = 0;
-                Assert.That(resources.Diagnose(173, edits), Is.Empty);
+                player.AdvanceFrame(0.5f);
+                player.Render(null);
+                Assert.That(player.Error, Is.Null);
+                var property = new MaterialPropertyBlock();
+                foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>())
+                {
+                    renderer.GetPropertyBlock(property);
+                    Assert.That(property.GetColor("_TintColor").a, Is.EqualTo(0.75f).Within(0.0001f));
+                    Assert.That(renderer.sharedMaterials.Length, Is.EqualTo(1));
+                    Assert.That(renderer.sharedMaterial.GetFloat("_Threshold"), Is.EqualTo(2));
+                }
+                Assert.That(resources.Diagnose(173), Is.Empty);
             }
             finally
             {

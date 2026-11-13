@@ -13,6 +13,7 @@ namespace Pal3.Game.Effect.Original
     using Core.DataReader.Data;
     using Core.DataReader.Cvd;
     using Core.DataReader.Par;
+    using Core.DataReader.Pol;
     using Core.FileSystem;
     using Data;
     using Engine.Core.Implementation;
@@ -29,6 +30,8 @@ namespace Pal3.Game.Effect.Original
         private readonly Dictionary<string, byte[]> _particleBytes = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, ParticleFile> _overrideParticles = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, ParticleShapeFile> _shapes = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, PolFile> _polModels = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, SparFile> _sparFiles = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CvdFile> _models = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<(string, bool, bool, int), Material> _materials = new();
         private readonly Dictionary<int, string[]> _diagnostics = new();
@@ -38,6 +41,10 @@ namespace Pal3.Game.Effect.Original
         private EffectDefinitionFile _definitions;
 
         public EffectDefinitionFile Definitions => _definitions ??= Read<EffectDefinitionFile>("cbdata\\flexeff.data", new EffectDefinitionFileReader());
+
+        public string GameVariant => Definitions.EffectDefinitions.Length == 2048 ? "PAL3A" : "PAL3";
+
+        public string OverridesPath => $"Effects/{GameVariant}Overrides";
 
         public OriginalEffectResources(ICpkFileSystem fileSystem, int codepage = 936)
         {
@@ -120,6 +127,20 @@ namespace Pal3.Game.Effect.Original
         {
             if (!_shapes.TryGetValue(path, out ParticleShapeFile file))
                 _shapes.Add(path, file = Read(path, new ParticleShapeFileReader()));
+            return file;
+        }
+
+        public SparFile Spar(string path)
+        {
+            if (!_sparFiles.TryGetValue(path, out SparFile file))
+                _sparFiles.Add(path, file = Read(path, new SparFileReader()));
+            return file;
+        }
+
+        public PolFile PolModel(string path)
+        {
+            if (!_polModels.TryGetValue(path, out PolFile file))
+                _polModels.Add(path, file = Read(path, new PolFileReader()));
             return file;
         }
 
@@ -262,6 +283,12 @@ namespace Pal3.Game.Effect.Original
                                 break;
                             case "audio":
                                 break;
+                            case "S-Particle":
+                                SparFile spar = Spar(d.ParticleFileName);
+                                foreach (SparGroup sg in spar.Groups)
+                                    ResolveTexture(RelativeTo(d.ParticleFileName, sg.Texture));
+                                errors.Add($"Group {id}, {d.TypeName}: SPar parsed ({spar.Groups.Length} groups); native simulation/rendering is pending");
+                                break;
                             case "particle":
                                 ParticleFile p = Particle(d.ParticleFileName, edits);
                                 foreach (ParticleDescription pd in p.Particles)
@@ -275,16 +302,25 @@ namespace Pal3.Game.Effect.Original
                             case "meteor":
                             case "shock":
                             case "grid":
+                            case "explosive":
                                 ResolveTexture(d.TextureName);
                                 break;
                             case "model":
-                                OriginalModelNode.ValidateTasks(tasks);
-                                if (!_fileSystem.FileExists(Normalize(d.TextureName)))
-                                    throw new FileNotFoundException(d.TextureName);
-                                if (!d.TextureName.EndsWith(".cvd", StringComparison.OrdinalIgnoreCase))
-                                    throw new NotSupportedException("Original POL effect adapter is not implemented");
-                                foreach (CvdGeometryNode node in Model(d.TextureName).RootNodes)
-                                    ModelTextures(d.TextureName, node);
+                                if (d.TextureName.EndsWith(".pol", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    foreach (PolMesh mesh in PolModel(d.TextureName).Meshes)
+                                        foreach (PolTexture texture in mesh.Textures)
+                                            foreach (string name in texture.Material.TextureFileNames)
+                                                if (!string.IsNullOrEmpty(name))
+                                                    ResolveTexture(RelativeTo(d.TextureName, name));
+                                }
+                                else if (d.TextureName.EndsWith(".cvd", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    foreach (CvdGeometryNode node in Model(d.TextureName).RootNodes)
+                                        ModelTextures(d.TextureName, node);
+                                }
+                                else
+                                    throw new NotSupportedException($"Unknown original model format: {d.TextureName}");
                                 break;
                             default:
                                 errors.Add($"Group {id}, {d.TypeName}: unsupported original class {kind}");
@@ -352,8 +388,14 @@ namespace Pal3.Game.Effect.Original
                         if (material == null)
                             continue;
                         materials.Add(material);
-                        if (material.mainTexture != null)
-                            textures.Add(material.mainTexture);
+                        // POL materials can also hold a baked lightmap. Every
+                        // referenced texture must survive a scene-cache trim.
+                        foreach (int property in material.GetTexturePropertyNameIDs())
+                        {
+                            Texture texture = material.GetTexture(property);
+                            if (texture != null)
+                                textures.Add(texture);
+                        }
                     }
             }
             foreach (var key in _materials.Where(p => !materials.Contains(p.Value)).Select(p => p.Key).ToArray())
@@ -381,6 +423,8 @@ namespace Pal3.Game.Effect.Original
             _overrideParticles.Clear();
             _shapes.Clear();
             _models.Clear();
+            _polModels.Clear();
+            _sparFiles.Clear();
             _diagnostics.Clear();
             _overrideDiagnostics.Clear();
             _cachedOverrides = null;

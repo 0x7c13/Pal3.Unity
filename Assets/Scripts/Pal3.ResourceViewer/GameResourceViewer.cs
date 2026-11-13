@@ -101,14 +101,12 @@ namespace Pal3.ResourceViewer
 
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
-#if PAL3
             _effectViewer = GetComponent<OriginalEffectViewer>() ?? gameObject.AddComponent<OriginalEffectViewer>();
             _effectViewer.enabled = true;
             _effectViewer.Initialize(_resourceProvider.OriginalEffects, _renderingRoot.transform, DestroyExistingRenderingObjects);
-            DebugLogConsole.AddCommand<int>("Effect.Load", "Play an original PAL3 flexeff group (-1: transport point).", _effectViewer.Load);
+            DebugLogConsole.AddCommand<int>("Effect.Load", "Play an original flexeff group (-1: transport point).", _effectViewer.Load);
             DebugLogConsole.AddCommand<float>("Effect.Seek", "Reset and resimulate the original effect to a time.", _effectViewer.Seek);
             DebugLogConsole.AddCommand<bool>("Effect.Pause", "Pause or resume the original effect.", _effectViewer.Pause);
-#endif
 
 #if UNITY_2022_1_OR_NEWER
             int monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
@@ -226,11 +224,9 @@ namespace Pal3.ResourceViewer
         {
             if (_effectViewer != null)
                 _effectViewer.enabled = false;
-#if PAL3
             DebugLogConsole.RemoveCommand("Effect.Load");
             DebugLogConsole.RemoveCommand("Effect.Seek");
             DebugLogConsole.RemoveCommand("Effect.Pause");
-#endif
             if (_gameSettings != null)
                 _gameSettings.OnGameSettingsChanged -= OnRenderingSettingsChanged;
             _antiAliasing?.Dispose();

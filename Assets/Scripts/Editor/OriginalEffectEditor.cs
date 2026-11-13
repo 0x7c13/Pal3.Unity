@@ -33,6 +33,10 @@ namespace Editor
         private Camera _camera;
         private RenderTexture _target, _privateTarget;
         private string _dataPath, _search = "", _error;
+        [SerializeField] private bool _pal3a;
+
+        private string Variant => _pal3a ? "PAL3A" : "PAL3";
+
         private int _codepage = 936;
         [SerializeField] private int _id = 98, _objectIndex;
         private Vector2 _listScroll, _inspectorScroll, _orbit = new(135, 15);
@@ -48,17 +52,45 @@ namespace Editor
         private double _seekAfter;
 
         [MenuItem("PAL3/Original Effect Editor")]
-        public static void Open() => GetWindow<OriginalEffectEditor>("PAL3 Effects");
+        public static void Open()
+        {
+            var window = GetWindow<OriginalEffectEditor>("Original Effects");
+            window.ChangeVariant(false);
+        }
+
+        [MenuItem("PAL3A/Original Effect Editor")]
+        public static void OpenPal3A()
+        {
+            var window = GetWindow<OriginalEffectEditor>("Original Effects");
+            window.ChangeVariant(true);
+        }
+
+        private void ChangeVariant(bool pal3a)
+        {
+            if (_pal3a == pal3a || !CanReplaceEdits())
+                return;
+            _pal3a = pal3a;
+            _id = pal3a ? 160 : 98;
+            _time = 0;
+            LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
+            LoadPreferences();
+            LoadData();
+        }
+
+        private void LoadPreferences()
+        {
+            _dataPath = EditorPrefs.GetString($"{Variant}.OriginalEffect.DataPath", Path.GetFullPath(Path.Combine(Application.dataPath, $"../../Game Data/{Variant}")));
+            _codepage = EditorPrefs.GetInt($"{Variant}.OriginalEffect.Codepage", 936) == 950 ? 950 : 936;
+        }
 
         public void CreateGUI() => rootVisualElement.Add(new IMGUIContainer(DrawWindow) { style = { flexGrow = 1 } });
 
         private void OnEnable()
         {
             minSize = new Vector2(1050, 640);
-            _dataPath = EditorPrefs.GetString("PAL3.OriginalEffect.DataPath", Path.GetFullPath(Path.Combine(Application.dataPath, "../../Game Data/PAL3")));
-            _codepage = EditorPrefs.GetInt("PAL3.OriginalEffect.Codepage", 936) == 950 ? 950 : 936;
+            LoadPreferences();
             if (_edits == null)
-                LoadOverrides(Resources.Load<OriginalEffectOverrides>("Effects/PAL3Overrides"));
+                LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
             _edits.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
             saveChangesMessage = "Save the original effect overrides before closing?";
             _scene = EditorSceneManager.NewPreviewScene();
@@ -148,9 +180,9 @@ namespace Editor
 
         private bool SaveOverrides()
         {
-            string path = EditorUtility.SaveFilePanelInProject("Save PAL3 effect overrides",
-                _assetPath.Length > 0 ? Path.GetFileNameWithoutExtension(_assetPath) : "PAL3Overrides", "asset",
-                "Use Assets/Resources/Effects/PAL3Overrides.asset for runtime loading.");
+            string path = EditorUtility.SaveFilePanelInProject($"Save {Variant} effect overrides",
+                _assetPath.Length > 0 ? Path.GetFileNameWithoutExtension(_assetPath) : $"{Variant}Overrides", "asset",
+                $"Use Assets/Resources/Effects/{Variant}Overrides.asset for runtime loading.");
             if (path.Length == 0)
                 return false;
             var existing = AssetDatabase.LoadMainAssetAtPath(path);
@@ -162,7 +194,7 @@ namespace Editor
             var saved = existing as OriginalEffectOverrides;
             if (saved != null)
             {
-                Undo.RecordObject(saved, "Save PAL3 effect overrides");
+                Undo.RecordObject(saved, $"Save {Variant} effect overrides");
                 EditorUtility.CopySerialized(_edits, saved);
                 saved.hideFlags = HideFlags.None;
                 EditorUtility.SetDirty(saved);
@@ -196,8 +228,9 @@ namespace Editor
                 var fs = new CpkFileSystem(_dataPath, hash, _codepage);
                 fs.Mount("basedata/basedata.cpk", _codepage);
                 _resources = new OriginalEffectResources(fs, _codepage);
-                _ = _resources.Definitions;
-                EditorPrefs.SetString("PAL3.OriginalEffect.DataPath", _dataPath);
+                if (_resources.GameVariant != Variant)
+                    throw new InvalidDataException($"The selected directory contains {_resources.GameVariant} data; select the matching variant first.");
+                EditorPrefs.SetString($"{Variant}.OriginalEffect.DataPath", _dataPath);
                 Restart();
                 Seek(time);
             }
@@ -234,6 +267,8 @@ namespace Editor
                 SceneManager.MoveGameObjectToScene(_root, _scene);
                 if (_id < 0)
                 {
+                    if (_pal3a)
+                        throw new NotSupportedException("PAL3A MXTransport is pending original geometry verification");
                     _portal = _root.AddComponent<OriginalPortalEffect>();
                     _portal.AutoAdvance = false;
                     _portal.Initialize(_resources);
@@ -255,7 +290,7 @@ namespace Editor
                 }
                 if (_compare)
                 {
-                    GameObject prefab = Resources.Load<GameObject>($"Prefabs/VFX/PAL3/{(_id < 0 ? 0 : _id)}");
+                    GameObject prefab = Resources.Load<GameObject>($"Prefabs/VFX/{Variant}/{(_id < 0 ? 0 : _id)}");
                     if (prefab != null)
                     {
                         _private = Instantiate(prefab);
@@ -346,18 +381,20 @@ namespace Editor
         {
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
-                EditorGUILayout.LabelField("PAL3 data", GUILayout.Width(65));
+                int variant = EditorGUILayout.Popup(_pal3a ? 1 : 0, new[] { "PAL3", "PAL3A" }, GUILayout.Width(80));
+                if ((variant == 1) != _pal3a)
+                    ChangeVariant(variant == 1);
                 _dataPath = EditorGUILayout.TextField(_dataPath);
                 int codepage = EditorGUILayout.Popup(_codepage == 950 ? 1 : 0, new[] { "GBK (936)", "Big5 (950)" }, GUILayout.Width(105)) == 0 ? 936 : 950;
                 if (codepage != _codepage)
                 {
                     _codepage = codepage;
-                    EditorPrefs.SetInt("PAL3.OriginalEffect.Codepage", _codepage);
+                    EditorPrefs.SetInt($"{Variant}.OriginalEffect.Codepage", _codepage);
                     LoadData();
                 }
                 if (GUILayout.Button("Browse", EditorStyles.toolbarButton, GUILayout.Width(60)))
                 {
-                    string path = EditorUtility.OpenFolderPanel("PAL3 data (contains basedata)", _dataPath, "");
+                    string path = EditorUtility.OpenFolderPanel($"{Variant} data (contains basedata)", _dataPath, "");
                     if (path.Length > 0)
                     {
                         _dataPath = path;
@@ -520,7 +557,7 @@ namespace Editor
                             rs[i].enabled = state[i];
                 }
             }
-            Draw(_target, _private, new Rect(rect.x, rect.y, w, h), "Original PAL3 data");
+            Draw(_target, _private, new Rect(rect.x, rect.y, w, h), $"Original {Variant} data");
             if (_compare)
                 Draw(_privateTarget, _root, new Rect(rect.x + w, rect.y, w, h), _private != null ? "Private prefab (comparison only)" : "No private prefab");
         }
@@ -576,6 +613,24 @@ namespace Editor
                 foreach (EffectTask t in source.Tasks)
                     EditorGUILayout.LabelField($"{t.StartTime:0.###}s + {t.Duration:0.###}s   loops={t.RequireLoops}");
             EffectDefinition effective = edit?.Definition ?? d;
+            if (EffectClass.Name(effective.ClassNameCrc) == "S-Particle")
+            {
+                try
+                {
+                    SparFile spar = _resources.Spar(effective.ParticleFileName);
+                    EditorGUILayout.LabelField($"SPar: {spar.Groups.Length} groups / shader {spar.Shader}");
+                    foreach (SparGroup sg in spar.Groups)
+                    {
+                        EditorGUILayout.LabelField($"{sg.Name}: capacity {sg.Capacity}, {sg.Keyframes.Length} keys", EditorStyles.wordWrappedLabel);
+                        EditorGUILayout.SelectableLabel(sg.Texture, GUILayout.Height(30));
+                    }
+                    EditorGUILayout.HelpBox("Parsed original SPar data. Native simulation and rendering are pending; this group uses the private fallback in game.", MessageType.Info);
+                }
+                catch (Exception ex)
+                {
+                    EditorGUILayout.HelpBox(ex.Message, MessageType.Warning);
+                }
+            }
             if (EffectClass.Name(effective.ClassNameCrc) == "particle")
                 DrawParticleCurves(effective.ParticleFileName);
             EditorGUILayout.EndScrollView();

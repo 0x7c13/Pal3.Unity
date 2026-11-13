@@ -39,9 +39,7 @@ namespace Pal3.Game.Effect
         internal OptionalVfxPlayer(GameSettings settings, ICpkFileSystem fileSystem, int codepage)
         {
             _settings = settings;
-#if PAL3
             _original = new OriginalEffectResources(fileSystem, codepage);
-#endif
             _settings.OnGameSettingsChanged += OnGameSettingsChanged;
         }
 
@@ -54,9 +52,10 @@ namespace Pal3.Game.Effect
 
             int generation = _prefabCacheGeneration;
             bool useOriginal = false;
-            var edits = Resources.Load<OriginalEffectOverrides>("Effects/PAL3Overrides");
+            OriginalEffectOverrides edits = null;
             try
             {
+                edits = Resources.Load<OriginalEffectOverrides>(_original.OverridesPath);
                 useOriginal = _original != null && effectGroupId >= 0 && _original.Diagnose(effectGroupId, edits).Length == 0;
             }
             catch (Exception ex)
@@ -105,17 +104,17 @@ namespace Pal3.Game.Effect
             }
         }
 
-        private IGameEntity Create(int effectGroupId, IGameEntity parent, (IGameEntity parent, Vector3 position)? privateFallback = null)
+        private IGameEntity Create(int effectGroupId, IGameEntity parent, (IGameEntity parent, Vector3 position)? privateFallback = null, bool allowOriginal = true)
         {
             if (!IsEnabled || parent.IsNullOrDisposed())
                 return null;
 
-            if (_original != null)
+            if (allowOriginal && _original != null)
             {
                 GameObject native = null;
                 try
                 {
-                    var edits = Resources.Load<OriginalEffectOverrides>("Effects/PAL3Overrides");
+                    var edits = Resources.Load<OriginalEffectOverrides>(_original.OverridesPath);
                     string[] issues = effectGroupId == -1 ? Array.Empty<string>() : _original.Diagnose(effectGroupId, edits);
                     if (issues.Length == 0)
                     {
@@ -183,12 +182,14 @@ namespace Pal3.Game.Effect
             return go.GetComponent<OriginalEffectPlayer>() != null || go.GetComponent<OriginalPortalEffect>() != null;
         }
 
-        internal IDisposable Attach(int effectGroupId, IGameEntity parent)
+        internal IDisposable AttachPrivate(int effectGroupId, IGameEntity parent) => Attach(effectGroupId, parent, false);
+
+        internal IDisposable Attach(int effectGroupId, IGameEntity parent, bool allowOriginal = true)
         {
             if (_disposed || parent.IsNullOrDisposed())
                 return null;
             PruneDeadAttachments();
-            var effect = new PersistentEffect(this, effectGroupId, parent);
+            var effect = new PersistentEffect(this, effectGroupId, parent, allowOriginal);
             _persistentEffects.Add(effect);
             effect.Refresh();
             return effect;
@@ -299,12 +300,14 @@ namespace Pal3.Game.Effect
             private readonly IGameEntity _parent;
             private IGameEntity _instance;
             private bool _disposed;
+            private readonly bool _allowOriginal;
 
-            internal PersistentEffect(OptionalVfxPlayer player, int effectGroupId, IGameEntity parent)
+            internal PersistentEffect(OptionalVfxPlayer player, int effectGroupId, IGameEntity parent, bool allowOriginal)
             {
                 _player = player;
                 _effectGroupId = effectGroupId;
                 _parent = parent;
+                _allowOriginal = allowOriginal;
             }
 
             internal bool ParentIsDisposed => _parent.IsNullOrDisposed();
@@ -329,12 +332,12 @@ namespace Pal3.Game.Effect
                 {
                     if (_instance.IsNullOrDisposed())
                     {
-                        _instance = _player.Create(_effectGroupId, _parent);
+                        _instance = _player.Create(_effectGroupId, _parent, allowOriginal: _allowOriginal);
                         if (!_instance.IsNullOrDisposed() && ((GameObject)_instance.NativeObject).GetComponent<OriginalEffectPlayer>() is { } native)
                         {
                             native.DestroyOnComplete = false;
                             native.Loop = true;
-                            native.RepeatInterval = _effectGroupId == 275 ? 9.5f : 0;
+                            native.RepeatInterval = _player._original.GameVariant == "PAL3" && _effectGroupId == 275 ? 9.5f : 0;
                         }
                     }
                 }

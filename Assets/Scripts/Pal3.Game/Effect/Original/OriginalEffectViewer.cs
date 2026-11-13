@@ -41,15 +41,17 @@ namespace Pal3.Game.Effect.Original
             {
                 if (groupId < -1)
                     throw new ArgumentOutOfRangeException(nameof(groupId));
-                OriginalEffectOverrides edits = Resources.Load<OriginalEffectOverrides>("Effects/PAL3Overrides");
+                OriginalEffectOverrides edits = Resources.Load<OriginalEffectOverrides>(_resources.OverridesPath);
                 if (groupId >= 0)
                 {
                     _diagnostics = string.Join("\n", _resources.Diagnose(groupId, edits));
                     if (_diagnostics.Length > 0)
                         return;
                 }
-                _root = new GameObject(groupId < 0 ? "Original Transport" : $"Original PAL3 group {groupId}");
+                _root = new GameObject(groupId < 0 ? "Original Transport" : $"Original {_resources.GameVariant} group {groupId}");
                 _root.transform.SetParent(_parent, false);
+                if (groupId < 0 && _resources.GameVariant == "PAL3A")
+                    throw new NotSupportedException("PAL3A MXTransport is pending original geometry verification");
                 if (groupId < 0)
                 {
                     _portal = _root.AddComponent<OriginalPortalEffect>();
@@ -104,10 +106,10 @@ namespace Pal3.Game.Effect.Original
         {
             if (_resources == null)
                 return;
-            if (GUI.Button(new Rect(Screen.width - 145, 15, 130, 32), "Original PAL3 effects"))
+            if (GUI.Button(new Rect(Screen.width - 145, 15, 130, 32), $"Original {_resources.GameVariant} effects"))
                 _visible = !_visible;
             if (_visible)
-                _window = GUI.Window(_windowId, _window, Draw, "Original PAL3 effect viewer");
+                _window = GUI.Window(_windowId, _window, Draw, $"Original {_resources.GameVariant} effect viewer");
         }
 
         private void Draw(int id)

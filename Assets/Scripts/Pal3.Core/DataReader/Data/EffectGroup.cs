@@ -75,7 +75,7 @@ namespace Pal3.Core.DataReader.Data
             hash.Init();
             var result = new Dictionary<uint, string>();
             foreach (string name in new[] { "quad", "particle", "cylinder", "model", "callback", "audio",
-                         "meteor", "shock", "grid", "explosive", "action", "camera", "time", "bink", "quake" })
+                         "meteor", "shock", "grid", "explosive", "action", "camera", "time", "bink", "quake", "S-Particle" })
                 result.Add(hash.Compute(name, 936), name);
             return result;
         }

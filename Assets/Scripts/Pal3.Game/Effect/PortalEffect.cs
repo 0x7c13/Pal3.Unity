@@ -43,7 +43,7 @@ namespace Pal3.Game.Effect
                 new Vector3(PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE, PORTAL_DEFAULT_SIZE),
                 PORTAL_ANIMATION_ROTATION_SPEED);
 
-            _rayEffect = resourceProvider.OptionalVfx.Attach(PORTAL_RAY_EFFECT_ID, GameEntity);
+            _rayEffect = resourceProvider.OptionalVfx.AttachPrivate(PORTAL_RAY_EFFECT_ID, GameEntity);
 #endif
         }
 

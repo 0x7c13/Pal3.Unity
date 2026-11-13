@@ -71,40 +71,17 @@ namespace Pal3.Game.Effect
         {
             if (_sceneManager.GetCurrentScene() is not { } currentScene)
                 return;
-            bool playedOriginal = false;
-#if PAL3
-            playedOriginal = _optionalVfx.Play(command.EffectGroupId,
+#if PAL3A
+            if (_effectPositionCommand is EffectAttachToActorCommand attach &&
+                !currentScene.GetActorGameEntity(attach.ActorId).IsNullOrDisposed())
+                HandleNanGongHuangTransformEffect(attach, command, currentScene);
+#endif
+            // Both games retain the last position when cmd_CEft_Role cannot find
+            // its actor. Playback uses that snapshot even if the actor is gone.
+            bool playedOriginal = _optionalVfx.Play(command.EffectGroupId,
                 _sceneManager.GetSceneRootGameEntity(), _originalPosition,
                 privateFallback: _effectPositionCommand is EffectAttachToActorCommand role
                     ? (currentScene.GetActorGameEntity(role.ActorId), Vector3.zero) : null);
-#else
-            if (_effectPositionCommand == null)
-                return;
-
-#if PAL3A
-            if (_effectPositionCommand is EffectAttachToActorCommand effectAttachToActorCommand)
-            {
-                HandleNanGongHuangTransformEffect(effectAttachToActorCommand, command, currentScene);
-            }
-#endif
-
-            if (_effectPositionCommand is EffectSetPositionCommand positionCommand)
-            {
-                Vector3 localPosition = new GameBoxVector3(
-                    positionCommand.GameBoxXPosition,
-                    positionCommand.GameBoxYPosition,
-                    positionCommand.GameBoxZPosition).ToUnityPosition();
-
-                _optionalVfx.Play(command.EffectGroupId,
-                    _sceneManager.GetSceneRootGameEntity(), localPosition);
-            }
-            else if (_effectPositionCommand is EffectAttachToActorCommand actorCommand)
-            {
-                _optionalVfx.Play(command.EffectGroupId,
-                    currentScene.GetActorGameEntity(actorCommand.ActorId), Vector3.zero);
-            }
-
-#endif
 
             // Private fallback retains its old audio mapping; native groups own their audio tracks.
             if (!playedOriginal && EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
@@ -161,7 +138,6 @@ namespace Pal3.Game.Effect
         public void Execute(EffectAttachToActorCommand command)
         {
             _effectPositionCommand = command;
-#if PAL3
             var scene = _sceneManager.GetCurrentScene();
             var actor = scene?.GetActorGameEntity(command.ActorId);
             if (!actor.IsNullOrDisposed())
@@ -172,7 +148,6 @@ namespace Pal3.Game.Effect
                 // GameBox units. It does not attach the effect to a moving actor.
                 _originalPosition = root.InverseTransformPoint(transform.position) + Vector3.up * 0.1f;
             }
-#endif
         }
 
         public void Execute(SceneLeavingCurrentSceneNotification command) => ClearSceneEffects();

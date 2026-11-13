@@ -134,6 +134,7 @@ namespace Pal3.Game.Effect.Original
                         "cylinder" or "grid" => new OriginalGeometryNode(root, d, obj.Tasks, position, Time, _resources, kind),
                         "meteor" or "shock" => new OriginalTrailNode(root, d, obj.Tasks, position, Time, _resources, kind, seed),
                         "model" => new OriginalModelNode(root, d, obj.Tasks, position, Time, _resources),
+                        "explosive" => new OriginalExplosiveNode(root, d, obj.Tasks, position, Time, _resources, seed),
                         _ => throw new NotSupportedException($"Original effect class {kind}: {d.TypeName}"),
                     };
                     _nodes.Add(node);
