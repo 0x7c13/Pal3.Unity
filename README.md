@@ -70,7 +70,9 @@
 
 「游戏设置 → 画面与特效设置」提供接触阴影、角色光照、增强夜景火光和火光投影四个独立开关，在卡通画风中即时生效。接触阴影和火光投影在桌面设备默认开启，手持设备可按需开启。夜景火光使用暖色灯光与冷色环境底色。火光投影也适用于暗色迷宫，桌面默认四盏，控制台可通过 `Settings.ToonFireShadowBudget` 设置 0–4 盏，阴影图集随预算扩容。泛光可以独立开关，默认仅桌面原版画风开启。
 
-上方截图来自旧版卡通渲染。可选剧情特效默认关闭。请在本地安装与 URP 兼容的编号预制体到 `Assets/Resources/Prefabs/VFX/PAL3/` 或 `Assets/Resources/Prefabs/VFX/PAL3A/`，再启用「可选剧情特效」。关闭时会立即隐藏当前可选特效。重新启用后，仍在场景中的持续特效会恢复，后续触发的剧情特效会照常显示。
+上方截图来自旧版卡通渲染。PAL3 的剧情与场景特效默认由原版数据驱动，运行时读取本地 CPK 的特效组、任务、粒子、贴图和模型，使用自有 URP shader 与 Unity 原生渲染组件。Unity 菜单 `PAL3 → Original Effect Editor` 可浏览、播放、逐层检查、修改组任务和粒子曲线；覆盖资产保存到 `Assets/Resources/Effects/PAL3Overrides.asset` 后供游戏读取。ResourceViewer 提供原版特效控制面板及 `Effect.Load <组ID>`、`Effect.Seek <秒>`、`Effect.Pause true/false` 命令，组 ID `-1` 表示场景传送点。
+
+迁移期间，PAL3 原版实现无法播放的组可以回退到本地私有 prefab；「可选剧情特效」仅控制这部分备用效果，不影响已接入的原版特效。PAL3A 暂时保留原有可选特效路径：在本地安装与 URP 兼容的编号预制体到 `Assets/Resources/Prefabs/VFX/PAL3A/` 后再开启。编辑器可并排预览原版实现与本地私有 prefab，后者只用于迁移对比。
 
 公开构建请使用未导入本地付费素材的全新检出。若工程中有可选特效预制体、Hovl Studio、RealToon 或旧版卡通材质，Unity 会阻止构建。仅供个人使用的构建可通过环境变量 `PAL3_ALLOW_PRIVATE_ASSETS=1` 启动本地 Unity 来显式启用。工程打包菜单会将这类构建输出到带 `-Private` 后缀的版本目录。
 
@@ -83,6 +85,15 @@
 仙剑奇侠传三以及仙剑奇侠传三外传的剧情部分已经全部完成，两部游戏都可以完整的从头玩到尾体验一遍剧情，也可以使用游戏内提供的剧情选择菜单跳转至预设好的剧情时间点。两部游戏中的迷宫机关也基本全部实现，剧情中出现的大部分特效也已经重新实现。但是战斗，小游戏以及围绕支持战斗系统的各类系统和功能均尚未完成。另外主菜单和大部分界面也需要重新设计和实现（毕竟现在还要做手机端的适配）。
 
 ## 如何贡献？
+修改自有 C# 代码后，使用 `global.json` 指定的 .NET SDK，在工程根目录执行：
+
+```sh
+python3 tools/format-csharp.py
+python3 tools/format-csharp.py --check
+```
+
+工具使用 SDK 自带的 `dotnet format`、`.editorconfig` 和固定版本的 StyleCop 布局规则，检查空格、缩进、函数／成员间空行及多条语句分行。默认只处理当前改动，分别检查 PAL3／PAL3A 条件分支，不需要 Unity 或游戏数据；StyleCop 仅用于开发工具，不进入 Unity 工程。PR 的 `Code style` 工作流执行相同检查。格式检查通过后仍需运行相关 Unity 测试；ShaderLab／HLSL 由人工整理并验证。
+
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
 另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
 

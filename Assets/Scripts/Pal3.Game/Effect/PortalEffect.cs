@@ -14,11 +14,11 @@ namespace Pal3.Game.Effect
 
     public sealed class PortalEffect : GameEntityScript, IEffect
     {
-        #if PAL3
+#if PAL3
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.dds";
-        #elif PAL3A
+#elif PAL3A
         private const string PORTAL_BASE_TEXTURE_NAME = "trans.tga";
-        #endif
+#endif
 
         private const float PORTAL_DEFAULT_SIZE = 1.3f;
         private const float PORTAL_ANIMATION_ROTATION_SPEED = 5f;
@@ -34,6 +34,9 @@ namespace Pal3.Game.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint _)
         {
+#if PAL3
+            _rayEffect = resourceProvider.OptionalVfx.AttachPortal(GameEntity);
+#else
             _baseEffect = GameEntity.AddComponent<RotatingSpriteEffect>();
             _baseEffect.Init(resourceProvider,
                 PORTAL_BASE_TEXTURE_NAME,
@@ -41,6 +44,7 @@ namespace Pal3.Game.Effect
                 PORTAL_ANIMATION_ROTATION_SPEED);
 
             _rayEffect = resourceProvider.OptionalVfx.Attach(PORTAL_RAY_EFFECT_ID, GameEntity);
+#endif
         }
 
         private void OnDestroy() => Dispose();

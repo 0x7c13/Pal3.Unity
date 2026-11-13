@@ -14,19 +14,19 @@ namespace Pal3.Game.Effect
 
     public sealed class CombatEffect : GameEntityScript, IEffect
     {
-        #if PAL3
+#if PAL3
         private const string SHUSHAN_BRIDGE_TEXTURE_NAME = "q08qiao.dds";
-        #elif PAL3A
+#elif PAL3A
         private const string SHUSHAN_BRIDGE_TEXTURE_NAME = "q08qiao.tga";
-        #endif
+#endif
         private const float SHUSHAN_BRIDGE_DEFAULT_SIZE = 3.5f;
         private const float SHUSHAN_BRIDGE_ANIMATION_ROTATION_SPEED = 15f;
 
-        #if PAL3
+#if PAL3
         private const string SHUSHAN_BRIDGE_EFFECT_TEXTURE_NAME = "q08qiao2.dds";
-        #elif PAL3A
+#elif PAL3A
         private const string SHUSHAN_BRIDGE_EFFECT_TEXTURE_NAME = "q08qiao2.tga";
-        #endif
+#endif
         private const float SHUSHAN_BRIDGE_EFFECT_DEFAULT_SIZE = 3.5f;
         private const float SHUSHAN_BRIDGE_EFFECT_ANIMATION_ROTATION_SPEED = 40f;
 
@@ -41,11 +41,12 @@ namespace Pal3.Game.Effect
 
         public void Init(GameResourceProvider resourceProvider, uint effectParameter)
         {
-            #if PAL3
-            if (effectParameter == 465) // 蜀山太极桥特效
-            #elif PAL3A
+#if PAL3
+            // MXCEft restarts the original group when it finishes. Group 275
+            // is additionally emitted every 9.5 seconds by the original scene object.
+            _effect = resourceProvider.OptionalVfx.Attach((int)effectParameter, GameEntity);
+#elif PAL3A
             if (effectParameter == 160) // 蜀山太极桥特效
-            #endif
             {
                 _bridgeBaseEffect = GameEntity.AddComponent<RotatingSpriteEffect>();
                 _bridgeBaseEffect.Init(resourceProvider,
@@ -64,14 +65,11 @@ namespace Pal3.Game.Effect
                     SHUSHAN_BRIDGE_EFFECT_ANIMATION_ROTATION_SPEED);
             }
 
-            #if PAL3
-            if (effectParameter == 275) // 重楼创建的用来禁锢雪见/龙葵的法阵特效
-            #elif PAL3A
             if (effectParameter == 344) // 重盘古元灵特效
-            #endif
             {
                 _effect = resourceProvider.OptionalVfx.Attach((int)effectParameter, GameEntity);
             }
+#endif
         }
 
         private void OnDestroy() => Dispose();

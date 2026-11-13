@@ -33,6 +33,7 @@ namespace Pal3.Game.Effect
         private readonly OptionalVfxPlayer _optionalVfx;
         private readonly SceneManager _sceneManager;
         private ICommand _effectPositionCommand;
+        private Vector3 _originalPosition;
 
         private const string EFFECT_LINKER_FILE_NAME = "efflinker.dat";
         private EffectLinkerFile _effectLinkerFile;
@@ -61,22 +62,31 @@ namespace Pal3.Game.Effect
             // So it is pointless to pre-load the effect here for PAL3A.
             // Even with a waiter, we need to make sure waiter's current execution mode is set
             // to synchronous otherwise the effect will be played before the pre-load is finished.
-            #if PAL3
+#if PAL3
             Pal3.Instance.StartCoroutine(_optionalVfx.PreloadAsync(command.EffectGroupId));
-            #endif
+#endif
         }
 
         public void Execute(EffectPlayCommand command)
         {
-            if (_effectPositionCommand == null ||
-                _sceneManager.GetCurrentScene() is not {} currentScene) return;
+            if (_sceneManager.GetCurrentScene() is not { } currentScene)
+                return;
+            bool playedOriginal = false;
+#if PAL3
+            playedOriginal = _optionalVfx.Play(command.EffectGroupId,
+                _sceneManager.GetSceneRootGameEntity(), _originalPosition,
+                privateFallback: _effectPositionCommand is EffectAttachToActorCommand role
+                    ? (currentScene.GetActorGameEntity(role.ActorId), Vector3.zero) : null);
+#else
+            if (_effectPositionCommand == null)
+                return;
 
-            #if PAL3A
+#if PAL3A
             if (_effectPositionCommand is EffectAttachToActorCommand effectAttachToActorCommand)
             {
                 HandleNanGongHuangTransformEffect(effectAttachToActorCommand, command, currentScene);
             }
-            #endif
+#endif
 
             if (_effectPositionCommand is EffectSetPositionCommand positionCommand)
             {
@@ -94,15 +104,17 @@ namespace Pal3.Game.Effect
                     currentScene.GetActorGameEntity(actorCommand.ActorId), Vector3.zero);
             }
 
-            // Play SFX if any
-            if (EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
+#endif
+
+            // Private fallback retains its old audio mapping; native groups own their audio tracks.
+            if (!playedOriginal && EffectConstants.EffectSfxInfo.TryGetValue(command.EffectGroupId, out var sfxName))
             {
                 Pal3.Instance.Execute(
                     new PlaySfxCommand(sfxName, 1));
             }
         }
 
-        #if PAL3A
+#if PAL3A
         private void HandleNanGongHuangTransformEffect(EffectAttachToActorCommand effectAttachToActorCommand,
             EffectPlayCommand effectPlayCommand,
             GameScene currentScene)
@@ -138,11 +150,30 @@ namespace Pal3.Game.Effect
                 }
             }
         }
-        #endif
+#endif
 
-        public void Execute(EffectSetPositionCommand command) => _effectPositionCommand = command;
+        public void Execute(EffectSetPositionCommand command)
+        {
+            _effectPositionCommand = command;
+            _originalPosition = new GameBoxVector3(command.GameBoxXPosition, command.GameBoxYPosition, command.GameBoxZPosition).ToUnityPosition();
+        }
 
-        public void Execute(EffectAttachToActorCommand command) => _effectPositionCommand = command;
+        public void Execute(EffectAttachToActorCommand command)
+        {
+            _effectPositionCommand = command;
+#if PAL3
+            var scene = _sceneManager.GetCurrentScene();
+            var actor = scene?.GetActorGameEntity(command.ActorId);
+            if (!actor.IsNullOrDisposed())
+            {
+                var root = (UnityEngine.Transform)_sceneManager.GetSceneRootGameEntity().Transform.NativeObject;
+                var transform = (UnityEngine.Transform)actor.Transform.NativeObject;
+                // cmd_CEft_Role captures the position immediately and adds two
+                // GameBox units. It does not attach the effect to a moving actor.
+                _originalPosition = root.InverseTransformPoint(transform.position) + Vector3.up * 0.1f;
+            }
+#endif
+        }
 
         public void Execute(SceneLeavingCurrentSceneNotification command) => ClearSceneEffects();
 
@@ -151,6 +182,7 @@ namespace Pal3.Game.Effect
         private void ClearSceneEffects()
         {
             _effectPositionCommand = null;
+            _originalPosition = Vector3.zero;
             _optionalVfx.ClearPlayedEffects();
         }
     }

@@ -8,6 +8,7 @@ namespace Pal3.Core.DataReader.Data
     //using System.Runtime.InteropServices;
 
     //[StructLayout(LayoutKind.Explicit)]
+    [System.Serializable]
     public struct EffectDefinition
     {
         //[FieldOffset(0)]
@@ -55,7 +56,7 @@ namespace Pal3.Core.DataReader.Data
         public float InitAngle;
 
         //[FieldOffset(200)]
-        public int InitSize;
+        public float InitSize;
 
         //[FieldOffset(204)]
         public uint InitColor;
@@ -124,11 +125,27 @@ namespace Pal3.Core.DataReader.Data
 
     public sealed class EffectDefinitionFile
     {
-        public EffectDefinitionFile(EffectDefinition[] effectDefinitions)
+        private readonly System.Collections.Generic.Dictionary<uint, EffectDefinition> _types = new();
+
+        public EffectDefinitionFile(EffectDefinition[] effectDefinitions, EffectGroup[] groups = null)
         {
             EffectDefinitions = effectDefinitions;
+            Groups = groups ?? System.Array.Empty<EffectGroup>();
+            foreach (EffectDefinition definition in effectDefinitions)
+                if (definition.IsValid && !_types.ContainsKey(definition.TypeNameCrc))
+                    _types.Add(definition.TypeNameCrc, definition);
         }
 
-        public EffectDefinition[] EffectDefinitions { get; }
+        public EffectDefinition[] EffectDefinitions
+        {
+            get;
+        }
+
+        public EffectGroup[] Groups
+        {
+            get;
+        }
+
+        public bool TryGetType(uint crc, out EffectDefinition definition) => _types.TryGetValue(crc, out definition);
     }
 }
