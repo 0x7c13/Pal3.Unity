@@ -33,7 +33,7 @@ namespace Pal3.Game.Effect.Original
         private readonly Dictionary<string, PolFile> _polModels = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, SparFile> _sparFiles = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CvdFile> _models = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<(string, bool, bool, int), Material> _materials = new();
+        private readonly Dictionary<(string, int, int, bool, int, int), Material> _materials = new();
         private readonly Dictionary<int, string[]> _diagnostics = new();
         private readonly Dictionary<int, string[]> _overrideDiagnostics = new();
         private OriginalEffectOverrides _cachedOverrides;
@@ -199,9 +199,22 @@ namespace Pal3.Game.Effect.Original
             return texture;
         }
 
-        public Material Material(string texture, bool additive, bool noZ, int alphaMode = 0)
+        public Material Material(string texture, bool additive, bool noZ, int alphaMode = 0) =>
+            RenderMaterial(texture, alphaMode == 1 ? BlendMode.One : BlendMode.SrcAlpha,
+                additive ? BlendMode.One : BlendMode.OneMinusSrcAlpha, noZ, alphaMode, CullMode.Off);
+
+        // gfxscript/Particle{1,2,3,NotBlend}.gbf: both color and alpha modulate.
+        public Material SparMaterial(string texture, int shader) => shader switch
         {
-            var key = (texture, additive, noZ, alphaMode);
+            1 => RenderMaterial(texture, BlendMode.SrcAlpha, BlendMode.DstAlpha, false, 0, CullMode.Back),
+            2 => RenderMaterial(texture, BlendMode.SrcAlpha, BlendMode.OneMinusSrcColor, false, 0, CullMode.Back),
+            3 => RenderMaterial(texture, BlendMode.SrcColor, BlendMode.OneMinusSrcColor, false, 0, CullMode.Back),
+            _ => RenderMaterial(texture, BlendMode.One, BlendMode.Zero, false, 0, CullMode.Back)
+        };
+
+        private Material RenderMaterial(string texture, BlendMode source, BlendMode destination, bool noZ, int alphaMode, CullMode cull)
+        {
+            var key = (texture, (int)source, (int)destination, noZ, alphaMode, (int)cull);
             if (_materials.TryGetValue(key, out Material cached))
                 return cached;
             Shader shader = Shader.Find("Pal3/OriginalEffect");
@@ -217,8 +230,9 @@ namespace Pal3.Game.Effect.Original
                 Destroy(material);
                 throw;
             }
-            material.SetInt("_SrcBlend", (int)(alphaMode == 1 ? BlendMode.One : BlendMode.SrcAlpha));
-            material.SetInt("_DstBlend", (int)(additive ? BlendMode.One : BlendMode.OneMinusSrcAlpha));
+            material.SetInt("_SrcBlend", (int)source);
+            material.SetInt("_DstBlend", (int)destination);
+            material.SetInt("_Cull", (int)cull);
             material.SetInt("_ZTest", (int)(noZ ? CompareFunction.Always : CompareFunction.LessEqual));
             material.SetFloat("_AlphaMode", alphaMode);
             _materials.Add(key, material);
@@ -286,8 +300,10 @@ namespace Pal3.Game.Effect.Original
                             case "S-Particle":
                                 SparFile spar = Spar(d.ParticleFileName);
                                 foreach (SparGroup sg in spar.Groups)
+                                {
+                                    OriginalSparEmitter.Validate(sg);
                                     ResolveTexture(RelativeTo(d.ParticleFileName, sg.Texture));
-                                errors.Add($"Group {id}, {d.TypeName}: SPar parsed ({spar.Groups.Length} groups); native simulation/rendering is pending");
+                                }
                                 break;
                             case "particle":
                                 ParticleFile p = Particle(d.ParticleFileName, edits);
@@ -367,6 +383,9 @@ namespace Pal3.Game.Effect.Original
                     else if (kind == "particle")
                         foreach (ParticleDescription p in Particle(d.ParticleFileName, edits).Particles)
                             Texture(RelativeTo(d.ParticleFileName, p.Texture));
+                    else if (kind == "S-Particle")
+                        foreach (SparGroup group in Spar(d.ParticleFileName).Groups)
+                            Texture(RelativeTo(d.ParticleFileName, group.Texture));
                     else if (kind != "audio" && kind != "model")
                         Texture(d.TextureName);
                     yield return id;

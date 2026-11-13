@@ -13,6 +13,7 @@ namespace Pal3.Game.Effect.Original
     internal sealed class EffectMeshBuffer : IDisposable
     {
         private readonly Mesh _mesh;
+        private readonly bool _reverseWinding;
         private readonly MeshRenderer _renderer;
         private readonly List<Vector3> _vertices = new();
         private readonly List<Vector2> _uv = new();
@@ -21,8 +22,9 @@ namespace Pal3.Game.Effect.Original
 
         public int QuadCount => _vertices.Count / 4;
 
-        public EffectMeshBuffer(GameObject root, Material material)
+        public EffectMeshBuffer(GameObject root, Material material, bool reverseWinding = false)
         {
+            _reverseWinding = reverseWinding;
             _mesh = new Mesh { name = "Original effect mesh", indexFormat = IndexFormat.UInt32, hideFlags = HideFlags.DontSave };
             _mesh.MarkDynamic();
             root.AddComponent<MeshFilter>().sharedMesh = _mesh;
@@ -62,11 +64,11 @@ namespace Pal3.Game.Effect.Original
             _colors.Add(colorC);
             _colors.Add(colorD);
             _indices.Add(n);
-            _indices.Add(n + 1);
-            _indices.Add(n + 2);
+            _indices.Add(n + (_reverseWinding ? 2 : 1));
+            _indices.Add(n + (_reverseWinding ? 1 : 2));
             _indices.Add(n);
-            _indices.Add(n + 2);
-            _indices.Add(n + 3);
+            _indices.Add(n + (_reverseWinding ? 3 : 2));
+            _indices.Add(n + (_reverseWinding ? 2 : 3));
         }
 
         public void Upload()

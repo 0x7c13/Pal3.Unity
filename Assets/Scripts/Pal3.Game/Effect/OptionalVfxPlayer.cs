@@ -104,7 +104,7 @@ namespace Pal3.Game.Effect
             }
         }
 
-        private IGameEntity Create(int effectGroupId, IGameEntity parent, (IGameEntity parent, Vector3 position)? privateFallback = null, bool allowOriginal = true)
+        private IGameEntity Create(int effectGroupId, IGameEntity parent, (IGameEntity parent, Vector3 position)? privateFallback = null, bool allowOriginal = true, uint portalType = 0)
         {
             if (!IsEnabled || parent.IsNullOrDisposed())
                 return null;
@@ -121,7 +121,7 @@ namespace Pal3.Game.Effect
                         native = new GameObject(effectGroupId == -1 ? "Original transport" : $"Original effect {effectGroupId}");
                         native.transform.SetParent((Transform)parent.Transform.NativeObject, false);
                         if (effectGroupId == -1)
-                            native.AddComponent<OriginalPortalEffect>().Initialize(_original);
+                            native.AddComponent<OriginalPortalEffect>().Initialize(_original, portalType);
                         else
                         {
                             var player = native.AddComponent<OriginalEffectPlayer>();
@@ -172,7 +172,7 @@ namespace Pal3.Game.Effect
             return IsOriginal(instance);
         }
 
-        internal IDisposable AttachPortal(IGameEntity parent) => Attach(-1, parent);
+        internal IDisposable AttachPortal(IGameEntity parent, uint type = 0) => Attach(-1, parent, portalType: type);
 
         private static bool IsOriginal(IGameEntity instance)
         {
@@ -184,12 +184,12 @@ namespace Pal3.Game.Effect
 
         internal IDisposable AttachPrivate(int effectGroupId, IGameEntity parent) => Attach(effectGroupId, parent, false);
 
-        internal IDisposable Attach(int effectGroupId, IGameEntity parent, bool allowOriginal = true)
+        internal IDisposable Attach(int effectGroupId, IGameEntity parent, bool allowOriginal = true, uint portalType = 0)
         {
             if (_disposed || parent.IsNullOrDisposed())
                 return null;
             PruneDeadAttachments();
-            var effect = new PersistentEffect(this, effectGroupId, parent, allowOriginal);
+            var effect = new PersistentEffect(this, effectGroupId, parent, allowOriginal, portalType);
             _persistentEffects.Add(effect);
             effect.Refresh();
             return effect;
@@ -301,13 +301,15 @@ namespace Pal3.Game.Effect
             private IGameEntity _instance;
             private bool _disposed;
             private readonly bool _allowOriginal;
+            private readonly uint _portalType;
 
-            internal PersistentEffect(OptionalVfxPlayer player, int effectGroupId, IGameEntity parent, bool allowOriginal)
+            internal PersistentEffect(OptionalVfxPlayer player, int effectGroupId, IGameEntity parent, bool allowOriginal, uint portalType)
             {
                 _player = player;
                 _effectGroupId = effectGroupId;
                 _parent = parent;
                 _allowOriginal = allowOriginal;
+                _portalType = portalType;
             }
 
             internal bool ParentIsDisposed => _parent.IsNullOrDisposed();
@@ -332,7 +334,7 @@ namespace Pal3.Game.Effect
                 {
                     if (_instance.IsNullOrDisposed())
                     {
-                        _instance = _player.Create(_effectGroupId, _parent, allowOriginal: _allowOriginal);
+                        _instance = _player.Create(_effectGroupId, _parent, allowOriginal: _allowOriginal, portalType: _portalType);
                         if (!_instance.IsNullOrDisposed() && ((GameObject)_instance.NativeObject).GetComponent<OriginalEffectPlayer>() is { } native)
                         {
                             native.DestroyOnComplete = false;

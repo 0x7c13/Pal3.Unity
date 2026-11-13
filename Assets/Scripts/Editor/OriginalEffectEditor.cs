@@ -26,6 +26,7 @@ namespace Editor
         private OriginalEffectResources _resources;
         private OriginalEffectPlayer _player;
         private OriginalPortalEffect _portal;
+        private uint _portalType;
         [SerializeField] private OriginalEffectOverrides _edits;
         [SerializeField] private string _assetPath = "", _savedJson;
         private GameObject _root, _private;
@@ -267,11 +268,9 @@ namespace Editor
                 SceneManager.MoveGameObjectToScene(_root, _scene);
                 if (_id < 0)
                 {
-                    if (_pal3a)
-                        throw new NotSupportedException("PAL3A MXTransport is pending original geometry verification");
                     _portal = _root.AddComponent<OriginalPortalEffect>();
                     _portal.AutoAdvance = false;
-                    _portal.Initialize(_resources);
+                    _portal.Initialize(_resources, _portalType);
                 }
                 else
                 {
@@ -439,6 +438,15 @@ namespace Editor
                 }
                 using (new EditorGUILayout.VerticalScope())
                 {
+                    if (_id < 0 && _pal3a)
+                    {
+                        int style = EditorGUILayout.Popup("Transport style", (int)_portalType, new[] { "Default", "1 (trans_s)", "2 (trans_m)", "3 (trans_l)", "4 (trans_f)", "5 (trans_t)", "6 (trans_p)" });
+                        if ((uint)style != _portalType)
+                        {
+                            _portalType = (uint)style;
+                            Restart();
+                        }
+                    }
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         if (GUILayout.Button(_playing ? "Pause" : "Play", GUILayout.Width(60)))
@@ -624,7 +632,7 @@ namespace Editor
                         EditorGUILayout.LabelField($"{sg.Name}: capacity {sg.Capacity}, {sg.Keyframes.Length} keys", EditorStyles.wordWrappedLabel);
                         EditorGUILayout.SelectableLabel(sg.Texture, GUILayout.Height(30));
                     }
-                    EditorGUILayout.HelpBox("Parsed original SPar data. Native simulation and rendering are pending; this group uses the private fallback in game.", MessageType.Info);
+                    EditorGUILayout.HelpBox("Native SPar playback: keyframes, emitter paths, particle controllers and original shader blending. SPar fields are read-only here.", MessageType.Info);
                 }
                 catch (Exception ex)
                 {

@@ -32,9 +32,12 @@ namespace Pal3.Core.Tests
             Assert.That(group.Texture, Is.EqualTo("Media\\test.tga"));
             Assert.That(group.Capacity, Is.EqualTo(32));
             Assert.That(group.Loop, Is.True);
+            Assert.That(group.TextureFrames[0], Is.EqualTo(new[] { 0f, 0f, 1f, 1f }));
             Assert.That(group.Keyframes[0].Time, Is.EqualTo(1.25f));
             Assert.That(group.Keyframes[0].ShapeParameters, Is.EqualTo(new[] { 10f }));
             Assert.That(group.Keyframes[0].VelocityMaximum.Z, Is.EqualTo(6));
+            Assert.That(group.Keyframes[0].FrameMinimum, Is.EqualTo(5));
+            Assert.That(group.Keyframes[0].FrameMaximum, Is.EqualTo(15));
             Assert.That(group.Keyframes[0].Controllers[0].Parameters, Is.EqualTo(new[] { 1f, 2f, 3f }));
             Assert.That(file.Shader, Is.EqualTo(1));
             Assert.That(file.UnusedByteCount, Is.EqualTo(3));
@@ -88,7 +91,7 @@ namespace Pal3.Core.Tests
             w.Write(0);
             for (int i = 1; i <= 22; i++)
                 w.Write((float)i);
-            w.Write(0);
+            w.Write(5);
             w.Write(15);
             w.Write(2);
             w.Write(1f);

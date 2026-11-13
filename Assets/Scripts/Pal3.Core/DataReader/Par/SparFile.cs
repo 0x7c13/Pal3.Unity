@@ -40,6 +40,8 @@ namespace Pal3.Core.DataReader.Par
         public string Name, Texture;
         public int Capacity, VertexCapacity, Mode;
         public bool Loop;
+        // Rebuilt by the binary reader; jagged arrays are not Unity-serializable.
+        [NonSerialized]
         public float[][] TextureFrames;
         public SparKeyframe[] Keyframes;
     }

@@ -130,6 +130,7 @@ namespace Pal3.Game.Effect.Original
                     {
                         "callback" or "audio" => new OriginalControlNode(root, d, obj.Tasks, position, Time, this, kind),
                         "quad" => new OriginalQuadNode(root, d, obj.Tasks, position, Time, _resources),
+                        "S-Particle" => new OriginalSparNode(root, d, obj.Tasks, position, Time, _resources, seed),
                         "particle" => new OriginalParticleNode(root, d, obj.Tasks, position, Time, _resources, seed, _overrides),
                         "cylinder" or "grid" => new OriginalGeometryNode(root, d, obj.Tasks, position, Time, _resources, kind),
                         "meteor" or "shock" => new OriginalTrailNode(root, d, obj.Tasks, position, Time, _resources, kind, seed),

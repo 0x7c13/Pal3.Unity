@@ -18,6 +18,12 @@ namespace Pal3.Game.Effect.Original
         private Action _beforeLoad;
         private OriginalEffectPlayer _player;
         private OriginalPortalEffect _portal;
+
+        public uint PortalType
+        {
+            get; set;
+        }
+
         private GameObject _root;
         private string _id = "98", _diagnostics = "";
         private Rect _window = new(15, 65, 330, 250);
@@ -50,12 +56,10 @@ namespace Pal3.Game.Effect.Original
                 }
                 _root = new GameObject(groupId < 0 ? "Original Transport" : $"Original {_resources.GameVariant} group {groupId}");
                 _root.transform.SetParent(_parent, false);
-                if (groupId < 0 && _resources.GameVariant == "PAL3A")
-                    throw new NotSupportedException("PAL3A MXTransport is pending original geometry verification");
                 if (groupId < 0)
                 {
                     _portal = _root.AddComponent<OriginalPortalEffect>();
-                    _portal.Initialize(_resources);
+                    _portal.Initialize(_resources, PortalType);
                 }
                 else
                 {
@@ -122,6 +126,17 @@ namespace Pal3.Game.Effect.Original
             if (GUILayout.Button("Transport"))
                 Load(-1);
             GUILayout.EndHorizontal();
+            if (_portal != null && _resources.GameVariant == "PAL3A")
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Transport style {PortalType}");
+                if (GUILayout.Button("Next style"))
+                {
+                    PortalType = (PortalType + 1) % 7;
+                    Load(-1);
+                }
+                GUILayout.EndHorizontal();
+            }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Play"))
                 Pause(false);

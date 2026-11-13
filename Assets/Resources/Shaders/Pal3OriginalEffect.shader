@@ -11,6 +11,7 @@ Shader "Pal3/OriginalEffect"
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination blend", Float) = 1
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("Depth test", Float) = 4
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
         _AlphaMode ("Original alpha operation", Float) = 0
     }
     SubShader
@@ -27,7 +28,7 @@ Shader "Pal3/OriginalEffect"
             Blend [_SrcBlend] [_DstBlend]
             ZTest [_ZTest]
             ZWrite Off
-            Cull Off
+            Cull [_Cull]
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag

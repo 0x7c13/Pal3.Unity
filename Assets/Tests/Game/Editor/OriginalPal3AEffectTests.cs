@@ -79,24 +79,150 @@ namespace Pal3.Game.Tests
         }
 
         [Test]
-        public void SparGroupsAreParsedAndExplicitlyDiagnosedForFallback()
+        public void SparBillboardUsesNativeViewRotationAndUvCorners()
         {
             using var resources = Open();
-            var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (int id in SparGroups)
+            var source = resources.Definitions.Groups[170].Objects[0];
+            resources.Definitions.TryGetType(source.TypeCrc, out EffectDefinition definition);
+            definition.InitXPosition = definition.InitYPosition = definition.InitZPosition = 0;
+            definition.InitXRotation = definition.InitYRotation = definition.InitZRotation = 0;
+            definition.InitSize = 100;
+            var file = resources.Spar(definition.ParticleFileName);
+            var group = file.Groups[0];
+            var key = OriginalSparTests.Key();
+            key.RotationMinimum = key.RotationMaximum = Mathf.PI / 2;
+            group.Keyframes = new[] { key };
+            group.TextureFrames = new[] { new[] { 0.2f, 0.3f, 0.7f, 0.8f } };
+            file.Groups = new[] { group };
+            var root = new GameObject("SPar native billboard");
+            var task = new EffectTask { StartTime = -1, Duration = 10, SpeedX = 10, RotAxisZ = 900, XStretchSpeed = 100, SpeedAlpha = -255 };
+            var node = new OriginalSparNode(root, definition, new[] { task }, Vector3.zero, 0, resources, 1);
+            try
             {
-                string[] errors = resources.Diagnose(id);
-                Assert.That(errors.Any(e => e.Contains("SPar parsed")), Is.True, $"Group {id}: {string.Join("; ", errors)}");
-                Assert.That(errors.All(e => e.Contains("native simulation/rendering is pending")), Is.True, $"Group {id}: unexpected dependency failure");
-                foreach (EffectGroupObject obj in resources.Definitions.Groups[id].Objects)
-                    if (resources.Definitions.TryGetType(obj.TypeCrc, out var d) && EffectClass.Name(d.ClassNameCrc) == "S-Particle")
-                    {
-                        var spar = resources.Spar(d.ParticleFileName);
-                        files.Add(d.ParticleFileName);
-                        Assert.That(spar.Groups.All(g => g.Keyframes.Length > 0), Is.True);
-                    }
+                node.Step(0.02f, 0.02f);
+                node.Step(0.04f, 0.02f);
+                node.Render(null);
+                Mesh mesh = root.GetComponentInChildren<MeshFilter>().sharedMesh;
+                Vector3[] vertices = mesh.vertices;
+                // Native 0x4c8eb6..0x4c8ff6 uses positive view-space radians.
+                // Its top-left UV is (su,sv); Unity's bottom-left is (su,1-ev).
+                Assert.That(vertices[0].x, Is.EqualTo(0.08f).Within(0.000001));
+                Assert.That(vertices[0].y, Is.EqualTo(-0.1f).Within(0.000001));
+                Assert.That(Vector3.Distance(vertices[0], vertices[1]), Is.EqualTo(0.2f).Within(0.000001));
+                Assert.That(mesh.uv[0].x, Is.EqualTo(0.2f).Within(0.000001));
+                Assert.That(mesh.uv[0].y, Is.EqualTo(0.2f).Within(0.000001));
+                Assert.That(mesh.uv[2].y, Is.EqualTo(0.7f).Within(0.000001));
+                int[] indices = mesh.triangles;
+                Assert.That(Vector3.Cross(vertices[indices[1]] - vertices[indices[0]], vertices[indices[2]] - vertices[indices[0]]).z, Is.LessThan(0));
             }
-            Assert.That(files.Count, Is.EqualTo(28));
+            finally
+            {
+                node.Dispose();
+            }
+        }
+
+        [TestCase(0, "trans.tga", 245, 188, 28)]
+        [TestCase(1, "trans_s.tga", 0, 238, 255)]
+        [TestCase(2, "trans_m.tga", 246, 0, 208)]
+        [TestCase(3, "trans_l.tga", 108, 0, 255)]
+        [TestCase(4, "trans_f.tga", 0, 255, 112)]
+        [TestCase(5, "trans_t.tga", 255, 218, 0)]
+        [TestCase(6, "trans_p.tga", 255, 0, 0)]
+        public void TransportUsesOriginalStyleWithoutLoadingFlexeffZero(int type, string texture, int red, int green, int blue)
+        {
+            using var resources = Open();
+            var root = new GameObject("PAL3A transport");
+            try
+            {
+                var portal = root.AddComponent<OriginalPortalEffect>();
+                portal.AutoAdvance = false;
+                portal.Initialize(resources, (uint)type);
+                portal.Sample(2);
+                MeshFilter[] meshes = root.GetComponentsInChildren<MeshFilter>();
+                Assert.That(meshes.Select(m => m.sharedMesh.vertexCount), Is.EqualTo(new[] { 4, 24, 24 }));
+                Assert.That(meshes[0].GetComponent<MeshRenderer>().sharedMaterial.mainTexture.name, Does.EndWith(texture));
+                Assert.That(meshes[1].sharedMesh.colors32[0], Is.EqualTo(new Color32((byte)red, (byte)green, (byte)blue, 255)));
+                Assert.That(root.GetComponentsInChildren<OriginalEffectPlayer>(), Is.Empty);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
+        [TestCase(1, UnityEngine.Rendering.BlendMode.SrcAlpha, UnityEngine.Rendering.BlendMode.DstAlpha)]
+        [TestCase(2, UnityEngine.Rendering.BlendMode.SrcAlpha, UnityEngine.Rendering.BlendMode.OneMinusSrcColor)]
+        [TestCase(3, UnityEngine.Rendering.BlendMode.SrcColor, UnityEngine.Rendering.BlendMode.OneMinusSrcColor)]
+        [TestCase(0, UnityEngine.Rendering.BlendMode.One, UnityEngine.Rendering.BlendMode.Zero)]
+        public void SparMaterialMatchesOriginalGbfAndSurvivesLiveCacheTrim(int shader, UnityEngine.Rendering.BlendMode source, UnityEngine.Rendering.BlendMode destination)
+        {
+            using var resources = Open();
+            Material material = resources.SparMaterial("effect\\trans.tga", shader);
+            Assert.That(material.GetInt("_SrcBlend"), Is.EqualTo((int)source));
+            Assert.That(material.GetInt("_DstBlend"), Is.EqualTo((int)destination));
+            Assert.That(material.GetInt("_AlphaMode"), Is.Zero);
+            var root = new GameObject("SPar cache lifetime");
+            try
+            {
+                root.AddComponent<MeshRenderer>().sharedMaterial = material;
+                resources.TrimUnusedRenderAssets(new[] { root });
+                Assert.That(material != null && material.mainTexture != null, Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+            resources.TrimUnusedRenderAssets(Array.Empty<GameObject>());
+            Assert.That(material == null, Is.True);
+        }
+
+        [TestCaseSource(nameof(SparGroups))]
+        public void RemainingScriptAndSceneGroupSimulatesRendersAndSeeks(int id)
+        {
+            using var resources = Open();
+            Assert.That(resources.Diagnose(id), Is.Empty, $"Group {id}");
+            var root = new GameObject($"SPar group {id}");
+            try
+            {
+                var player = root.AddComponent<OriginalEffectPlayer>();
+                player.AutoAdvance = false;
+                player.Initialize(resources, id, 1234);
+                int maximum = 0;
+                float sampleTime = 0;
+                bool sparRendered = false;
+                for (int i = 0; i < 650; i++)
+                {
+                    player.Advance(0.02f);
+                    if (i % 10 == 0)
+                    {
+                        player.Render(null);
+                        maximum = Math.Max(maximum, player.QuadCount);
+                        bool hasSpar = root.GetComponentsInChildren<MeshRenderer>().Any(r => r.enabled && r.sharedMaterial.shader.name == "Pal3/OriginalEffect" && r.sharedMaterial.GetInt("_Cull") == 2);
+                        if (sampleTime == 0 && hasSpar)
+                            sampleTime = player.Time;
+                        sparRendered |= hasSpar;
+                        foreach (MeshFilter mesh in root.GetComponentsInChildren<MeshFilter>())
+                            Assert.That(mesh.sharedMesh.vertices.All(v => float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z)), Is.True);
+                    }
+                    Assert.That(player.Error, Is.Null);
+                }
+                Assert.That(maximum, Is.GreaterThan(0), $"Group {id}: no geometry");
+                Assert.That(sparRendered, Is.True, $"Group {id}: SPar did not submit visible particles");
+                TestContext.WriteLine($"GPU sample: {id} {sampleTime:R}");
+                player.Seek(sampleTime);
+                player.Render(null);
+                Vector3[] first = root.GetComponentsInChildren<MeshFilter>().SelectMany(m => m.sharedMesh.vertices).ToArray();
+                Assert.That(first, Is.Not.Empty);
+                player.Seek(sampleTime + 2);
+                player.Seek(sampleTime);
+                player.Render(null);
+                Assert.That(root.GetComponentsInChildren<MeshFilter>().SelectMany(m => m.sharedMesh.vertices).ToArray(), Is.EqualTo(first));
+                Assert.That(player.Error, Is.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
         }
     }
 }
