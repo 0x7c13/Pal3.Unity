@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Data
 {
@@ -15,11 +15,11 @@ namespace Pal3.Game.Data
         private readonly ITextureLoader _tgaTextureLoader;
         private readonly ITextureLoader _bmpTextureLoader;
 
-        public TextureLoaderFactory(ITextureFactory textureFactory)
+        public TextureLoaderFactory()
         {
-            _dxtTextureLoader = new DxtTextureLoader(textureFactory);
-            _tgaTextureLoader = new TgaTextureLoader(textureFactory);
-            _bmpTextureLoader = new BmpTextureLoader(textureFactory);
+            _dxtTextureLoader = new DxtTextureLoader();
+            _tgaTextureLoader = new TgaTextureLoader();
+            _bmpTextureLoader = new BmpTextureLoader();
         }
 
         public ITextureLoader GetTextureLoader(string fileExtension)

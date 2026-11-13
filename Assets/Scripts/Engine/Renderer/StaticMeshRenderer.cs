@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Engine.Renderer
 {
@@ -40,6 +40,7 @@ namespace Engine.Renderer
             _meshFilter = GameEntity.AddComponent<MeshFilter>();
 
             Mesh mesh = new();
+            if (vertices.Length > ushort.MaxValue) mesh.indexFormat = IndexFormat.UInt32;
 
             if (isDynamic)
             {

@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game
 {
@@ -191,6 +191,7 @@ namespace Pal3.Game
         private CaveExperienceMiniGame _caveExperienceMiniGame;
         #elif PAL3A // PAL3A specific components
         private GhostHuntingMiniGame _ghostHuntingMiniGame;
+        private SkyboxEffectManager _skyboxEffects;
         private TaskManager _taskManager;
         #endif
 
@@ -295,8 +296,10 @@ namespace Pal3.Game
             );
 
             ServiceLocator.Instance.Register(_teamManager =
-                new TeamManager(_playerActorManager, _sceneManager)
+                new TeamManager(_playerActorManager, _sceneManager, _gameResourceProvider)
             );
+
+            ServiceLocator.Instance.Register(new PlayerProgressManager(_gameResourceProvider, _teamManager));
 
             ServiceLocator.Instance.Register(_touchControlUIManager =
                 new TouchControlUIManager(_sceneManager,
@@ -394,6 +397,9 @@ namespace Pal3.Game
                 new CaveExperienceMiniGame()
             );
             #elif PAL3A
+            ServiceLocator.Instance.Register(new FortuneTellingMiniGame(_gameResourceProvider, _gameStateManager,
+                _userVariableManager, taskInfoText.font, eventSystem));
+            ServiceLocator.Instance.Register(_skyboxEffects = new SkyboxEffectManager(_gameResourceProvider, mainCamera.transform));
             ServiceLocator.Instance.Register(_ghostHuntingMiniGame =
                 new GhostHuntingMiniGame()
             );
@@ -661,6 +667,9 @@ namespace Pal3.Game
                 _cameraManager.LateUpdate(deltaTime);
                 _minimapManager.LateUpdate(deltaTime);
             }
+            #if PAL3A
+            _skyboxEffects.Update(deltaTime);
+            #endif
         }
 
         private void OnGameSettingsChanged(string settingName)

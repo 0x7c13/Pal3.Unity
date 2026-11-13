@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Camera
 {
@@ -43,6 +43,8 @@ namespace Pal3.Game.Camera
         ICommandExecutor<CameraOrbitHorizontalCommand>,
         ICommandExecutor<CameraOrbitVerticalCommand>,
         #if PAL3A
+        ICommandExecutor<CameraSetHorizontalDirectionCommand>,
+        ICommandExecutor<CameraResetHorizontalDirectionCommand>,
         ICommandExecutor<CameraMoveToLookAtPointCommand>,
         ICommandExecutor<CameraMoveToDefaultLookAtPointCommand>,
         #endif
@@ -94,6 +96,10 @@ namespace Pal3.Game.Camera
         private Vector3 _cameraOffset = Vector3.zero;
         private float _lookAtPointYOffset;
 
+        #if PAL3A
+        public Vector3? HorizontalDirectionConstraint { get; private set; }
+        private bool _restoreLookDirectionAfterConstraint;
+        #endif
         private bool _freeToRotate;
         private bool _cameraFollowPlayer = true;
         private bool _shouldResetVelocity = false;
@@ -108,7 +114,7 @@ namespace Pal3.Game.Camera
         private readonly float _joyStickMovementRange;
         private readonly bool _isTouchEnabled;
 
-        private bool _cameraAnimationInProgress;
+        private int _cameraAnimationsInProgress;
         private CancellationTokenSource _asyncCameraAnimationCts = new ();
         private CancellationTokenSource _cameraFadeAnimationCts = new ();
 
@@ -164,7 +170,19 @@ namespace Pal3.Game.Camera
                 return;
             }
 
-            if (_cameraAnimationInProgress) return;
+            if (_cameraAnimationsInProgress > 0) return;
+            Vector3 followOffset = _cameraOffset;
+            #if PAL3A
+            if (HorizontalDirectionConstraint.HasValue)
+            {
+                // The original replaces the normalized view direction's horizontal
+                // components, then normalizes again. This slightly changes pitch.
+                Vector3 direction = -_cameraOffset.normalized;
+                direction.x = HorizontalDirectionConstraint.Value.x;
+                direction.z = HorizontalDirectionConstraint.Value.z;
+                followOffset = -direction.normalized * _cameraOffset.magnitude;
+            }
+            #endif
 
             if (!_lookAtGameEntity.IsNullOrDisposed())
             {
@@ -176,7 +194,7 @@ namespace Pal3.Game.Camera
             }
 
             Vector3 yOffset = new (0f, _lookAtPointYOffset, 0f);
-            Vector3 targetPosition = _lastLookAtPoint + _cameraOffset;
+            Vector3 targetPosition = _lastLookAtPoint + followOffset;
             Vector3 currentPosition = _cameraTransform.Position;
 
             Vector3 previousLookAtPoint = _lastLookAtPoint + (currentPosition - targetPosition);
@@ -201,9 +219,23 @@ namespace Pal3.Game.Camera
 
             _cameraTransform.Position = _actualPosition;
 
+            #if PAL3A
+            if (_restoreLookDirectionAfterConstraint)
+            {
+                // Restore orientation after the unconstrained position is applied,
+                // including free-rotation scenes with no camera input this frame.
+                _cameraTransform.LookAt(_actualLookAtPoint + yOffset);
+                _restoreLookDirectionAfterConstraint = false;
+            }
+            #endif
+
             if (!_lookAtGameEntity.IsNullOrDisposed()) return;
 
-            if (!_freeToRotate)
+            if (!_freeToRotate
+                #if PAL3A
+                || HorizontalDirectionConstraint.HasValue
+                #endif
+                )
             {
                 _cameraTransform.LookAt(_actualLookAtPoint + yOffset);
                 return;
@@ -287,15 +319,19 @@ namespace Pal3.Game.Camera
 
         private IEnumerator ShakeAsync(float duration, float amplitude, Action onFinished = null)
         {
-            _cameraAnimationInProgress = true;
-
-            yield return _cameraTransform.ShakeAsync(duration,
-                amplitude / 5f,
-                amplitude,  // More amplitude on y-axis
-                amplitude / 5f);
-
-            _cameraAnimationInProgress = false;
-            onFinished?.Invoke();
+            _cameraAnimationsInProgress++;
+            try
+            {
+                yield return _cameraTransform.ShakeAsync(duration,
+                    amplitude / 5f,
+                    amplitude,  // More amplitude on y-axis
+                    amplitude / 5f);
+            }
+            finally
+            {
+                _cameraAnimationsInProgress--;
+                onFinished?.Invoke();
+            }
         }
 
         private IEnumerator MoveAsync(Vector3 position,
@@ -304,21 +340,27 @@ namespace Pal3.Game.Camera
             Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
-            _cameraAnimationInProgress = true;
-            Vector3 oldPosition = _cameraTransform.Position;
-
-            yield return _cameraTransform.MoveAsync(position,
-                duration,
-                curveType,
-                cancellationToken);
-
-            if (!cancellationToken.IsCancellationRequested)
+            _cameraAnimationsInProgress++;
+            try
             {
-                _lastLookAtPoint += position - oldPosition;
-                _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
+                Vector3 oldPosition = _cameraTransform.Position;
+
+                yield return _cameraTransform.MoveAsync(position,
+                    duration,
+                    curveType,
+                    cancellationToken);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    _lastLookAtPoint += position - oldPosition;
+                    _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
+                }
             }
-            _cameraAnimationInProgress = false;
-            onFinished?.Invoke();
+            finally
+            {
+                _cameraAnimationsInProgress--;
+                onFinished?.Invoke();
+            }
         }
 
         private IEnumerator OrbitAsync(Quaternion toRotation,
@@ -328,21 +370,27 @@ namespace Pal3.Game.Camera
             Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
-            _cameraAnimationInProgress = true;
-            Vector3 lookAtPoint = _lastLookAtPoint;
-            yield return _cameraTransform.OrbitAroundCenterPointAsync(toRotation,
-                lookAtPoint,
-                duration,
-                curveType,
-                distanceDelta,
-                cancellationToken);
-
-            if (!cancellationToken.IsCancellationRequested)
+            _cameraAnimationsInProgress++;
+            try
             {
-                _cameraOffset = _cameraTransform.Position - lookAtPoint;
+                Vector3 lookAtPoint = _lastLookAtPoint;
+                yield return _cameraTransform.OrbitAroundCenterPointAsync(toRotation,
+                    lookAtPoint,
+                    duration,
+                    curveType,
+                    distanceDelta,
+                    cancellationToken);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    _cameraOffset = _cameraTransform.Position - lookAtPoint;
+                }
             }
-            _cameraAnimationInProgress = false;
-            onFinished?.Invoke();
+            finally
+            {
+                _cameraAnimationsInProgress--;
+                onFinished?.Invoke();
+            }
         }
 
         private IEnumerator RotateAsync(Quaternion toRotation,
@@ -351,13 +399,19 @@ namespace Pal3.Game.Camera
             Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
-            _cameraAnimationInProgress = true;
-            yield return _cameraTransform.RotateAsync(toRotation,
-                duration,
-                curveType,
-                cancellationToken);
-            _cameraAnimationInProgress = false;
-            onFinished?.Invoke();
+            _cameraAnimationsInProgress++;
+            try
+            {
+                yield return _cameraTransform.RotateAsync(toRotation,
+                    duration,
+                    curveType,
+                    cancellationToken);
+            }
+            finally
+            {
+                _cameraAnimationsInProgress--;
+                onFinished?.Invoke();
+            }
         }
 
         public IEnumerator PushAsync(float distance,
@@ -366,23 +420,29 @@ namespace Pal3.Game.Camera
             Action onFinished = null,
             CancellationToken cancellationToken = default)
         {
-            _cameraAnimationInProgress = true;
-            Vector3 oldPosition = _cameraTransform.Position;
-            float oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
-            Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
-            Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
-
-            yield return _cameraTransform.MoveAsync(newPosition,
-                duration,
-                curveType,
-                cancellationToken);
-
-            if (!cancellationToken.IsCancellationRequested)
+            _cameraAnimationsInProgress++;
+            try
             {
-                _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
+                Vector3 oldPosition = _cameraTransform.Position;
+                float oldDistance = Vector3.Distance(oldPosition, _lastLookAtPoint);
+                Vector3 cameraFacingDirection = (oldPosition - _lastLookAtPoint).normalized;
+                Vector3 newPosition = oldPosition + cameraFacingDirection * (distance - oldDistance);
+
+                yield return _cameraTransform.MoveAsync(newPosition,
+                    duration,
+                    curveType,
+                    cancellationToken);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    _cameraOffset = _cameraTransform.Position - _lastLookAtPoint;
+                }
             }
-            _cameraAnimationInProgress = false;
-            onFinished?.Invoke();
+            finally
+            {
+                _cameraAnimationsInProgress--;
+                onFinished?.Invoke();
+            }
         }
 
         private IEnumerator FadeAsync(bool fadeIn,
@@ -563,17 +623,48 @@ namespace Pal3.Game.Camera
 
         public void Execute(CameraOrbitCommand command)
         {
-            if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
-
-            WaitUntilCanceled waiter = new();
-            Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
+            _asyncCameraAnimationCts.Cancel();
+            _asyncCameraAnimationCts.Dispose();
+            _asyncCameraAnimationCts = new CancellationTokenSource();
+            WaitUntilCanceled waiter = null;
+            #if PAL3
+            bool synchronous = true;
+            #else
+            bool synchronous = command.Synchronous > 0;
+            #endif
+            if (synchronous)
+            {
+                waiter = new WaitUntilCanceled();
+                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(waiter));
+            }
             Quaternion rotation = UnityPrimitivesConvertor.ToUnityQuaternion(command.Pitch, command.Yaw, 0f);
-            Pal3.Instance.StartCoroutine(OrbitAsync(rotation,
-                command.Duration,
-                (AnimationCurveType)command.CurveType,
-                0f,
-                () => waiter.CancelWait()));
+            Pal3.Instance.StartCoroutine(OrbitAsync(rotation, command.Duration,
+                (AnimationCurveType)command.CurveType, 0f, () => waiter?.CancelWait(),
+                synchronous ? default : _asyncCameraAnimationCts.Token));
         }
+
+        #if PAL3A
+        public void Execute(CameraSetHorizontalDirectionCommand command)
+        {
+            Vector3 direction = new GameBoxVector3(command.X2 - command.X1, 0, command.Z2 - command.Z1).ToUnityPosition();
+            if (direction.sqrMagnitude > 0.000001f) HorizontalDirectionConstraint = direction.normalized;
+            _shouldResetVelocity = true;
+        }
+        public void Execute(CameraResetHorizontalDirectionCommand command)
+        {
+            _restoreLookDirectionAfterConstraint |= HorizontalDirectionConstraint.HasValue;
+            HorizontalDirectionConstraint = null;
+            _shouldResetVelocity = true;
+        }
+
+        public Vector3 GetUnconstrainedCameraEulerAngles()
+        {
+            Vector3 direction = new Vector3(0, _lookAtPointYOffset, 0) - _cameraOffset;
+            return direction.sqrMagnitude > 0.000001f
+                ? Quaternion.LookRotation(direction).eulerAngles
+                : _cameraTransform.EulerAngles;
+        }
+        #endif
 
         public void Execute(CameraRotateCommand command)
         {
@@ -763,6 +854,10 @@ namespace Pal3.Game.Camera
 
         public void Execute(ScenePreLoadingNotification notification)
         {
+            #if PAL3A
+            HorizontalDirectionConstraint = null;
+            _restoreLookDirectionAfterConstraint = false;
+            #endif
             Quaternion? initRotation = _initRotationOnSceneLoad;
             int? initTransformOption = _initTransformOptionOnSceneLoad;
 
@@ -817,6 +912,10 @@ namespace Pal3.Game.Camera
 
         public void Execute(ResetGameStateCommand command)
         {
+            #if PAL3A
+            HorizontalDirectionConstraint = null;
+            _restoreLookDirectionAfterConstraint = false;
+            #endif
             if (!_asyncCameraAnimationCts.IsCancellationRequested) _asyncCameraAnimationCts.Cancel();
 
             _curtainImage.color = Color.black;

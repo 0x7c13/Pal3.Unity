@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Scene.SceneObjects
 {
@@ -333,7 +333,10 @@ namespace Pal3.Game.Scene.SceneObjects
         {
             if (ObjectInfo.ScriptId == ScriptConstants.InvalidScriptId) yield break;
             Pal3.Instance.Execute(new ScriptExecuteCommand((int)ObjectInfo.ScriptId));
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId);
+            using (var completion = new WaitUntilScriptFinished(PalScriptType.Scene, ObjectInfo.ScriptId))
+            {
+                yield return completion;
+            }
         }
 
         internal void PlaySfxIfAny()

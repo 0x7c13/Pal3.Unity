@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Actor.Controllers
 {
@@ -125,7 +125,7 @@ namespace Pal3.Game.Actor.Controllers
             {
                 // If the actor is initially placed on a walkable tile, snap to the tile
                 // Same for the case when actor is configured to not facing the player actor during dialogue
-                if (tile.IsWalkable() || actor.Info.NoTurn == 1)
+                if (tile.IsWalkable() || actor.NoTurn != 0)
                 {
                     Transform.Position = new Vector3(initPosition.x,
                         tile.GameBoxYPosition.ToUnityYPosition(),

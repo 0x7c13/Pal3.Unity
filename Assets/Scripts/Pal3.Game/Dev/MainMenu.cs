@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Dev
 {
@@ -844,6 +844,11 @@ namespace Pal3.Game.Dev
                     arguments[0] + "Command" == nameof(ActorSetYPositionCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetFacingCommand) ||
                     arguments[0] + "Command" == nameof(ActorSetScriptCommand) ||
+                    #if PAL3A
+                    arguments[0] + "Command" == nameof(ActorSetNoTurnCommand) ||
+                    arguments[0] + "Command" == nameof(CameraSetHorizontalDirectionCommand) ||
+                    arguments[0] + "Command" == nameof(CameraResetHorizontalDirectionCommand) ||
+                    #endif
                     arguments[0] + "Command" == nameof(CameraFadeInCommand))
                 {
                     _deferredExecutionCommands.Add(command);
@@ -901,7 +906,11 @@ namespace Pal3.Game.Dev
 
         private IEnumerator ExecuteDeferredCommandsAfterSceneScriptFinishedAsync(uint scriptId)
         {
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, scriptId);
+            using (var completion = new WaitUntilScriptFinished(PalScriptType.Scene, scriptId))
+            {
+                yield return completion;
+                if (completion.IsCanceled) yield break;
+            }
 
             if (_deferredExecutionCommands.Count > 0)
             {

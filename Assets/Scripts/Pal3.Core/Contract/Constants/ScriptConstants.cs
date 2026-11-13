@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.Contract.Constants
 {
@@ -18,5 +18,7 @@ namespace Pal3.Core.Contract.Constants
         public const int PortalScriptIdMax = 1000;
 
         public const ushort MainStoryVariableId = 0x8000; // 32768
+
+        public const ushort GlobalVariableFlag = 0x8000;
     }
 }

@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game
 {
@@ -166,7 +166,7 @@ namespace Pal3.Game
             ServiceLocator.Instance.Register<ITextureFactory>(textureFactory);
 
             // Init TextureLoaderFactory
-            TextureLoaderFactory textureLoaderFactory = new (textureFactory);
+            TextureLoaderFactory textureLoaderFactory = new ();
             ServiceLocator.Instance.Register<ITextureLoaderFactory>(textureLoaderFactory);
 
             // Init MaterialFactory

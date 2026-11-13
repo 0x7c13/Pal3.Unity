@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GameSystems.Combat.Scene
 {
@@ -140,7 +140,8 @@ namespace Pal3.Game.GameSystems.Combat.Scene
             {
                 CombatActorInfo combatActorInfo = actorInfo;
 
-                if (combatActorInfo.Type == CombatActorType.MainActor)
+                if (combatActorInfo.Type == CombatActorType.MainActor &&
+                    (string.IsNullOrEmpty(combatActorInfo.ModelId) || combatActorInfo.ModelId == "Null"))
                 {
                     // Player actor's model id is not set in the file but it is equal
                     // to its id in string format

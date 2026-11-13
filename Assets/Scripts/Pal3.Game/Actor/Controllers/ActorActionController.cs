@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Actor.Controllers
 {
@@ -32,6 +32,7 @@ namespace Pal3.Game.Actor.Controllers
         ICommandExecutor<ActorShowEmojiCommand>,
         #if PAL3A
         ICommandExecutor<ActorShowEmoji2Command>,
+        ICommandExecutor<ActorPerformAttackCommand>,
         #endif
         ICommandExecutor<GameStateChangedNotification>,
         ICommandExecutor<ActorPerformActionCommand>
@@ -48,6 +49,7 @@ namespace Pal3.Game.Actor.Controllers
         private SpriteRenderer _shadowSpriteRenderer;
 
         private string _currentAction = string.Empty;
+        public int CurrentActionLoopCount { get; private set; }
 
         private bool _hasColliderAndRigidBody;
         private Rigidbody _rigidbody;
@@ -110,6 +112,7 @@ namespace Pal3.Game.Actor.Controllers
             WaitUntilCanceled waiter = null)
         {
             _currentAction = actionName.ToLower();
+            CurrentActionLoopCount = loopCount;
 
             if (_isDropShadowEnabled)
             {
@@ -144,6 +147,7 @@ namespace Pal3.Game.Actor.Controllers
         internal virtual void DisposeCurrentAction()
         {
             _currentAction = string.Empty;
+            CurrentActionLoopCount = 0;
         }
 
         internal virtual void DeActivate()
@@ -319,6 +323,25 @@ namespace Pal3.Game.Actor.Controllers
                 PerformAction(command.ActionName, true, command.LoopCount, waiter);
             }
         }
+
+        #if PAL3A
+        public void Execute(ActorPerformAttackCommand command)
+        {
+            if (_actor.Id != command.ActorId || !_actor.IsMainActor() || command.LoopCount == 0 ||
+                !ActorConstants.MainActorCombatActorIdMap.ContainsKey((PlayerActorId)command.ActorId)) return;
+            int weaponType = ServiceLocator.Instance.Get<GameSystems.Team.PlayerProgressManager>().GetWeaponType(command.ActorId);
+            string action = weaponType switch
+            {
+                1 or 3 or 5 or 7 or 8 => "z01",
+                2 or 4 or 6 or 9 or 10 => "z02",
+                _ => null
+            };
+            if (action != null && _actor.HasAction(action))
+                Execute(new ActorPerformActionCommand(command.ActorId, action, command.LoopCount));
+            else if (action != null)
+                EngineLogger.LogWarning($"Attack action {action} is not available for actor {_actor.Id} ({_actor.Name})");
+        }
+        #endif
 
         public void Execute(ActorStopActionAndStandCommand command)
         {

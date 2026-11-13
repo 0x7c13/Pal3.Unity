@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GamePlay
 {
@@ -452,6 +452,7 @@ namespace Pal3.Game.GamePlay
 
         public void Execute(ResetGameStateCommand command)
         {
+            _interactionGeneration++;
             ResetAndDisposeJumpIndicators();
 
             _playerActorLastKnownSceneState.Clear();

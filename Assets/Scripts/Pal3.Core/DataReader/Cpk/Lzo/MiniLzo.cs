@@ -60,6 +60,7 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
 
         public static unsafe void Decompress(Span<byte> src, byte[] dst)
         {
+            if (src.Length < 3) throw new OverflowException("Input Overrun");
             uint t = 0;
             fixed (byte* input = src, output = dst)
             {
@@ -319,6 +320,7 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
                     throw new OverflowException("EOF Marker Not Found");
                 else
                 {
+                    if (op != op_end) throw new OverflowException("Output Length Mismatch");
                     //Debug.Assert(t == 1);
                     if (ip > ip_end)
                         throw new OverflowException("Input Overrun");

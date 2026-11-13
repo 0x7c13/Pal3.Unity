@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Rendering.Renderer
 {
@@ -72,10 +72,13 @@ namespace Pal3.Game.Rendering.Renderer
             _forceOpaqueWater = forceOpaqueWater;
             _textureCache = BuildTextureCache(polFile, textureProvider);
 
+            var batches = new Dictionary<(IMaterial[] materials, Vector3Int cell), PolMeshBatch>();
             for (int i = 0; i < polFile.Meshes.Length; i++)
             {
-                RenderMeshInternal(polFile.NodeDescriptions[i], polFile.Meshes[i]);
+                RenderMeshInternal(polFile.NodeDescriptions[i], polFile.Meshes[i], batches);
             }
+            foreach (var entry in batches)
+                RenderGeometry("POL " + entry.Key.cell, entry.Value, entry.Key.materials);
 
             if (_waterSurfaces != null)
             {
@@ -133,7 +136,8 @@ namespace Pal3.Game.Rendering.Renderer
             return textureCache;
         }
 
-        private void RenderMeshInternal(PolGeometryNode meshNode, PolMesh mesh)
+        private void RenderMeshInternal(PolGeometryNode meshNode, PolMesh mesh,
+            Dictionary<(IMaterial[] materials, Vector3Int cell), PolMeshBatch> batches)
         {
             Vector3[] positions = mesh.VertexInfo.GameBoxPositions.ToUnityPositions();
             Vector3[] normals = _materialManager.UsesToonRendering ? mesh.VertexInfo.GameBoxNormals.ToUnityNormals() : null;
@@ -164,18 +168,6 @@ namespace Pal3.Game.Rendering.Renderer
                     return;
                 }
 
-                IGameEntity meshEntity = GameEntityFactory.Create(meshNode.Name, GameEntity, worldPositionStays: false);
-                meshEntity.IsStatic = _isStaticObject;
-
-                // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
-                #if UNITY_EDITOR
-                MaterialInfoPresenter materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
-                materialInfoPresenter.blendFlag = mesh.Textures[i].BlendFlag;
-                materialInfoPresenter.material = mesh.Textures[i].Material;
-                #endif
-
-                StaticMeshRenderer meshRenderer = meshEntity.AddComponent<StaticMeshRenderer>();
-                _meshRenderers.Add(meshRenderer);
                 GameBoxBlendFlag blendFlag = mesh.Textures[i].BlendFlag;
                 int mainTextureIndex = textures.Count == 1 ? 0 : 1;
                 int lightmapIndex = textures.Count == 1 ? -1 : 0;
@@ -207,15 +199,65 @@ namespace Pal3.Game.Rendering.Renderer
                     }
                 }
 
-                meshRenderer.Render(
-                    vertices: positions,
-                    triangles: mesh.Textures[i].GameBoxTriangles.ToUnityTriangles(),
-                    normals: normals,
-                    mainTextureUvs: (channel: 0, uvs: GetUvs(mainTextureIndex)),
-                    secondaryTextureUvs: (channel: 1, uvs: GetUvs(Math.Max(lightmapIndex, 0))),
-                    materials: materials,
-                    isDynamic: false);
+                var map = new PolMeshIndexMap(positions.Length, mesh.Textures[i].GameBoxTriangles);
+                if (map.SourceIndices.Length == 0) continue;
+                bool batchable = _isStaticObject && blendFlag == GameBoxBlendFlag.Opaque &&
+                    !mainTexture.name.StartsWith(ANIMATED_WATER_TEXTURE_DEFAULT_NAME, StringComparison.OrdinalIgnoreCase);
+                Vector3Int cell = default;
+                batchable &= PolMeshBatch.TryGetCell(map, positions, out cell);
+                PolMeshBatch geometry;
+                if (batchable)
+                {
+                    var key = (materials, cell);
+                    if (batches.TryGetValue(key, out geometry) &&
+                        geometry.Positions.Count + map.SourceIndices.Length > PolMeshBatch.MaximumVertices)
+                    {
+                        RenderGeometry("POL " + cell, geometry, materials);
+                        batches.Remove(key);
+                        geometry = null;
+                    }
+                    if (geometry == null) batches.Add(key, geometry = new PolMeshBatch());
+                }
+                else geometry = new PolMeshBatch();
+
+                #if UNITY_EDITOR
+                geometry.Sources.Add(new PolMeshBatchInfoPresenter.SourceGroup
+                {
+                    nodeName = meshNode.Name,
+                    materialGroupIndex = i,
+                    blendFlag = blendFlag,
+                    material = mesh.Textures[i].Material,
+                    vertexStart = geometry.Positions.Count,
+                    vertexCount = map.SourceIndices.Length,
+                });
+                #endif
+                geometry.Add(map, positions, normals, GetUvs(mainTextureIndex), GetUvs(Math.Max(lightmapIndex, 0)));
+                if (!batchable)
+                {
+                    IGameEntity entity = RenderGeometry(meshNode.Name, geometry, materials);
+                    #if UNITY_EDITOR
+                    MaterialInfoPresenter presenter = entity.AddComponent<MaterialInfoPresenter>();
+                    presenter.blendFlag = blendFlag;
+                    presenter.material = mesh.Textures[i].Material;
+                    #endif
+                }
             }
+        }
+
+        private IGameEntity RenderGeometry(string name, PolMeshBatch geometry, IMaterial[] materials)
+        {
+            IGameEntity entity = GameEntityFactory.Create(name, GameEntity, worldPositionStays: false);
+            entity.IsStatic = _isStaticObject;
+            StaticMeshRenderer renderer = entity.AddComponent<StaticMeshRenderer>();
+            _meshRenderers.Add(renderer);
+            renderer.Render(geometry.Positions.ToArray(), geometry.Triangles.ToArray(),
+                geometry.Normals.Count > 0 ? geometry.Normals.ToArray() : null,
+                (0, geometry.MainUvs.ToArray()), (1, geometry.LightmapUvs.ToArray()), materials, isDynamic: false);
+            #if UNITY_EDITOR
+            PolMeshBatchInfoPresenter presenter = entity.AddComponent<PolMeshBatchInfoPresenter>();
+            presenter.sources = geometry.Sources.ToArray();
+            #endif
+            return entity;
         }
 
         private IEnumerator AnimateWaterTextures()

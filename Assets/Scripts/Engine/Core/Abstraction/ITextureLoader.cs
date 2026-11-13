@@ -1,31 +1,19 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Engine.Core.Abstraction
 {
-    /// <summary>
-    /// Texture loader and ITexture2D creator interface.
-    /// The reason we have a separate Load method interface is because
-    /// uploading texture to GPU is single threaded (upload texture to VRAM),
-    /// while the loading and decoding part can run in parallel and it should
-    /// be thread-safe in general. This two-step approach gives caller
-    /// more flexibility.
-    /// </summary>
+    /// <summary>Decode a file into CPU-side data without creating graphics objects.</summary>
     public interface ITextureLoader
     {
         /// <summary>
-        /// Load and decode texture data.
+        /// Load texture data. The caller disposes the returned source after uploading it.
+        /// This operation may run off the graphics thread; loaders hold no per-image state.
         /// </summary>
-        /// <param name="data">Raw texture data in byte array</param>
-        /// <param name="hasAlphaChannel">True if texture has alpha channel</param>
-        public void Load(byte[] data, out bool hasAlphaChannel);
-
-        /// <summary>
-        /// Convert loaded data into ITexture2D instance.
-        /// </summary>
-        /// <returns>ITexture2D instance</returns>
-        public ITexture2D ToTexture();
+        /// <param name="data">Owned file bytes, which must not be modified after loading.</param>
+        /// <param name="hasAlphaChannel">Legacy material classification, independent of sampling policy.</param>
+        ITextureDataSource Load(byte[] data, out bool hasAlphaChannel);
     }
 }

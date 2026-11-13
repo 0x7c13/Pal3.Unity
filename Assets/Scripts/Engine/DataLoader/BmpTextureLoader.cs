@@ -1,83 +1,49 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Engine.DataLoader
 {
-    using System;
     using System.Buffers;
     using Core.Abstraction;
+    using Core.Implementation;
     using Pal3.Core.DataReader.Bmp;
 
-    /// <summary>
-    /// .bmp file loader and Texture2D converter.
-    /// </summary>
     public sealed class BmpTextureLoader : ITextureLoader
     {
-        private readonly ITextureFactory _textureFactory;
-        private BmpFile _image;
-
-        public BmpTextureLoader(ITextureFactory textureFactory)
+        public ITextureDataSource Load(byte[] data, out bool hasAlphaChannel)
         {
-            _textureFactory = textureFactory;
-        }
-
-        public void Load(byte[] data, out bool hasAlphaChannel)
-        {
-            if (_image != null) throw new Exception("BMP texture already loaded");
-
             hasAlphaChannel = false;
-            _image = new BmpFileReader().Read(data);
-        }
+            BmpFile image = new BmpFileReader().Read(data);
+            int width = image.Info.AbsWidth;
+            int height = image.Info.AbsHeight;
 
-        // Flip image if height is negative
-        private void FlipImage()
-        {
-            if (_image.Info.Height > 0) return;
-
-            int width = _image.Info.AbsWidth;
-            int height = _image.Info.AbsHeight;
-
-            for (int y = 0; y < height / 2; y++)
+            if (image.Info.Height < 0)
             {
-                for(int x = 0, o1 = y * width, o2 = (height - y - 1) * width; x < width; x++, o1++, o2++)
+                for (int y = 0; y < height / 2; y++)
                 {
-                    (_image.ImageData[o1], _image.ImageData[o2]) = (_image.ImageData[o2], _image.ImageData[o1]);
+                    for (int x = 0, o1 = y * width, o2 = (height - y - 1) * width; x < width; x++, o1++, o2++)
+                        (image.ImageData[o1], image.ImageData[o2]) = (image.ImageData[o2], image.ImageData[o1]);
                 }
             }
 
-            _image.Info.Height = height;
-        }
-
-        public ITexture2D ToTexture()
-        {
-            if (_image == null) return null;
-
-            if (_image.Info.Height < 0)
-            {
-                FlipImage();
-            }
-
-            byte[] rawRgbaDataBuffer = ArrayPool<byte>.Shared.Rent(_image.ImageData.Length * 4);
-
+            byte[] rgba = ArrayPool<byte>.Shared.Rent(checked(image.ImageData.Length * 4));
             try
             {
-                for (int i = 0; i < _image.ImageData.Length; i++)
+                for (int i = 0; i < image.ImageData.Length; i++)
                 {
-                    rawRgbaDataBuffer[i * 4 + 0] = _image.ImageData[i].B;
-                    rawRgbaDataBuffer[i * 4 + 1] = _image.ImageData[i].G;
-                    rawRgbaDataBuffer[i * 4 + 2] = _image.ImageData[i].R;
-                    rawRgbaDataBuffer[i * 4 + 3] = _image.ImageData[i].A;
+                    rgba[i * 4 + 0] = image.ImageData[i].B;
+                    rgba[i * 4 + 1] = image.ImageData[i].G;
+                    rgba[i * 4 + 2] = image.ImageData[i].R;
+                    rgba[i * 4 + 3] = image.ImageData[i].A;
                 }
-
-                // Use the buffer instead of a new array
-                return _textureFactory.CreateTexture(_image.Info.AbsWidth, _image.Info.AbsHeight, rawRgbaDataBuffer);
+                return Rgba32TextureDataSource.TakePooledBuffer(width, height, rgba, hasTransparency: false);
             }
-            finally
+            catch
             {
-                ArrayPool<byte>.Shared.Return(rawRgbaDataBuffer);
-                _image = null;
+                ArrayPool<byte>.Shared.Return(rgba);
+                throw;
             }
         }
     }

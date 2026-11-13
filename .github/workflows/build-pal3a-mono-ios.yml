@@ -1,6 +1,10 @@
 name: Builds - PAL3A - Mono - iOS
 
-on: [push, pull_request]
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   build_pal3a_mono_ios:
@@ -12,7 +16,7 @@ jobs:
         targetPlatform:
           - iOS # Build an iOS player.
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           lfs: true
@@ -28,12 +32,12 @@ jobs:
           find: "6b32649dccc45df4ebe8e3f8eccee249"
           replace: "d03d417e5660d5849939c8fe43732dbd"
           include: "**ProjectSettings.asset"
-      - uses: actions/cache@v5.0.5
+      - uses: actions/cache@v6.1.0
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
           restore-keys: Library-
-      - uses: game-ci/unity-builder@v5
+      - uses: game-ci/unity-builder@v6.0.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -43,4 +47,5 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: PAL3A
           versioning: Semantic
+          cliVersion: v0.1.73
       # do not upload artifacts for iOS builds

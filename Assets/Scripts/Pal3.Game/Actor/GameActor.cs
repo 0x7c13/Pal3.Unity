@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Actor
 {
@@ -16,6 +16,11 @@ namespace Pal3.Game.Actor
         private const float DEFAULT_ROTATION_SPEED = 20f;
 
         public ScnNpcInfo Info { get; }
+
+        private int? _noTurnOverride;
+        public int NoTurn => _noTurnOverride ?? (int)Info.NoTurn;
+        public bool IsNoTurnChanged => _noTurnOverride.HasValue;
+        public void SetNoTurn(int noTurn) => _noTurnOverride = noTurn;
 
         private uint? _overwrittenScriptId;
         private uint? _overwrittenMoveSpeed;

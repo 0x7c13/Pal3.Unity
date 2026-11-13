@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader.Cpk
 {
@@ -23,7 +23,6 @@ namespace Pal3.Core.DataReader.Cpk
     {
         private const uint CPK_VERSION = 1;
         private const uint CPK_HEADER_MAGIC = 0x_1A_54_53_52;  // CPK header magic label
-        private const int CPK_DEFAULT_MAX_NUM_OF_FILE = 32768; // Max number of files per archive
 
         private readonly string _filePath;
         private readonly Crc32Hash _crcHash;
@@ -70,14 +69,18 @@ namespace Pal3.Core.DataReader.Cpk
             }
 
             int cpkTableEntitySize = Marshal.SizeOf(typeof(CpkTableEntity));
-            int indexTableSize = cpkTableEntitySize * CPK_DEFAULT_MAX_NUM_OF_FILE;
+            if (header.TableStart < Marshal.SizeOf<CpkHeader>() || header.TableStart > stream.Length ||
+                header.MaxFileCount > (stream.Length - header.TableStart) / cpkTableEntitySize)
+                throw new InvalidDataException("CPK index table is outside the archive");
+            int indexTableSize = checked(cpkTableEntitySize * (int)header.MaxFileCount);
             byte[] indexTableBuffer = ArrayPool<byte>.Shared.Rent(indexTableSize);
 
             try
             {
                 // Read the whole index table into memory before processing
                 // to avoid I/O overhead
-                _ = stream.Read(indexTableBuffer, 0, indexTableSize);
+                stream.Seek(header.TableStart, SeekOrigin.Begin);
+                CoreUtility.ReadExactly(stream, indexTableBuffer.AsSpan(0, indexTableSize));
 
                 uint numOfFiles = header.NumberOfFiles;
                 int filesFound = 0;
@@ -144,9 +147,10 @@ namespace Pal3.Core.DataReader.Cpk
                 {
                     long extraInfoOffset = entity.StartPos + entity.PackedSize;
                     stream.Seek(extraInfoOffset, SeekOrigin.Begin);
-                    _ = stream.Read(extraInfoBuffer, 0, extraInfoSize);
-                    string fileName = Encoding.GetEncoding(_codepage)
-                        .GetString(extraInfoBuffer, 0, Array.IndexOf(extraInfoBuffer, (byte)0));
+                    CoreUtility.ReadExactly(stream, extraInfoBuffer.AsSpan(0, extraInfoSize));
+                    int terminator = Array.IndexOf(extraInfoBuffer, (byte)0, 0, extraInfoSize);
+                    if (terminator < 0) throw new InvalidDataException("CPK filename has no terminator");
+                    string fileName = Encoding.GetEncoding(_codepage).GetString(extraInfoBuffer, 0, terminator);
                     crcToFileNameMap[crc] = fileName;
                 }
                 finally
@@ -170,7 +174,7 @@ namespace Pal3.Core.DataReader.Cpk
             {
                 throw new InvalidOperationException("Initialize the archive before accessing its content");
             }
-            filePathCrcHash = _crcHash.Compute(fileVirtualPath.ToLower(), _codepage);
+            filePathCrcHash = _crcHash.Compute(fileVirtualPath.Replace('/', CpkConstants.DirectorySeparatorChar).ToLowerInvariant(), _codepage);
             return _crcToTableEntityMap.ContainsKey(filePathCrcHash);
         }
 
@@ -211,7 +215,7 @@ namespace Pal3.Core.DataReader.Cpk
                 using FileStream stream = new(_filePath, FileMode.Open, FileAccess.Read);
                 stream.Seek(entity.StartPos, SeekOrigin.Begin);
                 byte[] buffer = new byte[entity.PackedSize];
-                _ = stream.Read(buffer.AsSpan());
+                CoreUtility.ReadExactly(stream, buffer);
                 return entity.IsCompressed() ?
                     DecompressDataInArchive(buffer.AsSpan(), entity.OriginSize) :
                     buffer;

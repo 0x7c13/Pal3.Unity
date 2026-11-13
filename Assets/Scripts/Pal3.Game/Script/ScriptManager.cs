@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Script
 {
@@ -25,7 +25,8 @@ namespace Pal3.Game.Script
     {
         private readonly ISceCommandParser _sceCommandParser;
         private readonly IPalScriptPatcher _scriptPatcher;
-        private readonly IUserVariableStore<ushort, int> _userVariableStore;
+        private readonly UserVariableManager _userVariableStore;
+        private readonly Action<ICommand> _executeCommand;
 
         private readonly SceFile _systemSceFile;
         private readonly SceFile _worldMapSceFile;
@@ -36,19 +37,35 @@ namespace Pal3.Game.Script
         private readonly List<PalScriptRunner> _finishedScripts = new ();
 
         private bool _pendingSceneScriptExecution = false;
+        private PalScriptRunner _executingScript;
+        private ICommand _executingCommand;
+        private int _generation;
 
         public ScriptManager(GameResourceProvider resourceProvider,
-            IUserVariableStore<ushort, int> userVariableStore,
+            UserVariableManager userVariableStore,
             ISceCommandParser sceCommandParser,
             IPalScriptPatcher scriptPatcher)
+            : this(Requires.IsNotNull(resourceProvider, nameof(resourceProvider))
+                    .GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath),
+                resourceProvider.GetGameResourceFile<SceFile>(FileConstants.WorldMapSceFileVirtualPath),
+                userVariableStore, sceCommandParser, scriptPatcher,
+                command => Pal3.Instance.Execute(command))
         {
-            resourceProvider = Requires.IsNotNull(resourceProvider, nameof(resourceProvider));
+        }
+
+        internal ScriptManager(SceFile systemSceFile,
+            SceFile worldMapSceFile,
+            UserVariableManager userVariableStore,
+            ISceCommandParser sceCommandParser,
+            IPalScriptPatcher scriptPatcher,
+            Action<ICommand> executeCommand)
+        {
             _userVariableStore = Requires.IsNotNull(userVariableStore, nameof(userVariableStore));
             _sceCommandParser = Requires.IsNotNull(sceCommandParser, nameof(sceCommandParser));
             _scriptPatcher = Requires.IsNotNull(scriptPatcher, nameof(scriptPatcher));
-
-            _systemSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.SystemSceFileVirtualPath);
-            _worldMapSceFile = resourceProvider.GetGameResourceFile<SceFile>(FileConstants.WorldMapSceFileVirtualPath);
+            _executeCommand = Requires.IsNotNull(executeCommand, nameof(executeCommand));
+            _systemSceFile = Requires.IsNotNull(systemSceFile, nameof(systemSceFile));
+            _worldMapSceFile = Requires.IsNotNull(worldMapSceFile, nameof(worldMapSceFile));
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -56,24 +73,7 @@ namespace Pal3.Game.Script
         public void Dispose()
         {
             CommandExecutorRegistry<ICommand>.Instance.UnRegister(this);
-
-            _pendingScripts.Clear();
-
-            foreach (PalScriptRunner scriptRunner in _runningScripts)
-            {
-                scriptRunner.OnCommandExecutionRequested -= OnCommandExecutionRequested;
-                scriptRunner.Dispose();
-            }
-
-            _runningScripts.Clear();
-
-            foreach (PalScriptRunner finishedScript in _finishedScripts)
-            {
-                finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
-                finishedScript.Dispose();
-            }
-
-            _finishedScripts.Clear();
+            ClearScripts();
         }
 
         public int GetNumberOfRunningScripts()
@@ -83,6 +83,12 @@ namespace Pal3.Game.Script
 
         public bool AddScript(uint scriptId, bool isWorldMapScript = false)
         {
+            return TryAddScript(scriptId, isWorldMapScript, out _);
+        }
+
+        private bool TryAddScript(uint scriptId, bool isWorldMapScript, out PalScriptRunner scriptRunner)
+        {
+            scriptRunner = null;
             if (scriptId == ScriptConstants.InvalidScriptId) return false;
 
             if (_pendingScripts.Any(s => s.ScriptId == scriptId) ||
@@ -92,38 +98,32 @@ namespace Pal3.Game.Script
                 return false;
             }
 
-            PalScriptRunner scriptRunner;
+            SceFile file;
+            PalScriptType type;
             if (isWorldMapScript)
             {
-                EngineLogger.Log($"Add WorldMap script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_worldMapSceFile,
-                    PalScriptType.WorldMap,
-                    scriptId,
-                    _userVariableStore,
-                    _sceCommandParser,
-                    _scriptPatcher);
+                file = _worldMapSceFile;
+                type = PalScriptType.WorldMap;
             }
             else if (scriptId < ScriptConstants.SystemScriptIdMax)
             {
-                EngineLogger.Log($"Add System script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_systemSceFile,
-                    PalScriptType.System,
-                    scriptId,
-                    _userVariableStore,
-                    _sceCommandParser,
-                    _scriptPatcher);
+                file = _systemSceFile;
+                type = PalScriptType.System;
             }
             else
             {
-                EngineLogger.Log($"Add Scene script id: {scriptId}");
-                scriptRunner = PalScriptRunner.Create(_currentSceFile,
-                    PalScriptType.Scene,
-                    scriptId,
-                    _userVariableStore,
-                    _sceCommandParser,
-                    _scriptPatcher);
+                file = _currentSceFile;
+                type = PalScriptType.Scene;
             }
 
+            if (file == null || !file.ScriptBlocks.ContainsKey(scriptId))
+            {
+                EngineLogger.LogError($"Script not found: {type} {scriptId}");
+                return false;
+            }
+
+            scriptRunner = PalScriptRunner.Create(file, type, scriptId,
+                _userVariableStore, _sceCommandParser, _scriptPatcher);
             scriptRunner.OnCommandExecutionRequested += OnCommandExecutionRequested;
             _pendingScripts.Enqueue(scriptRunner);
             return true;
@@ -131,11 +131,25 @@ namespace Pal3.Game.Script
 
         private void OnCommandExecutionRequested(object sender, ICommand command)
         {
-            Pal3.Instance.Execute(command);
+            var script = (PalScriptRunner)sender;
+            var previous = _executingScript;
+            var previousCommand = _executingCommand;
+            _executingScript = script;
+            _executingCommand = command;
+            try { _userVariableStore.ExecuteInScope(script.Variables, command, _executeCommand); }
+            finally
+            {
+                _executingScript = previous;
+                _executingCommand = previousCommand;
+            }
         }
 
         public void Update(float deltaTime)
         {
+            // A previous update may have been interrupted by a command/notification
+            // exception. Completed runners still in the running list are collected
+            // again below; never carry over a partially processed completion batch.
+            _finishedScripts.Clear();
             while (_pendingScripts.Count > 0)
             {
                 _runningScripts.Insert(0, _pendingScripts.Dequeue());
@@ -143,25 +157,33 @@ namespace Pal3.Game.Script
 
             if (_runningScripts.Count == 0) return;
 
-            foreach (PalScriptRunner script in _runningScripts)
+            int generation = _generation;
+            for (int i = 0; i < _runningScripts.Count; i++)
             {
-                if (!script.Update(deltaTime))
+                PalScriptRunner script = _runningScripts[i];
+                bool running = script.Update(deltaTime);
+                // A command can reset the game during this update. All old script
+                // instances have been disposed; do not emit completion notifications.
+                if (generation != _generation) return;
+                if (!running)
                 {
                     _finishedScripts.Add(script);
                 }
             }
 
-            foreach (PalScriptRunner finishedScript in _finishedScripts)
+            for (int i = 0; i < _finishedScripts.Count; i++)
             {
+                PalScriptRunner finishedScript = _finishedScripts[i];
                 _runningScripts.Remove(finishedScript);
                 finishedScript.OnCommandExecutionRequested -= OnCommandExecutionRequested;
                 finishedScript.Dispose();
 
                 EngineLogger.Log($"Script [{finishedScript.ScriptId} " +
                           $"{finishedScript.ScriptDescription}] finished running");
-                Pal3.Instance.Execute(new ScriptFinishedRunningNotification(
+                _executeCommand(new ScriptFinishedRunningNotification(
                     finishedScript.ScriptId,
                     finishedScript.ScriptType));
+                if (generation != _generation) return;
             }
 
             _finishedScripts.Clear();
@@ -171,7 +193,7 @@ namespace Pal3.Game.Script
             if (_pendingSceneScriptExecution)
             {
                 _pendingSceneScriptExecution = false;
-                Update(1f);
+                Update(0f);
             }
         }
 
@@ -188,10 +210,10 @@ namespace Pal3.Game.Script
                                  StringComparison.OrdinalIgnoreCase)))
             {
                 sceneScriptId = scriptBlock.Key;
-                AddScript(sceneScriptId);
+                if (!AddScript(sceneScriptId)) return false;
                 _pendingSceneScriptExecution = true;
                 // This is to break the current running script from executing and let scene script to execute first
-                Pal3.Instance.Execute(new ScriptRunnerWaitUntilTimeCommand(0f));
+                _executeCommand(new ScriptRunnerWaitUntilTimeCommand(0f));
                 return true;
             }
 
@@ -200,14 +222,30 @@ namespace Pal3.Game.Script
 
         public void Execute(ScriptExecuteCommand command)
         {
-            if (!AddScript((uint) command.ScriptId))
+            if (TryAddScript((uint)command.ScriptId, false, out PalScriptRunner child))
             {
-                Pal3.Instance.Execute(new ScriptFailedToRunNotification((uint) command.ScriptId));
+                #if PAL3A
+                // Only the command decoded by this runner is a synchronous call.
+                // Object interactions may dispatch another 16 during command 124.
+                if (ReferenceEquals(command, _executingCommand))
+                    _executingScript?.WaitForCalledScript(child);
+                #endif
+            }
+            else
+            {
+                _executeCommand(new ScriptFailedToRunNotification((uint) command.ScriptId));
             }
         }
 
         public void Execute(ResetGameStateCommand command)
         {
+            ClearScripts();
+            _currentSceFile = null;
+        }
+
+        private void ClearScripts()
+        {
+            _generation++;
             _pendingSceneScriptExecution = false;
 
             foreach (PalScriptRunner script in _pendingScripts)
@@ -222,6 +260,8 @@ namespace Pal3.Game.Script
                 script.Dispose();
             }
 
+            _pendingScripts.Clear();
+            _runningScripts.Clear();
             _finishedScripts.Clear();
         }
     }

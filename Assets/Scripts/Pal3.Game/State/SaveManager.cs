@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.State
 {
@@ -55,7 +55,7 @@ namespace Pal3.Game.State
         public const int AutoSaveSlotIndex = 0;
         public bool IsAutoSaveEnabled { get; set; } = false;
 
-        private const string SAVE_FILE_FORMAT = "slot_{0}_v1.txt";
+        private const string SAVE_FILE_FORMAT = "slot_{0}_v2.txt";
         private const string SAVE_FOLDER_NAME = "Saves";
         private const float AUTO_SAVE_MIN_DURATION = 120f; // 2 minutes
 
@@ -183,7 +183,9 @@ namespace Pal3.Game.State
             }
             else
             {
-                variables = new Dictionary<ushort, int>(_userVariableStore);
+                variables = _userVariableStore
+                    .Where(variable => (variable.Key & ScriptConstants.GlobalVariableFlag) != 0)
+                    .ToDictionary(variable => variable.Key, variable => variable.Value);
             }
 
             ScnSceneInfo currentSceneInfo = currentScene.GetSceneInfo();
@@ -208,7 +210,13 @@ namespace Pal3.Game.State
 
             // Save team state
             commands.AddRange(_teamManager.GetActorsInTeam()
-                .Select(actorId => new TeamAddOrRemoveActorCommand((int) actorId, 1)));
+                #if PAL3A
+                .Select(actorId => new TeamAddOrRemoveActorSilentlyCommand((int)actorId, 1)));
+                #else
+                .Select(actorId => new TeamAddOrRemoveActorCommand((int)actorId, 1)));
+                #endif
+
+            commands.AddRange(ServiceLocator.Instance.Get<PlayerProgressManager>().GetSaveCommands());
 
             // Save favor info
             commands.AddRange(_favorManager.GetAllActorFavorInfo()
@@ -239,6 +247,13 @@ namespace Pal3.Game.State
             // Save current camera state
             int currentCameraTransformOption = _cameraManager.GetCurrentAppliedDefaultTransformOption();
             Vector3 cameraCurrentRotationInEulerAngles = _cameraManager.GetCameraTransform().EulerAngles;
+            #if PAL3A
+            // Keep the base yaw as well as the constraint, so 198 can restore normal following after a load.
+            if (_cameraManager.HorizontalDirectionConstraint.HasValue)
+            {
+                cameraCurrentRotationInEulerAngles = _cameraManager.GetUnconstrainedCameraEulerAngles();
+            }
+            #endif
             commands.Add(new CameraSetInitialStateOnNextSceneLoadCommand(
                 cameraCurrentRotationInEulerAngles.x,
                 cameraCurrentRotationInEulerAngles.y,
@@ -262,8 +277,26 @@ namespace Pal3.Game.State
                     (int)playerActorMovementController.GameEntity.Transform.EulerAngles.y)
             });
 
+            #if PAL3A
+            if (_cameraManager.HorizontalDirectionConstraint is { } direction)
+            {
+                GameBoxVector3 gameBoxDirection = direction.ToGameBoxPosition();
+                commands.Add(new CameraSetHorizontalDirectionCommand(0, 0, gameBoxDirection.X, gameBoxDirection.Z));
+            }
+            else
+            {
+                // A scene loader may enable its default constraint again on reload.
+                commands.Add(new CameraResetHorizontalDirectionCommand());
+            }
+            #endif
+
             Dictionary<int, GameActor> allActors = currentScene.GetAllActors();
             Dictionary<int, IGameEntity> allActorGameEntities = currentScene.GetAllActorGameEntities();
+
+            #if PAL3A
+            foreach (GameActor actor in allActors.Values.Where(actor => actor.IsNoTurnChanged))
+                commands.Add(new ActorSetNoTurnCommand(actor.Id, actor.NoTurn));
+            #endif
 
             // Save npc actor state
             foreach ((int actorId, IGameEntity actorGameEntity) in allActorGameEntities)
@@ -303,6 +336,8 @@ namespace Pal3.Game.State
                     (int)huaYingGameEntity.Transform.EulerAngles.y));
             }
             #elif PAL3A
+            var combatState = ServiceLocator.Instance.Get<GameSystems.Combat.CombatCoordinator>().ScriptState;
+            commands.Add(new Pal3ARestoreCombatScriptStateCommand(combatState.Flags, combatState.LostHp, combatState.LostMp));
             // Save Task state
             commands.AddRange(_taskManager.GetOpenedTasks().
                 Select(openedTask => new TaskOpenCommand(openedTask.Id)));

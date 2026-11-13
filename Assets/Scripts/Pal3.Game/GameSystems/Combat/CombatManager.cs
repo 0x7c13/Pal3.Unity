@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GameSystems.Combat
 {
@@ -22,6 +22,7 @@ namespace Pal3.Game.GameSystems.Combat
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Extensions;
+    using Engine.Services;
     using Game.Scene;
     using Scene;
     using State;
@@ -83,44 +84,96 @@ namespace Pal3.Game.GameSystems.Combat
 
             _cameraFovBeforeCombat = _cameraManager.GetFieldOfView();
 
-            if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
+            string previousMusic = Engine.Services.ServiceLocator.Instance.Get<Audio.AudioManager>().GetCurrentScriptMusic();
+            try
             {
-                Pal3.Instance.Execute(new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
+                if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
+                {
+                    Pal3.Instance.Execute(new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
+                }
+
+                _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
+
+                Dictionary<ElementPosition, CombatActorInfo> combatActors = new ();
+
+                int positionIndex = 0;
+                foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
+                {
+                    int combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
+                    CombatActorInfo info = CopyActorInfo(_combatActorInfos[combatActorId]);
+                    info.Level = ServiceLocator.Instance.Get<PlayerProgressManager>().GetLevel((int)playerActorId);
+                    #if PAL3A
+                    if (playerActorId == PlayerActorId.NanGongHuang && combatContext.NanGongHuangStartsTransformed)
+                        info.ModelId = ActorConstants.NanGongHuangWolfModeActorName;
+                    if (playerActorId == PlayerActorId.WangPengXu && combatContext.WangPengXuStartsTransformed)
+                    {
+                        info.ModelId = "106";
+                        info.AttributeValues[ActorAttributeType.Hp] = 400;
+                        info.AttributeValues[ActorAttributeType.Defense] *= 2;
+                    }
+                    #endif
+                    combatActors[(ElementPosition)positionIndex++] = info;
+                }
+
+                for (int i = 0; i < combatContext.EnemyIds.Length; i++)
+                {
+                    uint enemyActorId = combatContext.EnemyIds[i];
+                    if (enemyActorId == 0) continue;
+                    CombatActorInfo info = CopyActorInfo(_combatActorInfos[(int)enemyActorId]);
+                    #if PAL3A
+                    if (enemyActorId == 722)
+                    {
+                        info.AttributeValues[ActorAttributeType.Hp] = AddAttributeBonus(
+                            info.AttributeValues[ActorAttributeType.Hp], combatContext.LiaoRiHpBonus);
+                        info.AttributeValues[ActorAttributeType.Mp] = AddAttributeBonus(
+                            info.AttributeValues[ActorAttributeType.Mp], combatContext.LiaoRiMpBonus);
+                    }
+                    #endif
+                    combatActors[(ElementPosition)((int)ElementPosition.EnemyWater + i)] = info;
+                }
+
+                _combatScene.LoadActors(combatActors, combatContext.MeetType);
+
+                SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
+
+                Pal3.Instance.Execute(new CameraFadeInCommand());
+
+                if (combatContext.MeetType != MeetType.RunningIntoEachOther)
+                {
+                    Pal3.Instance.Execute(new UIDisplayNoteCommand(
+                        combatContext.MeetType == MeetType.PlayerChasingEnemy
+                            ? "偷袭敌方成功！"
+                            : "被敌人偷袭！"));
+                }
             }
-
-            _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
-
-            Dictionary<ElementPosition, CombatActorInfo> combatActors = new ();
-
-            int positionIndex = 0;
-            foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
+            catch
             {
-                int combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
-                combatActors[(ElementPosition)positionIndex++] = _combatActorInfos[combatActorId];
-            }
-
-            for (int i = 0; i < combatContext.EnemyIds.Length; i++)
-            {
-                uint enemyActorId = combatContext.EnemyIds[i];
-                if (enemyActorId == 0) continue;
-                combatActors[(ElementPosition)((int)ElementPosition.EnemyWater + i)] =
-                    _combatActorInfos[(int)enemyActorId];
-            }
-
-            _combatScene.LoadActors(combatActors, combatContext.MeetType);
-
-            SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
-
-            Pal3.Instance.Execute(new CameraFadeInCommand());
-
-            if (combatContext.MeetType != MeetType.RunningIntoEachOther)
-            {
-                Pal3.Instance.Execute(new UIDisplayNoteCommand(
-                    combatContext.MeetType == MeetType.PlayerChasingEnemy
-                        ? "偷袭敌方成功！"
-                        : "被敌人偷袭！"));
+                _sceneManager.UnloadCombatScene();
+                ResetCameraPosition();
+                if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
+                {
+                    if (string.IsNullOrEmpty(previousMusic)) Pal3.Instance.Execute(new StopScriptMusicCommand());
+                    else Pal3.Instance.Execute(new PlayScriptMusicCommand(previousMusic, -1));
+                }
+                _combatScene = null;
+                _currentCombatContext = null;
+                throw;
             }
         }
+
+        private static CombatActorInfo CopyActorInfo(CombatActorInfo info)
+        {
+            info.AttributeValues = new Dictionary<ActorAttributeType, int>(info.AttributeValues);
+            if (info.Type == CombatActorType.MainActor) info.ModelId = info.Id.ToString();
+            return info;
+        }
+
+        #if PAL3A
+        private static int AddAttributeBonus(int value, int bonus)
+        {
+            return (int)Math.Clamp((long)value + bonus, 0, int.MaxValue);
+        }
+        #endif
 
         public void ExitCombat()
         {

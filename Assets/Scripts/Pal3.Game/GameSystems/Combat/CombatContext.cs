@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GameSystems.Combat
 {
@@ -30,6 +30,15 @@ namespace Pal3.Game.GameSystems.Combat
         public bool IsUnbeatable { get; set; } = false;
         public bool IsNoGameOverWhenLose { get; set; } = false;
         public uint[] EnemyIds { get; set; } = new uint[6];
+
+        #if PAL3A
+        public bool NanGongHuangAbilitiesEnabled { get; set; }
+        public bool WangPengXuTransformEnabled { get; set; }
+        public bool NanGongHuangStartsTransformed { get; set; }
+        public bool WangPengXuStartsTransformed { get; set; }
+        public int LiaoRiHpBonus { get; set; }
+        public int LiaoRiMpBonus { get; set; }
+        #endif
 
         public override string ToString()
         {

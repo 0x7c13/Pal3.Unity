@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Script
 {
@@ -47,6 +47,7 @@ namespace Pal3.Game.Script
     {
         private const int DEFAULT_VARIABLE_VALUE = 0;
         private readonly Dictionary<ushort, int> _variables = new ();
+        private IUserVariableStore<ushort, int> _scriptVariables;
 
         public UserVariableManager()
         {
@@ -60,12 +61,26 @@ namespace Pal3.Game.Script
 
         public void Set(ushort variable, int value)
         {
-            _variables[variable] = value;
+            if ((variable & ScriptConstants.GlobalVariableFlag) != 0) _variables[variable] = value;
+            else if (_scriptVariables != null) _scriptVariables.Set(variable, value);
+            else throw new InvalidOperationException("Local variables require an executing script instance");
         }
 
         public int Get(ushort variable)
         {
-            return _variables.GetValueOrDefault(variable, DEFAULT_VARIABLE_VALUE);
+            if ((variable & ScriptConstants.GlobalVariableFlag) != 0)
+                return _variables.GetValueOrDefault(variable, DEFAULT_VARIABLE_VALUE);
+            return _scriptVariables?.Get(variable) ??
+                   throw new InvalidOperationException("Local variables require an executing script instance");
+        }
+
+        internal void ExecuteInScope(IUserVariableStore<ushort, int> variables,
+            ICommand command, Action<ICommand> execute)
+        {
+            var previous = _scriptVariables;
+            _scriptVariables = variables;
+            try { execute(command); }
+            finally { _scriptVariables = previous; }
         }
 
         public IEnumerator<KeyValuePair<ushort, int>> GetEnumerator()

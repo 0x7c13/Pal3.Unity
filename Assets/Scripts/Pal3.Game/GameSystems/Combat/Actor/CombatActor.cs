@@ -1,10 +1,11 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GameSystems.Combat.Actor
 {
+    using System;
     using Core.Contract.Constants;
     using Core.Contract.Enums;
     using Core.DataReader.Gdb;
@@ -17,7 +18,9 @@ namespace Pal3.Game.GameSystems.Combat.Actor
 
         public CombatActor(GameResourceProvider resourceProvider, CombatActorInfo actorInfo) :
             base(resourceProvider, (int)actorInfo.Id,
-                actorInfo.Type == CombatActorType.MainActor ? actorInfo.Id.ToString() : actorInfo.ModelId)
+                string.IsNullOrEmpty(actorInfo.ModelId) ||
+                actorInfo.Type == CombatActorType.MainActor && string.Equals(actorInfo.ModelId, "Null", StringComparison.OrdinalIgnoreCase)
+                    ? actorInfo.Id.ToString() : actorInfo.ModelId)
         {
             Info = actorInfo;
         }

@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.Command.SceCommands
 {
@@ -13,17 +13,27 @@ namespace Pal3.Core.Command.SceCommands
             float yaw,
             float pitch,
             float duration,
-            int curveType)
+            int curveType
+            #if PAL3A
+            , int synchronous
+            #endif
+            )
         {
             Yaw = yaw;
             Pitch = pitch;
             Duration = duration;
             CurveType = curveType;
+            #if PAL3A
+            Synchronous = synchronous;
+            #endif
         }
 
         public float Yaw { get; }
         public float Pitch { get; }
         public float Duration { get; }
         public int CurveType { get; }
+        #if PAL3A
+        public int Synchronous { get; }
+        #endif
     }
 }

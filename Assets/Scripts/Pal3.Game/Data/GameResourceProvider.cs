@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Data
 {
@@ -145,11 +145,11 @@ namespace Pal3.Game.Data
 
         public IMaterialManager GetMaterialManager() => _materialManager;
 
-        public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true)
+        public ITextureResourceProvider CreateTextureResourceProvider(string relativeDirectoryPath, bool useCache = true, TextureUsage usage = TextureUsage.World)
         {
             return (_textureCache != null && useCache) ?
-                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath, _textureCache) :
-                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath);
+                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath, _textureCache, usage) :
+                new TextureProvider(_fileSystem, _textureLoaderFactory, _textureFactory, relativeDirectoryPath, usage: usage);
         }
 
         public T GetGameResourceFile<T>(string fileVirtualPath, bool useCache = true, byte[] data = null)
@@ -301,7 +301,7 @@ namespace Pal3.Game.Data
             Rect mainLogoSpriteRect = new Rect(0, 770, 500, 253);
             #endif
 
-            ITextureResourceProvider uiLibTextureProvider = CreateTextureResourceProvider(FileConstants.UILibFolderVirtualPath);
+            ITextureResourceProvider uiLibTextureProvider = CreateTextureResourceProvider(FileConstants.UILibFolderVirtualPath, usage: TextureUsage.Sprite);
             ITexture2D logoTexture = uiLibTextureProvider.GetTexture(mainLogoTextureFileName);
             return logoTexture.CreateSprite(mainLogoSpriteRect.x, mainLogoSpriteRect.y,
                 mainLogoSpriteRect.width, mainLogoSpriteRect.height,
@@ -311,7 +311,7 @@ namespace Pal3.Game.Data
         private ITexture2D GetActorAvatarTexture(string actorName, string avatarTextureName)
         {
             string roleAvatarTextureRelativePath = FileConstants.GetActorFolderVirtualPath(actorName);
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(roleAvatarTextureRelativePath, usage: TextureUsage.Sprite);
             return textureProvider.GetTexture($"{avatarTextureName}.tga");
         }
 
@@ -342,7 +342,7 @@ namespace Pal3.Game.Data
         private ITexture2D GetEmojiSpriteSheetTexture(ActorEmojiType emojiType)
         {
             string emojiSpriteSheetRelativePath = FileConstants.EmojiSpriteSheetFolderVirtualPath;
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(emojiSpriteSheetRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(emojiSpriteSheetRelativePath, usage: TextureUsage.Sprite);
             return textureProvider.GetTexture($"EM_{(int)emojiType:00}.tga");
         }
 
@@ -350,7 +350,7 @@ namespace Pal3.Game.Data
         {
             string captionTextureRelativePath = FileConstants.CaptionFolderVirtualPath;
             // No need to cache caption texture since it is a one time thing
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(captionTextureRelativePath, useCache: false);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(captionTextureRelativePath, useCache: false, usage: TextureUsage.Sprite);
             return textureProvider.GetTexture($"{name}.tga");
         }
 
@@ -359,7 +359,7 @@ namespace Pal3.Game.Data
             string relativeFilePath = string.Format(FileConstants.SkyBoxTexturePathFormat.First(), skyBoxId);
 
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                CoreUtility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR));
+                CoreUtility.GetDirectoryName(relativeFilePath, DIR_SEPARATOR), usage: TextureUsage.Skybox);
 
             ITexture2D[] textures = new ITexture2D[FileConstants.SkyBoxTexturePathFormat.Length];
             for (int i = 0; i < FileConstants.SkyBoxTexturePathFormat.Length; i++)
@@ -378,7 +378,7 @@ namespace Pal3.Game.Data
         public ITexture2D GetEffectTexture(string name, out bool hasAlphaChannel)
         {
             string effectFolderRelativePath = FileConstants.EffectFolderVirtualPath;
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(effectFolderRelativePath, usage: TextureUsage.Sprite);
             return textureProvider.GetTexture(name, out hasAlphaChannel);
         }
 
@@ -419,7 +419,7 @@ namespace Pal3.Game.Data
         public ISprite[] GetJumpIndicatorSprites()
         {
             string relativePath = FileConstants.UISceneFolderVirtualPath;
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(relativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(relativePath, usage: TextureUsage.Sprite);
 
             ISprite[] sprites = new ISprite[4];
 
@@ -499,7 +499,7 @@ namespace Pal3.Game.Data
         public (ITexture2D texture, bool hasAlphaChannel)[] GetEffectTextures(GraphicsEffectType effect, string texturePathFormat)
         {
             ITextureResourceProvider textureProvider = CreateTextureResourceProvider(
-                CoreUtility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR));
+                CoreUtility.GetDirectoryName(texturePathFormat, DIR_SEPARATOR), usage: TextureUsage.Sprite);
 
             if (effect == GraphicsEffectType.Fire)
             {
@@ -521,7 +521,7 @@ namespace Pal3.Game.Data
         public ITexture2D GetCursorTexture()
         {
             string cursorSpriteRelativePath = FileConstants.CursorSpriteFolderVirtualPath;
-            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath);
+            ITextureResourceProvider textureProvider = CreateTextureResourceProvider(cursorSpriteRelativePath, usage: TextureUsage.Sprite);
             ITexture2D cursorTexture = textureProvider.GetTexture($"jt.tga");
             return cursorTexture;
         }

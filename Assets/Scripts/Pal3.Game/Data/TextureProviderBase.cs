@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.Data
 {
@@ -14,10 +14,11 @@ namespace Pal3.Game.Data
         protected ITexture2D GetTexture(ICpkFileSystem fileSystem,
             string texturePath,
             ITextureLoader textureLoader,
+            ITextureFactory textureFactory,
+            TextureUsage usage,
             out bool hasAlphaChannel)
         {
             byte[] data;
-
             try
             {
                 data = fileSystem.ReadAllBytes(texturePath);
@@ -28,8 +29,8 @@ namespace Pal3.Game.Data
                 return null;
             }
 
-            textureLoader.Load(data, out hasAlphaChannel);
-            return textureLoader.ToTexture();
+            using ITextureDataSource source = textureLoader.Load(data, out hasAlphaChannel);
+            return textureFactory.CreateTexture(source, TextureCreationPolicy.Resolve(source, usage));
         }
     }
 }

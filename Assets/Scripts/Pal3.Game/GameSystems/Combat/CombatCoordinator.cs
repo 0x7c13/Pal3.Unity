@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GameSystems.Combat
 {
@@ -43,7 +43,12 @@ namespace Pal3.Game.GameSystems.Combat
         ICommandExecutor<CombatEnterBossFightCommand>,
         #if PAL3A
         ICommandExecutor<CombatEnterBossFightUsingMusicCommand>,
-        ICommandExecutor<CombatEnterBossFightUsingMusicWithSpecialActorCommand>,
+        ICommandExecutor<CombatPrepareNanGongHuangTransformCommand>,
+        ICommandExecutor<CombatPrepareWangPengXuTransformCommand>,
+        ICommandExecutor<NanGongHuangEnableCombatAbilitiesCommand>,
+        ICommandExecutor<WangPengXuEnableCombatTransformCommand>,
+        ICommandExecutor<CombatPreserveDamageForLiaoRiCommand>,
+        ICommandExecutor<Pal3ARestoreCombatScriptStateCommand>,
         #endif
         ICommandExecutor<CombatSetUnbeatableCommand>,
         ICommandExecutor<CombatSetMaxRoundCommand>,
@@ -52,6 +57,9 @@ namespace Pal3.Game.GameSystems.Combat
     {
         private const string COMBAT_SCN_FILE_NAME = "combatScn.txt";
 
+        #if PAL3A
+        public Core.Contract.Pal3ACombatScriptState ScriptState { get; } = new();
+        #endif
         private readonly GameSettings _gameSettings;
         private readonly CombatManager _combatManager;
         private readonly PlayerActorManager _playerActorManager;
@@ -93,52 +101,87 @@ namespace Pal3.Game.GameSystems.Combat
 
         private void StartCombat()
         {
-            if (!_gameSettings.IsTurnBasedCombatEnabled) return;
-
-            GameScene currentScene = _sceneManager.GetCurrentScene();
-
-            // Figure out which combat scene to use
-            string combatSceneName = GetCombatSceneName(currentScene);
-            _combatContextBuilder.WithCombatSceneName(combatSceneName);
-
-            // Figure out element property of the combat scene
-            if (_combatScnFile.CombatSceneElementTypeInfo.TryGetValue(combatSceneName,
-                    out ElementType combatSceneElementType))
+            if (!_gameSettings.IsTurnBasedCombatEnabled)
             {
-                _combatContextBuilder.WithCombatSceneElementType(combatSceneElementType);
+                // A skipped encounter must not leave its one-shot flags on an unrelated later fight.
+                #if PAL3A
+                ScriptState.BeginBattle(Array.IndexOf(_combatContextBuilder.CurrentContext.EnemyIds, 722u) >= 0);
+                #endif
+                _combatContextBuilder.ResetContext();
+                return;
             }
 
-            // Figure out which combat music to play
-            if (string.IsNullOrEmpty(_combatContextBuilder.CurrentContext.CombatMusicName))
+            GameState previousState = _gameStateManager.GetCurrentState();
+            #if PAL3A
+            int flags = ScriptState.Flags, lostHp = ScriptState.LostHp, lostMp = ScriptState.LostMp;
+            #endif
+            try
             {
-                if (MusicConstants.CombatMusicInfo.TryGetValue(
-                        currentScene.GetSceneInfo().CityName.ToLower(),
-                        out string combatMusic))
+                GameScene currentScene = _sceneManager.GetCurrentScene();
+
+                // Figure out which combat scene to use
+                string combatSceneName = GetCombatSceneName(currentScene);
+                _combatContextBuilder.WithCombatSceneName(combatSceneName);
+
+                // Figure out element property of the combat scene
+                if (_combatScnFile.CombatSceneElementTypeInfo.TryGetValue(combatSceneName,
+                        out ElementType combatSceneElementType))
                 {
-                    // Set music only if it's not set yet or it's not a script triggered combat
-                    if (string.IsNullOrEmpty(_audioManager.GetCurrentScriptMusic()) ||
-                        !_combatContextBuilder.CurrentContext.IsScriptTriggeredCombat)
+                    _combatContextBuilder.WithCombatSceneElementType(combatSceneElementType);
+                }
+
+                // Figure out which combat music to play
+                if (string.IsNullOrEmpty(_combatContextBuilder.CurrentContext.CombatMusicName))
+                {
+                    if (MusicConstants.CombatMusicInfo.TryGetValue(
+                            currentScene.GetSceneInfo().CityName.ToLower(),
+                            out string combatMusic))
                     {
-                        _combatContextBuilder.WithCombatMusicName(combatMusic);
+                        // Set music only if it's not set yet or it's not a script triggered combat
+                        if (string.IsNullOrEmpty(_audioManager.GetCurrentScriptMusic()) ||
+                            !_combatContextBuilder.CurrentContext.IsScriptTriggeredCombat)
+                        {
+                            _combatContextBuilder.WithCombatMusicName(combatMusic);
+                        }
                     }
                 }
-            }
 
-            // Check current state and add script waiter to pause script execution
-            // if we are in cutscene state.
-            if (_gameStateManager.GetCurrentState() == GameState.Cutscene)
+                // Check current state and add script waiter to pause script execution
+                // if we are in cutscene state.
+                if (_gameStateManager.GetCurrentState() == GameState.Cutscene)
+                {
+                    WaitUntilCanceled combatWaiter = new();
+                    Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(combatWaiter));
+                    _combatContextBuilder.WithScriptWaiter(combatWaiter);
+                }
+
+                CombatContext combatContext = _combatContextBuilder.Build();
+
+                #if PAL3A
+                var options = ScriptState.BeginBattle(Array.IndexOf(combatContext.EnemyIds, 722u) >= 0);
+                combatContext.NanGongHuangAbilitiesEnabled = ScriptState.NanGongHuangAbilitiesEnabled;
+                combatContext.WangPengXuTransformEnabled = ScriptState.WangPengXuTransformEnabled;
+                combatContext.NanGongHuangStartsTransformed = options.wolf;
+                combatContext.WangPengXuStartsTransformed = options.pengXu;
+                combatContext.LiaoRiHpBonus = options.hpBonus;
+                combatContext.LiaoRiMpBonus = options.mpBonus;
+                #endif
+
+                // Start combat
+                EngineLogger.LogWarning($"Starting combat with context: {combatContext}");
+                _gameStateManager.TryGoToState(GameState.Combat);
+                _combatManager.EnterCombat(combatContext);
+            }
+            catch
             {
-                WaitUntilCanceled combatWaiter = new();
-                Pal3.Instance.Execute(new ScriptRunnerAddWaiterRequest(combatWaiter));
-                _combatContextBuilder.WithScriptWaiter(combatWaiter);
+                #if PAL3A
+                ScriptState.Restore(flags, lostHp, lostMp);
+                #endif
+                _combatContextBuilder.CurrentContext.ScriptWaiter?.CancelWait();
+                _combatContextBuilder.ResetContext();
+                if (!_gameStateManager.TryGoToState(previousState)) _gameStateManager.TryGoToState(GameState.Cutscene);
+                throw;
             }
-
-            CombatContext combatContext = _combatContextBuilder.Build();
-
-            // Start combat
-            EngineLogger.LogWarning($"Starting combat with context: {combatContext}");
-            _gameStateManager.TryGoToState(GameState.Combat);
-            _combatManager.EnterCombat(combatContext);
         }
 
         private void OnCombatFinished(object sender, CombatResult combatResult)
@@ -273,21 +316,12 @@ namespace Pal3.Game.GameSystems.Combat
             StartCombat();
         }
 
-        public void Execute(CombatEnterBossFightUsingMusicWithSpecialActorCommand command)
-        {
-            _combatContextBuilder
-                .WithEnemyIds(
-                    command.Monster1Id,
-                    command.Monster2Id,
-                    command.Monster3Id,
-                    command.Monster4Id,
-                    command.Monster5Id,
-                    command.Monster6Id)
-                .WithIsScriptTriggeredCombat(true)
-                .WithCombatMusicName(command.CombatMusicName);
-            // TODO: NanGoongHuang enter fight using wolf state
-            StartCombat();
-        }
+        public void Execute(CombatPrepareNanGongHuangTransformCommand command) => ScriptState.NextNanGongHuangTransform = true;
+        public void Execute(CombatPrepareWangPengXuTransformCommand command) => ScriptState.NextWangPengXuTransform = true;
+        public void Execute(NanGongHuangEnableCombatAbilitiesCommand command) => ScriptState.NanGongHuangAbilitiesEnabled = command.Enable > 0;
+        public void Execute(WangPengXuEnableCombatTransformCommand command) => ScriptState.WangPengXuTransformEnabled = command.Enabled > 0;
+        public void Execute(CombatPreserveDamageForLiaoRiCommand command) => ScriptState.PreserveLosses = true;
+        public void Execute(Pal3ARestoreCombatScriptStateCommand command) => ScriptState.Restore(command.Flags, command.LostHp, command.LostMp);
         #endif
 
         public void Execute(CombatSetUnbeatableCommand command)
@@ -308,6 +342,9 @@ namespace Pal3.Game.GameSystems.Combat
         public void Execute(ResetGameStateCommand command)
         {
             _combatContextBuilder.ResetContext();
+            #if PAL3A
+            ScriptState.Reset();
+            #endif
         }
 
         // Player actor collides with combat NPC in maze

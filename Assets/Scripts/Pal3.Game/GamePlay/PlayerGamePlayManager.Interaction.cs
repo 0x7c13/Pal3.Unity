@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Game.GamePlay
 {
@@ -34,12 +34,53 @@ namespace Pal3.Game.GamePlay
         ICommandExecutor<PlayerInteractionRequest>,
         ICommandExecutor<PlayerInteractWithObjectCommand>
     {
+        private int _interactionGeneration;
+
+        private void StartInteraction(IEnumerator routine)
+        {
+            int generation = _interactionGeneration;
+            Pal3.Instance.StartCoroutine(RunInteractionAsync(routine, () => generation != _interactionGeneration));
+        }
+
+        // Unwind the entire linked-object chain on reset, including nested script
+        // waits. Resuming just the innermost waiter could run an old parent's actions.
+        internal static IEnumerator RunInteractionAsync(IEnumerator routine, Func<bool> isCanceled)
+        {
+            var stack = new Stack<IEnumerator>();
+            stack.Push(routine);
+            try
+            {
+                while (stack.Count > 0 && !isCanceled())
+                {
+                    IEnumerator current = stack.Peek();
+                    if (!current.MoveNext())
+                    {
+                        stack.Pop();
+                        (current as IDisposable)?.Dispose();
+                    }
+                    else if (current.Current is IEnumerator nested)
+                    {
+                        stack.Push(nested);
+                    }
+                    else
+                    {
+                        if (isCanceled()) yield break;
+                        yield return current.Current;
+                    }
+                }
+            }
+            finally
+            {
+                while (stack.Count > 0) (stack.Pop() as IDisposable)?.Dispose();
+            }
+        }
+
         public void Execute(PlayerInteractWithObjectCommand command)
         {
             GameScene currentScene = _sceneManager.GetCurrentScene();
             if (currentScene.GetAllActivatedSceneObjects().Contains(command.SceneObjectId))
             {
-                Pal3.Instance.StartCoroutine(InteractWithSceneObjectAsync(
+                StartInteraction(InteractWithSceneObjectAsync(
                     currentScene.GetSceneObject(command.SceneObjectId), startedByPlayer: false));
             }
             else
@@ -140,7 +181,7 @@ namespace Pal3.Game.GamePlay
 
             if (interactionRoutine != null)
             {
-                Pal3.Instance.StartCoroutine(interactionRoutine);
+                StartInteraction(interactionRoutine);
             }
         }
 
@@ -181,11 +222,16 @@ namespace Pal3.Game.GamePlay
 
             ActorController actorController = actorGameEntity.GetComponent<ActorController>();
             ActorMovementController movementController = actorGameEntity.GetComponent<ActorMovementController>();
+            ActorActionController actionController = actorGameEntity.GetComponent<ActorActionController>();
+            ActorBehaviourType behaviourBeforeInteraction = actorController?.GetCurrentBehaviour() ?? targetActor.Info.InitBehaviour;
+            string actionBeforeInteraction = actionController?.GetCurrentAction();
+            bool restoreLoopingAction = actionController?.CurrentActionLoopCount == -1;
 
             // Pause current path follow movement of the interacting actor
-            if (actorController != null &&
+            bool pausedMovement = targetActor.NoTurn == 0 && actorController != null &&
                 movementController != null &&
-                actorController.GetCurrentBehaviour() == ActorBehaviourType.PathFollow)
+                actorController.GetCurrentBehaviour() == ActorBehaviourType.PathFollow;
+            if (pausedMovement)
             {
                 movementController.PauseMovement();
             }
@@ -196,18 +242,18 @@ namespace Pal3.Game.GamePlay
             bool shouldResetFacingAfterInteraction = false;
 
             // Only let target actor look at player actor when NoTurn is set to false
-            // and InitBehaviour is not set to Hold
-            if (targetActor.Info.NoTurn == 0 && targetActor.Info.InitBehaviour != ActorBehaviourType.Hold)
+            // and the current behaviour is not Hold.
+            if (targetActor.NoTurn == 0 && behaviourBeforeInteraction != ActorBehaviourType.Hold)
             {
+                actionController?.PerformAction(targetActor.GetIdleAction());
                 Pal3.Instance.Execute(new ActorLookAtActorCommand(targetActor.Id, _playerActor.Id));
                 shouldResetFacingAfterInteraction = true;
             }
 
             // Resume animation of the target actor if it is set to hold and loop action is set to 0
-            if (targetActor.Info.InitBehaviour == ActorBehaviourType.Hold &&
+            if (targetActor.NoTurn == 0 && behaviourBeforeInteraction == ActorBehaviourType.Hold &&
                 targetActor.Info.LoopAction == 0)
             {
-                ActorActionController actionController = actorGameEntity.GetComponent<ActorActionController>();
                 // PerformAction internally checks if the target actor is already performing the action
                 actionController.PerformAction(actionController.GetCurrentAction(), false, 1);
             }
@@ -216,20 +262,29 @@ namespace Pal3.Game.GamePlay
             Pal3.Instance.Execute(new ScriptExecuteCommand((int)targetActor.GetScriptId()));
 
             // Wait until the dialogue script is finished
-            yield return new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.GetScriptId());
+            using (var completion = new WaitUntilScriptFinished(PalScriptType.Scene, targetActor.GetScriptId()))
+            {
+                yield return completion;
+                if (completion.IsCanceled || actorGameEntity.IsNullOrDisposed()) yield break;
+            }
 
             // Resume current path follow movement of the interacting actor
-            if (actorController != null &&
-                movementController != null &&
-                actorController.GetCurrentBehaviour() == ActorBehaviourType.PathFollow)
+            if (pausedMovement)
             {
                 movementController.ResumeMovement();
             }
 
             // Reset facing rotation of the interacting actor if needed
-            if (shouldResetFacingAfterInteraction && !actorGameEntity.IsNullOrDisposed())
+            if (shouldResetFacingAfterInteraction && targetActor.NoTurn == 0 &&
+                !actorGameEntity.IsNullOrDisposed() && actorController?.GetCurrentBehaviour() != ActorBehaviourType.Hold)
             {
                 actorGameEntity.Transform.Rotation = rotationBeforeInteraction;
+                // Finite/hold actions were interrupted by dialogue; replaying them
+                // with the default loop count would turn them into endless loops.
+                if (restoreLoopingAction && !string.IsNullOrEmpty(actionBeforeInteraction))
+                {
+                    actionController?.PerformAction(actionBeforeInteraction);
+                }
             }
         }
     }

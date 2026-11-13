@@ -1,7 +1,7 @@
-// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader.Dxt
 {
@@ -25,14 +25,18 @@ namespace Pal3.Core.DataReader.Dxt
 			return buffer;
 		}
 
-		public static unsafe void ToRgba32(byte[] data, int width, int height, byte[] buffer)
+		public static unsafe void ToRgba32(byte[] data, int width, int height, byte[] buffer, int sourceOffset = DDS_FILE_HEADER_SIZE)
 		{
-			if (buffer == null || buffer.Length < width * height * 4)
+			if (width <= 0 || height <= 0 || buffer == null || (long)buffer.Length < (long)width * height * 4)
 			{
 				throw new ArgumentException("buffer is null or too small");
 			}
 
-			fixed (byte* srcStart = &data[DDS_FILE_HEADER_SIZE], dstStart = buffer)
+			if (sourceOffset < 0 || data == null ||
+				(long)sourceOffset + ((width + 3L) / 4) * ((height + 3L) / 4) * 16 > data.Length)
+				throw new ArgumentException("DXT source data is too small");
+
+			fixed (byte* srcStart = &data[sourceOffset], dstStart = buffer)
 			{
 				byte* src = srcStart;
 				byte* dst = dstStart;

@@ -1,7 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------
-//  Copyright (c) 2021-2025, Jiaqi (0x7c13) Liu. All rights reserved.
+﻿// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
-// ---------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 namespace Pal3.Core.DataReader.Cvd
 {
@@ -322,9 +322,10 @@ namespace Pal3.Core.DataReader.Cvd
             }
 
             float[] animationTimeKeys = reader.ReadSingles(numberOfFrames);
+            float firstTime = numberOfFrames == 0 ? 0 : animationTimeKeys[0];
             for (int i = 0; i < numberOfFrames; i++)
             {
-                animationTimeKeys[i] -= animationTimeKeys[0];
+                animationTimeKeys[i] -= firstTime;
             }
 
             int numberOfMeshes = reader.ReadInt32();
@@ -376,9 +377,10 @@ namespace Pal3.Core.DataReader.Cvd
                 int numberOfFrames = reader.ReadInt32();
 
                 animationTimeKeys = reader.ReadSingles(numberOfFrames);
+                float firstTime = numberOfFrames == 0 ? 0 : animationTimeKeys[0];
                 for (int i = 0; i < numberOfFrames; i++)
                 {
-                    animationTimeKeys[i] -= animationTimeKeys[0];
+                    animationTimeKeys[i] -= firstTime;
                 }
 
                 animationMaterials = new GameBoxMaterial[numberOfFrames];
