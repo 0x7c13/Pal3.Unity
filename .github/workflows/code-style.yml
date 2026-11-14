@@ -1,0 +1,29 @@
+name: Code style
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  csharp-format:
+    name: C# formatting (PAL3 and PAL3A)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v5.3.0
+        with:
+          global-json-file: global.json
+      - name: Test formatter enforcement
+        run: python3 tools/tests/test-format-csharp.py
+      - name: Verify changed C# formatting
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: python3 tools/format-csharp.py --check --base "$BASE_REF"

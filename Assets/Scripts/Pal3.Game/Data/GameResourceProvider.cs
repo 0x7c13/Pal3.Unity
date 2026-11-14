@@ -60,14 +60,17 @@ namespace Pal3.Game.Data
 
         private ITextureCache _textureCache;
 
-        private readonly Dictionary<string, ISprite> _spriteCache = new ();
-        private readonly Dictionary<string, AudioClip> _audioClipCache = new ();
+        private readonly Dictionary<string, ISprite> _spriteCache = new();
+        private readonly Dictionary<string, AudioClip> _audioClipCache = new();
 
-        private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new ();
+        private readonly Dictionary<Type, Dictionary<string, object>> _gameResourceFileCache = new();
 
         private readonly int _codepage;
 
-        internal OptionalVfxPlayer OptionalVfx { get; }
+        internal EffectRuntime Effects
+        {
+            get;
+        }
 
         public GameResourceProvider(ICpkFileSystem fileSystem,
             ITextureLoaderFactory textureLoaderFactory,
@@ -83,7 +86,7 @@ namespace Pal3.Game.Data
 
             _codepage = _gameSettings.Language == Language.SimplifiedChinese ? 936 : 950;
             _gameDatabase = GetGameDatabaseFile(); // Initialize game database file
-            OptionalVfx = new OptionalVfxPlayer(_gameSettings);
+            Effects = new EffectRuntime(_fileSystem, _codepage);
 
             CommandExecutorRegistry<ICommand>.Instance.Register(this);
         }
@@ -112,7 +115,7 @@ namespace Pal3.Game.Data
             }
             _audioClipCache.Clear();
 
-            OptionalVfx.Dispose();
+            Effects.Dispose();
 
             _materialManager.Dispose();
 
@@ -131,9 +134,11 @@ namespace Pal3.Game.Data
 
         // No need to deallocate the shadow texture/sprite since it is been used almost every where.
         private static ISprite _shadowSprite;
+
         public ISprite GetShadowSprite()
         {
-            if (_shadowSprite != null) return _shadowSprite;
+            if (_shadowSprite != null)
+                return _shadowSprite;
 
             ITexture2D shadowTexture = new UnityTexture2D(Resources.Load<Texture2D>("Textures/shadow"));
             _shadowSprite = shadowTexture.CreateSprite(0, 0,
@@ -142,6 +147,8 @@ namespace Pal3.Game.Data
 
             return _shadowSprite;
         }
+
+        public Effect.Original.OriginalEffectResources OriginalEffects => Effects.Original;
 
         public IMaterialManager GetMaterialManager() => _materialManager;
 
@@ -224,7 +231,8 @@ namespace Pal3.Game.Data
         /// <param name="musicFileCachePath">music file path in cache folder</param>
         public IEnumerator ExtractAndMoveMp3FileToCacheFolderAsync(string musicFileVirtualPath, string musicFileCachePath)
         {
-            if (File.Exists(musicFileCachePath)) yield break;
+            if (File.Exists(musicFileCachePath))
+                yield break;
 
             EngineLogger.Log($"Writing MP3 file to App's persistent folder: {musicFileVirtualPath}");
             Thread dataMovementThread = new(() =>
@@ -253,11 +261,11 @@ namespace Pal3.Game.Data
 
         public string GetSfxFilePath(string sfxName)
         {
-            #if PAL3
+#if PAL3
             string sfxFileName = (sfxName + ".wav").ToLower();
-            #elif PAL3A
+#elif PAL3A
             string sfxFileName = (sfxName + ".wav").ToUpper();
-            #endif
+#endif
 
             string sfxFileRelativePath = $"{FileConstants.SfxFolderName}{Path.DirectorySeparatorChar}" + sfxFileName;
 
@@ -293,13 +301,13 @@ namespace Pal3.Game.Data
 
         public ISprite GetLogoSprite()
         {
-            #if PAL3
+#if PAL3
             const string mainLogoTextureFileName = "11.tga";
             Rect mainLogoSpriteRect = new Rect(0, 600, 375, 145);
-            #elif PAL3A
+#elif PAL3A
             const string mainLogoTextureFileName = "12.tga";
             Rect mainLogoSpriteRect = new Rect(0, 770, 500, 253);
-            #endif
+#endif
 
             ITextureResourceProvider uiLibTextureProvider = CreateTextureResourceProvider(FileConstants.UILibFolderVirtualPath, usage: TextureUsage.Sprite);
             ITexture2D logoTexture = uiLibTextureProvider.GetTexture(mainLogoTextureFileName);
@@ -321,13 +329,15 @@ namespace Pal3.Game.Data
 
             if (_spriteCache.TryGetValue(cacheKey, out ISprite sprite))
             {
-                if (sprite is { Texture: { IsNativeObjectDisposed: false } }) return sprite;
+                if (sprite is { Texture: { IsNativeObjectDisposed: false } })
+                    return sprite;
             }
 
             ITexture2D texture = GetActorAvatarTexture(
                 actorName, avatarName);
 
-            if (texture == null) return null;
+            if (texture == null)
+                return null;
 
             ISprite avatarSprite = texture.CreateSprite(
                 // Cut 2f to hide artifacts near edges for some of the avatar textures
@@ -527,6 +537,7 @@ namespace Pal3.Game.Data
         }
 
         private string _currentCityName;
+
         public void Execute(ScenePreLoadingNotification notification)
         {
             string newCityName = notification.NewSceneInfo.CityName.ToLower();
@@ -590,7 +601,7 @@ namespace Pal3.Game.Data
                 }
             }
 
-            OptionalVfx.ClearPrefabCache();
+            Effects.InvalidatePreloads();
         }
 
     }

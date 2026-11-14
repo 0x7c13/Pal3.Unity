@@ -7,7 +7,6 @@
  * @note Uses unsafe/fixed pointer contexts internally
  * @liscence Bound by same liscence as minilzo as below, see file COPYING
  */
-
 /* Based on minilzo.c -- mini subset of the LZO real-time data compression library
 
    This file is part of the LZO real-time data compression library.
@@ -58,9 +57,16 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
     {
         private const uint M2_MAX_OFFSET = 0x0800;
 
-        public static unsafe void Decompress(Span<byte> src, byte[] dst)
+        public static void Decompress(Span<byte> src, byte[] dst) => DecompressInternal(src, dst, false);
+
+        // Some PAL3 flexeff files retain a complete LZO stream followed by unused
+        // bytes in a fixed-size file. Keep ordinary CPK decompression strict.
+        public static int DecompressPrefix(Span<byte> src, byte[] dst) => DecompressInternal(src, dst, true);
+
+        private static unsafe int DecompressInternal(Span<byte> src, byte[] dst, bool allowTrailingBytes)
         {
-            if (src.Length < 3) throw new OverflowException("Input Overrun");
+            if (src.Length < 3)
+                throw new OverflowException("Input Overrun");
             uint t = 0;
             fixed (byte* input = src, output = dst)
             {
@@ -276,7 +282,7 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
                                 } while (--t > 0);
                             }
                         }
-                        else if(!eof_found && !match_done)
+                        else if (!eof_found && !match_done)
                         {
                             copy_match = false;
 
@@ -320,13 +326,15 @@ namespace Pal3.Core.DataReader.Cpk.Lzo
                     throw new OverflowException("EOF Marker Not Found");
                 else
                 {
-                    if (op != op_end) throw new OverflowException("Output Length Mismatch");
+                    if (op != op_end)
+                        throw new OverflowException("Output Length Mismatch");
                     //Debug.Assert(t == 1);
                     if (ip > ip_end)
                         throw new OverflowException("Input Overrun");
-                    else if (ip < ip_end)
+                    else if (ip < ip_end && !allowTrailingBytes)
                         throw new OverflowException("Input Not Consumed");
                 }
+                return checked((int)(ip - input));
             }
         }
     }

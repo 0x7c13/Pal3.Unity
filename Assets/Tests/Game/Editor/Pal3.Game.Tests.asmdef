@@ -1,6 +1,6 @@
 {
     "name": "Pal3.Game.Tests",
-    "references": ["Pal3.Core", "Pal3.Game"],
+    "references": ["Pal3.Core", "Pal3.Game", "Engine"],
     "includePlatforms": ["Editor"],
     "optionalUnityReferences": ["TestAssemblies"],
     "autoReferenced": false,

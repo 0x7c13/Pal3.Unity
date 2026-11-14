@@ -513,8 +513,6 @@ namespace Pal3.Game.Dev
                 value => _gameSettings.ToonFireShadows = value);
             AddOption("泛光", () => _gameSettings.BloomEnabled,
                 value => _gameSettings.BloomEnabled = value);
-            AddOption("可选剧情特效", () => _gameSettings.OptionalVfxEnabled,
-                value => _gameSettings.OptionalVfxEnabled = value);
 
             CreateMenuButton("返回", _ => delegate
             {

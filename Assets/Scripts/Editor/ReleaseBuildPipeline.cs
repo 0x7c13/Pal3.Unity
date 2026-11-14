@@ -131,15 +131,13 @@ namespace Editor
 
         private static void BuildGame(Pal3BuildTarget buildTarget)
         {
-            PrivateAssetBuildGuard.Validate();
-
             BuildTargetGroup targetGroupBeforeBuild = EditorUserBuildSettings.selectedBuildTargetGroup;
             BuildTarget targetBeforeBuild = EditorUserBuildSettings.activeBuildTarget;
 
             string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game", "", "");
             if (string.IsNullOrWhiteSpace(buildOutputPath)) return;
 
-            string versionFolder = GetVersionFolderName(PrivateAssetBuildGuard.PrivateBuildEnabled);
+            string versionFolder = GetVersionFolderName();
             buildOutputPath += $"{DirSeparator}{versionFolder}{DirSeparator}";
 
             var buildConfigurations = new[]
@@ -271,14 +269,14 @@ namespace Editor
             }
         }
 
-        private static string GetVersionFolderName(bool privateBuild)
+        private static string GetVersionFolderName()
         {
-            return PlayerSettings.bundleVersion + (privateBuild ? "-Private" : "");
+            return PlayerSettings.bundleVersion;
         }
 
         private static void ZipReleaseFiles()
         {
-            string versionFolder = GetVersionFolderName(PrivateAssetBuildGuard.PrivateBuildEnabled);
+            string versionFolder = GetVersionFolderName();
             string buildOutputPath = EditorUtility.SaveFolderPanel("Choose Location of Built Game",
                 versionFolder, versionFolder);
             if (string.IsNullOrWhiteSpace(buildOutputPath)) return;
@@ -289,12 +287,10 @@ namespace Editor
         {
             string selectedFolder = Path.GetFileName(buildOutputPath.TrimEnd(
                 Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-            bool privateBuild = selectedFolder == GetVersionFolderName(true);
-            if (!privateBuild && selectedFolder != GetVersionFolderName(false))
+            if (selectedFolder != GetVersionFolderName())
             {
                 Debug.LogError($"Invalid build output path: {buildOutputPath}. " +
-                               $"Please choose the current release build folder \"{GetVersionFolderName(false)}\" " +
-                               $"or \"{GetVersionFolderName(true)}\".");
+                               $"Please choose the current release build folder \"{GetVersionFolderName()}\".");
                 return;
             }
 
@@ -313,7 +309,7 @@ namespace Editor
             foreach ((string folderPath, Pal3BuildTarget target) in buildTargets)
             {
                 string fullPath = $"{buildOutputPath}{DirSeparator}{folderPath}";
-                string zipFileName = $"{GameConstants.AppName}_v{GetVersionFolderName(privateBuild)}_{target.ToString()}.zip";
+                string zipFileName = $"{GameConstants.AppName}_v{GetVersionFolderName()}_{target.ToString()}.zip";
                 string zipFilePath = $"{releaseDirPath}{DirSeparator}{zipFileName}";
 
                 if (File.Exists(fullPath) || Directory.Exists(fullPath))

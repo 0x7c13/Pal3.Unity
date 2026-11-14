@@ -11,6 +11,14 @@ namespace Engine.Extensions
         {
             if (obj != null)
             {
+#if UNITY_EDITOR
+                // Model renderers are also used in isolated editor preview scenes.
+                if (!UnityEngine.Application.isPlaying)
+                {
+                    UnityEngine.Object.DestroyImmediate(obj);
+                    return;
+                }
+#endif
                 UnityEngine.Object.Destroy(obj);
             }
         }

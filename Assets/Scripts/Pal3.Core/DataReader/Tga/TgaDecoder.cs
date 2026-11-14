@@ -38,7 +38,7 @@ namespace Pal3.Core.DataReader.Tga
                     *dst = *(src + 2);
                     *(dst + 1) = *(src + 1);
                     *(dst + 2) = *src;
-                    *(dst + 3) = 0; // 24-bit don't have alpha
+                    *(dst + 3) = 255; // RGB textures sample with opaque alpha, as in GameBox.
                 }
             }
         }
@@ -78,7 +78,8 @@ namespace Pal3.Core.DataReader.Tga
                     byte alpha = *(src + 3);
                     *(dst + 3) = alpha;
 
-                    if (alpha != firstAlpha) hasAlphaChannel = true;
+                    if (alpha != firstAlpha)
+                        hasAlphaChannel = true;
                 }
             }
         }

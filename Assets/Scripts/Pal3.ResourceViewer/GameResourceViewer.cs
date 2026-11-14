@@ -32,6 +32,7 @@ namespace Pal3.ResourceViewer
     using Engine.Services;
     using Engine.Utilities;
     using Game.Constants;
+    using Game.Effect.Original;
     using Game.Data;
     using Game.Rendering.Toon;
     using Game.Rendering.Renderer;
@@ -63,6 +64,7 @@ namespace Pal3.ResourceViewer
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private FpsCounter fpsCounter;
 
+        private OriginalEffectViewer _effectViewer;
         private ICpkFileSystem _fileSystem;
         private GameResourceProvider _resourceProvider;
         private GameSettings _gameSettings;
@@ -74,7 +76,7 @@ namespace Pal3.ResourceViewer
         private IList<string> _movFiles;
         private IList<string> _mp3Files;
 
-        private static readonly Random Random = new ();
+        private static readonly Random Random = new();
 
         private GameObject _renderingRoot;
         private Light _previewKey;
@@ -99,12 +101,18 @@ namespace Pal3.ResourceViewer
 
             _renderingRoot = new GameObject("Model");
             _renderingRoot.transform.SetParent(null);
+            _effectViewer = GetComponent<OriginalEffectViewer>() ?? gameObject.AddComponent<OriginalEffectViewer>();
+            _effectViewer.enabled = true;
+            _effectViewer.Initialize(_resourceProvider.OriginalEffects, _renderingRoot.transform, DestroyExistingRenderingObjects);
+            DebugLogConsole.AddCommand<int>("Effect.Load", "Play an original flexeff group (-1: transport point).", _effectViewer.Load);
+            DebugLogConsole.AddCommand<float>("Effect.Seek", "Reset and resimulate the original effect to a time.", _effectViewer.Seek);
+            DebugLogConsole.AddCommand<bool>("Effect.Pause", "Pause or resume the original effect.", _effectViewer.Pause);
 
-            #if UNITY_2022_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             int monitorRefreshRate = (int)Screen.currentResolution.refreshRateRatio.value;
-            #else
+#else
             var monitorRefreshRate = Screen.currentResolution.refreshRate;
-            #endif
+#endif
 
             if (Application.platform is RuntimePlatform.IPhonePlayer or RuntimePlatform.Android)
             {
@@ -124,7 +132,7 @@ namespace Pal3.ResourceViewer
             }
 
             IDictionary<string, IList<string>> searchResults =
-                _fileSystem.BatchSearch(new[] {".pol", ".cvd", ".mv3", ".mov", ".mp3"});
+                _fileSystem.BatchSearch(new[] { ".pol", ".cvd", ".mv3", ".mov", ".mp3" });
 
             _polFiles = searchResults[".pol"];
             _cvdFiles = searchResults[".cvd"];
@@ -138,15 +146,15 @@ namespace Pal3.ResourceViewer
             randomMovButton.onClick.AddListener(RandMov);
             randomMp3Button.onClick.AddListener(RandMp3);
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             extractAllCpkFilesButton.onClick.AddListener(ExtractAllCpkArchives);
-            #else
+#else
             extractAllCpkFilesButton.interactable = false;
-            #endif
+#endif
 
             DebugLogConsole.AddCommand<string>("Search", "Search files using keyword.", Search);
             DebugLogConsole.AddCommand<string, bool>("Load", "Load a file to the viewer (.pol, .cvd, .mp3 or .mv3).", Load);
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             DebugLogConsole.AddCommand("DecompileAllSceScripts",
                 "Decompile all .sce scripts into txt format.",
                 () => DecompileAllSceScripts(dialogueOnly: false));
@@ -159,7 +167,7 @@ namespace Pal3.ResourceViewer
             DebugLogConsole.AddCommand("ExportAllGdbFiles",
                 "Export all .gdb files into the output directory.",
                 ExportAllGdbFiles);
-            #endif
+#endif
 
             //__Malicious__Dev_Only__();
         }
@@ -208,15 +216,23 @@ namespace Pal3.ResourceViewer
         {
             if (propertyName == nameof(GameSettings.AntiAliasing))
                 _antiAliasing?.Apply(_gameSettings.AntiAliasing);
-            if (_previewKey != null) ToonLighting.ConfigureKeyShadows(_previewKey, _gameSettings);
+            if (_previewKey != null)
+                ToonLighting.ConfigureKeyShadows(_previewKey, _gameSettings);
         }
 
         private void OnDisable()
         {
-            if (_gameSettings != null) _gameSettings.OnGameSettingsChanged -= OnRenderingSettingsChanged;
+            if (_effectViewer != null)
+                _effectViewer.enabled = false;
+            DebugLogConsole.RemoveCommand("Effect.Load");
+            DebugLogConsole.RemoveCommand("Effect.Seek");
+            DebugLogConsole.RemoveCommand("Effect.Pause");
+            if (_gameSettings != null)
+                _gameSettings.OnGameSettingsChanged -= OnRenderingSettingsChanged;
             _antiAliasing?.Dispose();
             _toonCameraLighting?.Detach();
-            if (_previewKey != null) _previewKey.enabled = false;
+            if (_previewKey != null)
+                _previewKey.enabled = false;
         }
 
         private void Update()
@@ -227,27 +243,37 @@ namespace Pal3.ResourceViewer
 
         private void RandPol()
         {
-            while (!LoadPol(_polFiles[Random.Next(0, _polFiles.Count)])) { }
+            while (!LoadPol(_polFiles[Random.Next(0, _polFiles.Count)]))
+            {
+            }
         }
 
         private void RandCvd()
         {
-            while (!LoadCvd(_cvdFiles[Random.Next(0, _cvdFiles.Count)])) { }
+            while (!LoadCvd(_cvdFiles[Random.Next(0, _cvdFiles.Count)]))
+            {
+            }
         }
 
         private void RandMv3()
         {
-            while (!LoadMv3(_mv3Files[Random.Next(0, _mv3Files.Count)])) { }
+            while (!LoadMv3(_mv3Files[Random.Next(0, _mv3Files.Count)]))
+            {
+            }
         }
 
         private void RandMov()
         {
-            while (!LoadMov(_movFiles[Random.Next(0, _movFiles.Count)])) { }
+            while (!LoadMov(_movFiles[Random.Next(0, _movFiles.Count)]))
+            {
+            }
         }
 
         private void RandMp3()
         {
-            while (!LoadMp3(_mp3Files[Random.Next(0, _mp3Files.Count)])) { }
+            while (!LoadMp3(_mp3Files[Random.Next(0, _mp3Files.Count)]))
+            {
+            }
         }
 
         private void Search(string keyword)
@@ -291,7 +317,7 @@ namespace Pal3.ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                GameObject mesh = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                GameObject mesh = new(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 PolyModelRenderer meshRenderer = mesh.AddComponent<PolyModelRenderer>();
                 mesh.transform.SetParent(_renderingRoot.transform);
                 meshRenderer.Render(polyFile,
@@ -327,7 +353,7 @@ namespace Pal3.ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(filePath, CpkConstants.DirectorySeparatorChar));
 
-                GameObject animationNode = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                GameObject animationNode = new(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 CvdModelRenderer meshRenderer = animationNode.AddComponent<CvdModelRenderer>();
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
@@ -443,7 +469,7 @@ namespace Pal3.ResourceViewer
                 ITextureResourceProvider textureProvider = _resourceProvider.CreateTextureResourceProvider(
                     CoreUtility.GetDirectoryName(mtlFilePath, CpkConstants.DirectorySeparatorChar));
 
-                GameObject animationNode = new (CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
+                GameObject animationNode = new(CoreUtility.GetFileName(filePath, CpkConstants.DirectorySeparatorChar));
                 animationNode.transform.SetParent(_renderingRoot.transform);
 
                 SkeletalModelRenderer skeletalModelRenderer = animationNode.AddComponent<SkeletalModelRenderer>();
@@ -469,7 +495,7 @@ namespace Pal3.ResourceViewer
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void DecompileAllSceScripts(bool dialogueOnly)
         {
             IEnumerable<string> sceFiles = _fileSystem.Search(".sce")
@@ -478,7 +504,8 @@ namespace Pal3.ResourceViewer
             string title = dialogueOnly ? "选择脚本导出目录(仅对话)" : "选择脚本导出目录";
 
             string outputFolderPath = EditorUtility.SaveFolderPanel(title, "", "");
-            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
+            if (string.IsNullOrWhiteSpace(outputFolderPath))
+                return;
 
             outputFolderPath += $"{Path.DirectorySeparatorChar}{GameConstants.AppName}" + (dialogueOnly ? "_对话脚本" : "");
 
@@ -487,7 +514,9 @@ namespace Pal3.ResourceViewer
                 Directory.CreateDirectory(outputFolderPath);
             }
 
-            foreach (string sceFile in sceFiles) if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly)) break;
+            foreach (string sceFile in sceFiles)
+                if (!DecompileSce(sceFile, outputFolderPath, dialogueOnly))
+                    break;
 
             // _charSet = new HashSet<char>();
 
@@ -532,7 +561,8 @@ namespace Pal3.ResourceViewer
         private void ExportAllGdbFiles()
         {
             string outputFolderPath = EditorUtility.SaveFolderPanel("选择GDB文件解包后的导出目录", "", "");
-            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
+            if (string.IsNullOrWhiteSpace(outputFolderPath))
+                return;
 
             outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
 
@@ -571,7 +601,8 @@ namespace Pal3.ResourceViewer
         private void ExtractAllCpkArchives()
         {
             string outputFolderPath = EditorUtility.SaveFolderPanel("选择CPK解包后的导出目录", "", "");
-            if (string.IsNullOrWhiteSpace(outputFolderPath)) return;
+            if (string.IsNullOrWhiteSpace(outputFolderPath))
+                return;
 
             outputFolderPath += Path.DirectorySeparatorChar + GameConstants.AppName + Path.DirectorySeparatorChar;
 
@@ -586,6 +617,7 @@ namespace Pal3.ResourceViewer
         }
 
         private bool _isMovieCpkMounted = false;
+
         private IEnumerator ExtractAllCpkArchivesInternalAsync(string outputFolderPath)
         {
             // Movie CPKs are not mounted by default since we don't need them in normal gameplay.
@@ -623,9 +655,10 @@ namespace Pal3.ResourceViewer
             consoleTextUI.text = "全部CPK文件已解包完成！";
             extractAllCpkFilesButton.interactable = true;
         }
-        #endif
+#endif
 
-        private readonly Dictionary<string, int> _actorDialogueCountMap = new ();
+        private readonly Dictionary<string, int> _actorDialogueCountMap = new();
+
         private bool DecompileSce(string filePath, string outputFolderPath, bool dialogueOnly)
         {
             StringBuilder output = new();
@@ -648,7 +681,7 @@ namespace Pal3.ResourceViewer
                 output.Append($"----------------------------------------------------------");
                 output.Append($"\n{scriptBlock.Value.Id} {scriptBlock.Value.Description}\n");
 
-                using SafeBinaryReader scriptDataReader = new (scriptBlock.Value.ScriptData);
+                using SafeBinaryReader scriptDataReader = new(scriptBlock.Value.ScriptData);
 
                 int dialogueIndex = 1;
                 ICommand lastCommand = null;
@@ -670,7 +703,7 @@ namespace Pal3.ResourceViewer
                     {
                         string dialogueText = command is DialogueRenderTextCommand textCommand
                             ? textCommand.DialogueText
-                            : ((DialogueRenderTextWithTimeLimitCommand) command).DialogueText;
+                            : ((DialogueRenderTextWithTimeLimitCommand)command).DialogueText;
 
                         bool isTimeLimited = command is DialogueRenderTextWithTimeLimitCommand;
 
@@ -695,8 +728,10 @@ namespace Pal3.ResourceViewer
                         if (dialogueText.Contains("："))
                         {
                             var actorName = dialogueText.Substring(0, dialogueText.IndexOf("：", StringComparison.Ordinal));
-                            if (_actorDialogueCountMap.ContainsKey(actorName)) _actorDialogueCountMap[actorName]++;
-                            else _actorDialogueCountMap.Add(actorName, 1);
+                            if (_actorDialogueCountMap.ContainsKey(actorName))
+                                _actorDialogueCountMap[actorName]++;
+                            else
+                                _actorDialogueCountMap.Add(actorName, 1);
                         }
 
                         dialogueIndex++;
@@ -725,7 +760,9 @@ namespace Pal3.ResourceViewer
                 output.AppendLine().AppendLine();
                 output.Append("-----角色对话统计----\n");
                 foreach (var actorDialogueCount in from entry
-                             in _actorDialogueCountMap orderby entry.Value descending select entry)
+                             in _actorDialogueCountMap
+                                                   orderby entry.Value descending
+                                                   select entry)
                 {
                     output.Append($"{actorDialogueCount.Key} - {actorDialogueCount.Value}句\n");
                 }
@@ -766,6 +803,8 @@ namespace Pal3.ResourceViewer
 
         private void DestroyExistingRenderingObjects()
         {
+            if (_effectViewer != null)
+                _effectViewer.Stop();
             foreach (Transform child in _renderingRoot.transform)
             {
                 child.gameObject.Destroy();

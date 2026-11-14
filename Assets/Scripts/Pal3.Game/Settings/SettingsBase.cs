@@ -191,13 +191,6 @@ namespace Pal3.Game.Settings
             internal set => SetBooleanOption(ref _bloomEnabled, value);
         }
 
-        private bool _optionalVfxEnabled;
-        public bool OptionalVfxEnabled
-        {
-            get => _optionalVfxEnabled;
-            internal set => SetBooleanOption(ref _optionalVfxEnabled, value);
-        }
-
         private bool _toonEnvironmentContrast;
         public bool ToonEnvironmentContrast
         {
