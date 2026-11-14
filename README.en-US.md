@@ -45,14 +45,28 @@ Note: The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden
 Open the project with the Unity version specified in [ProjectVersion.txt](ProjectSettings/ProjectVersion.txt). The project uses URP Forward+.
   - Since the project itself does not contain any game data from the original game, you will need a copy of the original game files for The Legend of Sword and Fairy 3 or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian (Link to the game on Steam: [The Legend of Sword and Fairy 3](https://store.steampowered.com/app/1536070) and [The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian](https://store.steampowered.com/app/1536080)).
 
-  - After opening the Unity project for the first time, double-click to select "Scenes\Game" as the current scene, and then press the play button. If you select "Scenes\ResourceViewer", it will open the game resource viewer.
+  - Open `Scenes/Game` and press Play to run the game. Use `PAL3 / PAL3A → Resource Browser` to browse resources in Edit Mode.
   - The first time you open it, a folder selection window will automatically pop up. Please select the installation folder for The Legend of Sword and Fairy 3 (or The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian) on your computer.
   - Since the original game's cutscene videos are in Bink format, which Unity does not natively support, please convert the videos to a format supported by Unity and place them in the movie folder at the game's root directory (most devices and platforms support mainstream formats like .mp4, while Linux only supports .webm format).
   - Linux users can use FFmpeg to convert videos to .webm format
     ```
     ffmpeg -i input.mp4 -c:v libvpx -b:v 3M -c:a libvorbis output.webm  // vp8 + vorbis
     ```
-    Note: You need to first decompress the OG game data to get the .bik videos. You can do this by clicking the "Extract all .cpk files" button under "Scenes\ResourceViewer" scene, which decompress all the CPK archives in the OG game data folder to a destination folder you choose. All .bik videos will be extracted to the output location once completed.
+    To extract the original videos, open `Resource Browser`, index the original installation directory, search `ext:bik`, and choose `Original → Export filtered…`. Archive entries larger than 64 MiB require individual confirmation with `Export original…`. The archive directory structure is preserved.
+
+## Editor resource browser
+
+Open the dockable window through `PAL3 / PAL3A → Resource Browser`. Choose the data directory containing `basedata/`, select GBK (936) or Big5 (950), and click `Index / Reload`. Use `Switch Variant` to change games.
+
+The data directory and its ancestors must not be symbolic links; select the link's real target path instead. Indexing also skips links inside the directory. This restriction keeps path aliases from bypassing original-data export protection.
+
+- Search paths with multiple terms, `-exclusions`, or `ext:dds`; filter by category/archive and navigate results with arrow keys.
+- Textures use Unity's native preview and channel controls, with PNG export. Models offer an isolated viewport, original/Toon rendering, animation playback and seeking, and texture dependency links.
+- SCN provides scene/NPC/object records, dependency links, and a static background with position markers. NAV provides layered walkability maps and tile details; LGT exposes light records.
+- SCE shows script blocks, commands, variables and dialogue. GDB provides searchable item, actor, skill and combo tables. Parsed resources support field inspection and JSON export; scripts support batch listings and dialogue export.
+- Text supports encoding detection, search, Undo and saving a copy. Audio uses native preview controls. Video uses Unity's platform decoder; BIK is extraction only. Unknown resources have a paged hex view.
+
+Original data is read-only. Exports preserve hierarchy and never overwrite existing files. Choose `Original / Script / Dialogue / Json` before exporting filtered results; batch export is cancellable. Ordinary previews are limited to 64 MiB, text reads to 4 MiB, and in-window editing to 60,000 characters. Temporary media is extracted under `workspace/ResourceBrowserMedia/` beside the project and cleaned up when switching resources or closing the window. Opening the window also removes temporary directories left by exited processes. Effect playback and override editing remain in `Effect Editor`. The old `ResourceViewer` scene has been removed.
 
 ## How to run the game
   - In runtime, when the game is launched for the first time, it will search the [Application.persistentDataPath](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Application-persistentDataPath.html) directory or the [StreamingAssets](https://docs.unity3d.com/6000.0/Documentation/Manual/StreamingAssets.html) directory to detect whether the game data exists. If the original game data files cannot be detected on desktop clients, the game will pop up a folder selection window for you to select the root directory of the original game installation files on the current device.
@@ -71,7 +85,7 @@ Both games default to the original visual style in URP, preserving the original 
 
 The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. Fire shadows also work in dark maze scenes. Desktop defaults to four shadowed fires. Set `Settings.ToonFireShadowBudget` to 0–4 in the debug console. The shadow atlas grows with the budget. Bloom has a separate switch and defaults to enabled only for the original style on desktop.
 
-The screenshots above show the previous toon renderer. Supported story and scene effects in both games use the original data: effect groups, tasks, particles, textures, and models loaded from local CPK archives, rendered with this project's URP shaders and Unity components. Open `PAL3 / PAL3A → Effect Editor` in Unity to select a game, play effects, inspect objects, and edit group tasks and legacy particle curves. Save overrides to `Assets/Resources/Effects/PAL3Overrides.asset` or `PAL3AOverrides.asset` for use in the game. ResourceViewer provides an original effects panel and the commands `Effect.Load <group ID>`, `Effect.Seek <seconds>`, and `Effect.Pause true/false`. Group ID `-1` supports transport points in both games.
+The screenshots above show the previous toon renderer. Supported story and scene effects in both games use the original data: effect groups, tasks, particles, textures, and models loaded from local CPK archives, rendered with this project's URP shaders and Unity components. Open `PAL3 / PAL3A → Effect Editor` in Unity to select a game, play effects, inspect objects, and edit group tasks and legacy particle curves. Save overrides to `Assets/Resources/Effects/PAL3Overrides.asset` or `PAL3AOverrides.asset` for use in the game. The resource browser links effect resources to Effect Editor. Group ID `-1` supports transport points in both games.
 
 The current inventory covers all 56 PAL3 and 93 PAL3A story and scene root groups using original data. Transport points reproduce the original disc, two light cones, and colors selected by scene parameters. SPar keyframes, paths, six controller slots, and material blending are implemented independently; raw SPar fields are read-only in the editor. Unsupported types such as battle directors produce diagnostics and will be added alongside their related systems.
 

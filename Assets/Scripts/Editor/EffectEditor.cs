@@ -52,14 +52,18 @@ namespace Editor
         private float? _pendingSeek;
         private double _seekAfter;
 
+#if PAL3
         [MenuItem("PAL3/Effect Editor")]
+#endif
         public static void Open()
         {
             var window = GetWindow<EffectEditor>("Effects");
             window.ChangeVariant(false);
         }
 
+#if PAL3A
         [MenuItem("PAL3A/Effect Editor")]
+#endif
         public static void OpenPal3A()
         {
             var window = GetWindow<EffectEditor>("Effects");
@@ -68,7 +72,18 @@ namespace Editor
 
         private void ChangeVariant(bool pal3a)
         {
-            if (_pal3a == pal3a || !CanReplaceEdits())
+            if (_pal3a == pal3a)
+            {
+                string path = EditorPrefs.GetString($"{Variant}.OriginalEffect.DataPath", _dataPath);
+                int codepage = EditorPrefs.GetInt($"{Variant}.OriginalEffect.Codepage", 936) == 950 ? 950 : 936;
+                if (path == _dataPath && codepage == _codepage || !CanReplaceEdits())
+                    return;
+                LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
+                LoadPreferences();
+                LoadData();
+                return;
+            }
+            if (!CanReplaceEdits())
                 return;
             _pal3a = pal3a;
             _id = pal3a ? 160 : 98;

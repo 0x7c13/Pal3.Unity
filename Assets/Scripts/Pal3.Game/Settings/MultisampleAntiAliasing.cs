@@ -8,7 +8,7 @@ namespace Pal3.Game.Settings
     using System;
     using UnityEngine.Rendering.Universal;
 
-    // Game and ResourceViewer apply the saved setting during their respective scenes.
+    // Applies the saved game setting and restores the pipeline asset when disposed.
     public sealed class MultisampleAntiAliasing : IDisposable
     {
         private readonly UniversalRenderPipelineAsset _pipeline;

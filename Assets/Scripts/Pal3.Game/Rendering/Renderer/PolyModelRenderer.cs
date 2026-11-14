@@ -48,11 +48,6 @@ namespace Pal3.Game.Rendering.Renderer
         private List<(IMaterial[] materials, ITexture2D firstFrame)> _waterSurfaces;
         private UnityEngine.Coroutine _waterAnimation;
 
-        protected override void OnEnableGameEntity()
-        {
-            _textureFactory = ServiceLocator.Instance.Get<ITextureFactory>();
-        }
-
         protected override void OnDisableGameEntity()
         {
             Dispose();
@@ -63,8 +58,11 @@ namespace Pal3.Game.Rendering.Renderer
             IMaterialManager materialManager,
             bool isStaticObject,
             Color? tintColor = default,
-            bool forceOpaqueWater = false)
+            bool forceOpaqueWater = false,
+            ITextureFactory textureFactory = null,
+            bool animateWater = true)
         {
+            _textureFactory = textureFactory ?? ServiceLocator.Instance.Get<ITextureFactory>();
             _textureProvider = textureProvider;
             _materialManager = materialManager;
             _isStaticObject = isStaticObject;
@@ -80,7 +78,7 @@ namespace Pal3.Game.Rendering.Renderer
             foreach (var entry in batches)
                 RenderGeometry("POL " + entry.Key.cell, entry.Value, entry.Key.materials);
 
-            if (_waterSurfaces != null)
+            if (animateWater && _waterSurfaces != null)
             {
                 _waterAnimation = StartCoroutine(AnimateWaterTextures());
             }

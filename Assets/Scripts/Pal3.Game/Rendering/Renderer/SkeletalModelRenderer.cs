@@ -153,6 +153,22 @@ namespace Pal3.Game.Rendering.Renderer
             StartCoroutine(PlayAnimationInternalAsync(loopCount, _animationCts.Token));
         }
 
+        /// <summary>Sample a pose in seconds without starting playback or changing the game clock.</summary>
+        public void SampleAnimation(MovFile animation, float seconds)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("Animation model not initialized");
+            if (animation == null)
+                throw new ArgumentNullException(nameof(animation));
+            if (!float.IsFinite(seconds))
+                throw new ArgumentOutOfRangeException(nameof(seconds));
+            if (!ReferenceEquals(_movFile, animation))
+                SetupAnimationTrack(animation);
+            uint tick = Mathf.Clamp(seconds, 0, _movFile.Duration).SecondsToGameBoxTick();
+            UpdateBone(_bones[0], tick);
+            UpdateSkinning();
+        }
+
         public void PauseAnimation()
         {
             if (_animationCts is {IsCancellationRequested: false})
@@ -253,16 +269,13 @@ namespace Pal3.Game.Rendering.Renderer
 
             if (track != null)
             {
-                int currentFrameIndex = CoreUtility.GetFloorIndex(bone.FrameTicks, tick);
+                int currentFrameIndex = Math.Max(0, CoreUtility.GetFloorIndex(bone.FrameTicks, tick));
                 uint currentFrameTick = bone.FrameTicks[currentFrameIndex];
                 int nextFrameIndex = currentFrameIndex < bone.FrameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
                 uint nextFrameTick = bone.FrameTicks[nextFrameIndex];
 
-                float influence = 1f;
-                if (nextFrameTick != currentFrameTick)
-                {
-                    influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
-                }
+                float influence = nextFrameTick > currentFrameTick
+                    ? Mathf.Clamp01(((float)tick - currentFrameTick) / (nextFrameTick - currentFrameTick)) : 0;
 
                 Vector3 localPosition = Vector3.Lerp(
                     track.Value.KeyFrames[currentFrameIndex].GameBoxTranslation.ToUnityPosition(),

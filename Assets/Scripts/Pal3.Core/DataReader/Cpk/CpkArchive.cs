@@ -178,6 +178,16 @@ namespace Pal3.Core.DataReader.Cpk
             return _crcToTableEntityMap.ContainsKey(filePathCrcHash);
         }
 
+        /// <summary>Read sizes from the index without allocating or decompressing file content.</summary>
+        public (long length, long packedLength) GetFileSizes(uint filePathCrcHash)
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Initialize the archive before accessing its content");
+            if (!_crcToTableEntityMap.TryGetValue(filePathCrcHash, out CpkTableEntity entry) || entry.IsDirectory())
+                throw new FileNotFoundException($"File entry not found: {filePathCrcHash}");
+            return (entry.IsCompressed() ? entry.OriginSize : entry.PackedSize, entry.PackedSize);
+        }
+
         /// <summary>
         /// Read all bytes of the give file stored inside the archive.
         /// </summary>

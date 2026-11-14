@@ -522,67 +522,86 @@ namespace Pal3.Game.Rendering.Renderer
 
                 if (cancellationToken.IsCancellationRequested) yield break;
 
-                // Animates the mesh
-                for (int i = 0; i < _meshCount; i++)
-                {
-                    RenderMeshComponent meshComponent = _renderMeshComponents[i];
-
-                    uint[] frameTicks = _frameTicks[i];
-
-                    int currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
-                    uint currentFrameTick = _frameTicks[i][currentFrameIndex];
-                    int nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                    uint nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[i][nextFrameIndex];
-
-                    float influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
-
-                    Vector3[] vertices = meshComponent.MeshDataBuffer.VertexBuffer;
-                    for (int j = 0; j < vertices.Length; j++)
-                    {
-                        vertices[j] = Vector3.Lerp(
-                            _meshes[i].KeyFrames[currentFrameIndex].GameBoxVertices[j]
-                                .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
-                            _meshes[i].KeyFrames[nextFrameIndex].GameBoxVertices[j]
-                                .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit), influence);
-                    }
-
-                    meshComponent.Mesh.SetVertices(vertices);
-                    if (_materialManager.UsesToonRendering)
-                    {
-                        meshComponent.MeshDataBuffer.RebuildNormalsBySourceVertex(_meshes[i].NormalIndices, _sourceNormals[i]);
-                        meshComponent.Mesh.SetNormals(meshComponent.MeshDataBuffer.NormalBuffer);
-                    }
-                    meshComponent.Mesh.RecalculateBounds();
-                }
-
-                // Animates the tag nodes
-                if (_tagNodePolFile != null)
-                {
-                    for (int i = 0; i < _tagNodesInfo.Length; i++)
-                    {
-                        if (_tagNodes[i] == null) continue;
-
-                        uint[] frameTicks = _tagNodeFrameTicks[i];
-
-                        int currentFrameIndex = CoreUtility.GetFloorIndex(frameTicks, tick);
-                        uint currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
-                        int nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
-                        uint nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
-
-                        float influence = (float)(tick - currentFrameTick) / (nextFrameTick - currentFrameTick);
-
-                        Vector3 position = Vector3.Lerp(
-                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
-                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
-                        Quaternion rotation = Quaternion.Slerp(
-                            _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
-                            _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
-
-                        _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
-                    }
-                }
+                SampleGeometry(tick, endTick);
 
                 yield return null;
+            }
+        }
+
+        /// <summary>Sample a pose without starting a coroutine, advancing game time, or dispatching events.</summary>
+        public void SampleAnimation(float seconds)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("Animation model not initialized");
+            if (!float.IsFinite(seconds))
+                throw new ArgumentOutOfRangeException(nameof(seconds));
+            uint tick = Mathf.Clamp(seconds, 0, (float)_totalGameBoxTicks / UnityPrimitivesConvertor.GameBoxTicksPerSecond).SecondsToGameBoxTick();
+            SampleGeometry(tick, _totalGameBoxTicks);
+        }
+
+        private void SampleGeometry(uint tick, uint endTick)
+        {
+            // Animates the mesh
+            for (int i = 0; i < _meshCount; i++)
+            {
+                RenderMeshComponent meshComponent = _renderMeshComponents[i];
+
+                uint[] frameTicks = _frameTicks[i];
+
+                int currentFrameIndex = Math.Max(0, CoreUtility.GetFloorIndex(frameTicks, tick));
+                uint currentFrameTick = _frameTicks[i][currentFrameIndex];
+                int nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                uint nextFrameTick = nextFrameIndex == 0 ? endTick : _frameTicks[i][nextFrameIndex];
+
+                float influence = nextFrameTick > currentFrameTick
+                        ? Mathf.Clamp01(((float)tick - currentFrameTick) / (nextFrameTick - currentFrameTick)) : 0;
+
+                Vector3[] vertices = meshComponent.MeshDataBuffer.VertexBuffer;
+                for (int j = 0; j < vertices.Length; j++)
+                {
+                    vertices[j] = Vector3.Lerp(
+                        _meshes[i].KeyFrames[currentFrameIndex].GameBoxVertices[j]
+                            .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
+                        _meshes[i].KeyFrames[nextFrameIndex].GameBoxVertices[j]
+                            .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit), influence);
+                }
+
+                meshComponent.Mesh.SetVertices(vertices);
+                if (_materialManager.UsesToonRendering)
+                {
+                    meshComponent.MeshDataBuffer.RebuildNormalsBySourceVertex(_meshes[i].NormalIndices, _sourceNormals[i]);
+                    meshComponent.Mesh.SetNormals(meshComponent.MeshDataBuffer.NormalBuffer);
+                }
+                meshComponent.Mesh.RecalculateBounds();
+            }
+
+            // Animates the tag nodes
+            if (_tagNodePolFile != null)
+            {
+                for (int i = 0; i < _tagNodesInfo.Length; i++)
+                {
+                    if (_tagNodes[i] == null)
+                        continue;
+
+                    uint[] frameTicks = _tagNodeFrameTicks[i];
+
+                    int currentFrameIndex = Math.Max(0, CoreUtility.GetFloorIndex(frameTicks, tick));
+                    uint currentFrameTick = _tagNodeFrameTicks[i][currentFrameIndex];
+                    int nextFrameIndex = currentFrameIndex < frameTicks.Length - 1 ? currentFrameIndex + 1 : 0;
+                    uint nextFrameTick = nextFrameIndex == 0 ? endTick : _tagNodeFrameTicks[i][nextFrameIndex];
+
+                    float influence = nextFrameTick > currentFrameTick
+                        ? Mathf.Clamp01(((float)tick - currentFrameTick) / (nextFrameTick - currentFrameTick)) : 0;
+
+                    Vector3 position = Vector3.Lerp(
+                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxPosition.ToUnityPosition(),
+                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxPosition.ToUnityPosition(), influence);
+                    Quaternion rotation = Quaternion.Slerp(
+                        _tagNodesInfo[i].TagFrames[currentFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(),
+                        _tagNodesInfo[i].TagFrames[nextFrameIndex].GameBoxRotation.Mv3QuaternionToUnityQuaternion(), influence);
+
+                    _tagNodes[i].Transform.SetLocalPositionAndRotation(position, rotation);
+                }
             }
         }
 
