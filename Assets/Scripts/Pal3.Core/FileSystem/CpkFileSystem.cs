@@ -115,6 +115,14 @@ namespace Pal3.Core.FileSystem
                 $"The file <{fileVirtualPath}> does not exist in any of the CPK archives");
         }
 
+        /// <summary>Read uncompressed and stored sizes, including segmented archive resolution.</summary>
+        public (long length, long packedLength) GetFileSizes(string fileVirtualPath)
+        {
+            if (FileExistsInternal(fileVirtualPath, out uint crc, out string archive))
+                return _cpkArchives[archive].GetFileSizes(crc);
+            throw new FileNotFoundException(fileVirtualPath);
+        }
+
         private bool FileExistsInternal(string fileVirtualPath,
             out uint filePathCrcHash,
             out string archiveName)

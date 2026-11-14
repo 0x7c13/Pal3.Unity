@@ -13,6 +13,7 @@ namespace Pal3.Game.Tests
     using Constants;
     using NUnit.Framework;
     using UnityEditor;
+    using UnityEngine.Assemblies;
 
     public sealed class ReleaseArchiveTests
     {
@@ -26,7 +27,7 @@ namespace Pal3.Game.Tests
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(playerPath));
                 File.WriteAllBytes(playerPath, new byte[] { 1, 2, 3 });
-                Type pipeline = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("Editor.ReleaseBuildPipeline")).First(t => t != null);
+                Type pipeline = CurrentAssemblies.GetLoadedAssemblies().Select(a => a.GetType("Editor.ReleaseBuildPipeline")).First(t => t != null);
                 MethodInfo zip = pipeline.GetMethod("ZipReleaseFiles", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(string) }, null);
                 zip.Invoke(null, new object[] { output });
                 string archive = Path.Combine(output, "Release", $"{GameConstants.AppName}_v{PlayerSettings.bundleVersion}_Windows_x64.zip");

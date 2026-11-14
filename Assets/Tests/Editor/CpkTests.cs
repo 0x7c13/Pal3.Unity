@@ -72,6 +72,20 @@ namespace Pal3.Core.Tests
             Assert.That(fs.FileExists("q02.cpk\\missing.bin"), Is.False);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MetadataReportsReadSizeWithoutReadingPayload(bool compressed)
+        {
+            string path = Fixture("q02_01.cpk", "data\\test.bin", compressed);
+            var fs = new CpkFileSystem(_root, Hash(), 936);
+            fs.Mount("q02_01.cpk", 936);
+            File.Delete(path);
+            var sizes = fs.GetFileSizes("Q02.CPK/DATA/TEST.BIN");
+            Assert.That(sizes.length, Is.EqualTo(5));
+            Assert.That(sizes.packedLength, Is.EqualTo(compressed ? 9 : 5));
+            Assert.Throws<FileNotFoundException>(() => fs.GetFileSizes("q02.cpk/missing"));
+        }
+
         [Test]
         public void TruncatedArchiveHeaderAndIndexTableAreRejected()
         {
