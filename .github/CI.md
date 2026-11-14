@@ -6,6 +6,12 @@ macOS, Linux, and 32-bit/64-bit Windows. The workflows run only on pull requests
 New commits cancel superseded runs for the same pull request and workflow.
 Successful desktop/Android builds upload artifacts.
 
+The README badges show each workflow's latest pull request build using
+`event=pull_request`, with no branch filter. Without the event filter, GitHub's
+badges prefer the default branch and can keep showing old push builds after a
+workflow switches to PR-only triggers. The badge links filter the build history
+to pull requests as well.
+
 The separate `Code style` workflow verifies changed owned C# files with the SDK's
 `dotnet format`, using `.editorconfig` and the SDK pinned in `global.json`.
 It combines whitespace formatting with pinned StyleCop layout rules SA1107, SA1502,
