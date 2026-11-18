@@ -3,22 +3,22 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat
+namespace Pal3.Game.GameSystems.Battle
 {
     public enum ElementPosition
     {
-        AllyWater   = 0,
-        AllyFire    = 1,
-        AllyWind    = 2,
+        AllyWater = 0,
+        AllyFire = 1,
+        AllyWind = 2,
         AllyThunder = 3,
-        AllyEarth   = 4,
-        AllyCenter  = 5,
+        AllyEarth = 4,
+        AllyCenter = 5,
 
-        EnemyWater    = 6,
-        EnemyFire     = 7,
-        EnemyWind     = 8,
-        EnemyThunder  = 9,
-        EnemyEarth    = 10,
-        EnemyCenter   = 11,
+        EnemyWater = 6,
+        EnemyFire = 7,
+        EnemyWind = 8,
+        EnemyThunder = 9,
+        EnemyEarth = 10,
+        EnemyCenter = 11,
     }
 }

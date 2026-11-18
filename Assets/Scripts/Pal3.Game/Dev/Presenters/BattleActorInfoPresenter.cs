@@ -11,7 +11,7 @@ namespace Pal3.Game.Dev.Presenters
     /// <summary>
     /// CombatActorInfo holder component to present ScnObjectInfo in the Unity inspector.
     /// </summary>
-    public sealed class CombatActorInfoPresenter : GameEntityScript
+    public sealed class BattleActorInfoPresenter : GameEntityScript
     {
         [UnityEngine.SerializeField] public CombatActorInfo combatActorInfo;
     }

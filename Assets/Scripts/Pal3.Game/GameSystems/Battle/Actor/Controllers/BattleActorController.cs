@@ -3,11 +3,11 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
+namespace Pal3.Game.GameSystems.Battle.Actor.Controllers
 {
     using System;
     using System.Collections;
-    using Combat;
+    using Battle;
     using Engine.Animation;
     using Engine.Core.Implementation;
     using Game.Actor.Controllers;
@@ -16,12 +16,12 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
     using Quaternion = UnityEngine.Quaternion;
     using Vector3 = UnityEngine.Vector3;
 
-    public sealed class CombatActorController : GameEntityScript
+    public sealed class BattleActorController : GameEntityScript
     {
         private const string COMBAT_ANIMATION_NORMAL_ATTACK_EVENT_NAME_PREFIX = "work";
         private const string COMBAT_ANIMATION_JUMP_ATTACK_EVENT_NAME_PREFIX = "flydown";
-        
-        private CombatActor _actor;
+
+        private BattleActor _actor;
         private ActorActionController _actionController;
         private ElementPosition _elementPosition;
 
@@ -30,14 +30,16 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
             get => _actor.IsActive;
             set
             {
-                if (value) Activate();
-                else DeActivate();
+                if (value)
+                    Activate();
+                else
+                    DeActivate();
 
                 _actor.IsActive = value;
             }
         }
 
-        public void Init(CombatActor actor,
+        public void Init(BattleActor actor,
             ActorActionController actionController,
             ElementPosition elementPosition)
         {
@@ -63,15 +65,15 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
         {
             var values = _actor.Info.AttributeValues;
             values[attribute] = (int)Math.Clamp((long)values[attribute] + delta, 0, int.MaxValue);
-            #if PAL3A
+#if PAL3A
             if (_elementPosition <= ElementPosition.AllyCenter)
             {
                 foreach (var mapping in Core.Contract.Constants.ActorConstants.MainActorCombatActorIdMap)
                     if (mapping.Value == _actor.Id)
-                        Engine.Services.ServiceLocator.Instance.Get<CombatCoordinator>().ScriptState
+                        Engine.Services.ServiceLocator.Instance.Get<BattleCoordinator>().ScriptState
                             .RecordAttributeChange((int)mapping.Key, attribute, delta);
             }
-            #endif
+#endif
         }
 
         public ElementPosition GetElementPosition()
@@ -89,32 +91,45 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
             return _actionController;
         }
 
+        protected override void OnEnableGameEntity()
+        {
+            if (_actor?.IsActive == true)
+                SetAnimationEvents(true);
+        }
+
+        protected override void OnDisableGameEntity()
+        {
+            SetAnimationEvents(false);
+        }
+
         private void Activate()
         {
-            if (_actionController is VertexAnimationActorActionController vertexActionController)
-            {
-                vertexActionController.AnimationEventTriggered -= AnimationEventTriggered;
-                vertexActionController.AnimationEventTriggered += AnimationEventTriggered;
-            }
-
+            SetAnimationEvents(isActiveAndEnabled);
             _actionController.PerformAction(_actor.GetPreAttackAction());
         }
 
         private void DeActivate()
         {
-            if (_actionController is VertexAnimationActorActionController vertexActionController)
-            {
-                vertexActionController.AnimationEventTriggered -= AnimationEventTriggered;
-            }
-            
+            SetAnimationEvents(false);
             _actionController.DeActivate();
         }
 
-        public IEnumerator StartNormalAttackAsync(CombatActorController enemyActorController,
-            CombatScene combatScene)
+        private void SetAnimationEvents(bool enabled)
+        {
+            if (_actionController is VertexAnimationActorActionController vertexActionController)
+            {
+                vertexActionController.AnimationEventTriggered -= AnimationEventTriggered;
+                if (enabled)
+                    vertexActionController.AnimationEventTriggered += AnimationEventTriggered;
+            }
+        }
+
+        public IEnumerator StartNormalAttackAsync(BattleActorController enemyActorController,
+            BattleScene combatScene)
         {
             // Some scripted forms (e.g. WangPengXu's beast form) have no normal attack.
-            if (!_actor.HasAction(_actor.GetAttackAction())) yield break;
+            if (!_actor.HasAction(_actor.GetAttackAction()))
+                yield break;
 
             Quaternion currentRotation = _actionController.Transform.Rotation;
 
@@ -136,7 +151,7 @@ namespace Pal3.Game.GameSystems.Combat.Actor.Controllers
 
             _actionController.Transform.LookAt(targetElementPosition);
             yield return Transform.MoveAsync(targetElementPosition, duration);
-            
+
             yield return _actionController.PerformActionAsync(_actor.GetAttackAction());
 
             _actionController.PerformAction(_actor.GetMovementAction());

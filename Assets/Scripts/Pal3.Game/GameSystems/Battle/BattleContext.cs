@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat
+namespace Pal3.Game.GameSystems.Battle
 {
     using Core.Contract.Enums;
     using Script.Waiter;
@@ -18,35 +18,58 @@ namespace Pal3.Game.GameSystems.Combat
     /// <summary>
     /// Data contract for combat context.
     /// </summary>
-    public sealed class CombatContext
+    public sealed class BattleContext
     {
         public WaitUntilCanceled ScriptWaiter { get; set; } = null; // null means no script waiter
-        public string CombatSceneName { get; set; } = string.Empty;
-        public ElementType CombatSceneElementType { get; set; } = ElementType.None;
-        public bool IsScriptTriggeredCombat { get; set; } = false;
+        public string BattleSceneName { get; set; } = string.Empty;
+        public ElementType BattleSceneElementType { get; set; } = ElementType.None;
+        public bool IsScriptTriggeredBattle { get; set; } = false;
         public MeetType MeetType { get; set; } = MeetType.RunningIntoEachOther;
-        public string CombatMusicName { get; set; } = string.Empty;
+        public string BattleMusicName { get; set; } = string.Empty;
         public int MaxRound { get; set; } = -1; // -1 means no limit
         public bool IsUnbeatable { get; set; } = false;
         public bool IsNoGameOverWhenLose { get; set; } = false;
         public uint[] EnemyIds { get; set; } = new uint[6];
 
-        #if PAL3A
-        public bool NanGongHuangAbilitiesEnabled { get; set; }
-        public bool WangPengXuTransformEnabled { get; set; }
-        public bool NanGongHuangStartsTransformed { get; set; }
-        public bool WangPengXuStartsTransformed { get; set; }
-        public int LiaoRiHpBonus { get; set; }
-        public int LiaoRiMpBonus { get; set; }
-        #endif
+#if PAL3A
+        public bool NanGongHuangAbilitiesEnabled
+        {
+            get; set;
+        }
+
+        public bool WangPengXuTransformEnabled
+        {
+            get; set;
+        }
+
+        public bool NanGongHuangStartsTransformed
+        {
+            get; set;
+        }
+
+        public bool WangPengXuStartsTransformed
+        {
+            get; set;
+        }
+
+        public int LiaoRiHpBonus
+        {
+            get; set;
+        }
+
+        public int LiaoRiMpBonus
+        {
+            get; set;
+        }
+#endif
 
         public override string ToString()
         {
-            return $"CombatContext: " +
-                   $"CombatScene: {CombatSceneName} " +
-                   $"ElementType: {CombatSceneElementType} " +
-                   $"CombatMusic: {CombatMusicName} " +
-                   $"IsScriptTriggeredCombat: {IsScriptTriggeredCombat} " +
+            return $"BattleContext: " +
+                   $"BattleScene: {BattleSceneName} " +
+                   $"ElementType: {BattleSceneElementType} " +
+                   $"BattleMusic: {BattleMusicName} " +
+                   $"IsScriptTriggeredBattle: {IsScriptTriggeredBattle} " +
                    $"MeetType: {MeetType} " +
                    $"MaxRound: {MaxRound} " +
                    $"IsUnbeatable: {IsUnbeatable} " +

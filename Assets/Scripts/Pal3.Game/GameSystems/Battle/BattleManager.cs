@@ -3,11 +3,10 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat
+namespace Pal3.Game.GameSystems.Battle
 {
     using System;
     using System.Collections.Generic;
-    using Actor.Controllers;
     using Camera;
     using Command;
     using Command.Extensions;
@@ -25,22 +24,28 @@ namespace Pal3.Game.GameSystems.Combat
     using Engine.Services;
     using Game.Scene;
     using Scene;
-    using State;
     using Team;
     using UnityEngine.InputSystem;
 
     using Quaternion = UnityEngine.Quaternion;
     using Vector3 = UnityEngine.Vector3;
 
-    public sealed class CombatResult
+    public sealed class BattleResult
     {
-        public bool IsPlayerWin { get; set; }
-        public CombatContext CombatContext { get; set; }
+        public bool IsPlayerWin
+        {
+            get; set;
+        }
+
+        public BattleContext BattleContext
+        {
+            get; set;
+        }
     }
 
-    public sealed class CombatManager
+    public sealed class BattleManager
     {
-        public event EventHandler<CombatResult> OnCombatFinished;
+        public event EventHandler<BattleResult> OnBattleFinished;
 
         private const string COMBAT_CAMERA_CONFIG_FILE_NAME = "cbCam.ini";
         private const float COMBAT_CAMERA_DEFAULT_FOV = 39f;
@@ -48,19 +53,18 @@ namespace Pal3.Game.GameSystems.Combat
         private readonly TeamManager _teamManager;
         private readonly SceneManager _sceneManager;
         private readonly CameraManager _cameraManager;
-        private readonly GameStateManager _gameStateManager;
 
-        private readonly IDictionary<int, CombatActorInfo> _combatActorInfos;
-        private readonly CombatCameraConfigFile _combatCameraConfigFile;
+        private readonly IDictionary<int, CombatActorInfo> _battleActorInfos;
+        private readonly CombatCameraConfigFile _battleCameraConfigFile;
 
-        private Vector3 _cameraPositionBeforeCombat;
-        private Quaternion _cameraRotationBeforeCombat;
-        private float _cameraFovBeforeCombat;
+        private Vector3 _cameraPositionBeforeBattle;
+        private Quaternion _cameraRotationBeforeBattle;
+        private float _cameraFovBeforeBattle;
 
-        private CombatScene _combatScene;
-        private CombatContext _currentCombatContext;
+        private BattleScene _battleScene;
+        private BattleContext _currentBattleContext;
 
-        public CombatManager(GameResourceProvider resourceProvider,
+        public BattleManager(GameResourceProvider resourceProvider,
             TeamManager teamManager,
             CameraManager cameraManager,
             SceneManager sceneManager)
@@ -70,39 +74,39 @@ namespace Pal3.Game.GameSystems.Combat
             _cameraManager = Requires.IsNotNull(cameraManager, nameof(cameraManager));
             _sceneManager = Requires.IsNotNull(sceneManager, nameof(sceneManager));
 
-            _combatActorInfos = resourceProvider.GetCombatActorInfos();
-            _combatCameraConfigFile = resourceProvider.GetGameResourceFile<CombatCameraConfigFile>(
+            _battleActorInfos = resourceProvider.GetCombatActorInfos();
+            _battleCameraConfigFile = resourceProvider.GetGameResourceFile<CombatCameraConfigFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CAMERA_CONFIG_FILE_NAME);
         }
 
-        public void EnterCombat(CombatContext combatContext)
+        public void EnterBattle(BattleContext combatContext)
         {
-            _currentCombatContext = combatContext;
+            _currentBattleContext = combatContext;
 
-            _cameraManager.GetCameraTransform().GetPositionAndRotation(out _cameraPositionBeforeCombat,
-                out _cameraRotationBeforeCombat);
+            _cameraManager.GetCameraTransform().GetPositionAndRotation(out _cameraPositionBeforeBattle,
+                out _cameraRotationBeforeBattle);
 
-            _cameraFovBeforeCombat = _cameraManager.GetFieldOfView();
+            _cameraFovBeforeBattle = _cameraManager.GetFieldOfView();
 
             string previousMusic = Engine.Services.ServiceLocator.Instance.Get<Audio.AudioManager>().GetCurrentScriptMusic();
             try
             {
-                if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
+                if (!string.IsNullOrEmpty(combatContext.BattleMusicName))
                 {
-                    Pal3.Instance.Execute(new PlayScriptMusicCommand(combatContext.CombatMusicName, -1));
+                    Pal3.Instance.Execute(new PlayScriptMusicCommand(combatContext.BattleMusicName, -1));
                 }
 
-                _combatScene = _sceneManager.LoadCombatScene(combatContext.CombatSceneName);
+                _battleScene = _sceneManager.LoadBattleScene(combatContext.BattleSceneName);
 
-                Dictionary<ElementPosition, CombatActorInfo> combatActors = new ();
+                Dictionary<ElementPosition, CombatActorInfo> combatActors = new();
 
                 int positionIndex = 0;
                 foreach (PlayerActorId playerActorId in _teamManager.GetActorsInTeam())
                 {
                     int combatActorId = ActorConstants.MainActorCombatActorIdMap[playerActorId];
-                    CombatActorInfo info = CopyActorInfo(_combatActorInfos[combatActorId]);
+                    CombatActorInfo info = CopyActorInfo(_battleActorInfos[combatActorId]);
                     info.Level = ServiceLocator.Instance.Get<PlayerProgressManager>().GetLevel((int)playerActorId);
-                    #if PAL3A
+#if PAL3A
                     if (playerActorId == PlayerActorId.NanGongHuang && combatContext.NanGongHuangStartsTransformed)
                         info.ModelId = ActorConstants.NanGongHuangWolfModeActorName;
                     if (playerActorId == PlayerActorId.WangPengXu && combatContext.WangPengXuStartsTransformed)
@@ -111,16 +115,17 @@ namespace Pal3.Game.GameSystems.Combat
                         info.AttributeValues[ActorAttributeType.Hp] = 400;
                         info.AttributeValues[ActorAttributeType.Defense] *= 2;
                     }
-                    #endif
+#endif
                     combatActors[(ElementPosition)positionIndex++] = info;
                 }
 
                 for (int i = 0; i < combatContext.EnemyIds.Length; i++)
                 {
                     uint enemyActorId = combatContext.EnemyIds[i];
-                    if (enemyActorId == 0) continue;
-                    CombatActorInfo info = CopyActorInfo(_combatActorInfos[(int)enemyActorId]);
-                    #if PAL3A
+                    if (enemyActorId == 0)
+                        continue;
+                    CombatActorInfo info = CopyActorInfo(_battleActorInfos[(int)enemyActorId]);
+#if PAL3A
                     if (enemyActorId == 722)
                     {
                         info.AttributeValues[ActorAttributeType.Hp] = AddAttributeBonus(
@@ -128,13 +133,13 @@ namespace Pal3.Game.GameSystems.Combat
                         info.AttributeValues[ActorAttributeType.Mp] = AddAttributeBonus(
                             info.AttributeValues[ActorAttributeType.Mp], combatContext.LiaoRiMpBonus);
                     }
-                    #endif
+#endif
                     combatActors[(ElementPosition)((int)ElementPosition.EnemyWater + i)] = info;
                 }
 
-                _combatScene.LoadActors(combatActors, combatContext.MeetType);
+                _battleScene.LoadActors(combatActors, combatContext.MeetType);
 
-                SetCameraPosition(_combatCameraConfigFile.DefaultCamConfigs[0]);
+                SetCameraPosition(_battleCameraConfigFile.DefaultCamConfigs[0]);
 
                 Pal3.Instance.Execute(new CameraFadeInCommand());
 
@@ -148,15 +153,17 @@ namespace Pal3.Game.GameSystems.Combat
             }
             catch
             {
-                _sceneManager.UnloadCombatScene();
+                _sceneManager.UnloadBattleScene();
                 ResetCameraPosition();
-                if (!string.IsNullOrEmpty(combatContext.CombatMusicName))
+                if (!string.IsNullOrEmpty(combatContext.BattleMusicName))
                 {
-                    if (string.IsNullOrEmpty(previousMusic)) Pal3.Instance.Execute(new StopScriptMusicCommand());
-                    else Pal3.Instance.Execute(new PlayScriptMusicCommand(previousMusic, -1));
+                    if (string.IsNullOrEmpty(previousMusic))
+                        Pal3.Instance.Execute(new StopScriptMusicCommand());
+                    else
+                        Pal3.Instance.Execute(new PlayScriptMusicCommand(previousMusic, -1));
                 }
-                _combatScene = null;
-                _currentCombatContext = null;
+                _battleScene = null;
+                _currentBattleContext = null;
                 throw;
             }
         }
@@ -164,24 +171,27 @@ namespace Pal3.Game.GameSystems.Combat
         private static CombatActorInfo CopyActorInfo(CombatActorInfo info)
         {
             info.AttributeValues = new Dictionary<ActorAttributeType, int>(info.AttributeValues);
-            if (info.Type == CombatActorType.MainActor) info.ModelId = info.Id.ToString();
+            if (info.Type == CombatActorType.MainActor)
+                info.ModelId = info.Id.ToString();
             return info;
         }
 
-        #if PAL3A
+#if PAL3A
         private static int AddAttributeBonus(int value, int bonus)
         {
             return (int)Math.Clamp((long)value + bonus, 0, int.MaxValue);
         }
-        #endif
+#endif
 
-        public void ExitCombat()
+        public void ExitBattle()
         {
             // Stop combat music
             Pal3.Instance.Execute(new StopScriptMusicCommand());
             Pal3.Instance.Execute(new CameraFadeInCommand());
-            _sceneManager.UnloadCombatScene();
+            _sceneManager.UnloadBattleScene();
             ResetCameraPosition();
+            _battleScene = null;
+            _currentBattleContext = null;
         }
 
         private void SetCameraPosition(CombatCameraConfig config)
@@ -202,75 +212,39 @@ namespace Pal3.Game.GameSystems.Combat
 
         private void ResetCameraPosition()
         {
-            _cameraManager.GetCameraTransform().SetPositionAndRotation(_cameraPositionBeforeCombat,
-                _cameraRotationBeforeCombat);
+            _cameraManager.GetCameraTransform().SetPositionAndRotation(_cameraPositionBeforeBattle,
+                _cameraRotationBeforeBattle);
 
-            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(_cameraFovBeforeCombat));
+            Pal3.Instance.Execute(new CameraSetFieldOfViewCommand(_cameraFovBeforeBattle));
         }
 
         public void Update(float deltaTime)
         {
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            var keyboard = Keyboard.current;
+            if (keyboard == null || _battleScene == null)
+                return;
+
+            if (keyboard.escapeKey.wasPressedThisFrame)
             {
-                OnCombatFinished?.Invoke(this, new CombatResult
+                OnBattleFinished?.Invoke(this, new BattleResult
                 {
                     IsPlayerWin = true,
-                    CombatContext = _currentCombatContext,
+                    BattleContext = _currentBattleContext,
                 });
+                return;
             }
 
-            CombatActorController fromController = null;
-            int fromPosition = (int)ElementPosition.AllyWater;
+            ElementPosition first = keyboard.ctrlKey.isPressed ? ElementPosition.EnemyWater : ElementPosition.AllyWater;
+            for (var key = Key.F1; key <= Key.F6; key++)
+            {
+                if (!keyboard[key].wasPressedThisFrame)
+                    continue;
 
-            if (Keyboard.current.ctrlKey.isPressed)
-            {
-                fromPosition = (int)ElementPosition.EnemyWater;
-            }
-
-            if (Keyboard.current.f1Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)fromPosition);
-            }
-            else if (Keyboard.current.f2Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 1));
-            }
-            else if (Keyboard.current.f3Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 2));
-            }
-            else if (Keyboard.current.f4Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 3));
-            }
-            else if (Keyboard.current.f5Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 4));
-            }
-            else if (Keyboard.current.f6Key.wasPressedThisFrame)
-            {
-                fromController = _combatScene.GetCombatActorController((ElementPosition)(fromPosition + 5));
-            }
-
-            if (fromController != null)
-            {
-                CombatActorController toController = null;
-
-                while (true)
-                {
-                    int min = (int) (fromPosition == 0 ? ElementPosition.EnemyWater : ElementPosition.AllyWater);
-                    int max = (int) (fromPosition == 0 ? ElementPosition.EnemyCenter : ElementPosition.AllyCenter);
-
-                    ElementPosition toPosition = (ElementPosition)RandomGenerator.Range(min, max + 1);
-
-                    if (_combatScene.GetCombatActorController(toPosition) is {} controller)
-                    {
-                        toController = controller;
-                        break;
-                    }
-                }
-
-                Pal3.Instance.StartCoroutine(fromController.StartNormalAttackAsync(toController, _combatScene));
+                var slot = (ElementPosition)((int)first + (int)key - (int)Key.F1);
+                var attacker = _battleScene.GetBattleActorController(slot);
+                if (attacker != null && _battleScene.GetRandomOpponent(slot) is { } target)
+                    attacker.StartCoroutine(attacker.StartNormalAttackAsync(target, _battleScene));
+                return;
             }
         }
     }

@@ -3,10 +3,10 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat.Actor
+namespace Pal3.Game.GameSystems.Battle.Actor
 {
     using System;
-    using Combat;
+    using Battle;
     using Controllers;
     using Data;
     using Dev.Presenters;
@@ -18,10 +18,10 @@ namespace Pal3.Game.GameSystems.Combat.Actor
     using Color = Core.Primitives.Color;
     using Vector2Int = UnityEngine.Vector2Int;
 
-    public static class CombatActorFactory
+    public static class BattleActorFactory
     {
-        public static IGameEntity CreateCombatActorGameEntity(GameResourceProvider resourceProvider,
-            CombatActor actor,
+        public static IGameEntity CreateBattleActorGameEntity(GameResourceProvider resourceProvider,
+            BattleActor actor,
             ElementPosition elementPosition,
             bool isDropShadowEnabled)
         {
@@ -30,10 +30,10 @@ namespace Pal3.Game.GameSystems.Combat.Actor
             try
             {
                 // Attach CombatActorInfo to the GameEntity for better debuggability
-                #if UNITY_EDITOR
-                CombatActorInfoPresenter combatActorInfoPresent = actorGameEntity.AddComponent<CombatActorInfoPresenter>();
+#if UNITY_EDITOR
+                BattleActorInfoPresenter combatActorInfoPresent = actorGameEntity.AddComponent<BattleActorInfoPresenter>();
                 combatActorInfoPresent.combatActorInfo = actor.Info;
-                #endif
+#endif
 
                 ActorActionController actionController;
                 switch (actor.AnimationType)
@@ -56,7 +56,7 @@ namespace Pal3.Game.GameSystems.Combat.Actor
                         throw new NotSupportedException($"Unsupported actor animation type: {actor.AnimationType}");
                 }
 
-                CombatActorController actorController = actorGameEntity.AddComponent<CombatActorController>();
+                BattleActorController actorController = actorGameEntity.AddComponent<BattleActorController>();
                 actorController.Init(actor, actionController, elementPosition);
                 actorController.IsActive = true; // combat actor is always active
 

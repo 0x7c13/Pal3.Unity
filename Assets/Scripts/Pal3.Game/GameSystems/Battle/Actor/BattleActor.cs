@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat.Actor
+namespace Pal3.Game.GameSystems.Battle.Actor
 {
     using System;
     using Core.Contract.Constants;
@@ -12,11 +12,14 @@ namespace Pal3.Game.GameSystems.Combat.Actor
     using Data;
     using Game.Actor;
 
-    public sealed class CombatActor : ActorBase
+    public sealed class BattleActor : ActorBase
     {
-        public CombatActorInfo Info { get; }
+        public CombatActorInfo Info
+        {
+            get;
+        }
 
-        public CombatActor(GameResourceProvider resourceProvider, CombatActorInfo actorInfo) :
+        public BattleActor(GameResourceProvider resourceProvider, CombatActorInfo actorInfo) :
             base(resourceProvider, (int)actorInfo.Id,
                 string.IsNullOrEmpty(actorInfo.ModelId) ||
                 actorInfo.Type == CombatActorType.MainActor && string.Equals(actorInfo.ModelId, "Null", StringComparison.OrdinalIgnoreCase)

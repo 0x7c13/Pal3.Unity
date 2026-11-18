@@ -3,9 +3,10 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat.Scene
+namespace Pal3.Game.GameSystems.Battle.Scene
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Actor;
     using Actor.Controllers;
     using Core.Contract.Constants;
@@ -14,6 +15,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
     using Core.DataReader.Gdb;
     using Core.DataReader.Ini;
     using Core.DataReader.Pol;
+    using Core.Utilities;
     using Data;
     using Engine.Core.Abstraction;
     using Engine.Core.Implementation;
@@ -27,7 +29,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
     using Vector3 = UnityEngine.Vector3;
     using Quaternion = UnityEngine.Quaternion;
 
-    public sealed class CombatScene : GameEntityScript
+    public sealed class BattleScene : GameEntityScript
     {
         private const string COMBAT_CONFIG_FILE_NAME = "combat.ini";
 
@@ -36,25 +38,25 @@ namespace Pal3.Game.GameSystems.Combat.Scene
         private UnityEngine.Light _keyLight;
         private IMaterialManager _materialManager;
 
-        private string _combatSceneName;
+        private string _battleSceneName;
         private bool _usesToonRendering;
 
         private IGameEntity _parent;
         private IGameEntity _mesh;
 
-        private CombatConfigFile _combatConfigFile;
+        private CombatConfigFile _battleConfigFile;
 
         private static readonly Quaternion EnemyFormationRotation = Quaternion.Euler(0, 145, 0);
         private static readonly Quaternion PlayerFormationRotation = Quaternion.Euler(0, -45, 0);
 
-        private Dictionary<ElementPosition, CombatActorController> _combatActorControllers;
+        private readonly Dictionary<ElementPosition, BattleActorController> _battleActorControllers = new();
 
         public void Init(GameResourceProvider resourceProvider)
         {
             _resourceProvider = resourceProvider;
             _materialManager = resourceProvider.GetMaterialManager();
 
-            _combatConfigFile = _resourceProvider.GetGameResourceFile<CombatConfigFile>(
+            _battleConfigFile = _resourceProvider.GetGameResourceFile<CombatConfigFile>(
                 FileConstants.DataScriptFolderVirtualPath + COMBAT_CONFIG_FILE_NAME);
         }
 
@@ -63,7 +65,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
             bool usesToonRendering)
         {
             _parent = parent;
-            _combatSceneName = combatSceneName;
+            _battleSceneName = combatSceneName;
             _usesToonRendering = usesToonRendering;
             if (usesToonRendering)
             {
@@ -87,18 +89,20 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
         private void OnLightingSettingsChanged(string propertyName)
         {
-            if (_keyLight != null) ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
+            if (_keyLight != null)
+                ToonLighting.ConfigureKeyShadows(_keyLight, _lightingSettings);
         }
 
         protected override void OnDisableGameEntity()
         {
-            if (_lightingSettings != null) _lightingSettings.OnGameSettingsChanged -= OnLightingSettingsChanged;
+            if (_lightingSettings != null)
+                _lightingSettings.OnGameSettingsChanged -= OnLightingSettingsChanged;
         }
 
         private void RenderMesh(PolFile polFile, ITextureResourceProvider textureProvider)
         {
             // Render mesh
-            _mesh = GameEntityFactory.Create($"Mesh_{_combatSceneName}",
+            _mesh = GameEntityFactory.Create($"Mesh_{_battleSceneName}",
                 _parent, worldPositionStays: false);
             _mesh.IsStatic = true; // Combat Scene mesh is static
 
@@ -111,7 +115,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
         public Vector3 GetWorldPosition(ElementPosition position)
         {
-            int positionIndex = (int) position;
+            int positionIndex = (int)position;
 
             if (position >= ElementPosition.EnemyWater)
             {
@@ -120,21 +124,31 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
             return position switch
             {
-                ElementPosition.AllyCenter => _combatConfigFile.AllyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
-                ElementPosition.EnemyCenter => _combatConfigFile.EnemyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
-                _ => _combatConfigFile.ActorGameBoxPositions[positionIndex].ToUnityPosition()
+                ElementPosition.AllyCenter => _battleConfigFile.AllyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
+                ElementPosition.EnemyCenter => _battleConfigFile.EnemyFormationConfig.CenterGameBoxPosition.ToUnityPosition(),
+                _ => _battleConfigFile.ActorGameBoxPositions[positionIndex].ToUnityPosition()
             };
         }
 
-        public CombatActorController GetCombatActorController(ElementPosition elementPosition)
+        public BattleActorController GetBattleActorController(ElementPosition elementPosition)
         {
-            return _combatActorControllers.GetValueOrDefault(elementPosition);
+            return _battleActorControllers.GetValueOrDefault(elementPosition);
+        }
+
+        internal BattleActorController GetRandomOpponent(ElementPosition attacker)
+        {
+            bool enemyAttacks = attacker >= ElementPosition.EnemyWater;
+            var opponents = _battleActorControllers
+                .Where(pair => (pair.Key >= ElementPosition.EnemyWater) != enemyAttacks && pair.Value != null)
+                .Select(pair => pair.Value)
+                .ToArray();
+            return opponents.Length == 0 ? null : opponents[RandomGenerator.Range(0, opponents.Length)];
         }
 
         public void LoadActors(Dictionary<ElementPosition, CombatActorInfo> combatActors,
             MeetType meetType)
         {
-            _combatActorControllers = new Dictionary<ElementPosition, CombatActorController>();
+            _battleActorControllers.Clear();
 
             foreach ((ElementPosition elementPosition, CombatActorInfo actorInfo) in combatActors)
             {
@@ -148,8 +162,8 @@ namespace Pal3.Game.GameSystems.Combat.Scene
                     combatActorInfo.ModelId = combatActorInfo.Id.ToString();
                 }
 
-                CombatActor combatActor = new(_resourceProvider, combatActorInfo);
-                IGameEntity combatActorGameEntity = CombatActorFactory.CreateCombatActorGameEntity(
+                BattleActor combatActor = new(_resourceProvider, combatActorInfo);
+                IGameEntity combatActorGameEntity = BattleActorFactory.CreateBattleActorGameEntity(
                     _resourceProvider,
                     combatActor,
                     elementPosition,
@@ -173,7 +187,7 @@ namespace Pal3.Game.GameSystems.Combat.Scene
 
                 combatActorGameEntity.Transform.SetPositionAndRotation(GetWorldPosition(elementPosition), rotation);
 
-                _combatActorControllers[elementPosition] = combatActorGameEntity.GetComponent<CombatActorController>();
+                _battleActorControllers[elementPosition] = combatActorGameEntity.GetComponent<BattleActorController>();
             }
         }
     }

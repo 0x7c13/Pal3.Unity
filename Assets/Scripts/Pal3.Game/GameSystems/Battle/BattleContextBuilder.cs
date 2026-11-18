@@ -3,70 +3,70 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-namespace Pal3.Game.GameSystems.Combat
+namespace Pal3.Game.GameSystems.Battle
 {
     using Core.Contract.Enums;
     using Script.Waiter;
 
-    public sealed class CombatContextBuilder
+    public sealed class BattleContextBuilder
     {
-        private CombatContext _context = new();
+        private BattleContext _context = new();
 
-        public CombatContextBuilder WithScriptWaiter(WaitUntilCanceled scriptWaiter)
+        public BattleContextBuilder WithScriptWaiter(WaitUntilCanceled scriptWaiter)
         {
             _context.ScriptWaiter = scriptWaiter;
             return this;
         }
 
-        public CombatContextBuilder WithCombatSceneName(string combatSceneName)
+        public BattleContextBuilder WithBattleSceneName(string combatSceneName)
         {
-            _context.CombatSceneName = combatSceneName;
+            _context.BattleSceneName = combatSceneName;
             return this;
         }
 
-        public CombatContextBuilder WithCombatSceneElementType(ElementType combatSceneElementType)
+        public BattleContextBuilder WithBattleSceneElementType(ElementType combatSceneElementType)
         {
-            _context.CombatSceneElementType = combatSceneElementType;
+            _context.BattleSceneElementType = combatSceneElementType;
             return this;
         }
 
-        public CombatContextBuilder WithIsScriptTriggeredCombat(bool isScriptTriggeredCombat)
+        public BattleContextBuilder WithIsScriptTriggeredBattle(bool isScriptTriggeredCombat)
         {
-            _context.IsScriptTriggeredCombat = isScriptTriggeredCombat;
+            _context.IsScriptTriggeredBattle = isScriptTriggeredCombat;
             return this;
         }
 
-        public CombatContextBuilder WithMeetType(MeetType meetType)
+        public BattleContextBuilder WithMeetType(MeetType meetType)
         {
             _context.MeetType = meetType;
             return this;
         }
 
-        public CombatContextBuilder WithCombatMusicName(string combatMusicName)
+        public BattleContextBuilder WithBattleMusicName(string combatMusicName)
         {
-            _context.CombatMusicName = combatMusicName;
+            _context.BattleMusicName = combatMusicName;
             return this;
         }
 
-        public CombatContextBuilder WithMaxRound(int maxRound)
+        public BattleContextBuilder WithMaxRound(int maxRound)
         {
             _context.MaxRound = maxRound;
             return this;
         }
 
-        public CombatContextBuilder WithUnbeatable(bool isUnbeatable)
+        public BattleContextBuilder WithUnbeatable(bool isUnbeatable)
         {
             _context.IsUnbeatable = isUnbeatable;
             return this;
         }
 
-        public CombatContextBuilder WithNoGameOverWhenLose(bool isNoGameOverWhenLose)
+        public BattleContextBuilder WithNoGameOverWhenLose(bool isNoGameOverWhenLose)
         {
             _context.IsNoGameOverWhenLose = isNoGameOverWhenLose;
             return this;
         }
 
-        public CombatContextBuilder WithEnemyIds(
+        public BattleContextBuilder WithEnemyIds(
             uint enemy1Id,
             uint enemy2Id,
             uint enemy3Id,
@@ -74,7 +74,7 @@ namespace Pal3.Game.GameSystems.Combat
             uint enemy5Id,
             uint enemy6Id)
         {
-            _context.EnemyIds = new []
+            _context.EnemyIds = new[]
             {
                 enemy1Id,
                 enemy2Id,
@@ -88,11 +88,11 @@ namespace Pal3.Game.GameSystems.Combat
 
         public void ResetContext()
         {
-            _context = new CombatContext();
+            _context = new BattleContext();
         }
 
-        public CombatContext CurrentContext => _context;
+        public BattleContext CurrentContext => _context;
 
-        public CombatContext Build() => _context;
+        public BattleContext Build() => _context;
     }
 }
