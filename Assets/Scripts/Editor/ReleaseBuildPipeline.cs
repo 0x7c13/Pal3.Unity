@@ -34,80 +34,80 @@ namespace Editor
         private static readonly char DirSeparator = Path.DirectorySeparatorChar;
         
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_arm64] IL2CPP Release Executable", priority = 2000)]
+#endif
         public static void Build_Windows_arm64()
         {
             BuildGame(Pal3BuildTarget.Windows_arm64);
         }
         
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x86] IL2CPP Release Executable", priority = 2000)]
+#endif
         public static void Build_Windows_x86()
         {
             BuildGame(Pal3BuildTarget.Windows_x86);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Windows_x64] IL2CPP Release Executable", priority = 2000)]
+#endif
         public static void Build_Windows_x64()
         {
             BuildGame(Pal3BuildTarget.Windows_x64);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Linux_x86_x64] IL2CPP Release Executable", priority = 2000)]
+#endif
         public static void Build_Linux_x86_x64()
         {
             BuildGame(Pal3BuildTarget.Linux_x86_x64);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [macOS_arm64_x64] IL2CPP XCode Project", priority = 2000)]
+#endif
         public static void Build_macOS_arm64_x64()
         {
             BuildGame(Pal3BuildTarget.macOS_arm64_x64);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [Android] IL2CPP Release APK")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [Android] IL2CPP Release APK")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [Android] IL2CPP Release APK", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [Android] IL2CPP Release APK", priority = 2000)]
+#endif
         public static void Build_Android()
         {
             BuildGame(Pal3BuildTarget.Android);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build [iOS] IL2CPP XCode Project")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build [iOS] IL2CPP XCode Project")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build [iOS] IL2CPP XCode Project", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build [iOS] IL2CPP XCode Project", priority = 2000)]
+#endif
         public static void Build_iOS()
         {
             BuildGame(Pal3BuildTarget.iOS);
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Build All [Windows, Linux, macOS, Android, iOS]", priority = 2000)]
+#endif
         public static void BuildAll()
         {
             BuildGame(Pal3BuildTarget.Windows_arm64 |
@@ -120,10 +120,10 @@ namespace Editor
         }
 
         #if PAL3
-        [MenuItem("PAL3/Build Pipelines/Zip Release files [Windows, Linux, Android]")]
-        #elif PAL3A
-        [MenuItem("PAL3A/Build Pipelines/Zip Release files [Windows, Linux, Android]")]
-        #endif
+        [MenuItem("PAL3/Build Pipelines/Zip Release files [Windows, Linux, Android]", priority = 2000)]
+#elif PAL3A
+        [MenuItem("PAL3A/Build Pipelines/Zip Release files [Windows, Linux, Android]", priority = 2000)]
+#endif
         public static void ZipAll()
         {
             ZipReleaseFiles();

@@ -37,7 +37,6 @@ namespace Pal3.ResourceBrowser
         private readonly Scene _scene;
         private readonly Camera _camera;
         private readonly GameMaterialManager _materials;
-        private readonly GameBoxNativeLighting _nativeLighting;
         private readonly Light _toonKey;
         private readonly Dictionary<string, (ITexture2D texture, bool alpha)> _textures = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<IDisposable> _renderers = new();
@@ -94,7 +93,6 @@ namespace Pal3.ResourceBrowser
         public ResourceModelPreview(ResourceCatalog catalog, bool toon, GameBoxNativeLighting nativeLighting = null)
         {
             _catalog = catalog;
-            _nativeLighting = nativeLighting;
             _scene = EditorSceneManager.NewPreviewScene();
             try
             {
@@ -415,10 +413,9 @@ namespace Pal3.ResourceBrowser
             return new Vector2(point.x * width, (1 - point.y) * height);
         }
 
-        public void Draw(Rect rect)
+        private void HandleCameraInput(Event e, Rect rect, bool allowCameraInput)
         {
-            Event e = Event.current;
-            if (rect.Contains(e.mousePosition))
+            if (allowCameraInput && rect.Contains(e.mousePosition))
             {
                 if (e.type == EventType.MouseDrag)
                 {
@@ -442,6 +439,12 @@ namespace Pal3.ResourceBrowser
                     e.Use();
                 }
             }
+        }
+
+        public void Draw(Rect rect, bool allowCameraInput = true)
+        {
+            Event e = Event.current;
+            HandleCameraInput(e, rect, allowCameraInput);
             if (e.type != EventType.Repaint || rect.width < 2 || rect.height < 2)
                 return;
             float pixels = EditorGUIUtility.pixelsPerPoint;
@@ -466,7 +469,7 @@ namespace Pal3.ResourceBrowser
             try
             {
                 Rendering?.Invoke(_camera);
-                _nativeLighting?.Apply(_camera);
+                NativeLighting?.Apply(_camera);
                 RenderPipeline.SubmitRenderRequest(_camera, new UniversalRenderPipeline.SingleCameraRequest { destination = _target });
                 output = FrameEffect?.Composite(_target, width, height) ?? _target;
             }
