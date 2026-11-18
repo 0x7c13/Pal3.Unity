@@ -197,7 +197,7 @@ namespace Pal3.Game.Tests
                     {
                         player.Render(null);
                         maximum = Math.Max(maximum, player.QuadCount);
-                        bool hasSpar = root.GetComponentsInChildren<MeshRenderer>().Any(r => r.enabled && r.sharedMaterial.shader.name == "Pal3/OriginalEffect" && r.sharedMaterial.GetInt("_Cull") == 2);
+                        bool hasSpar = root.GetComponentsInChildren<MeshRenderer>().Any(r => r.enabled && r.sharedMaterial.shader.name == "Pal3/Effect" && r.sharedMaterial.GetInt("_Cull") == 2);
                         if (sampleTime == 0 && hasSpar)
                             sampleTime = player.Time;
                         sparRendered |= hasSpar;

@@ -33,7 +33,7 @@ namespace Pal3.Game.Settings
             DebugLogConsole.AddCommand<int>("Settings.AntiAliasing",
                 "设置抗锯齿设定（0：关闭，2：2倍抗锯齿，4：4倍抗锯齿，8：8倍抗锯齿)", _ => AntiAliasing = _);
             DebugLogConsole.AddCommand<int>("Settings.TargetFrameRate",
-                "设置目标帧率设定（-1：不限制，30：30帧，60：60帧）", _ => TargetFrameRate = _);
+                "设置目标帧率（-1：屏幕刷新率，正数：不高于刷新率的上限）", _ => TargetFrameRate = _);
             DebugLogConsole.AddCommand<float>("Settings.ResolutionScale",
                 "设置分辨率缩放设定（0.1：10%分辨率，0.5：50%分辨率，1.0：100%分辨率）", _ => ResolutionScale = _);
             DebugLogConsole.AddCommand<float>("Settings.MusicVolume",
@@ -178,32 +178,10 @@ namespace Pal3.Game.Settings
                 AntiAliasing = UnityEngineUtility.IsDesktopDevice() ? 2 : 0;
             }
 
-            #if UNITY_2022_1_OR_NEWER
-            int screenRefreshRate = (int) Screen.currentResolution.refreshRateRatio.value;
-            #else
-            int screenRefreshRate = Screen.currentResolution.refreshRate;
-            #endif
-
-            // Only respect the target frame rate if it is higher than the screen refresh rate
-            if (SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate) &&
-                targetFrameRate >= screenRefreshRate)
-            {
-                TargetFrameRate = targetFrameRate;
-            }
-            else
-            {
-                #if UNITY_STANDALONE
-                const int minimumTargetFrameRate = 120;
-                #elif UNITY_ANDROID || UNITY_IOS
-                const int minimumTargetFrameRate = 90;
-                #else
-                const int minimumTargetFrameRate = 60;
-                #endif
-
-                // Set target frame rate to screen refresh rate by default
-                // unless it is lower than the minimum target frame rate
-                TargetFrameRate = Math.Max(screenRefreshRate, minimumTargetFrameRate);
-            }
+            // -1 follows the display. The rendering owner caps explicit saved
+            // limits too, and follows refresh-rate changes without rewriting preferences.
+            TargetFrameRate = SettingsStore.TryGet(nameof(TargetFrameRate), out int targetFrameRate) && targetFrameRate > 0
+                ? targetFrameRate : -1;
 
             if (SettingsStore.TryGet(nameof(ResolutionScale), out float resolutionScale))
             {
@@ -249,7 +227,7 @@ namespace Pal3.Game.Settings
                 SfxVolume = 0.5f;
             }
 
-            ToonRendering = SettingsStore.TryGet(nameof(ToonRendering), out bool toonRendering) && toonRendering;
+            ToonRendering = !SettingsStore.TryGet(nameof(ToonRendering), out bool toonRendering) || toonRendering;
             bool desktop = UnityEngineUtility.IsDesktopDevice();
             ToonContactShadows = SettingsStore.TryGet(nameof(ToonContactShadows), out bool contactShadows)
                 ? contactShadows : desktop;

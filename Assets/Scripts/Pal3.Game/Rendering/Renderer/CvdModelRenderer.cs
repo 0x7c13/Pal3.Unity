@@ -27,8 +27,9 @@ namespace Pal3.Game.Rendering.Renderer
     /// </summary>
     public sealed class CvdModelRenderer : GameEntityScript, IDisposable
     {
-        private readonly Dictionary<string, ITexture2D> _textureCache = new ();
+        private readonly Dictionary<string, ITexture2D> _textureCache = new();
         private readonly List<CvdNodeRenderState> _renderers = new();
+        private readonly List<IDisposable> _nativeLightingBindings = new();
 
         private sealed class CvdNodeRenderState
         {
@@ -47,7 +48,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private float _currentAnimationTime;
         private float _animationDuration;
-        private CancellationTokenSource _animationCts = new ();
+        private CancellationTokenSource _animationCts;
+        private IGameEntity _meshRoot;
 
         private IMaterialManager _materialManager;
 
@@ -66,6 +68,7 @@ namespace Pal3.Game.Rendering.Renderer
             Color? tintColor = default,
             float initTime = 0f)
         {
+            Dispose();
             _materialManager = materialManager;
             _animationDuration = cvdFile.AnimationDuration;
             _tintColor = tintColor ?? Color.White;
@@ -76,7 +79,7 @@ namespace Pal3.Game.Rendering.Renderer
                 BuildTextureCache(node, textureProvider, _textureCache);
             }
 
-            IGameEntity root = GameEntityFactory.Create("Cvd Mesh",
+            _meshRoot = GameEntityFactory.Create("Cvd Mesh",
                 GameEntity, worldPositionStays: false);
 
             for (int i = 0; i < cvdFile.RootNodes.Length; i++)
@@ -87,7 +90,7 @@ namespace Pal3.Game.Rendering.Renderer
                     hashKey,
                     cvdFile.RootNodes[i],
                     _textureCache,
-                    root);
+                    _meshRoot);
             }
         }
 
@@ -103,14 +106,15 @@ namespace Pal3.Game.Rendering.Renderer
 
         public float GetDefaultAnimationDuration(float timeScale = 1f)
         {
-            if (timeScale == 0f) return 0f;
+            if (timeScale == 0f)
+                return 0f;
             return _animationDuration / MathF.Abs(timeScale);
         }
 
         public Bounds GetRendererBounds()
         {
             bool boundsInitialized = false;
-            Bounds bounds = new (Transform.Position, Vector3.one);
+            Bounds bounds = new(Transform.Position, Vector3.one);
 
             foreach (CvdNodeRenderState node in _renderers)
             {
@@ -135,7 +139,7 @@ namespace Pal3.Game.Rendering.Renderer
         public Bounds GetMeshBounds()
         {
             bool boundsInitialized = false;
-            Bounds bounds = new (Vector3.zero, Vector3.one);
+            Bounds bounds = new(Vector3.zero, Vector3.one);
 
             foreach (CvdNodeRenderState node in _renderers)
             {
@@ -166,10 +170,13 @@ namespace Pal3.Game.Rendering.Renderer
                 foreach (CvdMeshSection meshSection in node.Mesh.MeshSections)
                 {
                     string textureName = meshSection.Material.TextureFileNames[0];
-                    if (string.IsNullOrEmpty(textureName)) continue;
-                    if (textureCache.ContainsKey(textureName)) continue;
+                    if (string.IsNullOrEmpty(textureName))
+                        continue;
+                    if (textureCache.ContainsKey(textureName))
+                        continue;
                     ITexture2D texture2D = textureProvider.GetTexture(textureName);
-                    if (texture2D != null) textureCache[textureName] = texture2D;
+                    if (texture2D != null)
+                        textureCache[textureName] = texture2D;
                 }
             }
 
@@ -239,7 +246,8 @@ namespace Pal3.Game.Rendering.Renderer
                         continue;
 
                     int vertexCount = meshSection.FrameVertices[frameIndex].Length;
-                    MeshDataBuffer meshDataBuffer = new(vertexCount, 0, vertexCount, meshSection.GameBoxTriangles.Length);
+                    MeshDataBuffer meshDataBuffer = new(vertexCount, _materialManager.NativeLighting != null ? vertexCount : 0,
+                        vertexCount, meshSection.GameBoxTriangles.Length);
                     meshSection.GameBoxTriangles.ToUnityTriangles(meshDataBuffer.TriangleBuffer);
                     UpdateMeshDataBuffer(meshDataBuffer, meshSection, frameIndex, influence, frameMatrix);
 
@@ -247,30 +255,42 @@ namespace Pal3.Game.Rendering.Renderer
                         meshEntity, worldPositionStays: false);
 
                     // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability.
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     MaterialInfoPresenter materialInfoPresenter = meshEntity.AddComponent<MaterialInfoPresenter>();
                     materialInfoPresenter.blendFlag = meshSection.BlendFlag;
                     materialInfoPresenter.material = meshSection.Material;
-                    #endif
+#endif
 
                     IMaterial[] materials = _materialManager.CreateStandardMaterials(
                         RendererType.Cvd,
                         mainTexture: (textureName, texture),
                         bakedLightmap: default, // CVD models don't have shadow textures
                         tintColor: _tintColor,
-                        blendFlag: meshSection.BlendFlag);
+                        blendFlag: meshSection.BlendFlag,
+                        sourceMaterial: meshSection.Material);
 
                     StaticMeshRenderer meshRenderer = meshSectionEntity.AddComponent<StaticMeshRenderer>();
                     Mesh renderMesh = meshRenderer.Render(
                         vertices: meshDataBuffer.VertexBuffer,
                         triangles: meshDataBuffer.TriangleBuffer,
-                        normals: null,
+                        normals: _materialManager.NativeLighting != null ? meshDataBuffer.NormalBuffer : null,
                         mainTextureUvs: (channel: 0, uvs: meshDataBuffer.UvBuffer),
                         secondaryTextureUvs: default, // CVD models don't have secondary texture
                         materials: materials,
                         isDynamic: true);
 
-                    if (usesToon) renderMesh.RecalculateNormals();
+                    if (usesToon)
+                        renderMesh.RecalculateNormals();
+
+                    if (_materialManager.NativeLighting != null)
+                    {
+                        // The IPOL loader retains VertStart from its last loaded
+                        // frame as the section's light-selection point.
+                        Vector3 anchor = meshSection.FrameVertices[^1][0].GameBoxPosition.CvdPositionToUnityPosition();
+                        _nativeLightingBindings.Add(_materialManager.NativeLighting.Bind(
+                            meshRenderer.GetComponent<MeshRenderer>(), anchor, false, false, false,
+                            UnityPrimitivesConvertor.GameBoxUnitToUnityUnit, () => nodeMeshes.Pose.matrix));
+                    }
 
                     nodeMeshes.Sections.Add((i, new RenderMeshComponent
                     {
@@ -313,6 +333,15 @@ namespace Pal3.Game.Rendering.Renderer
             bool updateUvs = true)
         {
             CvdVertex[] frameVertices = meshSection.FrameVertices[frameIndex];
+            if (meshDataBuffer.NormalBuffer?.Length > 0)
+            {
+                // gbIpolMesh::DrawSubSet copies the current frame's authored
+                // normals while interpolating only positions and UVs. Keep
+                // normals in source space; the lighting binding undoes the
+                // node matrix baked into positions, including nonuniform scale.
+                for (int i = 0; i < frameVertices.Length; i++)
+                    meshDataBuffer.NormalBuffer[i] = frameVertices[i].GameBoxNormal.CvdPositionToUnityPosition(1);
+            }
 
             if (influence < float.Epsilon)
             {
@@ -320,7 +349,8 @@ namespace Pal3.Game.Rendering.Renderer
                 {
                     meshDataBuffer.VertexBuffer[i] = matrix.MultiplyPoint3x4(
                         frameVertices[i].GameBoxPosition.CvdPositionToUnityPosition());
-                    if (updateUvs) meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv.ToUnityVector2();
+                    if (updateUvs)
+                        meshDataBuffer.UvBuffer[i] = frameVertices[i].Uv.ToUnityVector2();
                 }
             }
             else
@@ -344,7 +374,8 @@ namespace Pal3.Game.Rendering.Renderer
         private void UpdateMesh(float time)
         {
             _currentAnimationTime = time;
-            if (_renderers.Count == 0) return;
+            if (_renderers.Count == 0)
+                return;
 
             bool usesToon = _materialManager.UsesToonRendering;
             foreach (CvdNodeRenderState node in _renderers)
@@ -353,7 +384,8 @@ namespace Pal3.Game.Rendering.Renderer
                 var previous = node.Pose;
                 bool matrixChanged = !pose.matrix.Equals(previous.matrix);
                 bool vertexFrameChanged = pose.frameIndex != previous.frameIndex || pose.influence != previous.influence;
-                if (!matrixChanged && !vertexFrameChanged) continue;
+                if (!matrixChanged && !vertexFrameChanged)
+                    continue;
                 node.Pose = pose;
 
                 bool normalTransformChanged = usesToon &&
@@ -368,8 +400,12 @@ namespace Pal3.Game.Rendering.Renderer
                     CvdMeshSection source = node.Node.Mesh.MeshSections[sectionIndex];
                     UpdateMeshDataBuffer(buffer, source, pose.frameIndex, pose.influence, pose.matrix, vertexFrameChanged);
                     mesh.SetVertices(buffer.VertexBuffer);
-                    if (usesToon && (vertexFrameChanged || normalTransformChanged)) mesh.RecalculateNormals();
-                    if (vertexFrameChanged) mesh.SetUVs(0, buffer.UvBuffer);
+                    if (_materialManager.NativeLighting != null)
+                        mesh.SetNormals(buffer.NormalBuffer);
+                    if (usesToon && (vertexFrameChanged || normalTransformChanged))
+                        mesh.RecalculateNormals();
+                    if (vertexFrameChanged)
+                        mesh.SetUVs(0, buffer.UvBuffer);
                     mesh.RecalculateBounds();
                 }
             }
@@ -415,8 +451,7 @@ namespace Pal3.Game.Rendering.Renderer
 
             StopCurrentAnimation();
 
-            if (!_animationCts.IsCancellationRequested) _animationCts.Cancel();
-
+            _animationCts?.Dispose();
             _animationCts = new CancellationTokenSource();
 
             yield return PlayAnimationInternalAsync(timeScale,
@@ -480,7 +515,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private Vector3 GetPosition(float time, CvdAnimationPositionKeyFrame[] nodePositionInfo)
         {
-            if (nodePositionInfo.Length == 1) return nodePositionInfo[0].GameBoxPosition.CvdPositionToUnityPosition();
+            if (nodePositionInfo.Length == 1)
+                return nodePositionInfo[0].GameBoxPosition.CvdPositionToUnityPosition();
 
             // Find the two keyframes that the current time lies between
             // using binary search
@@ -550,7 +586,8 @@ namespace Pal3.Game.Rendering.Renderer
         private Quaternion GetRotation(float time,
             CvdAnimationRotationKeyFrame[] nodeRotationInfo)
         {
-            if (nodeRotationInfo.Length == 1) return nodeRotationInfo[0].GameBoxRotation.CvdQuaternionToUnityQuaternion();
+            if (nodeRotationInfo.Length == 1)
+                return nodeRotationInfo[0].GameBoxRotation.CvdQuaternionToUnityQuaternion();
 
             // Find the two keyframes that the current time lies between
             int startIndex = 0;
@@ -579,7 +616,7 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void StopCurrentAnimation()
         {
-            if (!_animationCts.IsCancellationRequested)
+            if (_animationCts != null && !_animationCts.IsCancellationRequested)
             {
                 _animationCts.Cancel();
             }
@@ -588,6 +625,11 @@ namespace Pal3.Game.Rendering.Renderer
         public void Dispose()
         {
             StopCurrentAnimation();
+            _animationCts?.Dispose();
+            _animationCts = null;
+            foreach (IDisposable binding in _nativeLightingBindings)
+                binding.Dispose();
+            _nativeLightingBindings.Clear();
 
             foreach (CvdNodeRenderState node in _renderers)
             {
@@ -602,6 +644,11 @@ namespace Pal3.Game.Rendering.Renderer
                 }
             }
             _renderers.Clear();
+            _meshRoot?.Destroy();
+            _meshRoot = null;
+            // Textures are borrowed from the provider; release only our references.
+            _textureCache.Clear();
+            _materialManager = null;
         }
     }
 }

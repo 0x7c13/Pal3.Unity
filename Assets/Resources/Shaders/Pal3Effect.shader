@@ -3,7 +3,7 @@
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
 
-Shader "Pal3/OriginalEffect"
+Shader "Pal3/Effect"
 {
     Properties
     {

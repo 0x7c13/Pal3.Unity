@@ -217,7 +217,7 @@ namespace Pal3.Game.Effect.Original
             var key = (texture, (int)source, (int)destination, noZ, alphaMode, (int)cull);
             if (_materials.TryGetValue(key, out Material cached))
                 return cached;
-            Shader shader = Shader.Find("Pal3/OriginalEffect");
+            Shader shader = Shader.Find("Pal3/Effect");
             if (shader == null || !shader.isSupported)
                 throw new InvalidOperationException("OriginalEffect URP shader is unavailable");
             var material = new Material(shader) { name = $"Original {texture}", hideFlags = HideFlags.DontSave };

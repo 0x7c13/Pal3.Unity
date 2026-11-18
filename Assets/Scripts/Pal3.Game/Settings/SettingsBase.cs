@@ -77,7 +77,8 @@ namespace Pal3.Game.Settings
             }
         }
 
-        private int _targetFrameRate = -1; // Default to -1 for unlimited frame rate
+        private int _targetFrameRate = -1; // -1 follows the display refresh rate
+
         public int TargetFrameRate
         {
             get => _targetFrameRate;
@@ -355,15 +356,16 @@ namespace Pal3.Game.Settings
             }
         }
 
-        private bool _isTurnBasedCombatEnabled = false;
+        private bool _isTurnBasedBattleEnabled = false;
+
         public bool IsTurnBasedCombatEnabled
         {
-            get => _isTurnBasedCombatEnabled;
+            get => _isTurnBasedBattleEnabled;
             internal set
             {
-                if (_isTurnBasedCombatEnabled != value)
+                if (_isTurnBasedBattleEnabled != value)
                 {
-                    _isTurnBasedCombatEnabled = value;
+                    _isTurnBasedBattleEnabled = value;
                     SettingsStore.Set(nameof(IsTurnBasedCombatEnabled), value);
                     NotifyPropertyChanged();
                 }

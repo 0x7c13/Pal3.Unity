@@ -7,13 +7,18 @@ Shader "Pal3/ToonCutout"
 {
     Properties
     {
+        [HideInInspector] _ReceiveLighting ("Receive Lighting", Float) = 1
         _MainTex ("Texture", 2D) = "white" {}
+        [HideInInspector] _BattleSelection ("Battle selection luminance", Float) = -1
         _TintColor ("Tint Color", Color) = (1, 1, 1, 1)
         _ShadowTex ("Baked Shadow", 2D) = "white" {}
         _HasShadowTex ("Has Baked Shadow", Float) = 0
         _LightmapScale ("Baked Light Scale", Float) = 1.666667
         _ReceiveShadows ("Receive Shadows", Float) = 1
         [HideInInspector] _IsCharacter ("Character", Float) = 0
+        [HideInInspector] _UnlitBackground ("Painted background", Float) = 0
+        [HideInInspector] _BackgroundBrightness ("Background brightness", Float) = 1
+        [HideInInspector] _SourceDiffuseAlpha ("Original POL diffuse alpha", Float) = 1
         _Threshold ("Alpha Cutoff", Float) = 1
     }
 

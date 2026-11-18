@@ -19,6 +19,7 @@ struct ToonVaryings
     float3 positionWS : TEXCOORD2;
     half3 normalWS : TEXCOORD3;
     float fogFactor : TEXCOORD4;
+    float4 paintedVertexColor : TEXCOORD5;
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -33,6 +34,7 @@ ToonVaryings ToonVertex(ToonAttributes input)
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
     output.lightmapUV = TRANSFORM_TEX(input.lightmapUV, _ShadowTex);
     output.fogFactor = ComputeFogFactor(output.positionCS.z);
+    output.paintedVertexColor = ToonPaintedVertexColor(input.color);
     return output;
 }
 
@@ -148,29 +150,53 @@ half4 ToonFragment(ToonVaryings input) : SV_Target
 {
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
     half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    half3 selectionTexture = color.rgb;
+    half classificationAlpha = color.a;
+    half4 lightmap = 1.0;
+    if (_HasShadowTex > 0.5)
+        lightmap = SAMPLE_TEXTURE2D(_ShadowTex, sampler_ShadowTex, input.lightmapUV);
+    if (_UnlitBackground > 0.5)
+    {
+        color = ToonPaintedTextureStages(color, lightmap, input.paintedVertexColor);
+        classificationAlpha = color.a;
+    }
     #if defined(PAL3_TOON_CUTOUT)
-        clip(color.a - _Threshold);
+        clip(classificationAlpha - _Threshold);
     #elif defined(PAL3_TOON_TRANSPARENT)
-        if (color.a >= _Threshold || (color.a <= 0.0 && _Threshold <= 1.0))
+        if (classificationAlpha >= _Threshold || (classificationAlpha <= 0.0 && _Threshold <= 1.0))
             discard;
     #endif
 
-    half3 baked = 1.0;
-    if (_HasShadowTex > 0.5)
-        baked = SAMPLE_TEXTURE2D(_ShadowTex, sampler_ShadowTex, input.lightmapUV).rgb * _LightmapScale;
+    if (_UnlitBackground > 0.5)
+    {
+        color.rgb *= _TintColor.rgb;
+        color.rgb *= _BackgroundBrightness;
+    }
+    else
+    {
+        half3 baked = _HasShadowTex > 0.5 ? lightmap.rgb * _LightmapScale : 1.0;
+        color *= _TintColor;
+        #if defined(PAL3_TOON_WATER)
+            // The first frame defines opacity for the full water animation.
+            color.a = _Alpha;
+        #endif
+        #if defined(PAL3_TOON_TRANSPARENT)
+            if (_ReceiveLighting < 0.5)
+                color.rgb *= baked;
+            else
+        #endif
+            color.rgb = ShadeToon(color.rgb, baked, input.positionCS, input.positionWS, SafeNormalize(input.normalWS));
+    }
 
-    color *= _TintColor;
-    #if defined(PAL3_TOON_WATER)
-        // The first frame defines opacity for the full water animation.
-        color.a = _Alpha;
+    #if !defined(PAL3_TOON_CUTOUT) && !defined(PAL3_TOON_TRANSPARENT) && !defined(PAL3_TOON_WATER)
+        // Opaque painted POL layers must remain opaque in the preview target.
+        if (_UnlitBackground > 0.5)
+            color.a = 1.0;
     #endif
-    #if defined(PAL3_TOON_TRANSPARENT)
-        if (_ReceiveLighting < 0.5)
-            color.rgb *= baked;
-        else
+    #if !defined(PAL3_TOON_WATER)
+        if (_BattleSelection >= 0)
+            color.rgb = selectionTexture * _BattleSelection;
     #endif
-        color.rgb = ShadeToon(color.rgb, baked, input.positionCS, input.positionWS, SafeNormalize(input.normalWS));
-
     color.rgb = MixFog(color.rgb, input.fogFactor);
     return color;
 }

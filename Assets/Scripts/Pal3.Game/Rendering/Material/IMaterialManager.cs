@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -12,7 +12,20 @@ namespace Pal3.Game.Rendering.Material
 
     public interface IMaterialManager : IDisposable
     {
-        public bool UsesToonRendering { get; }
+        public bool UsesToonRendering
+        {
+            get;
+        }
+
+        public bool RequiresNormals
+        {
+            get;
+        }
+
+        public Native.GameBoxNativeLighting NativeLighting
+        {
+            get;
+        }
 
         /// <summary>
         /// Create a material for effect sprite without alpha channel.
@@ -41,7 +54,8 @@ namespace Pal3.Game.Rendering.Material
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) bakedLightmap,
             Color tintColor,
-            GameBoxBlendFlag blendFlag);
+            GameBoxBlendFlag blendFlag,
+            GameBoxMaterial? sourceMaterial = null);
 
         /// <summary>
         /// Create material for water surface

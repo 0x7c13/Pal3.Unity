@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -46,9 +46,19 @@ namespace Pal3.Game.Rendering.Material
         private const float PolAlphaCutoff = 245f / 255f;
         private const float DisabledAlphaCutoff = 2f;
         private const float DefaultLightmapScale = 1f / 0.6f;
-        private const float PolLightmapScale = 2f;
+        internal const float PolLightmapScale = 2f;
 
-        public bool UsesToonRendering { get; }
+        public bool UsesToonRendering
+        {
+            get;
+        }
+
+        public bool RequiresNormals => UsesToonRendering || NativeLighting != null;
+
+        public Native.GameBoxNativeLighting NativeLighting
+        {
+            get;
+        }
 
         private readonly IMaterial _waterMaterial;
         private readonly IMaterial _transparentMaterial;
@@ -67,9 +77,10 @@ namespace Pal3.Game.Rendering.Material
 
         private bool _disposed;
 
-        public GameMaterialManager(IMaterialFactory materialFactory, bool usesToonRendering) : base(materialFactory)
+        public GameMaterialManager(IMaterialFactory materialFactory, bool usesToonRendering, Native.GameBoxNativeLighting nativeLighting = null) : base(materialFactory)
         {
             UsesToonRendering = usesToonRendering;
+            NativeLighting = usesToonRendering ? null : nativeLighting;
             _waterMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonWaterShaderName : WaterShaderName);
             _transparentMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonTransparentShaderName : TransparentShaderName);
             _alphaCutoutMaterial = MaterialFactory.CreateMaterial(usesToonRendering ? ToonCutoutShaderName : AlphaCutoutShaderName);
@@ -78,7 +89,8 @@ namespace Pal3.Game.Rendering.Material
 
         public void Dispose()
         {
-            if (_disposed) return;
+            if (_disposed)
+                return;
             _disposed = true;
             DisposePool(_waterMaterialPool);
             DisposePool(_transparentMaterialPool);
@@ -104,7 +116,8 @@ namespace Pal3.Game.Rendering.Material
             (string name, ITexture2D texture) mainTexture,
             (string name, ITexture2D texture) bakedLightmap,
             Color tintColor,
-            GameBoxBlendFlag blendFlag)
+            GameBoxBlendFlag blendFlag,
+            GameBoxMaterial? sourceMaterial = null)
         {
             float lightmapScale = rendererType == RendererType.Pol ? PolLightmapScale : DefaultLightmapScale;
             switch (blendFlag)
@@ -132,10 +145,17 @@ namespace Pal3.Game.Rendering.Material
                 IMaterial material = RentMaterial(pool, template);
                 material.SetMainTexture(mainTexture.texture);
                 material.SetColor(TintColorPropertyId, tintColor);
+                if (NativeLighting != null)
+                {
+                    material.SetFloat(ShaderUtility.GetPropertyIdByName("_GbNativeLighting"), 1);
+                    material.SetColor(ShaderUtility.GetPropertyIdByName("_GbMaterialDiffuse"), sourceMaterial?.Diffuse ?? Color.White);
+                    material.SetColor(ShaderUtility.GetPropertyIdByName("_GbMaterialAmbient"), sourceMaterial?.Ambient ?? Color.White);
+                }
                 material.SetFloat(LightmapScalePropertyId, lightmapScale);
                 SetBakedLightmap(material, bakedLightmap.texture);
                 if (UsesToonRendering)
                 {
+                    material.SetFloat(ShaderUtility.GetPropertyIdByName("_SourceDiffuseAlpha"), sourceMaterial?.Diffuse.A ?? 1f);
                     material.SetFloat(ReceiveShadowsPropertyId, 1f);
                     material.SetFloat(CharacterPropertyId, rendererType is RendererType.Mv3 or RendererType.Msh ? 1f : 0f);
                 }
@@ -166,7 +186,8 @@ namespace Pal3.Game.Rendering.Material
             IMaterial material = RentMaterial(_waterMaterialPool, _waterMaterial);
             material.SetMainTexture(mainTexture.texture);
             material.SetFloat(WaterAlphaPropId, opacity);
-            if (UsesToonRendering) material.SetFloat(ReceiveShadowsPropertyId, 1f);
+            if (UsesToonRendering)
+                material.SetFloat(ReceiveShadowsPropertyId, 1f);
             SetBakedLightmap(material, bakedLightmap.texture);
             return material;
         }
@@ -184,7 +205,8 @@ namespace Pal3.Game.Rendering.Material
 
         protected override void ReturnToPool(IMaterial material)
         {
-            if (material == null || material.IsNativeObjectDisposed) return;
+            if (material == null || material.IsNativeObjectDisposed)
+                return;
 
             (Stack<IMaterial> pool, int capacity) = material.ShaderName switch
             {
@@ -196,7 +218,8 @@ namespace Pal3.Game.Rendering.Material
                 _ => (null, 0),
             };
 
-            if (pool == null) return;
+            if (pool == null)
+                return;
             if (_disposed || pool.Count >= capacity)
             {
                 material.Destroy();
