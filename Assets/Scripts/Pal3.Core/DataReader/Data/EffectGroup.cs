@@ -23,6 +23,7 @@ namespace Pal3.Core.DataReader.Data
         public float CreateTimeSlot;
         public bool IsValid, CreateNew, ModifyLast;
         public float YStretchSpeed;
+        public uint[] ReservedWords = new uint[7];
 
         public GameBoxVector3 Speed => new(SpeedX, SpeedY, SpeedZ);
         public GameBoxVector3 CircleAxis => new(CircleAxisX, CircleAxisY, CircleAxisZ);

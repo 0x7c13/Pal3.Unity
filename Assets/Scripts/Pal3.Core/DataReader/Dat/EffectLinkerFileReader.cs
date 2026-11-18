@@ -50,7 +50,7 @@ namespace Pal3.Core.DataReader.Dat
                 IsReceiverActor = reader.ReadBoolean(),
                 EffectGameBoxPosition = reader.ReadGameBoxVector3(),
                 WaitDurationInSeconds = reader.ReadSingle(),
-                EffectDurationInSeconds = reader.ReadSingle(),
+                WorkTimeInSeconds = reader.ReadSingle(),
             };
         }
     }

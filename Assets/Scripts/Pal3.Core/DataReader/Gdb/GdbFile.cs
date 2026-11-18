@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -14,24 +14,24 @@ namespace Pal3.Core.DataReader.Gdb
         public short Value;                  // 属性影响值
     }
 
-    public struct CombatStateImpact
+    public struct ItemCombatStateValue
     {
-        public CombatStateImpactType Type;   // 战斗状态影响类型
-        public short Value;                  // 战斗状态影响值
+        public byte Flags;                  // 原 fstype：武器附加状态使能标记，不能当作药物增加/解除操作
+        public short Value;                 // 战斗状态影响值
     }
 
     public struct GameItemInfo
     {
-        public uint Id;                             // 物品ID
+        public uint Id;                                // 物品ID
 
-        public string Name;                         // 物品名称
-        public string ModelName;                    // 物品模型名称
-        public string IconName;                     // 物品图标名称
-        public string Description;                  // 物品描述
-        public int Price;                           // 物品价格
+        public string Name;                            // 物品名称
+        public string ModelName;                       // 物品模型名称
+        public string ImageId;                         // 原 ImageID：图标和武器模型贴图共用的图像后缀
+        public string Description;                     // 物品描述
+        public int Price;                              // 物品价格
 
-        public ItemType Type;                       // 物品类型
-        public WeaponType WeaponType;               // 武器类型（只有物品为武器的时候有意义）
+        public ItemType Type;                          // 物品类型
+        public WeaponType WeaponType;                  // 武器类型（只有物品为武器的时候有意义）
 
         // 主角可使用信息
         public HashSet<PlayerActorId> ApplicableActors;
@@ -39,51 +39,52 @@ namespace Pal3.Core.DataReader.Gdb
         // 五灵属性
         public HashSet<ObjectElementType> ElementAttributes;
 
-        public int AncientValue;                    // 古董价值
+        public int AncientValue;                       // 古董价值
 
-        public ItemSpecialType ItemSpecialType;     // 特殊类型
-        public TargetRangeType TargetRangeType;     // 目标范围类型
-        public PlaceOfUseType PlaceOfUseType;       // 使用地点类型
+        public ItemSpecialType ItemSpecialType;        // 特殊类型
+        public TargetRangeType TargetRangeType;        // 目标范围类型
+        public PlaceOfUseType PlaceOfUseType;          // 使用地点类型
 
         // 角色属性影响类型和影响值
         public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
         // 战斗状态影响类型和值
-        public Dictionary<ActorCombatStateType, CombatStateImpact>  CombatStateImpacts;
+        public Dictionary<ActorCombatStateType, ItemCombatStateValue> CombatStates;
 
-        #if PAL3
-            public int ComboCount;                      // 连击次数
+        // 原 lian，PAL3 offset 0x2fc，PAL3A 0x300；有符号比较，0/1按单次处理。
+        public int AttackHitCount;
 
-            // 装备属性
-            public short SpSavingPercentage;                // 气消耗减少百分比
-            public short MpSavingPercentage;                // 神消耗减少百分比
-            public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
-            public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
+#if PAL3
 
-            // 尸块属性
-            public uint OreId;                      // 矿石ID
-            public uint ProductId;                  // 炼制出的物品ID
-            public int ProductPrice;                // 炼制出的物品价格
+        // 装备属性
+        public short SpSavingPercentage;               // 气消耗减少百分比
+        public short MpSavingPercentage;               // 神消耗减少百分比
+        public short CriticalAttackAmplifyPercentage;  // 暴击伤害增加百分比
+        public short SpecialSkillSuccessRate;          // 特技成功率增加百分比
 
-            // 合成属性
-            public uint[] SynthesisMaterialIds;     // 两种合成材料的ID
-            public uint SynthesisProductId;         // 合成出的物品ID
-        #elif PAL3A
-            public int Unknown1;
-            public uint Unknown2;
+        // 尸块属性
+        public uint OreId;                             // 矿石ID
+        public uint ProductId;                         // 炼制出的物品ID
+        public int ProductPrice;                       // 炼制出的物品价格
 
-            public short SpSavingPercentage;                // 气消耗减少百分比
-            public short MpSavingPercentage;                // 神消耗减少百分比
-            public short CriticalAttackAmplifyPercentage;   // 暴击伤害增加百分比
-            public short SpecialSkillSuccessRate;           // 特技成功率增加百分比
+        // 合成属性
+        public uint[] SynthesisMaterialIds;            // 两种合成材料的ID
+        public uint SynthesisProductId;                // 合成出的物品ID
+#elif PAL3A
+        public int UnresolvedValue2FC;                 // 有符号原值，尚未确认完整语义；不是连击除数。
 
-            public PlayerActorId CreatorActorId;     // 制作角色ID
-            public uint MaterialId;                  // 制作所需材料的ID
+        public short SpSavingPercentage;               // 气消耗减少百分比
+        public short MpSavingPercentage;               // 神消耗减少百分比
+        public short CriticalAttackAmplifyPercentage;  // 暴击伤害增加百分比
+        public short SpecialSkillSuccessRate;          // 特技成功率增加百分比
 
-            public int ProductType;                  // 制作出的物品类型（0美食方，梦溪杂录，1装备图谱，花种，2武器图谱）
-            public uint ProductId;                   // 制作出的物品ID
-            public uint RequiredFavorValue;          // 制作所需的最低好感度
-        #endif
+        public PlayerActorId CreatorActorId;           // 制作角色ID
+        public uint MaterialId;                        // 制作所需材料的ID
+
+        public int ProductType;                        // 制作出的物品类型（0美食方，梦溪杂录，1装备图谱，花种，2武器图谱）
+        public uint ProductId;                         // 制作出的物品ID
+        public uint RequiredFavorValue;                // 制作所需的最低好感度
+#endif
     }
 
     [System.Serializable]
@@ -98,18 +99,27 @@ namespace Pal3.Core.DataReader.Gdb
 
         // 角色基础五灵属性值（由 GDB 文件读取）
         [field: System.NonSerialized]
-        public Dictionary<ElementType, int> ElementAttributeValues { get; set; }
+        public Dictionary<ElementType, int> ElementAttributeValues
+        {
+            get; set;
+        }
 
         public string Name;                     // 战斗角色名称
         public int Level;                       // 战斗角色等级
 
         // 角色基础属性值
         [field: System.NonSerialized]
-        public Dictionary<ActorAttributeType, int> AttributeValues { get; set; }
+        public Dictionary<ActorAttributeType, int> AttributeValues
+        {
+            get; set;
+        }
 
         // 战斗状态影响类型
         [field: System.NonSerialized]
-        public Dictionary<ActorCombatStateType, CombatStateImpactType> CombatStateImpactTypes { get; set; }
+        public Dictionary<ActorCombatStateType, CombatStateImpactType> CombatStateImpactTypes
+        {
+            get; set;
+        }
 
         public int MaxRound;                    // 指定最大回合数 （保存或者初始化的时候用，数据库文件里均为-1，主角为0）
         public int SpecialActionId;             // 特殊动作ID
@@ -163,7 +173,7 @@ namespace Pal3.Core.DataReader.Gdb
         public byte SuccessRateLevel;                         // 施法成功率 0～10对应不约定的计算方式 其他为百分比
 
         // 战斗状态影响类型
-        public Dictionary<ActorCombatStateType, CombatStateImpactType>  CombatStateImpactTypes;
+        public Dictionary<ActorCombatStateType, CombatStateImpactType> CombatStateImpactTypes;
 
         // 消耗属性类型
         public AttributeImpactType SpConsumeImpactType;
@@ -178,10 +188,10 @@ namespace Pal3.Core.DataReader.Gdb
         public int SpecialConsumeValue;                       // 特殊消耗数值
 
         public byte Level;                                    // 技能等级
-        public byte[] TimesBeforeLevelUp;                     // 升级前需使用次数
-        public byte RequiredActorLevel;                       // 使用所需角色等级
-        public byte MagicLevel;                               // 本级法术等级
-        public uint NextLevelSkillId;                         // 下一级法术ID
+        public byte[] CumulativeUseThresholds;                // 累计使用次数阈值（不在升级时扣除）
+        public byte LearningActorLevel;                       // 特技学习／当前仙术解锁next所需角色等级（不是通用施法门槛）
+        public byte NextSkillRequiredProficiency;             // 解锁next所需的当前仙术显示熟练等级
+        public uint NextSkillId;                              // 下一级法术ID
         public byte IsUsableOutsideCombat;                    // 是否可以在战斗外使用
 
         public uint[] CompositeSkillIds;                      // 可以合成的法术ID
@@ -203,35 +213,62 @@ namespace Pal3.Core.DataReader.Gdb
 
         public uint SkillId;                            // 发动技能ID
         public WeaponType[] WeaponTypeRequirements;     // 对应每个参战者的武器类型
-        public ActorCombatStateType[] CombatStateRequirements;  // 对应每个参战者的战斗状态要求
+        public int[] AuxiliaryStateConditions;          // 三名辅助者的原始FS索引：-1忽略，0..25状态，26任一毒
         public string Description;                      // 合击技描述
-        public TargetRangeType TargetRangeType;         // 使用范围类型
+        public ComboTargetRangeType TargetRangeType;    // 使用范围类型
 
         // 角色属性影响类型和影响值
         public Dictionary<ActorAttributeType, AttributeImpact> AttributeImpacts;
 
-        #if PAL3A
-        public int Unknown;  // 三外新增数据 暂时未知
-        #endif
+#if PAL3A
+        public int PowerMultiplierPercentage;           // 外传合击倍率输入；发布版先除100并取整，再乘普通攻击总和
+#endif
     }
 
     // Pal3 Game Database file
     public sealed class GdbFile
     {
-        public IDictionary<int, CombatActorInfo> CombatActorInfos { get; }
-        public IDictionary<int, SkillInfo> SkillInfos { get; }
-        public IDictionary<int, GameItemInfo> GameItemInfos { get; }
-        public IDictionary<int, ComboSkillInfo> ComboSkillInfos { get; }
+        public IDictionary<int, CombatActorInfo> CombatActorInfos
+        {
+            get;
+        }
+
+        public IDictionary<int, SkillInfo> SkillInfos
+        {
+            get;
+        }
+
+        public IDictionary<int, GameItemInfo> GameItemInfos
+        {
+            get;
+        }
+
+        public IDictionary<int, ComboSkillInfo> ComboSkillInfos
+        {
+            get;
+        }
+
+        public IReadOnlyList<int> ComboSkillOrder
+        {
+            get;
+        }
+
+        public IReadOnlyList<int> SkillOrder
+        {
+            get;
+        }
 
         public GdbFile(IDictionary<int, CombatActorInfo> combatActorInfos,
             IDictionary<int, SkillInfo> skillInfos,
             IDictionary<int, GameItemInfo> gameItemInfos,
-            IDictionary<int, ComboSkillInfo> comboSkillInfos)
+            IDictionary<int, ComboSkillInfo> comboSkillInfos, IEnumerable<int> comboSkillOrder = null, IEnumerable<int> skillOrder = null)
         {
             CombatActorInfos = combatActorInfos;
             SkillInfos = skillInfos;
+            SkillOrder = new List<int>(skillOrder ?? skillInfos.Keys).AsReadOnly();
             GameItemInfos = gameItemInfos;
             ComboSkillInfos = comboSkillInfos;
+            ComboSkillOrder = new List<int>(comboSkillOrder ?? comboSkillInfos.Keys).AsReadOnly();
         }
     }
 }

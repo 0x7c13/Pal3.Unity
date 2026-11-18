@@ -34,9 +34,10 @@ namespace Pal3.Core.Tests
 
         private static string DataRoot()
         {
-            string root = Environment.GetEnvironmentVariable("PAL3_TEST_DATA_ROOT") ??
+            string root = Environment.GetEnvironmentVariable(Variant + "_TEST_DATA_ROOT") ??
                 Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Game Data", Variant));
-            if (!Directory.Exists(root)) Assert.Ignore($"Set PAL3_TEST_DATA_ROOT to the {Variant} data directory");
+            if (!Directory.Exists(root))
+                Assert.Ignore($"Set {Variant}_TEST_DATA_ROOT to the {Variant} data directory");
             return root;
         }
 

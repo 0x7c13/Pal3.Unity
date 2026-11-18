@@ -18,7 +18,7 @@ namespace Pal3.Core.DataReader.Dat
         public bool IsReceiverActor;                    // 接收方是人物
         public GameBoxVector3 EffectGameBoxPosition;    // 特效位置
         public float WaitDurationInSeconds;             // 等待时间
-        public float EffectDurationInSeconds;           // 特效时间
+        public float WorkTimeInSeconds;                 // 从任务启动起的语义作用时刻（原 fWorkTime），不是特效持续时间
     }
 
     public struct EffectLinker

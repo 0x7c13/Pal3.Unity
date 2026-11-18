@@ -15,7 +15,7 @@ namespace Pal3.Core.Tests
     using DataReader.Par;
     using NUnit.Framework;
 
-    public sealed class OriginalEffectFormatTests
+    public sealed class EffectFormatTests
     {
         [Test]
         public void FlexeffReadsFloatSizeTaskPaddingAndFirstValidDuplicate()

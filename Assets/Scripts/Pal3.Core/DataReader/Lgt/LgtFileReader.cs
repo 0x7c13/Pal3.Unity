@@ -7,6 +7,7 @@ namespace Pal3.Core.DataReader.Lgt
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using Primitives;
     using Utilities;
 
@@ -15,6 +16,9 @@ namespace Pal3.Core.DataReader.Lgt
         public LgtFile Read(IBinaryReader reader, int codepage)
         {
             int numOfLightNodes = reader.ReadInt32();
+            const int recordBytes = 148;
+            if (numOfLightNodes < 0 || numOfLightNodes > (reader.Length - reader.Position) / recordBytes)
+                throw new InvalidDataException("The LGT light count exceeds its 148-byte native records.");
             List<LightNode> lightNodes = new();
 
             for (int i = 0; i < numOfLightNodes; i++)
@@ -35,10 +39,22 @@ namespace Pal3.Core.DataReader.Lgt
         {
             GameBoxMatrix4x4 transformMatrix = new()
             {
-                Xx = reader.ReadSingle(), Xy = reader.ReadSingle(), Xz = reader.ReadSingle(), Xw = reader.ReadSingle(),
-                Yx = reader.ReadSingle(), Yy = reader.ReadSingle(), Yz = reader.ReadSingle(), Yw = reader.ReadSingle(),
-                Zx = reader.ReadSingle(), Zy = reader.ReadSingle(), Zz = reader.ReadSingle(), Zw = reader.ReadSingle(),
-                Tx = reader.ReadSingle(), Ty = reader.ReadSingle(), Tz = reader.ReadSingle(), Tw = reader.ReadSingle()
+                Xx = reader.ReadSingle(),
+                Xy = reader.ReadSingle(),
+                Xz = reader.ReadSingle(),
+                Xw = reader.ReadSingle(),
+                Yx = reader.ReadSingle(),
+                Yy = reader.ReadSingle(),
+                Yz = reader.ReadSingle(),
+                Yw = reader.ReadSingle(),
+                Zx = reader.ReadSingle(),
+                Zy = reader.ReadSingle(),
+                Zz = reader.ReadSingle(),
+                Zw = reader.ReadSingle(),
+                Tx = reader.ReadSingle(),
+                Ty = reader.ReadSingle(),
+                Tz = reader.ReadSingle(),
+                Tw = reader.ReadSingle()
             };
             transformMatrix.Tw = 1f;
 
@@ -48,8 +64,9 @@ namespace Pal3.Core.DataReader.Lgt
                 LightType = (GameBoxLightType)reader.ReadInt32(),
                 LightColor = reader.ReadColor(),
                 AmbientColor = reader.ReadColor(),
-                UseDiffuse = reader.ReadBoolean(),
-                UseSpecular = reader.ReadBoolean(),
+                // gbBOOL is signed int32 in both shipped engine ABIs.
+                UseDiffuse = reader.ReadInt32() != 0,
+                UseSpecular = reader.ReadInt32() != 0,
                 NearStart = reader.ReadSingle(),
                 NearEnd = reader.ReadSingle(),
                 FarStart = reader.ReadSingle(),
