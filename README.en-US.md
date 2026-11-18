@@ -103,6 +103,25 @@ All implementation code, shaders, and build resources are included in this repos
 The story parts of The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are complete. Both games can be played entirely from start to finish to experience the story, and the story selection menu provided in the game can be used to jump to different story points in the game. Most of the switches and puzzles in the mazes in both games have also been implemented, but combat, mini-games, and various systems and features related to supporting the combat system have not been implemented or realized. In addition, the main menu and most of the UI/UX need to be redesigned and implemented as well.
 
 ## How to Contribute?
+After changing owned C# sources, use the .NET SDK pinned in `global.json` and run
+these commands from the project root:
+
+```sh
+dotnet run --project tools/CodeStyle --
+dotnet run --project tools/CodeStyle -- --check
+```
+
+The formatter is a .NET tool and needs no Python, Unity installation or game data.
+It uses Roslyn, `.editorconfig` and pinned StyleCop layout rules for whitespace,
+separate statements and blank lines between members. It checks both PAL3 and
+PAL3A conditional branches. By default, it formats changed lines and deletion
+boundaries, preserving existing formatting elsewhere; explicit paths or `--all`
+check whole files. The `Code style` workflow runs `dotnet test tools/CodeStyle.Tests`
+and the same formatting check for pull requests. See the
+[tool README](tools/CodeStyle/README.md) for commands and scope. Run the relevant
+Unity tests after formatting; ShaderLab/HLSL still needs manual formatting and
+rendering validation.
+
 Since the project is still in the early stages, many systems have not yet been implemented, thus I am temporarily not accepting large Pull Requests, especially feature ones. If you have good ideas, suggestions, or have discovered bugs, please feel free to submit an issue.
 
 ## Why make this [TL;DR]

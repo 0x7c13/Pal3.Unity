@@ -1,0 +1,6 @@
+{
+    "name": "Pal3.Editor.TestSupport",
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": false
+}

@@ -22,8 +22,12 @@ jobs:
         with:
           global-json-file: global.json
       - name: Test formatter enforcement
-        run: python3 tools/tests/test-format-csharp.py
+        run: dotnet test tools/CodeStyle.Tests
+      - name: Verify .NET tool source formatting
+        run: |
+          dotnet format whitespace tools/CodeStyle --no-restore --verify-no-changes
+          dotnet format whitespace tools/CodeStyle.Tests --no-restore --verify-no-changes
       - name: Verify changed C# formatting
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha }}
-        run: python3 tools/format-csharp.py --check --base "$BASE_REF"
+        run: dotnet run --project tools/CodeStyle -- --check --base "$BASE_REF"

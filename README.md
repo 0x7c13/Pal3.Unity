@@ -105,11 +105,11 @@ PAL3 已覆盖当前清单中的 56 个剧情／场景根组，PAL3A 已覆盖 9
 修改自有 C# 代码后，使用 `global.json` 指定的 .NET SDK，在工程根目录执行：
 
 ```sh
-python3 tools/format-csharp.py
-python3 tools/format-csharp.py --check
+dotnet run --project tools/CodeStyle --
+dotnet run --project tools/CodeStyle -- --check
 ```
 
-工具使用 SDK 自带的 `dotnet format`、`.editorconfig` 和固定版本的 StyleCop 布局规则，检查空格、缩进、函数／成员间空行及多条语句分行。默认只应用改动行及删除边界上的格式修正，保留其他行的既有格式；显式路径或 `--all` 可检查整个文件。工具分别检查 PAL3／PAL3A 条件分支，不需要 Unity 或游戏数据；StyleCop 仅用于开发工具，不进入 Unity 工程。PR 的 `Code style` 工作流执行相同检查。格式检查通过后仍需运行相关 Unity 测试；ShaderLab／HLSL 由人工整理并验证。
+格式工具以纯 .NET 实现，无需 Python、Unity 或游戏数据。它使用 Roslyn、`.editorconfig` 和固定版本的 StyleCop 布局规则，检查空格、缩进、函数／成员间空行及多条语句分行。默认只应用改动行及删除边界上的格式修正，保留其他行的既有格式；显式路径或 `--all` 可检查整个文件。工具分别检查 PAL3／PAL3A 条件分支；StyleCop 仅用于开发工具，不进入 Unity 工程。PR 的 `Code style` 工作流先运行 `dotnet test tools/CodeStyle.Tests`，再执行相同格式检查。更多命令见[工具说明](tools/CodeStyle/README.md)。格式检查通过后仍需运行相关 Unity 测试；ShaderLab／HLSL 由人工整理并验证。
 
 因为项目还处于早期实现过程中，很多系统还没有实现，暂时不接受比较大的Pull request，特别是feature类型，如果您有好的想法，意见或者发现了Bug请欢迎提交issue或者加入交流群与我讨论。
 另外您还可以参考这个项目解析视频：https://www.bilibili.com/video/BV1Pr4y167sF
