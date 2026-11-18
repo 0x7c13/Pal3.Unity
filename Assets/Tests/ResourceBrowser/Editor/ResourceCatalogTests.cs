@@ -33,6 +33,67 @@ namespace Pal3.ResourceBrowser.Tests
         }
 
         [Test]
+        public void ReportExportAllowsReplacingReportsOutsideTheOriginalDirectory()
+        {
+            string output = ReportTestDirectory();
+            string source = Path.Combine(output, "original");
+            Directory.CreateDirectory(source);
+            string original = Path.Combine(source, "data.json");
+            string report = Path.Combine(output, "report.json");
+            File.WriteAllText(original, "original");
+            try
+            {
+                ResourceCatalog.WriteTextFile(report, "first", source);
+                ResourceCatalog.WriteTextFile(report, "replacement", source);
+                Assert.That(File.ReadAllText(report), Is.EqualTo("replacement"));
+                Assert.Throws<IOException>(() => ResourceCatalog.WriteTextFile(original, "changed", source));
+                Assert.That(File.ReadAllText(original), Is.EqualTo("original"));
+            }
+            finally { Directory.Delete(output, true); }
+        }
+
+        [TestCase("directory")]
+        [TestCase("file")]
+        [TestCase("dangling-file")]
+        public void ReportExportRejectsSymbolicLinksWithoutChangingOriginalData(string kind)
+        {
+            if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.LinuxEditor)
+                Assert.Ignore("Symlink regression uses the Unix ln utility.");
+            string output = ReportTestDirectory();
+            string source = Path.Combine(output, "original");
+            Directory.CreateDirectory(source);
+            string original = Path.Combine(source, "data.json");
+            string missing = Path.Combine(source, "missing.json");
+            File.WriteAllText(original, "original");
+            string alias = Path.Combine(output, "alias");
+            var start = new System.Diagnostics.ProcessStartInfo("/bin/ln") { UseShellExecute = false };
+            start.ArgumentList.Add("-s");
+            start.ArgumentList.Add(kind == "directory" ? source : kind == "file" ? original : missing);
+            start.ArgumentList.Add(alias);
+            try
+            {
+                using var process = System.Diagnostics.Process.Start(start);
+                process.WaitForExit();
+                Assert.That(process.ExitCode, Is.Zero);
+                string destination = kind == "directory" ? Path.Combine(alias, "data.json") : alias;
+                Assert.Throws<IOException>(() => ResourceCatalog.WriteTextFile(destination, "changed", source));
+                Assert.That(File.ReadAllText(original), Is.EqualTo("original"));
+                Assert.That(File.Exists(missing), Is.False);
+            }
+            finally
+            {
+                if (kind == "directory")
+                    Directory.Delete(alias);
+                else
+                    File.Delete(alias);
+                Directory.Delete(output, true);
+            }
+        }
+
+        private static string ReportTestDirectory() => Path.GetFullPath(Path.Combine(Application.dataPath,
+            "../../workspace/ResourceBrowserQA/report-export", Guid.NewGuid().ToString("N")));
+
+        [Test]
         public void ImageHeadersAreCheckedBeforeUnsafeTgaDecoding()
         {
             Assert.Throws<InvalidDataException>(() => ResourceImageData.Prepare(".tga", new byte[17]));

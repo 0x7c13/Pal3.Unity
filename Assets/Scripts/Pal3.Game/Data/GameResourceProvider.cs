@@ -148,7 +148,7 @@ namespace Pal3.Game.Data
             return _shadowSprite;
         }
 
-        public Effect.Original.OriginalEffectResources OriginalEffects => Effects.Original;
+        public Effect.Runtime.EffectResources EffectResources => Effects.Resources;
 
         public IMaterialManager GetMaterialManager() => _materialManager;
 

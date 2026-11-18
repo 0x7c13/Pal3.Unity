@@ -12,7 +12,7 @@ namespace Pal3.ResourceBrowser
     using System.Threading;
     using Core.DataReader.Cpk;
     using Core.FileSystem;
-    using Game.Effect.Original;
+    using Game.Effect.Runtime;
 
     public sealed class ResourceEntry
     {
@@ -117,7 +117,7 @@ namespace Pal3.ResourceBrowser
                     else
                         catalog.Entries.Add(new ResourceEntry(relative, file));
                 }
-                using (var effects = new OriginalEffectResources(catalog.FileSystem, codepage))
+                using (var effects = new EffectResources(catalog.FileSystem, codepage))
                 {
                     if (effects.GameVariant != variant)
                         throw new InvalidDataException($"This folder contains {effects.GameVariant}. Use {variant} data, or Switch Variant in the Unity menu.");
@@ -131,6 +131,36 @@ namespace Pal3.ResourceBrowser
                 catalog.Entries.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Path, b.Path));
                 foreach (ResourceEntry entry in catalog.Entries)
                     catalog._lookup.TryAdd(entry.Path, entry);
+                return catalog;
+            }
+            catch
+            {
+                catalog.Dispose();
+                throw;
+            }
+        }
+
+        // Battle tools only need basedata; mounting scene/music/movie archives wastes time and memory.
+        public static ResourceCatalog OpenBaseData(string root, int codepage, CancellationToken cancellation = default)
+        {
+            var catalog = new ResourceCatalog(root, codepage);
+            try
+            {
+                cancellation.ThrowIfCancellationRequested();
+                string directory = System.IO.Path.Combine(catalog.Root, "basedata");
+                string archive = Directory.EnumerateFiles(directory).SingleOrDefault(file =>
+                    string.Equals(System.IO.Path.GetFileName(file), "basedata.cpk", StringComparison.OrdinalIgnoreCase));
+                if (archive == null)
+                    throw new FileNotFoundException("Select the game data folder directly containing basedata/basedata.cpk.");
+                catalog.FileSystem.Mount(System.IO.Path.GetRelativePath(catalog.Root, archive), codepage);
+                foreach (string path in catalog.FileSystem.Search())
+                {
+                    cancellation.ThrowIfCancellationRequested();
+                    var entry = new ResourceEntry(path);
+                    catalog.Entries.Add(entry);
+                    catalog._lookup.TryAdd(entry.Path, entry);
+                }
+                catalog.Entries.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Path, b.Path));
                 return catalog;
             }
             catch
@@ -170,6 +200,15 @@ namespace Pal3.ResourceBrowser
         }
 
         public void CheckExportDestination(string destination) => CheckOutsideRoot(Root, destination);
+
+        // Save dialogs may confirm replacing an existing report, but no output may follow links.
+        public static void WriteTextFile(string destination, string contents, string sourceRoot = null)
+        {
+            if (sourceRoot != null)
+                CheckOutsideRoot(sourceRoot, destination);
+            CheckNoLinks(destination);
+            File.WriteAllText(destination, contents);
+        }
 
         public static void CheckOutsideRoot(string root, string destination)
         {
@@ -263,8 +302,13 @@ namespace Pal3.ResourceBrowser
         {
             for (string path = System.IO.Path.GetFullPath(fullPath); path != null; path = System.IO.Path.GetDirectoryName(path))
             {
-                if ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
-                    throw new IOException($"{message}: {path}");
+                try
+                {
+                    if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                        throw new IOException($"{message}: {path}");
+                }
+                catch (FileNotFoundException) { }
+                catch (DirectoryNotFoundException) { }
                 if (path == System.IO.Path.GetPathRoot(path))
                     break;
             }

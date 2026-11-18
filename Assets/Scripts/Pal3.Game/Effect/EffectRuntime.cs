@@ -8,7 +8,7 @@ namespace Pal3.Game.Effect
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Original;
+    using Runtime;
     using Core.FileSystem;
     using Core.Command.SceCommands;
     using Engine.Core.Abstraction;
@@ -19,18 +19,18 @@ namespace Pal3.Game.Effect
 
     internal sealed class EffectRuntime : IDisposable
     {
-        private readonly OriginalEffectResources _original;
+        private readonly EffectResources _resources;
         private readonly HashSet<int> _failures = new();
         private readonly List<IGameEntity> _playedEffects = new();
         private readonly List<PersistentEffect> _persistentEffects = new();
         private int _preloadGeneration;
         private bool _disposed;
 
-        internal OriginalEffectResources Original => _original;
+        internal EffectResources Resources => _resources;
 
         internal EffectRuntime(ICpkFileSystem fileSystem, int codepage)
         {
-            _original = new OriginalEffectResources(fileSystem, codepage);
+            _resources = new EffectResources(fileSystem, codepage);
         }
 
         internal IEnumerator PreloadAsync(int groupId)
@@ -38,11 +38,11 @@ namespace Pal3.Game.Effect
             if (_disposed)
                 yield break;
             int generation = _preloadGeneration;
-            OriginalEffectOverrides edits;
+            EffectOverrides edits;
             try
             {
-                edits = Resources.Load<OriginalEffectOverrides>(_original.OverridesPath);
-                string[] issues = _original.Diagnose(groupId, edits);
+                edits = UnityEngine.Resources.Load<EffectOverrides>(_resources.OverridesPath);
+                string[] issues = _resources.Diagnose(groupId, edits);
                 if (issues.Length != 0)
                 {
                     Report(groupId, string.Join("\n", issues));
@@ -54,7 +54,7 @@ namespace Pal3.Game.Effect
                 Report(groupId, ex.Message);
                 yield break;
             }
-            using var preload = _original.Preload(groupId, edits).GetEnumerator();
+            using var preload = _resources.Preload(groupId, edits).GetEnumerator();
             while (!_disposed && generation == _preloadGeneration)
             {
                 bool next;
@@ -86,21 +86,21 @@ namespace Pal3.Game.Effect
             GameObject root = null;
             try
             {
-                var edits = Resources.Load<OriginalEffectOverrides>(_original.OverridesPath);
-                string[] issues = groupId == -1 ? Array.Empty<string>() : _original.Diagnose(groupId, edits);
+                var edits = UnityEngine.Resources.Load<EffectOverrides>(_resources.OverridesPath);
+                string[] issues = groupId == -1 ? Array.Empty<string>() : _resources.Diagnose(groupId, edits);
                 if (issues.Length != 0)
                 {
                     Report(groupId, string.Join("\n", issues));
                     return null;
                 }
-                root = new GameObject(groupId == -1 ? "Original transport" : $"Original effect {groupId}");
+                root = new GameObject(groupId == -1 ? "Effect transport" : $"Effect {groupId}");
                 root.transform.SetParent((Transform)parent.Transform.NativeObject, false);
                 if (groupId == -1)
-                    root.AddComponent<OriginalPortalEffect>().Initialize(_original, portalType);
+                    root.AddComponent<PortalEffectPlayer>().Initialize(_resources, portalType);
                 else
                 {
-                    var player = root.AddComponent<OriginalEffectPlayer>();
-                    player.Initialize(_original, groupId, (uint)UnityEngine.Random.Range(1, int.MaxValue), overrides: edits,
+                    var player = root.AddComponent<EffectPlayer>();
+                    player.Initialize(_resources, groupId, (uint)UnityEngine.Random.Range(1, int.MaxValue), overrides: edits,
                         sound: name => Pal3.Instance.Execute(new PlaySfxCommand(name, 1)));
                     player.DestroyOnComplete = true;
                     if (player.Error != null)
@@ -112,8 +112,7 @@ namespace Pal3.Game.Effect
             {
                 if (root != null)
                 {
-                    root.SetActive(false);
-                    OriginalEffectResources.Destroy(root);
+                    Stop(new GameEntity(root));
                 }
                 Report(groupId, ex.Message);
                 return null;
@@ -154,7 +153,7 @@ namespace Pal3.Game.Effect
             if (Application.isPlaying && Pal3.Instance != null)
                 Pal3.Instance.StartCoroutine(TrimSceneRenderAssetsAfterFrame());
             else
-                _original.TrimUnusedRenderAssets(LiveRoots());
+                _resources.TrimUnusedRenderAssets(LiveRoots());
         }
 
         private IEnumerator TrimSceneRenderAssetsAfterFrame()
@@ -164,7 +163,7 @@ namespace Pal3.Game.Effect
             if (_disposed)
                 yield break;
             PruneDeadAttachments();
-            _original.TrimUnusedRenderAssets(LiveRoots());
+            _resources.TrimUnusedRenderAssets(LiveRoots());
         }
 
         private IEnumerable<GameObject> LiveRoots()
@@ -181,7 +180,10 @@ namespace Pal3.Game.Effect
         {
             if (effect.IsNullOrDisposed())
                 return;
-            ((GameObject)effect.NativeObject).SetActive(false);
+            var root = (GameObject)effect.NativeObject;
+            root.GetComponent<EffectPlayer>()?.Dispose();
+            root.GetComponent<PortalEffectPlayer>()?.Dispose();
+            root.SetActive(false);
             effect.Destroy();
         }
 
@@ -206,7 +208,7 @@ namespace Pal3.Game.Effect
             ClearPlayedEffects();
             foreach (PersistentEffect effect in _persistentEffects.ToArray())
                 effect.Dispose();
-            _original.Dispose();
+            _resources.Dispose();
         }
 
         private sealed class PersistentEffect : IDisposable
@@ -224,11 +226,11 @@ namespace Pal3.Game.Effect
                 _owner = owner;
                 _parent = parent;
                 _instance = owner.Create(groupId, parent, portalType);
-                if (Root != null && Root.GetComponent<OriginalEffectPlayer>() is { } player)
+                if (Root != null && Root.GetComponent<EffectPlayer>() is { } player)
                 {
                     player.DestroyOnComplete = false;
                     player.Loop = true;
-                    player.RepeatInterval = owner._original.GameVariant == "PAL3" && groupId == 275 ? 9.5f : 0;
+                    player.RepeatInterval = owner._resources.GameVariant == "PAL3" && groupId == 275 ? 9.5f : 0;
                 }
             }
 
