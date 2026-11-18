@@ -318,7 +318,7 @@ namespace Pal3.BattleEditor.Tests
 
         [TestCase("PAL3", 7710)]
         [TestCase("PAL3A", 274)]
-        public void SummoningCreatesBothMissingNativeSlotsAndInitializesTheirOwnStealPools(string variant, int skillId)
+        public void SummonedEnemiesHaveTheirOwnStealPoolsAndCanTakeManualTurns(string variant, int skillId)
         {
             BattleScenario scenario = Scenario(variant);
             Learn(scenario.Participants[1], skillId);
@@ -336,6 +336,20 @@ namespace Pal3.BattleEditor.Tests
                 Assert.That(session.StealPools.Single(pool => pool.Actor == created.InstanceId).Money, Is.EqualTo(created.ActorId));
                 Assert.That(session.GetAiProfile(created.InstanceId), Is.EqualTo(63));
             }
+
+            session.SetAutomatic(BattleSide.Enemy, false);
+            string summoned = catalog.Created[0].InstanceId;
+            for (int tick = 0; tick < 50 && session.WaitingActor != summoned; tick++)
+            {
+                if (session.WaitingActor is { } waiting)
+                    Assert.That(session.Submit(waiting, BattleAction.Defend), Is.True);
+                else
+                    Advance(session, 1);
+            }
+            Assert.That(session.WaitingActor, Is.EqualTo(summoned));
+            Assert.That(session.Submit(summoned, BattleAction.Attack, "A"), Is.True);
+            Assert.That(session.Inputs.Last().Actor, Is.EqualTo(summoned));
+            Assert.That(session.Inputs.Last().Action, Is.EqualTo(BattleAction.Attack));
         }
 
         [TestCase("PAL3", true)]

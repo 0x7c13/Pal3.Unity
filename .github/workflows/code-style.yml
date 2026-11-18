@@ -31,3 +31,14 @@ jobs:
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha }}
         run: dotnet run --project tools/CodeStyle -- --check --base "$BASE_REF"
+
+  battle-rules:
+    name: Battle rules (PAL3 and PAL3A)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v5.3.0
+        with:
+          global-json-file: global.json
+      - name: Run engine-independent battle tests
+        run: dotnet test tools/Battle.Tests

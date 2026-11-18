@@ -1,0 +1,7 @@
+{
+    "name": "Pal3.Battle.Presentation",
+    "references": [
+        "Pal3.Battle"
+    ],
+    "noEngineReferences": true
+}
