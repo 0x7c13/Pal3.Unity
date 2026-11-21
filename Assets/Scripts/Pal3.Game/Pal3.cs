@@ -33,7 +33,7 @@ namespace Pal3.Game
     using Engine.Utilities;
     using GamePlay;
     using GameSystems.Caption;
-    using GameSystems.Combat;
+    using GameSystems.Battle;
     using GameSystems.Dialogue;
     using GameSystems.Favor;
     using GameSystems.Inventory;
@@ -178,10 +178,10 @@ namespace Pal3.Game
         private CursorManager _cursorManager;
         private SaveManager _saveManager;
         private RenderingSettingsManager _renderingSettingsManager;
-        private CombatManager _combatManager;
-        private CombatCoordinator _combatCoordinator;
+        private BattleManager _battleManager;
+        private BattleCoordinator _battleCoordinator;
 
-        #if PAL3 // PAL3 specific components
+#if PAL3 // PAL3 specific components
         private AppraisalsMiniGame _appraisalsMiniGame;
         private SailingMiniGame _sailingMiniGame;
         private HideFightMiniGame _hideFightMiniGame;
@@ -467,17 +467,17 @@ namespace Pal3.Game
                     dialogueSelectionButtonPrefab)
             );
 
-            ServiceLocator.Instance.Register(_combatManager =
-                new CombatManager(_gameResourceProvider,
+            ServiceLocator.Instance.Register(_battleManager =
+                new BattleManager(_gameResourceProvider,
                     _teamManager,
                     _cameraManager,
                     _sceneManager)
             );
 
-            ServiceLocator.Instance.Register(_combatCoordinator =
-                new CombatCoordinator(_gameResourceProvider,
+            ServiceLocator.Instance.Register(_battleCoordinator =
+                new BattleCoordinator(_gameResourceProvider,
                     _gameSettings,
-                    _combatManager,
+                    _battleManager,
                     _playerActorManager,
                     _audioManager,
                     _sceneManager,
@@ -645,7 +645,7 @@ namespace Pal3.Game
 
             if (currentState == GameState.Combat)
             {
-                _combatManager.Update(deltaTime);
+                _battleManager.Update(deltaTime);
             }
 
             _playerGamePlayManager.Update(deltaTime);

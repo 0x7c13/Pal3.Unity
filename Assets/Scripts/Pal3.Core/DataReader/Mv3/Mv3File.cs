@@ -30,8 +30,8 @@ namespace Pal3.Core.DataReader.Mv3
 
     public struct Mv3IndexBuffer
     {
-        public ushort[] TriangleIndex; // 3
-        public ushort[] TexCoordIndex; // 3
+        public ushort[] TriangleIndex;  // 3
+        public ushort[] TexCoordIndex;  // 3
     }
 
     public struct Mv3Attribute
@@ -72,6 +72,7 @@ namespace Pal3.Core.DataReader.Mv3
     {
         public uint GameBoxTick;
         public GameBoxVector3[] GameBoxVertices;
+        public ushort[] NativeNormals;
     }
 
     /// <summary>
@@ -79,11 +80,30 @@ namespace Pal3.Core.DataReader.Mv3
     /// </summary>
     public sealed class Mv3File
     {
-        public uint TotalGameBoxTicks { get; }
-        public Mv3AnimationEvent[] AnimationEvents { get; }
-        public Mv3TagNode[] TagNodes { get; }
-        public Mv3Mesh[] Meshes { get; }
-        public GameBoxMaterial[] Materials { get; }
+        public uint TotalGameBoxTicks
+        {
+            get;
+        }
+
+        public Mv3AnimationEvent[] AnimationEvents
+        {
+            get;
+        }
+
+        public Mv3TagNode[] TagNodes
+        {
+            get;
+        }
+
+        public Mv3Mesh[] Meshes
+        {
+            get;
+        }
+
+        public GameBoxMaterial[] Materials
+        {
+            get;
+        }
 
         public Mv3File(uint totalGameBoxTicks,
             Mv3AnimationEvent[] animationEvents,

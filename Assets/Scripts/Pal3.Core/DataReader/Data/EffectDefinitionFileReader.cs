@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -133,7 +133,8 @@ namespace Pal3.Core.DataReader.Data
             task.ModifyLast = reader.ReadBoolean();
             reader.ReadByte(); // native 4-byte alignment
             task.YStretchSpeed = reader.ReadSingle();
-            reader.Seek(28, System.IO.SeekOrigin.Current); // reserved, not active parameters
+            for (int index = 0; index < task.ReservedWords.Length; index++)
+                task.ReservedWords[index] = reader.ReadUInt32(); // PAL3A action prefix CRC and actor ID use words 0 and 1.
             if (task.IsValid && (!Finite(task.StartTime) || !Finite(task.Duration) || task.Duration < 0))
                 throw new System.IO.InvalidDataException("Invalid effect task timing");
             return task;

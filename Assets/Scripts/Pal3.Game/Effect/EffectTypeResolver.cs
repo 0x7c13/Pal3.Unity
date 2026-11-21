@@ -17,7 +17,7 @@ namespace Pal3.Game.Effect
             {
                 GraphicsEffectType.Fire   => typeof(FireEffect),
                 GraphicsEffectType.Portal => typeof(PortalEffect),
-                GraphicsEffectType.Combat => typeof(CombatEffect),
+                GraphicsEffectType.Combat => typeof(BattleEffect),
                 _ => null
             };
         }

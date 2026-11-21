@@ -12,7 +12,7 @@ namespace Editor
     using Pal3.Core.DataReader.Data;
     using Pal3.Core.DataReader.Par;
     using Pal3.Core.FileSystem;
-    using Pal3.Game.Effect.Original;
+    using Pal3.Game.Effect.Runtime;
     using UnityEditor;
     using UnityEditor.SceneManagement;
     using UnityEngine;
@@ -23,11 +23,11 @@ namespace Editor
 
     public sealed class EffectEditor : EditorWindow
     {
-        private OriginalEffectResources _resources;
-        private OriginalEffectPlayer _player;
-        private OriginalPortalEffect _portal;
+        private EffectResources _resources;
+        private EffectPlayer _player;
+        private PortalEffectPlayer _portal;
         private uint _portalType;
-        [SerializeField] private OriginalEffectOverrides _edits;
+        [SerializeField] private EffectOverrides _edits;
         [SerializeField] private string _assetPath = "", _savedJson;
         private GameObject _root;
         private Scene _scene;
@@ -53,7 +53,7 @@ namespace Editor
         private double _seekAfter;
 
 #if PAL3
-        [MenuItem("PAL3/Effect Editor")]
+        [MenuItem("PAL3/Effect Editor", priority = 32)]
 #endif
         public static void Open()
         {
@@ -62,7 +62,7 @@ namespace Editor
         }
 
 #if PAL3A
-        [MenuItem("PAL3A/Effect Editor")]
+        [MenuItem("PAL3A/Effect Editor", priority = 32)]
 #endif
         public static void OpenPal3A()
         {
@@ -78,7 +78,7 @@ namespace Editor
                 int codepage = EditorPrefs.GetInt($"{Variant}.OriginalEffect.Codepage", 936) == 950 ? 950 : 936;
                 if (path == _dataPath && codepage == _codepage || !CanReplaceEdits())
                     return;
-                LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
+                LoadOverrides(Resources.Load<EffectOverrides>($"Effects/{Variant}Overrides"));
                 LoadPreferences();
                 LoadData();
                 return;
@@ -88,7 +88,7 @@ namespace Editor
             _pal3a = pal3a;
             _id = pal3a ? 160 : 98;
             _time = 0;
-            LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
+            LoadOverrides(Resources.Load<EffectOverrides>($"Effects/{Variant}Overrides"));
             LoadPreferences();
             LoadData();
         }
@@ -106,7 +106,7 @@ namespace Editor
             minSize = new Vector2(1050, 640);
             LoadPreferences();
             if (_edits == null)
-                LoadOverrides(Resources.Load<OriginalEffectOverrides>($"Effects/{Variant}Overrides"));
+                LoadOverrides(Resources.Load<EffectOverrides>($"Effects/{Variant}Overrides"));
             _edits.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
             saveChangesMessage = "Save the original effect overrides before closing?";
             _scene = EditorSceneManager.NewPreviewScene();
@@ -152,14 +152,14 @@ namespace Editor
             }
         }
 
-        private void LoadOverrides(OriginalEffectOverrides asset)
+        private void LoadOverrides(EffectOverrides asset)
         {
             if (_edits != null)
             {
                 Undo.ClearUndo(_edits);
                 DestroyImmediate(_edits);
             }
-            _edits = asset != null ? Instantiate(asset) : CreateInstance<OriginalEffectOverrides>();
+            _edits = asset != null ? Instantiate(asset) : CreateInstance<EffectOverrides>();
             _edits.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
             _assetPath = asset != null ? AssetDatabase.GetAssetPath(asset) : "";
             _savedJson = JsonUtility.ToJson(_edits);
@@ -176,7 +176,7 @@ namespace Editor
 
         public override void DiscardChanges()
         {
-            LoadOverrides(_assetPath.Length > 0 ? AssetDatabase.LoadAssetAtPath<OriginalEffectOverrides>(_assetPath) : null);
+            LoadOverrides(_assetPath.Length > 0 ? AssetDatabase.LoadAssetAtPath<EffectOverrides>(_assetPath) : null);
             base.DiscardChanges();
             RefreshAfterUndo();
         }
@@ -197,12 +197,12 @@ namespace Editor
             if (path.Length == 0)
                 return false;
             var existing = AssetDatabase.LoadMainAssetAtPath(path);
-            if (existing != null && existing is not OriginalEffectOverrides)
+            if (existing != null && existing is not EffectOverrides)
             {
-                _error = "Choose an OriginalEffectOverrides asset or a new path.";
+                _error = "Choose an EffectOverrides asset or a new path.";
                 return false;
             }
-            var saved = existing as OriginalEffectOverrides;
+            var saved = existing as EffectOverrides;
             if (saved != null)
             {
                 Undo.RecordObject(saved, $"Save {Variant} effect overrides");
@@ -238,7 +238,7 @@ namespace Editor
                 hash.Init();
                 var fs = new CpkFileSystem(_dataPath, hash, _codepage);
                 fs.Mount("basedata/basedata.cpk", _codepage);
-                _resources = new OriginalEffectResources(fs, _codepage);
+                _resources = new EffectResources(fs, _codepage);
                 if (_resources.GameVariant != Variant)
                     throw new InvalidDataException($"The selected directory contains {_resources.GameVariant} data; select the matching variant first.");
                 EditorPrefs.SetString($"{Variant}.OriginalEffect.DataPath", _dataPath);
@@ -255,6 +255,8 @@ namespace Editor
 
         private void ClearPreview()
         {
+            _player?.Dispose();
+            _portal?.Dispose();
             if (_root != null)
                 DestroyImmediate(_root);
             _player = null;
@@ -276,7 +278,7 @@ namespace Editor
                 SceneManager.MoveGameObjectToScene(_root, _scene);
                 if (_id < 0)
                 {
-                    _portal = _root.AddComponent<OriginalPortalEffect>();
+                    _portal = _root.AddComponent<PortalEffectPlayer>();
                     _portal.AutoAdvance = false;
                     _portal.Initialize(_resources, _portalType);
                 }
@@ -287,7 +289,7 @@ namespace Editor
                         _error = string.Join("\n", issues);
                     else
                     {
-                        _player = _root.AddComponent<OriginalEffectPlayer>();
+                        _player = _root.AddComponent<EffectPlayer>();
                         _player.AutoAdvance = false;
                         _player.Initialize(_resources, _id, _seed, _edits);
                         _player.Loop = false;
@@ -388,8 +390,8 @@ namespace Editor
                 if (GUILayout.Button("Reload", EditorStyles.toolbarButton, GUILayout.Width(55)))
                     LoadData();
             }
-            var asset = _assetPath.Length > 0 ? AssetDatabase.LoadAssetAtPath<OriginalEffectOverrides>(_assetPath) : null;
-            var selected = (OriginalEffectOverrides)EditorGUILayout.ObjectField("Overrides", asset, typeof(OriginalEffectOverrides), false);
+            var asset = _assetPath.Length > 0 ? AssetDatabase.LoadAssetAtPath<EffectOverrides>(_assetPath) : null;
+            var selected = (EffectOverrides)EditorGUILayout.ObjectField("Overrides", asset, typeof(EffectOverrides), false);
             if (selected != asset && CanReplaceEdits())
             {
                 LoadOverrides(selected);
@@ -441,7 +443,7 @@ namespace Editor
                         if (GUILayout.Button("Step", GUILayout.Width(50)))
                         {
                             _playing = false;
-                            Advance(OriginalEffectPlayer.FixedStep);
+                            Advance(EffectPlayer.FixedStep);
                             Repaint();
                         }
                         GUILayout.Label("Speed", GUILayout.Width(40));
@@ -503,7 +505,8 @@ namespace Editor
             }
             if (e.type != EventType.Repaint || rect.width < 1 || rect.height < 1)
                 return;
-            int w = Mathf.Max(1, (int)rect.width), h = Mathf.Max(1, (int)rect.height);
+            float density = EditorGUIUtility.pixelsPerPoint;
+            int w = Mathf.Max(1, Mathf.CeilToInt(rect.width * density)), h = Mathf.Max(1, Mathf.CeilToInt(rect.height * density));
             if (_target == null || _target.width != w || _target.height != h)
             {
                 if (_target != null)
@@ -539,11 +542,11 @@ namespace Editor
             _resources.Definitions.TryGetType(source.TypeCrc, out EffectDefinition d);
             EditorGUILayout.LabelField($"{d.TypeName} / {EffectClass.Name(d.ClassNameCrc)}");
             EditorGUILayout.SelectableLabel(d.TextureName ?? "", GUILayout.Height(35));
-            OriginalEffectObjectOverride edit = _edits.Find(_id, _objectIndex);
+            EffectObjectOverride edit = _edits.Find(_id, _objectIndex);
             if (edit == null && GUILayout.Button("Edit this object"))
             {
                 Undo.RecordObject(_edits, "Edit original effect");
-                edit = new OriginalEffectObjectOverride
+                edit = new EffectObjectOverride
                 {
                     GroupId = _id,
                     ObjectIndex = _objectIndex,
@@ -628,7 +631,7 @@ namespace Editor
             string[] names = _emitterCurve ? new[] { "Direction", "RandomVelocity", "Emission", "Life" } : new[] { "Size", "Rotation", "Alpha", "Color" };
             _curveIndex = EditorGUILayout.Popup("Curve", Mathf.Clamp(_curveIndex, 0, names.Length - 1), names);
             string name = names[_curveIndex];
-            ParticleCurve source = OriginalEffectOverrides.FindCurve(file, _emitterCurve, _particleIndex, name);
+            ParticleCurve source = EffectOverrides.FindCurve(file, _emitterCurve, _particleIndex, name);
             var entry = _edits.ParticleCurves.Find(c => string.Equals(c.File, path, StringComparison.OrdinalIgnoreCase)
                 && c.Emitter == _emitterCurve && c.Index == _particleIndex && c.Parameter == name);
             bool validEntry = entry == null || entry.Channels != null && entry.Channels.Length == source.Channels && entry.Channels.All(c => c != null);
@@ -646,7 +649,7 @@ namespace Editor
                     Undo.RecordObject(_edits, "Edit particle curve");
                     if (entry == null)
                     {
-                        entry = new OriginalParticleCurveOverride
+                        entry = new ParticleCurveOverride
                         {
                             File = path,
                             Parameter = name,

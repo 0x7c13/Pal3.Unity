@@ -29,12 +29,11 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-      - name: Switch define symbol from PAL3 to PAL3A
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "PAL3"
-          replace: "PAL3A"
-          include: "**ProjectSettings.asset"
+      - name: Switch project settings from PAL3 to PAL3A
+        run: |
+          settings=ProjectSettings/ProjectSettings.asset
+          sed -E 's/PAL3([^[:alnum:]_]|$)/PAL3A\1/g' "$settings" > "$settings.tmp"
+          mv "$settings.tmp" "$settings"
       - name: Replace PAL3 game icon with PAL3A one
         uses: jacobtomlinson/gha-find-replace@v3
         with:

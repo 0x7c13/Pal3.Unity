@@ -45,7 +45,7 @@ csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = false
 
 # SDK whitespace formatting does not enforce spacing between members.
-# These targeted StyleCop rules also run through tools/format-csharp.py.
+# These targeted StyleCop rules also run through tools/CodeStyle.
 dotnet_diagnostic.SA1107.severity = warning
 dotnet_diagnostic.SA1502.severity = warning
 dotnet_diagnostic.SA1507.severity = warning

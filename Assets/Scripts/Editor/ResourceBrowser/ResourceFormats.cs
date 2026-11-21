@@ -24,7 +24,7 @@ namespace Pal3.ResourceBrowser
 
     public static class ResourceFormats
     {
-        public static object Read(ResourceEntry entry, byte[] bytes, int codepage) => entry.Extension switch
+        public static object Read(ResourceEntry entry, byte[] bytes, int codepage, bool includeMv3NativeNormals = false) => entry.Extension switch
         {
             ".sce" => Read(new SceFileReader(), bytes, codepage),
             ".gdb" => Read(new GdbFileReader(), bytes, codepage),
@@ -38,7 +38,7 @@ namespace Pal3.ResourceBrowser
             ".lgt" => Read(new LgtFileReader(), bytes, codepage),
             ".pol" => Read(new PolFileReader(), bytes, codepage),
             ".cvd" => Read(new CvdFileReader(), bytes, codepage),
-            ".mv3" => Read(new Mv3FileReader(), bytes, codepage),
+            ".mv3" => Read(new Mv3FileReader(includeMv3NativeNormals), bytes, codepage),
             ".msh" => Read(new MshFileReader(), bytes, codepage),
             ".mov" => Read(new MovFileReader(), bytes, codepage),
             ".mtl" => Read(new MtlFileReader(), bytes, codepage),

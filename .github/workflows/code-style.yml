@@ -22,8 +22,23 @@ jobs:
         with:
           global-json-file: global.json
       - name: Test formatter enforcement
-        run: python3 tools/tests/test-format-csharp.py
+        run: dotnet test tools/CodeStyle.Tests
+      - name: Verify .NET tool source formatting
+        run: |
+          dotnet format whitespace tools/CodeStyle --no-restore --verify-no-changes
+          dotnet format whitespace tools/CodeStyle.Tests --no-restore --verify-no-changes
       - name: Verify changed C# formatting
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha }}
-        run: python3 tools/format-csharp.py --check --base "$BASE_REF"
+        run: dotnet run --project tools/CodeStyle -- --check --base "$BASE_REF"
+
+  battle-rules:
+    name: Battle rules (PAL3 and PAL3A)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v5.3.0
+        with:
+          global-json-file: global.json
+      - name: Run engine-independent battle tests
+        run: dotnet test tools/Battle.Tests

@@ -10,6 +10,7 @@ namespace Pal3.Game.Rendering.Toon
     using UnityEngine.Rendering;
     using Camera = UnityEngine.Camera;
 
+    [ExecuteAlways]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
     public sealed class ToonCameraLighting : MonoBehaviour
@@ -26,8 +27,10 @@ namespace Pal3.Game.Rendering.Toon
         private Object _scene;
         private bool _night;
         private bool _indoors;
+        private ToonLightingProfile? _preview;
 
-        internal bool ContactShadowsEnabled => _settings?.ToonContactShadows == true && _settings.ToonContactShadowStrength > 0f;
+        internal bool ContactShadowsEnabled => _preview.HasValue ? _preview.Value.ContactStrength > 0 :
+            _settings?.ToonContactShadows == true && _settings.ToonContactShadowStrength > 0f;
 
         public static ToonCameraLighting Attach(Camera camera, GameSettings settings)
         {
@@ -37,7 +40,21 @@ namespace Pal3.Game.Rendering.Toon
             }
 
             lighting._settings = settings;
+            lighting._preview = null;
             lighting.enabled = true;
+            return lighting;
+        }
+
+        public static ToonCameraLighting AttachPreview(Camera camera) => AttachPreview(camera, ToonLightingProfile.Default);
+
+        public static ToonCameraLighting AttachPreview(Camera camera, ToonLightingProfile profile)
+        {
+            profile.Validate();
+            // An editor preview owns its lighting independently of saved game
+            // preferences and of other cameras rendered by the Editor.
+            ToonCameraLighting lighting = Attach(camera, null);
+            lighting._preview = profile;
+            lighting.SetScene(camera, profile.Night, profile.Indoors);
             return lighting;
         }
 
@@ -57,6 +74,7 @@ namespace Pal3.Game.Rendering.Toon
         {
             _settings = null;
             _scene = null;
+            _preview = null;
             enabled = false;
         }
 
@@ -86,19 +104,20 @@ namespace Pal3.Game.Rendering.Toon
         {
             if (camera == _camera)
             {
-                Shader.SetGlobalFloat(CharacterLightingId, _settings?.ToonCharacterLighting == true
-                    ? _settings.ToonCharacterLightingStrength : 0f);
+                float character = _preview?.CharacterFill ?? (_settings?.ToonCharacterLighting == true ? _settings.ToonCharacterLightingStrength : 0f);
+                float contrast = _preview?.Contrast ?? (_settings?.ToonEnvironmentContrast == true ? _settings.ToonEnvironmentContrastStrength : 0f);
+                float contact = _preview?.ContactStrength ?? (ContactShadowsEnabled ? _settings.ToonContactShadowStrength : 0f);
+                float baked = _preview?.BakedStrength ?? (_settings?.ToonBakedShadows == true ? _settings.ToonBakedShadowStrength : 0f);
+                Shader.SetGlobalFloat(CharacterLightingId, character);
                 Shader.SetGlobalFloat(NightFireBoostId,
                     _scene != null && _night && _settings?.ToonNightFireBoost == true ? 1f : 0f);
                 Shader.SetGlobalVector(SceneLightingId, new Vector4(
                     _scene != null && _night ? 1f : 0f,
                     _scene != null && _indoors ? 1f : 0f,
-                    _scene != null && _settings?.ToonEnvironmentContrast == true
-                        ? _settings.ToonEnvironmentContrastStrength : 0f,
+                    _scene != null ? contrast : 0f,
                     0f));
                 Shader.SetGlobalVector(EffectStrengthsId, new Vector4(
-                    ContactShadowsEnabled ? _settings.ToonContactShadowStrength : 0f,
-                    _settings?.ToonBakedShadows == true ? _settings.ToonBakedShadowStrength : 0f, 0f, 0f));
+                    contact, baked, 0f, 0f));
             }
         }
     }

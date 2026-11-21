@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -34,15 +34,17 @@ namespace Pal3.Core.DataReader.Gdb
             for (int i = 0; i < numOfActors; i++)
             {
                 CombatActorInfo actor = ReadCombatActorInfo(reader, codepage);
-                combatActorInfos[(int) actor.Id] = actor;
+                combatActorInfos[(int)actor.Id] = actor;
             }
 
             reader.Seek(skillDataOffset, SeekOrigin.Begin);
             Dictionary<int, SkillInfo> skillInfos = new();
+            List<int> skillOrder = new();
             for (int i = 0; i < numOfSkills; i++)
             {
                 SkillInfo skill = ReadSkillInfo(reader, codepage);
-                skillInfos[(int) skill.Id] = skill;
+                skillInfos[(int)skill.Id] = skill;
+                skillOrder.Add((int)skill.Id);
             }
 
             reader.Seek(itemDataOffset, SeekOrigin.Begin);
@@ -50,27 +52,29 @@ namespace Pal3.Core.DataReader.Gdb
             for (int i = 0; i < numOfItems; i++)
             {
                 GameItemInfo item = ReadGameItemInfo(reader, codepage);
-                gameItems[(int) item.Id] = item;
+                gameItems[(int)item.Id] = item;
             }
 
             reader.Seek(comboSkillDataOffset, SeekOrigin.Begin);
             Dictionary<int, ComboSkillInfo> comboSkillInfos = new();
+            List<int> comboSkillOrder = new();
             for (int i = 0; i < numOfComboSkills; i++)
             {
                 ComboSkillInfo comboSkill = ReadComboSkillInfo(reader, codepage);
-                comboSkillInfos[(int) comboSkill.Id] = comboSkill;
+                comboSkillInfos[(int)comboSkill.Id] = comboSkill;
+                comboSkillOrder.Add((int)comboSkill.Id);
             }
 
             return new GdbFile(combatActorInfos,
                 skillInfos,
                 gameItems,
-                comboSkillInfos);
+                comboSkillInfos, comboSkillOrder, skillOrder);
         }
 
         private static CombatActorInfo ReadCombatActorInfo(IBinaryReader reader, int codepage)
         {
             uint id = reader.ReadUInt32();
-            CombatActorType type = (CombatActorType) reader.ReadUInt16();
+            CombatActorType type = (CombatActorType)reader.ReadUInt16();
             string description = reader.ReadString(512, codepage);
             string modelId = reader.ReadString(30, codepage);
             string iconId = reader.ReadString(32, codepage);
@@ -95,7 +99,8 @@ namespace Pal3.Core.DataReader.Gdb
             byte chaseSpeed = reader.ReadByte();
             _ = reader.ReadBytes(3); // padding
             uint[] skillIds = reader.ReadUInt32s(4);
-            byte[] skillLevels = reader.ReadBytes(4);
+            byte[] skillLevels = reader.ReadBytes(3);
+            _ = reader.ReadByte(); // padding; the fourth monster skill always has proficiency 4
             int spImpactValue = reader.ReadInt32();
             float[] properties = reader.ReadSingles(10);
             uint normalLoot = reader.ReadUInt32();
@@ -120,7 +125,7 @@ namespace Pal3.Core.DataReader.Gdb
                 Name = name,
                 Level = level,
                 AttributeValues = GetActorAttributeValues(attributeValues),
-                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes),
+                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes.Select(value => (int)value).ToArray()),
                 MaxRound = maxRound,
                 SpecialActionId = specialActionId,
                 EscapeRate = escapeRate,
@@ -166,7 +171,7 @@ namespace Pal3.Core.DataReader.Gdb
             short[] attributeImpactValue = reader.ReadInt16s(12);
             byte successRateLevel = reader.ReadByte();
             _ = reader.ReadByte(); // padding
-            byte[] combatStateImpactTypes = reader.ReadInt16s(31).Select(_ => (byte)_).ToArray();
+            short[] combatStateImpactTypes = reader.ReadInt16s(31);
 
             AttributeImpactType spConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
             AttributeImpactType mpConsumeImpactType = (AttributeImpactType)reader.ReadInt32();
@@ -208,7 +213,7 @@ namespace Pal3.Core.DataReader.Gdb
                 SpecialSkillId = specialSkillId,
                 AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue),
                 SuccessRateLevel = successRateLevel,
-                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes),
+                CombatStateImpactTypes = GetCombatStateImpactTypes(combatStateImpactTypes.Select(value => (int)value).ToArray()),
                 SpConsumeImpactType = spConsumeImpactType,
                 MpConsumeImpactType = mpConsumeImpactType,
                 SpConsumeValue = spConsumeValue,
@@ -217,10 +222,10 @@ namespace Pal3.Core.DataReader.Gdb
                 SpecialConsumeImpactType = specialConsumeImpactType,
                 SpecialConsumeValue = specialConsumeValue,
                 Level = level,
-                TimesBeforeLevelUp = timesBeforeLevelUp,
-                RequiredActorLevel = requiredActorLevel,
-                MagicLevel = magicLevel,
-                NextLevelSkillId = nextLevelSkillId,
+                CumulativeUseThresholds = timesBeforeLevelUp,
+                LearningActorLevel = requiredActorLevel,
+                NextSkillRequiredProficiency = magicLevel,
+                NextSkillId = nextLevelSkillId,
                 IsUsableOutsideCombat = isUsableOutsideCombat,
                 CompositeSkillIds = compositeSkillIds,
                 CompositeRequiredSkillIds = compositeRequiredSkillIds,
@@ -236,17 +241,17 @@ namespace Pal3.Core.DataReader.Gdb
             uint id = reader.ReadUInt32();
             string name = reader.ReadString(32, codepage);
             string modelName = reader.ReadString(30, codepage);
-            string iconName = reader.ReadString(30, codepage);
+            string imageId = reader.ReadString(30, codepage);
             string description = reader.ReadString(512, codepage);
             int price = reader.ReadInt32();
-            ItemType type = (ItemType) reader.ReadByte();
-            WeaponType weaponType = (WeaponType) reader.ReadByte();
+            ItemType type = (ItemType)reader.ReadByte();
+            WeaponType weaponType = (WeaponType)reader.ReadByte();
             byte[] mainActorCanUse = reader.ReadBytes(5);
             byte[] elementAttributes = reader.ReadBytes(5);
             int ancientValue = reader.ReadInt32();
-            ItemSpecialType itemSpecialType = (ItemSpecialType) reader.ReadByte();
-            TargetRangeType targetRangeType = (TargetRangeType) reader.ReadByte();
-            PlaceOfUseType placeOfUseType = (PlaceOfUseType) reader.ReadByte();
+            ItemSpecialType itemSpecialType = (ItemSpecialType)reader.ReadByte();
+            TargetRangeType targetRangeType = (TargetRangeType)reader.ReadByte();
+            PlaceOfUseType placeOfUseType = (PlaceOfUseType)reader.ReadByte();
             byte[] attributeImpactType = reader.ReadBytes(12);
             _ = reader.ReadByte(); // padding
             short[] attributeImpactValue = reader.ReadInt16s(12);
@@ -255,8 +260,8 @@ namespace Pal3.Core.DataReader.Gdb
             short[] combatStateImpactValue = reader.ReadInt16s(31);
             _ = reader.ReadBytes(2); // padding
 
-            #if PAL3
-            int comboCount = reader.ReadInt32();
+#if PAL3
+            int attackHitCount = reader.ReadInt32();
             short spSavingPercentage = reader.ReadInt16();
             short mpSavingPercentage = reader.ReadInt16();
             short criticalAttackAmplifyPercentage = reader.ReadInt16();
@@ -266,9 +271,9 @@ namespace Pal3.Core.DataReader.Gdb
             int productPrice = reader.ReadInt32();
             uint[] synthesisMaterialIds = reader.ReadUInt32s(2);
             uint synthesisProductId = reader.ReadUInt32();
-            #elif PAL3A
-            int unknown1 = reader.ReadInt32();
-            uint unknown2 = reader.ReadUInt32();
+#elif PAL3A
+            int unresolvedValue2FC = reader.ReadInt32();
+            int attackHitCount = reader.ReadInt32();
 
             short spSavingPercentage = reader.ReadInt16();
             short mpSavingPercentage = reader.ReadInt16();
@@ -280,14 +285,14 @@ namespace Pal3.Core.DataReader.Gdb
             int productType = reader.ReadInt32();
             uint productId = reader.ReadUInt32();
             uint requiredFavorValue = reader.ReadUInt32();
-            #endif
+#endif
 
             return new GameItemInfo()
             {
                 Id = id,
                 Name = name,
                 ModelName = modelName,
-                IconName = iconName,
+                ImageId = imageId,
                 Description = description,
                 Price = price,
                 Type = type,
@@ -298,12 +303,11 @@ namespace Pal3.Core.DataReader.Gdb
                 ItemSpecialType = itemSpecialType,
                 TargetRangeType = targetRangeType,
                 PlaceOfUseType = placeOfUseType,
-                AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue),
-                CombatStateImpacts = GetCombatStateImpacts(
-                    GetCombatStateImpactTypes(combatStateImpactTypes), combatStateImpactValue),
+                AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue, includeZero: true),
+                CombatStates = GetItemCombatStates(combatStateImpactTypes, combatStateImpactValue),
+                AttackHitCount = attackHitCount,
 
-                #if PAL3
-                ComboCount = comboCount,
+#if PAL3
                 SpSavingPercentage = spSavingPercentage,
                 MpSavingPercentage = mpSavingPercentage,
                 CriticalAttackAmplifyPercentage = criticalAttackAmplifyPercentage,
@@ -313,9 +317,8 @@ namespace Pal3.Core.DataReader.Gdb
                 ProductPrice = productPrice,
                 SynthesisMaterialIds = synthesisMaterialIds,
                 SynthesisProductId = synthesisProductId,
-                #elif PAL3A
-                Unknown1 = unknown1,
-                Unknown2 = unknown2,
+#elif PAL3A
+                UnresolvedValue2FC = unresolvedValue2FC,
                 SpSavingPercentage = spSavingPercentage,
                 MpSavingPercentage = mpSavingPercentage,
                 CriticalAttackAmplifyPercentage = criticalAttackAmplifyPercentage,
@@ -325,7 +328,7 @@ namespace Pal3.Core.DataReader.Gdb
                 ProductType = productType,
                 ProductId = productId,
                 RequiredFavorValue = requiredFavorValue,
-                #endif
+#endif
             };
         }
 
@@ -339,18 +342,18 @@ namespace Pal3.Core.DataReader.Gdb
             uint skillId = reader.ReadUInt32();
             WeaponType[] weaponTypeRequirements = reader.ReadBytes(4).Select(_ => (WeaponType)_).ToArray();
             _ = reader.ReadBytes(4); // not used
-            ActorCombatStateType[] combatStateRequirements = reader.ReadInt32s(3)
-                .Select(_ => (ActorCombatStateType)_).ToArray();
+            int[] auxiliaryStateConditions = reader.ReadInt32s(3);
             string description = reader.ReadString(512, codepage);
-            TargetRangeType targetRangeType = (TargetRangeType)reader.ReadByte();
+            ComboTargetRangeType targetRangeType = (ComboTargetRangeType)reader.ReadByte();
 
             byte[] attributeImpactType = reader.ReadBytes(12);
-            _ = reader.ReadBytes(3); // padding
+            _ = reader.ReadByte(); // align the signed short array at +0x25e
             short[] attributeImpactValue = reader.ReadInt16s(12);
+            _ = reader.ReadBytes(2); // align the record tail at +0x278
 
-            #if PAL3A
-            int unknown = reader.ReadInt32();
-            #endif
+#if PAL3A
+            int powerMultiplierPercentage = reader.ReadInt32();
+#endif
 
             return new ComboSkillInfo()
             {
@@ -360,23 +363,24 @@ namespace Pal3.Core.DataReader.Gdb
                 ElementPositionRequirements = elementPositionRequirements,
                 SkillId = skillId,
                 WeaponTypeRequirements = weaponTypeRequirements,
-                CombatStateRequirements = combatStateRequirements,
+                AuxiliaryStateConditions = auxiliaryStateConditions,
                 Description = description,
                 TargetRangeType = targetRangeType,
-                AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue),
-                #if PAL3A
-                Unknown = unknown,
-                #endif
+                AttributeImpacts = GetActorAttributeImpacts(attributeImpactType, attributeImpactValue, includeZero: true),
+#if PAL3A
+                PowerMultiplierPercentage = powerMultiplierPercentage,
+#endif
             };
         }
 
         private static Dictionary<ElementType, int> GetElementAttributeValues(int[] elementAttributeValues)
         {
-            Dictionary<ElementType, int> elementAttributeValueMap = new ();
+            Dictionary<ElementType, int> elementAttributeValueMap = new();
 
             foreach (ElementType elementType in Enum.GetValues(typeof(ElementType)))
             {
-                if (elementType == ElementType.None) continue;
+                if (elementType == ElementType.None)
+                    continue;
                 elementAttributeValueMap[elementType] = elementAttributeValues[(int)elementType - 1];
             }
 
@@ -385,7 +389,7 @@ namespace Pal3.Core.DataReader.Gdb
 
         private static Dictionary<ActorAttributeType, int> GetActorAttributeValues(int[] attributeValues)
         {
-            Dictionary<ActorAttributeType, int> attributeValueMap = new ();
+            Dictionary<ActorAttributeType, int> attributeValueMap = new();
 
             foreach (ActorAttributeType attributeType in Enum.GetValues(typeof(ActorAttributeType)))
             {
@@ -397,7 +401,7 @@ namespace Pal3.Core.DataReader.Gdb
 
         private static HashSet<PlayerActorId> GetPlayerActorIds(byte[] mainActorCanUse)
         {
-            HashSet<PlayerActorId> playerActorIds = new ();
+            HashSet<PlayerActorId> playerActorIds = new();
 
             for (int i = 0; i < 5; i++)
             {
@@ -412,7 +416,7 @@ namespace Pal3.Core.DataReader.Gdb
 
         private static HashSet<ObjectElementType> GetElementAttributes(byte[] elementAttributes)
         {
-            HashSet<ObjectElementType> elementAttributeSet = new ();
+            HashSet<ObjectElementType> elementAttributeSet = new();
 
             for (int i = 0; i < 5; i++)
             {
@@ -426,13 +430,13 @@ namespace Pal3.Core.DataReader.Gdb
         }
 
         private static Dictionary<ActorCombatStateType, CombatStateImpactType> GetCombatStateImpactTypes(
-            byte[] combatStateImpactTypes)
+            int[] combatStateImpactTypes)
         {
-            Dictionary<ActorCombatStateType, CombatStateImpactType> combatStateImpacts = new ();
+            Dictionary<ActorCombatStateType, CombatStateImpactType> combatStateImpacts = new();
 
             foreach (ActorCombatStateType combatState in Enum.GetValues(typeof(ActorCombatStateType)))
             {
-                CombatStateImpactType impactType = (CombatStateImpactType)combatStateImpactTypes[(int) combatState];
+                CombatStateImpactType impactType = (CombatStateImpactType)combatStateImpactTypes[(int)combatState];
                 if (impactType != CombatStateImpactType.None)
                 {
                     combatStateImpacts[combatState] = impactType;
@@ -442,20 +446,20 @@ namespace Pal3.Core.DataReader.Gdb
             return combatStateImpacts;
         }
 
-        private static Dictionary<ActorCombatStateType, CombatStateImpact> GetCombatStateImpacts(
-            Dictionary<ActorCombatStateType, CombatStateImpactType> combatStateImpactTypes,
+        private static Dictionary<ActorCombatStateType, ItemCombatStateValue> GetItemCombatStates(
+            byte[] combatStateFlags,
             short[] combatStateImpactValues)
         {
-            Dictionary<ActorCombatStateType, CombatStateImpact> combatStateImpacts = new ();
+            Dictionary<ActorCombatStateType, ItemCombatStateValue> combatStateImpacts = new();
 
             foreach (ActorCombatStateType combatState in Enum.GetValues(typeof(ActorCombatStateType)))
             {
-                short impactValue = combatStateImpactValues[(int) combatState];
-                if (impactValue != 0)
+                short impactValue = combatStateImpactValues[(int)combatState];
+                if (impactValue != 0 || combatStateFlags[(int)combatState] != 0)
                 {
-                    combatStateImpacts[combatState] = new CombatStateImpact
+                    combatStateImpacts[combatState] = new ItemCombatStateValue
                     {
-                        Type = combatStateImpactTypes.GetValueOrDefault(combatState, CombatStateImpactType.None),
+                        Flags = combatStateFlags[(int)combatState],
                         Value = impactValue
                     };
                 }
@@ -465,14 +469,14 @@ namespace Pal3.Core.DataReader.Gdb
         }
 
         private static Dictionary<ActorAttributeType, AttributeImpact> GetActorAttributeImpacts(
-            byte[] attributeImpactType, short[] attributeImpactValue)
+            byte[] attributeImpactType, short[] attributeImpactValue, bool includeZero = false)
         {
-            Dictionary<ActorAttributeType, AttributeImpact> attributeImpacts = new ();
+            Dictionary<ActorAttributeType, AttributeImpact> attributeImpacts = new();
 
             foreach (ActorAttributeType attributeType in Enum.GetValues(typeof(ActorAttributeType)))
             {
-                short impactValue = attributeImpactValue[(int) attributeType];
-                if (impactValue != 0)
+                short impactValue = attributeImpactValue[(int)attributeType];
+                if (includeZero || impactValue != 0)
                 {
                     attributeImpacts[attributeType] = new AttributeImpact()
                     {

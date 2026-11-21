@@ -1,0 +1,19 @@
+{
+    "name": "Pal3.Battle.Presentation.Tests",
+    "references": [
+        "Pal3.Battle",
+        "Pal3.Battle.Presentation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "autoReferenced": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "noEngineReferences": true
+}

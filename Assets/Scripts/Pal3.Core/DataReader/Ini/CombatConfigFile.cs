@@ -11,6 +11,7 @@ namespace Pal3.Core.DataReader.Ini
     {
         public GameBoxVector3 CenterGameBoxPosition;
         public float GameBoxRadius;
+        public float RollRadians;
     }
 
     public sealed class CombatConfigFile
