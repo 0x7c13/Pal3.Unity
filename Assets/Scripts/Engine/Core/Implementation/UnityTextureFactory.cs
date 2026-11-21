@@ -8,6 +8,7 @@ namespace Engine.Core.Implementation
     using System;
     using System.Buffers;
     using Abstraction;
+    using Engine.Extensions;
     using UnityEngine;
     using UnityEngine.Experimental.Rendering;
 
@@ -84,7 +85,8 @@ namespace Engine.Core.Implementation
             }
             catch
             {
-                if (texture != null) UnityEngine.Object.Destroy(texture);
+                if (texture != null)
+                    texture.Destroy();
                 throw;
             }
         }

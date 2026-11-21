@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -13,6 +13,17 @@ namespace Pal3.Core.DataReader.Mv3
 
     public sealed class Mv3FileReader : IFileReader<Mv3File>
     {
+        private readonly bool _includeNativeNormals;
+
+        public Mv3FileReader() : this(false)
+        {
+        }
+
+        public Mv3FileReader(bool includeNativeNormals)
+        {
+            _includeNativeNormals = includeNativeNormals;
+        }
+
         public Mv3File Read(IBinaryReader reader, int codepage)
         {
             char[] header = reader.ReadChars(4);
@@ -40,46 +51,52 @@ namespace Pal3.Core.DataReader.Mv3
                 throw new InvalidDataException("Invalid MV3(.mv3) file: missing mesh or material info");
             }
 
+            ValidateCount(reader, numberOfAnimationEvents, 20, "animation event");
             Mv3AnimationEvent[] animationEvents = new Mv3AnimationEvent[numberOfAnimationEvents];
             for (int i = 0; i < numberOfAnimationEvents; i++)
             {
                 animationEvents[i] = ReadAnimationEvent(reader, codepage);
             }
 
+            ValidateCount(reader, numberOfTagNodes, 72, "tag node");
             Mv3TagNode[] tagNodes = new Mv3TagNode[numberOfTagNodes];
             for (int i = 0; i < numberOfTagNodes; i++)
             {
                 tagNodes[i] = ReadTagNode(reader, codepage);
             }
 
+            ValidateCount(reader, numberOfMaterials, 84, "material");
             GameBoxMaterial[] materials = new GameBoxMaterial[numberOfMaterials];
             for (int i = 0; i < numberOfMaterials; i++)
             {
                 materials[i] = ReadMaterial(reader, codepage);
             }
 
-            Mv3Mesh[] meshes = new Mv3Mesh[numberOfMeshes];
+            ValidateCount(reader, numberOfMeshes, 104, "mesh");
+            var meshes = new List<Mv3Mesh>();
             for (int i = 0; i < numberOfMeshes; i++)
             {
-                meshes[i] = ReadMesh(reader, codepage);
+                meshes.AddRange(ReadMesh(reader, codepage));
             }
 
             return new Mv3File(duration,
                 animationEvents,
                 tagNodes,
-                meshes,
+                meshes.ToArray(),
                 materials);
         }
 
-        private static Mv3Mesh ReadMesh(IBinaryReader reader, int codepage)
+        private IEnumerable<Mv3Mesh> ReadMesh(IBinaryReader reader, int codepage)
         {
             string name = reader.ReadString(64, codepage);
             int numberOfVertices = reader.ReadInt32();
+            ValidateCount(reader, numberOfVertices, 1, "vertex");
 
             GameBoxVector3 gameBoxBoundsMin = reader.ReadGameBoxVector3();
             GameBoxVector3 gameBoxBoundsMax = reader.ReadGameBoxVector3();
 
             int numberOfFrames = reader.ReadInt32();
+            ValidateCount(reader, numberOfFrames, 4 + 8L * numberOfVertices, "vertex frame");
             Mv3VertFrame[] frames = new Mv3VertFrame[numberOfFrames];
             for (int i = 0; i < numberOfFrames; i++)
             {
@@ -103,28 +120,32 @@ namespace Pal3.Core.DataReader.Mv3
             }
 
             int numberOfTexCoords = reader.ReadInt32();
+            ValidateCount(reader, numberOfTexCoords, 8, "texture coordinate");
             GameBoxVector2[] texCoords = numberOfTexCoords == 0 ?
-                new GameBoxVector2[] { new (0f, 0f) } :
+                new GameBoxVector2[] { new(0f, 0f) } :
                 reader.ReadGameBoxVector2s(numberOfTexCoords);
 
             int numberOfAttributes = reader.ReadInt32();
+            ValidateCount(reader, numberOfAttributes, 12, "mesh attribute");
+            if (numberOfFrames == 0 && numberOfAttributes > 0)
+                throw new InvalidDataException("Invalid MV3 mesh: attributes require at least one vertex frame.");
             Mv3Attribute[] attributes = new Mv3Attribute[numberOfAttributes];
             for (int i = 0; i < numberOfAttributes; i++)
             {
                 int materialId = reader.ReadInt32();
                 int numberOfTriangles = reader.ReadInt32();
 
+                ValidateCount(reader, numberOfTriangles, 12, "triangle");
                 Mv3IndexBuffer[] triangles = new Mv3IndexBuffer[numberOfTriangles];
                 for (int j = 0; j < numberOfTriangles; j++)
                 {
-                    triangles[j] = new Mv3IndexBuffer()
-                    {
-                        TriangleIndex = new []{ reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()},
-                        TexCoordIndex = new []{ reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()}
-                    };
+                    ushort[] positions = ReadTriangleIndices(reader, numberOfVertices, "vertex");
+                    ushort[] coordinates = ReadTriangleIndices(reader, texCoords.Length, "texture coordinate");
+                    triangles[j] = new Mv3IndexBuffer { TriangleIndex = positions, TexCoordIndex = coordinates };
                 }
 
                 int numberOfCommands = reader.ReadInt32();
+                ValidateCount(reader, numberOfCommands, 4, "command");
                 int[] commands = new int[numberOfCommands];
                 for (int j = 0; j < numberOfCommands; j++)
                 {
@@ -139,7 +160,31 @@ namespace Pal3.Core.DataReader.Mv3
                 };
             }
 
-            return GetMv3Mesh(name, gameBoxBoundsMin, gameBoxBoundsMax, attributes, frames, texCoords);
+            ushort[][] nativeNormals = _includeNativeNormals ? Mv3NativeNormals.Calculate(frames, attributes) : null;
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                yield return GetMv3Mesh(attributes.Length == 1 ? name : name + " / " + i, gameBoxBoundsMin,
+                    gameBoxBoundsMax, new[] { attributes[i] }, frames, texCoords, nativeNormals);
+            }
+        }
+
+        private static void ValidateCount(IBinaryReader reader, int count, long recordBytes, string field)
+        {
+            if (count < 0 || count > (reader.Length - reader.Position) / recordBytes)
+                throw new InvalidDataException($"Invalid MV3 {field} count {count} for the remaining file data.");
+        }
+
+        private static ushort[] ReadTriangleIndices(IBinaryReader reader, int count, string field)
+        {
+            var indices = new ushort[3];
+            for (int corner = 0; corner < indices.Length; corner++)
+            {
+                ushort index = reader.ReadUInt16();
+                if (index >= count)
+                    throw new InvalidDataException($"Invalid MV3 triangle {field} index {index} with {count} entries.");
+                indices[corner] = index;
+            }
+            return indices;
         }
 
         private static Mv3Mesh GetMv3Mesh(string name,
@@ -147,7 +192,8 @@ namespace Pal3.Core.DataReader.Mv3
             GameBoxVector3 gameBoxBoundsMax,
             Mv3Attribute[] attributes,
             Mv3VertFrame[] vertFrames,
-            GameBoxVector2[] texCoords)
+            GameBoxVector2[] texCoords,
+            ushort[][] nativeNormals)
         {
             Mv3IndexBuffer[] faces = attributes[0].IndexBuffers;
             int[] triangles = new int[faces.Length * 3];
@@ -163,7 +209,7 @@ namespace Pal3.Core.DataReader.Mv3
 
             int[] vertexRepresentatives = GetVertexRepresentatives(vertFrames, positionCount);
             var (normalCorners, normalCount) = CoreUtility.GetNormalIndices(sourceCorners, positionCount, vertexRepresentatives);
-            var renderVertexByCorner = new Dictionary<(int normalIndex, ushort uv), int>();
+            var renderVertexByCorner = new Dictionary<(int normalIndex, ushort uv, ushort source), int>();
             var normalIndices = new List<int>();
             var positionIndices = new List<int>();
             var uvs = new List<GameBoxVector2>();
@@ -175,7 +221,7 @@ namespace Pal3.Core.DataReader.Mv3
                 for (int j = 0; j < 3; j++)
                 {
                     int normalIndex = normalCorners[corner];
-                    var key = (normalIndex, uv: face.TexCoordIndex[j]);
+                    var key = (normalIndex, uv: face.TexCoordIndex[j], source: face.TriangleIndex[j]);
                     if (!renderVertexByCorner.TryGetValue(key, out int renderVertex))
                     {
                         renderVertex = normalIndices.Count;
@@ -194,16 +240,20 @@ namespace Pal3.Core.DataReader.Mv3
             {
                 Mv3VertFrame frame = vertFrames[i];
                 var vertices = new GameBoxVector3[normalIndices.Count];
+                ushort[] packedNormals = nativeNormals == null ? null : new ushort[vertices.Length];
                 for (int j = 0; j < vertices.Length; j++)
                 {
                     Mv3Vert vertex = frame.Vertices[positionIndices[j]];
                     vertices[j] = new GameBoxVector3(vertex.X, vertex.Y, vertex.Z);
+                    if (packedNormals != null)
+                        packedNormals[j] = nativeNormals[i][positionIndices[j]];
                 }
 
                 animationKeyFrames[i] = new Mv3AnimationKeyFrame
                 {
                     GameBoxTick = frame.GameBoxTick,
                     GameBoxVertices = vertices,
+                    NativeNormals = packedNormals,
                 };
             }
 
@@ -246,7 +296,8 @@ namespace Pal3.Core.DataReader.Mv3
                 {
                     Mv3Vert first = frame.Vertices[a];
                     Mv3Vert second = frame.Vertices[b];
-                    if (first.X != second.X || first.Y != second.Y || first.Z != second.Z) return false;
+                    if (first.X != second.X || first.Y != second.Y || first.Z != second.Z)
+                        return false;
                 }
                 return true;
             }
@@ -271,6 +322,7 @@ namespace Pal3.Core.DataReader.Mv3
             float flipScale = reader.ReadSingle();
             int numberOfFrames = reader.ReadInt32();
 
+            ValidateCount(reader, numberOfFrames, 56, "tag frame");
             Mv3TagFrame[] tagFrames = new Mv3TagFrame[numberOfFrames];
             for (int i = 0; i < numberOfFrames; i++)
             {
@@ -325,7 +377,7 @@ namespace Pal3.Core.DataReader.Mv3
 
         private static GameBoxMaterial ReadMaterial(IBinaryReader reader, int codepage)
         {
-            GameBoxMaterial material = new ()
+            GameBoxMaterial material = new()
             {
                 Diffuse = reader.ReadColor(),
                 Ambient = reader.ReadColor(),
@@ -334,15 +386,17 @@ namespace Pal3.Core.DataReader.Mv3
                 SpecularPower = reader.ReadSingle()
             };
 
-            List<string> textureNames = new ();
+            List<string> textureNames = new();
             for (int i = 0; i < 4; i++)
             {
                 string textureName;
                 int length = reader.ReadInt32();
+                ValidateCount(reader, length, 1, "texture name byte");
 
                 if (length == 0)
                 {
-                    if (i > 0) continue;
+                    if (i > 0)
+                        continue;
                     textureName = string.Empty; // Use default white texture
                 }
                 else

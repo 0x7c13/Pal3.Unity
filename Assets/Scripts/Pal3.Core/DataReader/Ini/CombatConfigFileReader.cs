@@ -6,6 +6,7 @@
 namespace Pal3.Core.DataReader.Ini
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Text;
     using IniParser;
@@ -31,25 +32,31 @@ namespace Pal3.Core.DataReader.Ini
 
             IniData iniData = parser.ReadData(reader);
 
-            GameBoxVector3[] actorGameBoxPositions = new GameBoxVector3[10];
+            GameBoxVector3[] actorGameBoxPositions = new GameBoxVector3[11];
             FiveElementsFormationConfig allyFormationConfig = default;
             FiveElementsFormationConfig enemyFormationConfig = default;
             int[] levelExperienceTable = new int[100];
+            bool hasEnemyCenterRole = false;
 
             foreach (SectionData section in iniData.Sections)
             {
                 if (section.SectionName.Equals(ROLE_POSITION_SECTION_HEADER_PREFIX,
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < actorGameBoxPositions.Length; i++)
                     {
                         string x = iniData[section.SectionName][$"Role{i}-x"];
                         string z = iniData[section.SectionName][$"Role{i}-z"];
 
-                        if (x.Contains(";")) x = x[..x.IndexOf(';')].Trim();
-                        if (z.Contains(";")) z = z[..z.IndexOf(';')].Trim();
-
-                        actorGameBoxPositions[i] = new GameBoxVector3(float.Parse(x), 0f, float.Parse(z));
+                        if (i == 10)
+                        {
+                            // Older user-provided layouts may only supply roles 0–9.
+                            hasEnemyCenterRole = x != null || z != null;
+                            if (!hasEnemyCenterRole)
+                                continue;
+                        }
+                        actorGameBoxPositions[i] = new GameBoxVector3(ParseFloat(x, section, $"Role{i}-x"), 0f,
+                            ParseFloat(z, section, $"Role{i}-z"));
                     }
                 }
 
@@ -59,13 +66,13 @@ namespace Pal3.Core.DataReader.Ini
                     string y = iniData[section.SectionName]["y"];
                     string z = iniData[section.SectionName]["z"];
                     string radius = iniData[section.SectionName]["radius"];
-
-                    if (radius.Contains(";")) radius = radius[..radius.IndexOf(';')].Trim();
+                    string roll = iniData[section.SectionName]["roll"];
 
                     FiveElementsFormationConfig config = new()
                     {
-                        CenterGameBoxPosition = new GameBoxVector3(float.Parse(x), float.Parse(y), float.Parse(z)),
-                        GameBoxRadius = float.Parse(radius),
+                        CenterGameBoxPosition = new GameBoxVector3(ParseFloat(x, section, "x"), ParseFloat(y, section, "y"), ParseFloat(z, section, "z")),
+                        GameBoxRadius = ParseFloat(radius, section, "radius"),
+                        RollRadians = roll == null ? 0f : ParseFloat(roll, section, "roll"),
                     };
 
                     if (section.SectionName.StartsWith("Enemy"))
@@ -82,16 +89,33 @@ namespace Pal3.Core.DataReader.Ini
                 {
                     for (int i = 1; i <= 99; i++)
                     {
-                        string exp = iniData[section.SectionName][i.ToString()];
-                        levelExperienceTable[i] = int.Parse(exp);
+                        string exp = iniData[section.SectionName][i.ToString(CultureInfo.InvariantCulture)];
+                        if (exp == null)
+                            throw new FormatException($"[{section.SectionName}] is missing level {i}.");
+                        levelExperienceTable[i] = int.Parse(exp, CultureInfo.InvariantCulture);
                     }
                 }
             }
 
+            if (!hasEnemyCenterRole)
+            {
+                GameBoxVector3 center = enemyFormationConfig.CenterGameBoxPosition;
+                actorGameBoxPositions[10] = new GameBoxVector3(center.X, 0f, center.Z);
+            }
             return new CombatConfigFile(actorGameBoxPositions,
                 allyFormationConfig,
                 enemyFormationConfig,
                 levelExperienceTable);
+        }
+
+        private static float ParseFloat(string value, SectionData section, string key)
+        {
+            if (value == null)
+                throw new FormatException($"[{section.SectionName}] is missing {key}.");
+            int comment = value.IndexOf(';');
+            if (comment >= 0)
+                value = value[..comment];
+            return float.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
         }
     }
 }

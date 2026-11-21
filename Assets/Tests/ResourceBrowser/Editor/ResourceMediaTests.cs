@@ -80,6 +80,8 @@ namespace Pal3.ResourceBrowser.Tests
             Assert.That(preview.Error, Is.Null, entry.Path);
             Assert.That(preview.Ready, Is.True);
             var video = preview.Video;
+            for (ushort track = 0; track < Math.Min(video.audioTrackCount, video.controlledAudioTrackCount); track++)
+                video.SetDirectAudioMute(track, true);
             video.Play();
             Assert.That(preview.Tick(), Is.True, "Playing video must repaint.");
             deadline = EditorApplication.timeSinceStartup + 10;

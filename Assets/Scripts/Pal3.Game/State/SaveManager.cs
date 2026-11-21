@@ -336,7 +336,7 @@ namespace Pal3.Game.State
                     (int)huaYingGameEntity.Transform.EulerAngles.y));
             }
             #elif PAL3A
-            var combatState = ServiceLocator.Instance.Get<GameSystems.Combat.CombatCoordinator>().ScriptState;
+            var combatState = ServiceLocator.Instance.Get<GameSystems.Battle.BattleCoordinator>().ScriptState;
             commands.Add(new Pal3ARestoreCombatScriptStateCommand(combatState.Flags, combatState.LostHp, combatState.LostMp));
             // Save Task state
             commands.AddRange(_taskManager.GetOpenedTasks().

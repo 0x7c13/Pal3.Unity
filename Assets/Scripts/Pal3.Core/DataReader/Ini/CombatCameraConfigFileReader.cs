@@ -7,6 +7,7 @@ namespace Pal3.Core.DataReader.Ini
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Text;
     using IniParser;
@@ -37,17 +38,26 @@ namespace Pal3.Core.DataReader.Ini
                 {
                     defaultCamConfigs.Add(new CombatCameraConfig()
                     {
-                        GameBoxPositionX = float.Parse(iniData[section.SectionName]["x"]),
-                        GameBoxPositionY = float.Parse(iniData[section.SectionName]["y"]),
-                        GameBoxPositionZ = float.Parse(iniData[section.SectionName]["z"]),
-                        Yaw = float.Parse(iniData[section.SectionName]["yaw"]),
-                        Pitch = float.Parse(iniData[section.SectionName]["pitch"]),
-                        Roll = float.Parse(iniData[section.SectionName]["roll"]),
+                        GameBoxPositionX = ParseFloat(section, "x"),
+                        GameBoxPositionY = ParseFloat(section, "y"),
+                        GameBoxPositionZ = ParseFloat(section, "z"),
+                        Yaw = ParseFloat(section, "yaw"),
+                        Pitch = ParseFloat(section, "pitch"),
+                        Roll = ParseFloat(section, "roll"),
                     });
                 }
             }
 
             return new CombatCameraConfigFile(defaultCamConfigs.ToArray());
+        }
+
+        private static float ParseFloat(SectionData section, string key)
+        {
+            string value = section.Keys[key] ?? throw new FormatException($"[{section.SectionName}] is missing {key}.");
+            int comment = value.IndexOf(';');
+            if (comment >= 0)
+                value = value[..comment];
+            return float.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
         }
     }
 }

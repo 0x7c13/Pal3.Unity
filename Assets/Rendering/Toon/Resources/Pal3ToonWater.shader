@@ -7,12 +7,19 @@ Shader "Pal3/ToonWater"
 {
     Properties
     {
+        [HideInInspector] _Threshold ("Alpha Cutoff", Float) = 1
+        [HideInInspector] _ReceiveLighting ("Receive Lighting", Float) = 1
+        [HideInInspector] _IsCharacter ("Character", Float) = 0
+        [HideInInspector] _BattleSelection ("Battle selection luminance", Float) = -1
         _MainTex ("Texture", 2D) = "white" {}
         _ShadowTex ("Baked Shadow", 2D) = "white" {}
         _HasShadowTex ("Has Baked Shadow", Float) = 0
         _LightmapScale ("Baked Light Scale", Float) = 1.428571
         _Alpha ("Opacity", Range(0, 1)) = 0.5
         _ReceiveShadows ("Receive Shadows", Float) = 1
+        [HideInInspector] _UnlitBackground ("Painted background", Float) = 0
+        [HideInInspector] _BackgroundBrightness ("Background brightness", Float) = 1
+        [HideInInspector] _SourceDiffuseAlpha ("Original POL diffuse alpha", Float) = 1
         [HideInInspector] _TintColor ("Tint Color", Color) = (1, 1, 1, 1)
     }
 

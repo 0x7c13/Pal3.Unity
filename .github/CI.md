@@ -12,19 +12,25 @@ badges prefer the default branch and can keep showing old push builds after a
 workflow switches to PR-only triggers. The badge links filter the build history
 to pull requests as well.
 
-The separate `Code style` workflow verifies changed owned C# files with the SDK's
-`dotnet format`, using `.editorconfig` and the SDK pinned in `global.json`.
-It combines whitespace formatting with pinned StyleCop layout rules SA1107, SA1502,
-SA1507 and SA1516 to enforce separate statements, multiline blocks and blank lines
-between members. StyleCop is restored only into the temporary formatting project.
+The separate `Code style` workflow runs the .NET CLI in `tools/CodeStyle`, using
+`.editorconfig` and the SDK pinned in `global.json`.
+It calls the SDK's `dotnet format` for whitespace and StyleCop 1.3.180 layout rules
+SA1107, SA1502, SA1507 and SA1516 to enforce separate statements, multiline blocks
+and blank lines between members. StyleCop is restored only into the temporary
+formatting project.
 It parses both PAL3 and PAL3A conditional branches without Unity or game data.
-Run `python3 tools/format-csharp.py` locally to format current changes, then
-`python3 tools/format-csharp.py --check` to verify them. CI selects PR changes with
+Run `dotnet run --project tools/CodeStyle --` locally to format current changes,
+then `dotnet run --project tools/CodeStyle -- --check` to verify them.
+The formatter and its tests require no Python, Unity installation or game data.
+CI runs `dotnet test tools/CodeStyle.Tests`, then uses the SDK's
+`dotnet format whitespace --verify-no-changes` on both `tools/CodeStyle` and
+`tools/CodeStyle.Tests` to check the tool's own sources. Finally, it selects PR changes with
 `--check --base <base-sha>`; `--all` is an explicit full-source audit, not the default.
 Default and `--base` runs apply formatting only to changed lines and deletion
 boundaries, preserving existing formatting elsewhere. Explicit file/directory
 paths and `--all` format whole files. Check mode operates on temporary copies.
 This checks whitespace and layout, not semantic correctness or Unity behavior.
+See the [tool README](../tools/CodeStyle/README.md) for commands and scope.
 
 Codacy is not part of this repository's CI. Its repository webhook is disabled;
 there is no Codacy workflow or Codacy-required branch protection check. Re-enabling

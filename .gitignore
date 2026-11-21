@@ -89,3 +89,8 @@ crashlytics-build.properties
 /Assets/Resources/Prefabs/VFX.meta
 /Assets/Resources/Materials/
 /Assets/Resources/Materials.meta
+
+# Standalone .NET developer tools
+/tools/**/bin/
+/tools/**/obj/
+/tools/**/TestResults/

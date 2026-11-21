@@ -1,0 +1,57 @@
+// ------------------------------------------------------------------------
+//  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
+//  See LICENSE file in the project root for license information.
+// ------------------------------------------------------------------------
+
+namespace Pal3.Game.GameSystems.Battle.Actor
+{
+    using System;
+    using Core.Contract.Constants;
+    using Core.Contract.Enums;
+    using Core.DataReader.Gdb;
+    using Data;
+    using Game.Actor;
+
+    public sealed class BattleActor : ActorBase
+    {
+        public CombatActorInfo Info
+        {
+            get;
+        }
+
+        public BattleActor(GameResourceProvider resourceProvider, CombatActorInfo actorInfo) :
+            base(resourceProvider, (int)actorInfo.Id,
+                string.IsNullOrEmpty(actorInfo.ModelId) ||
+                actorInfo.Type == CombatActorType.MainActor && string.Equals(actorInfo.ModelId, "Null", StringComparison.OrdinalIgnoreCase)
+                    ? actorInfo.Id.ToString() : actorInfo.ModelId)
+        {
+            Info = actorInfo;
+        }
+
+        public string GetPreAttackAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.PreAttack] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcStand1];
+        }
+
+        public string GetAttackAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.Attack1] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcAttack];
+        }
+
+        public string GetMovementAction()
+        {
+            return Info.Type == CombatActorType.MainActor ?
+                ActorConstants.ActionToNameMap[ActorActionType.AttackMove] :
+                ActorConstants.ActionToNameMap[ActorActionType.NpcRun];
+        }
+
+        public float GetMovementSpeed()
+        {
+            return 12f;
+        }
+    }
+}

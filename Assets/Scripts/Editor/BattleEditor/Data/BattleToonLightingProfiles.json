@@ -1,0 +1,3434 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "variant": "PAL3",
+      "scene": "Z01",
+      "label": "Z01",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "4.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Sphere01",
+          "texture": "3.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z02",
+      "label": "Z02",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7500,
+      "tint": [
+        0.96,
+        0.98,
+        1
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z03",
+      "label": "Z03",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.98,
+        1,
+        1
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z04",
+      "label": "Z04",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.75,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z04A",
+      "label": "Z04A",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "4.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z05",
+      "label": "Z05",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Mesh07",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Mesh08",
+          "texture": "6.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z06",
+      "label": "Z06",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "1.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "3.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z07",
+      "label": "Z07",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7500,
+      "tint": [
+        0.94,
+        0.98,
+        1
+      ],
+      "intensity": 0.95,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder01",
+          "texture": "m23-3-02.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z08",
+      "label": "Z08",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 58,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "1.tga"
+        },
+        {
+          "nodeIndex": 58,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z09",
+      "label": "Z09",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z10",
+      "label": "Z10",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.9,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z11",
+      "label": "Z11",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5500,
+      "tint": [
+        1,
+        0.98,
+        0.95
+      ],
+      "intensity": 0.95,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "4.tga"
+        },
+        {
+          "nodeIndex": 21,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "3.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 21,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "M03-01.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z12",
+      "label": "Z12",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z13",
+      "label": "Z13",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4500,
+      "tint": [
+        1,
+        0.97,
+        0.93
+      ],
+      "intensity": 1.05,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z14",
+      "label": "Z14",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7500,
+      "tint": [
+        0.96,
+        1,
+        1
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z15",
+      "label": "Z15",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.98,
+        0.98,
+        1
+      ],
+      "intensity": 1.1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.75,
+      "contrast": 1,
+      "bakedStrength": 0.45,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z16",
+      "label": "Z16",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5700,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z17",
+      "label": "Z17",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z19",
+      "label": "Z19",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z20",
+      "label": "Z20",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 70,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "01.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z21",
+      "label": "Z21",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "6.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "7.tga"
+        },
+        {
+          "nodeIndex": 9,
+          "materialGroupIndex": 1,
+          "nodeName": "Object01",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 9,
+          "materialGroupIndex": 2,
+          "nodeName": "Object01",
+          "texture": "4.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z22",
+      "label": "Z22",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.99,
+        0.98
+      ],
+      "intensity": 1.05,
+      "shadowStrength": 0.9,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.05,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "1.tga"
+        },
+        {
+          "nodeIndex": 40,
+          "materialGroupIndex": 2,
+          "nodeName": "kuang",
+          "texture": "2.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 40,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "4.tga"
+        },
+        {
+          "nodeIndex": 40,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "5.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z23",
+      "label": "Z23",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.85,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 99,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "1.tga"
+        },
+        {
+          "nodeIndex": 99,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z24",
+      "label": "Z24",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "tian",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 9,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "1.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 9,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "dimian-03.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z25",
+      "label": "Z25",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 30,
+          "materialGroupIndex": 0,
+          "nodeName": "tian",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 31,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "1.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 31,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "dimian-03.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z26",
+      "label": "Z26",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.8,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z27",
+      "label": "Z27",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 8000,
+      "tint": [
+        0.95,
+        0.98,
+        1
+      ],
+      "intensity": 1.15,
+      "shadowStrength": 0.85,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.0,
+      "night": true,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z28",
+      "label": "Z28",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.98,
+        1,
+        1
+      ],
+      "intensity": 0.92,
+      "shadowStrength": 0.9,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "yun.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "yun.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane02",
+          "texture": "yun.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z29",
+      "label": "Z29",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4500,
+      "tint": [
+        1,
+        0.97,
+        0.93
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z30",
+      "label": "Z30",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.85,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.05,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 15,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 37,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "1.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 37,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "M02_1_19.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z31",
+      "label": "Z31",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z32",
+      "label": "Z32",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4500,
+      "tint": [
+        1,
+        0.97,
+        0.93
+      ],
+      "intensity": 1.15,
+      "shadowStrength": 0.9,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z33",
+      "label": "Z33",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.9,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "99.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z34",
+      "label": "Z34",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.96,
+        1,
+        1
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z35",
+      "label": "Z35",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z36",
+      "label": "Z36",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5500,
+      "tint": [
+        1,
+        0.98,
+        0.96
+      ],
+      "intensity": 0.95,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z37",
+      "label": "Z37",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.98,
+        1,
+        1
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "4.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 1,
+          "nodeName": "Object01",
+          "texture": "3.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z38",
+      "label": "Z38",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.8,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z39",
+      "label": "Z39",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        1,
+        0.96,
+        1
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.95,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.85,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder02",
+          "texture": "m25-3-06.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane03",
+          "texture": "m25-3-06.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z40",
+      "label": "Z40",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "3.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane02",
+          "texture": "4.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z41",
+      "label": "Z41",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.94,
+        1,
+        0.98
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.6,
+      "contactStrength": 1.1,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z42",
+      "label": "Z42",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.95,
+      "characterFill": 0.9,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "1.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "3.tga"
+        },
+        {
+          "nodeIndex": 4,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "2.tga"
+        },
+        {
+          "nodeIndex": 4,
+          "materialGroupIndex": 1,
+          "nodeName": "Object01",
+          "texture": "3.tga"
+        },
+        {
+          "nodeIndex": 5,
+          "materialGroupIndex": 0,
+          "nodeName": "yun1",
+          "texture": "4.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z43",
+      "label": "Z43",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7200,
+      "tint": [
+        0.98,
+        0.96,
+        1
+      ],
+      "intensity": 0.95,
+      "shadowStrength": 0.95,
+      "characterFill": 0.8,
+      "contrast": 1,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 6,
+          "materialGroupIndex": 0,
+          "nodeName": "Mesh01",
+          "texture": "M08_2-01.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3",
+      "scene": "Z44",
+      "label": "Z44",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.97,
+        1,
+        1
+      ],
+      "intensity": 1,
+      "shadowStrength": 0.9,
+      "characterFill": 0.85,
+      "contrast": 1,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder02",
+          "texture": "m25-3-06.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane03",
+          "texture": "m25-3-06.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M01A",
+      "label": "草地纹理和石径清晰",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.82,
+      "characterFill": 0.82,
+      "contrast": 0.85,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 8,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder01",
+          "texture": "9.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M01B",
+      "label": "山坡地纹仍可读，Toon地面比原生略白，角色同样偏白",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.8,
+      "characterFill": 0.8,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 8,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder02",
+          "texture": "bj.tga"
+        },
+        {
+          "nodeIndex": 9,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "9.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M02",
+      "label": "灰石墙/地和金色八卦台可读，Toon台面较黄亮，人物肤色与紫白服装过亮，室内链柱暗部完整",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.65,
+      "characterFill": 0.75,
+      "contrast": 0.75,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M02a",
+      "label": "逐图与M02一致的石室平台构图",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.65,
+      "characterFill": 0.75,
+      "contrast": 0.75,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M03A",
+      "label": "沙地颗粒与石块未糊，青绿水体保留",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.88,
+      "shadowStrength": 0.82,
+      "characterFill": 0.8,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 13,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij.tga"
+        },
+        {
+          "nodeIndex": 35,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "9.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M03B",
+      "label": "花草与根须保真，原生青绿亮斑仍在",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.75,
+      "characterFill": 0.82,
+      "contrast": 0.8,
+      "bakedStrength": 0.5,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 37,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder01",
+          "texture": "2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M04A",
+      "label": "紫晶矿洞的晶体分面、碎木和紫色地纹完整，Toon石墙尚清楚",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7600,
+      "tint": [
+        0.92,
+        0.88,
+        1
+      ],
+      "intensity": 0.75,
+      "shadowStrength": 0.65,
+      "characterFill": 0.68,
+      "contrast": 0.85,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M04B",
+      "label": "冰紫岩地、洞壁和紫晶分面清楚，Toon暖白人物脱离冷紫环境",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7600,
+      "tint": [
+        0.92,
+        0.88,
+        1
+      ],
+      "intensity": 0.72,
+      "shadowStrength": 0.65,
+      "characterFill": 0.68,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M05A",
+      "label": "蓝色鳞纹地砖、金属边钉完整",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7400,
+      "tint": [
+        0.94,
+        0.97,
+        1
+      ],
+      "intensity": 0.78,
+      "shadowStrength": 0.65,
+      "characterFill": 0.72,
+      "contrast": 0.85,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M05B",
+      "label": "金属悬桥绿纹和铆钉清晰，Toon绿纹比原生稍灰，人物明显亮于桥",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.7,
+      "characterFill": 0.72,
+      "contrast": 0.85,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M05C",
+      "label": "浅蓝石桥裂纹仍可见，Toon两端白色雕纹台和人物较亮",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.96,
+        0.98,
+        1
+      ],
+      "intensity": 0.75,
+      "shadowStrength": 0.7,
+      "characterFill": 0.72,
+      "contrast": 0.75,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M05D",
+      "label": "浅白地砖和粉紫云纹在Toon仍清晰，但台面整体更白，人物偏白",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.74,
+      "shadowStrength": 0.68,
+      "characterFill": 0.72,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "di.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "bj.tga"
+        },
+        {
+          "nodeIndex": 6,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "di.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M06A",
+      "label": "骨刺、枯木、黄沙颗粒保真",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 5600,
+      "tint": [
+        1,
+        0.98,
+        0.94
+      ],
+      "intensity": 1.05,
+      "shadowStrength": 0.75,
+      "characterFill": 0.8,
+      "contrast": 0.65,
+      "bakedStrength": 0.5,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 27,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "6.tga"
+        },
+        {
+          "nodeIndex": 28,
+          "materialGroupIndex": 5,
+          "nodeName": "Object01",
+          "texture": "bj.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M06B",
+      "label": "整片沙地在Toon更接近褐黄而不是原生亮黄",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5600,
+      "tint": [
+        1,
+        0.98,
+        0.94
+      ],
+      "intensity": 1.0,
+      "shadowStrength": 0.78,
+      "characterFill": 0.8,
+      "contrast": 0.7,
+      "bakedStrength": 0.5,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 24,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "6.tga"
+        },
+        {
+          "nodeIndex": 25,
+          "materialGroupIndex": 1,
+          "nodeName": "Cylinder02",
+          "texture": "bj.tga",
+          "brightness": 0.86
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 25,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder02",
+          "texture": "di.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M06C",
+      "label": "冰纹、碎晶和紫蓝壁面清晰",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 8500,
+      "tint": [
+        0.9,
+        0.95,
+        1
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.55,
+      "characterFill": 0.7,
+      "contrast": 0.65,
+      "bakedStrength": 0.45,
+      "contactStrength": 0.85,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m06d",
+      "label": "白冰地面仍见细颗粒，Toon冰柱顶面较白且皮肤偏暖，背面大面积阴影显重",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 8500,
+      "tint": [
+        0.9,
+        0.94,
+        1
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.55,
+      "characterFill": 0.7,
+      "contrast": 0.65,
+      "bakedStrength": 0.45,
+      "contactStrength": 0.85,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M07A",
+      "label": "土黄石刻台、壁画和青水未失纹理",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 6000,
+      "tint": [
+        1,
+        0.98,
+        0.94
+      ],
+      "intensity": 0.78,
+      "shadowStrength": 0.65,
+      "characterFill": 0.72,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M07B",
+      "label": "白玉台面还有云纹，但Toon明显发亮偏白，人物高光亦强",
+      "keyEuler": [
+        72,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.65,
+      "shadowStrength": 0.45,
+      "characterFill": 0.7,
+      "contrast": 0.7,
+      "bakedStrength": 0.65,
+      "contactStrength": 0.7,
+      "night": false,
+      "indoors": true,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M07C",
+      "label": "青绿斜坡与铆钉、兽纹内墙可读，Toon角色偏亮，走廊保持冷青",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7200,
+      "tint": [
+        1,
+        1,
+        1
+      ],
+      "intensity": 0.75,
+      "shadowStrength": 0.6,
+      "characterFill": 0.72,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m08a",
+      "label": "荧光橙坑与蓝紫花纹在两模式均保留，Toon地面稍黄、肤色偏白，前景树影变重",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7200,
+      "tint": [
+        0.94,
+        0.95,
+        1
+      ],
+      "intensity": 0.82,
+      "shadowStrength": 0.65,
+      "characterFill": 0.72,
+      "contrast": 0.85,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 15,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "111.tga"
+        },
+        {
+          "nodeIndex": 49,
+          "materialGroupIndex": 1,
+          "nodeName": "Cylinder01",
+          "texture": "m08_tex_shi bi2.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 11,
+          "nodeName": "Object16",
+          "texture": "6.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 14,
+          "nodeName": "Object16",
+          "texture": "m08_tex_23.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m08b",
+      "label": "灰紫土路、青水与荧光花完整",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7600,
+      "tint": [
+        0.92,
+        0.95,
+        1
+      ],
+      "intensity": 0.78,
+      "shadowStrength": 0.6,
+      "characterFill": 0.72,
+      "contrast": 0.8,
+      "bakedStrength": 0.55,
+      "contactStrength": 1.0,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 42,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "111.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M09",
+      "label": "土黄院地、裂墙和八卦石纹清晰",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 6200,
+      "tint": [
+        1,
+        0.98,
+        0.95
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.68,
+      "characterFill": 0.78,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m09a",
+      "label": "土黄地面、八卦石纹与裂墙保持清晰，Toon地面略亮，人物肤色奶白，墙/台面投影比原生更硬",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 6200,
+      "tint": [
+        1,
+        0.98,
+        0.95
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.68,
+      "characterFill": 0.78,
+      "contrast": 0.8,
+      "bakedStrength": 0.65,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M10a",
+      "label": "灰蓝粗石/冰质路径和青色链柱纹理完整",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7600,
+      "tint": [
+        0.96,
+        0.98,
+        1
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.7,
+      "characterFill": 0.75,
+      "contrast": 0.85,
+      "bakedStrength": 0.65,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "cylinder01",
+          "texture": "lhm001.tga"
+        },
+        {
+          "nodeIndex": 52,
+          "materialGroupIndex": 0,
+          "nodeName": "object01",
+          "texture": "lhm002.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M10B",
+      "label": "橙红岩面和金黄符文纹理完整，Toon亮部稍平、暗沟仍清楚",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5600,
+      "tint": [
+        1,
+        0.97,
+        0.91
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.65,
+      "characterFill": 0.7,
+      "contrast": 0.85,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder01",
+          "texture": "lhm003.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "lhm004.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M10Ba",
+      "label": "独立核对后与M10B同为橙红符文通道",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 5600,
+      "tint": [
+        1,
+        0.97,
+        0.91
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.65,
+      "characterFill": 0.7,
+      "contrast": 0.85,
+      "bakedStrength": 0.7,
+      "contactStrength": 1.25,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder01",
+          "texture": "lhm003.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "lhm004.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m11a",
+      "label": "熔岩环绕的封闭石台和机械侧墙清楚",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4500,
+      "tint": [
+        1,
+        0.9,
+        0.78
+      ],
+      "intensity": 0.7,
+      "shadowStrength": 0.55,
+      "characterFill": 0.6,
+      "contrast": 0.8,
+      "bakedStrength": 0.7,
+      "contactStrength": 0.85,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m12A",
+      "label": "浅青石板、镶边和桥面细纹完整，Toon板面稍白、肤色奶白",
+      "keyEuler": [
+        72,
+        -30,
+        0
+      ],
+      "temperature": 7400,
+      "tint": [
+        0.95,
+        1,
+        1
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.5,
+      "characterFill": 0.75,
+      "contrast": 0.7,
+      "bakedStrength": 0.6,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        },
+        {
+          "nodeIndex": 4,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "B.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m12b",
+      "label": "阴阳圆纹、台阶裂缝和青石细纹完整，发亮圆纹在原生已较亮",
+      "keyEuler": [
+        72,
+        -30,
+        0
+      ],
+      "temperature": 7400,
+      "tint": [
+        0.95,
+        1,
+        1
+      ],
+      "intensity": 0.85,
+      "shadowStrength": 0.5,
+      "characterFill": 0.75,
+      "contrast": 0.7,
+      "bakedStrength": 0.6,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "B.tga"
+        },
+        {
+          "nodeIndex": 6,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m12c",
+      "label": "浅青长台的细纹、边缘黑纹和围栏清楚，Toon台面更白、肤色过白，人物剪影较原生更重",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 7400,
+      "tint": [
+        0.95,
+        1,
+        1
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.55,
+      "characterFill": 0.72,
+      "contrast": 0.75,
+      "bakedStrength": 0.6,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "B.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m13a",
+      "label": "红色裂石悬台",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4800,
+      "tint": [
+        1,
+        0.94,
+        0.88
+      ],
+      "intensity": 0.76,
+      "shadowStrength": 0.62,
+      "characterFill": 0.52,
+      "contrast": 0.72,
+      "bakedStrength": 0.78,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "b.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m13b",
+      "label": "红黑龙纹悬台",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4700,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.74,
+      "shadowStrength": 0.6,
+      "characterFill": 0.5,
+      "contrast": 0.7,
+      "bakedStrength": 0.8,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m13c",
+      "label": "红黑龙纹多层台",
+      "keyEuler": [
+        58,
+        -30,
+        0
+      ],
+      "temperature": 4700,
+      "tint": [
+        1,
+        0.94,
+        0.86
+      ],
+      "intensity": 0.73,
+      "shadowStrength": 0.6,
+      "characterFill": 0.5,
+      "contrast": 0.7,
+      "bakedStrength": 0.82,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "b.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m14a",
+      "label": "蓝水背景浅沙环台",
+      "keyEuler": [
+        70,
+        -30,
+        0
+      ],
+      "temperature": 8200,
+      "tint": [
+        0.9,
+        0.98,
+        1
+      ],
+      "intensity": 0.87,
+      "shadowStrength": 0.62,
+      "characterFill": 0.58,
+      "contrast": 0.58,
+      "bakedStrength": 0.76,
+      "contactStrength": 0.85,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "lhm0001.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane02",
+          "texture": "w0001.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 1,
+          "nodeName": "Object02",
+          "texture": "M14-1lu.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m14b",
+      "label": "青绿圆台与蓝水环幕",
+      "keyEuler": [
+        72,
+        -30,
+        0
+      ],
+      "temperature": 8500,
+      "tint": [
+        0.88,
+        0.98,
+        1
+      ],
+      "intensity": 0.83,
+      "shadowStrength": 0.6,
+      "characterFill": 0.56,
+      "contrast": 0.58,
+      "bakedStrength": 0.76,
+      "contactStrength": 0.82,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "w0001.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere02",
+          "texture": "B.tga"
+        },
+        {
+          "nodeIndex": 117,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane02",
+          "texture": "w0001.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M15A",
+      "label": "绿纹树干与蓝色水面",
+      "keyEuler": [
+        65,
+        -25,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        0.94,
+        1,
+        0.94
+      ],
+      "intensity": 0.86,
+      "shadowStrength": 0.68,
+      "characterFill": 0.56,
+      "contrast": 0.68,
+      "bakedStrength": 0.8,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "sky",
+          "texture": "bj2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M15Aa",
+      "label": "绿纹树干与蓝色水面变体",
+      "keyEuler": [
+        65,
+        -25,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        0.94,
+        1,
+        0.94
+      ],
+      "intensity": 0.86,
+      "shadowStrength": 0.68,
+      "characterFill": 0.56,
+      "contrast": 0.68,
+      "bakedStrength": 0.8,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij.tga"
+        },
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "sky",
+          "texture": "bj2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M15B",
+      "label": "浅绿石路与蓝花沟",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 6800,
+      "tint": [
+        0.96,
+        1,
+        0.96
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.65,
+      "characterFill": 0.58,
+      "contrast": 0.6,
+      "bakedStrength": 0.7,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Plane01",
+          "texture": "bj.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "sky",
+          "texture": "bj2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M15C",
+      "label": "浅白绿纹大石台",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.95,
+        1,
+        0.97
+      ],
+      "intensity": 0.82,
+      "shadowStrength": 0.62,
+      "characterFill": 0.54,
+      "contrast": 0.6,
+      "bakedStrength": 0.72,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "plane01",
+          "texture": "bj.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "plane03",
+          "texture": "bj2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M16A",
+      "label": "交错树干与浅蓝云幕",
+      "keyEuler": [
+        65,
+        -20,
+        0
+      ],
+      "temperature": 7000,
+      "tint": [
+        0.95,
+        1,
+        0.94
+      ],
+      "intensity": 0.8,
+      "shadowStrength": 0.65,
+      "characterFill": 0.52,
+      "contrast": 0.65,
+      "bakedStrength": 0.82,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "sky",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M16B",
+      "label": "黑背景内凹树干",
+      "keyEuler": [
+        74,
+        -20,
+        0
+      ],
+      "temperature": 6500,
+      "tint": [
+        0.94,
+        1,
+        0.9
+      ],
+      "intensity": 0.63,
+      "shadowStrength": 0.52,
+      "characterFill": 0.42,
+      "contrast": 0.82,
+      "bakedStrength": 0.9,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M16C",
+      "label": "云中绿木环台与青池",
+      "keyEuler": [
+        70,
+        -30,
+        0
+      ],
+      "temperature": 7600,
+      "tint": [
+        0.9,
+        0.99,
+        1
+      ],
+      "intensity": 0.88,
+      "shadowStrength": 0.62,
+      "characterFill": 0.56,
+      "contrast": 0.58,
+      "bakedStrength": 0.75,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "sky",
+          "texture": "5.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "6.tga"
+        },
+        {
+          "nodeIndex": 2,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "5.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M17",
+      "label": "绿光边纹的暗色通道",
+      "keyEuler": [
+        74,
+        -20,
+        0
+      ],
+      "temperature": 6700,
+      "tint": [
+        0.91,
+        1,
+        0.88
+      ],
+      "intensity": 0.72,
+      "shadowStrength": 0.52,
+      "characterFill": 0.46,
+      "contrast": 0.82,
+      "bakedStrength": 0.9,
+      "contactStrength": 1.05,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M18A",
+      "label": "粉红流纹的多层长廊",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 5400,
+      "tint": [
+        1,
+        0.94,
+        0.94
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.55,
+      "characterFill": 0.5,
+      "contrast": 0.58,
+      "bakedStrength": 0.68,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": true,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "bj1.tga"
+        },
+        {
+          "nodeIndex": 31,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane03",
+          "texture": "di.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M18Aa",
+      "label": "粉红流纹的多层长廊变体",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 5400,
+      "tint": [
+        1,
+        0.94,
+        0.94
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.55,
+      "characterFill": 0.5,
+      "contrast": 0.58,
+      "bakedStrength": 0.68,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": true,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "bj1.tga"
+        },
+        {
+          "nodeIndex": 31,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane03",
+          "texture": "di.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M18B",
+      "label": "红色坑纹与棕墙回廊",
+      "keyEuler": [
+        76,
+        -20,
+        0
+      ],
+      "temperature": 4200,
+      "tint": [
+        1,
+        0.93,
+        0.84
+      ],
+      "intensity": 0.73,
+      "shadowStrength": 0.5,
+      "characterFill": 0.46,
+      "contrast": 0.72,
+      "bakedStrength": 0.82,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M19A",
+      "label": "暗蓝天幕的石路庭院",
+      "keyEuler": [
+        65,
+        -30,
+        0
+      ],
+      "temperature": 8200,
+      "tint": [
+        0.9,
+        0.96,
+        1
+      ],
+      "intensity": 0.82,
+      "shadowStrength": 0.62,
+      "characterFill": 0.58,
+      "contrast": 0.55,
+      "bakedStrength": 0.76,
+      "contactStrength": 0.9,
+      "night": true,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 32,
+          "materialGroupIndex": 0,
+          "nodeName": "bi",
+          "texture": "beij.tga"
+        },
+        {
+          "nodeIndex": 34,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane03",
+          "texture": "beij2.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M19B",
+      "label": "壁灯土黄石室",
+      "keyEuler": [
+        78,
+        -20,
+        0
+      ],
+      "temperature": 3900,
+      "tint": [
+        1,
+        0.94,
+        0.84
+      ],
+      "intensity": 0.63,
+      "shadowStrength": 0.48,
+      "characterFill": 0.43,
+      "contrast": 0.72,
+      "bakedStrength": 0.88,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M19C",
+      "label": "黑岩熔裂平台",
+      "keyEuler": [
+        70,
+        -30,
+        0
+      ],
+      "temperature": 3700,
+      "tint": [
+        1,
+        0.91,
+        0.78
+      ],
+      "intensity": 0.76,
+      "shadowStrength": 0.5,
+      "characterFill": 0.48,
+      "contrast": 0.68,
+      "bakedStrength": 0.8,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 3,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "beij.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M19D",
+      "label": "深紫刻纹与熔岩沟石室",
+      "keyEuler": [
+        76,
+        -20,
+        0
+      ],
+      "temperature": 3800,
+      "tint": [
+        1,
+        0.91,
+        0.8
+      ],
+      "intensity": 0.68,
+      "shadowStrength": 0.5,
+      "characterFill": 0.46,
+      "contrast": 0.72,
+      "bakedStrength": 0.84,
+      "contactStrength": 1,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m19e",
+      "label": "红晶金边圆形石台",
+      "keyEuler": [
+        72,
+        -25,
+        0
+      ],
+      "temperature": 4300,
+      "tint": [
+        1,
+        0.94,
+        0.85
+      ],
+      "intensity": 0.76,
+      "shadowStrength": 0.55,
+      "characterFill": 0.48,
+      "contrast": 0.62,
+      "bakedStrength": 0.8,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "m19f",
+      "label": "红晶金边圆形石台变体",
+      "keyEuler": [
+        72,
+        -25,
+        0
+      ],
+      "temperature": 4300,
+      "tint": [
+        1,
+        0.94,
+        0.85
+      ],
+      "intensity": 0.75,
+      "shadowStrength": 0.55,
+      "characterFill": 0.48,
+      "contrast": 0.62,
+      "bakedStrength": 0.8,
+      "contactStrength": 0.9,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M20",
+      "label": "青蓝砖石室",
+      "keyEuler": [
+        78,
+        -20,
+        0
+      ],
+      "temperature": 4800,
+      "tint": [
+        1,
+        0.93,
+        0.84
+      ],
+      "intensity": 0.66,
+      "shadowStrength": 0.48,
+      "characterFill": 0.46,
+      "contrast": 0.74,
+      "bakedStrength": 0.88,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "M20a",
+      "label": "青蓝砖石室变体",
+      "keyEuler": [
+        78,
+        -20,
+        0
+      ],
+      "temperature": 4800,
+      "tint": [
+        1,
+        0.93,
+        0.84
+      ],
+      "intensity": 0.66,
+      "shadowStrength": 0.48,
+      "characterFill": 0.46,
+      "contrast": 0.74,
+      "bakedStrength": 0.88,
+      "contactStrength": 0.95,
+      "night": false,
+      "indoors": true
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "q01",
+      "label": "白墙红柱院落",
+      "keyEuler": [
+        65,
+        -35,
+        0
+      ],
+      "temperature": 6900,
+      "tint": [
+        0.97,
+        1,
+        1
+      ],
+      "intensity": 1.03,
+      "shadowStrength": 0.6,
+      "characterFill": 0.55,
+      "contrast": 0.42,
+      "bakedStrength": 0.56,
+      "contactStrength": 0.82,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Cone01",
+          "texture": "A.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "b.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "di.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "q02a",
+      "label": "云雾包围的浅石平台",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 7200,
+      "tint": [
+        0.96,
+        0.99,
+        1
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.58,
+      "characterFill": 0.52,
+      "contrast": 0.5,
+      "bakedStrength": 0.66,
+      "contactStrength": 0.82,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cylinder02",
+          "texture": "Q02a_05.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Cylinder02",
+          "texture": "q02a_03.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 2,
+          "nodeName": "Cylinder02",
+          "texture": "Q02a_02.tga"
+        },
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 3,
+          "nodeName": "Cylinder02",
+          "texture": "Q02a_04.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Object01",
+          "texture": "Q02a_05.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "q04",
+      "label": "紫蓝天幕的灰草庭院",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 8500,
+      "tint": [
+        0.87,
+        0.94,
+        1
+      ],
+      "intensity": 0.9,
+      "shadowStrength": 0.55,
+      "characterFill": 0.55,
+      "contrast": 0.42,
+      "bakedStrength": 0.68,
+      "contactStrength": 0.85,
+      "night": true,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Cone01",
+          "texture": "a.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "B.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "b04_sha1.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "q08",
+      "label": "黄沙木桩营地",
+      "keyEuler": [
+        65,
+        -30,
+        0
+      ],
+      "temperature": 5700,
+      "tint": [
+        1,
+        0.97,
+        0.88
+      ],
+      "intensity": 0.88,
+      "shadowStrength": 0.62,
+      "characterFill": 0.5,
+      "contrast": 0.55,
+      "bakedStrength": 0.72,
+      "contactStrength": 0.85,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 1,
+          "nodeName": "Cone01",
+          "texture": "A.tga"
+        },
+        {
+          "nodeIndex": 1,
+          "materialGroupIndex": 0,
+          "nodeName": "Sphere01",
+          "texture": "B.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Cone01",
+          "texture": "b08_sha1.tga"
+        }
+      ]
+    },
+    {
+      "variant": "PAL3A",
+      "scene": "q09",
+      "label": "竹林草地",
+      "keyEuler": [
+        68,
+        -30,
+        0
+      ],
+      "temperature": 7300,
+      "tint": [
+        0.93,
+        1,
+        0.96
+      ],
+      "intensity": 1.04,
+      "shadowStrength": 0.6,
+      "characterFill": 0.5,
+      "contrast": 0.36,
+      "bakedStrength": 0.48,
+      "contactStrength": 0.82,
+      "night": false,
+      "indoors": false,
+      "backgroundSurfaces": [
+        {
+          "nodeIndex": 0,
+          "materialGroupIndex": 0,
+          "nodeName": "Plane01",
+          "texture": "1.tga"
+        }
+      ],
+      "geometricNormalSurfaces": [
+        {
+          "nodeIndex": 40,
+          "materialGroupIndex": 0,
+          "nodeName": "kuang",
+          "texture": "4.tga"
+        },
+        {
+          "nodeIndex": 40,
+          "materialGroupIndex": 1,
+          "nodeName": "kuang",
+          "texture": "5.tga"
+        }
+      ]
+    }
+  ]
+}

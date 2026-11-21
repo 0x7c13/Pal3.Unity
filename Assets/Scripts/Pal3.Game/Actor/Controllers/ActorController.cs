@@ -178,7 +178,7 @@ namespace Pal3.Game.Actor.Controllers
                 ServiceLocator.Instance.Get<PlayerActorManager>()
                     .GetPlayerActorId() == actorController.GetActor().Id)
             {
-                Pal3.Instance.Execute(new CombatActorCollideWithPlayerActorNotification(
+                Pal3.Instance.Execute(new BattleActorCollideWithPlayerActorNotification(
                         _actor.Id, actorController.GetActor().Id));
             }
         }

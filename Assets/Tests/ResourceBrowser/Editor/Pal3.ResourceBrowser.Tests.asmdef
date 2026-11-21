@@ -1,6 +1,6 @@
 {
     "name": "Pal3.ResourceBrowser.Tests",
-    "references": ["Pal3.ResourceBrowser.Editor", "Pal3.Core", "Pal3.Game", "Engine"],
+    "references": ["Pal3.Editor.TestSupport", "Pal3.ResourceBrowser.Editor", "Pal3.Core", "Pal3.Game", "Engine"],
     "includePlatforms": ["Editor"],
     "optionalUnityReferences": ["TestAssemblies"],
     "autoReferenced": false,

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 //  Copyright (c) 2021-2026, Jiaqi (0x7c13) Liu. All rights reserved.
 //  See LICENSE file in the project root for license information.
 // ------------------------------------------------------------------------
@@ -26,9 +26,10 @@ namespace Pal3.Game.Rendering.Renderer
     /// <summary>
     /// MV3(.mv3) model renderer
     /// </summary>
-    public sealed class Mv3ModelRenderer : GameEntityScript, IDisposable
+    public sealed partial class Mv3ModelRenderer : GameEntityScript, IDisposable
     {
         public event EventHandler<int> AnimationLoopPointReached;
+
         public event EventHandler<string> AnimationEventTriggered;
 
         private const string MV3_ANIMATION_HOLD_EVENT_NAME = "hold";
@@ -48,8 +49,10 @@ namespace Pal3.Game.Rendering.Renderer
         private GameBoxMaterial[] _gbMaterials;
         private ITexture2D[] _textures;
         private bool[] _textureHasAlphaChannel;
-        private IMaterial[][] _materials;
+        private RenderModelOpacity[] _materials;
+        private float _opacity = 1f;
         private Vector3[][] _sourceNormals;
+        private Vector3 _nativeLightAnchor;
         private string[] _animationName;
         private uint[][] _frameTicks;
         private IGameEntity[] _meshEntities;
@@ -59,9 +62,15 @@ namespace Pal3.Game.Rendering.Renderer
         private Mv3TagNode[] _tagNodesInfo;
         private uint[][] _tagNodeFrameTicks;
         private IGameEntity[] _tagNodes;
+        private PolyModelRenderer[] _tagNodeRenderers;
 
         // State
-        public bool IsInitialized { get; private set; }
+        public bool IsInitialized
+        {
+            get; private set;
+        }
+
+        private bool _hasResources;
         private bool _isActionInHoldState;
         private uint _actionHoldingTick;
         private int _lastCheckedTick = -1; // Track the last checked tick
@@ -82,107 +91,130 @@ namespace Pal3.Game.Rendering.Renderer
             Color? tintColor = default,
             PolFile tagNodePolFile = default,
             ITextureResourceProvider tagNodeTextureProvider = default,
-            Color? tagNodeTintColor = default)
+            Color? tagNodeTintColor = default,
+            ITextureFactory textureFactory = null,
+            bool animateTagWater = true)
         {
             Dispose();
 
-            _materialManager = materialManager;
-            _textureProvider = textureProvider;
-            _tintColor = tintColor ?? Color.White;
-            _tagNodePolFile = tagNodePolFile;
-
-            _events = mv3File.AnimationEvents;
-            _totalGameBoxTicks = mv3File.TotalGameBoxTicks;
-            _meshes = mv3File.Meshes;
-            _meshCount = mv3File.Meshes.Length;
-            _tagNodesInfo = mv3File.TagNodes;
-
-            // Only allocate memory when needed, reuse memory when possible
-            if (_renderMeshComponents == null || _renderMeshComponents.Length != _meshCount)
+            _hasResources = true;
+            try
             {
-                _renderMeshComponents = new RenderMeshComponent[_meshCount];
-                _gbMaterials = new GameBoxMaterial[_meshCount];
-                _textures = new ITexture2D[_meshCount];
-                _textureHasAlphaChannel = new bool[_meshCount];
-                _materials = new IMaterial[_meshCount][];
-                _animationName = new string[_meshCount];
-                _frameTicks = new uint[_meshCount][];
-                _meshEntities = new IGameEntity[_meshCount];
-            }
+                _materialManager = materialManager;
+                _textureProvider = textureProvider;
+                _tintColor = tintColor ?? Color.White;
+                _tagNodePolFile = tagNodePolFile;
 
-            if (_materialManager.UsesToonRendering && (_sourceNormals == null || _sourceNormals.Length != _meshCount))
-            {
-                _sourceNormals = new Vector3[_meshCount][];
-            }
-
-            // Same for tag nodes
-            if (_tagNodesInfo.Length > 0)
-            {
-                if (_tagNodeFrameTicks == null || _tagNodeFrameTicks.Length != _tagNodesInfo.Length)
+                _events = mv3File.AnimationEvents;
+                _totalGameBoxTicks = mv3File.TotalGameBoxTicks;
+                _meshes = mv3File.Meshes;
+                _meshCount = mv3File.Meshes.Length;
+                var nativeBounds = new Bounds(_meshes[0].GameBoxBoundsMin.ToUnityPosition(), Vector3.zero);
+                foreach (Mv3Mesh mesh in _meshes)
                 {
-                    _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
+                    nativeBounds.Encapsulate(mesh.GameBoxBoundsMin.ToUnityPosition());
+                    nativeBounds.Encapsulate(mesh.GameBoxBoundsMax.ToUnityPosition());
+                }
+                _nativeLightAnchor = nativeBounds.center;
+                _tagNodesInfo = mv3File.TagNodes;
+
+                // Only allocate memory when needed, reuse memory when possible
+                if (_renderMeshComponents == null || _renderMeshComponents.Length != _meshCount)
+                {
+                    _renderMeshComponents = new RenderMeshComponent[_meshCount];
+                    _gbMaterials = new GameBoxMaterial[_meshCount];
+                    _textures = new ITexture2D[_meshCount];
+                    _textureHasAlphaChannel = new bool[_meshCount];
+                    _materials = new RenderModelOpacity[_meshCount];
+                    _animationName = new string[_meshCount];
+                    _frameTicks = new uint[_meshCount][];
+                    _meshEntities = new IGameEntity[_meshCount];
                 }
 
-                if (_tagNodes == null || _tagNodes.Length != _tagNodesInfo.Length)
+                if (_materialManager.UsesToonRendering && (_sourceNormals == null || _sourceNormals.Length != _meshCount))
                 {
-                    _tagNodes = new IGameEntity[_tagNodesInfo.Length];
-                }
-            }
-
-            for (int i = 0; i < _tagNodesInfo.Length; i++)
-            {
-                Mv3TagFrame[] tagFrames = _tagNodesInfo[i].TagFrames;
-                int tagFramesCount = tagFrames.Length;
-
-                if (_tagNodeFrameTicks[i] == null || _tagNodeFrameTicks[i].Length != tagFramesCount)
-                {
-                    _tagNodeFrameTicks[i] = new uint[tagFramesCount];
+                    _sourceNormals = new Vector3[_meshCount][];
                 }
 
-                for (int j = 0; j < tagFramesCount; j++)
+                // Same for tag nodes
+                if (_tagNodesInfo.Length > 0)
                 {
-                    _tagNodeFrameTicks[i][j] = tagFrames[j].GameBoxTick;
-                }
-            }
-
-            for (int i = 0; i < _meshCount; i++)
-            {
-                Mv3Mesh mesh = mv3File.Meshes[i];
-                int materialId = mesh.Attributes[0].MaterialId;
-                GameBoxMaterial material = mv3File.Materials[materialId];
-
-                InitSubMeshes(i, ref mesh, ref material);
-            }
-
-            if (_tagNodePolFile != null)
-            {
-                for (int i = 0; i < _tagNodesInfo.Length; i++)
-                {
-                    if (_tagNodesInfo[i].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase))
+                    if (_tagNodeFrameTicks == null || _tagNodeFrameTicks.Length != _tagNodesInfo.Length)
                     {
-                        _tagNodes[i] = null;
-                        continue;
+                        _tagNodeFrameTicks = new uint[_tagNodesInfo.Length][];
                     }
 
-                    _tagNodes[i] = GameEntityFactory.Create(_tagNodePolFile.NodeDescriptions[0].Name,
-                        GameEntity, worldPositionStays: true);
-
-                    PolyModelRenderer tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
-                    tagNodeRenderer.Render(_tagNodePolFile,
-                        tagNodeTextureProvider,
-                        _materialManager,
-                        isStaticObject: false,
-                        tagNodeTintColor);
-
-                    _tagNodes[i].Transform.SetLocalPositionAndRotation(
-                        mv3File.TagNodes[i].TagFrames[0].GameBoxPosition
-                            .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
-                        mv3File.TagNodes[i].TagFrames[0].GameBoxRotation
-                            .Mv3QuaternionToUnityQuaternion());
+                    if (_tagNodes == null || _tagNodes.Length != _tagNodesInfo.Length)
+                    {
+                        _tagNodes = new IGameEntity[_tagNodesInfo.Length];
+                        _tagNodeRenderers = new PolyModelRenderer[_tagNodesInfo.Length];
+                    }
                 }
-            }
 
-            IsInitialized = true;
+                for (int i = 0; i < _tagNodesInfo.Length; i++)
+                {
+                    Mv3TagFrame[] tagFrames = _tagNodesInfo[i].TagFrames;
+                    int tagFramesCount = tagFrames.Length;
+
+                    if (_tagNodeFrameTicks[i] == null || _tagNodeFrameTicks[i].Length != tagFramesCount)
+                    {
+                        _tagNodeFrameTicks[i] = new uint[tagFramesCount];
+                    }
+
+                    for (int j = 0; j < tagFramesCount; j++)
+                    {
+                        _tagNodeFrameTicks[i][j] = tagFrames[j].GameBoxTick;
+                    }
+                }
+
+                for (int i = 0; i < _meshCount; i++)
+                {
+                    Mv3Mesh mesh = mv3File.Meshes[i];
+                    int materialId = mesh.Attributes[0].MaterialId;
+                    GameBoxMaterial material = mv3File.Materials[materialId];
+
+                    InitSubMeshes(i, ref mesh, ref material);
+                }
+
+                if (_tagNodePolFile != null)
+                {
+                    for (int i = 0; i < _tagNodesInfo.Length; i++)
+                    {
+                        if (_tagNodesInfo[i].Name.Equals("tag_weapon3", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _tagNodes[i] = null;
+                            continue;
+                        }
+
+                        _tagNodes[i] = GameEntityFactory.Create(_tagNodePolFile.NodeDescriptions[0].Name,
+                            GameEntity, worldPositionStays: true);
+
+                        PolyModelRenderer tagNodeRenderer = _tagNodes[i].AddComponent<PolyModelRenderer>();
+                        _tagNodeRenderers[i] = tagNodeRenderer;
+                        tagNodeRenderer.SetOpacity(_opacity);
+                        tagNodeRenderer.Render(_tagNodePolFile,
+                            tagNodeTextureProvider,
+                            _materialManager,
+                            isStaticObject: false,
+                            tagNodeTintColor,
+                            textureFactory: textureFactory,
+                            animateWater: animateTagWater);
+
+                        _tagNodes[i].Transform.SetLocalPositionAndRotation(
+                            mv3File.TagNodes[i].TagFrames[0].GameBoxPosition
+                                .ToUnityPosition(UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit),
+                            mv3File.TagNodes[i].TagFrames[0].GameBoxRotation
+                                .Mv3QuaternionToUnityQuaternion());
+                    }
+                }
+
+                IsInitialized = true;
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         private void InitSubMeshes(int index,
@@ -213,17 +245,18 @@ namespace Pal3.Game.Rendering.Renderer
                 GameEntity, worldPositionStays: false);
 
             // Attach BlendFlag and GameBoxMaterial to the GameEntity for better debuggability
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             MaterialInfoPresenter materialInfoPresenter = _meshEntities[index].AddComponent<MaterialInfoPresenter>();
             materialInfoPresenter.blendFlag = _textureHasAlphaChannel[index] ?
                 GameBoxBlendFlag.AlphaBlend :
                 GameBoxBlendFlag.Opaque;
             materialInfoPresenter.material = _gbMaterials[index];
-            #endif
+#endif
 
             StaticMeshRenderer meshRenderer = _meshEntities[index].AddComponent<StaticMeshRenderer>();
 
-            _materials[index] = CreateMaterials(textureName, _textures[index], hasAlphaChannel);
+            _materials[index] = CreateMaterials(textureName, _textures[index], hasAlphaChannel, _gbMaterials[index]);
+            _materials[index].SetOpacity(_opacity);
 
             _renderMeshComponents[index] ??= new RenderMeshComponent();
             _renderMeshComponents[index].MeshDataBuffer ??= new MeshDataBuffer();
@@ -232,7 +265,7 @@ namespace Pal3.Game.Rendering.Renderer
             bool usesToon = _materialManager.UsesToonRendering;
             int vertexCount = mv3Mesh.KeyFrames[0].GameBoxVertices.Length;
             buffer.AllocateOrResizeBuffers(vertexBufferSize: vertexCount,
-                    normalBufferSize: usesToon ? vertexCount : 0,
+                    normalBufferSize: _materialManager.RequiresNormals ? vertexCount : 0,
                     uvBufferSize: mv3Mesh.Uvs.Length,
                     triangleBufferSize: mv3Mesh.GameBoxTriangles.Length);
 
@@ -250,15 +283,20 @@ namespace Pal3.Game.Rendering.Renderer
                 buffer.RebuildNormalsBySourceVertex(mv3Mesh.NormalIndices, _sourceNormals[index]);
             }
 
+            if (_materialManager.NativeLighting != null)
+                FillNativeNormals(mv3Mesh, buffer.NormalBuffer, 0, 0, 0);
+
             Mesh renderMesh = meshRenderer.Render(
                 vertices: buffer.VertexBuffer,
                 triangles: buffer.TriangleBuffer,
-                normals: usesToon ? buffer.NormalBuffer : null,
+                normals: _materialManager.RequiresNormals ? buffer.NormalBuffer : null,
                 mainTextureUvs: (channel: 0, uvs: buffer.UvBuffer),
                 secondaryTextureUvs: default, // MV3 models don't have secondary texture
-                materials: _materials[index],
+                materials: _materials[index].Materials,
                 isDynamic: true);
 
+            _materials[index].Bind(meshRenderer, apply: false, anchor: _nativeLightAnchor,
+                vertexUnits: UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit / 64f);
             _renderMeshComponents[index].Mesh = renderMesh;
             _renderMeshComponents[index].MeshRenderer = meshRenderer;
         }
@@ -276,55 +314,61 @@ namespace Pal3.Game.Rendering.Renderer
             StartCoroutine(PlayAnimationInternalAsync(loopCount, _animationCts.Token));
         }
 
-        private IMaterial[] CreateMaterials(string textureName, ITexture2D texture, bool hasAlphaChannel)
+        private RenderModelOpacity CreateMaterials(string textureName, ITexture2D texture, bool hasAlphaChannel, GameBoxMaterial sourceMaterial)
         {
-            IMaterial[] materials = _materialManager.CreateStandardMaterials(
-                RendererType.Mv3,
-                mainTexture: (textureName, texture),
-                bakedLightmap: default,
-                tintColor: _tintColor,
-                blendFlag: hasAlphaChannel ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque);
-            ApplyTextureScale(materials, textureName);
-            return materials;
+            return new RenderModelOpacity(_materialManager, RendererType.Mv3, (textureName, texture), default,
+                _tintColor, hasAlphaChannel ? GameBoxBlendFlag.AlphaBlend : GameBoxBlendFlag.Opaque,
+                configure: ApplyTextureScale, returnMaterials: ReturnMaterials, sourceMaterial: sourceMaterial);
+        }
+
+        public void SetOpacity(float opacity)
+        {
+            _opacity = RenderModelOpacity.Normalize(opacity);
+            if (!IsInitialized)
+                return;
+            foreach (RenderModelOpacity materials in _materials)
+                materials?.SetOpacity(_opacity);
+            if (_tagNodeRenderers != null)
+                foreach (PolyModelRenderer renderer in _tagNodeRenderers)
+                    renderer?.SetOpacity(_opacity);
         }
 
         private void ApplyTextureScale(IMaterial[] materials, string textureName)
         {
-            #if PAL3A
+#if PAL3A
             string texturePath = _textureProvider.GetTexturePath(textureName);
             float scaleY = Dev.TexturePatcher.TextureFileHasWrongTiling(texturePath) ? -1f : 1f;
             foreach (IMaterial material in materials)
             {
                 material.SetMainTextureScale(1f, scaleY);
             }
-            #endif
+#endif
         }
 
         public void ChangeTexture(string textureName)
         {
-            if (!IsInitialized || _meshCount == 0) return;
-            if (!textureName.Contains(".")) textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
+            if (!IsInitialized || _meshCount == 0)
+                return;
+            if (!textureName.Contains("."))
+                textureName += MV3_MODEL_DEFAULT_TEXTURE_EXTENSION;
 
             ITexture2D texture = _textureProvider.GetTexture(textureName, out bool hasAlphaChannel);
-            if (texture == null) return;
+            if (texture == null)
+                return;
 
             // ActorChangeTexture targets the first sub-mesh and all of its material passes.
-            IMaterial[] materials = _materials[0];
+            RenderModelOpacity materials = _materials[0];
             if (_textureHasAlphaChannel[0] != hasAlphaChannel)
             {
-                IMaterial[] replacement = CreateMaterials(textureName, texture, hasAlphaChannel);
-                _renderMeshComponents[0].MeshRenderer.SetMaterials(replacement);
+                RenderModelOpacity replacement = CreateMaterials(textureName, texture, hasAlphaChannel, _gbMaterials[0]);
+                replacement.SetOpacity(_opacity);
+                replacement.Bind(_renderMeshComponents[0].MeshRenderer, anchor: _nativeLightAnchor,
+                    vertexUnits: UnityPrimitivesConvertor.GameBoxMv3UnitToUnityUnit / 64f);
                 _materials[0] = replacement;
-                ReturnMaterials(materials);
+                materials.Dispose();
             }
             else
-            {
-                foreach (IMaterial material in materials)
-                {
-                    material.SetMainTexture(texture);
-                }
-                ApplyTextureScale(materials, textureName);
-            }
+                materials.ChangeTexture(textureName, texture);
 
             _textures[0] = texture;
             _textureHasAlphaChannel[0] = hasAlphaChannel;
@@ -332,19 +376,19 @@ namespace Pal3.Game.Rendering.Renderer
 
         private void ReturnMaterials(IMaterial[] materials)
         {
-            #if PAL3A
+#if PAL3A
             foreach (IMaterial material in materials)
             {
                 material.SetMainTextureScale(1f, 1f);
             }
-            #endif
+#endif
 
             _materialManager.ReturnToPool(materials);
         }
 
         public void PauseAnimation()
         {
-            if (_animationCts is {IsCancellationRequested: false})
+            if (_animationCts is { IsCancellationRequested: false })
             {
                 _animationCts.Cancel();
             }
@@ -390,7 +434,8 @@ namespace Pal3.Game.Rendering.Renderer
 
         private IEnumerator ResumeActionInternalAsync()
         {
-            if (!_isActionInHoldState) yield break;
+            if (!_isActionInHoldState)
+                yield break;
             _animationCts = new CancellationTokenSource();
             CancellationToken cancellationToken = _animationCts.Token;
             yield return PlayOneTimeAnimationInternalAsync(_actionHoldingTick,
@@ -489,7 +534,7 @@ namespace Pal3.Game.Rendering.Renderer
                     break;
                 }
             }
-            
+
             _lastCheckedTick = (int)currentTick;
         }
 
@@ -508,7 +553,7 @@ namespace Pal3.Game.Rendering.Renderer
 
                 // Trigger animation events
                 CheckForAnimationEvents(tick);
-                
+
                 if (tick >= endTick)
                 {
                     yield break;
@@ -520,7 +565,8 @@ namespace Pal3.Game.Rendering.Renderer
                     continue;
                 }
 
-                if (cancellationToken.IsCancellationRequested) yield break;
+                if (cancellationToken.IsCancellationRequested)
+                    yield break;
 
                 SampleGeometry(tick, endTick);
 
@@ -537,6 +583,20 @@ namespace Pal3.Game.Rendering.Renderer
                 throw new ArgumentOutOfRangeException(nameof(seconds));
             uint tick = Mathf.Clamp(seconds, 0, (float)_totalGameBoxTicks / UnityPrimitivesConvertor.GameBoxTicksPerSecond).SecondsToGameBoxTick();
             SampleGeometry(tick, _totalGameBoxTicks);
+        }
+
+        private static void FillNativeNormals(Mv3Mesh mesh, Vector3[] destination, int current, int next, float influence)
+        {
+            ushort[] first = mesh.KeyFrames[current].NativeNormals;
+            ushort[] second = mesh.KeyFrames[next].NativeNormals;
+            if (first == null || second == null || first.Length != destination.Length || second.Length != destination.Length)
+                throw new InvalidOperationException("The MV3 has no original per-keyframe normals.");
+            for (int vertex = 0; vertex < destination.Length; vertex++)
+            {
+                Vector3 a = Mv3NativeNormals.Decode(first[vertex]).ToUnityNormal();
+                Vector3 b = Mv3NativeNormals.Decode(second[vertex]).ToUnityNormal();
+                destination[vertex] = a * (1 - influence) + b * influence;
+            }
         }
 
         private void SampleGeometry(uint tick, uint endTick)
@@ -570,6 +630,11 @@ namespace Pal3.Game.Rendering.Renderer
                 if (_materialManager.UsesToonRendering)
                 {
                     meshComponent.MeshDataBuffer.RebuildNormalsBySourceVertex(_meshes[i].NormalIndices, _sourceNormals[i]);
+                    meshComponent.Mesh.SetNormals(meshComponent.MeshDataBuffer.NormalBuffer);
+                }
+                else if (_materialManager.NativeLighting != null)
+                {
+                    FillNativeNormals(_meshes[i], meshComponent.MeshDataBuffer.NormalBuffer, currentFrameIndex, nextFrameIndex, influence);
                     meshComponent.Mesh.SetNormals(meshComponent.MeshDataBuffer.NormalBuffer);
                 }
                 meshComponent.Mesh.RecalculateBounds();
@@ -607,11 +672,13 @@ namespace Pal3.Game.Rendering.Renderer
 
         public bool IsVisibleToCamera()
         {
-            if (!IsInitialized) return false;
+            if (!IsInitialized)
+                return false;
 
             foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
             {
-                if (renderMeshComponent.MeshRenderer.IsVisible) return true;
+                if (renderMeshComponent.MeshRenderer.IsVisible)
+                    return true;
             }
 
             return false;
@@ -619,28 +686,37 @@ namespace Pal3.Game.Rendering.Renderer
 
         public void Dispose()
         {
-            if (!IsInitialized) return;
+            if (!_hasResources)
+                return;
 
+            _hasResources = false;
+            DisposeWeaponPresentation();
+            _selectionBlocks.Clear();
             IsInitialized = false;
 
             PauseAnimation();
+
+            _animationCts?.Dispose();
+            _animationCts = null;
 
             if (_renderMeshComponents != null)
             {
                 foreach (RenderMeshComponent renderMeshComponent in _renderMeshComponents)
                 {
-                    if (renderMeshComponent?.MeshRenderer == null) continue;
+                    if (renderMeshComponent?.MeshRenderer == null)
+                        continue;
                     renderMeshComponent.MeshRenderer.Dispose();
                     renderMeshComponent.MeshRenderer.Destroy();
                 }
             }
 
-            for (int i = 0; i < _materials.Length; i++)
+            for (int i = 0; i < (_materials?.Length ?? 0); i++)
             {
-                IMaterial[] materials = _materials[i];
-                if (materials == null) continue;
+                RenderModelOpacity materials = _materials[i];
+                if (materials == null)
+                    continue;
 
-                ReturnMaterials(materials);
+                materials.Dispose();
                 _materials[i] = null;
             }
 
@@ -652,12 +728,20 @@ namespace Pal3.Game.Rendering.Renderer
                 }
             }
 
+            if (_tagNodeRenderers != null)
+            {
+                foreach (PolyModelRenderer renderer in _tagNodeRenderers)
+                    renderer?.Dispose();
+                Array.Clear(_tagNodeRenderers, 0, _tagNodeRenderers.Length);
+            }
+
             if (_tagNodes != null)
             {
                 foreach (IGameEntity tagNode in _tagNodes)
                 {
                     tagNode?.Destroy(); // tagNode can be null
                 }
+                Array.Clear(_tagNodes, 0, _tagNodes.Length);
             }
 
             _isActionInHoldState = false;

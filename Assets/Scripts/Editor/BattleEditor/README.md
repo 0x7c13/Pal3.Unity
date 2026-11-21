@@ -1,0 +1,33 @@
+# Battle Editor composition
+
+This Editor-only assembly adapts original PAL3/PAL3A data and Unity views to the engine-independent battle core.
+
+| Directory | Responsibility |
+| --- | --- |
+| `Authoring` | EditorWindow, presets/canonical JSON, Undo and typed draft editing. Missing required fields are repaired explicitly; drawing does not silently normalize imported data. |
+| `Data` | Read-only resource/database access, immutable definition compilation, random example generation and scene music selection. |
+| `Catalog` | Original animation, ability, body/audio and stage metadata adapters. |
+| `Session` | Owns the captured setup, battle session and replaceable preview; failed replacement preserves the previous session. |
+| `Preview` | Owns Unity geometry, native lighting, camera, effects, shadows, trails, result bodies and projectiles. All allocations share one failure-cleanup boundary. |
+| `Media` | Independent audio/movie ownership and transport; normal-speed playback, pause, silent stepping and disposal. |
+| `Hud` | One original HUD layout and hit geometry. Rendering registers controls; pointer/key input enters the semantic Presenter before it can submit commands. |
+
+`BattleEditorWorkbench` presents one canvas and one optional drawer. The primary action follows connection, validation, running, paused and terminal states. Draft edits, Undo/Redo and discard pause transport; pending draft changes also block commands against the old snapshot until the user applies and restarts. File operations retain draft protection and asset ownership. Actual connection details come from the loaded data, independently of pending path inputs. The canvas extends to the bottom inset without a workflow footer; failed operations expose their diagnostic log from the transport row.
+
+Continuous background music follows its own audio transport between explicit start, pause/resume and inspection boundaries. Routine battle-state publications never correct a running music voice back to the logical clock; movement/movie timing still follows its presentation markers.
+
+The live battle, captured initial setup and mutable authoring draft have separate ownership. Native lights are borrowed by original model effects and updated after their render-pose sampling; the preview owns their lifetime. A failed preview constructor disposes partial owners before it escapes.
+
+Random examples and newly added player allies use `BattleTestLoadoutBuilder`: all personal techniques and magic permitted by the original character data start mastered at level 4, including story-gated skills. Resource costs, equipment, transformation and special command requirements still apply. The original participant factory and imported presets retain their captured skill state.
+
+Floating numbers project immutable stage activations through the current camera using the original `unicode20.tft` glyphs. Rendering owns its texture cache and consumes no battle randomness. Result prompts use the fitted original UI canvas; the exit fade covers the entire rendered viewport.
+
+`BattleData` caches immutable animation timing, markers and source collision bounds by full canonical resource path. The first read parses the MV3 without calculating lighting normals. Subsequent catalogs reuse the compact metadata. Only previews using original lighting request per-frame normals. Each data owner has a separate cache and clears it on disposal, including when changing games or resource roots.
+
+Mouse and keyboard use IMGUI; the focused Editor window also receives Input System gamepad events outside Play Mode. The device adapter, ordered input policy, window context router and engine-independent Presenter have separate responsibilities. State and partial delta events preserve their original order; held navigation repeats after 350 ms at 100 ms intervals. Losing focus, pointer takeover, device reset and page/controller changes suppress stale holds without replaying buttons or consuming the complete native input event.
+
+The original command ring supports eight directions through D-pad/left stick or keyboard arrows/WASD with Q/E/Z/C diagonals. A/cross or Enter/Space confirms; B/circle, Esc or right-click returns; X selects the center attack command; Y repeats the previous action. LB/RB change list categories or AI roles, and cycle the command ring's complete focus list, including the magic sword, transformation and five-spirit wheel when available. Start controls an already configured test's start/pause/resume/restart without opening file dialogs or applying pending authoring changes. Formation uses actor selection followed by a destination slot; cancelling first leaves the destination stage, then ends formation. Result and skippable cinematic input routes through the session before normal HUD input.
+
+Target selection, protection and AI actor selection use the world models, without a temporary target roster, rings or name labels. Mouse hover previews the legal affected group and a click applies. One complete tap confirms an eligible command target. Tapping an ineligible target or the background returns to the previous menu. Protection and AI actor selection use a first tap to preview and a second tap on the same actor to confirm. Cancelled contacts, drags, missing releases and secondary contacts cannot submit an action. OBB ray hits and pointer height share the current action's original collision bounds; directional selection uses the camera's projected positions. Original CVD head pointers and the body's original RGB pulse show the selected group. The selection shader preserves alpha and native-light property blocks, excludes tag-node weapons, and works in native and Toon render modes. A separate presentation clock animates selection during editor pause without advancing battle time or randomness.
+
+Skill, magic and item lists return one level on Esc, right-click or an outside click/tap, without an extra Back button. Pointer gestures retain ownership until release so dismissal does not click through into the camera or the next page. Native menu labels retain readable colors in every IMGUI state, while disabled entries expose localized reasons instead of internal resource identifiers. Simulated-device and pointer API tests are not physical hardware acceptance. Kernel tests live in `Assets/Tests/Battle/Editor`; engine-independent presentation tests live in `Assets/Tests/Battle/Presentation/Editor`. Authoring, HUD and resource integration fixtures remain under `Assets/Tests/BattleEditor/Editor/{Authoring,Hud,Integration}`. Each layer has its own test assembly; existing test namespaces remain stable for saved filters.

@@ -10,6 +10,7 @@ namespace Pal3.Game.Settings
     using Command.Extensions;
     using Core.Command;
     using Core.Utilities;
+    using Engine.Utilities;
     using UnityEngine;
     using UnityEngine.Rendering.Universal;
 
@@ -43,8 +44,7 @@ namespace Pal3.Game.Settings
 
         private void ApplyCurrentSettings(GameSettings settings)
         {
-            QualitySettings.vSyncCount = settings.VSyncCount;
-            Application.targetFrameRate = settings.TargetFrameRate;
+            ApplyFrameRateLimit();
             ApplyResolutionScale(settings.ResolutionScale);
         }
 
@@ -67,6 +67,7 @@ namespace Pal3.Game.Settings
 
         public void Update(float deltaTime)
         {
+            ApplyFrameRateLimit();
             // This could happen on Android foldable devices
             if (_mainDisplayWidth != Display.main.systemWidth ||
                 _mainDisplayHeight != Display.main.systemHeight)
@@ -75,6 +76,18 @@ namespace Pal3.Game.Settings
                 _mainDisplayHeight = Display.main.systemHeight;
                 OnResolutionChanged();
             }
+        }
+
+        private void ApplyFrameRateLimit()
+        {
+            double refresh = DisplayFrameRate.RefreshRate;
+            int requested = _gameSettings.TargetFrameRate;
+            int vSync = DisplayFrameRate.VSyncForLimit(_gameSettings.VSyncCount, requested, refresh);
+            if (QualitySettings.vSyncCount != vSync)
+                QualitySettings.vSyncCount = vSync;
+            int limit = DisplayFrameRate.Limit(requested, refresh);
+            if (Application.targetFrameRate != limit)
+                Application.targetFrameRate = limit;
         }
 
         private void OnResolutionChanged()
@@ -98,17 +111,13 @@ namespace Pal3.Game.Settings
             {
                 ApplyShadowAtlasBudget();
             }
-            else if (command.SettingName == nameof(_gameSettings.VSyncCount))
-            {
-                QualitySettings.vSyncCount = _gameSettings.VSyncCount;
-            }
             else if (command.SettingName == nameof(_gameSettings.AntiAliasing))
             {
                 _antiAliasing.Apply(_gameSettings.AntiAliasing);
             }
-            else if (command.SettingName == nameof(_gameSettings.TargetFrameRate))
+            else if (command.SettingName is nameof(_gameSettings.TargetFrameRate) or nameof(_gameSettings.VSyncCount))
             {
-                Application.targetFrameRate = _gameSettings.TargetFrameRate;
+                ApplyFrameRateLimit();
             }
             else if (command.SettingName == nameof(_gameSettings.ResolutionScale))
             {

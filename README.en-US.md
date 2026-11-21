@@ -57,6 +57,24 @@ Open the project with the Unity version specified in [ProjectVersion.txt](Projec
     ```
     To extract the original videos, open `Resource Browser`, index the original installation directory, search `ext:bik`, and choose `Original → Export filtered…`. Archive entries larger than 64 MiB require individual confirmation with `Export original…`. The archive directory structure is preserved.
 
+## Battle Editor
+
+Open `PAL3 / PAL3A → Battle Editor` to test battles in an independent editor
+window, without entering Play Mode or loading the story. Select the game data
+directory in the canvas, then choose `创建随机战斗` (create a random battle) and
+`开始测试` (start test). Playback starts immediately; the toolbar provides pause,
+resume and restart controls. Use `Switch Variant` to change games.
+
+Configure the battlefield, party, enemies, formations, equipment, skills, statuses
+and battle inventory. Save presets as `BattleScenarioAsset` assets; editable drafts
+remain separate from running snapshots. Both games support original battle rules
+and presentation, manual or AI control, settlement, stepping, input replay and JSON
+reports. Results do not update story progress or the regular inventory.
+
+The [battle core](Assets/Scripts/Pal3.Battle/README.md) documents the C# rules
+and presenter. The [editor composition guide](Assets/Scripts/Editor/BattleEditor/README.md)
+covers the Unity adapter and resource ownership.
+
 ## Editor resource browser
 
 Open the dockable window through `PAL3 / PAL3A → Resource Browser`. Choose the data directory containing `basedata/`, select GBK (936) or Big5 (950), and click `Index / Reload`. Use `Switch Variant` to change games.
@@ -84,13 +102,13 @@ The version switching is implemented through [Custom scripting symbols](https://
 ![PAL3 卡通渲染+光追](Screenshots/PAL3_ToonShading_RayTracing.png?raw=true)
 
 ## About VFX and Toon Rendering
-Both games default to the original visual style in URP, preserving the original textures, baked lighting, and transparency. Choose **Toon with real-time lighting** under the visual style option in game settings and restart to apply it. Both styles use shaders from this repository and load game data from the player’s local installation.
+Both games default to **Toon with real-time lighting** on first launch. To switch to the original visual style in URP, change the visual style in game settings and restart. Both styles use shaders from this repository and load game data from the player’s local installation.
 
 The visual effects settings provide independent switches for contact shadows, character lighting, enhanced night fire lighting, and fire shadows. Contact shadows and fire shadows default to enabled on desktop devices. Enhanced fire lighting combines warm lights with a cool ambient tone. Fire shadows also work in dark maze scenes. Desktop defaults to four shadowed fires. Set `Settings.ToonFireShadowBudget` to 0–4 in the debug console. The shadow atlas grows with the budget. Bloom has a separate switch and defaults to enabled only for the original style on desktop.
 
 The screenshots above show the previous toon renderer. Supported story and scene effects in both games use the original data: effect groups, tasks, particles, textures, and models loaded from local CPK archives, rendered with this project's URP shaders and Unity components. Open `PAL3 / PAL3A → Effect Editor` in Unity to select a game, play effects, inspect objects, and edit group tasks and legacy particle curves. Save overrides to `Assets/Resources/Effects/PAL3Overrides.asset` or `PAL3AOverrides.asset` for use in the game. The resource browser links effect resources to Effect Editor. Group ID `-1` supports transport points in both games.
 
-The current inventory covers all 56 PAL3 and 93 PAL3A story and scene root groups using original data. Transport points reproduce the original disc, two light cones, and colors selected by scene parameters. SPar keyframes, paths, six controller slots, and material blending are implemented independently; raw SPar fields are read-only in the editor. Unsupported types such as battle directors produce diagnostics and will be added alongside their related systems.
+The current inventory covers all 56 PAL3 and 93 PAL3A story and scene root groups using original data. Transport points reproduce the original disc, two light cones, and colors selected by scene parameters. SPar keyframes, paths, six controller slots, and material blending are implemented independently; raw SPar fields are read-only in the editor. Battle-specific types receive context from the independent battle session; missing resources and unsupported inputs produce diagnostics.
 
 All implementation code, shaders, and build resources are included in this repository. The game reads the player's local original game data at runtime; that data is not distributed with this project.
 
@@ -100,9 +118,35 @@ All implementation code, shaders, and build resources are included in this repos
   - Touchscreen: Only enabled on handheld devices with a touch screen, virtual joystick for movement, interaction button for interaction.
 
 ## Project State and Roadmap
-The story parts of The Legend of Sword and Fairy 3 and The Legend of Sword and Fairy 3 Gaiden: Wenqing Pian are complete. Both games can be played entirely from start to finish to experience the story, and the story selection menu provided in the game can be used to jump to different story points in the game. Most of the switches and puzzles in the mazes in both games have also been implemented, but combat, mini-games, and various systems and features related to supporting the combat system have not been implemented or realized. In addition, the main menu and most of the UI/UX need to be redesigned and implemented as well.
+The stories of both games are complete and can be played from start to finish;
+the story selection menu also provides shortcuts to preset story points. Most
+maze puzzles and story effects have been implemented. The independent Battle
+Editor provides battle configuration, execution, original rules and presentation,
+and replay testing for both games. Story-triggered battles, the regular inventory,
+full equipment management and progress/save writeback still need integration.
+Further work on mini-games, the main menu, other interfaces and mobile adaptation
+is planned separately.
 
 ## How to Contribute?
+After changing owned C# sources, use the .NET SDK pinned in `global.json` and run
+these commands from the project root:
+
+```sh
+dotnet run --project tools/CodeStyle --
+dotnet run --project tools/CodeStyle -- --check
+```
+
+The formatter is a .NET tool and needs no Python, Unity installation or game data.
+It uses Roslyn, `.editorconfig` and pinned StyleCop layout rules for whitespace,
+separate statements and blank lines between members. It checks both PAL3 and
+PAL3A conditional branches. By default, it formats changed lines and deletion
+boundaries, preserving existing formatting elsewhere; explicit paths or `--all`
+check whole files. The `Code style` workflow runs `dotnet test tools/CodeStyle.Tests`
+and the same formatting check for pull requests. See the
+[tool README](tools/CodeStyle/README.md) for commands and scope. Run the relevant
+Unity tests after formatting; ShaderLab/HLSL still needs manual formatting and
+rendering validation.
+
 Since the project is still in the early stages, many systems have not yet been implemented, thus I am temporarily not accepting large Pull Requests, especially feature ones. If you have good ideas, suggestions, or have discovered bugs, please feel free to submit an issue.
 
 ## Why make this [TL;DR]

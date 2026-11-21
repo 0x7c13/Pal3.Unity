@@ -31,6 +31,15 @@ namespace Pal3.Core.Contract.Enums
     }
 
     [System.Serializable]
+    public enum ComboTargetRangeType
+    {
+        PreserveSingleTarget = 0,
+        OwnAll = 1,
+        OpponentSingle = 2,
+        OpponentAll = 3,
+    }
+
+    [System.Serializable]
     public enum TargetRangeType
     {
         None = 0,
@@ -124,7 +133,7 @@ namespace Pal3.Core.Contract.Enums
     [System.Serializable]
     public enum SkillType
     {
-        StandardMagic = 0,    // 标准技能
+        Technique = 0,        // 特技（原版 type 0；不是仙术）
         AssistMagic,          // 辅助技能
         DamageMagic,          // 伤害法术
         RecoverMagic,         // 恢复法术

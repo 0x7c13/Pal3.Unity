@@ -107,7 +107,7 @@ namespace Pal3.Core.Primitives
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
-            float dz = a.Z - b.X;
+            float dz = a.Z - b.Z;
 
             return
                 (double) dx * (double) dx +
@@ -129,7 +129,7 @@ namespace Pal3.Core.Primitives
         {
             float dx = X - other.X;
             float dy = Y - other.Y;
-            float dz = Z - other.X;
+            float dz = Z - other.Z;
 
             return
                 (double) dx * (double) dx +

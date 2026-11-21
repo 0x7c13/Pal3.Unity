@@ -10,6 +10,8 @@ struct ToonDepthVaryings
     float4 positionCS : SV_POSITION;
     #if defined(PAL3_TOON_CUTOUT)
         float2 uv : TEXCOORD0;
+        float2 lightmapUV : TEXCOORD2;
+        float4 paintedVertexColor : TEXCOORD3;
     #endif
     #if defined(PAL3_TOON_DEPTH_NORMALS)
         half3 normalWS : TEXCOORD1;
@@ -28,6 +30,8 @@ ToonDepthVaryings ToonDepthVertex(ToonAttributes input)
     #endif
     #if defined(PAL3_TOON_CUTOUT)
         output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+        output.lightmapUV = TRANSFORM_TEX(input.lightmapUV, _ShadowTex);
+        output.paintedVertexColor = ToonPaintedVertexColor(input.color);
     #endif
     return output;
 }
@@ -39,7 +43,14 @@ half ToonDepthFragment(ToonDepthVaryings input) : SV_Target
 #endif
 {
     #if defined(PAL3_TOON_CUTOUT)
-        clip(SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).a - _Threshold);
+        half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+        half alpha = color.a;
+        if (_UnlitBackground > 0.5)
+        {
+            half4 lightmap = _HasShadowTex > 0.5 ? SAMPLE_TEXTURE2D(_ShadowTex, sampler_ShadowTex, input.lightmapUV) : 1.0;
+            alpha = ToonPaintedTextureStages(color, lightmap, input.paintedVertexColor).a;
+        }
+        clip(alpha - _Threshold);
     #endif
     #if defined(PAL3_TOON_DEPTH_NORMALS)
         float3 normalWS = SafeNormalize(input.normalWS);

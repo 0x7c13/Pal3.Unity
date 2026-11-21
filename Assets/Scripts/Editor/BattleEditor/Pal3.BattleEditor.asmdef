@@ -1,0 +1,15 @@
+{
+    "name": "Pal3.BattleEditor",
+    "references": [
+        "Pal3.Battle",
+        "Pal3.Core",
+        "Pal3.Game",
+        "Engine",
+        "Pal3.ResourceBrowser.Editor",
+        "Pal3.Battle.Presentation",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}
